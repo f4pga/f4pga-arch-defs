@@ -376,7 +376,7 @@ function(ADD_THIRDPARTY_PACKAGE)
       message(FATAL_ERROR "BUILD_INSTALL_COMMAND not supplied for thirdparty package ${NAME}")
     endif()
 
-    separate_arguments(INSTALL_COMMAND UNIX_COMMAND ${ADD_THIRDPARTY_PACKAGE_BUILD_INSTALL_COMMAND})
+    set(INSTALL_COMMAND ${ADD_THIRDPARTY_PACKAGE_BUILD_INSTALL_COMMAND})
 
     set(OUTPUTS "")
     set(TOUCH_COMMANDS "")
@@ -395,11 +395,15 @@ function(ADD_THIRDPARTY_PACKAGE)
       endforeach()
     endif()
 
+    get_target_property_required(PIP env PIP)
+
     add_custom_command(
       OUTPUT ${OUTPUTS}
-      COMMAND ${INSTALL_COMMAND}
+      COMMAND ${CMAKE_COMMAND} -E echo "Taking ${PIP}.lock"
+      COMMAND flock ${PIP}.lock -c "${INSTALL_COMMAND}"
       ${TOUCH_COMMANDS}
       DEPENDS ${ADD_THIRDPARTY_PACKAGE_DEPENDS}
+      VERBATIM
       )
 
     add_custom_target(${NAME} DEPENDS ${OUTPUTS})
