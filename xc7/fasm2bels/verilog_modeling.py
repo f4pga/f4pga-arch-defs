@@ -611,37 +611,37 @@ class Site(object):
         if features:
             aparts = features[0].feature.split('.')
 
-        for f in features:
-            if f.value == 0:
-                continue
+            for f in features:
+                if f.value == 0:
+                    continue
 
-            if merged_site:
-                parts = f.feature.split('.')
-                assert parts[0] == aparts[0]
-                #self.set_features.add('.'.join(parts[1:]))
-                self.set_features.add(
-                    fasm.SetFasmFeature(
-                        feature='.'.join(parts[1:]),
-                        start=f.start,
-                        end=f.end,
-                        value=f.value,
-                        value_format=f.value_format,
+                if merged_site:
+                    parts = f.feature.split('.')
+                    assert parts[0] == aparts[0]
+                    #self.set_features.add('.'.join(parts[1:]))
+                    self.set_features.add(
+                        fasm.SetFasmFeature(
+                            feature='.'.join(parts[1:]),
+                            start=f.start,
+                            end=f.end,
+                            value=f.value,
+                            value_format=f.value_format,
+                        )
                     )
-                )
-            else:
-                parts = f.feature.split('.')
-                assert parts[0] == aparts[0]
-                assert parts[1] == aparts[1]
-                #self.set_features.add('.'.join(parts[2:]))
-                self.set_features.add(
-                    fasm.SetFasmFeature(
-                        feature='.'.join(parts[2:]),
-                        start=f.start,
-                        end=f.end,
-                        value=f.value,
-                        value_format=f.value_format,
+                else:
+                    parts = f.feature.split('.')
+                    assert parts[0] == aparts[0]
+                    assert parts[1] == aparts[1]
+                    #self.set_features.add('.'.join(parts[2:]))
+                    self.set_features.add(
+                        fasm.SetFasmFeature(
+                            feature='.'.join(parts[2:]),
+                            start=f.start,
+                            end=f.end,
+                            value=f.value,
+                            value_format=f.value_format,
+                        )
                     )
-                )
 
         # Features as strings
         self.features = set([f.feature for f in self.set_features])
@@ -1689,6 +1689,10 @@ set_property FIXED_ROUTE $route $net"""
         """ Return all source wire names from a site wire sink. """
         wire_pkey = site.site_wire_to_wire_pkey[site_wire]
         sink_wire = self.wire_pkey_to_wire[wire_pkey]
+
+        if sink_wire not in self.wire_assigns:
+            return []
+
         return self.wire_assigns[sink_wire]
 
     def find_source_from_sink(self, site, site_wire):

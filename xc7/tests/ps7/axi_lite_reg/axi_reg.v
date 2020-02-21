@@ -43,12 +43,15 @@ module top(
 	wire MAXIGP0ACLK;
 	wire [19:0] irqf2p;
 
+    wire clk;
+    BUFG bufg (.I(fclk[0]), .O(clk));
+
 	assign reset = ~fresetn[0];
 	assign irqf2p = {{19{1'b0}}, testirq_f2p};
 
 	reg [31:0] counter;
 
-	always @(posedge fclk[0])
+	always @(posedge clk)
 	if(reset) begin
 		counter <= 32'h00000000;
 	end else begin
@@ -454,7 +457,7 @@ module top(
 	.FTMTF2PTRIG			(),
 	.FTMTP2FTRIGACK			(),
 	.IRQF2P				(irqf2p),
-	.MAXIGP0ACLK			(fclk[0]),
+	.MAXIGP0ACLK			(clk),
 	.MAXIGP0ARREADY			(MAXIGP0ARREADY	),
 	.MAXIGP0AWREADY			(MAXIGP0AWREADY	),
 	.MAXIGP0BID			(MAXIGP0BID),
@@ -687,7 +690,7 @@ module top(
 	);
 
 AxiPeriph testSlave (
-	.clock(fclk[0]),
+	.clock(clk),
 	.reset(reset),
 	.io_axi_s0_aw_awaddr(MAXIGP0AWADDR),
 	.io_axi_s0_aw_awprot(MAXIGP0AWPROT),
