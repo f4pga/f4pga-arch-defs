@@ -105,6 +105,16 @@ Tile = namedtuple("Tile", "type name cell_names")
 
 # =============================================================================
 
+class SwitchboxPinType(Enum):
+    """
+    Switchbox pin types.
+    """
+    UNSPEC  = 0
+    LOCAL   = 1
+    HOP     = 2
+    GCLK    = 3
+    CONST   = 4
+
 """
 A location that identifies a pin inside a switchbox.
 
@@ -125,9 +135,9 @@ name        - Pin name
 direction   - Pin direction.
 locs        - A list of SwitchboxPinLoc objects representing connections to
               switches within the switchbox.
-is_locsl    - True when the pin connects to the tile.
+type        - The pin type as according to SwitchboxPinType
 """
-SwitchboxPin = namedtuple("SwitchboxPin", "id name direction locs is_local")
+SwitchboxPin = namedtuple("SwitchboxPin", "id name direction locs type")
 
 """
 A switch pin within a switchbox

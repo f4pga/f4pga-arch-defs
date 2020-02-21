@@ -3,6 +3,7 @@
 Functions related to parsing and processing of data stored in a QuickLogic
 TechFile.
 """
+from copy import deepcopy
 import itertools
 import argparse
 from collections import defaultdict
@@ -13,6 +14,7 @@ import lxml.etree as ET
 
 from data_structs import *
 from connections import build_connections, check_connections
+from connections import parse_hop_wire_name
 
 # =============================================================================
 
@@ -327,14 +329,97 @@ def populate_switchboxes(xml_sbox, switchbox_grid):
 # =============================================================================
 
 
+def update_switchbox_pins(switchbox):
+    """
+    Identifies top-level inputs and outputs of the switchbox and updates lists
+    of them.
+    """
+    switchbox.inputs  = {}
+    switchbox.outputs = {}
+
+    # Top-level inputs and their locations. Indexed by pin names.
+    input_locs = defaultdict(lambda: [])
+
+    for stage_id, stage in switchbox.stages.items():
+        for switch_id, switch in stage.switches.items():
+            for mux_id, mux in switch.muxes.items():
+
+                # Add the mux output pin as top level output if necessary
+                if mux.output.name is not None:
+
+                    loc = SwitchboxPinLoc(
+                        stage_id  = stage.id,
+                        switch_id = switch.id,
+                        mux_id    = mux.id,
+                        pin_id    = 0,
+                        pin_direction = PinDirection.OUTPUT
+                    )
+
+                    if stage.type == "STREET":
+                        pin_type = SwitchboxPinType.LOCAL
+                    else:
+                        pin_type = SwitchboxPinType.HOP
+
+                    pin = SwitchboxPin(
+                        id        = len(switchbox.outputs),
+                        name      = mux.output.name,
+                        direction = PinDirection.OUTPUT,
+                        locs      = [loc],
+                        type      = pin_type
+                    )
+
+                    assert pin.name not in switchbox.outputs, pin
+                    switchbox.outputs[pin.name] = pin
+
+                # Add the mux input pins as top level inputs if necessary
+                for pin in mux.inputs.values():
+                    if pin.name is not None:
+
+                        loc = SwitchboxPinLoc(
+                            stage_id  = stage.id,
+                            switch_id = switch.id,
+                            mux_id    = mux.id,
+                            pin_id    = pin.id,
+                            pin_direction = PinDirection.INPUT
+                        )
+
+                        input_locs[pin.name].append(loc)
+
+    # Add top-level input pins to the switchbox.
+    keys = sorted(input_locs.keys(), key=lambda k: k[0])
+    for name, locs in {k: input_locs[k] for k in keys}.items():
+
+        # Determine the pin type
+        hop_name, _ = parse_hop_wire_name(name)
+
+        if name in ["VCC", "GND"]:
+            pin_type = SwitchboxPinType.CONST
+        elif name.startswith("CAND"):
+            pin_type = SwitchboxPinType.GCLK
+        elif hop_name is not None:
+            pin_type = SwitchboxPinType.HOP
+        else:
+            pin_type = SwitchboxPinType.LOCAL
+
+        pin = SwitchboxPin(
+            id          = len(switchbox.inputs),
+            name        = name,
+            direction   = PinDirection.INPUT,
+            locs        = locs,
+            type        = pin_type
+        )
+
+        assert pin.name not in switchbox.inputs, pin
+        switchbox.inputs[pin.name] = pin
+
+    return switchbox
+
+
 def parse_switchbox(xml_sbox, xml_common = None):
     """
     Parses the switchbox definition from XML. Returns a Switchbox object
     """
     switchbox = Switchbox(type=xml_sbox.tag)
-
-    # Top-level inputs and their locations. Indexed by (name, is_local)
-    input_locs = defaultdict(lambda: [])
 
     # Identify stages. Append stages from the "COMMON_STAGES" section if
     # given.
@@ -389,28 +474,6 @@ def parse_switchbox(xml_sbox, xml_common = None):
                 direction = PinDirection.OUTPUT
                 )
 
-            # Add the pin as top level output
-            if out_pin_name is not None:
-
-                loc = SwitchboxPinLoc(
-                    stage_id  = stage.id,
-                    switch_id = switch.id,
-                    mux_id    = mux.id,
-                    pin_id    = 0,
-                    pin_direction = PinDirection.OUTPUT
-                )
-
-                pin = SwitchboxPin(
-                    id        = out_id,
-                    name      = out_pin_name,
-                    direction = PinDirection.OUTPUT,
-                    locs      = [loc],
-                    is_local  = (stage_type == "STREET")
-                )
-
-                assert pin.name not in switchbox.outputs, pin
-                switchbox.outputs[pin.name] = pin
-
             # Process inputs
             for xml_input in xml_output:
                 inp_pin_id   = int(xml_input.tag.replace("Input", ""))
@@ -422,11 +485,9 @@ def parse_switchbox(xml_sbox, xml_common = None):
                 if inp_pin_name in ["-1"]:
                     inp_pin_name = None
 
-                is_local = (inp_hop_dir == "FEEDBACK")
-                is_hop   = (inp_hop_dir in ["Left", "Right", "Top", "Bottom"])
-
                 # Append the actual wire length and hop diretion to names of
                 # pins that connect to HOP wires.
+                is_hop = (inp_hop_dir in ["Left", "Right", "Top", "Bottom"])
                 if is_hop:
                     inp_pin_name = "{}_{}{}".format(
                         inp_pin_name,
@@ -442,19 +503,6 @@ def parse_switchbox(xml_sbox, xml_common = None):
 
                 assert pin.id not in mux.inputs, pin
                 mux.inputs[pin.id] = pin
-
-                # Add as top level input
-                if inp_pin_name is not None:
-
-                    loc = SwitchboxPinLoc(
-                        stage_id  = stage.id,
-                        switch_id = switch.id,
-                        mux_id    = mux.id,
-                        pin_id    = inp_pin_id,
-                        pin_direction = PinDirection.INPUT
-                    )
-
-                    input_locs[(inp_pin_name, is_local)].append(loc)
 
                 # Add internal connection
                 if stage_type == "STREET" and stage_id > 0:
@@ -485,19 +533,8 @@ def parse_switchbox(xml_sbox, xml_common = None):
         # Add switches to the stage
         stage.switches = switches
 
-    # Add top-level input pins to the switchbox.
-    keys  = sorted(input_locs.keys(), key=lambda k: k[0])
-    for (name, is_local), locs in {k: input_locs[k] for k in keys}.items():
-
-        pin = SwitchboxPin(
-            id          = len(switchbox.inputs),
-            name        = name,
-            direction   = PinDirection.INPUT,
-            is_local    = is_local,
-            locs        = locs
-        )
-
-        switchbox.inputs[name] = pin
+    # Update top-level pins
+    update_switchbox_pins(switchbox)
 
     return switchbox
 
@@ -586,6 +623,68 @@ def parse_port_mapping_table(xml_root, switchbox_grid):
 
     return port_maps
 
+# =============================================================================
+
+
+def specialize_switchboxes_with_port_maps(switchbox_types, switchbox_grid, port_maps):
+    """
+    Specializes switchboxes by applying port mapping.
+    """
+
+    for loc, port_map in port_maps.items():
+
+        # No switchbox at that location
+        if loc not in switchbox_grid:
+            continue
+
+        # Get the switchbox type
+        switchbox_type = switchbox_grid[loc]
+        switchbox = switchbox_types[switchbox_type]
+
+        # Make a copy of the switchbox
+        new_type = "{}_X{}Y{}".format(switchbox.type, loc.x, loc.y)
+        new_switchbox = Switchbox(new_type)
+        new_switchbox.stages      = deepcopy(switchbox.stages)
+        new_switchbox.connections = deepcopy(switchbox.connections)
+
+        # Remap pin names
+        did_remap = False
+        for stage_id, stage in new_switchbox.stages.items():
+            for switch_id, switch in stage.switches.items():
+                for mux_id, mux in switch.muxes.items():
+
+                    # Remap output
+                    pin = mux.output
+                    key = (pin.name, pin.direction)
+                    if key in port_map:
+                        did_remap = True
+                        mux.output = SwitchPin(
+                            id        = pin.id,
+                            name      = port_map[key],
+                            direction = pin.direction,
+                        )
+
+                    # Remap inputs
+                    for pin in mux.inputs.values():
+                        key = (pin.name, pin.direction)
+                        if key in port_map:
+                            did_remap = True
+                            mux.inputs[pin.id] = SwitchPin(
+                                id        = pin.id,
+                                name      = port_map[key],
+                                direction = pin.direction,
+                            )
+
+        # Nothing remapped, discard the new switchbox
+        if not did_remap:
+            continue
+
+        # Update top-level pins
+        update_switchbox_pins(new_switchbox)
+
+        # Add to the switchbox types and the grid
+        switchbox_types[new_switchbox.type] = new_switchbox
+        switchbox_grid[loc] = new_switchbox.type
 
 # =============================================================================
 
@@ -717,6 +816,9 @@ def import_data(xml_root):
     # Import switchbox port mapping
     port_maps = parse_port_mapping_table(xml_portmap, switchbox_grid)
 
+    # Specialize switchboxes with local port map
+    specialize_switchboxes_with_port_maps(switchbox_types, switchbox_grid, port_maps)
+
     # Get the "Packages" section
     xml_packages = xml_root.find("Packages")
     assert xml_packages is not None
@@ -772,7 +874,6 @@ def main():
         data["tile_grid"],
         data["switchbox_types"],
         data["switchbox_grid"],
-        data["port_maps"],
         )
 
     check_connections(connections)

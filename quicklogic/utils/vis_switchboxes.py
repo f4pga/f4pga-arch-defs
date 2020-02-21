@@ -8,9 +8,19 @@ from data_import import import_data
 
 # =============================================================================
 
+def fixup_pin_name(name):
+    return name.replace("[", "").replace("]", "")
 
 def switchbox_to_dot(switchbox, stage_types=("STREET", "HIGHWAY")):
     dot = []
+
+    TYPE_TO_COLOR = {
+        SwitchboxPinType.UNSPEC: "#C0C0C0",
+        SwitchboxPinType.LOCAL:  "#C0C0FF",
+        SwitchboxPinType.HOP:    "#FFFFC0",
+        SwitchboxPinType.CONST:  "#FFC0C0",
+        SwitchboxPinType.GCLK:   "#C0FFC0",
+    }
 
     # Add header
     dot.append("digraph {} {{".format(switchbox.type))
@@ -24,7 +34,7 @@ def switchbox_to_dot(switchbox, stage_types=("STREET", "HIGHWAY")):
 
     # Top-level inputs
     dot.append("  subgraph cluster_inputs {")
-    dot.append("    node [shape=ellipse, style=filled, fillcolor=\"#C0FFC0\"];")
+    dot.append("    node [shape=ellipse, style=filled];")
     dot.append("    label=\"Inputs\";")
 
     for pin in switchbox.inputs.values():
@@ -32,14 +42,15 @@ def switchbox_to_dot(switchbox, stage_types=("STREET", "HIGHWAY")):
         if not len(stage_ids & stage_ids_to_show):
             continue
 
-        name = "input_{}".format(pin.name)
-        dot.append("    {} [rank=0, label=\"{}\"];".format(name, pin.name))
+        color = TYPE_TO_COLOR[pin.type]
+        name  = "input_{}".format(fixup_pin_name(pin.name))
+        dot.append("    {} [rank=0, label=\"{}\", fillcolor=\"{}\"];".format(name, pin.name, color))
         
-    dot.append("  }")      
+    dot.append("  }")
 
     # Top-level outputs
     dot.append("  subgraph cluster_outputs {")
-    dot.append("    node [shape=ellipse, style=filled, fillcolor=\"#FFC0C0\"];")
+    dot.append("    node [shape=ellipse, style=filled];")
     dot.append("    label=\"Outputs\";")
 
     rank = max(switchbox.stages.keys()) + 1
@@ -49,8 +60,9 @@ def switchbox_to_dot(switchbox, stage_types=("STREET", "HIGHWAY")):
         if not len(stage_ids & stage_ids_to_show):
             continue
 
-        name = "output_{}".format(pin.name)
-        dot.append("    {} [rank={}, label=\"{}\"];".format(name, rank, pin.name))
+        color = TYPE_TO_COLOR[pin.type]
+        name  = "output_{}".format(fixup_pin_name(pin.name))
+        dot.append("    {} [rank={}, label=\"{}\", fillcolor=\"{}\"];".format(name, rank, pin.name, color))
         
     dot.append("  }")      
 
@@ -110,7 +122,7 @@ def switchbox_to_dot(switchbox, stage_types=("STREET", "HIGHWAY")):
 
     # Input pin connections
     for pin in switchbox.inputs.values():
-        src_node = "input_{}".format(pin.name)
+        src_node = "input_{}".format(fixup_pin_name(pin.name))
 
         for loc in pin.locs:
 
@@ -128,7 +140,7 @@ def switchbox_to_dot(switchbox, stage_types=("STREET", "HIGHWAY")):
 
     # Output pin connections
     for pin in switchbox.outputs.values():
-        dst_node = "output_{}".format(pin.name)
+        dst_node = "output_{}".format(fixup_pin_name(pin.name))
 
         for loc in pin.locs:
 

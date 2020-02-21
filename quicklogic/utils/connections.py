@@ -65,40 +65,29 @@ def parse_hop_wire_name(name):
 # =============================================================================
 
 
-def build_local_connections_at(loc, switchbox, tile, port_map):
+def build_local_connections_at(loc, switchbox, tile):
     """
     Build local connections between a switchbox and a tile at given location.
     """
     connections = []
 
     # Process local connections
-    src_pins = [pin for pin in switchbox.pins if pin.is_local]
+    src_pins = [pin for pin in switchbox.pins if pin.type == SwitchboxPinType.LOCAL]
     for src_pin in src_pins:
-        tile_pin_name = src_pin.name
-
-        # Remap the pin name if the port map is provided        
-        if port_map is not None:
-            key = (src_pin.name, src_pin.direction)
-            if key in port_map:
-                tile_pin_name = port_map[key]
-
-        # The pin is unconnected
-        if tile_pin_name is None:
-            continue
 
         # Find the pin in the underlying tile
         dst_pin = None
         for pin in tile.pins:
             if pin.direction == OPPOSITE_DIRECTION[src_pin.direction]:
                 cell, name = pin.name.split("_", maxsplit=1)
-                if name == tile_pin_name:
+                if name == src_pin.name:
                     dst_pin = pin
                     break
 
         # Pin not found
         if dst_pin is None:
             print("WARNING: No tile pin found for switchbox pin '{}' of '{}' at '{}'".format(
-                tile_pin_name,
+                src_pin.name,
                 switchbox.type,
                 loc
             ))
@@ -126,7 +115,7 @@ def build_local_connections_at(loc, switchbox, tile, port_map):
     return connections
 
 
-def build_local_connections(tile_types, tile_grid, switchbox_types, switchbox_grid, port_maps):
+def build_local_connections(tile_types, tile_grid, switchbox_types, switchbox_grid):
     """
     Build local connections between all switchboxes and their undelying tiles.
     """
@@ -141,14 +130,8 @@ def build_local_connections(tile_types, tile_grid, switchbox_types, switchbox_gr
             continue
         tile = tile_types[tile_grid[loc].type]
 
-        # Get the port map
-        if loc in port_maps:
-            port_map = port_maps[loc]
-        else:
-            port_map = None
-
         # Build connections
-        connections += build_local_connections_at(loc, switchbox, tile, port_map)
+        connections += build_local_connections_at(loc, switchbox, tile)
 
     return connections
 
@@ -156,7 +139,7 @@ def build_local_connections(tile_types, tile_grid, switchbox_types, switchbox_gr
 # =============================================================================
 
 
-def build_hop_connections(tile_types, tile_grid, switchbox_types, switchbox_grid, port_maps):
+def build_hop_connections(tile_types, tile_grid, switchbox_types, switchbox_grid):
     """
     Builds HOP connections between switchboxes.
     """
@@ -174,7 +157,7 @@ def build_hop_connections(tile_types, tile_grid, switchbox_types, switchbox_grid
 
         # Process HOP inputs. No need for looping over outputs as each output
         # should go into a HOP input.
-        dst_pins = [pin for pin in dst_switchbox.inputs.values() if not pin.is_local]
+        dst_pins = [pin for pin in dst_switchbox.inputs.values() if pin.type == SwitchboxPinType.HOP]
         for dst_pin in dst_pins:
 
             # Parse the name, determine hop offset. Skip non-hop wires.
@@ -235,7 +218,7 @@ def build_hop_connections(tile_types, tile_grid, switchbox_types, switchbox_grid
 # =============================================================================
 
 
-def build_connections(tile_types, tile_grid, switchbox_types, switchbox_grid, port_maps):
+def build_connections(tile_types, tile_grid, switchbox_types, switchbox_grid):
     """
     Builds a connection map between switchboxes in the grid and between
     switchboxes and underlying tiles.
@@ -243,10 +226,10 @@ def build_connections(tile_types, tile_grid, switchbox_types, switchbox_grid, po
     connections = []
 
     # Local connections
-    connections += build_local_connections(tile_types, tile_grid, switchbox_types, switchbox_grid, port_maps)
+    connections += build_local_connections(tile_types, tile_grid, switchbox_types, switchbox_grid)
 
     # HOP connections
-    connections += build_hop_connections(tile_types, tile_grid, switchbox_types, switchbox_grid, port_maps)
+    connections += build_hop_connections(tile_types, tile_grid, switchbox_types, switchbox_grid)
 
     return connections
 
