@@ -10,9 +10,7 @@ add_fpga_target(
   EXPLICIT_ADD_FILE_TARGET
   )
 
-#add_vivado_target(
-#    NAME counter_emio_zybo_vivado
-#    PARENT_NAME counter_emio_zybo
-#    # Disabled until PS7 is supported in fasm2bels
-#    DISABLE_DIFF_TEST
-#    )
+add_vivado_target(
+  NAME axi_regs_zybo_vivado
+  PARENT_NAME axi_regs_zybo
+  )
