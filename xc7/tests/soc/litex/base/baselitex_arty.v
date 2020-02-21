@@ -40,7 +40,7 @@ module top(
 wire [3:0] led;
 
 assign led[0] = idelayctl_rdy;
-assign led[1] = 0;
+assign led[1] = soc_pll_locked;
 assign led[2] = 0;
 assign led[3] = 0;
 
@@ -13448,6 +13448,7 @@ BUFG BUFG_5(
 	.O(eth_ref_clk)
 );
 
+(* LOC="IDELAYCTRL_X1Y0" *)
 IDELAYCTRL IDELAYCTRL(
 	.REFCLK(clk200_clk),
 	.RST(soc_ic_reset),
