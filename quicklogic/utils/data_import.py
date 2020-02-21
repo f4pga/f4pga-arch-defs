@@ -541,6 +541,118 @@ def parse_switchbox(xml_sbox, xml_common = None):
 # =============================================================================
 
 
+def parse_wire_mapping_table(xml_root, switchbox_grid, switchbox_types):
+    """
+    Parses the "DeviceWireMappingTable" section. Returns a dict indexed by
+    locations.
+    """
+
+    def yield_locs_and_maps():
+        """
+        Yields locations and wire mappings associated with it.
+        """
+        RE_LOC = re.compile(r"^(Row|Col)_([0-9]+)_([0-9]+)$")
+
+        # Rows
+        xml_rows = [e for e in xml_root if e.tag.startswith("Row_")]
+        for xml_row in xml_rows:
+
+            # Decode row range
+            match = RE_LOC.match(xml_row.tag)
+            assert match is not None, xml_row.tag
+
+            row_beg = int(xml_row.attrib["RowStartNum"])
+            row_end = int(xml_row.attrib["RowEndNum"])
+
+            assert row_beg == int(match.group(2)), \
+                (xml_row.tag, row_beg, row_end)
+            assert row_end == int(match.group(3)), \
+                (xml_row.tag, row_beg, row_end)
+
+            # Columns
+            xml_cols = [e for e in xml_row if e.tag.startswith("Col_")]
+            for xml_col in xml_cols:
+
+                # Decode column range
+                match = RE_LOC.match(xml_col.tag)
+                assert match is not None, xml_col.tag
+
+                col_beg = int(xml_col.attrib["ColStartNum"])
+                col_end = int(xml_col.attrib["ColEndNum"])
+
+                assert col_beg == int(match.group(2)), \
+                    (xml_col.tag, col_beg, col_end)
+                assert col_end == int(match.group(3)), \
+                    (xml_col.tag, col_beg, col_end)
+
+                # Wire maps
+                xml_maps = [e for e in xml_col if e.tag.startswith("Stage_")]
+
+                # Yield wire maps for each location
+                for y in range(row_beg, row_end+1):
+                    for x in range(col_beg, col_end+1):
+                        yield (Loc(x=x, y=y), xml_maps)
+
+    # Process wire maps
+    wire_maps = defaultdict(lambda: {})
+
+    RE_STAGE   = re.compile(r"^Stage_([0-9])$")
+    RE_JOINT   = re.compile(r"^Join\.([0-9]+)\.([0-9]+)\.([0-9]+)$")
+    RE_WIREMAP = re.compile(r"^WireMap\.(Top|Bottom|Left|Right)\.Length_([0-9])\.(.*)$")
+
+    for loc, xml_maps in yield_locs_and_maps():
+        for xml_map in xml_maps:
+
+            # Decode stage id
+            match = RE_STAGE.match(xml_map.tag)
+            assert match is not None, xml_map.tag
+
+            stage_id = int(xml_map.attrib["StageNumber"])
+            assert stage_id == int(match.group(1)), \
+                (xml_map.tag, stage_id)
+
+            # Decode wire joints
+            joints = {k: v for k, v in xml_map.attrib.items() if k.startswith("Join.")}
+            for joint_key, joint_map in joints.items():
+
+                # Decode the joint key
+                match = RE_JOINT.match(joint_key)
+                assert match is not None, joint_key
+
+                pin_loc = SwitchboxPinLoc(
+                    stage_id  = stage_id,
+                    switch_id = int(match.group(1)),
+                    mux_id    = int(match.group(2)),
+                    pin_id    = int(match.group(3)),
+                    pin_direction = PinDirection.INPUT  # FIXME: Are those always inputs ?
+                )
+
+                # Decode the wire name
+                match = RE_WIREMAP.match(joint_map)
+                assert match is not None, joint_map
+
+                wire_hop_dir = match.group(1)
+                wire_hop_len = int(match.group(2))
+                wire_name    = match.group(3)
+
+                # Compute location of the tile that the wire is connected to
+                if wire_hop_dir == "Top":
+                    tile_loc = Loc(x=loc.x, y=loc.y - wire_hop_len)
+                elif wire_hop_dir == "Bottom":
+                    tile_loc = Loc(x=loc.x, y=loc.y + wire_hop_len)
+                elif wire_hop_dir == "Left":
+                    tile_loc = Loc(x=loc.x - wire_hop_len, y=loc.y)
+                elif wire_hop_dir == "Right":
+                    tile_loc = Loc(x=loc.x + wire_hop_len, y=loc.y)
+                else:
+                    assert False, wire_hop_dir
+
+                # Append to the map
+                wire_maps[loc][pin_loc] = (wire_name, tile_loc)
+
+    return wire_maps
+
+
 def parse_port_mapping_table(xml_root, switchbox_grid):
     """
     Parses switchbox port mapping tables. Returns a dict indexed by locations
@@ -686,6 +798,68 @@ def specialize_switchboxes_with_port_maps(switchbox_types, switchbox_grid, port_
         switchbox_types[new_switchbox.type] = new_switchbox
         switchbox_grid[loc] = new_switchbox.type
 
+
+def specialize_switchboxes_with_wire_maps(switchbox_types, switchbox_grid, port_maps, wire_maps):
+    """
+    Specializes switchboxes by applying wire mapping.
+    """
+
+    for loc, wire_map in wire_maps.items():
+
+        # No switchbox at that location
+        if loc not in switchbox_grid:
+            continue
+
+        # Get the switchbox type
+        switchbox_type = switchbox_grid[loc]
+        switchbox = switchbox_types[switchbox_type]
+
+        # Make a copy of the switchbox
+        new_type = "{}_X{}Y{}".format(switchbox.type, loc.x, loc.y)
+        new_switchbox = Switchbox(new_type)
+        new_switchbox.stages      = deepcopy(switchbox.stages)
+        new_switchbox.connections = deepcopy(switchbox.connections)
+
+        # Remap pin names
+        did_remap = False
+        for pin_loc, (wire_name, map_loc) in wire_map.items():
+
+            # Get port map at the destination location of the wire that is
+            # being remapped.
+            assert map_loc in port_maps, (map_loc, wire_name)
+            port_map  = port_maps[map_loc]
+
+            # Get the actual tile pin name
+            key = (wire_name, PinDirection.INPUT)
+            assert key in port_map, (map_loc, key)
+            pin_name = port_map[key]
+
+            # Rename pin
+            stage  = new_switchbox.stages[pin_loc.stage_id]
+            switch = stage.switches[pin_loc.switch_id]
+            mux    = switch.muxes[pin_loc.mux_id]
+            pin    = mux.inputs[pin_loc.pin_id]
+
+            new_pin = SwitchPin(
+                id        = pin.id,
+                direction = pin.direction,
+                name      = pin_name
+            )
+
+            mux.inputs[new_pin.id] = new_pin
+            did_remap = True
+
+        # Nothing remapped, discard the new switchbox
+        if not did_remap:
+            continue
+
+        # Update top-level pins
+        update_switchbox_pins(new_switchbox)
+
+        # Add to the switchbox types and the grid
+        switchbox_types[new_switchbox.type] = new_switchbox
+        switchbox_grid[loc] = new_switchbox.type
+
 # =============================================================================
 
 
@@ -809,6 +983,13 @@ def import_data(xml_root):
                 # Populate switchboxes onto the tilegrid
                 populate_switchboxes(xml_sbox, switchbox_grid)
 
+    # Get the "DeviceWireMappingTable" section
+    xml_wiremap = xml_routing.find("DeviceWireMappingTable")
+    assert xml_wiremap is not None
+
+    # Import wire mapping
+    wire_maps = parse_wire_mapping_table(xml_wiremap, switchbox_grid, switchbox_types)
+
     # Get the "DevicePortMappingTable" section
     xml_portmap = xml_routing.find("DevicePortMappingTable")
     assert xml_portmap is not None
@@ -816,8 +997,17 @@ def import_data(xml_root):
     # Import switchbox port mapping
     port_maps = parse_port_mapping_table(xml_portmap, switchbox_grid)
 
-    # Specialize switchboxes with local port map
+    # Specialize switchboxes with wire maps
+    specialize_switchboxes_with_wire_maps(switchbox_types, switchbox_grid, port_maps, wire_maps)
+
+    # Specialize switchboxes with local port maps
     specialize_switchboxes_with_port_maps(switchbox_types, switchbox_grid, port_maps)
+
+    # Remove switchbox types not present in the grid anymore due to their
+    # specialization.
+    for type in list(switchbox_types.keys()):
+        if type not in switchbox_grid.values():
+            del switchbox_types[type]
 
     # Get the "Packages" section
     xml_packages = xml_root.find("Packages")
