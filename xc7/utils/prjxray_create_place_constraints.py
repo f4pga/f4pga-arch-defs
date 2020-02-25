@@ -197,14 +197,16 @@ WHERE pkey IN (
 
                 self.clock_blocks[cname] = clock
 
-                for port in ports.values():
-                    if port not in io_locs:
-                        continue
+                if bel != 'BUFGCTRL_VPR':
+                    for port in ports.values():
+                        if port not in io_locs:
+                            continue
 
-                    if cname in self.clock_cmts:
-                        assert self.clock_cmts[cname] == self.input_pins[port]
-                    else:
-                        self.clock_cmts[cname] = self.input_pins[port]
+                        if cname in self.clock_cmts:
+                            assert self.clock_cmts[cname
+                                                   ] == self.input_pins[port]
+                        else:
+                            self.clock_cmts[cname] = self.input_pins[port]
 
             for subckt in blif_data["subckt"]:
                 if 'cname' not in subckt:
