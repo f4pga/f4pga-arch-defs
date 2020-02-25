@@ -57,6 +57,10 @@ function(DEFINE_XC7_TOOLCHAIN_TARGET)
   install(DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/third_party/fasm
           DESTINATION bin/python)
 
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/split_inouts.py
+          DESTINATION bin/python
+          PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
+
   install(DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/third_party/prjxray/prjxray
           DESTINATION bin/python/prjxray)
 
