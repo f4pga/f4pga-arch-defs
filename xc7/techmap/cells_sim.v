@@ -643,6 +643,13 @@ module IBUF_VPR (
 
   parameter [0:0] IBUF_LOW_PWR = 1'b0;
 
+  parameter [0:0] PULLTYPE_PULLUP = 1'b0;
+  parameter [0:0] PULLTYPE_PULLDOWN = 1'b0;
+  parameter [0:0] PULLTYPE_NONE = 1'b0;
+  parameter [0:0] PULLTYPE_KEEPER = 1'b0;
+
+  parameter PULLTYPE = "";
+
   parameter IOSTANDARD = "";
 
   assign O = I;
@@ -676,6 +683,13 @@ module OBUF_VPR (
   parameter [0:0] LVTTL_DRIVE_I24 = 1'b0;
   parameter [0:0] SSTL135_DRIVE_I_FIXED = 1'b0;
   parameter [0:0] SSTL135_SLEW_FAST = 1'b0;
+
+  parameter [0:0] PULLTYPE_PULLUP = 1'b0;
+  parameter [0:0] PULLTYPE_PULLDOWN = 1'b0;
+  parameter [0:0] PULLTYPE_NONE = 1'b0;
+  parameter [0:0] PULLTYPE_KEEPER = 1'b0;
+
+  parameter PULLTYPE = "";
 
   parameter IOSTANDARD = "";
   parameter DRIVE = 0;
@@ -726,6 +740,13 @@ module IOBUF_VPR (
 
   parameter [0:0] IBUF_LOW_PWR = 1'b0;
 
+  parameter [0:0] PULLTYPE_PULLUP = 1'b0;
+  parameter [0:0] PULLTYPE_PULLDOWN = 1'b0;
+  parameter [0:0] PULLTYPE_NONE = 1'b0;
+  parameter [0:0] PULLTYPE_KEEPER = 1'b0;
+
+  parameter PULLTYPE = "";
+
   parameter IOSTANDARD = "";
   parameter DRIVE = 0;
   parameter SLEW = "";
@@ -752,6 +773,13 @@ module OBUFTDS_M_VPR (
   parameter [0:0] IN_TERM_UNTUNED_SPLIT_50 = 1'b0;
   parameter [0:0] IN_TERM_UNTUNED_SPLIT_60 = 1'b0;
 
+  parameter [0:0] PULLTYPE_PULLUP = 1'b0;
+  parameter [0:0] PULLTYPE_PULLDOWN = 1'b0;
+  parameter [0:0] PULLTYPE_NONE = 1'b0;
+  parameter [0:0] PULLTYPE_KEEPER = 1'b0;
+
+  parameter PULLTYPE = "";
+
   parameter IOSTANDARD = "";
   parameter SLEW = "";
 
@@ -773,6 +801,13 @@ module OBUFTDS_S_VPR (
   parameter [0:0] IN_TERM_UNTUNED_SPLIT_40 = 1'b0;
   parameter [0:0] IN_TERM_UNTUNED_SPLIT_50 = 1'b0;
   parameter [0:0] IN_TERM_UNTUNED_SPLIT_60 = 1'b0;
+
+  parameter [0:0] PULLTYPE_PULLUP = 1'b0;
+  parameter [0:0] PULLTYPE_PULLDOWN = 1'b0;
+  parameter [0:0] PULLTYPE_NONE = 1'b0;
+  parameter [0:0] PULLTYPE_KEEPER = 1'b0;
+
+  parameter PULLTYPE = "";
 
   parameter IOSTANDARD = "";
   parameter SLEW = "";
