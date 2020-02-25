@@ -216,13 +216,9 @@ wire main_reset;
 wire main_locked;
 wire main_pll_clkin;
 wire main_clkout0;
-wire main_clkout_buf0;
 wire main_clkout1;
-wire main_clkout_buf1;
 wire main_clkout2;
-wire main_clkout_buf2;
 wire main_clkout3;
-wire main_clkout_buf3;
 reg [3:0] main_reset_counter = 4'd15;
 reg main_ic_reset = 1'd1;
 reg [4:0] main_a7ddrphy_half_sys8x_taps_storage = 5'd16;
@@ -1746,6 +1742,7 @@ reg [2:0] builder_uartwishbonebridge_next_state = 3'd0;
 reg builder_wb2csr_state = 1'd0;
 reg builder_wb2csr_next_state = 1'd0;
 wire builder_pll_fb;
+wire builder_pll_fb_bufg;
 reg [1:0] builder_refresher_state = 2'd0;
 reg [1:0] builder_refresher_next_state = 2'd0;
 reg [2:0] builder_bankmachine0_state = 3'd0;
@@ -2443,10 +2440,6 @@ always @(*) begin
 	endcase
 end
 assign main_reset = (~cpu_reset);
-assign sys_clk = main_clkout_buf0;
-assign sys4x_clk = main_clkout_buf1;
-assign sys4x_dqs_clk = main_clkout_buf2;
-assign clk200_clk = main_clkout_buf3;
 always @(*) begin
 	main_a7ddrphy_dqs_serdes_pattern <= 8'd85;
 	main_a7ddrphy_dqs_serdes_pattern <= 7'd85;
@@ -9713,27 +9706,27 @@ BUFG BUFG(
 
 BUFG BUFG_1(
 	.I(main_clkout0),
-	.O(main_clkout_buf0)
+	.O(sys_clk)
 );
 
 BUFG BUFG_2(
 	.I(main_clkout1),
-	.O(main_clkout_buf1)
+	.O(sys4x_clk)
 );
 
 BUFG BUFG_3(
 	.I(main_clkout2),
-	.O(main_clkout_buf2)
+	.O(sys4x_dqs_clk)
 );
 
 BUFG BUFG_4(
 	.I(main_clkout3),
-	.O(main_clkout_buf3)
+	.O(clk200_clk)
 );
 
 BUFG BUFG_5(
-	.I((~main_clkout_buf1)),
-	.O(main_clkout_buf4)
+	.I(builder_pll_fb),
+	.O(builder_pll_fb_bufg)
 );
 
 (* LOC="IDELAYCTRL_X1Y0" *)
@@ -11768,7 +11761,7 @@ PLLE2_ADV #(
 	.REF_JITTER1(0.01),
 	.STARTUP_WAIT("FALSE")
 ) PLLE2_ADV (
-	.CLKFBIN(builder_pll_fb),
+	.CLKFBIN(builder_pll_fb_bufg),
 	.CLKIN1(main_pll_clkin),
 	.RST(main_reset),
 	.CLKFBOUT(builder_pll_fb),
