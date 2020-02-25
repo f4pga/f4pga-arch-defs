@@ -86,7 +86,8 @@ def get_iob_site(db, grid, tile, site):
     assert ilogic_site is not None
     assert ologic_site is not None
 
-    return iob_site, iologic_tile, ilogic_site, ologic_site
+    return iob_site, iologic_tile, ilogic_site, ologic_site, gridinfo.pin_functions[
+        iob_site.name]
 
 
 def append_obuf_iostandard_params(
@@ -319,13 +320,13 @@ def process_single_ended_iob(top, iob):
 
     aparts = iob[0].feature.split('.')
     tile_name = aparts[0]
-    iob_site, iologic_tile, ilogic_site, ologic_site = get_iob_site(
+    iob_site, iologic_tile, ilogic_site, ologic_site, pin_functions = get_iob_site(
         top.db, top.grid, aparts[0], aparts[1]
     )
 
     # It seems that this IOB is always configured as an input at least in
     # Artix7. So skip it here.
-    if iob_site.name == "IOB_X0Y44":
+    if 'PUDC' in pin_functions:
         return
 
     site = Site(iob, iob_site)
@@ -465,13 +466,13 @@ def process_differential_iob(top, iob, in_diff, out_diff):
 
     aparts = iob['S'][0].feature.split('.')
     tile_name = aparts[0]
-    iob_site_s, iologic_tile, ilogic_site_s, ologic_site_s = get_iob_site(
+    iob_site_s, iologic_tile, ilogic_site_s, ologic_site_s, _ = get_iob_site(
         top.db, top.grid, aparts[0], aparts[1]
     )
 
     aparts = iob['M'][0].feature.split('.')
     tile_name = aparts[0]
-    iob_site_m, iologic_tile, ilogic_site_m, ologic_site_m = get_iob_site(
+    iob_site_m, iologic_tile, ilogic_site_m, ologic_site_m, _ = get_iob_site(
         top.db, top.grid, aparts[0], aparts[1]
     )
 
