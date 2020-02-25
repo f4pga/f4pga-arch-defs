@@ -6,6 +6,11 @@ from sdf_timing.utils import get_scale_seconds
 from lib.pb_type import get_pb_type_chain
 import re
 import os
+import sys
+
+# Adds output to stderr to track if timing data for a particular BEL was found
+# in bels.json
+DEBUG = False
 
 
 def mergedicts(source, destination):
@@ -125,7 +130,15 @@ def get_bel_timings(element, timings, bels, corner, speed_type):
         bel = pb_chain[-1]
     location = pb_chain[-2]
     site = remove_site_number(pb_chain[1])
-    return find_timings(timings, bel, location, site, bels, corner, speed_type)
+
+    result = find_timings(
+        timings, bel, location, site, bels, corner, speed_type
+    )
+
+    if DEBUG:
+        print(site, bel, location, result is not None, file=sys.stderr)
+
+    return result
 
 
 def main():
