@@ -1898,9 +1898,9 @@ module IBUF (
   );
 
   parameter IOSTANDARD = "LVCMOS33";
-  parameter IBUF_LOW_PWR = 0;  // TODO: Map this to fasm
-  parameter IN_TERM = "NONE";  // Not supported by Vivado ?
-  parameter PULLTYPE = "NONE";
+  parameter IBUF_LOW_PWR = 0;   // TODO: Map this to fasm
+  parameter IN_TERM = "NONE";   // Not supported by Vivado ?
+  parameter PULLTYPE = "NONE";  // Not supported by Vivado ?
 
   IBUF_VPR # (
     .LVCMOS12_LVCMOS15_LVCMOS18_IN(
@@ -1969,7 +1969,7 @@ module OBUF (
   parameter IOSTANDARD = "LVCMOS33";
   parameter DRIVE = 12;
   parameter SLEW = "SLOW";
-  parameter PULLTYPE = "NONE";
+  parameter PULLTYPE = "NONE";  // Not supported by Vivado ?
 
   OBUF_VPR # (
     .LVCMOS12_DRIVE_I12(
@@ -2089,7 +2089,7 @@ module IOBUF (
   parameter SLEW = "SLOW";
   parameter IBUF_LOW_PWR = 0;  // TODO: Map this to fasm
   parameter IN_TERM = "NONE";  // Not supported by Vivado ?
-  parameter PULLTYPE = "NONE";
+  parameter PULLTYPE = "NONE"; // Not supported by Vivado ?
 
   IOBUF_VPR # (
     .LVCMOS12_DRIVE_I12(
@@ -2229,8 +2229,8 @@ module OBUFTDS (
 
   parameter IOSTANDARD = "DIFF_SSTL135";  // TODO: Is this the default ?
   parameter SLEW = "FAST";
-  parameter IN_TERM = "NONE";
-  parameter PULLTYPE = "NONE";
+  parameter IN_TERM = "NONE";  // Not supported by Vivado ?
+  parameter PULLTYPE = "NONE"; // Not supported by Vivado ?
 
   wire complementary;
 
@@ -2309,7 +2309,7 @@ module OBUFDS (
 
   parameter IOSTANDARD = "DIFF_SSTL135";  // TODO: Is this the default ?
   parameter SLEW = "FAST";
-  parameter PULLTYPE = "NONE";
+  parameter PULLTYPE = "NONE";  // Not supported by Vivado ?
 
   OBUFTDS # (
   .PULLTYPE(PULLTYPE),
