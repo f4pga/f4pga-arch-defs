@@ -80,6 +80,54 @@
       <output name="TQ" num_pins="1"/>
       <input name="SHIFTIN1" num_pins="1"/>
       <input name="SHIFTIN2" num_pins="1"/>
+
+      <T_clock_to_Q max="{iopath_CLK_OFB}" clock="CLK" port="OFB" />
+      <T_clock_to_Q max="{iopath_CLK_OQ}" clock="CLK" port="OQ" />
+      <T_clock_to_Q max="{iopath_CLK_TFB}" clock="CLK" port="TFB" />
+      <T_clock_to_Q max="{iopath_CLK_TQ}" clock="CLK" port="TQ" />
+
+      <T_clock_to_Q max="{iopath_CLKDIV_IOCLKGLITCH}" clock="CLKDIV" port="IOCLKGLITCH" />
+
+      <T_setup value="{setup_CLKDIV_D1}" clock="CLKDIV" port="D1" />
+      <T_hold value="{hold_CLKDIV_D1}" clock="CLKDIV" port="D1" />
+      <T_setup value="{setup_CLKDIV_D2}" clock="CLKDIV" port="D2" />
+      <T_hold value="{hold_CLKDIV_D2}" clock="CLKDIV" port="D2" />
+      <T_setup value="{setup_CLKDIV_D3}" clock="CLKDIV" port="D3" />
+      <T_hold value="{hold_CLKDIV_D3}" clock="CLKDIV" port="D3" />
+      <T_setup value="{setup_CLKDIV_D4}" clock="CLKDIV" port="D4" />
+      <T_hold value="{hold_CLKDIV_D4}" clock="CLKDIV" port="D4" />
+      <T_setup value="{setup_CLKDIV_D5}" clock="CLKDIV" port="D5" />
+      <T_hold value="{hold_CLKDIV_D5}" clock="CLKDIV" port="D5" />
+      <T_setup value="{setup_CLKDIV_D6}" clock="CLKDIV" port="D6" />
+      <T_hold value="{hold_CLKDIV_D6}" clock="CLKDIV" port="D6" />
+      <T_setup value="{setup_CLKDIV_D7}" clock="CLKDIV" port="D7" />
+      <T_hold value="{hold_CLKDIV_D7}" clock="CLKDIV" port="D7" />
+      <T_setup value="{setup_CLKDIV_D8}" clock="CLKDIV" port="D8" />
+      <T_hold value="{hold_CLKDIV_D8}" clock="CLKDIV" port="D8" />
+
+      <!-- Unclear what this is for, but VPR wants it... -->
+      <T_clock_to_Q max="0.0" clock="CLKDIV" port="T1" />
+
+      <T_setup value="{setup_CLKDIV_T1}" clock="CLKDIV" port="T1" />
+      <T_hold value="{hold_CLKDIV_T1}" clock="CLKDIV" port="T1" />
+      <T_setup value="{setup_CLKDIV_T2}" clock="CLKDIV" port="T2" />
+      <T_hold value="{hold_CLKDIV_T2}" clock="CLKDIV" port="T2" />
+      <T_setup value="{setup_CLKDIV_T3}" clock="CLKDIV" port="T3" />
+      <T_hold value="{hold_CLKDIV_T3}" clock="CLKDIV" port="T3" />
+      <T_setup value="{setup_CLKDIV_T4}" clock="CLKDIV" port="T4" />
+      <T_hold value="{hold_CLKDIV_T4}" clock="CLKDIV" port="T4" />
+
+      <T_setup value="{setup_CLK_OCE}" clock="CLK" port="OCE" />
+      <T_hold value="{hold_CLK_OCE}" clock="CLK" port="OCE" />
+
+      <T_setup value="{setup_CLK_TCE}" clock="CLK" port="TCE" />
+      <T_hold value="{hold_CLK_TCE}" clock="CLK" port="TCE" />
+
+      <T_setup value="{setup_CLKDIV_RST}" clock="CLKDIV" port="RST" />
+      <T_hold value="{hold_CLKDIV_RST}" clock="CLKDIV" port="RST" />
+
+      <delay_constant max="{iopath_T1_TBYTEOUT}" in_port="T1" out_port="TBYTEOUT" />
+
       <metadata>
         <meta name="fasm_features">
           OSERDES.IN_USE

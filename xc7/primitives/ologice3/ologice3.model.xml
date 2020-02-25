@@ -3,34 +3,34 @@
     <input_ports>
       <port is_clock="1" name="CLK"/>
       <port is_clock="1" name="CLKDIV"/>
-      <port name="D1"/>
-      <port name="D2"/>
-      <port name="D3"/>
-      <port name="D4"/>
-      <port name="D5"/>
-      <port name="D6"/>
-      <port name="D7"/>
-      <port name="D8"/>
-      <port name="OCE"/>
-      <port name="RST"/>
-      <port name="T1"/>
-      <port name="T2"/>
-      <port name="T3"/>
-      <port name="T4"/>
+      <port clock="CLKDIV" name="D1"/>
+      <port clock="CLKDIV" name="D2"/>
+      <port clock="CLKDIV" name="D3"/>
+      <port clock="CLKDIV" name="D4"/>
+      <port clock="CLKDIV" name="D5"/>
+      <port clock="CLKDIV" name="D6"/>
+      <port clock="CLKDIV" name="D7"/>
+      <port clock="CLKDIV" name="D8"/>
+      <port clock="CLK" name="OCE"/>
+      <port clock="CLKDIV" name="RST"/>
+      <port clock="CLKDIV" combinational_sink_ports="TBYTEOUT" name="T1"/>
+      <port clock="CLKDIV" name="T2"/>
+      <port clock="CLKDIV" name="T3"/>
+      <port clock="CLKDIV" name="T4"/>
       <port name="TBYTEIN"/>
-      <port name="TCE"/>
+      <port clock="CLK" name="TCE"/>
       <port name="SHIFTIN1"/>
       <port name="SHIFTIN2"/>
     </input_ports>
     <output_ports>
-      <port name="IOCLKGLITCH"/>
-      <port name="OFB"/>
-      <port name="OQ"/>
+      <port clock="CLKDIV" name="IOCLKGLITCH"/>
+      <port clock="CLK" name="OFB"/>
+      <port clock="CLK" name="OQ"/>
       <port name="SHIFTOUT1"/>
       <port name="SHIFTOUT2"/>
       <port name="TBYTEOUT"/>
-      <port name="TFB"/>
-      <port name="TQ"/>
+      <port clock="CLK" name="TFB"/>
+      <port clock="CLK" name="TQ"/>
     </output_ports>
   </model>
 </models>
