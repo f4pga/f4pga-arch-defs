@@ -1044,6 +1044,11 @@ function(ADD_FPGA_TARGET)
     set(OUT_JSON ${OUT_LOCAL}/${TOP}.json)
     set(OUT_JSON_REL ${OUT_LOCAL_REL}/${TOP}.json)
 
+    get_target_property(USE_ROI ${DEVICE_TYPE} USE_ROI)
+    if("${USE_ROI}" STREQUAL "NOTFOUND")
+        set(USE_ROI FALSE)
+    endif()
+
     add_custom_command(
       OUTPUT ${OUT_JSON_SYNTH} ${OUT_SYNTH_V} ${OUT_FASM_EXTRA}
       DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS} ${INPUT_XDC_FILE}
@@ -1059,6 +1064,7 @@ function(ADD_FPGA_TARGET)
           OUT_FASM_EXTRA=${OUT_FASM_EXTRA}
           PART_JSON=${PART_JSON}
           INPUT_XDC_FILE=${INPUT_XDC_FILE}
+          USE_ROI=${USE_ROI}
           ${ADD_FPGA_TARGET_DEFINES}
           ${QUIET_CMD} ${YOSYS} -p "${COMPLETE_YOSYS_SYNTH_SCRIPT}" -l ${OUT_JSON_SYNTH}.log ${SOURCE_FILES}
       COMMAND
