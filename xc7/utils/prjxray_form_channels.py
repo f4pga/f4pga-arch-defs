@@ -1107,12 +1107,14 @@ VALUES
         )
 
     write_cur.execute("CREATE INDEX node_type_index ON node(classification);")
-    write_cur.execute("""
+    write_cur.execute(
+        """
     CREATE INDEX edge_with_mux_index ON edge_with_mux(
         src_wire_pkey,
         dest_wire_pkey,
         pip_in_tile_pkey,
-        switch_pkey);""")
+        switch_pkey);"""
+    )
     write_cur.connection.commit()
 
 
