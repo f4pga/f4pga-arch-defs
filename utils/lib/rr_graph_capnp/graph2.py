@@ -1,10 +1,10 @@
-import capnp
-capnp.remove_import_hook()
-
 import os.path
 import re
 from lib.rr_graph import graph2
 from lib.rr_graph import tracks
+
+import capnp
+capnp.remove_import_hook()
 
 CAMEL_CASE_CAPITALS = re.compile('([A-Z]+)')
 
