@@ -61,6 +61,26 @@ function(DEFINE_XC7_TOOLCHAIN_TARGET)
           DESTINATION bin/python
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_create_ioplace.py
+          DESTINATION bin/python
+          PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
+
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_create_place_constraints.py
+          DESTINATION bin/python
+          PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
+
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_io_place.py
+          DESTINATION bin/python
+          PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
+
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_place_constraints.py
+          DESTINATION bin/python
+          PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
+
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/eblif.py
+          DESTINATION bin/python
+          PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
+
   install(DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/third_party/prjxray/prjxray
           DESTINATION bin/python/prjxray)
 
@@ -87,7 +107,7 @@ endfunction()
 
 function(DEFINE_XC7_PINMAP_CSV_INSTALL_TARGET)
   set(options)
-  set(oneValueArgs BOARD DEVICE PACKAGE)
+  set(oneValueArgs PART DEVICE_TYPE BOARD DEVICE PACKAGE)
   set(multiValueArgs)
 
   cmake_parse_arguments(
@@ -98,14 +118,18 @@ function(DEFINE_XC7_PINMAP_CSV_INSTALL_TARGET)
     "${ARGN}"
   )
 
+  set(PART ${DEFINE_XC7_PINMAP_CSV_INSTALL_TARGET_PART})
   set(BOARD ${DEFINE_XC7_PINMAP_CSV_INSTALL_TARGET_BOARD})
   set(DEVICE ${DEFINE_XC7_PINMAP_CSV_INSTALL_TARGET_DEVICE})
+  set(DEVICE_TYPE ${DEFINE_XC7_PINMAP_CSV_INSTALL_TARGET_DEVICE_TYPE})
   set(PACKAGE ${DEFINE_XC7_PINMAP_CSV_INSTALL_TARGET_PACKAGE})
 
-  get_target_property(USE_ROI ${DEVICE} USE_ROI)
+  get_target_property(USE_ROI ${DEVICE_TYPE} USE_ROI)
   if(USE_ROI OR USE_ROI STREQUAL "USE_ROI-NOTFOUND")
+    message(STATUS "Skipping pinmap installation for ${DEVICE}-${PACKAGE} part: ${PART}")
     return()
   endif()
+
 
   get_target_property_required(PINMAP ${BOARD} PINMAP)
   get_file_location(PINMAP_FILE ${PINMAP})
@@ -117,6 +141,6 @@ function(DEFINE_XC7_PINMAP_CSV_INSTALL_TARGET)
     DEPENDS ${DEPS}
     )
   install(FILES ${PINMAP_FILE}
-      DESTINATION "share/arch/${DEVICE}_${PACKAGE}"
-      RENAME "pinmap.csv")
+    DESTINATION "share/arch/${DEVICE}_${PACKAGE}/${PART}"
+    RENAME "pinmap.csv")
 endfunction()
