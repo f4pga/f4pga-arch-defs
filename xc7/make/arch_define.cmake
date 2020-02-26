@@ -55,7 +55,8 @@ function(ADD_XC7_ARCH_DEFINE)
         --part \${PART} \
         --read_rr_graph \${OUT_RRXML_VIRT} \
         --write_rr_graph \${OUT_RRXML_REAL} \
-        --write_rr_node_map \${OUT_RRXML_REAL}.node_map.pickle
+        --write_rr_node_map \${OUT_RRXML_REAL}.node_map.pickle \
+        --vpr_capnp_schema_dir ${VPR_CAPNP_SCHEMA_DIR}
         "
     PLACE_TOOL
       ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_create_ioplace.py
@@ -99,7 +100,8 @@ function(ADD_XC7_ARCH_DEFINE)
         \${PYTHON3} -mfasm2bels \
         \${BIT_TO_V_EXTRA_ARGS} \
         --db_root ${PRJXRAY_DB_DIR}/${PRJXRAY_ARCH} \
-        --rr_graph \${OUT_RRXML_REAL_LOCATION} \
+        --rr_graph \${OUT_RRBIN_REAL_LOCATION} \
+        --vpr_capnp_schema_dir ${VPR_CAPNP_SCHEMA_DIR} \
         --route \${OUT_ROUTE} \
         --bitread $<TARGET_FILE:bitread> \
         --bit_file \${OUT_BIN} \
@@ -113,7 +115,7 @@ function(ADD_XC7_ARCH_DEFINE)
 
     NO_BIT_TIME
     USE_FASM
-    RR_GRAPH_EXT ".xml"
+    RR_GRAPH_EXT ".bin"
     ROUTE_CHAN_WIDTH 500
   )
 
