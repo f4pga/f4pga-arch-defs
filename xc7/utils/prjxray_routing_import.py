@@ -543,15 +543,17 @@ SELECT pkey, site_as_tile_pkey, grid_x, grid_y FROM tile;"""):
 
     return get_tile_and_site_as_tile_pkey
 
-def create_get_site_as_tile_wire(cur):
 
+def create_get_site_as_tile_wire(cur):
     @functools.lru_cache(maxsize=0)
     def get_site_from_site_as_tile(site_as_tile_pkey):
-        cur.execute("""
+        cur.execute(
+            """
         SELECT site.site_type_pkey, site_as_tile.site_pkey
         FROM site_as_tile
         INNER JOIN site ON site.pkey = site_as_tile.site_pkey
-        WHERE site_as_tile.pkey = ?""", (site_as_tile_pkey,))
+        WHERE site_as_tile.pkey = ?""", (site_as_tile_pkey, )
+        )
 
         results = cur.fetchall()
         assert len(results) == 1, site_as_tile_pkey
@@ -559,9 +561,11 @@ def create_get_site_as_tile_wire(cur):
 
     @functools.lru_cache(maxsize=0)
     def get_site_as_tile_wire(site_as_tile_pkey, pin):
-        site_type_pkey, site_pkey = get_site_from_site_as_tile(site_as_tile_pkey)
+        site_type_pkey, site_pkey = get_site_from_site_as_tile(
+            site_as_tile_pkey
+        )
         cur.execute(
-                """
+            """
 SELECT
   pkey
 FROM
@@ -579,7 +583,7 @@ WHERE
 AND
   site_pkey = ?
   ;""", (site_type_pkey, pin, site_pkey)
-            )
+        )
         results = cur.fetchall()
         assert len(results) == 1
         wire_in_tile_pkey = results[0][0]
@@ -624,7 +628,8 @@ def import_graph_nodes(conn, graph, node_mapping, connection_box_map):
         pin = m.group(2)
 
         tile_pkey, site_as_tile_pkey = get_tile_and_site_as_tile_pkey(
-                node.loc.x_low, node.loc.y_low)
+            node.loc.x_low, node.loc.y_low
+        )
 
         if site_as_tile_pkey is not None:
             wire_in_tile_pkey = get_site_as_tile_wire(site_as_tile_pkey, pin)

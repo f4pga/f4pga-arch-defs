@@ -652,8 +652,7 @@ AND
         assert self.tracks is not None
         tracks_model, graph_nodes = self.tracks
         if loc not in self.track_connections:
-            for idx in tracks_model.get_tracks_for_wire_at_coord(loc
-                                                                ).values():
+            for idx in tracks_model.get_tracks_for_wire_at_coord(loc).values():
                 break
 
             self.track_connections[loc] = idx
@@ -663,7 +662,6 @@ AND
         assert idx is not None
 
         return idx
-
 
     def connect_at(
             self,

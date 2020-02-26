@@ -83,7 +83,8 @@ def graph_from_xml(
     node_timing = None
     node_segment = None
 
-    for path, element in progressbar(iterate_xml(input_file_name, load_edges=load_edges)):
+    for path, element in progressbar(iterate_xml(input_file_name,
+                                                 load_edges=load_edges)):
 
         # Root tag
         if path == "" and element.tag == "rr_graph":
