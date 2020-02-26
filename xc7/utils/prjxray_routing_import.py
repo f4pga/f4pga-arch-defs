@@ -20,6 +20,7 @@ rr_graph XML.
 """
 
 import argparse
+import os.path
 from hilbertcurve.hilbertcurve import HilbertCurve
 import math
 import prjxray.db
@@ -28,7 +29,7 @@ import prjxray.grid as grid
 from lib.rr_graph import graph2
 from lib.rr_graph import tracks
 from lib.connection_database import get_wire_pkey, get_track_model
-import lib.rr_graph_xml.graph2 as xml_graph2
+import lib.rr_graph_capnp.graph2 as capnp_graph2
 from prjxray_constant_site_pins import feature_when_routed
 from prjxray_tile_import import remove_vpr_tile_prefix
 import simplejson as json
@@ -935,6 +936,31 @@ def create_get_pip_wire_names(conn):
     return get_pip_wire_names
 
 
+def get_number_graph_edges(conn, graph, node_mapping):
+    num_edges = len(graph.edges)
+
+    print('{} Counting edges.'.format(now()))
+    cur = conn.cursor()
+    cur.execute("SELECT count() FROM graph_edge;" "")
+
+    for src_graph_node, dest_graph_node in cur.execute("""
+SELECT
+  src_graph_node_pkey,
+  dest_graph_node_pkey
+FROM
+  graph_edge;
+                """):
+        if src_graph_node not in node_mapping:
+            continue
+
+        if dest_graph_node not in node_mapping:
+            continue
+
+        num_edges += 1
+
+    return num_edges
+
+
 def import_graph_edges(conn, graph, node_mapping):
     # First yield existing edges
     print('{} Importing existing edges.'.format(now()))
@@ -1208,7 +1234,12 @@ def main():
         '--graph_limit',
         help='Limit grid to specified dimensions in x_min,y_min,x_max,y_max',
     )
+    parser.add_argument(
+        '--vpr_capnp_schema_dir',
+        help='Directory container VPR schema files',
+    )
 
+    print('{} Starting routing import'.format(now()))
     args = parser.parse_args()
 
     db = prjxray.db.Database(args.db_root, args.part)
@@ -1244,13 +1275,16 @@ def main():
         roi = None
         synth_tiles = None
 
-    xml_graph = xml_graph2.Graph(
+    capnp_graph = capnp_graph2.Graph(
+        rr_graph_schema_fname=os.path.join(
+            args.vpr_capnp_schema_dir, 'rr_graph_uxsdcxx.capnp'
+        ),
         input_file_name=args.read_rr_graph,
         progressbar=progressbar_utils.progressbar,
         output_file_name=args.write_rr_graph,
     )
 
-    graph = xml_graph.graph
+    graph = capnp_graph.graph
 
     if synth_tiles is None:
         synth_tiles = find_constant_network(graph)
@@ -1283,7 +1317,7 @@ FROM
                 graph.get_switch_id(name)
                 continue
             except KeyError:
-                xml_graph.add_switch(
+                capnp_graph.add_switch(
                     graph2.Switch(
                         id=None,
                         name=name,
@@ -1328,18 +1362,22 @@ FROM
         print('{} Creating channels.'.format(now()))
         channels_obj = create_channels(conn)
 
-        node_remap = create_node_remap(xml_graph.graph.nodes, channels_obj)
+        node_remap = create_node_remap(capnp_graph.graph.nodes, channels_obj)
 
         x_dim, y_dim = phy_grid_dims(conn)
         connection_box_obj = graph.create_connection_box_object(
             x_dim=x_dim, y_dim=y_dim
         )
 
+        num_edges = get_number_graph_edges(conn, graph, node_mapping)
         print('{} Serializing to disk.'.format(now()))
-        xml_graph.serialize_to_xml(
+
+        capnp_graph.serialize_to_capnp(
             channels_obj=channels_obj,
             connection_box_obj=connection_box_obj,
-            nodes_obj=yield_nodes(xml_graph.graph.nodes),
+            num_nodes=len(capnp_graph.graph.nodes),
+            nodes_obj=yield_nodes(capnp_graph.graph.nodes),
+            num_edges=num_edges,
             edges_obj=import_graph_edges(conn, graph, node_mapping),
             node_remap=node_remap,
         )
