@@ -706,6 +706,7 @@ function(DEFINE_DEVICE)
       )
 
     install_device_files(
+      PART ${PART}
       DEVICE ${DEFINE_DEVICE_DEVICE}
       DEVICE_TYPE ${DEFINE_DEVICE_DEVICE_TYPE}
       PACKAGE ${PACKAGE})

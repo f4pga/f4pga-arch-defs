@@ -143,7 +143,9 @@ function(ADD_XC7_BOARD)
     ${CMAKE_CURRENT_SOURCE_DIR}/${PINMAP_CSV})
 
   define_xc7_pinmap_csv_install_target(
+    PART ${PART}
     BOARD ${BOARD}
+    DEVICE_TYPE ${DEVICE_TYPE}
     DEVICE ${ADD_XC7_BOARD_DEVICE}
     PACKAGE ${ADD_XC7_BOARD_PACKAGE}
     )
