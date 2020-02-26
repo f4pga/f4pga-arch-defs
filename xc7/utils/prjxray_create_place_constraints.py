@@ -197,14 +197,19 @@ WHERE pkey IN (
 
                 self.clock_blocks[cname] = clock
 
-                if bel != 'BUFGCTRL_VPR':
+                # Both PS7 and BUFGCTRL has specialized constraints,
+                # do not bind based on input pins.
+                if bel not in ['PS7_VPR', 'BUFGCTRL_VPR']:
                     for port in ports.values():
                         if port not in io_locs:
                             continue
 
                         if cname in self.clock_cmts:
-                            assert self.clock_cmts[cname
-                                                   ] == self.input_pins[port]
+                            assert self.clock_cmts[cname] == self.input_pins[
+                                port], (
+                                    cname, port, self.clock_cmts[cname],
+                                    self.input_pins[port]
+                                )
                         else:
                             self.clock_cmts[cname] = self.input_pins[port]
 
