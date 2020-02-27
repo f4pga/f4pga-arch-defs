@@ -6262,8 +6262,6 @@ always @(*) begin
 		end
 	endcase
 end
-assign eth_rx_clk = eth_clocks_rx;
-assign eth_tx_clk = eth_clocks_tx;
 assign soc_reset0 = (soc_reset_storage | soc_reset1);
 assign eth_rst_n = (~soc_reset0);
 assign soc_counter_done = (soc_counter == 9'd256);
@@ -13446,6 +13444,16 @@ BUFG BUFG_4(
 BUFG BUFG_5(
 	.I(soc_pll_clk100),
 	.O(eth_ref_clk)
+);
+
+BUFG BUFG_6(
+	.I(eth_clocks_tx),
+	.O(eth_tx_clk)
+);
+
+BUFG BUFG_7(
+	.I(eth_clocks_rx),
+	.O(eth_rx_clk)
 );
 
 (* LOC="IDELAYCTRL_X1Y0" *)
