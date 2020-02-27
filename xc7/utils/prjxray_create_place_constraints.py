@@ -256,15 +256,72 @@ WHERE pkey IN (
 
         problem = constraint.Problem()
 
+        # Any clocks that have LOC's already defined should be respected.
+        # Store the parent CMT in clock_cmts.
+        c = conn.cursor()
+        for block, loc in blocks.items():
+            if block in self.clock_blocks:
+
+                clock = self.clock_blocks[block]
+                if CLOCKS[clock['subckt']]['type'] == 'BUFGCTRL':
+                    pass
+                else:
+                    c.execute(
+                        """
+SELECT clock_region_pkey
+FROM phy_tile
+WHERE pkey IN (
+    SELECT phy_tile_pkey
+    FROM site_instance
+    WHERE name = ?
+);
+    """, (loc.replace('"', ''), )
+                    )
+                    result = c.fetchone()
+                    assert result is not None, (block, loc)
+                    clock_region_pkey = result[0]
+
+                    if block in self.clock_cmts:
+                        assert clock_region_pkey == self.clock_cmts[block], (block, clock_region_pkey)
+                    else:
+                        self.clock_cmts[block] = clock_region_pkey
+
+        # Non-clock IBUF's increase the solution space if they are not
+        # constrainted by a LOC.  Given that non-clock IBUF's don't need to
+        # solved for, remove them.
+        unused_blocks = set()
         for clock_name, clock in self.clock_blocks.items():
+            used = False
+            if CLOCKS[clock['subckt']]['type'] != 'IBUF':
+                used = True
+
+            for source_net in clock['source_nets']:
+                if len(self.clock_sources[source_net]) > 0:
+                    used = True
+                    break
+
+            if not used:
+                unused_blocks.add(clock_name)
+                continue
+
             if CLOCKS[clock['subckt']]['type'] == 'BUFGCTRL':
                 problem.addVariable(
                     clock_name, list(self.bufg_from_cmt.keys())
                 )
             else:
-                problem.addVariable(
-                    clock_name, list(self.cmt_to_bufg_tile.keys())
-                )
+                # Constrained objects have a domain of 1
+                if clock_name in self.clock_cmts:
+                    problem.addVariable(
+                            clock_name, (self.clock_cmts[clock_name],)
+                            )
+                else:
+                    problem.addVariable(
+                        clock_name, list(self.cmt_to_bufg_tile.keys())
+                    )
+
+        # Remove unused blocks from solutions.
+        for clock_name in unused_blocks:
+            del self.clock_blocks[clock_name]
 
         for net in self.clock_sources:
             for clock_name in self.clock_sources[net]:
@@ -303,38 +360,6 @@ WHERE pkey IN (
                             lambda source, sink: source == sink,
                             (source_clock_name, clock_name)
                         )
-
-        c = conn.cursor()
-        for block, loc in blocks.items():
-            if block in self.clock_blocks:
-
-                clock = self.clock_blocks[block]
-                if CLOCKS[clock['subckt']]['type'] == 'BUFGCTRL':
-                    pass
-                else:
-                    c.execute(
-                        """
-SELECT clock_region_pkey
-FROM phy_tile
-WHERE pkey IN (
-    SELECT phy_tile_pkey
-    FROM site_instance
-    WHERE name = ?
-);
-    """, (loc.replace('"', ''), )
-                    )
-                    result = c.fetchone()
-                    assert result is not None, (block, loc)
-                    clock_region_pkey = result[0]
-
-                    problem.addConstraint(
-                        lambda clock: clock == clock_region_pkey, (block, )
-                    )
-
-        for block, clock_region_pkey in self.clock_cmts.items():
-            problem.addConstraint(
-                lambda clock: clock == clock_region_pkey, (block, )
-            )
 
         solutions = problem.getSolutions()
         assert len(solutions) > 0
