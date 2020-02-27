@@ -2,8 +2,10 @@ import os.path
 import re
 from lib.rr_graph import graph2
 from lib.rr_graph import tracks
+import gc
 
 import capnp
+import capnp.lib.capnp
 capnp.remove_import_hook()
 
 CAMEL_CASE_CAPITALS = re.compile('([A-Z]+)')
@@ -15,10 +17,10 @@ def enum_from_string(enum_type, s):
     if s == 'uxsdInvalid':
         return None
 
+    s = str(s)
     key = (id(enum_type), s)
     if key not in ENUM_CACHE:
-        ENUM_CACHE[key] = enum_type[CAMEL_CASE_CAPITALS.sub(r'_\1',
-                                                            str(s)).upper()]
+        ENUM_CACHE[key] = enum_type[CAMEL_CASE_CAPITALS.sub(r'_\1', s).upper()]
     return ENUM_CACHE[key]
 
 
@@ -43,13 +45,61 @@ def to_capnp_enum(enum_type, e):
     return CAPNP_ENUM_CACHE[key]
 
 
+def cleanup_capnp_leak(f):
+    """ Cleanup capnp leak resulting from _parent pointers. """
+    popped = set()
+    strays = {}
+
+    # Some strays hold a reference to the input file
+    strays.update(
+        (id(obj), obj)
+        for obj in gc.get_referrers(f)
+        if 'capnp' in str(type(obj))
+    )
+
+    # Some strays are "floating"
+    for obj in gc.get_objects():
+        type_str = str(type(obj))
+        if 'capnp.lib.capnp._DynamicStructReader' in type_str:
+            strays[id(obj)] = obj
+
+    if len(strays) > 0:
+        # First expand all strays and find other capnp objects that still hold
+        # a reference to them (via the _parent pointer).
+        for obj_id in set(strays.keys()) - popped:
+            popped.add(obj_id)
+            strays.update(
+                (id(obj), obj)
+                for obj in gc.get_referrers(strays[obj_id])
+                if 'capnp' in str(type(obj))
+            )
+
+        # Clear their _parent pointer
+        for obj in strays.values():
+            obj._parent = None
+
+        # Make sure none of the strays are still referred to by anything
+        for obj in strays.values():
+            capnp_refs = [
+                None for obj in gc.get_referrers(strays[obj_id])
+                if 'capnp' in str(type(obj))
+            ]
+            assert len(capnp_refs) == 0
+
+        # Make sure the file is not referenced by any files.
+        capnp_refs = [
+            None for obj in gc.get_referrers(f) if 'capnp' in str(type(obj))
+        ]
+        assert len(capnp_refs) == 0
+
+
 def read_switch(sw):
     timing = sw.timing
     sizing = sw.sizing
 
     return graph2.Switch(
         id=sw.id,
-        name=sw.name,
+        name=str(sw.name),
         type=enum_from_string(graph2.SwitchType, sw.type),
         timing=graph2.SwitchTiming(
             r=timing.r,
@@ -70,7 +120,7 @@ def read_segment(seg):
     timing = seg.timing
     return graph2.Segment(
         id=seg.id,
-        name=seg.name,
+        name=str(seg.name),
         timing=graph2.SegmentTiming(
             r_per_meter=timing.rPerMeter,
             c_per_meter=timing.cPerMeter,
@@ -81,7 +131,7 @@ def read_segment(seg):
 def read_pin(pin):
     return graph2.Pin(
         ptc=pin.ptc,
-        name=pin.value,
+        name=str(pin.value),
     )
 
 
@@ -95,7 +145,7 @@ def read_pin_class(pin_class):
 def read_block_type(block_type):
     return graph2.BlockType(
         id=block_type.id,
-        name=block_type.name,
+        name=str(block_type.name),
         width=block_type.width,
         height=block_type.height,
         pin_class=[
@@ -118,7 +168,7 @@ def read_metadata(metadata):
     if len(metadata.metas) == 0:
         return None
     else:
-        return [(m.name, m.value) for m in metadata.metas]
+        return [(str(m.name), str(m.value)) for m in metadata.metas]
 
 
 def read_node(node, new_node_id=None):
@@ -179,9 +229,9 @@ def graph_from_capnp(
         )
 
         root_attrib = {
-            'tool_comment': graph.toolComment,
-            'tool_name': graph.toolName,
-            'tool_version': graph.toolVersion,
+            'tool_comment': str(graph.toolComment),
+            'tool_name': str(graph.toolName),
+            'tool_version': str(graph.toolVersion),
         }
 
         switches = [read_switch(sw) for sw in graph.switches.switches]
@@ -209,7 +259,13 @@ def graph_from_capnp(
         if load_edges:
             edges = [read_edge(e) for e in graph.rrEdges.edges]
 
+        # File back capnp objects cannot outlive their input file,
+        # so verify that no dangling references exist.
         del graph
+        gc.collect()
+
+        # Cleanup leaked capnp objects due to _parent in Cython.
+        cleanup_capnp_leak(f)
 
         return dict(
             root_attrib=root_attrib,
