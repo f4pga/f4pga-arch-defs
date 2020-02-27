@@ -85,6 +85,12 @@ CLOCKS = {
                 ),
             "type":
                 "PS7",
+        },
+    "IBUF_VPR":
+        {
+            "sources": frozenset(("O")),
+            "sinks": frozenset(),
+            "type": "IBUF",
         }
 }
 
@@ -190,6 +196,22 @@ WHERE pkey IN (
                     clock['source_nets'].append(source_net)
 
                 self.clock_blocks[cname] = clock
+
+                # Both PS7 and BUFGCTRL has specialized constraints,
+                # do not bind based on input pins.
+                if bel not in ['PS7_VPR', 'BUFGCTRL_VPR']:
+                    for port in ports.values():
+                        if port not in io_locs:
+                            continue
+
+                        if cname in self.clock_cmts:
+                            assert self.clock_cmts[cname] == self.input_pins[
+                                port], (
+                                    cname, port, self.clock_cmts[cname],
+                                    self.input_pins[port]
+                                )
+                        else:
+                            self.clock_cmts[cname] = self.input_pins[port]
 
             for subckt in blif_data["subckt"]:
                 if 'cname' not in subckt:
@@ -309,6 +331,11 @@ WHERE pkey IN (
                         lambda clock: clock == clock_region_pkey, (block, )
                     )
 
+        for block, clock_region_pkey in self.clock_cmts.items():
+            problem.addConstraint(
+                lambda clock: clock == clock_region_pkey, (block, )
+            )
+
         solutions = problem.getSolutions()
         assert len(solutions) > 0
 
@@ -327,6 +354,9 @@ WHERE pkey IN (
         vpr_locs = {}
 
         for clock_type in CLOCKS.values():
+            if clock_type == 'IBUF':
+                continue
+
             c.execute(
                 """
 SELECT site_instance.name, phy_tile.name, phy_tile.clock_region_pkey
@@ -362,6 +392,7 @@ WHERE site_type.name = ?;""", (clock_type['type'], )
                 vpr_locs[loc] = vpr_loc
 
         for clock_name, clock in self.clock_blocks.items():
+
             # All clocks should have an assigned CMTs at this point.
             assert clock_name in self.clock_cmts, clock_name
 
@@ -369,6 +400,9 @@ WHERE site_type.name = ?;""", (clock_type['type'], )
 
             # Skip LOCing the PS7. There is only one
             if bel_type == "PS7":
+                continue
+
+            if bel_type == 'IBUF':
                 continue
 
             key = (bel_type, self.clock_cmts[clock_name])
