@@ -117,6 +117,11 @@ def revert_to_master(g, repo, remote):
             )
         ]
     )
+
+    # This removes files that got left behind during the reset's above.
+    # Without this, some stray files may cause git to error when attempting
+    # the merge.
+    g.clean(['-fx'])
     g.merge(['master'])
 
 
