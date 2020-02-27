@@ -33,7 +33,7 @@ def iterate_xml(xml_file, load_edges):
     in_edge = False
     for event, element in doc:
         if event == 'start':
-            if in_edge == True:
+            if in_edge:
                 continue
 
             if not load_edges and element.tag == 'edge':
