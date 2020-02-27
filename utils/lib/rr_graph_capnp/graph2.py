@@ -214,7 +214,7 @@ def graph_from_capnp(
         rebase_nodes=False,
 ):
     """
-    Loads relevant information about the routing resource graph from an XML
+    Loads relevant information about the routing resource graph from an capnp
     file.
     """
     if rebase_nodes:
@@ -355,7 +355,7 @@ class Graph(object):
             out_box.name = box
 
     def _write_nodes(self, rr_graph, num_nodes, nodes, node_remap):
-        """ Serialize list of Node objects to XML.
+        """ Serialize list of Node objects to capnp.
 
         Note that this method is extremely hot, len(nodes) is order 1-10 million.
         Almost any modification of this function has a significant effect on
@@ -431,7 +431,7 @@ class Graph(object):
             pass
 
     def _write_edges(self, rr_graph, num_edges, edges, node_remap):
-        """ Serialize list of edge tuples objects to XML.
+        """ Serialize list of edge tuples objects to capnp.
 
         edge tuples are (src_node(int), sink_node(int), switch_id(int), metadata(NodeMetadata)).
 
@@ -563,7 +563,7 @@ class Graph(object):
             node_remap=lambda x: x
     ):
         """
-        Writes the routing graph to the XML file.
+        Writes the routing graph to the capnp file.
         """
 
         self.graph.check_ptc()
