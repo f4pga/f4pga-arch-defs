@@ -75,7 +75,9 @@ always @(posedge clk_g)
 
 assign rst = rst_sr[0];
 
-BUFG bufg (.I(clk), .O(clk_g));
+wire clk_ibuf;
+IBUF ibuf (.I(clk), .O(clk_ibuf));
+BUFG bufg (.I(clk_ibuf), .O(clk_g));
 
 // ============================================================================
 // I2C scanner

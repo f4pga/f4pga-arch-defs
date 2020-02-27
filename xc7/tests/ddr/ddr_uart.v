@@ -9699,8 +9699,11 @@ initial begin
 	$readmemh("mem_1.init", mem_1);
 end
 
+wire clk100_ibuf;
+IBUF ibuf(.I(clk100), .O(clk100_ibuf));
+
 BUFG BUFG(
-	.I(clk100),
+	.I(clk100_ibuf),
 	.O(main_pll_clkin)
 );
 

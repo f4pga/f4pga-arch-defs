@@ -282,7 +282,9 @@ WHERE pkey IN (
                     clock_region_pkey = result[0]
 
                     if block in self.clock_cmts:
-                        assert clock_region_pkey == self.clock_cmts[block], (block, clock_region_pkey)
+                        assert clock_region_pkey == self.clock_cmts[block], (
+                            block, clock_region_pkey
+                        )
                     else:
                         self.clock_cmts[block] = clock_region_pkey
 
@@ -290,6 +292,7 @@ WHERE pkey IN (
         # constrainted by a LOC.  Given that non-clock IBUF's don't need to
         # solved for, remove them.
         unused_blocks = set()
+        any_variable = False
         for clock_name, clock in self.clock_blocks.items():
             used = False
             if CLOCKS[clock['subckt']]['type'] != 'IBUF':
@@ -308,16 +311,19 @@ WHERE pkey IN (
                 problem.addVariable(
                     clock_name, list(self.bufg_from_cmt.keys())
                 )
+                any_variable = True
             else:
                 # Constrained objects have a domain of 1
                 if clock_name in self.clock_cmts:
                     problem.addVariable(
-                            clock_name, (self.clock_cmts[clock_name],)
-                            )
+                        clock_name, (self.clock_cmts[clock_name], )
+                    )
+                    any_variable = True
                 else:
                     problem.addVariable(
                         clock_name, list(self.cmt_to_bufg_tile.keys())
                     )
+                    any_variable = True
 
         # Remove unused blocks from solutions.
         for clock_name in unused_blocks:
@@ -361,10 +367,11 @@ WHERE pkey IN (
                             (source_clock_name, clock_name)
                         )
 
-        solutions = problem.getSolutions()
-        assert len(solutions) > 0
+        if any_variable:
+            solutions = problem.getSolutions()
+            assert len(solutions) > 0
 
-        self.clock_cmts = solutions[0]
+            self.clock_cmts.update(solutions[0])
 
     def place_clocks(
             self, conn, loc_in_use, block_locs, blocks, grid_capacities
