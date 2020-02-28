@@ -509,7 +509,7 @@ function(DEFINE_DEVICE)
     set(OUT_RRXML_VIRT_FILENAME
       rr_graph_${DEVICE}_${PACKAGE}.rr_graph.virt${RR_GRAPH_EXT})
     set(OUT_RRXML_REAL_FILENAME
-      rr_graph_${DEVICE}_${PACKAGE}.rr_graph.real${RR_GRAPH_EXT})
+      rr_graph_${DEVICE}_${PACKAGE}.rr_graph.real.patched${RR_GRAPH_EXT})
     set(OUT_RRBIN_REAL_FILENAME
       rr_graph_${DEVICE}_${PACKAGE}.rr_graph.real.bin)
     set(LOOKAHEAD_FILENAME
