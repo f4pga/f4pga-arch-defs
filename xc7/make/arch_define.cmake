@@ -120,4 +120,5 @@ function(ADD_XC7_ARCH_DEFINE)
   )
 
   set_target_properties(${ARCH} PROPERTIES PRJXRAY_ARCH ${PRJXRAY_ARCH})
+  add_custom_target(all_${ARCH}_diff_fasm)
 endfunction()

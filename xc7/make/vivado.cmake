@@ -6,7 +6,6 @@ function(COMMON_VIVADO_TARGETS)
   #   BITSTREAM <bitstream>
   #   DEPS <dependency list>
   #   [MAKE_DIFF_FASM]
-  #   [ALL_DIFF_FASM]
   #   )
   # ~~~
   #
@@ -23,7 +22,7 @@ function(COMMON_VIVADO_TARGETS)
   # and the output from Vivado, and attaches that diff generation to
   # "all_xc7_diff_fasm" which can used to verify FASM.
   #
-  set(options MAKE_DIFF_FASM ALL_DIFF_FASM)
+  set(options MAKE_DIFF_FASM)
   set(oneValueArgs NAME WORK_DIR BITSTREAM)
   set(multiValueArgs DEPS)
   cmake_parse_arguments(
@@ -137,9 +136,6 @@ function(COMMON_VIVADO_TARGETS)
             ${DEPS}
             ${CMAKE_CURRENT_BINARY_DIR}/${WORK_DIR}/design_${NAME}.bit.fasm
         )
-    if(${COMMON_VIVADO_TARGETS_ALL_DIFF_FASM})
-      add_dependencies(all_xc7_diff_fasm ${NAME}_diff_fasm)
-    endif()
   endif()
 endfunction()
 
@@ -263,18 +259,17 @@ function(ADD_VIVADO_TARGET)
   # directory, and presents Vivado filename collisions.
   get_filename_component(WORK_DIR ${BIT_VERILOG} DIRECTORY)
 
-  if(${ADD_VIVADO_TARGET_DISABLE_DIFF_TEST})
-    set(DIFF_ARG MAKE_DIFF_FASM)
-  else()
-    set(DIFF_ARG MAKE_DIFF_FASM ALL_DIFF_FASM)
-  endif()
 
   COMMON_VIVADO_TARGETS(
       NAME ${NAME}
       WORK_DIR ${WORK_DIR}
       DEPS ${DEPS}
       BITSTREAM ${BITSTREAM}
-      ${DIFF_ARG})
+      MAKE_DIFF_FASM)
+
+  if(NOT ${ADD_VIVADO_TARGET_DISABLE_DIFF_TEST})
+    add_dependencies(all_${ARCH}_diff_fasm ${NAME}_diff_fasm)
+  endif()
 
 endfunction()
 

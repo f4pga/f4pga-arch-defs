@@ -25,7 +25,6 @@ add_custom_target(clean_locks)
 
 # Add dummy targets for attaching test targets too.
 add_custom_target(all_xc7_tests)
-add_custom_target(all_xc7_diff_fasm)
 add_custom_target(all_ice40_tests)
 
 setup_env(
@@ -259,8 +258,18 @@ add_dependencies(all_xc7_demos
     all_arty-full_bin
     all_basys3_bin
     all_basys3-full_bin
+    #all_basys3-bottom_bin
     # TODO(#548) Zybo targets not currently working, so removed from all target.
     #all_zybo_bin
+    #all_zybo-full_bin
+    )
+endif()
+
+add_custom_target(all_xc7_diff_fasm)
+if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
+add_dependencies(all_xc7_diff_fasm
+    all_artix7_diff_fasm
+    all_zynq7_diff_fasm
     )
 endif()
 
@@ -273,6 +282,13 @@ add_dependencies(all_xc7
 if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
 add_dependencies(all_xc7
     test_dram_packing
+    )
+endif()
+
+add_custom_target(all_xc7_200t)
+if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
+add_dependencies(all_xc7_200t
+    all_nexys_video_bin
     )
 endif()
 
