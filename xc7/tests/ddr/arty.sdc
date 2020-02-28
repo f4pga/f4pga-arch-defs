@@ -1,5 +1,5 @@
 # Input clock
-create_clock -period 10 clk100 -waveform {0.000 5.000}
+create_clock -period 10 clk100_ibuf -waveform {0.000 5.000}
 
 # Input clock BUFG
 create_clock -period 10 main_pll_clkin -waveform {0.000 5.000}

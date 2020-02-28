@@ -10119,8 +10119,11 @@ end
 assign main_minsoc_uart_rx_fifo_wrport_dat_r = memdat_3;
 assign main_minsoc_uart_rx_fifo_rdport_dat_r = memdat_4;
 
+wire clk100_ibuf;
+IBUF clkbuf(.I(clk100), .O(clk100_ibuf));
+
 BUFG BUFG(
-	.I(clk100),
+	.I(clk100_ibuf),
 	.O(main_pll_clkin)
 );
 
