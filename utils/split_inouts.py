@@ -63,7 +63,7 @@ def find_top_module(design):
 
     for name, module in design["modules"].items():
         attrs = module["attributes"]
-        if "top" in attrs and attrs["top"] == 1:
+        if "top" in attrs and int(attrs["top"]) == 1:
             return name
 
     raise RuntimeError("No top-level module found in the design!")
