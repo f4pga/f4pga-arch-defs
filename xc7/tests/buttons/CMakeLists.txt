@@ -63,4 +63,19 @@ add_vivado_target(
 #  EXPLICIT_ADD_FILE_TARGET
 #  )
 
+add_file_target(FILE buttons_nexys_video.v SCANNER_TYPE verilog)
+add_file_target(FILE buttons_nexys_video.xdc)
 
+add_fpga_target(
+  NAME buttons_nexys_video
+  BOARD nexys_video
+  SOURCES buttons_nexys_video.v
+  INPUT_IO_FILE ${COMMON}/nexys_video.pcf
+  INPUT_XDC_FILE buttons_nexys_video.xdc
+  EXPLICIT_ADD_FILE_TARGET
+  )
+
+add_vivado_target(
+  NAME buttons_nexys_video_vivado
+  PARENT_NAME buttons_nexys_video
+  )

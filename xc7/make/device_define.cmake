@@ -145,7 +145,7 @@ endfunction()
 
 function(ADD_XC7_DEVICE_DEFINE_TYPE)
   set(options)
-  set(oneValueArgs ARCH PRJXRAY_ARCH PART DEVICE ROI_DIR GRAPH_LIMIT)
+  set(oneValueArgs ARCH PART DEVICE ROI_DIR GRAPH_LIMIT)
   set(multiValueArgs TILE_TYPES PB_TYPES)
   cmake_parse_arguments(
     ADD_XC7_DEVICE_DEFINE_TYPE
@@ -160,11 +160,7 @@ function(ADD_XC7_DEVICE_DEFINE_TYPE)
   set(ROI_DIR ${ADD_XC7_DEVICE_DEFINE_TYPE_ROI_DIR})
   set(TILE_TYPES ${ADD_XC7_DEVICE_DEFINE_TYPE_TILE_TYPES})
 
-  if("${ADD_XC7_DEVICE_DEFINE_PRJXRAY_ARCH}" STREQUAL "")
-      set(PRJXRAY_ARCH "${ARCH}")
-  else()
-      set(PRJXRAY_ARCH "${ADD_XC7_DEVICE_DEFINE_PRJXRAY_ARCH}")
-  endif()
+  get_target_property_required(PRJXRAY_ARCH ${ARCH} PRJXRAY_ARCH)
 
   if(NOT "${ROI_DIR}" STREQUAL "")
     set(ROI_ARGS USE_ROI ${ROI_DIR}/design.json)
@@ -184,7 +180,6 @@ function(ADD_XC7_DEVICE_DEFINE_TYPE)
 
   project_xray_arch(
     ARCH ${ARCH}
-    PRJXRAY_ARCH ${PRJXRAY_ARCH}
     PART ${PART}
     DEVICE ${DEVICE}
     TILE_TYPES ${TILE_TYPES}

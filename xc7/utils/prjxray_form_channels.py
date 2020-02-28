@@ -449,6 +449,9 @@ def build_tile_type_indicies(write_cur):
         "CREATE INDEX wire_name_index ON wire_in_tile(name, tile_type_pkey);"
     )
     write_cur.execute(
+        "CREATE INDEX wire_tile_site_index ON wire_in_tile(tile_type_pkey, site_pkey);"
+    )
+    write_cur.execute(
         "CREATE INDEX wire_site_pin_index ON wire_in_tile(site_pin_pkey);"
     )
     write_cur.execute(
@@ -1104,6 +1107,14 @@ VALUES
         )
 
     write_cur.execute("CREATE INDEX node_type_index ON node(classification);")
+    write_cur.execute(
+        """
+    CREATE INDEX edge_with_mux_index ON edge_with_mux(
+        src_wire_pkey,
+        dest_wire_pkey,
+        pip_in_tile_pkey,
+        switch_pkey);"""
+    )
     write_cur.connection.commit()
 
 
@@ -2073,9 +2084,18 @@ AND
     write_cur.execute(
         "CREATE INDEX tile_wire_index ON wire(wire_in_tile_pkey, tile_pkey, node_pkey);"
     )
+    #write_cur.execute(
+    #    "CREATE INDEX wire_in_tile_phy_index ON wire(wire_in_tile_pkey, phy_tile_pkey, tile_pkey);"
+    #)
     write_cur.execute(
         "CREATE INDEX node_tile_wire_index ON wire(node_pkey, tile_pkey, wire_in_tile_pkey);"
     )
+    #write_cur.execute(
+    #    "CREATE INDEX node_tile_wire_phy_index ON wire(node_pkey, tile_pkey, wire_in_tile_pkey, phy_tile_pkey);"
+    #)
+    #write_cur.execute(
+    #    "CREATE INDEX wire_in_tile_phy_node ON wire(wire_in_tile_pkey, phy_tile_pkey, node_pkey);"
+    #)
 
     # Update tile_type_pkey in wire_in_tile table.
     update_wire_in_tile_types(
