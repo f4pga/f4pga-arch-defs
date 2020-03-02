@@ -4,18 +4,6 @@ create_clock -period 10 clk100 -waveform {0.000 5.000}
 # Input clock BUFG 100 MHz
 create_clock -period 10 soc_clk100bg -waveform {0.000 5.000}
 
-# Input eth clock transmitter 25 MHz
-create_clock -period 40 eth_clocks_tx -waveform {0.000 20.000}
-
-# Input eth clock BUFG 25 MHz
-create_clock -period 40 eth_tx_clk -waveform {0.000 20.000}
-
-# Input eth clock receiver 25 MHz
-create_clock -period 40 eth_clocks_rx -waveform {0.000 20.000}
-
-# Input eth clock BUFG 25 MHz
-create_clock -period 40 eth_rx_clk -waveform {0.000 20.000}
-
 # PLL feedback loop 100 MHz
 create_clock -period 10 soc_pll_fb -waveform {0.000 5.000}
 
@@ -49,4 +37,4 @@ create_clock -period 40 soc_pll_clk100 -waveform {0.000 20.000}
 # BUFG CLKOUT4 25 MHz
 create_clock -period 40 eth_ref_clk -waveform {0.000 20.000}
 
-set_clock_groups -exclusive -group {clk100 soc_clk100bg soc_pll_fb} -group {soc_pll_sys sys_clk__VexRiscv.IBusCachedPlugin_cache.clk__VexRiscv.clk__VexRiscv.dataCache_1_.clk} -group {soc_pll_sys4x soc_pll_sys4x_dqs} -group {main_clkout3 clk200_clk} -group {eth_ref_clk eth_rx_clk eth_clocks_rx eth_tx_clk eth_clocks_tx}
+set_clock_groups -exclusive -group {clk100 soc_clk100bg soc_pll_fb} -group {soc_pll_sys sys_clk__VexRiscv.IBusCachedPlugin_cache.clk__VexRiscv.clk__VexRiscv.dataCache_1_.clk} -group {soc_pll_sys4x soc_pll_sys4x_dqs} -group {main_clkout3 clk200_clk}
