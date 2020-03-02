@@ -385,6 +385,15 @@ def cleanup_dram(top, site):
             for idx in range(6):
                 site.mask_sink(ram128, 'ADDR_A{}'.format(idx))
 
+    if 'RAM256X1S' in lut_modes.values():
+        ram256 = site.maybe_get_bel('RAM256X1S')
+
+        site.mask_sink(ram256, 'AX')
+        for idx in range(6):
+            site.mask_sink(ram256, 'ADDR_C[{}]'.format(idx))
+            site.mask_sink(ram256, 'ADDR_B[{}]'.format(idx))
+            site.mask_sink(ram256, 'ADDR_A[{}]'.format(idx))
+
 
 def cleanup_slice(top, site):
     """Performs post-routing cleanups required for SLICE."""
@@ -608,8 +617,18 @@ def process_slice(top, s):
                 site.add_sink(
                     ram256, 'A[{}]'.format(idx), "D{}".format(idx + 1)
                 )
+                site.add_sink(
+                    ram256, 'ADDR_C[{}]'.format(idx), "C{}".format(idx + 1)
+                )
+                site.add_sink(
+                    ram256, 'ADDR_B[{}]'.format(idx), "B{}".format(idx + 1)
+                )
+                site.add_sink(
+                    ram256, 'ADDR_A[{}]'.format(idx), "A{}".format(idx + 1)
+                )
 
             site.add_sink(ram256, 'A[6]', "CX")
+            site.add_sink(ram256, 'AX', "AX")
             site.add_sink(ram256, 'A[7]', "BX")
             site.add_internal_source(ram256, 'O', 'F8MUX_O')
 
@@ -620,7 +639,7 @@ def process_slice(top, s):
                 | get_shifted_lut_init(site, 'A', 192)
             )
 
-            site.add_bel(ram256)
+            site.add_bel(ram256, name="RAM256X1S")
 
             muxes = set()
 
