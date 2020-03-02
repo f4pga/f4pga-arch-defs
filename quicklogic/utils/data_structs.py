@@ -114,6 +114,7 @@ class SwitchboxPinType(Enum):
     HOP     = 2
     GCLK    = 3
     CONST   = 4
+    FOREIGN = 5
 
 """
 A location that identifies a pin inside a switchbox.

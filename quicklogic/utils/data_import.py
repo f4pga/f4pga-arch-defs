@@ -14,7 +14,7 @@ import lxml.etree as ET
 
 from data_structs import *
 from connections import build_connections, check_connections
-from connections import parse_hop_wire_name
+from connections import hop_to_str, get_name_and_hop, is_regular_hop_wire
 
 # =============================================================================
 
@@ -390,14 +390,17 @@ def update_switchbox_pins(switchbox):
     for name, locs in {k: input_locs[k] for k in keys}.items():
 
         # Determine the pin type
-        hop_name, _ = parse_hop_wire_name(name)
+        is_hop = is_regular_hop_wire(name)
+        _, hop = get_name_and_hop(name)
 
         if name in ["VCC", "GND"]:
             pin_type = SwitchboxPinType.CONST
         elif name.startswith("CAND"):
             pin_type = SwitchboxPinType.GCLK
-        elif hop_name is not None:
+        elif is_hop:
             pin_type = SwitchboxPinType.HOP
+        elif hop is not None:
+            pin_type = SwitchboxPinType.FOREIGN
         else:
             pin_type = SwitchboxPinType.LOCAL
 
@@ -834,6 +837,15 @@ def specialize_switchboxes_with_wire_maps(switchbox_types, switchbox_grid, port_
             assert key in port_map, (map_loc, key)
             pin_name = port_map[key]
 
+            # Append the hop to the wire name. Only if the map indicates that
+            # the pin is connected.
+            if pin_name is not None:
+                hop = (
+                    map_loc.x - loc.x,
+                    map_loc.y - loc.y,
+                )
+                pin_name += "_{}".format(hop_to_str(hop))
+
             # Rename pin
             stage  = new_switchbox.stages[pin_loc.stage_id]
             switch = stage.switches[pin_loc.switch_id]
@@ -859,6 +871,35 @@ def specialize_switchboxes_with_wire_maps(switchbox_types, switchbox_grid, port_
         # Add to the switchbox types and the grid
         switchbox_types[new_switchbox.type] = new_switchbox
         switchbox_grid[loc] = new_switchbox.type
+
+# =============================================================================
+
+
+def find_special_cells(tile_grid):
+    """
+    Finds cells that occupy more than one tilegrid location.
+    """
+    cells = {}
+
+    # Assign each cell name its locations.
+    for loc, tile in tile_grid.items():
+        for cell_type, cell_names in tile.cell_names.items():
+            for cell_name in cell_names:
+
+                # Skip LOGIC as it is always contained in a single tile
+                if cell_name == "LOGIC":
+                    continue            
+
+                if cell_name not in cells:
+                    cells[cell_name] = {
+                        "type": cell_type,
+                        "locs": [loc]
+                    }
+                else:
+                    cells[cell_name]["locs"].append(loc)
+
+    # Leave only those that have more than one location
+    cells = {k: v for k, v in cells.items() if len(v["locs"]) > 1}
 
 # =============================================================================
 
@@ -1022,7 +1063,6 @@ def import_data(xml_root):
         "tile_grid": tile_grid,
         "switchbox_types": switchbox_types,
         "switchbox_grid": switchbox_grid,
-        "port_maps": port_maps,
         "package_pinmaps": package_pinmaps
     }
 
