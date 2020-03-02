@@ -751,9 +751,37 @@
 
         <!-- Direct DI1 inputs -->
         <direct name="DI" input="SLICEM_MODES.DI" output="D_DRAM128.DI1" />
-        <direct name="CI" input="SLICEM_MODES.CI" output="C_DRAM128.DI1" />
-        <direct name="BI" input="SLICEM_MODES.BI" output="B_DRAM128.DI1" />
-        <direct name="AI" input="SLICEM_MODES.AI" output="A_DRAM128.DI1" />
+        <mux name="CDI1MUX" input="SLICEM_MODES.DI SLICEM_MODES.CI" output="C_DRAM128.DI1">
+          <metadata>
+            <meta name="fasm_mux">
+              SLICEM_MODES.DI = CLUT.DI1MUX.DI_DMC31
+              SLICEM_MODES.CI = CLUT.DI1MUX.CI
+            </meta>
+          </metadata>
+        </mux>
+        <mux name="BDI1MUX" input="SLICEM_MODES.DI SLICEM_MODES.BI" output="B_DRAM128.DI1">
+          <metadata>
+            <meta name="fasm_mux">
+              SLICEM_MODES.DI = BLUT.DI1MUX.DI_CMC31
+              SLICEM_MODES.BI = BLUT.DI1MUX.BI
+            </meta>
+          </metadata>
+        </mux>
+        <!-- TODO: ensure BLUT.DI1MUX is set correctly for SLICEM_MODES.DI/BI
+
+          For now, the FASM features are emitted to ensure that the mux
+          is set correctly, and it there is a mux conflict it will arise
+          during fasm2frames.
+        -->
+        <mux name="ADI1MUX" input="SLICEM_MODES.DI SLICEM_MODES.BI SLICEM_MODES.AI" output="A_DRAM128.DI1">
+          <metadata>
+            <meta name="fasm_mux">
+              SLICEM_MODES.DI = ALUT.DI1MUX.BDI1_BMC31,BLUT.DI1MUX.DI_CMC31
+              SLICEM_MODES.BI = ALUT.DI1MUX.BDI1_BMC31,BLUT.DI1MUX.BI
+              SLICEM_MODES.AI = ALUT.DI1MUX.AI
+            </meta>
+          </metadata>
+        </mux>
 
         <!-- WE inputs -->
         <direct name="CE_TO_WE_MUX" input="SLICEM_MODES.CE"  output="WE_MUX.CE"/>
