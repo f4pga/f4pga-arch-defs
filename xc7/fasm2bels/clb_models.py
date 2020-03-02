@@ -384,10 +384,11 @@ def cleanup_dram(top, site):
             for idx in range(6):
                 site.mask_sink(ram128, 'ADDR_C{}'.format(idx))
 
-        if lut_modes['B'] == 'RAM128X1S' and lut_modes['A'] == 'RAM128X1S':
-            ram128 = site.maybe_get_bel('RAM128X1S_AB')
-            for idx in range(6):
-                site.mask_sink(ram128, 'ADDR_A{}'.format(idx))
+        if 'B' in lut_modes.keys():
+            if lut_modes['B'] == 'RAM128X1S' and lut_modes['A'] == 'RAM128X1S':
+                ram128 = site.maybe_get_bel('RAM128X1S_AB')
+                for idx in range(6):
+                    site.mask_sink(ram128, 'ADDR_A{}'.format(idx))
 
     if 'RAM256X1S' in lut_modes.values():
         ram256 = site.maybe_get_bel('RAM256X1S')
