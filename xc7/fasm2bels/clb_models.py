@@ -365,7 +365,11 @@ def cleanup_srl(top, site):
 
 
 def cleanup_dram(top, site):
+    """Performs post-routing cleanup of DRAMs for SLICEMs.
 
+    Depending on the DRAM mode, the fake sinks are masked so that they
+    are not present in the verilog output.
+    """
     lut_modes = decode_dram(site)
 
     if 'RAM128X1D' in lut_modes.values():
@@ -617,6 +621,7 @@ def process_slice(top, s):
                 site.add_sink(
                     ram256, 'A[{}]'.format(idx), "D{}".format(idx + 1)
                 )
+                # Add fake sinks as they need to be routed to
                 site.add_sink(
                     ram256, 'ADDR_C[{}]'.format(idx), "C{}".format(idx + 1)
                 )
@@ -628,9 +633,12 @@ def process_slice(top, s):
                 )
 
             site.add_sink(ram256, 'A[6]', "CX")
-            site.add_sink(ram256, 'AX', "AX")
             site.add_sink(ram256, 'A[7]', "BX")
             site.add_internal_source(ram256, 'O', 'F8MUX_O')
+
+            # Add fake sink to preserve routing thorugh AX pin.
+            # The AX pin is used in the same net as for the CX pin.
+            site.add_sink(ram256, 'AX', "AX")
 
             ram256.parameters['INIT'] = (
                 get_shifted_lut_init(site, 'D')
@@ -655,6 +663,7 @@ def process_slice(top, s):
 
             for idx in range(6):
                 site.add_sink(ram128, 'A{}'.format(idx), "D{}".format(idx + 1))
+                # Add fake sink to route through the C[N] pins
                 site.add_sink(
                     ram128, 'ADDR_C{}'.format(idx), "C{}".format(idx + 1)
                 )
@@ -683,6 +692,7 @@ def process_slice(top, s):
                     site.add_sink(
                         ram128, 'A{}'.format(idx), "B{}".format(idx + 1)
                     )
+                    # Add fake sink to route through the A[N] pins
                     site.add_sink(
                         ram128, 'ADDR_A{}'.format(idx), "A{}".format(idx + 1)
                     )
@@ -714,12 +724,14 @@ def process_slice(top, s):
                 site.add_sink(
                     ram128, 'A[{}]'.format(idx), "D{}".format(idx + 1)
                 )
+                # Add fake sink to route through the C[N] pins
                 site.add_sink(
                     ram128, 'ADDR_C[{}]'.format(idx), "C{}".format(idx + 1)
                 )
                 site.add_sink(
                     ram128, 'DPRA[{}]'.format(idx), "B{}".format(idx + 1)
                 )
+                # Add fake sink to route through the A[N] pins
                 site.add_sink(
                     ram128, 'DATA_A[{}]'.format(idx), "A{}".format(idx + 1)
                 )
