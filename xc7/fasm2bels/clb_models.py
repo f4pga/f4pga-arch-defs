@@ -367,21 +367,23 @@ def cleanup_srl(top, site):
 def cleanup_dram(top, site):
 
     lut_modes = decode_dram(site)
+
     if 'RAM128X1D' in lut_modes.values():
         ram128 = site.maybe_get_bel('RAM128X1D')
         for idx in range(6):
             site.mask_sink(ram128, 'ADDR_C[{}]'.format(idx))
             site.mask_sink(ram128, 'DATA_A[{}]'.format(idx))
 
-    if lut_modes['D'] == 'RAM128X1S' and lut_modes['C'] == 'RAM128X1S':
-        ram128 = site.maybe_get_bel('RAM128X1S_CD')
-        for idx in range(6):
-            site.mask_sink(ram128, 'ADDR_C{}'.format(idx))
+    if 'RAM128X1S' in lut_modes.values():
+        if lut_modes['D'] == 'RAM128X1S' and lut_modes['C'] == 'RAM128X1S':
+            ram128 = site.maybe_get_bel('RAM128X1S_CD')
+            for idx in range(6):
+                site.mask_sink(ram128, 'ADDR_C{}'.format(idx))
 
-    if lut_modes['B'] == 'RAM128X1S' and lut_modes['A'] == 'RAM128X1S':
-        ram128 = site.maybe_get_bel('RAM128X1S_AB')
-        for idx in range(6):
-            site.mask_sink(ram128, 'ADDR_A{}'.format(idx))
+        if lut_modes['B'] == 'RAM128X1S' and lut_modes['A'] == 'RAM128X1S':
+            ram128 = site.maybe_get_bel('RAM128X1S_AB')
+            for idx in range(6):
+                site.mask_sink(ram128, 'ADDR_A{}'.format(idx))
 
 
 def cleanup_slice(top, site):
