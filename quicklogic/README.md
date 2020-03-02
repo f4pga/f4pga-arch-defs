@@ -15,11 +15,14 @@ Then build Yosys with the following commands:
 
 ```
 cd yosys
+make config-gcc
 make -j$(nproc)
 sudo make install
 ```
 
 This will install Yosys into your `/usr/bin/` directory.
+
+Note: If you want to build Yosys using clang then replace `make config-gcc` with `make config-clang`.
 
 Note: Once the changes in Yosys regarding QuickLogic are added to mainstream, this step will be unnecessary, since everything will be fetched by Anaconda.
 
@@ -47,15 +50,17 @@ Once the SymbiFlow environment is set you can perform the implementation (synthe
 Go to the quicklogic/tests directory and choose a design you want to implement:
 
 ```
-cd tests/counter
-make btn_counter-ql-chandalar-top_bit
+cd tests/btn_counter
+make btn_counter-ql-chandalar_bit
 ```
 
-This will generate a binary bitstream file for the design. The resulting bitstream will be written to the `top.bit` file in the working directory of the design. Currently designs that work on hardware are:
+This will generate a binary bitstream file for the design. The resulting bitstream will be written to the `top.bit` file in the working directory of the design.
 
-- btn_xor-ql-chandalar-top
-- btn_ff-ql-chandalar-top
-- btn_counter-ql-chandalar-top
+Currently designs that work on hardware are:
+
+- btn_xor-ql-chandalar
+- btn_ff-ql-chandalar
+- btn_counter-ql-chandalar
 
 ### 4. Programming the EOS S3 SoC
 
@@ -64,7 +69,7 @@ There are helper scripts integrated with the flow that can automatically configu
 In order to generate the programming script build the following target:
 
 ```
-make btn_counter-ql-chandalar-top_jlink
+make btn_counter-ql-chandalar_jlink
 ```
 
 The script will contain the bitstream as well as IOMUX configuration.
