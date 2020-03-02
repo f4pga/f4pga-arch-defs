@@ -369,15 +369,16 @@ def build_tile_connection_map(graph, nodes_by_id, tile_grid, connections):
 
         # FIXME: This is not correct if there are direct connections between
         # two different tiles!
-        assert not (connection.src.is_direct and connection.dst.is_direct), connection
+        assert not (connection.src.type == ConnectionType.TILE and \
+                    connection.dst.type == ConnectionType.TILE), connection
 
         # Connection to a tile
-        if connection.dst.is_direct:
+        if connection.dst.type == ConnectionType.TILE:
             add_to_map(connection, connection.dst)
             continue
 
         # Connection from a tile
-        if connection.src.is_direct:
+        if connection.src.type == ConnectionType.TILE:
             add_to_map(connection, connection.src)
             continue
 
@@ -525,7 +526,9 @@ def add_tracks_for_hop_wires(graph, connections):
     node_map = {}
         
     # Add tracks for HOP wires between switchboxes
-    hops = [c for c in connections if not c.src.is_direct and not c.dst.is_direct]
+    hops = [c for c in connections if c.src.type == ConnectionType.SWITCHBOX \
+                                  and c.dst.type == ConnectionType.SWITCHBOX]
+
     bar = progressbar_utils.progressbar
     for connection in bar(hops):
 
@@ -585,7 +588,8 @@ def populate_connections(connections, tile_grid, switchbox_models, connection_to
     
         # Connection between switchboxes through HOP wires. A connection
         # represents the HOP wire node.
-        if not connection.src.is_direct and not connection.dst.is_direct:
+        if connection.src.type == ConnectionType.SWITCHBOX and \
+           connection.dst.type == ConnectionType.SWITCHBOX:
 
             # Get the HOP wire node
             node = connection_to_node[connection]
@@ -638,7 +642,7 @@ def populate_connections(connections, tile_grid, switchbox_models, connection_to
             node = connection_to_node[connection]
 
             # To tile
-            if connection.dst.is_direct:
+            if connection.dst.type == ConnectionType.TILE:
 
                 # Get the output node of the minigraph
                 key = (connection.src.pin, PinDirection.OUTPUT)
@@ -648,7 +652,7 @@ def populate_connections(connections, tile_grid, switchbox_models, connection_to
                 assign_vpr_node(minigraph, mininode, node.id)
         
             # From tile
-            if connection.src.is_direct:
+            if connection.src.type == ConnectionType.TILE:
 
                 # Get the input node of the minigraph
                 key = (connection.dst.pin, PinDirection.INPUT)

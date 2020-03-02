@@ -192,12 +192,12 @@ def process_connections(phy_connections, loc_map, grid_limit=None):
             src=ConnectionLoc(
                 loc=loc_map.fwd[src_loc],
                 pin=src_pin,
-                is_direct=connection.src.is_direct,
+                type=connection.src.type,
             ),
             dst=ConnectionLoc(
                 loc=loc_map.fwd[dst_loc],
                 pin=dst_pin,
-                is_direct=connection.dst.is_direct,
+                type=connection.dst.type,
             ),
         )
         vpr_connections.append(new_connection)

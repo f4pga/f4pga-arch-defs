@@ -18,7 +18,7 @@ from connections import parse_hop_wire_name
 
 # =============================================================================
 
-# A list of cells in the globla clock network
+# A list of cells in the global clock network
 GCLK_CELLS = (
     "GMUX",
     "QMUX",

@@ -248,10 +248,18 @@ class Switchbox(object):
 
 # =============================================================================
 
-# A connection endpoint location. Specifies location and pin name. If the
-# is_direct is true then the pin name refers to the tile, if not then to the
-# switchbox
-ConnectionLoc = namedtuple("ConnectionLoc", "loc pin is_direct")
+class ConnectionType(Enum):
+    """
+    Connection endpoint type
+    """
+    UNSPEC      = 0 # Unspecified
+    SWITCHBOX   = 1 # Connection to a pin of a switchbox
+    TILE        = 2 # Connection to a pin of a tile
+    SPECIAL     = 3 # Connection to a special cell like ASSP, RAM and MULT
+
+# A connection endpoint location. Specifies location, pin name and connection
+# type.
+ConnectionLoc = namedtuple("ConnectionLoc", "loc pin type")
 
 # A connection within the tilegrid
 Connection = namedtuple("Connection", "src dst")

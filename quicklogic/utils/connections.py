@@ -97,12 +97,12 @@ def build_local_connections_at(loc, switchbox, tile):
         src = ConnectionLoc(
             loc=loc,
             pin=src_pin.name,
-            is_direct=False,
+            type=ConnectionType.SWITCHBOX,
         )
         dst = ConnectionLoc(
             loc=loc,
             pin=dst_pin.name,
-            is_direct=True,
+            type=ConnectionType.TILE,
         )
 
         if src_pin.direction == PinDirection.OUTPUT:
@@ -201,12 +201,12 @@ def build_hop_connections(tile_types, tile_grid, switchbox_types, switchbox_grid
                 src=ConnectionLoc(
                     loc=src_loc,
                     pin=src_pin.name,
-                    is_direct=False,
+                    type=ConnectionType.SWITCHBOX,
                 ),
                 dst=ConnectionLoc(
                     loc=dst_loc,
                     pin=dst_pin.name,
-                    is_direct=False,
+                    type=ConnectionType.SWITCHBOX,
                 ),
             )
 
