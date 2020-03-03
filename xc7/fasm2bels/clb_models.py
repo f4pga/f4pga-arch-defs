@@ -364,6 +364,42 @@ def cleanup_srl(top, site):
                 top.remove_bel(site, srl)
 
 
+def cleanup_dram(top, site):
+    """Performs post-routing cleanup of DRAMs for SLICEMs.
+
+    Depending on the DRAM mode, the fake sinks are masked so that they
+    are not present in the verilog output.
+    """
+    lut_modes = decode_dram(site)
+
+    if 'RAM128X1D' in lut_modes.values():
+        ram128 = site.maybe_get_bel('RAM128X1D')
+        for idx in range(6):
+            site.mask_sink(ram128, 'ADDR_C[{}]'.format(idx))
+            site.mask_sink(ram128, 'DATA_A[{}]'.format(idx))
+
+    if 'RAM128X1S' in lut_modes.values():
+        if lut_modes['D'] == 'RAM128X1S' and lut_modes['C'] == 'RAM128X1S':
+            ram128 = site.maybe_get_bel('RAM128X1S_CD')
+            for idx in range(6):
+                site.mask_sink(ram128, 'ADDR_C{}'.format(idx))
+
+        if 'B' in lut_modes.keys():
+            if lut_modes['B'] == 'RAM128X1S' and lut_modes['A'] == 'RAM128X1S':
+                ram128 = site.maybe_get_bel('RAM128X1S_AB')
+                for idx in range(6):
+                    site.mask_sink(ram128, 'ADDR_A{}'.format(idx))
+
+    if 'RAM256X1S' in lut_modes.values():
+        ram256 = site.maybe_get_bel('RAM256X1S')
+
+        site.mask_sink(ram256, 'AX')
+        for idx in range(6):
+            site.mask_sink(ram256, 'ADDR_C[{}]'.format(idx))
+            site.mask_sink(ram256, 'ADDR_B[{}]'.format(idx))
+            site.mask_sink(ram256, 'ADDR_A[{}]'.format(idx))
+
+
 def cleanup_slice(top, site):
     """Performs post-routing cleanups required for SLICE."""
 
@@ -372,6 +408,9 @@ def cleanup_slice(top, site):
 
     # Cleanup SRL stuff
     cleanup_srl(top, site)
+
+    # Cleanup DRAM stuff
+    cleanup_dram(top, site)
 
 
 def munge_ram32m_init(init):
@@ -583,10 +622,24 @@ def process_slice(top, s):
                 site.add_sink(
                     ram256, 'A[{}]'.format(idx), "D{}".format(idx + 1)
                 )
+                # Add fake sinks as they need to be routed to
+                site.add_sink(
+                    ram256, 'ADDR_C[{}]'.format(idx), "C{}".format(idx + 1)
+                )
+                site.add_sink(
+                    ram256, 'ADDR_B[{}]'.format(idx), "B{}".format(idx + 1)
+                )
+                site.add_sink(
+                    ram256, 'ADDR_A[{}]'.format(idx), "A{}".format(idx + 1)
+                )
 
             site.add_sink(ram256, 'A[6]', "CX")
             site.add_sink(ram256, 'A[7]', "BX")
             site.add_internal_source(ram256, 'O', 'F8MUX_O')
+
+            # Add fake sink to preserve routing thorugh AX pin.
+            # The AX pin is used in the same net as for the CX pin.
+            site.add_sink(ram256, 'AX', "AX")
 
             ram256.parameters['INIT'] = (
                 get_shifted_lut_init(site, 'D')
@@ -595,7 +648,7 @@ def process_slice(top, s):
                 | get_shifted_lut_init(site, 'A', 192)
             )
 
-            site.add_bel(ram256)
+            site.add_bel(ram256, name="RAM256X1S")
 
             muxes = set()
 
@@ -611,6 +664,10 @@ def process_slice(top, s):
 
             for idx in range(6):
                 site.add_sink(ram128, 'A{}'.format(idx), "D{}".format(idx + 1))
+                # Add fake sink to route through the C[N] pins
+                site.add_sink(
+                    ram128, 'ADDR_C{}'.format(idx), "C{}".format(idx + 1)
+                )
 
             site.add_sink(ram128, 'A6', "CX")
             site.add_internal_source(ram128, 'O', 'F7BMUX_O')
@@ -620,7 +677,7 @@ def process_slice(top, s):
                 | get_shifted_lut_init(site, 'C', 64)
             )
 
-            site.add_bel(ram128)
+            site.add_bel(ram128, name='RAM128X1S_CD')
             muxes.remove('F7BMUX')
 
             del lut_modes['C']
@@ -633,8 +690,12 @@ def process_slice(top, s):
                 site.add_sink(ram128, 'D', "BI")
 
                 for idx in range(6):
-                    site.adD_sink(
+                    site.add_sink(
                         ram128, 'A{}'.format(idx), "B{}".format(idx + 1)
+                    )
+                    # Add fake sink to route through the A[N] pins
+                    site.add_sink(
+                        ram128, 'ADDR_A{}'.format(idx), "A{}".format(idx + 1)
                     )
 
                 site.add_sink(ram128, 'A6', "AX")
@@ -646,7 +707,7 @@ def process_slice(top, s):
                     | get_shifted_lut_init(site, 'A', 64)
                 )
 
-                site.add_bel(ram128)
+                site.add_bel(ram128, name='RAM128X1S_AB')
 
                 muxes.remove('F7AMUX')
 
@@ -664,15 +725,23 @@ def process_slice(top, s):
                 site.add_sink(
                     ram128, 'A[{}]'.format(idx), "D{}".format(idx + 1)
                 )
+                # Add fake sink to route through the C[N] pins
                 site.add_sink(
-                    ram128, 'DPRA[{}]'.format(idx), "C{}".format(idx + 1)
+                    ram128, 'ADDR_C[{}]'.format(idx), "C{}".format(idx + 1)
+                )
+                site.add_sink(
+                    ram128, 'DPRA[{}]'.format(idx), "B{}".format(idx + 1)
+                )
+                # Add fake sink to route through the A[N] pins
+                site.add_sink(
+                    ram128, 'DATA_A[{}]'.format(idx), "A{}".format(idx + 1)
                 )
 
             site.add_sink(ram128, 'A[6]', "CX")
             site.add_sink(ram128, 'DPRA[6]', "AX")
 
-            site.add_internal_source(ram128, 'SPO', 'F7AMUX_O')
-            site.add_internal_source(ram128, 'DPO', 'F7BMUX_O')
+            site.add_internal_source(ram128, 'SPO', 'F7BMUX_O')
+            site.add_internal_source(ram128, 'DPO', 'F7AMUX_O')
 
             ram128.parameters['INIT'] = (
                 get_shifted_lut_init(site, 'D')
@@ -686,7 +755,7 @@ def process_slice(top, s):
 
             assert ram128.parameters['INIT'] == other_init
 
-            site.add_bel(ram128)
+            site.add_bel(ram128, name="RAM128X1D")
 
             muxes.remove('F7AMUX')
             muxes.remove('F7BMUX')
