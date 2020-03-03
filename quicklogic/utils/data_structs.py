@@ -109,12 +109,12 @@ class SwitchboxPinType(Enum):
     """
     Switchbox pin types.
     """
-    UNSPEC  = 0
-    LOCAL   = 1
-    HOP     = 2
-    GCLK    = 3
-    CONST   = 4
-    FOREIGN = 5
+    UNSPEC  = 0 # Unknown.
+    LOCAL   = 1 # Connects to the tile at the same location as the switchbox.
+    HOP     = 2 # Generic hop, connects to another switchbox.
+    GCLK    = 3 # Connects to the global clock network.
+    CONST   = 4 # Connects to the global const network.
+    FOREIGN = 5 # Connects to a tile at a different location.
 
 """
 A location that identifies a pin inside a switchbox.
