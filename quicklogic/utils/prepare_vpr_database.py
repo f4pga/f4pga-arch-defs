@@ -2,6 +2,7 @@
 import argparse
 import pickle
 import itertools
+import re
 
 from data_structs import *
 
@@ -13,7 +14,34 @@ IGNORED_IO_CELL_TYPES = (
     "GND",
 )
 
+# A regex used for fixing pin names
+RE_PIN_NAME = re.compile(r"^([A-Za-z0-9_]+)(?:\[([0-9]+)\])?$")
+
 # =============================================================================
+
+
+def fixup_pin_name(name):
+    """
+    Renames a pin to make its name suitable for VPR.
+
+    >>> fixup_pin_name("A_WIRE")
+    'A_WIRE'
+    >>> fixup_pin_name("ADDRESS[17]")
+    'ADDRESS_17'
+    >>> fixup_pin_name("DATA[11]_X")
+    Traceback (most recent call last):
+        ...
+    AssertionError: DATA[11]_X
+    """
+
+    match = RE_PIN_NAME.match(name)
+    assert match is not None, name
+
+    groups = match.groups()
+    if groups[1] is None:
+        return groups[0]
+    else:
+        return "{}_{}".format(*groups)
 
 
 def is_loc_within_limit(loc, limit):
@@ -35,6 +63,7 @@ def is_loc_within_limit(loc, limit):
 
 # =============================================================================
 
+
 def add_synthetic_cell_and_tile_types(tile_types, cells_library):
 
     # The synthetic IO tile.
@@ -48,6 +77,7 @@ def add_synthetic_cell_and_tile_types(tile_types, cells_library):
         tile_type = TileType("SYN_{}".format(const), {const: 1})
         tile_type.make_pins(cells_library)
         tile_types[tile_type.type] = tile_type
+
 
 def process_tilegrid(tile_types, tile_grid, grid_limit=None):
     """
@@ -80,9 +110,25 @@ def process_tilegrid(tile_types, tile_grid, grid_limit=None):
         if len(tile_type.cells) == 1 and list(tile_type.cells.keys())[0] == "LOGIC":
             new_tile_grid[loc] = tile
 
+    # Find the ASSP tile. There are multiple tiles that contain the ASSP cell
+    # but in fact there is only one ASSP cell for the whole FPGA which is
+    # "distributed" along top and left edge of the grid.
+    assert "ASSP" in tile_types
+
+    # Place the ASSP tile
+    assp_loc = Loc(x=0, y=0)
+    if assp_loc in new_tile_grid:
+        assert new_tile_grid[assp_loc] is None, ("ASSP", assp_loc)
+
+    new_tile_grid[assp_loc] = Tile(
+        type = "ASSP",
+        name = "ASSP",
+        cell_names = {"ASSP": "ASSP0"}
+    )
+
     # Insert synthetic VCC and GND source tiles.
     # FIXME: This assumes that the locations specified are empty!
-    for const, loc in [("VCC", Loc(x=0, y=0)), ("GND", Loc(x=1, y=0))]:
+    for const, loc in [("VCC", Loc(x=1, y=0)), ("GND", Loc(x=2, y=0))]:
         
         # Verify that the location is empty
         if loc in new_tile_grid:
@@ -95,7 +141,7 @@ def process_tilegrid(tile_types, tile_grid, grid_limit=None):
             name = name,
             cell_names = {name: ["{}0".format(name)]}
         )
-        
+
     # Extend the grid by 1 in every direction. Fill missing locs with empty
     # tiles.
     vpr_tile_grid = {}
@@ -146,7 +192,7 @@ def process_switchbox_grid(phy_switchbox_grid, loc_map, grid_limit=None):
 # =============================================================================
 
 
-def process_connections(phy_connections, loc_map, grid_limit=None):
+def process_connections(phy_connections, loc_map, vpr_tile_grid, grid_limit=None):
     """
     Process the connection list.
     """
@@ -201,6 +247,44 @@ def process_connections(phy_connections, loc_map, grid_limit=None):
             ),
         )
         vpr_connections.append(new_connection)
+
+    # Find locations of "special" tiles
+    special_tile_loc = {
+        "ASSP": None
+    }
+
+    for loc, tile in vpr_tile_grid.items():
+        if tile is not None and tile.type in special_tile_loc:
+            assert special_tile_loc[tile.type] is None, tile
+            special_tile_loc[tile.type] = loc
+
+    # Map connections going to/from them to their locations in the VPR grid
+    for i, connection in enumerate(vpr_connections):
+
+        # Process connection endpoints
+        eps = [connection.src, connection.dst]
+        for j, ep in enumerate(eps):
+
+            if ep.type != ConnectionType.TILE:
+                continue
+
+            cell_name, pin = ep.pin.split("_", maxsplit=1)
+            cell_type = cell_name[:-1]  # FIXME: Will fail on cell with index >= 10
+
+            if cell_type in special_tile_loc:
+                loc = special_tile_loc[cell_type]
+
+                eps[j] = ConnectionLoc(
+                    loc  = loc,
+                    pin  = ep.pin,
+                    type = ep.type,
+                )
+
+        # Modify the connection
+        vpr_connections[i] = Connection(
+            src = eps[0],
+            dst = eps[1]
+        )
 
     return vpr_connections
 
@@ -316,6 +400,17 @@ def main():
         connections    = db["connections"]
         package_pinmaps = db["package_pinmaps"]
 
+#    # Rename cell pins to make them suitable for VPR
+#    for cell_type, cell in list(cells_library.items()):
+#        cells_library[cell_type] = CellType(
+#            type = cell.type,
+#            pins = [Pin(name=fixup_pin_name(p.name), direction=p.direction, is_clock=p.is_clock) for p in cell.pins]
+#        )
+
+#    # Rename tile pins to make them suitable for VPR
+#    for tile in tile_types.values():
+#        tile.pins = [Pin(name=fixup_pin_name(p.name), direction=p.direction, is_clock=p.is_clock) for p in tile.pins]
+
     # Add synthetic stuff
     add_synthetic_cell_and_tile_types(tile_types, cells_library)
 
@@ -326,7 +421,7 @@ def main():
     vpr_switchbox_grid = process_switchbox_grid(phy_switchbox_grid, loc_map, grid_limit)
 
     # Process connections
-    connections = process_connections(connections, loc_map, grid_limit)
+    connections = process_connections(connections, loc_map, vpr_tile_grid, grid_limit)
 
     # Process package pinmaps
     vpr_package_pinmaps = {}

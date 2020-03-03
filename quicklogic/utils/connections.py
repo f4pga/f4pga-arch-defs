@@ -182,6 +182,8 @@ def build_tile_connections(tile_types, tile_grid, switchbox_types, switchbox_gri
             tile = tile_types[tile_grid[tile_loc].type]
 
             # Find the pin in the tile
+            # FIXME: Will not work if there are multiple cell instances with
+            # the same pin name !
             for pin in tile.pins:
                 if pin.direction == OPPOSITE_DIRECTION[sbox_pin.direction]:
                     cell, name = pin.name.split("_", maxsplit=1)
