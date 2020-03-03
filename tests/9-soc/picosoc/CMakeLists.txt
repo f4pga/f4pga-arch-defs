@@ -99,4 +99,29 @@ add_vivado_pnr_target(
     IOSTANDARD LVCMOS33
     )
 
+add_file_target(FILE nexys_video_demo.v SCANNER_TYPE verilog)
+
+add_fpga_target(
+  NAME picosoc_nexys_video
+  BOARD nexys_video
+  TOP nexys_video_demo
+  SOURCES
+    nexys_video_demo.v
+    picosoc_noflash.v
+    picorv32.v
+    simpleuart.v
+    progmem.v
+  SDC_FILE basys3.sdc
+  INPUT_IO_FILE ${symbiflow-arch-defs_SOURCE_DIR}/xc7/tests/common/nexys_video.pcf
+  INPUT_XDC_FILE ${symbiflow-arch-defs_SOURCE_DIR}/xc7/tests/common/nexys_video.xdc
+  EXPLICIT_ADD_FILE_TARGET
+)
+
+add_vivado_target(
+    NAME picosoc_nexys_video_vivado
+    PARENT_NAME picosoc_nexys_video
+    CLOCK_PINS clk
+    CLOCK_PERIODS 10.0
+    )
+
 endif (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
