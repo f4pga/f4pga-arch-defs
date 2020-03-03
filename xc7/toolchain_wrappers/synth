@@ -86,6 +86,7 @@ if [ ${#VERILOG_FILES[@]} -eq 0 ]; then
 	exit 1
 fi
 
+export USE_ROI="FALSE"
 export INPUT_XDC_FILE=${XDC_FILES[*]}
 export OUT_JSON=$TOP.json
 export SYNTH_JSON=${TOP}_io.json
