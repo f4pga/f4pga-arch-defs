@@ -495,9 +495,11 @@ def add_tracks_for_const_network(graph, const, tile_grid):
     graph.add_edge(col_node.id, row_entry_node2.id, switch_id)
     row_node_map = {**row_node_map1, **row_node_map2}
 
+    row_node_map[0] = row_node_map[1]
+
     # For each column add one that spand over the entire grid height
     const_node_map = {}
-    for x in range(xmin + 1, xmax):
+    for x in range(xmin, xmax):
 
         # Add the column
         col_entry_node, _, col_node_map = add_track_chain(graph, "Y", x, ymin + 1, ymax - 1, segment_id, switch_id)
