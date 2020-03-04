@@ -1475,7 +1475,7 @@ module RAMB36E1 (
   end
 
 if(RAM_MODE == "SDP" && READ_WIDTH_A > 36) begin
-    localparam EFF_READ_WIDTH_A = 1;
+    localparam EFF_READ_WIDTH_A = 36;
     localparam EFF_READ_WIDTH_B = 36;
 end else begin
     localparam EFF_READ_WIDTH_A = READ_WIDTH_A;
