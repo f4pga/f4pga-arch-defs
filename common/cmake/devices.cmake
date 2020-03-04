@@ -1016,8 +1016,11 @@ function(ADD_FPGA_TARGET)
     endif()
   endif()
 
+  set(SOURCE_FILES_DEPS "")
+  set(SOURCE_FILES "")
   if(NOT "${ADD_FPGA_TARGET_INPUT_XDC_FILE}" STREQUAL "")
     get_file_location(INPUT_XDC_FILE ${ADD_FPGA_TARGET_INPUT_XDC_FILE})
+    append_file_dependency(SOURCE_FILES_DEPS ${ADD_FPGA_TARGET_INPUT_XDC_FILE})
   endif()
 
   #
@@ -1029,8 +1032,6 @@ function(ADD_FPGA_TARGET)
   set(OUT_SYNTH_V_REL ${OUT_LOCAL_REL}/${TOP}_synth.v)
   set(OUT_FASM_EXTRA ${OUT_LOCAL}/${TOP}_fasm_extra.fasm)
 
-  set(SOURCE_FILES_DEPS "")
-  set(SOURCE_FILES "")
   foreach(SRC ${ADD_FPGA_TARGET_SOURCES})
     append_file_location(SOURCE_FILES ${SRC})
     append_file_dependency(SOURCE_FILES_DEPS ${SRC})
@@ -1051,7 +1052,7 @@ function(ADD_FPGA_TARGET)
 
     add_custom_command(
       OUTPUT ${OUT_JSON_SYNTH} ${OUT_SYNTH_V} ${OUT_FASM_EXTRA}
-      DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS} ${INPUT_XDC_FILE}
+      DEPENDS ${SOURCE_FILES_DEPS}
               ${YOSYS} ${YOSYS_TARGET} ${QUIET_CMD} ${QUIET_CMD_TARGET}
               ${YOSYS_SYNTH_SCRIPT}
       COMMAND
