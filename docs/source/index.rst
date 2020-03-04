@@ -26,11 +26,3 @@ Contents
 
    getting-started
    development/development
-
-
-Indices and tables
-------------------
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
