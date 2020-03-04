@@ -6,4 +6,5 @@ quicklogic_define_device_type(
     GND VCC
     LOGIC
     BIDIR
+    ASSP
 )

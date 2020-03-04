@@ -10,6 +10,7 @@ import lib.rr_graph_xml.graph2 as rr_xml
 from lib import progressbar_utils
 
 from data_structs import *
+from utils import fixup_pin_name
 from minigraph import MiniGraph
 
 # =============================================================================
@@ -302,7 +303,7 @@ def tile_pin_to_rr_pin(tile_type, pin_name):
     """
 
     # FIXME: I guess the last '[0]' will differ for tiles with capacity > 1
-    return "TL-{}.{}[0]".format(tile_type, pin_name)
+    return "TL-{}.{}[0]".format(tile_type, fixup_pin_name(pin_name))
 
 
 def build_tile_pin_to_node_map(graph, tile_types, tile_grid):
@@ -582,14 +583,45 @@ def populate_connections(connections, tile_grid, switchbox_models, connection_to
     Populates connections to minigraphs of switchbox models.
     """
 
+    def is_hop(connection):
+        """
+        Returns True if a connection represents a HOP wire.
+        """
+
+        if connection.src.type == ConnectionType.SWITCHBOX and \
+           connection.dst.type == ConnectionType.SWITCHBOX:
+            return True
+
+        return False
+
+    def is_tile(connection):
+        """
+        Rtturns True for connections going to/from tile.
+        """
+
+        if connection.src.type == ConnectionType.SWITCHBOX and \
+           connection.dst.type == ConnectionType.TILE:
+            return True
+
+        if connection.src.type == ConnectionType.TILE and \
+           connection.dst.type == ConnectionType.SWITCHBOX:
+            return True
+
+        return False
+
+    def is_local(connection):
+        """
+        Returns true if a connection is local.
+        """
+        return connection.src.loc == connection.dst.loc
+
     # Process connections
     bar = progressbar_utils.progressbar
     for connection in bar(connections):
     
         # Connection between switchboxes through HOP wires. A connection
         # represents the HOP wire node.
-        if connection.src.type == ConnectionType.SWITCHBOX and \
-           connection.dst.type == ConnectionType.SWITCHBOX:
+        if is_hop(connection):
 
             # Get the HOP wire node
             node = connection_to_node[connection]
@@ -620,7 +652,7 @@ def populate_connections(connections, tile_grid, switchbox_models, connection_to
         
         # Connection between switchbox and its tile. The connection represents
         # edge between IPIN/OPIN and CHANX/CHANY.
-        else:
+        elif is_local(connection):
 
             # Must be the same switchbox and tile
             assert connection.src.loc == connection.dst.loc, connection            
@@ -660,6 +692,10 @@ def populate_connections(connections, tile_grid, switchbox_models, connection_to
 
                 # Assign it the VPR node id
                 assign_vpr_node(minigraph, mininode, node.id)
+
+        # Same as for the above case but the connection goes to a different tile
+        elif not is_local(connection):
+            print(connection)
 
 
 def populate_const_connections(switchbox_models, const_node_map):
