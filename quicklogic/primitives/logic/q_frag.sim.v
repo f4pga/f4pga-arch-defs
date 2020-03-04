@@ -1,6 +1,7 @@
 (* FASM_PARAMS="ZINV.QCK=Z_QCKS" *)
 (* whitebox *)
 module Q_FRAG(QCK, QST, QRT, QEN, QDI, QDS, CZI, QZ);
+    (* CLOCK *)
     input  wire QCK;
 
 	(* SETUP="QCK 10e-12" *) (* NO_COMB *)
