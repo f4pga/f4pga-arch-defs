@@ -211,5 +211,7 @@ The RAM has extra bits that can be used for parity (DIP / DOP).
      WRITE_MODE_B_NO_CHANGE = WRITE_MODE_B_NO_CHANGE
      WRITE_MODE_B_READ_FIRST = WRITE_MODE_B_READ_FIRST
    </meta>
+   <meta name="type">bel</meta>
+   <meta name="subtype">memory</meta>
  </metadata>
 </pb_type>
