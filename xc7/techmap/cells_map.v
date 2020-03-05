@@ -1068,7 +1068,7 @@ module RAMB18E1 (
   end
 
 if(RAM_MODE == "SDP" && READ_WIDTH_A == 36) begin
-    localparam EFF_READ_WIDTH_A = 1;
+    localparam EFF_READ_WIDTH_A = 18;
     localparam EFF_READ_WIDTH_B = 18;
 end else begin
     localparam EFF_READ_WIDTH_A = READ_WIDTH_A;
@@ -1238,10 +1238,14 @@ end
       .DOA_REG(DOA_REG),
       .DOB_REG(DOB_REG),
 
+      .Y0_READ_WIDTH_A_1(READ_WIDTH_A == 36 || EFF_READ_WIDTH_A == 1 || EFF_READ_WIDTH_A == 0),
+      .Y1_READ_WIDTH_A_1(READ_WIDTH_A != 36 || EFF_READ_WIDTH_A == 1 || EFF_READ_WIDTH_A == 0),
       .READ_WIDTH_A_1(EFF_READ_WIDTH_A == 1 || EFF_READ_WIDTH_A == 0),
       .READ_WIDTH_A_2(EFF_READ_WIDTH_A == 2),
       .READ_WIDTH_A_4(EFF_READ_WIDTH_A == 4),
       .READ_WIDTH_A_9(EFF_READ_WIDTH_A == 9),
+      .Y0_READ_WIDTH_A_18(READ_WIDTH_A != 36 && EFF_READ_WIDTH_A == 18),
+      .Y1_READ_WIDTH_A_18(READ_WIDTH_A == 36 && EFF_READ_WIDTH_A == 18),
       .READ_WIDTH_A_18(EFF_READ_WIDTH_A == 18),
       .SDP_READ_WIDTH_36(READ_WIDTH_A == 36),
       .READ_WIDTH_B_1(EFF_READ_WIDTH_B == 1 || EFF_READ_WIDTH_B == 0),
