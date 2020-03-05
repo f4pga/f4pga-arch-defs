@@ -21,6 +21,57 @@ DUMP_MINIGRAPHS = False
 # =============================================================================
 
 
+def is_hop(connection):
+    """
+    Returns True if a connection represents a HOP wire.
+    """
+
+    if connection.src.type == ConnectionType.SWITCHBOX and \
+       connection.dst.type == ConnectionType.SWITCHBOX:
+        return True
+
+    return False
+
+def is_tile(connection):
+    """
+    Rtturns True for connections going to/from tile.
+    """
+
+    if connection.src.type == ConnectionType.SWITCHBOX and \
+       connection.dst.type == ConnectionType.TILE:
+        return True
+
+    if connection.src.type == ConnectionType.TILE and \
+       connection.dst.type == ConnectionType.SWITCHBOX:
+        return True
+
+    return False
+
+def is_local(connection):
+    """
+    Returns true if a connection is local.
+    """
+    return connection.src.loc == connection.dst.loc
+
+
+# =============================================================================
+
+
+def add_track(graph, track, segment_id):
+    """
+    Adds a track to the graph. Returns the node object representing the track
+    node.
+    """
+
+    node_id = graph.add_track(track, segment_id)
+    node = graph.nodes[-1]
+    assert node.id == node_id
+
+    return node
+
+# =============================================================================
+
+
 class SwitchboxModel(object):
 
     def __init__(self, graph, loc, phy_loc, switchbox):
@@ -190,6 +241,20 @@ class SwitchboxModel(object):
         metadata.append(".".join([prefix, feature]))
         return metadata
 
+    @property
+    def is_used(self):
+        """
+        Returns True if the switchbox is used meaning that something is
+        connected to it.
+        """
+
+        # Check if there is at least one VPR rr graph node assigned to a
+        # minigraph node representing a top-level switchbox pin.
+        for mininode_id in self.switchbox_pin_to_mininode.values():
+            if self.minigraph.nodes[mininode_id].metadata is not None:
+                return True
+
+        return False
 
     def populate_minigraph_nodes(self):
         """
@@ -247,12 +312,10 @@ class SwitchboxModel(object):
                 y_high = self.loc.y,
             )
 
-            node_id = self.graph.add_track(track, segment_id)
-            node = self.graph.nodes[-1]
-            assert node.id == node_id
+            node = add_track(self.graph, track, segment_id)
 
             # Set the VPR node id as the metadata of the minigraph node
-            self.minigraph.update_node(mininode.id, metadata=node_id)
+            self.minigraph.update_node(mininode.id, metadata=node.id)
 
 
     def populate_minigraph_edges(self):
@@ -349,6 +412,11 @@ def build_tile_connection_map(graph, nodes_by_id, tile_grid, connections):
     # Adds entry to the map
     def add_to_map(connection, conn_loc):
         tile = tile_grid[conn_loc.loc]
+
+        if tile is None:
+            print("ERROR: No tile for pin '{} at '{}'".format(conn_loc.pin, conn_loc.loc))
+            return
+
         rr_pin_name = tile_pin_to_rr_pin(tile.type, conn_loc.pin)
 
         # Get the VPR rr node for the pin
@@ -386,6 +454,82 @@ def build_tile_connection_map(graph, nodes_by_id, tile_grid, connections):
     return node_map
 
 # =============================================================================
+
+
+def add_l_track(graph, x0, y0, x1, y1, segment_id, switch_id):
+    """
+    Add a "L"-shaped track consisting of two channel nodes and a switch
+    between the given two grid coordinates. The (x0, y0) determines source
+    location and (x1, y1) destination (sink) location.
+
+    Returns a tuple with indices of the first and last node.
+    """
+    dx = x1 - x0
+    dy = y1 - y0
+
+    assert dx != 0 or dy != 0, (x0, y0)
+
+    nodes = [None, None]
+
+    # Go vertically first
+    if abs(dy) >= abs(dx):
+        xc, yc = x0, y1
+
+        if abs(dy):
+            track = tracks.Track(
+                direction = "Y",
+                x_low  = min(x0, xc),
+                x_high = max(x0, xc),
+                y_low  = min(y0, yc),
+                y_high = max(y0, yc),
+            )
+            nodes[0] = add_track(graph, track, segment_id)
+
+        if abs(dx):
+            track = tracks.Track(
+                direction = "X",
+                x_low  = min(xc, x1),
+                x_high = max(xc, x1),
+                y_low  = min(yc, y1),
+                y_high = max(yc, y1),
+            )
+            nodes[1] = add_track(graph, track, segment_id)
+
+    # Go horizontally first
+    else:
+        xc, yc = x1, y0
+
+        if abs(dx):
+            track = tracks.Track(
+                direction = "X",
+                x_low  = min(x0, xc),
+                x_high = max(x0, xc),
+                y_low  = min(y0, yc),
+                y_high = max(y0, yc),
+            )
+            nodes[0] = add_track(graph, track, segment_id)
+
+        if abs(dy):
+            track = tracks.Track(
+                direction = "Y",
+                x_low  = min(xc, x1),
+                x_high = max(xc, x1),
+                y_low  = min(yc, y1),
+                y_high = max(yc, y1),
+            )
+            nodes[1] = add_track(graph, track, segment_id)
+
+    # In case of a horizontal or vertical only track make both nodes the same
+    assert nodes[0] is not None or nodes[1] is not None
+
+    if nodes[0] is None:
+        nodes[0] = nodes[1]
+    if nodes[1] is None:
+        nodes[1] = nodes[0]
+
+    # Add edge
+    graph.add_edge(nodes[0].id, nodes[1].id, switch_id)
+    return nodes
 
 
 def add_track_chain(graph, direction, u, v0, v1, segment_id, switch_id):
@@ -426,9 +570,7 @@ def add_track_chain(graph, direction, u, v0, v1, segment_id, switch_id):
         else:
             assert False, direction
 
-        node_id = graph.add_track(track, segment_id)
-        curr_node = graph.nodes[-1]
-        assert curr_node.id == node_id
+        curr_node = add_track(graph, track, segment_id)
 
         # Add edge from the previous one
         if prev_node is not None:
@@ -520,6 +662,7 @@ def add_tracks_for_const_network(graph, const, tile_grid):
 
 # =============================================================================
 
+
 def add_tracks_for_hop_wires(graph, connections):
     """
     Adds a track for each HOP connection wire. Returns a map of connections to
@@ -529,8 +672,7 @@ def add_tracks_for_hop_wires(graph, connections):
     node_map = {}
         
     # Add tracks for HOP wires between switchboxes
-    hops = [c for c in connections if c.src.type == ConnectionType.SWITCHBOX \
-                                  and c.dst.type == ConnectionType.SWITCHBOX]
+    hops = [c for c in connections if is_hop(c)]
 
     bar = progressbar_utils.progressbar
     for connection in bar(hops):
@@ -560,9 +702,7 @@ def add_tracks_for_hop_wires(graph, connections):
             y_high = connection.dst.loc.y,
         )
 
-        node_id = graph.add_track(track, graph.get_segment_id_from_name(segment_name))
-        node = graph.nodes[-1]
-        assert node.id == node_id
+        node = add_track(graph, track, graph.get_segment_id_from_name(segment_name))
 
         # Add to the node map
         node_map[connection] = node
@@ -580,42 +720,10 @@ def assign_vpr_node(minigraph, mininode, vpr_node_id):
     minigraph.update_node(mininode, is_locked=True, metadata=vpr_node_id)
 
 
-def populate_connections(connections, tile_grid, switchbox_models, connection_to_node):
+def populate_connections(graph, connections, tile_grid, switchbox_models, connection_to_node):
     """
     Populates connections to minigraphs of switchbox models.
     """
-
-    def is_hop(connection):
-        """
-        Returns True if a connection represents a HOP wire.
-        """
-
-        if connection.src.type == ConnectionType.SWITCHBOX and \
-           connection.dst.type == ConnectionType.SWITCHBOX:
-            return True
-
-        return False
-
-    def is_tile(connection):
-        """
-        Rtturns True for connections going to/from tile.
-        """
-
-        if connection.src.type == ConnectionType.SWITCHBOX and \
-           connection.dst.type == ConnectionType.TILE:
-            return True
-
-        if connection.src.type == ConnectionType.TILE and \
-           connection.dst.type == ConnectionType.SWITCHBOX:
-            return True
-
-        return False
-
-    def is_local(connection):
-        """
-        Returns true if a connection is local.
-        """
-        return connection.src.loc == connection.dst.loc
 
     # Process connections
     bar = progressbar_utils.progressbar
@@ -697,7 +805,64 @@ def populate_connections(connections, tile_grid, switchbox_models, connection_to
 
         # Same as for the above case but the connection goes to a different tile
         elif not is_local(connection):
-            print(connection)
+
+            # Get segment id and switch id
+            segment_id = graph.get_segment_id_from_name("generic")
+            switch_id  = 0
+
+            # Add a track connecting the two locations
+            src_node, dst_node = add_l_track(
+                graph,
+                connection.src.loc.x, connection.src.loc.y,
+                connection.dst.loc.x, connection.dst.loc.y,
+                segment_id,
+                switch_id
+            )
+
+            # Connect the track
+            eps = [connection.src, connection.dst]
+            for i, ep in enumerate(eps):
+
+                # Endpoint at tile
+                if ep.type == ConnectionType.TILE:
+
+                    # Get the tile IPIN/OPIN node
+                    if connection not in connection_to_node:
+                        print("ERROR: No IPIN/OPIN node for connection {}".format(connection))
+                        continue
+
+                    node = connection_to_node[connection]
+
+                    # To tile
+                    if ep == connection.dst:
+                        graph.add_edge(dst_node.id, node.id, switch_id)
+
+                    # From tile
+                    elif ep == connection.src:
+                        graph.add_edge(node.id, src_node.id, switch_id)
+
+                # Endpoint at switchbox
+                elif ep.type == ConnectionType.SWITCHBOX:
+
+                    # No switchbox model at the loc, skip.
+                    if ep.loc not in switchbox_models:
+                        continue
+
+                    # Get the switchbox model (both locs are the same)
+                    switchbox_model = switchbox_models[ep.loc]
+                    minigraph = switchbox_model.minigraph
+
+                    # To switchbox
+                    if ep == connection.dst:
+                        key = (ep.pin, PinDirection.INPUT)
+                        mininode = switchbox_model.switchbox_pin_to_mininode[key]
+                        assign_vpr_node(minigraph, mininode, dst_node.id)
+
+                    # From switchbox
+                    elif ep == connection.src:
+                        key = (ep.pin, PinDirection.OUTPUT)
+                        mininode = switchbox_model.switchbox_pin_to_mininode[key]
+                        assign_vpr_node(minigraph, mininode, src_node.id)
 
 
 def populate_const_connections(switchbox_models, const_node_map):
@@ -727,6 +892,7 @@ def populate_const_connections(switchbox_models, const_node_map):
 
                 # Assign it the VPR node id
                 assign_vpr_node(minigraph, mininode, node.id)
+
 
 # =============================================================================
 
@@ -845,9 +1011,6 @@ def main():
 
         phy_loc = loc_map.bwd[loc]
 
-        if loc.x <= 4 and loc.y <= 4:
-            print(type, loc, phy_loc)
-
         switchbox_models[loc] = SwitchboxModel(
             graph = xml_graph.graph,
             loc = loc,
@@ -857,8 +1020,15 @@ def main():
 
     # Populate connections to the switchbox models
     print("Populating connections...")
-    populate_connections(connections, vpr_tile_grid, switchbox_models, connection_to_node)
+    populate_connections(xml_graph.graph, connections, vpr_tile_grid, switchbox_models, connection_to_node)
     populate_const_connections(switchbox_models, const_node_map)
+
+    # Prune unused switchboxes
+    print("Pruning unused switchboxes...")
+    for loc in list(switchbox_models.keys()):
+        if not switchbox_models[loc].is_used:
+            print("'{}' at '{}'".format(switchbox_models[loc].swichbox.type, loc))
+            del switchbox_models[loc]
 
     # Implement switchboxes in the VPR graph
     print("Building final rr graph...")

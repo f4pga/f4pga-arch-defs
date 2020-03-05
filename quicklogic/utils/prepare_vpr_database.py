@@ -124,21 +124,27 @@ def process_tilegrid(tile_types, tile_grid, grid_limit=None):
     
     grid_min = Loc(min(xs), min(ys))
     grid_max = Loc(max(xs), max(ys))
-    
+
     for x, y in itertools.product(range(grid_min[0], grid_max[0]+3),
                                   range(grid_min[1], grid_max[1]+3)):
         vpr_tile_grid[Loc(x=x,y=y)] = None
 
-    # Populate tiles, build location maps
+    # Build tile map
     fwd_loc_map = {}
     bwd_loc_map = {}
 
-    for loc, tile in new_tile_grid.items():
-        new_loc = Loc(loc.x+1, loc.y+1)
-        vpr_tile_grid[new_loc] = tile
+    for x, y in itertools.product(range(grid_min[0], grid_max[0]+1),
+                                  range(grid_min[1], grid_max[1]+1)):
+        loc = Loc(x=x, y=y)
+        new_loc = Loc(x=loc.x+1, y=loc.y+1)
 
         fwd_loc_map[loc] = new_loc
         bwd_loc_map[new_loc] = loc
+
+    # Populate tiles
+    for loc, tile in new_tile_grid.items():
+        new_loc = fwd_loc_map[loc]
+        vpr_tile_grid[new_loc] = tile
 
     return vpr_tile_grid, LocMap(fwd=fwd_loc_map, bwd=bwd_loc_map),
 
