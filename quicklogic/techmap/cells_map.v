@@ -74,6 +74,15 @@ module ckpad(output Q, input P);
 
 endmodule
 
+// ============================================================================
+
+module gclkbuff(input A, output Z);
+
+  // TODO: Map this to a VPR global clock buffer once the global clocn network
+  // is supported.
+  assign Z = A;
+
+endmodule
 
 // ============================================================================
 // LUTs
@@ -490,26 +499,14 @@ module qlal4s3b_cell_macro (
   .FBIO_In_En       (FBIO_In_En     ),
   .FBIO_Out         (FBIO_Out       ),
   .FBIO_Out_En      (FBIO_Out_En    ),
-  .FBIO_In          (FBIO_In        ),
-  //.SFBIO          (),
-  .Device_ID_6S     (Device_ID_6S   ), 
-  .Device_ID_4S     (Device_ID_4S   ), 
-  .SPIm_PWdata_26S  (SPIm_PWdata_26S), 
-  .SPIm_PWdata_24S  (SPIm_PWdata_24S),  
-  .SPIm_PWdata_14S  (SPIm_PWdata_14S), 
-  .SPIm_PWdata_11S  (SPIm_PWdata_11S), 
-  .SPIm_PWdata_0S   (SPIm_PWdata_0S ), 
-  .SPIm_Paddr_8S    (SPIm_Paddr_8S  ), 
-  .SPIm_Paddr_6S    (SPIm_Paddr_6S  ), 
-  .FB_PKfbPush_1S   (FB_PKfbPush_1S ), 
-  .FB_PKfbData_31S  (FB_PKfbData_31S), 
-  .FB_PKfbData_21S  (FB_PKfbData_21S),
-  .FB_PKfbData_19S  (FB_PKfbData_19S),
-  .FB_PKfbData_9S   (FB_PKfbData_9S ),
-  .FB_PKfbData_6S   (FB_PKfbData_6S ),
-  .Sys_PKfb_ClkS    (Sys_PKfb_ClkS  ),
-  .FB_BusyS         (FB_BusyS       ),
-  .WB_CLKS          (WB_CLKS        )
+  .FBIO_In          (FBIO_In        )
   );
+
+  // TODO: SFBIO signals are inout and not actually present in the physical
+  // ASSP cell. Figure out how to handle that.
+
+  // TODO: The macro "qlal4s3b_cell_macro" has a bunch of non-routable signals
+  // Figure out what they are responsible for and if there are any bits they
+  // control.
 
 endmodule

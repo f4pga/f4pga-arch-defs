@@ -46,26 +46,8 @@ module ASSP (
   input  [13:0] FBIO_In_En,
   input  [13:0] FBIO_Out,
   input  [13:0] FBIO_Out_En,
-  output [13:0] FBIO_In,
+  output [13:0] FBIO_In
   //inout  [13:0] SFBIO, // FIXME: These should be "inout" but cannot model it this way
-  input         Device_ID_6S, 
-  input         Device_ID_4S, 
-  input         SPIm_PWdata_26S, 
-  input         SPIm_PWdata_24S,  
-  input         SPIm_PWdata_14S, 
-  input         SPIm_PWdata_11S, 
-  input         SPIm_PWdata_0S, 
-  input         SPIm_Paddr_8S, 
-  input         SPIm_Paddr_6S, 
-  input         FB_PKfbPush_1S, 
-  input         FB_PKfbData_31S, 
-  input         FB_PKfbData_21S,
-  input         FB_PKfbData_19S,
-  input         FB_PKfbData_9S,
-  input         FB_PKfbData_6S,
-  input         Sys_PKfb_ClkS,
-  input         FB_BusyS,
-  input         WB_CLKS
 );
 
 endmodule
