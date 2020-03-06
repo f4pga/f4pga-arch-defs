@@ -10,7 +10,7 @@ import lib.rr_graph_xml.graph2 as rr_xml
 from lib import progressbar_utils
 
 from data_structs import *
-from utils import fixup_pin_name
+from utils import fixup_pin_name, yield_muxes
 from minigraph import MiniGraph
 
 # =============================================================================
@@ -92,16 +92,6 @@ class SwitchboxModel(object):
         self._build_minigraph()
 
 
-    def _yield_muxes(self):
-        """
-        Yields all muxes of the switchbox as tuples (stage, switch, mux)
-        """
-        for stage in self.switchbox.stages.values():
-            for switch in stage.switches.values():
-                for mux in switch.muxes.values():
-                    yield stage, switch, mux
-
-
     def _build_minigraph(self):
         """
         Builds a minigraph for the switchbox model. The minigraph will contain
@@ -121,7 +111,7 @@ class SwitchboxModel(object):
 
         # Add nodes for switch pins
         pin_to_mininode = {}
-        for stage, switch, mux in self._yield_muxes():
+        for stage, switch, mux in yield_muxes(self.switchbox):
             for pin in mux.pins:
 
                 # Lock minigraph nodes that are inter-stage. Those will
@@ -173,7 +163,7 @@ class SwitchboxModel(object):
             self.minigraph.add_edge(src_mininode_id, dst_mininode_id)
 
         # Add muxes inside switches
-        for stage, switch, mux in self._yield_muxes():
+        for stage, switch, mux in yield_muxes(self.switchbox):
             dst_pin = mux.output
             dst_loc = SwitchboxPinLoc(
                 stage_id  = stage.id,

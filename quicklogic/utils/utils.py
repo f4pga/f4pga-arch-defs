@@ -48,3 +48,16 @@ def fixup_pin_name(name):
         return groups[0]
     else:
         return "{}_{}".format(*groups)
+
+
+def yield_muxes(switchbox):
+    """
+    Yields all muxes of a switchbox. Returns tuples with:
+    (stage, switch, mux)
+    """
+
+    for stage in switchbox.stages.values():
+        for switch in stage.switches.values():
+            for mux in switch.muxes.values():
+                yield stage, switch, mux
+

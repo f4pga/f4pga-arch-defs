@@ -36,8 +36,9 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   set(VPR_DB_FILE "db_vpr.pickle")
   set(ARCH_XML "arch.xml")
 
-  # The techfile
+  # The techfile and routing timing file
   set(TECHFILE "${symbiflow-arch-defs_SOURCE_DIR}/third_party/ql-eos-s3/Device Architecture Files/QLAL4S3B.xml")
+  set(ROUTING_TIMING "${symbiflow-arch-defs_SOURCE_DIR}/third_party/ql-eos-s3/Timing Data Files/qlal4s3b_RoutingDelays.csv")
 
   # Import data from the techfile
   set(DATA_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/data_import.py)
@@ -45,6 +46,7 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PHY_DB_FILE}
     COMMAND ${PYTHON3} ${DATA_IMPORT}
       --techfile ${TECHFILE}
+      --routing-timing ${ROUTING_TIMING}
       --db ${PHY_DB_FILE}
     DEPENDS ${TECHFILE} ${DATA_IMPORT} ${PYTHON3_TARGET}
   )

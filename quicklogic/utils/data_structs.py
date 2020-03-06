@@ -179,6 +179,7 @@ class Switchbox(object):
             self.switch = switch    # Parent switch od
             self.inputs = {}        # Input pins by their IDs
             self.output = None      # The output pin
+            self.timing = None      # Timing data for the mux.
 
         @property
         def pins(self):

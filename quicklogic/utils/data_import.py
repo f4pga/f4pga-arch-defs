@@ -9,10 +9,12 @@ import argparse
 from collections import defaultdict
 import pickle
 import re
+import csv
 
 import lxml.etree as ET
 
 from data_structs import *
+from utils import yield_muxes
 from connections import build_connections, check_connections
 from connections import hop_to_str, get_name_and_hop, is_regular_hop_wire
 
@@ -29,6 +31,12 @@ GCLK_CELLS = (
 CLOCK_PINS = {
     "LOGIC": ("QCK",),
 }
+
+# A list of const pins
+CONST_PINS = (
+    "GND",
+    "VCC",
+)
 
 # =============================================================================
 
@@ -1118,6 +1126,80 @@ def import_data(xml_root):
 # =============================================================================
 
 
+def import_routing_timing(csv_file):
+    """
+    Reads and parses switchbox delay data from the CSV file. Returns a tree of
+    dicts indexed by:
+        [switchbox_type][stage_id][switch_id][mux_id][pin_id][num_inputs].
+
+    The last dict holds tuples with rise and fall delays.
+    """
+    
+    # Read and parse CSV
+    with open(csv_file, "r") as fp:
+
+        # Read the first line, it should specify timing units
+        line = fp.readline()
+        line = line.strip().split(",")
+
+        assert len(line) >= 3, line
+        assert line[0] == "unit", line[0]
+
+        # FIXME: For now support "ns" only
+        assert line[2] == "ns", line[2]
+        scale = 1.0 # Set the timing scale to 1ns
+
+        # Read the rest of the timing data
+        data = [r for r in csv.DictReader(fp)]
+
+        # Reformat
+        switchbox_timings = {}
+        for timing in data:
+
+            # Switchbox type
+            switchbox_type = timing["SBox_Type"]
+            if switchbox_type not in switchbox_timings:
+                switchbox_timings[switchbox_type] = {}
+
+            # Stage id
+            stage_timings = switchbox_timings[switchbox_type] 
+            stage_id = int(timing["Stage_Num"]) - 1
+            if stage_id not in stage_timings:
+                stage_timings[stage_id] = {}
+
+            # Switch id
+            switch_timings = stage_timings[stage_id] 
+            switch_id = int(timing["Switch_Num"]) - 1
+            if switch_id not in switch_timings:
+                switch_timings[switch_id] = {}
+
+            # Mux id
+            mux_timings = switch_timings[switch_id]
+            mux_id = int(timing["Output_Num"])
+            if mux_id not in mux_timings:
+                mux_timings[mux_id] = {}
+
+            # Mux route (edge), correspond to its input pin id.
+            edge_timings = mux_timings[mux_id]
+            pin_id = int(timing["Input_Num"]) - 1
+            if pin_id not in edge_timings:
+                edge_timings[pin_id] = {}
+
+            # Load count and delays. Apply scaling so the timing is expressed
+            # always is nanoseconds.
+            edge_timing = edge_timings[pin_id]
+            num_loads  = int(timing["Num_Loads"])
+            rise_delay = float(timing["Rise_Delay"]) * scale
+            fall_delay = float(timing["Fall_Delay"]) * scale
+
+            edge_timing[num_loads] = (rise_delay, fall_delay)
+
+    return switchbox_timings
+
+
+# =============================================================================
+
+
 def main():
     
     # Parse arguments
@@ -1129,6 +1211,12 @@ def main():
         type=str,
         required=True,
         help="Quicklogic 'TechFile' XML file"
+    )
+    parser.add_argument(
+        "--routing-timing",
+        type=str,
+        default=None,
+        help="Quicklogic routing delay CSV file"
     )
     parser.add_argument(
         "--db",
@@ -1156,6 +1244,41 @@ def main():
 
     check_connections(connections)
 
+    # Load timing data if given
+    if args.routing_timing is not None:
+
+        # Parse timing
+        routing_timing = import_routing_timing(args.routing_timing)
+
+        # Annotate switchboxes with timing information
+        # FIXME: Ignore switchbox type, assume that all of them has identical
+        # timings.
+        assert len(routing_timing) == 1, routing_timing.keys()
+        timing = next(iter(routing_timing.values()))
+
+        for switchbox in data["switchbox_types"].values():
+            for stage, switch, mux in yield_muxes(switchbox):
+
+                # Copy the timing data
+                mux.timing = {
+                    "delays": {}
+                }
+
+                for pin_id, delays in timing[stage.id][switch.id][mux.id].items():
+                    mux.timing["delays"][pin_id] = deepcopy(delays)
+
+                # Verify that all routes have it
+                for pin_id, pin in mux.inputs.items():
+                    if pin.id not in mux.timing["delays"] and pin.name not in CONST_PINS:
+                        print("WARNING: No timing for pin '{}' ({}.{}.{}.{}) of switchbox '{}'".format(
+                            pin.name,
+                            stage.id,
+                            switch.id,
+                            mux.id,
+                            pin.id,
+                            switchbox.type
+                        ))
+
     # Prepare the database
     db_root = {
         "cells_library": data["cells_library"],
@@ -1167,6 +1290,7 @@ def main():
         "package_pinmaps": data["package_pinmaps"],
     }
 
+    # FIXME: Use something more platform-independent than pickle.
     with open(args.db, "wb") as fp:
         pickle.dump(db_root, fp, protocol=3)
 
