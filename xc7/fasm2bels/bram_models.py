@@ -1060,9 +1060,12 @@ def process_bram(conn, top, tile, features):
     assert 'RAMB36.EN_ECC_WRITE' not in tile_features
 
     num_brams = 0
+    num_sdp_brams = 0
     for bram in brams:
         if 'IN_USE' in bram_features[bram]:
             num_brams += 1
+        if 'SDP_READ_WIDTH_36' in bram_features[bram]:
+            num_sdp_brams += 1
 
     assert num_brams >= 0 and num_brams <= 2, num_brams
 
@@ -1070,7 +1073,7 @@ def process_bram(conn, top, tile, features):
     for bram in sorted(brams):
         sites.append(process_bram_site(top, brams[bram], bram_features[bram]))
 
-    if num_brams == 2:
+    if num_brams == 2 and num_sdp_brams < 2:
         assert len(sites) == 2
         assert sites[0] is not None
         assert sites[1] is not None
