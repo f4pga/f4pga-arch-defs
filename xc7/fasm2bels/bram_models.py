@@ -1061,19 +1061,26 @@ def process_bram(conn, top, tile, features):
 
     num_brams = 0
     num_sdp_brams = 0
+    num_read_width_18 = 0
     for bram in brams:
         if 'IN_USE' in bram_features[bram]:
             num_brams += 1
+        # The following are counters to check whether the bram
+        # occupies both RAMB18 and is in SDP mode.
         if 'SDP_READ_WIDTH_36' in bram_features[bram]:
             num_sdp_brams += 1
+        if 'READ_WIDTH_A_18' in bram_features[bram]:
+            num_read_width_18 += 1
 
     assert num_brams >= 0 and num_brams <= 2, num_brams
+
+    is_bram_36 = True if num_sdp_brams == 2 and num_read_width_18 == 2 else False
 
     sites = []
     for bram in sorted(brams):
         sites.append(process_bram_site(top, brams[bram], bram_features[bram]))
 
-    if num_brams == 2 and num_sdp_brams < 2:
+    if num_brams == 2 and (num_sdp_brams == 0 or is_bram_36):
         assert len(sites) == 2
         assert sites[0] is not None
         assert sites[1] is not None
