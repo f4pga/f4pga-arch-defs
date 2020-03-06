@@ -130,8 +130,8 @@ def load_logic_cells(xml_placement, cellgrid, cells_library):
             tag = xml.tag.upper()
 
             # FIXME: Is this connect decoding of those werid loc specs?
-            x = ord(tag[0]) - ord("A")
-            y = int(tag[1:])
+            x = 1 + ord(tag[0]) - ord("A")
+            y = 1 + int(tag[1:])
 
             exceptions.add(Loc(x=x, y=y))
 

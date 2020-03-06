@@ -144,6 +144,7 @@ def process_tilegrid(tile_types, tile_grid, grid_limit=None):
     # Populate tiles
     for loc, tile in new_tile_grid.items():
         new_loc = fwd_loc_map[loc]
+        assert vpr_tile_grid[new_loc] is None, (loc, new_loc, tile.type)
         vpr_tile_grid[new_loc] = tile
 
     return vpr_tile_grid, LocMap(fwd=fwd_loc_map, bwd=bwd_loc_map),
