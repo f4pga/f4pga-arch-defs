@@ -1074,7 +1074,7 @@ def process_bram(conn, top, tile, features):
 
     assert num_brams >= 0 and num_brams <= 2, num_brams
 
-    is_bram_36 = True if num_sdp_brams == 2 and num_read_width_18 == 2 else False
+    is_bram_36 = num_sdp_brams == 2 and num_read_width_18 == 2
 
     sites = []
     for bram in sorted(brams):
