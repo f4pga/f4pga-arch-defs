@@ -380,17 +380,6 @@ def main():
         connections    = db["connections"]
         package_pinmaps = db["package_pinmaps"]
 
-#    # Rename cell pins to make them suitable for VPR
-#    for cell_type, cell in list(cells_library.items()):
-#        cells_library[cell_type] = CellType(
-#            type = cell.type,
-#            pins = [Pin(name=fixup_pin_name(p.name), direction=p.direction, is_clock=p.is_clock) for p in cell.pins]
-#        )
-
-#    # Rename tile pins to make them suitable for VPR
-#    for tile in tile_types.values():
-#        tile.pins = [Pin(name=fixup_pin_name(p.name), direction=p.direction, is_clock=p.is_clock) for p in tile.pins]
-
     # Add synthetic stuff
     add_synthetic_cell_and_tile_types(tile_types, cells_library)
 
