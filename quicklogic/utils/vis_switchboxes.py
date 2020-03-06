@@ -42,7 +42,7 @@ def switchbox_to_dot(switchbox, stage_types=("STREET", "HIGHWAY")):
         if not len(stage_ids & stage_ids_to_show):
             continue
 
-        color = TYPE_TO_COLOR[pin.type]
+        color = TYPE_TO_COLOR.get(pin.type, "#C0C0C0")
         name  = "input_{}".format(fixup_pin_name(pin.name))
         dot.append("    {} [rank=0, label=\"{}\", fillcolor=\"{}\"];".format(name, pin.name, color))
         
