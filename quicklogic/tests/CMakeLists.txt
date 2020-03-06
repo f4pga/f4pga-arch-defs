@@ -16,3 +16,6 @@ add_subdirectory(btn_counter)
 # Test designs that use clock
 add_subdirectory(counter)
 add_subdirectory(soc_clocks)
+
+# More complex tests/examples that use the SoC interface.
+add_subdirectory(soc_litex_pwm)
