@@ -1068,7 +1068,7 @@ module RAMB18E1 (
   end
 
 if(RAM_MODE == "SDP" && READ_WIDTH_A == 36) begin
-    localparam EFF_READ_WIDTH_A = 1;
+    localparam EFF_READ_WIDTH_A = 18;
     localparam EFF_READ_WIDTH_B = 18;
 end else begin
     localparam EFF_READ_WIDTH_A = READ_WIDTH_A;
@@ -1237,6 +1237,17 @@ end
 
       .DOA_REG(DOA_REG),
       .DOB_REG(DOB_REG),
+
+      // Assign special parameters relative to the RAMB site location.
+      // These is needed after the findings gathered with https://github.com/SymbiFlow/prjxray/pull/1263
+      // The rules to assign the correct READ_WIDTH_A parameter are the following:
+      //   - Y0 RAMB18 and SDP mode: READ_WIDTH_A must be 1
+      //   - Y1 RAMB18 and SDP mode: READ_WIDTH_A must be 18
+      //   - No SDP: READ_WIDTH_A assumes the right value based on EFF_READ_WIDTH_A
+      .Y0_READ_WIDTH_A_1(READ_WIDTH_A == 36 || EFF_READ_WIDTH_A == 1 || EFF_READ_WIDTH_A == 0),
+      .Y1_READ_WIDTH_A_1(READ_WIDTH_A != 36 && (EFF_READ_WIDTH_A == 1 || EFF_READ_WIDTH_A == 0)),
+      .Y0_READ_WIDTH_A_18(READ_WIDTH_A != 36 && EFF_READ_WIDTH_A == 18),
+      .Y1_READ_WIDTH_A_18(READ_WIDTH_A == 36 || EFF_READ_WIDTH_A == 18),
 
       .READ_WIDTH_A_1(EFF_READ_WIDTH_A == 1 || EFF_READ_WIDTH_A == 0),
       .READ_WIDTH_A_2(EFF_READ_WIDTH_A == 2),
@@ -1475,7 +1486,7 @@ module RAMB36E1 (
   end
 
 if(RAM_MODE == "SDP" && READ_WIDTH_A > 36) begin
-    localparam EFF_READ_WIDTH_A = 1;
+    localparam EFF_READ_WIDTH_A = 36;
     localparam EFF_READ_WIDTH_B = 36;
 end else begin
     localparam EFF_READ_WIDTH_A = READ_WIDTH_A;

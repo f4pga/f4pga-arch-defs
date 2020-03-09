@@ -1060,17 +1060,34 @@ def process_bram(conn, top, tile, features):
     assert 'RAMB36.EN_ECC_WRITE' not in tile_features
 
     num_brams = 0
+    num_sdp_brams = 0
+    num_read_width_18 = 0
     for bram in brams:
         if 'IN_USE' in bram_features[bram]:
             num_brams += 1
+        # The following are counters to check whether the bram
+        # occupies both RAMB18 and is in SDP mode.
+        if 'SDP_READ_WIDTH_36' in bram_features[bram]:
+            num_sdp_brams += 1
+        if 'READ_WIDTH_A_18' in bram_features[bram]:
+            num_read_width_18 += 1
 
     assert num_brams >= 0 and num_brams <= 2, num_brams
+
+    is_bram_36 = num_sdp_brams == 2 and num_read_width_18 == 2
 
     sites = []
     for bram in sorted(brams):
         sites.append(process_bram_site(top, brams[bram], bram_features[bram]))
 
-    if num_brams == 2:
+    # RAMB36E1 can be instantiated only if there are two RAMB18E1 and, if they
+    # are both in SDP mode, they must corresposnd to the implementation of a
+    # RAMB36E1.
+    #
+    # This is to solve the issue of the READ_WIDTH_A parameter.
+    #   - one RAMB36 in SDP mode has the READ_WIDTH_A parameter of both Y0 and Y1 BRAMs set to 18
+    #   - two RAMB18 in SDP mode have the READ_WIDTH_A parameter set to 1 for Y0 and to 18 for Y1
+    if num_brams == 2 and (num_sdp_brams == 0 or is_bram_36):
         assert len(sites) == 2
         assert sites[0] is not None
         assert sites[1] is not None
