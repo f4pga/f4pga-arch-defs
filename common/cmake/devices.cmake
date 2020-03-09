@@ -639,7 +639,7 @@ function(DEFINE_DEVICE)
           ${symbiflow-arch-defs_SOURCE_DIR}/common/wire.eblif
           --read_rr_graph ${OUT_RRXML_REAL}
           --write_rr_graph ${OUT_RRBIN_REAL}
-          --read_edge_metadata on
+          --read_rr_edge_metadata on
           --outfile_prefix ${DEVICE}_${PACKAGE}_cache
           --pack
           --place
