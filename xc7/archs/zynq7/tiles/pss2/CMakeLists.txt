@@ -1,7 +1,0 @@
-project_xray_tile(
-  ARCH zynq7
-  TILE PSS2
-  SITE_TYPES PS7/PS7
-  EQUIVALENT_SITES PSS2
-  NO_FASM_PREFIX
-  )
