@@ -5,6 +5,7 @@ import itertools
 import re
 
 from data_structs import *
+from utils import yield_muxes
 
 # =============================================================================
 
@@ -335,6 +336,131 @@ def process_package_pinmap(package_pinmap, phy_tile_grid, loc_map):
 # =============================================================================
 
 
+def process_mux_edge_timing(edge_delays):
+    """
+    Converts the mux edge delay data into: const. delay, edge resistance and
+    maximum load capacitance. Returns these therr parameters.
+
+    A delay thorugh a low-pass RC element is to be T = 0.5 * R * C
+    """
+
+    # Must have delay data for at least two load counts to determine common
+    # propagation delay and a single load capacitance.
+    assert len(edge_delays) > 1
+
+    # Must have delays for all load count
+    max_loads = max(edge_delays.keys())
+    assert list(edge_delays.keys()) == list(range(1, max_loads+1)), \
+        list(edge_delays.keys())
+
+    # Scaling factor
+    fac = 0.5
+
+    # Assumed switch capacitance of a single load [f]
+    c = 10.0 * 1e-12 # 10pf
+
+    # Take the worst case delay
+    edge_delays = {n: max(tmin, tmax) for n, (tmin, tmax) in edge_delays.items()}
+
+    # TODO: FIXME: This is a hack for incorrect delay for 14 active loads.
+    # Make that delay linearly interpolated.
+    if 14 in edge_delays:
+        t12 = edge_delays[12]
+        t13 = edge_delays[13]
+        edge_delays[14] = t13 + (t13 - t12)
+
+    # Compute minimal propagation delay and additional delays per load count
+    tdel_min = min(edge_delays.values())
+    tdel_add = {n: (d - tdel_min) for n, d in edge_delays.items()}
+
+    # Compute maximum additional delay caused by loads divided by their count.
+    # This will correspond to a single load capacitance.
+    incr_max = max([d / n for n, d in tdel_add.items()])
+
+    # Compute the edge resistance [ohm]
+    r = 1e-9 * incr_max / (fac * c)
+
+    # Decrease the minimum delay by the delay increase. There cannot be 0
+    # additional delay for 1 load.
+    tdel = tdel_min - incr_max
+
+    # Compute error, check if if the model makes sense
+    err = {n: abs(d - (tdel + n * fac * r * c * 1e9)) for n, d in edge_delays.items()}
+    err_max = max(err.values())
+
+    if err_max > 0.025:  # FIXME: Arbitrary threshold [ns]
+
+        print("WARINING: Error of the timing model is too high:")
+        print("---------------------------------------------")
+        print("| # loads  | actual   | model    | error    |")
+        print("|----------+----------+----------+----------|")
+        
+        for n, e in err.items():
+            d = edge_delays[n]
+            m = tdel + n * 0.5 * r * c * 1e9
+            e = d - m
+            print("| {:<9}| {:<9.3f}| {:<9.3f}| {:<9.3f}|".format(n, d, m, e))
+
+        print("---------------------------------------------")
+        print("")
+
+    # Return the timing
+    return MuxTiming(
+        tdel = tdel,
+        r    = r,
+        c    = c
+        )
+
+
+def process_switchbox_timing(switchbox):
+    """
+    Processes the switchbox timing data. Decomposes delays to resistances and
+    capacitances.
+    """
+
+    for stage, switch, mux in yield_muxes(switchbox):
+
+        # No delay data for the mux
+        if mux.timing is None or "delays" not in mux.timing:
+            print("WARNING: No timing for mux {}.{}.{} of switchbox '{}'".format(
+                stage.id,
+                switch.id,
+                mux.id,
+                switchbox.type
+            ))
+            continue
+
+        delays = mux.timing["delays"]
+
+        # Process mux edges
+        mux.timing["params"] = {}
+        for pin in mux.inputs.values():
+
+            # Check if there is timing data
+            if pin.id not in delays:
+                if pin.name not in ["VCC", "GND"]:
+                    print("WARNING: No timing for pin '{}' ({}.{}.{}.{}) of switchbox '{}'".format(
+                        pin.name,
+                        stage.id,
+                        switch.id,
+                        mux.id,
+                        pin.id,
+                        switchbox.type
+                    ))
+                continue
+
+            edge_delays = delays[pin.id]
+
+            # Compute Tdel, R and C
+            timing = process_mux_edge_timing(edge_delays)
+
+            # Store it
+            mux.timing["params"][pin.id] = timing
+
+
+# =============================================================================
+
+
 def main():
     
     # Parse arguments
@@ -404,6 +530,11 @@ def main():
     # Get the switchbox types present in the grid
     vpr_switchbox_types = set([s for s in vpr_switchbox_grid.values() if s is not None])
     vpr_switchbox_types = {k: v for k, v in switchbox_types.items() if k in vpr_switchbox_types}
+
+    # Process timing data
+    print("Processing timing data...")
+    for type, switchbox in vpr_switchbox_types.items():
+        process_switchbox_timing(switchbox)
 
     # Prepare the VPR database and write it
     db_root = {

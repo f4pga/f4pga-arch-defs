@@ -157,6 +157,15 @@ dst         - Destination location (always an input pin)
 """
 SwitchConnection = namedtuple("SwitchConnection", "src dst")
 
+"""
+Mux edge timing information
+
+tdel        - Constant propagation delay when no loads are active
+r           - Switch resistance [ohm]
+c           - A single load capacitance [f]
+"""
+MuxTiming = namedtuple("MuxTiming", "tdel r c")
+
 # =============================================================================
 
 
