@@ -12,11 +12,16 @@ def get_pin_name(name):
     """
     Returns the pin name and its index in bus. If a pin is not a member of
     a bus then the index is None
+
+    >>> get_pin_name("WIRE")
+    ('WIRE', None)
+    >>> get_pin_name("DATA[12]")
+    ('DATA', 12)
     """
 
-    match = re.match(r"(.*)\[([0-9]+)\]$", name)
+    match = re.match(r"(?P<name>.*)\[(?P<idx>[0-9]+)\]$", name)
     if match:
-        return match.group(1), int(match.group(2))
+        return match.group("name"), int(match.group("idx"))
     else:
         return name, None
 

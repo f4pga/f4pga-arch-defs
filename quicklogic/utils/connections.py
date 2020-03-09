@@ -325,9 +325,15 @@ def check_connections(connections):
      - All connections should be point-to-point. No fanin/fanouts.
     """
 
+    error = False
+
     # Check if there are no duplicated connections going to the same destination
     dst_conn_locs = set()
     for connection in connections:
         if connection.dst in dst_conn_locs:
+            error = True
             print("ERROR: Duplicate destination '{}'".format(connection.dst))
         dst_conn_locs.add(connection.dst)
+
+    # An error ocurred
+    assert error is False

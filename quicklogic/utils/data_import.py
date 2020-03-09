@@ -961,7 +961,7 @@ def parse_bidir_pinmap(xml_root, tile_grid):
             
             # Location not found
             if loc is None:
-                print("ERROR: No loc for package pin '{}' of package '{}'".format(
+                print("WARNING: No loc for package pin '{}' of package '{}'".format(
                     pin_name, pkg_name))
                 continue
 

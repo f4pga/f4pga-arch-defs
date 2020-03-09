@@ -394,7 +394,7 @@ def build_tile_pin_to_node_map(graph, tile_types, tile_grid):
                 nodes = graph.get_nodes_for_pin((loc.x, loc.y,), rr_pin_name)
                 assert len(nodes) == 1, (rr_pin_name, loc.x, loc.y)
             except KeyError as ex:
-                print("ERROR: No node for pin '{}' at ({},{})".format(rr_pin_name, loc.x, loc.y))
+                print("WARNING: No node for pin '{}' at ({},{})".format(rr_pin_name, loc.x, loc.y))
                 continue 
 
             # Add to the map
@@ -414,7 +414,7 @@ def build_tile_connection_map(graph, nodes_by_id, tile_grid, connections):
         tile = tile_grid[conn_loc.loc]
 
         if tile is None:
-            print("ERROR: No tile for pin '{} at '{}'".format(conn_loc.pin, conn_loc.loc))
+            print("WARNING: No tile for pin '{} at '{}'".format(conn_loc.pin, conn_loc.loc))
             return
 
         rr_pin_name = tile_pin_to_rr_pin(tile.type, conn_loc.pin)
@@ -424,7 +424,7 @@ def build_tile_connection_map(graph, nodes_by_id, tile_grid, connections):
             nodes = graph.get_nodes_for_pin((conn_loc.loc.x, conn_loc.loc.y,), rr_pin_name)
             assert len(nodes) == 1, (rr_pin_name, conn_loc.loc.x, conn_loc.loc.y)
         except KeyError as ex:
-            print("ERROR: No node for pin '{}' at ({},{})".format(rr_pin_name, conn_loc.loc.x, conn_loc.loc.y))
+            print("WARNING: No node for pin '{}' at ({},{})".format(rr_pin_name, conn_loc.loc.x, conn_loc.loc.y))
             return
 
         # Convert to Node objects
@@ -778,7 +778,7 @@ def populate_connections(graph, connections, tile_grid, switchbox_models, connec
 
             # Get the tile IPIN/OPIN node
             if connection not in connection_to_node:
-                print("ERROR: No IPIN/OPIN node for connection {}".format(connection))
+                print("WARNING: No IPIN/OPIN node for connection {}".format(connection))
                 continue
 
             node = connection_to_node[connection]
@@ -828,7 +828,7 @@ def populate_connections(graph, connections, tile_grid, switchbox_models, connec
 
                     # Get the tile IPIN/OPIN node
                     if connection not in connection_to_node:
-                        print("ERROR: No IPIN/OPIN node for connection {}".format(connection))
+                        print("WARNING: No IPIN/OPIN node for connection {}".format(connection))
                         continue
 
                     node = connection_to_node[connection]
