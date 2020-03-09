@@ -25,4 +25,5 @@ Contents
    :maxdepth: 2
 
    getting-started
+   prjxray/index
    development/development
