@@ -77,7 +77,7 @@ add_conda_package(
   )
 add_conda_package(
   NAME yosys-plugins
-  PACKAGE_SPEC "yosys-plugins v1.0.0_0030_g3a95697 20200225_014935"
+  PACKAGE_SPEC "yosys-plugins 1.0.0.7_0025_ge04ea5b 20200308_024213"
   NO_EXE
   )
 
