@@ -12,6 +12,9 @@ function(DEFINE_ARCH)
   # ~~~
   # DEFINE_ARCH(
   #    ARCH <arch>
+  #    FAMILY <family>
+  #    DOC_PRJ <documentation_project>
+  #    DOC_PRJ_DB <documentation_database>
   #    PROTOTYPE_PART <prototype_part>
   #    YOSYS_SYNTH_SCRIPT <yosys_script>
   #    YOSYS_CONV_SCRIPT <yosys_script>
@@ -46,6 +49,16 @@ function(DEFINE_ARCH)
   # ~~~
   #
   # DEFINE_ARCH defines an FPGA architecture.
+  #
+  # FAMILY refers to the family under which the architecture is located.
+  # e.g. 7series, UltraScale, Spartan are all different kinds of families.
+  #
+  # DOC_PRJ and DOC_PRJ_DB are optional arguments that are relative to the
+  # third party projects containing tools and information to correctly run
+  # the flow:
+  #
+  #  * DOC_PRJ - path to the third party documentation project
+  #  * DOC_PRJ_DB - path to the third party documentation database
   #
   # If NO_PINS is set, PLACE_TOOL and PLACE_TOOL_CMD cannot be specified.
   # If NO_BITSTREAM is set, HLC_TO_BIT, HLC_TO_BIT_CMD BIT_TO_V,
@@ -116,6 +129,9 @@ function(DEFINE_ARCH)
   set(
     oneValueArgs
     ARCH
+    FAMILY
+    DOC_PRJ
+    DOC_PRJ_DB
     PROTOTYPE_PART
     YOSYS_SYNTH_SCRIPT
     YOSYS_CONV_SCRIPT
@@ -169,6 +185,9 @@ function(DEFINE_ARCH)
     )
   set(DISALLOWED_ARGS "")
   set(OPTIONAL_ARGS
+    FAMILY
+    DOC_PRJ
+    DOC_PRJ_DB
     PROTOTYPE_PART
     VPR_ARCH_ARGS
     YOSYS_TECHMAP
