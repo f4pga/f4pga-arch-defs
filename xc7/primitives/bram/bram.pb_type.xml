@@ -311,7 +311,16 @@ reason, BRAM tiles use a "fused sites" mode to accomidate the cross site logic.
      <pb_type name="RAMB18E1_Y0_IN" num_pb="1" blif_model=".subckt RAMB18E1_VPR">
       <xi:include href="ramb18e1.pb_type.xml" xpointer="xpointer(pb_type/child::node()[local-name()!='metadata'])" />
       <metadata>
-       <xi:include href="ramb18e1.pb_type.xml" xpointer="xpointer(pb_type/metadata/child::node())" />
+       <!-- As there is a difference in how BRAM get translated into the bitstream depending on
+            the operational mode, we need to add specific READ_WIDTH_A parameters that correspond
+            to the site location of the RAMB.
+            Further explanation can be found in the RAMB18E1 techmap -->
+       <xi:include href="ramb18e1.pb_type.xml" xpointer="xpointer(pb_type/metadata/meta[not(@name='fasm_params')])" />
+       <meta name="fasm_params">
+        <xi:include href="ramb18e1.pb_type.xml" xpointer="xpointer(pb_type/metadata/meta[attribute::name='fasm_params']/child::node())" />
+        READ_WIDTH_A_1  = Y0_READ_WIDTH_A_1
+        READ_WIDTH_A_18 = Y0_READ_WIDTH_A_18
+       </meta>
        <meta name="fasm_prefix">RAMB18_Y0</meta>
       </metadata>
      </pb_type>
@@ -360,7 +369,16 @@ reason, BRAM tiles use a "fused sites" mode to accomidate the cross site logic.
   <pb_type name="RAMB18E1_Y1" num_pb="1" blif_model=".subckt RAMB18E1_VPR">
    <xi:include href="ramb18e1.pb_type.xml" xpointer="xpointer(pb_type/child::node()[local-name()!='metadata'])" />
    <metadata>
-     <xi:include href="ramb18e1.pb_type.xml" xpointer="xpointer(pb_type/metadata/child::node())" />
+     <!-- As there is a difference in how BRAM get translated into the bitstream depending on
+          the operational mode, we need to add specific READ_WIDTH_A parameters that correspond
+          to the site location of the RAMB.
+          Further explanation can be found in the RAMB18E1 techmap -->
+     <xi:include href="ramb18e1.pb_type.xml" xpointer="xpointer(pb_type/metadata/meta[not(@name='fasm_params')])" />
+     <meta name="fasm_params">
+      <xi:include href="ramb18e1.pb_type.xml" xpointer="xpointer(pb_type/metadata/meta[@name='fasm_params']/child::node())" />
+      READ_WIDTH_A_1  = Y1_READ_WIDTH_A_1
+      READ_WIDTH_A_18 = Y1_READ_WIDTH_A_18
+     </meta>
      <meta name="fasm_prefix">RAMB18_Y1</meta>
    </metadata>
   </pb_type>

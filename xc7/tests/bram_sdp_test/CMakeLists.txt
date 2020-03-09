@@ -16,6 +16,11 @@ foreach(type 18 36)
     EXPLICIT_ADD_FILE_TARGET
     )
 
+  add_vivado_target(
+    NAME ${BASE_TEST_NAME}_${type}_vivado
+    PARENT_NAME ${BASE_TEST_NAME}_${type}
+    )
+
   get_target_property_required(SYNTH_V ${BASE_TEST_NAME}_${type} SYNTH_V)
 
   add_autosim(
