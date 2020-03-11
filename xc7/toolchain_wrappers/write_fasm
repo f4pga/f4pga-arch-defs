@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 MYPATH=`realpath $0`
 MYPATH=`dirname ${MYPATH}`

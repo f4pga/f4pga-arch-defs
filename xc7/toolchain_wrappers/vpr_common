@@ -75,6 +75,7 @@ function parse_args {
 }
 
 function run_vpr {
+     set -e
 
      SDC_OPTIONS=""
      if [ ! -z $SDC ]
@@ -92,9 +93,11 @@ function run_vpr {
          ${SDC_OPTIONS} \
          $@
 
+     return $?
 }
 
 function run_genfasm {
+     set -e
 
      genfasm ${ARCH_DEF} \
          ${EBLIF} \
@@ -103,4 +106,5 @@ function run_genfasm {
          --read_rr_graph ${RR_GRAPH} \
          $@
 
+     return $?
 }
