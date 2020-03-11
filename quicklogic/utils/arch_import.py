@@ -74,7 +74,7 @@ def initialize_arch(xml_arch):
     # Segmentlist
     xml_seglist = ET.SubElement(xml_arch, "segmentlist")    
 
-    def add_segment(name, length):
+    def add_segment(name, length, switch):
         """
         Adds a segment
         """
@@ -88,20 +88,20 @@ def initialize_arch(xml_arch):
             "Cmetal": "22e-15",
         })
 
-        ET.SubElement(xml_seg, "mux", {"name": "generic"})
+        ET.SubElement(xml_seg, "mux", {"name": switch})
 
         e = ET.SubElement(xml_seg, "sb", {"type": "pattern"})
         e.text = " ".join(["1" for i in range(length+1)])
         e = ET.SubElement(xml_seg, "cb", {"type": "pattern"})
         e.text = " ".join(["1" for i in range(length)])
 
-    add_segment("generic", 1)
-    add_segment("sb_node", 1)
-    add_segment("sb_dummy", 1)
-    add_segment("hop1", 1)
-    add_segment("hop2", 2)
-    add_segment("hop3", 3)
-    add_segment("hop4", 4)
+    add_segment("generic", 1, "generic")
+    add_segment("pad",     1, "generic")
+    add_segment("sb_node", 1, "generic")
+    add_segment("hop1",    1, "generic")
+    add_segment("hop2",    2, "generic")
+    add_segment("hop3",    3, "generic")
+    add_segment("hop4",    4, "generic")
 
 
 def write_tiles(xml_arch, tile_types, nsmap):

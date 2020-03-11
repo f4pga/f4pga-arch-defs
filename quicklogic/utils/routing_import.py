@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import pickle
+from collections import defaultdict
 
 import lxml.etree as ET
 
@@ -10,13 +11,7 @@ import lib.rr_graph_xml.graph2 as rr_xml
 from lib import progressbar_utils
 
 from data_structs import *
-from utils import fixup_pin_name, yield_muxes
-from minigraph import MiniGraph
-
-# =============================================================================
-
-# Set to True to dump minigraph for each switchbox
-DUMP_MINIGRAPHS = False
+from utils import yield_muxes, fixup_pin_name
 
 # =============================================================================
 
@@ -32,6 +27,7 @@ def is_hop(connection):
 
     return False
 
+
 def is_tile(connection):
     """
     Rtturns True for connections going to/from tile.
@@ -46,6 +42,7 @@ def is_tile(connection):
         return True
 
     return False
+
 
 def is_local(connection):
     """
@@ -69,134 +66,349 @@ def add_track(graph, track, segment_id):
 
     return node
 
+
+def add_node(graph, loc, direction, segment_id):
+    """
+    Adds a track of length 1 to the graph. Returns the node object
+    """
+
+    return add_track(
+        graph, 
+        tracks.Track(
+            direction = direction,
+            x_low  = loc.x,
+            x_high = loc.x,
+            y_low  = loc.y,
+            y_high = loc.y,
+            ),
+        segment_id
+        )
+
+# =============================================================================
+
+
+def node_joint_location(node_a, node_b):
+    """
+    Given two VPR nodes returns a location of the point where they touch each
+    other.
+    """
+
+    loc_a1 = Loc(node_a.loc.x_low , node_a.loc.y_low )
+    loc_a2 = Loc(node_a.loc.x_high, node_a.loc.y_high)
+
+    loc_b1 = Loc(node_b.loc.x_low , node_b.loc.y_low )
+    loc_b2 = Loc(node_b.loc.x_high, node_b.loc.y_high)
+
+    if loc_a1 == loc_b1:
+        return loc_a1
+    if loc_a1 == loc_b2:
+        return loc_a1
+    if loc_a2 == loc_b1:
+        return loc_a2
+    if loc_a2 == loc_b2:
+        return loc_a2
+
+    assert False, (node_a, node_b)
+
+
+def connect(graph, src_node, dst_node, switch_id=None, segment_id=None, meta_name=None, meta_value=""):
+    """
+    Connect two VPR nodes in a way that certain rules are obeyed.
+
+    The rules are:
+    - a CHANX cannot connect directly to a CHANY and vice versa,
+    - a CHANX cannot connect to an IPIN facing left or right,
+    - a CHANY cannot connect to an IPIN facting top or bottom,
+    - an OPIN facing left or right cannot connect to a CHANX,
+    - an OPIN facing top or bottom cannot connect to a CHANY
+
+    Whenever a rule is not met then the connection is made through a padding
+    node:
+
+    src -> ["short" swtich] -> pad -> [desired switch] -> dst
+
+    Otherwise the connection is made directly
+
+    src -> [desired switch] -> dst
+
+    The influence of whether the rules are obeyed or not on the actual VPR
+    behavior is unclear.
+    """
+
+    # Use the default delayless switch if none is given
+    if switch_id is None:
+        switch_id = graph.get_delayless_switch_id()
+
+    # Get the "short" switch id
+    short_id = graph.get_switch_id("short")
+
+    # Use the "pad" segment if none given
+    if segment_id is None:
+        segment_id = graph.get_segment_id_from_name("pad")
+
+    # CHANX to CHANY or vice-versa
+    if src_node.type == rr.NodeType.CHANX and dst_node.type == rr.NodeType.CHANY or \
+       src_node.type == rr.NodeType.CHANY and dst_node.type == rr.NodeType.CHANX:
+
+        # Check loc
+        node_joint_location(src_node, dst_node)
+
+        # Connect directly
+        graph.add_edge(
+            src_node.id,
+            dst_node.id,
+            switch_id,
+            meta_name,
+            meta_value
+        )
+
+    # CHANX to CHANX or CHANY to CHANY
+    elif src_node.type == rr.NodeType.CHANX and dst_node.type == rr.NodeType.CHANX or \
+         src_node.type == rr.NodeType.CHANY and dst_node.type == rr.NodeType.CHANY:
+
+        loc = node_joint_location(src_node, dst_node)
+        direction = "X" if src_node.type == rr.NodeType.CHANY else "Y"
+
+        # Padding node
+        pad_node = add_node(
+            graph,
+            loc,
+            direction,
+            segment_id
+        )
+
+        # Connect through the padding node
+        graph.add_edge(src_node.id, pad_node.id, short_id)
+        graph.add_edge(pad_node.id, src_node.id, short_id)
+
+        graph.add_edge(
+            pad_node.id,
+            dst_node.id,
+            switch_id,
+            meta_name,
+            meta_value
+        )
+
+    # OPIN to CHANX/CHANY
+    elif src_node.type == rr.NodeType.OPIN and dst_node.type in \
+        [rr.NodeType.CHANX, rr.NodeType.CHANY]:
+
+        # All OPINs go right (towards +X)
+        assert src_node.loc.side == tracks.Direction.RIGHT, src_node
+
+        # Connected to CHANX
+        if dst_node.type == rr.NodeType.CHANX:
+
+            loc = node_joint_location(src_node, dst_node)
+
+            # Padding node
+            pad_node = add_node(
+                graph,
+                loc,
+                "Y",
+                segment_id
+            )
+
+            # Connect through the padding node
+            graph.add_edge(src_node.id, pad_node.id, short_id)
+            graph.add_edge(pad_node.id, src_node.id, short_id)
+
+            graph.add_edge(
+                pad_node.id,
+                dst_node.id,
+                switch_id,
+                meta_name,
+                meta_value
+            )
+
+        # Connected to CHANY
+        elif dst_node.type == rr.NodeType.CHANY:
+
+            # Directly
+            graph.add_edge(
+                src_node.id,
+                dst_node.id,
+                switch_id,
+                meta_name,
+                meta_value
+            )
+
+        # Should not happen
+        else:
+            assert False, dst_node
+
+    # CHANX/CHANY to IPIN
+    elif dst_node.type == rr.NodeType.IPIN and src_node.type in \
+        [rr.NodeType.CHANX, rr.NodeType.CHANY]:
+
+        # All IPINs go top (toward +Y)
+        assert dst_node.loc.side == tracks.Direction.TOP, dst_node
+
+        # Connected to CHANY
+        if src_node.type == rr.NodeType.CHANY:
+
+            loc = node_joint_location(src_node, dst_node)
+
+            # Padding node
+            pad_node = add_node(
+                graph,
+                loc,
+                "X",
+                segment_id
+            )
+
+            # Connect through the padding node
+            graph.add_edge(src_node.id, pad_node.id, short_id)
+            graph.add_edge(pad_node.id, src_node.id, short_id)
+
+            graph.add_edge(
+                pad_node.id,
+                dst_node.id,
+                switch_id,
+                meta_name,
+                meta_value
+            )
+
+        # Connected to CHANX
+        elif src_node.type == rr.NodeType.CHANX:
+
+            # Directly
+            graph.add_edge(
+                src_node.id,
+                dst_node.id,
+                switch_id,
+                meta_name,
+                meta_value
+            )
+
+        # Should not happen
+        else:
+            assert False, dst_node
+
+    # An unhandled case
+    else:
+        assert False, (src_node, dst_node)
+
+
 # =============================================================================
 
 
 class SwitchboxModel(object):
 
     def __init__(self, graph, loc, phy_loc, switchbox):
-        self.graph = graph
-        self.loc = loc
-        self.phy_loc = phy_loc
-        self.switchbox = switchbox
+        self.graph      = graph
+        self.loc        = loc
+        self.phy_loc    = phy_loc
+        self.switchbox  = switchbox
 
-        # A map of top-level switchbox pins to minigraph node ids. Indexed by
-        # (pin.name, pin.direction)
-        self.switchbox_pin_to_mininode = {}
+        self.mux_input_to_node  = {}
+        self.mux_output_to_node = {}
 
-        # A map of minigraph node ids to channel directions.
-        self.mininode_to_direction = {}
+        self.input_to_node = {}
 
-        # Initialize the minigraph
-        self.minigraph = MiniGraph()
-        self._build_minigraph()
+        self._build()
 
 
-    def _build_minigraph(self):
+    def _build(self):
         """
-        Builds a minigraph for the switchbox model. The minigraph will contain
-        additional nodes and edges that would simplify connecting to/from the
-        switchbox.
+        Build the switchbox model
         """
 
-        # Add nodes for top-level pins
-        for pin in self.switchbox.pins:
-
-            # Add the node
-            mininode_id = self.minigraph.add_node(is_locked = False)
-
-            # Add to the top-level map
-            key = (pin.name, pin.direction,)
-            self.switchbox_pin_to_mininode[key] = mininode_id
-
-        # Add nodes for switch pins
-        pin_to_mininode = {}
+        # Add nodes and edge for all inputs and outputs of all muxes.
+        # Add mux edges.
         for stage, switch, mux in yield_muxes(self.switchbox):
-            for pin in mux.pins:
 
-                # Lock minigraph nodes that are inter-stage. Those will
-                # become VPR rr nodes.
-                is_locked = pin.direction == PinDirection.OUTPUT and pin.name is None
+            dir_inp = "X" if (stage.id % 2) else "Y"
+            dir_out = "Y" if (stage.id % 2) else "X"
 
-                # Add the node
-                mininode_id = self.minigraph.add_node(is_locked = is_locked)
+            segment_id = self.graph.get_segment_id_from_name("sb_node")
 
-                # For locked nodes assign VPR channel direction
-                if is_locked:
-                    chan_type = "X" if stage.id % 2 else "Y"
-                    self.mininode_to_direction[mininode_id] = chan_type
-
-                # Add the pin location to the map
-                loc = SwitchboxPinLoc(
-                    stage_id  = stage.id,
-                    switch_id = switch.id,
-                    mux_id    = mux.id,
-                    pin_id    = pin.id,
-                    pin_direction = pin.direction
-                )
-
-                pin_to_mininode[loc] = mininode_id
-
-        # Add connections between top-level switchbox pins and switches
-        for pin in self.switchbox.inputs.values():
-            key = (pin.name, pin.direction)
-            src_mininode = self.switchbox_pin_to_mininode[key]
-
-            for loc in pin.locs:
-                dst_mininode = pin_to_mininode[loc]
-                self.minigraph.add_edge(src_mininode, dst_mininode)
-
-        for pin in self.switchbox.outputs.values():
-            key = (pin.name, pin.direction)
-            dst_mininode = self.switchbox_pin_to_mininode[key]
-
-            assert len(pin.locs) == 1, pin
-
-            src_mininode = pin_to_mininode[pin.locs[0]]
-            self.minigraph.add_edge(src_mininode, dst_mininode)
-
-        # Add connections between switches
-        for connection in self.switchbox.connections:
-            src_mininode_id = pin_to_mininode[connection.src]
-            dst_mininode_id = pin_to_mininode[connection.dst]
-
-            self.minigraph.add_edge(src_mininode_id, dst_mininode_id)
-
-        # Add muxes inside switches
-        for stage, switch, mux in yield_muxes(self.switchbox):
-            dst_pin = mux.output
-            dst_loc = SwitchboxPinLoc(
-                stage_id  = stage.id,
-                switch_id = switch.id,
-                mux_id    = mux.id,
-                pin_id    = dst_pin.id,
-                pin_direction = dst_pin.direction
+            # Output node
+            key = (stage.id, switch.id, mux.id)
+            assert key not in self.mux_output_to_node
+            
+            out_node = add_node(
+                self.graph,
+                self.loc,
+                dir_out,
+                segment_id
             )
+            self.mux_output_to_node[key] = out_node
 
-            for src_pin in mux.inputs.values():
-                src_loc = SwitchboxPinLoc(
-                    stage_id  = stage.id,
-                    switch_id = switch.id,
-                    mux_id    = mux.id,
-                    pin_id    = src_pin.id,
-                    pin_direction = src_pin.direction
+            # Input nodes + mux edges
+            for pin in mux.inputs.values():
+
+                key = (stage.id, switch.id, mux.id, pin.id)
+                assert key not in self.mux_input_to_node
+
+                # Input node
+                inp_node = add_node(
+                    self.graph,
+                    self.loc,
+                    dir_inp,
+                    segment_id
                 )
 
-                src_mininode_id = pin_to_mininode[src_loc]
-                dst_mininode_id = pin_to_mininode[dst_loc]
+                self.mux_input_to_node[key] = inp_node
 
+                # Get mux metadata
                 metadata = self._get_metadata_for_mux(
                     stage,
                     switch,
                     mux,
-                    src_pin.id
+                    pin.id
                 )
 
-                self.minigraph.add_edge(
-                    src_mininode_id,
-                    dst_mininode_id,
-                    metadata = metadata
+                if len(metadata):
+                    meta_name  = "fasm_features"
+                    meta_value = "\n".join(metadata)
+                else:
+                    meta_name  = None
+                    meta_value = ""
+
+                # Mux switch with appropriate timing and fasm metadata
+                self.graph.add_edge(
+                    inp_node.id,
+                    out_node.id,
+                    0, # TODO: switch id
+                    name  = meta_name,
+                    value = meta_value,
                 )
+
+        # Add internal connections between muxes.
+        for connection in self.switchbox.connections:
+            src = connection.src
+            dst = connection.dst
+
+            # Check
+            assert src.pin_id == 0, src
+            assert src.pin_direction == PinDirection.OUTPUT, src
+
+            # Get an input node
+            key = (dst.stage_id, dst.switch_id, dst.mux_id, dst.pin_id)
+            dst_node = self.mux_input_to_node[key]
+
+            # Create a mux output
+            self._create_mux_output(
+                src.stage_id,
+                src.switch_id,
+                src.mux_id,
+                dst_node
+            )
+
+        # Build a map of switchbox input pin names to VPR nodes corresponding
+        # to connected mux inputs.
+        for pin in self.switchbox.inputs.values():
+
+            # Get the nodes
+            nodes = []
+            for loc in pin.locs:
+                key = (loc.stage_id, loc.switch_id, loc.mux_id, loc.pin_id)
+                node = self.mux_input_to_node[key]
+                nodes.append(node)
+
+            assert pin.name not in self.input_to_node
+            self.input_to_node[pin.name] = nodes
 
 
     def _get_metadata_for_mux(self, stage, switch, mux, src_pin_id):
@@ -231,120 +443,82 @@ class SwitchboxModel(object):
         metadata.append(".".join([prefix, feature]))
         return metadata
 
-    @property
-    def is_used(self):
-        """
-        Returns True if the switchbox is used meaning that something is
-        connected to it.
-        """
 
-        # Check if there is at least one VPR rr graph node assigned to a
-        # minigraph node representing a top-level switchbox pin.
-        for mininode_id in self.switchbox_pin_to_mininode.values():
-            if self.minigraph.nodes[mininode_id].metadata is not None:
-                return True
-
-        return False
-
-    def populate_minigraph_nodes(self):
+    def _create_mux_output(self, stage_id, switch_id, mux_id, dst_node=None):
         """
-        Optimize the minigraph (remove dummy nodes), add its nodes to the VPR
-        rr graph.
+        Creates a new output for the given mux with appropriate timing mode.
+        Returns the output node object
         """
 
-        # Dump
-        if DUMP_MINIGRAPHS:
-            fname = "minigraph_{}_X{}Y{}_pre_opt.dot".format(
-                self.switchbox.type,
-                self.loc.x,
-                self.loc.y,
-            )
-            with open(fname, "w") as fp:
-                fp.write(self.minigraph.dump_dot())
+        dir_inp = "Y" if (stage_id % 2) else "X"
+        dir_out = "X" if (stage_id % 2) else "Y"
 
-        # Optimize the minigraph. This removes dummy nodes and merges edges
-        # coming to and from them.
-        self.minigraph.optimize()
-        self.minigraph.prune_leafs()
-
-        # Dump
-        if DUMP_MINIGRAPHS:
-            fname = "minigraph_{}_X{}Y{}_post_opt.dot".format(
-                self.switchbox.type,
-                self.loc.x,
-                self.loc.y,
-            )
-            with open(fname, "w") as fp:
-                fp.write(self.minigraph.dump_dot())
-
-        # Add nodes
-        for mininode in self.minigraph.nodes.values():
-         
-            # This node correspond to an existing VPR rr graph node. Skip
-            # adding it
-            metadata = mininode.metadata
-            if metadata is not None:
-                continue
-
-            if mininode.id in self.mininode_to_direction:
-                direction  = self.mininode_to_direction[mininode.id]
-                segment_id = self.graph.get_segment_id_from_name("sb_node")
-            else:
-                direction  = "X"
-                segment_id = self.graph.get_segment_id_from_name("generic")
-
-            # Add the track to the graph
-            track = tracks.Track(
-                direction = direction,
-                x_low  = self.loc.x,
-                x_high = self.loc.x,
-                y_low  = self.loc.y,
-                y_high = self.loc.y,
+        # Add the new output node if not given
+        if dst_node is None:
+            dst_node = add_node(
+                self.graph,
+                self.loc,
+                dir_out,
+                self.graph.get_segment_id_from_name("sb_node")
             )
 
-            node = add_track(self.graph, track, segment_id)
+        # Add the output load model to the mux
+        key = (stage_id, switch_id, mux_id)
+        out_node = self.mux_output_to_node[key]
 
-            # Set the VPR node id as the metadata of the minigraph node
-            self.minigraph.update_node(mininode.id, metadata=node.id)
+        # Intermediate node with capacitance
+        segment_id = 0  # TODO
+        load_node = add_node(
+            self.graph,
+            self.loc,
+            dir_inp,
+            segment_id
+        )
+
+        # Pass gate edge to switch the capacitance on/off (delayless)
+        connect(
+            self.graph,
+            out_node,
+            load_node,
+        )
+
+        # Isolating buffer (delayless)
+        connect(
+            self.graph,
+            load_node,
+            dst_node,
+        )          
+
+        return dst_node
 
 
-    def populate_minigraph_edges(self):
+    def get_input_nodes(self, pin_name):
         """
-        Add the minigraph edges to the VPR rr graph.
+        Return a list of VPR node objects that correspond to a particular
+        switchbox input.
+        """
+        return self.input_to_node[pin_name]
+
+
+    def create_output(self, pin_name, dst_node=None):
+        """
+        Creates a new output for the given switchbox output. Returns the
+        output node object.
         """
 
-        for miniedge in self.minigraph.edges.values():
+        # Get the output pin
+        pin = self.switchbox.outputs[pin_name]
 
-            # Get source and destination minigraph nodes
-            src_minigraph_node = self.minigraph.nodes[miniedge.src_node]
-            dst_minigraph_node = self.minigraph.nodes[miniedge.dst_node]
+        assert len(pin.locs) == 1
+        loc = pin.locs[0]
 
-            # Both must have VPR nodes associated.
-            if src_minigraph_node.metadata is None or \
-               dst_minigraph_node.metadata is None:
-                continue
-
-            # Get metadata
-            metadata = miniedge.metadata
-            if len(metadata):
-                meta_name  = "fasm_features"
-                meta_value = "\n".join(metadata)
-            else:
-                meta_name  = None
-                meta_value = ""
-
-            # Add the edge
-            src_node_id = src_minigraph_node.metadata
-            dst_node_id = dst_minigraph_node.metadata
-
-            # Add the edge to the graph
-            self.graph.add_edge(
-                src_node_id,
-                dst_node_id,
-                0, # TODO: switch id
-                name=meta_name,
-                value=meta_value                
-                )
+        # Create a mux output for its mux
+        return self._create_mux_output(
+            loc.stage_id,
+            loc.switch_id,
+            loc.mux_id,
+            dst_node
+        )
 
 # =============================================================================
 
@@ -650,109 +824,92 @@ def add_tracks_for_const_network(graph, const, tile_grid):
     return const_node_map
 
 
+def create_track_for_hop_connection(graph, connection):
+    """
+    Creates a HOP wire track for the given connection
+    """
+
+    # Determine whether the wire goes horizontally or vertically.
+    if   connection.src.loc.y == connection.dst.loc.y:
+        direction = "X"
+    elif connection.src.loc.x == connection.dst.loc.x:
+        direction = "Y"
+    else:
+        assert False, connection
+
+    assert connection.src.loc != connection.dst.loc, connection
+
+    # Determine the connection length
+    length = max(
+        abs(connection.src.loc.x - connection.dst.loc.x),
+        abs(connection.src.loc.y - connection.dst.loc.y)
+    )
+
+    segment_name = "hop{}".format(length)
+
+    # Add the track to the graph
+    track = tracks.Track(
+        direction = direction,
+        x_low  = min(connection.src.loc.x, connection.dst.loc.x),
+        x_high = max(connection.src.loc.x, connection.dst.loc.x),
+        y_low  = min(connection.src.loc.y, connection.dst.loc.y),
+        y_high = max(connection.src.loc.y, connection.dst.loc.y),
+    )
+
+    node = add_track(graph, track, graph.get_segment_id_from_name(segment_name))
+
+    return node
+
 # =============================================================================
 
 
-def add_tracks_for_hop_wires(graph, connections):
+def populate_hop_connections(graph, switchbox_models, connections):
     """
-    Adds a track for each HOP connection wire. Returns a map of connections to
-    graph nodes.
-    """
-
-    node_map = {}
-        
-    # Add tracks for HOP wires between switchboxes
-    hops = [c for c in connections if is_hop(c)]
-
-    bar = progressbar_utils.progressbar
-    for connection in bar(hops):
-
-        # Determine whether the wire goes horizontally or vertically.
-        if connection.src.loc.y == connection.dst.loc.y:
-            direction = "X"
-        elif connection.src.loc.x == connection.dst.loc.x:
-            direction = "Y"
-        else:
-            assert False, connection
-
-        # Determine the connection length
-        length = max(
-            abs(connection.src.loc.x - connection.dst.loc.x),
-            abs(connection.src.loc.y - connection.dst.loc.y)
-        )
-
-        segment_name = "hop{}".format(length)
-
-        # Add the track to the graph
-        track = tracks.Track(
-            direction = direction,
-            x_low  = connection.src.loc.x,
-            x_high = connection.dst.loc.x,
-            y_low  = connection.src.loc.y,
-            y_high = connection.dst.loc.y,
-        )
-
-        node = add_track(graph, track, graph.get_segment_id_from_name(segment_name))
-
-        # Add to the node map
-        node_map[connection] = node
-
-    return node_map
-
-# =============================================================================
-
-def assign_vpr_node(minigraph, mininode, vpr_node_id):
-    """
-    Assigns a minigraph node with a VPR node id. Checks whether the node
-    wa not previously assigned.
-    """
-    assert minigraph.nodes[mininode].metadata is None
-    minigraph.update_node(mininode, is_locked=True, metadata=vpr_node_id)
-
-
-def populate_connections(graph, connections, tile_grid, switchbox_models, connection_to_node):
-    """
-    Populates connections to minigraphs of switchbox models.
+    Populates HOP connections
     """
 
     # Process connections
-    bar = progressbar_utils.progressbar
-    for connection in bar(connections):
-    
-        # Connection between switchboxes through HOP wires. A connection
-        # represents the HOP wire node.
-        if is_hop(connection):
+    bar   = progressbar_utils.progressbar
+    conns = [c for c in connections if is_hop(c)]
+    for connection in bar(conns):
 
-            # Get the HOP wire node
-            node = connection_to_node[connection]
+        # Get switchbox models
+        src_switchbox_model = switchbox_models[connection.src.loc]
+        dst_switchbox_model = switchbox_models[connection.dst.loc]
 
-            # Get the output switchbox and its minigraph
-            if connection.src.loc in switchbox_models:
-                switchbox_model = switchbox_models[connection.src.loc]
-                minigraph = switchbox_model.minigraph
+        # For each mux input of the desitnation switchbox create an output
+        # in the source switchbox
+        inp_nodes = dst_switchbox_model.get_input_nodes(connection.dst.pin)
+        for inp_node in inp_nodes:
 
-                # Get the output node of the minigraph
-                key = (connection.src.pin, PinDirection.OUTPUT)
-                mininode = switchbox_model.switchbox_pin_to_mininode[key]
+            # Create the hop wire, use it as output node of the switchbox
+            hop_node = create_track_for_hop_connection(graph, connection)
 
-                # Assign it the VPR node id
-                assign_vpr_node(minigraph, mininode, node.id)
-                    
-            # Get the input switchbox and its minigraph
-            if connection.dst.loc in switchbox_models:
-                switchbox_model = switchbox_models[connection.dst.loc]
-                minigraph = switchbox_model.minigraph
+            # Create output in the source switchbox
+            src_switchbox_model.create_output(connection.src.pin, hop_node)
 
-                # Get the input node of the minigraph
-                key = (connection.dst.pin, PinDirection.INPUT)
-                mininode = switchbox_model.switchbox_pin_to_mininode[key]
+            # Add a delayless edge
+            connect(
+                graph,
+                hop_node,
+                inp_node,
+            )
 
-                # Assign it the VPR node id
-                assign_vpr_node(minigraph, mininode, node.id)
-        
-        # Connection between switchbox and its tile. The connection represents
-        # edge between IPIN/OPIN and CHANX/CHANY.
-        elif is_local(connection):
+            # FIXME: inp_node and hop_node could be the same.
+
+
+def populate_tile_connections(graph, switchbox_models, connections, connection_to_node):
+    """
+    Populates switchbox to tile and tile to switchbox connections
+    """
+
+    # Process connections
+    bar   = progressbar_utils.progressbar
+    conns = [c for c in connections if is_tile(c)]
+    for connection in bar(conns):
+
+        # Connection to/from the local tile
+        if is_local(connection):
 
             # Must be the same switchbox and tile
             assert connection.src.loc == connection.dst.loc, connection            
@@ -764,37 +921,36 @@ def populate_connections(graph, connections, tile_grid, switchbox_models, connec
 
             # Get the switchbox model (both locs are the same)
             switchbox_model = switchbox_models[loc]
-            minigraph = switchbox_model.minigraph
 
             # Get the tile IPIN/OPIN node
             if connection not in connection_to_node:
                 print("WARNING: No IPIN/OPIN node for connection {}".format(connection))
                 continue
 
-            node = connection_to_node[connection]
+            tile_node = connection_to_node[connection]
 
             # To tile
             if connection.dst.type == ConnectionType.TILE:
 
-                # Get the output node of the minigraph
-                key = (connection.src.pin, PinDirection.OUTPUT)
-                mininode = switchbox_model.switchbox_pin_to_mininode[key]
+                # Create an output in the switchbox model. Don't create a new
+                # node. Use the existing IPIN one.
+                sbox_node = switchbox_model.create_output(connection.src.pin, tile_node)
 
-                # Assign it the VPR node id
-                assign_vpr_node(minigraph, mininode, node.id)
-        
             # From tile
             if connection.src.type == ConnectionType.TILE:
 
-                # Get the input node of the minigraph
-                key = (connection.dst.pin, PinDirection.INPUT)
-                mininode = switchbox_model.switchbox_pin_to_mininode[key]
+                # Add edges between the tile node and switchbox mux inputs
+                for sbox_node in switchbox_model.get_input_nodes(connection.dst.pin):
 
-                # Assign it the VPR node id
-                assign_vpr_node(minigraph, mininode, node.id)
+                    # Add a delayless edge
+                    connect(
+                        graph,
+                        tile_node,
+                        sbox_node,
+                    )
 
-        # Same as for the above case but the connection goes to a different tile
-        elif not is_local(connection):
+        # Connection to/from a foreign tile
+        else:
 
             # Get segment id and switch id
             segment_id = graph.get_segment_id_from_name("generic")
@@ -825,11 +981,11 @@ def populate_connections(graph, connections, tile_grid, switchbox_models, connec
 
                     # To tile
                     if ep == connection.dst:
-                        graph.add_edge(dst_node.id, node.id, switch_id)
+                        connect(graph, dst_node, node, switch_id)
 
                     # From tile
                     elif ep == connection.src:
-                        graph.add_edge(node.id, src_node.id, switch_id)
+                        connect(graph, node, src_node, switch_id)
 
                 # Endpoint at switchbox
                 elif ep.type == ConnectionType.SWITCHBOX:
@@ -840,49 +996,51 @@ def populate_connections(graph, connections, tile_grid, switchbox_models, connec
 
                     # Get the switchbox model (both locs are the same)
                     switchbox_model = switchbox_models[ep.loc]
-                    minigraph = switchbox_model.minigraph
 
                     # To switchbox
                     if ep == connection.dst:
-                        key = (ep.pin, PinDirection.INPUT)
-                        mininode = switchbox_model.switchbox_pin_to_mininode[key]
-                        assign_vpr_node(minigraph, mininode, dst_node.id)
+
+                        # Add edges between the track node and switchbox mux inputs
+                        for sbox_node in switchbox_model.get_input_nodes(ep.pin):
+
+                            # Add a delayless edge
+                            connect(
+                                graph,
+                                dst_node,
+                                sbox_node,
+                            )
 
                     # From switchbox
                     elif ep == connection.src:
-                        key = (ep.pin, PinDirection.OUTPUT)
-                        mininode = switchbox_model.switchbox_pin_to_mininode[key]
-                        assign_vpr_node(minigraph, mininode, src_node.id)
+
+                        # Create an output in the switchbox model. Don't create a new
+                        # node. Use the existing track node.
+                        sbox_node = switchbox_model.create_output(ep.pin, src_node)
 
 
-def populate_const_connections(switchbox_models, const_node_map):
+def populate_const_connections(graph, switchbox_models, const_node_map):
     """
     Connects switchbox inputs that represent VCC and GND constants to
     nodes of the global const network.
     """
 
-    for loc, switchbox_model in switchbox_models.items():
+    bar = progressbar_utils.progressbar
+    for loc, switchbox_model in bar(switchbox_models.items()):
 
         # Look for input connected to a const
-        for pin in switchbox_model.switchbox.pins:
-
-            if pin.direction is not PinDirection.INPUT:
-                continue
+        for pin in switchbox_model.switchbox.inputs.values():
 
             # Got a const input
             if pin.name in const_node_map:
+                const_node = const_node_map[pin.name][loc]
 
-                # Get the node
-                node = const_node_map[pin.name][loc]
-
-                # Get the input node of the minigraph
-                key = (pin.name, PinDirection.INPUT)
-                mininode = switchbox_model.switchbox_pin_to_mininode[key]
-                minigraph = switchbox_model.minigraph
-
-                # Assign it the VPR node id
-                assign_vpr_node(minigraph, mininode, node.id)
-
+                # Connect it to the switchbox input
+                for inp_node in switchbox_model.get_input_nodes(pin.name):
+                    connect(
+                        graph,
+                        const_node,
+                        inp_node,
+                    )
 
 # =============================================================================
 
@@ -965,6 +1123,29 @@ def main():
         progressbar      = None
     )
 
+    # FIXME: Temporary fix/hack
+    try:
+        xml_graph.graph.get_switch_id("short")
+    except KeyError:
+        xml_graph.graph.add_switch(
+            rr.Switch(
+                id=None,
+                name="short",
+                type=rr.SwitchType.SHORT,
+                timing=rr.SwitchTiming(
+                    r=0.0,
+                    c_in=0.0,
+                    c_out=0.0,
+                    c_internal=0.0,
+                    t_del=0.0,
+                ),
+                sizing=rr.SwitchSizing(
+                    mux_trans_size=0,
+                    buf_size=0,
+                ),
+            )
+        )
+
     print("Building maps...")
 
     # Build node id to node map
@@ -973,18 +1154,14 @@ def main():
     # Build tile pin names to rr node ids map
     tile_pin_to_node = build_tile_pin_to_node_map(xml_graph.graph, vpr_tile_types, vpr_tile_grid)
 
-    # Connection to node map. Map Connection objects to rr graph node ids
-    connection_to_node = {}
-
     # Add const network
     const_node_map = {}
     for const in ["VCC", "GND"]:
         m = add_tracks_for_const_network(xml_graph.graph, const, vpr_tile_grid)
         const_node_map[const] = m
 
-    # Add tracks for HOP wires. Build map of these to rr nodes.
-    node_map = add_tracks_for_hop_wires(xml_graph.graph, connections)
-    connection_to_node.update(node_map)
+    # Connection to node map. Map Connection objects to rr graph node ids
+    connection_to_node = {}
 
     # Build a map of connections to/from tiles and rr nodes. The map points 
     # to an IPIN/OPIN node for a connection that mentions it.
@@ -1010,39 +1187,17 @@ def main():
 
     # Populate connections to the switchbox models
     print("Populating connections...")
-    populate_connections(xml_graph.graph, connections, vpr_tile_grid, switchbox_models, connection_to_node)
-    populate_const_connections(switchbox_models, const_node_map)
-
-    # Prune unused switchboxes
-    print("Pruning unused switchboxes...")
-    for loc in list(switchbox_models.keys()):
-        if not switchbox_models[loc].is_used:
-            print("'{}' at '{}'".format(switchbox_models[loc].swichbox.type, loc))
-            del switchbox_models[loc]
-
-    # Implement switchboxes in the VPR graph
-    print("Building final rr graph...")
-    bar = progressbar_utils.progressbar
-
-    for loc, switchbox_model in bar(switchbox_models.items()):
-        switchbox_model.populate_minigraph_nodes()
-
-    for loc, switchbox_model in bar(switchbox_models.items()):
-        switchbox_model.populate_minigraph_edges()
+    populate_hop_connections(xml_graph.graph, switchbox_models, connections)
+    populate_tile_connections(xml_graph.graph, switchbox_models, connections, connection_to_node)
+    populate_const_connections(xml_graph.graph, switchbox_models, const_node_map)
 
     # Create channels from tracks
-    pad_segment_id = xml_graph.graph.get_segment_id_from_name("generic")
+    pad_segment_id = xml_graph.graph.get_segment_id_from_name("pad")
     channels_obj = xml_graph.graph.create_channels(pad_segment=pad_segment_id)
 
     # Remove padding channels
     print("Removing padding nodes...")
-    padding_nodes = []
-    for node in xml_graph.graph.nodes:
-        if node.capacity == 0:
-            padding_nodes.append(node)
-
-    for node in padding_nodes:
-        xml_graph.graph.nodes.remove(node)
+    xml_graph.graph.nodes = [n for n in xml_graph.graph.nodes if n.capacity > 0]
 
     # Write the routing graph
     nodes_obj = xml_graph.graph.nodes
