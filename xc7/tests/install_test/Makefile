@@ -2,33 +2,34 @@ mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
 current_dir := $(patsubst %/,%,$(dir $(mkfile_path)))
 TOP:=top
 VERILOG:=${current_dir}/counter_basys3.v
-DEVICE:=xc7a50t_test
-BITSTREAM_DEVICE:=artix7
-PCF=basys.pcf
+PARTNAME:= xc7a35tcpg236-1
+DEVICE  := xc7a50t_test
+BITSTREAM_DEVICE := artix7
+PCF=${current_dir}/basys3.pcf
 BUILDDIR:=build
 
-all: ${TOP}.bit
+all: ${BUILDDIR}/${TOP}.bit
 
 ${BUILDDIR}:
 	mkdir ${BUILDDIR}
 
-${TOP}.eblif: ${BUILDDIR}
-	cd ${BUILDDIR} && synth -t ${TOP} -v ${VERILOG}
+${BUILDDIR}/${TOP}.eblif: | ${BUILDDIR}
+	cd ${BUILDDIR} && synth -t ${TOP} -v ${VERILOG} -d ${BITSTREAM_DEVICE} -p ${PARTNAME}
 
-${TOP}.net: ${TOP}.eblif
+${BUILDDIR}/${TOP}.net: ${BUILDDIR}/${TOP}.eblif
 	cd ${BUILDDIR} && pack -e ${TOP}.eblif -d ${DEVICE}
 
-${TOP}.place: ${TOP}.net
-	cd ${BUILDDIR} && place -e ${TOP}.eblif -d ${DEVICE} -p ${PCF} -n ${TOP}.net
+${BUILDDIR}/${TOP}.place: ${BUILDDIR}/${TOP}.net
+	cd ${BUILDDIR} && place -e ${TOP}.eblif -d ${DEVICE} -p ${PCF} -n ${TOP}.net -P ${PARTNAME}
 
-${TOP}.route: ${TOP}.place
+${BUILDDIR}/${TOP}.route: ${BUILDDIR}/${TOP}.place
 	cd ${BUILDDIR} && route -e ${TOP}.eblif -d ${DEVICE}
 
-${TOP}.fasm: ${TOP}.route
+${BUILDDIR}/${TOP}.fasm: ${BUILDDIR}/${TOP}.route
 	cd ${BUILDDIR} && write_fasm -e ${TOP}.eblif -d ${DEVICE}
 
-${TOP}.bit: ${TOP}.fasm
-	cd ${BUILDDIR} && write_bitstream -d ${BITSTREAM_DEVICE} -f ${TOP}.fasm -b ${TOP}.bit
+${BUILDDIR}/${TOP}.bit: ${BUILDDIR}/${TOP}.fasm
+	cd ${BUILDDIR} && write_bitstream -d ${BITSTREAM_DEVICE} -f ${TOP}.fasm -p ${PARTNAME} -b ${TOP}.bit
 
 clean:
 	rm -rf ${BUILDDIR}
