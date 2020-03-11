@@ -38,9 +38,15 @@ echo "Running installed toolchain tests"
 echo "----------------------------------------"
 (
 
+	# enter conda env (we'll use Yosys from conda)
+	source build/env/conda/activate
+	# add installed toolchain to PATH
+	export PATH=${INSTALL_DIR}/bin:$PATH
+	# install python deps
+	pip install -r xc7/tests/install_test/requirements.txt
 	pushd build
 	export CTEST_OUTPUT_ON_FAILURE=1
-	ninja -j${MAX_CORES} test
+	ctest -R binary_toolchain_test
 	popd
 )
 echo "----------------------------------------"
