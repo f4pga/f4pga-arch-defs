@@ -25,12 +25,5 @@ Contents
    :maxdepth: 2
 
    getting-started
+   prjxray/index
    development/development
-
-
-Indices and tables
-------------------
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
