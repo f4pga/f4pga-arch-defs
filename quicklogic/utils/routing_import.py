@@ -1114,37 +1114,42 @@ def main():
         vpr_switchbox_types = db["vpr_switchbox_types"]
         vpr_switchbox_grid  = db["vpr_switchbox_grid"]
         connections    = db["connections"]
+        segments       = db["segments"]
+        switches       = db["switches"]
 
     # Load the routing graph, build SOURCE -> OPIN and IPIN -> SINK edges.
     print("Loading rr graph...")
     xml_graph = rr_xml.Graph(
         input_file_name  = args.rr_graph_in,
         output_file_name = args.rr_graph_out,
-        progressbar      = None
+        progressbar      = progressbar_utils.progressbar
     )
 
-    # FIXME: Temporary fix/hack
-    try:
-        xml_graph.graph.get_switch_id("short")
-    except KeyError:
-        xml_graph.graph.add_switch(
-            rr.Switch(
-                id=None,
-                name="short",
-                type=rr.SwitchType.SHORT,
-                timing=rr.SwitchTiming(
-                    r=0.0,
-                    c_in=0.0,
-                    c_out=0.0,
-                    c_internal=0.0,
-                    t_del=0.0,
-                ),
-                sizing=rr.SwitchSizing(
-                    mux_trans_size=0,
-                    buf_size=0,
-                ),
+    # Add back the switches that were unused in the arch.xml and got pruned
+    # byt VPR.
+    for switch in switches:
+        try:
+            xml_graph.graph.get_switch_id(switch.name)            
+            continue
+        except KeyError:
+            xml_graph.add_switch(
+                rr.Switch(
+                    id=None,
+                    name=switch.name,
+                    type=rr.SwitchType[switch.type.upper()],
+                    timing=rr.SwitchTiming(
+                        r=switch.r,
+                        c_in=switch.c_in,
+                        c_out=switch.c_out,
+                        c_internal=switch.c_int,
+                        t_del=switch.t_del,
+                    ),
+                    sizing=rr.SwitchSizing(
+                        mux_trans_size=0,
+                        buf_size=0,
+                    ),
+                )
             )
-        )
 
     print("Building maps...")
 

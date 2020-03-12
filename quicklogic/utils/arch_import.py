@@ -10,7 +10,48 @@ from data_structs import *
 # =============================================================================
 
 
-def initialize_arch(xml_arch):
+def add_segment(xml_parent, segment):
+    """
+    Adds a segment
+    """
+
+    # Make XML
+    xml_seg = ET.SubElement(xml_parent, "segment", {
+        "name":   segment.name,
+        "length": str(segment.length),
+        "freq":   "1.0",
+        "type":   "unidir",
+        "Rmetal": str(segment.r_metal),
+        "Cmetal": str(segment.c_metal),
+    })
+
+    ET.SubElement(xml_seg, "mux", {"name": "generic"})
+
+    e = ET.SubElement(xml_seg, "sb", {"type": "pattern"})
+    e.text = " ".join(["1" for i in range(segment.length+1)])
+    e = ET.SubElement(xml_seg, "cb", {"type": "pattern"})
+    e.text = " ".join(["1" for i in range(segment.length)])
+
+
+def add_switch(xml_parent, switch):
+    """
+    Adds a switch
+    """
+
+    xml_switch = ET.SubElement(xml_parent, "switch", {
+        "type": switch.type,
+        "name": switch.name,
+        "R"   : str(switch.r),
+        "Cin" : str(switch.c_in),
+        "Cout": str(switch.c_out),
+        "Tdel": str(switch.t_del),
+    })
+
+    if switch.type in ["mux", "tristate"]:
+        xml_switch.attrib["Cinternal"] = str(switch.c_int)
+
+
+def initialize_arch(xml_arch, switches, segments):
     """
     Initializes the architecture definition from scratch.
     """
@@ -51,57 +92,24 @@ def initialize_arch(xml_arch):
     # .................................
     # Switchlist
     xml_switchlist = ET.SubElement(xml_arch, "switchlist")
+    got_generic_switch = False
 
-    ET.SubElement(xml_switchlist, "switch", {
-        "type": "short",
-        "name": "short",
-        "R": "0",
-        "Cin": "0",
-        "Cout": "0",
-        "Tdel": "0"
-    })
+    for switch in switches:
+        add_switch(xml_switchlist, switch)
 
-    ET.SubElement(xml_switchlist, "switch", {
-        "type": "mux",
-        "name": "generic",
-        "R": "0",
-        "Cin": "0",
-        "Cout": "0",
-        "Tdel": "0"
-    })
+        # Check for the generic switch
+        if switch.name == "generic":
+            got_generic_switch = True
+
+    # No generic switch
+    assert got_generic_switch
 
     # .................................
     # Segmentlist
     xml_seglist = ET.SubElement(xml_arch, "segmentlist")    
 
-    def add_segment(name, length, switch):
-        """
-        Adds a segment
-        """
-
-        xml_seg = ET.SubElement(xml_seglist, "segment", {
-            "name": name,
-            "length": str(length),
-            "freq": "1.0",
-            "type": "unidir",
-            "Rmetal": "100",
-            "Cmetal": "22e-15",
-        })
-
-        ET.SubElement(xml_seg, "mux", {"name": switch})
-
-        e = ET.SubElement(xml_seg, "sb", {"type": "pattern"})
-        e.text = " ".join(["1" for i in range(length+1)])
-        e = ET.SubElement(xml_seg, "cb", {"type": "pattern"})
-        e.text = " ".join(["1" for i in range(length)])
-
-    add_segment("generic", 1, "generic")
-    add_segment("pad",     1, "generic")
-    add_segment("sb_node", 1, "generic")
-    add_segment("hop1",    1, "generic")
-    add_segment("hop2",    2, "generic")
-    add_segment("hop3",    3, "generic")
-    add_segment("hop4",    4, "generic")
+    for segment in segments:
+        add_segment(xml_seglist, segment)
 
 
 def write_tiles(xml_arch, tile_types, nsmap):
@@ -212,12 +220,6 @@ def main():
         help="VPR database file"
     )
     parser.add_argument(
-        "--arch-in",
-        type=str,
-        default=None,
-        help="Input arch XML file (for patching, optional)"
-    )
-    parser.add_argument(
         "--arch-out",
         type=str,
         default="arch.xml",
@@ -236,16 +238,6 @@ def main():
     ET.register_namespace("xi", xi_url)
     nsmap = {"xi": xi_url} 
 
-    # Read the input arch XML file if given
-    if args.arch_in:
-        xml_tree = ET.parse(args.arch_in)
-        xml_arch = xml_tree.getroot()
-
-    # Initialize the arch XML if file not given
-    else:
-        xml_arch = ET.Element("architecture", nsmap=nsmap)
-        initialize_arch(xml_arch)
-
     # Load data from the database
     with open(args.vpr_db, "rb") as fp:
         db = pickle.load(fp)
@@ -254,6 +246,12 @@ def main():
         loc_map        = db["loc_map"]
         vpr_tile_types = db["vpr_tile_types"]
         vpr_tile_grid  = db["vpr_tile_grid"]
+        segments       = db["segments"]
+        switches       = db["switches"]
+
+    # Initialize the arch XML if file not given
+    xml_arch = ET.Element("architecture", nsmap=nsmap)
+    initialize_arch(xml_arch, switches, segments)
 
     # Write tiles
     write_tiles(xml_arch, vpr_tile_types, nsmap)

@@ -457,6 +457,143 @@ def process_switchbox_timing(switchbox):
             # Store it
             mux.timing["params"][pin.id] = timing
 
+# =============================================================================
+
+
+def build_switch_list(switchbox_types):
+    """
+    Builds a list of all switch types used by the architecture
+    """
+    switches = []
+
+#    # Process all muxes in all switchboxes. Gather switch timings.
+#    switch_timings = set()
+#
+#    for switchbox in switchbox_types.values():
+#        for stage, switch, mux in yield_muxes(switchbox):
+#
+#            for tdel, r, c in mux.timing["params"].values():
+#                switch_timings.add(
+#                    (round(tdel * 1e9, 4) * 1e-9, round(r, 4),)
+#                )
+
+#    # Make switch list for switchbox mux edges
+#    switches = [
+#        Switch(
+#            name  = get_switch_name("mux", tdel, r),
+#            type  = "mux",
+#            t_del = tdel,
+#            r     = r,
+#            c_in  = 0.0,
+#            c_out = 0.0,
+#            c_int = 0.0,
+#        ) for tdel, r in switch_timings
+#    ]
+
+    # Add a delayless pass-gate switch
+    switches.append(
+        Switch(
+            name  = "delayless_pass_gate",
+            type  = "pass_gate",
+            t_del = 0.0,
+            r     = 0.0,
+            c_in  = 0.0,
+            c_out = 0.0,
+            c_int = 0.0,
+        ))
+
+    # Add a generic mux switch to make VPR happy
+    switches.append(
+        Switch(
+            name  = "generic",
+            type  = "mux",
+            t_del = 0.0,
+            r     = 0.0,
+            c_in  = 0.0,
+            c_out = 0.0,
+            c_int = 0.0,
+        ))
+
+    # Add a generic short switch to be used for shorting padding nodes
+    switches.append(
+        Switch(
+            name  = "short",
+            type  = "short",
+            t_del = 0.0,
+            r     = 0.0,
+            c_in  = 0.0,
+            c_out = 0.0,
+            c_int = 0.0,
+        ))
+
+    return switches
+
+
+def build_segment_list(switchbox_types):
+    """
+    Builds a list of all segment types used by the architecture
+    """
+    segments = []
+
+#    # Process all muxes in all switchboxes. Gather segment timings.
+#    segment_timings = set()
+#
+#    for switchbox in switchbox_types.values():
+#        for stage, switch, mux in yield_muxes(switchbox):
+#
+#            for tdel, r, c in mux.timing["params"].values():
+#                segment_timings.add(
+#                    round(c * 1e12, 4) * 1e-12
+#                )
+#
+#    # Make segment list to be used for timing model
+#    segments = [
+#        Segment(
+#            name    = get_segment_name("seg", 0.0, c),
+#            length  = 1,
+#            r_metal = 1e-3,  # FIXME: Has to be >0 as the graph lib cannot read it otherwise
+#            c_metal = c,
+#        ) for c in segment_timings
+#    ]
+
+    # A generic segment
+    segments.append(
+        Segment(
+            name    = "generic",
+            length  = 1,
+            r_metal = 1e-3,
+            c_metal = 1e-15,
+        ))
+
+    # Padding segment
+    segments.append(
+        Segment(
+            name    = "pad",
+            length  = 1,
+            r_metal = 1e-3,
+            c_metal = 1e-15,
+        ))
+
+    # HOP wire segments
+    for i in [1,2,3,4]:
+        segments.append(
+            Segment(
+                name    = "hop{}".format(i),
+                length  = i,
+                r_metal = 1e-3,
+                c_metal = 1e-15,
+            ))
+
+    # FIXME: Temporary
+    segments.append(
+        Segment(
+            name    = "sb_node",
+            length  = 1,
+            r_metal = 1e-3,
+            c_metal = 1e-15,
+        ))
+
+    return segments
 
 # =============================================================================
 
@@ -536,6 +673,11 @@ def main():
     for type, switchbox in vpr_switchbox_types.items():
         process_switchbox_timing(switchbox)
 
+    # Make switch list
+    switches = build_switch_list(vpr_switchbox_types)
+    # Make segment list
+    segments = build_segment_list(vpr_switchbox_types)
+
     # Prepare the VPR database and write it
     db_root = {
         "cells_library":  cells_library,
@@ -546,6 +688,8 @@ def main():
         "vpr_switchbox_grid":  vpr_switchbox_grid,
         "connections":    connections,
         "vpr_package_pinmaps": vpr_package_pinmaps,
+        "segments": segments,
+        "switches": switches,
     }
 
     with open(args.vpr_db, "wb") as fp:

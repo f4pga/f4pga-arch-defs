@@ -280,3 +280,12 @@ Connection = namedtuple("Connection", "src dst")
 # A package pin. Holds information about what cells the pin cooresponds to and
 # where it is in the tilegrid.
 PackagePin = namedtuple("PackagePin", "name loc cell_names")
+
+# =============================================================================
+
+# VPR segment
+Segment = namedtuple("Segment", "name length r_metal c_metal")
+
+# VPR switch
+Switch = namedtuple("Switch", "name type t_del r c_in c_out c_int")
+
