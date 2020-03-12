@@ -4,7 +4,7 @@ set -e
 MYPATH=`realpath $0`
 MYPATH=`dirname ${MYPATH}`
 
-export TECHMAP_PATH=`realpath ${MYPATH}/../share/prjxray/techmap`
+export TECHMAP_PATH=`realpath ${MYPATH}/../share/techmaps/xc7_vpr/techmap`
 
 SYNTH_TCL_PATH=`realpath ${MYPATH}/../share/prjxray/synth.tcl`
 CONV_TCL_PATH=`realpath ${MYPATH}/../share/prjxray/conv.tcl`

@@ -93,7 +93,7 @@ function(DEFINE_XC7_TOOLCHAIN_TARGET)
 
   # install prjxray techmap
   install(DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/xc7/techmap
-          DESTINATION share/prjxray)
+          DESTINATION share/techmaps/xc7_vpr)
 
   # install prjxray database
   install(DIRECTORY ${PRJXRAY_DB_DIR}
