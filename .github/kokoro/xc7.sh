@@ -27,6 +27,7 @@ echo "Running install tests (make install)"
 echo "----------------------------------------"
 (
 	pushd build
+	export VPR_NUM_WORKERS=${CORES}
 	ninja -j${MAX_CORES} install
 	popd
 )
@@ -45,8 +46,9 @@ echo "----------------------------------------"
 	# install python deps
 	pip install -r xc7/tests/install_test/requirements.txt
 	pushd build
+	export VPR_NUM_WORKERS=${CORES}
 	export CTEST_OUTPUT_ON_FAILURE=1
-	ctest -R binary_toolchain_test
+	ctest -R binary_toolchain_test -j${MAX_CORES}
 	popd
 )
 echo "----------------------------------------"
