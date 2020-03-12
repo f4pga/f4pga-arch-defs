@@ -111,6 +111,35 @@ def node_joint_location(node_a, node_b):
     assert False, (node_a, node_b)
 
 
+def add_edge(graph, src_node_id, dst_node_id, switch_id, meta_name=None, meta_value=""):
+    """
+    Adds an edge to the routing graph. If the given switch corresponds to a
+    "pass" type switch then adds two edges going both ways.
+    """
+
+    # Connect src to dst
+    graph.add_edge(
+        src_node_id,
+        dst_node_id,
+        switch_id,
+        meta_name,
+        meta_value
+    )
+
+    # Check if the switch is of the "pass" type. If so then add an edge going
+    # in the opposite way.
+    switch = graph.switch_map[switch_id]
+    if switch.type in [rr.SwitchType.SHORT, rr.SwitchType.PASS_GATE]:
+
+        graph.add_edge(
+            dst_node_id,
+            src_node_id,
+            switch_id,
+            meta_name,
+            meta_value
+        )
+
+
 def connect(graph, src_node, dst_node, switch_id=None, segment_id=None, meta_name=None, meta_value=""):
     """
     Connect two VPR nodes in a way that certain rules are obeyed.
@@ -154,7 +183,8 @@ def connect(graph, src_node, dst_node, switch_id=None, segment_id=None, meta_nam
         node_joint_location(src_node, dst_node)
 
         # Connect directly
-        graph.add_edge(
+        add_edge(
+            graph,
             src_node.id,
             dst_node.id,
             switch_id,
@@ -181,7 +211,8 @@ def connect(graph, src_node, dst_node, switch_id=None, segment_id=None, meta_nam
         graph.add_edge(src_node.id, pad_node.id, short_id)
         graph.add_edge(pad_node.id, src_node.id, short_id)
 
-        graph.add_edge(
+        add_edge(
+            graph,
             pad_node.id,
             dst_node.id,
             switch_id,
@@ -213,7 +244,8 @@ def connect(graph, src_node, dst_node, switch_id=None, segment_id=None, meta_nam
             graph.add_edge(src_node.id, pad_node.id, short_id)
             graph.add_edge(pad_node.id, src_node.id, short_id)
 
-            graph.add_edge(
+            add_edge(
+                graph,
                 pad_node.id,
                 dst_node.id,
                 switch_id,
@@ -225,7 +257,8 @@ def connect(graph, src_node, dst_node, switch_id=None, segment_id=None, meta_nam
         elif dst_node.type == rr.NodeType.CHANY:
 
             # Directly
-            graph.add_edge(
+            add_edge(
+                graph,
                 src_node.id,
                 dst_node.id,
                 switch_id,
@@ -261,7 +294,8 @@ def connect(graph, src_node, dst_node, switch_id=None, segment_id=None, meta_nam
             graph.add_edge(src_node.id, pad_node.id, short_id)
             graph.add_edge(pad_node.id, src_node.id, short_id)
 
-            graph.add_edge(
+            add_edge(
+                graph,
                 pad_node.id,
                 dst_node.id,
                 switch_id,
@@ -273,7 +307,8 @@ def connect(graph, src_node, dst_node, switch_id=None, segment_id=None, meta_nam
         elif src_node.type == rr.NodeType.CHANX:
 
             # Directly
-            graph.add_edge(
+            add_edge(
+                graph,
                 src_node.id,
                 dst_node.id,
                 switch_id,
@@ -321,7 +356,7 @@ class SwitchboxModel(object):
             dir_inp = "X" if (stage.id % 2) else "Y"
             dir_out = "Y" if (stage.id % 2) else "X"
 
-            segment_id = self.graph.get_segment_id_from_name("sb_node")
+            segment_id = self.graph.get_segment_id_from_name("generic")
 
             # Output node
             key = (stage.id, switch.id, mux.id)
@@ -366,11 +401,20 @@ class SwitchboxModel(object):
                     meta_name  = None
                     meta_value = ""
 
+                # Get switch id
+                try:
+                    switch_id = self.graph.get_switch_id(
+                        mux.timing["switches"][pin.id]
+                    )
+                except KeyError:
+                    print(mux.timing["switches"], list(mux.inputs.keys()))
+                    switch_id = self.graph.get_delayless_switch_id()
+
                 # Mux switch with appropriate timing and fasm metadata
                 self.graph.add_edge(
                     inp_node.id,
                     out_node.id,
-                    0, # TODO: switch id
+                    switch_id,
                     name  = meta_name,
                     value = meta_value,
                 )
@@ -463,11 +507,15 @@ class SwitchboxModel(object):
             )
 
         # Add the output load model to the mux
+        mux = self.switchbox.stages[stage_id].switches[switch_id].muxes[mux_id]
         key = (stage_id, switch_id, mux_id)
         out_node = self.mux_output_to_node[key]
 
-        # Intermediate node with capacitance
-        segment_id = 0  # TODO
+        # Intermediate node with capacitance        
+        segment_id = self.graph.get_segment_id_from_name(
+            mux.timing["segment"]
+        )
+
         load_node = add_node(
             self.graph,
             self.loc,
@@ -480,6 +528,7 @@ class SwitchboxModel(object):
             self.graph,
             out_node,
             load_node,
+            switch_id = self.graph.get_switch_id("delayless_pass_gate")
         )
 
         # Isolating buffer (delayless)
@@ -487,7 +536,7 @@ class SwitchboxModel(object):
             self.graph,
             load_node,
             dst_node,
-        )          
+        )
 
         return dst_node
 
@@ -953,8 +1002,8 @@ def populate_tile_connections(graph, switchbox_models, connections, connection_t
         else:
 
             # Get segment id and switch id
-            segment_id = graph.get_segment_id_from_name("generic")
-            switch_id  = 0
+            segment_id = graph.get_segment_id_from_name("special")
+            switch_id  = graph.get_delayless_switch_id()
 
             # Add a track connecting the two locations
             src_node, dst_node = add_l_track(
@@ -1152,6 +1201,14 @@ def main():
             )
 
     print("Building maps...")
+
+    # Add a switch map to the graph
+    switch_map = {}
+    for switch in xml_graph.graph.switches:
+        assert switch.id not in switch_map, switch
+        switch_map[switch.id] = switch
+
+    xml_graph.graph.switch_map = switch_map
 
     # Build node id to node map
     nodes_by_id = {node.id: node for node in xml_graph.graph.nodes}

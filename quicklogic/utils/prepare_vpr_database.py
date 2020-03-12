@@ -336,6 +336,48 @@ def process_package_pinmap(package_pinmap, phy_tile_grid, loc_map):
 # =============================================================================
 
 
+def create_segment(r, c, length=1):
+    """
+    """
+
+    # Format the segment name
+    name  = ["seg"]
+    name += ["R{:>09.6f}".format(r)]
+    name += ["C{:>09.6f}".format(c * 1e12)]
+    name += ["L{}".format(length)]
+
+    segment = Segment(
+        name    = "_".join(name),
+        length  = length,
+        r_metal = r,
+        c_metal = c,
+    )
+
+    return segment
+
+
+def create_switch(type, tdel, r):
+    """
+    """
+
+    # Format the switch name
+    name  = ["sw"]
+    name += ["T{:>08.6f}".format(tdel)]
+    name += ["R{:>08.6f}".format(r)]
+
+    switch = Switch(
+        name  = "_".join(name),
+        type  = type,
+        t_del = tdel,
+        r     = r,
+        c_in  = 0.0,
+        c_out = 0.0,
+        c_int = 0.0,
+    )
+
+    return switch
+
+
 def process_mux_edge_timing(edge_delays):
     """
     Converts the mux edge delay data into: const. delay, edge resistance and
@@ -412,12 +454,13 @@ def process_mux_edge_timing(edge_delays):
         )
 
 
-def process_switchbox_timing(switchbox):
+def process_switchbox_timing(switchbox, switches, segments):
     """
     Processes the switchbox timing data. Decomposes delays to resistances and
     capacitances.
     """
 
+    # Process timing for each mux
     for stage, switch, mux in yield_muxes(switchbox):
 
         # No delay data for the mux
@@ -433,7 +476,9 @@ def process_switchbox_timing(switchbox):
         delays = mux.timing["delays"]
 
         # Process mux edges
-        mux.timing["params"] = {}
+        mux.timing["params"]   = {}
+        mux.timing["switches"] = {}
+
         for pin in mux.inputs.values():
 
             # Check if there is timing data
@@ -457,6 +502,31 @@ def process_switchbox_timing(switchbox):
             # Store it
             mux.timing["params"][pin.id] = timing
 
+            # Create or get a switch for the edge
+            switch = create_switch("mux", timing.tdel, timing.r)
+            if switch.name in switches:
+                switch = switches[switch.name]
+            else:
+                switches[switch.name] = switch
+
+            # Store it
+            mux.timing["switches"][pin.id] = switch.name
+
+        # Compute worst case load capacitance for the mux (its output).
+        # Due to the way in which R and C are derived, all capacitances
+        # should be identical.
+        c_load = max([timing.c for timing in mux.timing["params"].values()])
+        mux.timing["c_load"] = c_load
+
+        # Create a segment with the specific load capacitance and add it
+        segment = create_segment(1e-3, c_load, 1)
+        if segment.name in segments:
+            segment = segments[segment.name]
+        else:
+            segments[segment.name] = segment
+
+        mux.timing["segment"] = segment.name
+
 # =============================================================================
 
 
@@ -464,67 +534,43 @@ def build_switch_list(switchbox_types):
     """
     Builds a list of all switch types used by the architecture
     """
-    switches = []
-
-#    # Process all muxes in all switchboxes. Gather switch timings.
-#    switch_timings = set()
-#
-#    for switchbox in switchbox_types.values():
-#        for stage, switch, mux in yield_muxes(switchbox):
-#
-#            for tdel, r, c in mux.timing["params"].values():
-#                switch_timings.add(
-#                    (round(tdel * 1e9, 4) * 1e-9, round(r, 4),)
-#                )
-
-#    # Make switch list for switchbox mux edges
-#    switches = [
-#        Switch(
-#            name  = get_switch_name("mux", tdel, r),
-#            type  = "mux",
-#            t_del = tdel,
-#            r     = r,
-#            c_in  = 0.0,
-#            c_out = 0.0,
-#            c_int = 0.0,
-#        ) for tdel, r in switch_timings
-#    ]
-
-    # Add a delayless pass-gate switch
-    switches.append(
-        Switch(
-            name  = "delayless_pass_gate",
-            type  = "pass_gate",
-            t_del = 0.0,
-            r     = 0.0,
-            c_in  = 0.0,
-            c_out = 0.0,
-            c_int = 0.0,
-        ))
+    switches = {}
 
     # Add a generic mux switch to make VPR happy
-    switches.append(
-        Switch(
-            name  = "generic",
-            type  = "mux",
-            t_del = 0.0,
-            r     = 0.0,
-            c_in  = 0.0,
-            c_out = 0.0,
-            c_int = 0.0,
-        ))
+    switch = Switch(
+        name  = "generic",
+        type  = "mux",
+        t_del = 0.0,
+        r     = 0.0,
+        c_in  = 0.0,
+        c_out = 0.0,
+        c_int = 0.0,
+    )
+    switches[switch.name] = switch
 
     # Add a generic short switch to be used for shorting padding nodes
-    switches.append(
-        Switch(
-            name  = "short",
-            type  = "short",
-            t_del = 0.0,
-            r     = 0.0,
-            c_in  = 0.0,
-            c_out = 0.0,
-            c_int = 0.0,
-        ))
+    switch = Switch(
+        name  = "short",
+        type  = "short",
+        t_del = 0.0,
+        r     = 0.0,
+        c_in  = 0.0,
+        c_out = 0.0,
+        c_int = 0.0,
+    )
+    switches[switch.name] = switch
+
+    # Add a delayless pass-gate switch
+    switch = Switch(
+        name  = "delayless_pass_gate",
+        type  = "pass_gate",
+        t_del = 0.0,
+        r     = 0.0,
+        c_in  = 0.0,
+        c_out = 0.0,
+        c_int = 0.0,
+    )
+    switches[switch.name] = switch
 
     return switches
 
@@ -533,65 +579,44 @@ def build_segment_list(switchbox_types):
     """
     Builds a list of all segment types used by the architecture
     """
-    segments = []
-
-#    # Process all muxes in all switchboxes. Gather segment timings.
-#    segment_timings = set()
-#
-#    for switchbox in switchbox_types.values():
-#        for stage, switch, mux in yield_muxes(switchbox):
-#
-#            for tdel, r, c in mux.timing["params"].values():
-#                segment_timings.add(
-#                    round(c * 1e12, 4) * 1e-12
-#                )
-#
-#    # Make segment list to be used for timing model
-#    segments = [
-#        Segment(
-#            name    = get_segment_name("seg", 0.0, c),
-#            length  = 1,
-#            r_metal = 1e-3,  # FIXME: Has to be >0 as the graph lib cannot read it otherwise
-#            c_metal = c,
-#        ) for c in segment_timings
-#    ]
+    segments = {}
 
     # A generic segment
-    segments.append(
-        Segment(
-            name    = "generic",
-            length  = 1,
-            r_metal = 1e-3,
-            c_metal = 1e-15,
-        ))
+    segment = Segment(
+        name    = "generic",
+        length  = 1,
+        r_metal = 1e-3,
+        c_metal = 1e-15,
+    )
+    segments[segment.name] = segment
 
     # Padding segment
-    segments.append(
-        Segment(
-            name    = "pad",
-            length  = 1,
-            r_metal = 1e-3,
-            c_metal = 1e-15,
-        ))
+    segment = Segment(
+        name    = "pad",
+        length  = 1,
+        r_metal = 1e-3,
+        c_metal = 1e-15,
+    )
+    segments[segment.name] = segment
 
     # HOP wire segments
     for i in [1,2,3,4]:
-        segments.append(
-            Segment(
-                name    = "hop{}".format(i),
-                length  = i,
-                r_metal = 1e-3,
-                c_metal = 1e-15,
-            ))
-
-    # FIXME: Temporary
-    segments.append(
-        Segment(
-            name    = "sb_node",
-            length  = 1,
+        segment = Segment(
+            name    = "hop{}".format(i),
+            length  = i,
             r_metal = 1e-3,
             c_metal = 1e-15,
-        ))
+        )
+        segments[segment.name] = segment
+
+    # A segment for "hop" connections to "special" tiles.
+    segment = Segment(
+        name    = "special",
+        length  = 1,
+        r_metal = 1e-3,
+        c_metal = 1e-15,
+    )
+    segments[segment.name] = segment
 
     return segments
 
@@ -667,16 +692,26 @@ def main():
     # Get the switchbox types present in the grid
     vpr_switchbox_types = set([s for s in vpr_switchbox_grid.values() if s is not None])
     vpr_switchbox_types = {k: v for k, v in switchbox_types.items() if k in vpr_switchbox_types}
-
-    # Process timing data
-    print("Processing timing data...")
-    for type, switchbox in vpr_switchbox_types.items():
-        process_switchbox_timing(switchbox)
-
+    
     # Make switch list
     switches = build_switch_list(vpr_switchbox_types)
     # Make segment list
     segments = build_segment_list(vpr_switchbox_types)
+
+    # Process timing data
+    print("Processing timing data...")
+    for type, switchbox in vpr_switchbox_types.items():
+        process_switchbox_timing(switchbox, switches, segments)
+
+    # DEBUG
+    print("Segments:")
+    for s in segments.values():
+        print("", s)
+
+    # DEBUG
+    print("Switches:")
+    for s in switches.values():
+        print("", s)
 
     # Prepare the VPR database and write it
     db_root = {
@@ -688,8 +723,8 @@ def main():
         "vpr_switchbox_grid":  vpr_switchbox_grid,
         "connections":    connections,
         "vpr_package_pinmaps": vpr_package_pinmaps,
-        "segments": segments,
-        "switches": switches,
+        "segments": list(segments.values()),
+        "switches": list(switches.values()),
     }
 
     with open(args.vpr_db, "wb") as fp:
