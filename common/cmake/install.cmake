@@ -41,7 +41,7 @@ function(INSTALL_DEVICE_FILES)
     get_target_property(PLACE_DELAY_FILE ${DEVICE} ${PACKAGE}_PLACE_DELAY_FILE)
     list(APPEND INSTALL_FILES ${PLACE_DELAY_FILE})
   endif()
-  get_target_property_required(RR_GRAPH_FILE ${DEVICE} ${PACKAGE}_OUT_RRXML_REAL)
+  get_target_property_required(RR_GRAPH_FILE ${DEVICE} ${PACKAGE}_OUT_RRBIN_REAL)
   list(APPEND INSTALL_FILES ${RR_GRAPH_FILE})
 
   get_target_property_required(ARCH_FILE ${DEVICE_TYPE} DEVICE_MERGED_FILE)
