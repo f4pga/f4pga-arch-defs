@@ -13,6 +13,9 @@ add_subdirectory(btn_xor)
 add_subdirectory(btn_ff)
 add_subdirectory(btn_counter)
 
+# Tests that require an external clock
+add_subdirectory(ext_counter)
+
 # Test designs that use clock
 add_subdirectory(counter)
 add_subdirectory(soc_clocks)
