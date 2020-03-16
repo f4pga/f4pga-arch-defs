@@ -30,6 +30,12 @@ function(INSTALL_DEVICE_FILES)
 
   set(INSTALL_FILES)
 
+  # FIXME: do not install a200t
+  if(${DEVICE} STREQUAL "xc7a200t")
+    message(STATUS "FIXME: Skipping device files installation for ${DEVICE}-${PACKAGE} type: ${DEVICE_TYPE}")
+    return()
+  endif()
+
   # Get files to be installed
   get_target_property_required(HAS_LOOKAHEAD ${DEVICE} "${PACKAGE}_HAS_LOOKAHEAD_CACHE")
   get_target_property_required(HAS_PLACE_DELAY ${DEVICE} "${PACKAGE}_HAS_PLACE_DELAY_CACHE")
