@@ -27,11 +27,21 @@ define_arch(
   YOSYS_SYNTH_SCRIPT ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/yosys/synth.tcl
   YOSYS_CONV_SCRIPT ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/yosys/conv.tcl
   DEVICE_FULL_TEMPLATE \${DEVICE}
-  VPR_ARCH_ARGS " \
-    --router_init_wirelength_abort_threshold 20 \
-    --place_algorithm bounding_box \
+  VPR_ARCH_ARGS "\
+    --clock_modeling route \
+    --place_delay_model delta_override \
+    --router_lookahead connection_box_map \
+    --quick_check_route on \
+    --strict_checks off \
     --allow_dangling_combinational_nodes on \
-    --clock_modeling route"
+    --disable_errors check_unbuffered_edges:check_route \
+    --congested_routing_iteration_threshold 0.8 \
+    --incremental_reroute_delay_ripup off \
+    --base_cost_type delay_normalized_length_bounded \
+    --bb_factor 10 \
+    --initial_pres_fac 4.0 \
+    --check_rr_graph off \
+    --suppress_warnings \${OUT_NOISY_WARNINGS},sum_pin_class:check_unbuffered_edges:load_rr_indexed_data_T_values:check_rr_node:trans_per_R:check_route"
 
   RR_PATCH_TOOL
     ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/routing_import.py

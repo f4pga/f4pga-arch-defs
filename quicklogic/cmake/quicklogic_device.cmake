@@ -179,13 +179,15 @@ function(QUICKLOGIC_DEFINE_DEVICE)
       RR_PATCH_DEPS ${DEVICE_RR_PATCH_DEPS}
       CACHE_PLACE_DELAY
       CACHE_ARGS
-        --route_chan_width 100
+        --constant_net_method route
         --clock_modeling route
-        --allow_unrelated_clustering off
-        --target_ext_pin_util 0.7
-        --router_init_wirelength_abort_threshold 2
-        --congested_routing_iteration_threshold 0.8
+        --place_delay_model delta_override
+        --router_lookahead connection_box_map
+        --disable_errors check_unbuffered_edges:check_route:check_place
+        --suppress_warnings sum_pin_class:check_unbuffered_edges:load_rr_indexed_data_T_values:check_rr_node:trans_per_R
+        --route_chan_width 500
         --allow_dangling_combinational_nodes on
+        --allowed_tiles_for_delay_model TL-LOGIC,TL-SYN_IO  # TODO: Make this a parameter !
     )
 
   endforeach()
