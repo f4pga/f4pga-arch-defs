@@ -30,7 +30,7 @@ define_arch(
   VPR_ARCH_ARGS "\
     --clock_modeling route \
     --place_delay_model delta_override \
-    --router_lookahead connection_box_map \
+    --router_lookahead classic \
     --quick_check_route on \
     --strict_checks off \
     --allow_dangling_combinational_nodes on \
@@ -42,6 +42,8 @@ define_arch(
     --initial_pres_fac 4.0 \
     --check_rr_graph off \
     --suppress_warnings \${OUT_NOISY_WARNINGS},sum_pin_class:check_unbuffered_edges:load_rr_indexed_data_T_values:check_rr_node:trans_per_R:check_route"
+
+  # FIXME: Once the timing model works check why --router_lookahead connection_box_map does not.
 
   RR_PATCH_TOOL
     ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/routing_import.py
