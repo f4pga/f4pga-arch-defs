@@ -1,6 +1,0 @@
-<?xml version="1.0"?>
-<pb_type name="MIDDLE" xmlns:xi="http://www.w3.org/2001/XInclude">
-  <pb_type name="middle_inner" num_pb="1">
-    <xi:include href="composable-pb_type-inner.xml" xpointer="xpointer(pb_type/child::node())"/>
-  </pb_type>
-</pb_type>

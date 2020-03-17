@@ -39,7 +39,6 @@ function(V2X_TEST_GENERIC)
     NAME ${NAME}_${TYPE}
     FILE ${GOLDEN_XML}
     OUTPUT ${NAME}.${TYPE}.golden.xml
-    EXTRA_ARGUMENTS "-param" "strip_comments" "1"
     )
 
   set(ACTUAL_XML ${NAME}.${TYPE}.xml)
@@ -47,7 +46,6 @@ function(V2X_TEST_GENERIC)
     NAME ${NAME}_${TYPE}
     FILE ${ACTUAL_XML}
     OUTPUT ${NAME}.${TYPE}.actual.xml
-    EXTRA_ARGUMENTS "-param" "strip_comments" "1"
     )
 
   get_rel_target(REL_DIFF_NAME diff ${NAME}.${TYPE}.xml)
