@@ -11,6 +11,7 @@ add_xc_arch_define(
   FAMILY xc7
   PRJRAY_DIR ${PRJXRAY_DIR}
   PRJRAY_DB_DIR ${PRJXRAY_DB_DIR}
+  PRJRAY_NAME prjxray
   PRJRAY_ARCH artix7
   PROTOTYPE_PART xc7a200tffg1156-1
   YOSYS_SYNTH_SCRIPT ${symbiflow-arch-defs_SOURCE_DIR}/xc/xc7/yosys/synth.tcl
