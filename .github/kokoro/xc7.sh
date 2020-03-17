@@ -39,8 +39,8 @@ echo "Running installed toolchain tests"
 echo "----------------------------------------"
 (
 
-	# enter conda env (we'll use Yosys from conda)
-	conda activate
+	# add conda bin to path (we'll use yosys from conda)
+	export PATH=$(pwd)/build/env/conda/bin:$PATH
 	# add installed toolchain to PATH
 	export PATH=${INSTALL_DIR}/bin:$PATH
 	# install python deps
