@@ -131,8 +131,8 @@ function(DEFINE_XC7_PINMAP_CSV_INSTALL_TARGET)
   endif()
 
   # FIXME: do not install a200t
-  if(${DEVICE} STREQUAL "xca200t")
-    message(STATUS "FIXME: Skipping device files installation for ${DEVICE}-${PACKAGE} part: ${PART}")
+  if(${DEVICE} STREQUAL "xc7a200t")
+    message(STATUS "FIXME: Skipping pinmap installation for ${DEVICE}-${PACKAGE} part: ${PART}")
     return()
   endif()
 

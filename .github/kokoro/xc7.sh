@@ -40,7 +40,7 @@ echo "----------------------------------------"
 (
 
 	# enter conda env (we'll use Yosys from conda)
-	source build/env/conda/bin/activate
+	conda activate
 	# add installed toolchain to PATH
 	export PATH=${INSTALL_DIR}/bin:$PATH
 	# install python deps
