@@ -39,13 +39,13 @@ echo "Running installed toolchain tests"
 echo "----------------------------------------"
 (
 
-	# add conda bin to path (we'll use yosys from conda)
-	export PATH=$(pwd)/build/env/conda/bin:$PATH
 	# add installed toolchain to PATH
 	export PATH=${INSTALL_DIR}/bin:$PATH
-	# install python deps
-	pip install -r xc7/tests/install_test/requirements.txt
 	pushd build
+	# activate conda (we'll use yosys from conda)
+	env/conda/bin/conda activate
+	# install python deps
+	pip install -r ../xc7/tests/install_test/requirements.txt
 	export VPR_NUM_WORKERS=${CORES}
 	export CTEST_OUTPUT_ON_FAILURE=1
 	ctest -R binary_toolchain_test -j${MAX_CORES}
