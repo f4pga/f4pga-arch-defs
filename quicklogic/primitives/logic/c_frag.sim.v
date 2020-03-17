@@ -19,27 +19,27 @@ module C_FRAG (TBS, TAB, TSL, TA1, TA2, TB1, TB2, BAB, BSL, BA1, BA2, BB1, BB2, 
     input  wire BB1;
     input  wire BB2;
 
-    (* DELAY_CONST_TAB="10e-10" *)
-    (* DELAY_CONST_TSL="10e-10" *)
-    (* DELAY_CONST_TA1="10e-10" *)
-    (* DELAY_CONST_TA2="10e-10" *)
-    (* DELAY_CONST_TB1="10e-10" *)
-    (* DELAY_CONST_TB2="10e-10" *)
+    (* DELAY_CONST_TAB="1e-11" *)
+    (* DELAY_CONST_TSL="1e-11" *)
+    (* DELAY_CONST_TA1="1e-11" *)
+    (* DELAY_CONST_TA2="1e-11" *)
+    (* DELAY_CONST_TB1="1e-11" *)
+    (* DELAY_CONST_TB2="1e-11" *)
     output wire TZ;
 
-    (* DELAY_CONST_TBS="10e-10" *)
-    (* DELAY_CONST_TAB="10e-10" *)
-    (* DELAY_CONST_TSL="10e-10" *)
-    (* DELAY_CONST_TA1="10e-10" *)
-    (* DELAY_CONST_TA2="10e-10" *)
-    (* DELAY_CONST_TB1="10e-10" *)
-    (* DELAY_CONST_TB2="10e-10" *)
-    (* DELAY_CONST_BAB="10e-10" *)
-    (* DELAY_CONST_BSL="10e-10" *)
-    (* DELAY_CONST_BA1="10e-10" *)
-    (* DELAY_CONST_BA2="10e-10" *)
-    (* DELAY_CONST_BB1="10e-10" *)
-    (* DELAY_CONST_BB2="10e-10" *)
+    (* DELAY_CONST_TBS="1e-11" *)
+    (* DELAY_CONST_TAB="1e-11" *)
+    (* DELAY_CONST_TSL="1e-11" *)
+    (* DELAY_CONST_TA1="1e-11" *)
+    (* DELAY_CONST_TA2="1e-11" *)
+    (* DELAY_CONST_TB1="1e-11" *)
+    (* DELAY_CONST_TB2="1e-11" *)
+    (* DELAY_CONST_BAB="1e-11" *)
+    (* DELAY_CONST_BSL="1e-11" *)
+    (* DELAY_CONST_BA1="1e-11" *)
+    (* DELAY_CONST_BA2="1e-11" *)
+    (* DELAY_CONST_BB1="1e-11" *)
+    (* DELAY_CONST_BB2="1e-11" *)
     output wire CZ;
 
     // Control parameters

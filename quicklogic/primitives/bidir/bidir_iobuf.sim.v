@@ -10,12 +10,12 @@ module BIDIR_IOBUF(
     input  wire O_DAT;
     input  wire O_EN;
 
-    (* DELAY_CONST_I_PAD="10e-11" *)
-    (* DELAY_CONST_I_EN="10e-11" *)
+    (* DELAY_CONST_I_PAD="1e-11" *)
+    (* DELAY_CONST_I_EN="1e-11" *)
     output wire I_DAT;
 
-    (* DELAY_CONST_O_DAT="10e-11" *)
-    (* DELAY_CONST_O_EN="10e-11" *)
+    (* DELAY_CONST_O_DAT="1e-11" *)
+    (* DELAY_CONST_O_EN="1e-11" *)
     output wire O_PAD;
 
     parameter [0:0] ESEL    = 0;
