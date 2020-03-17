@@ -148,6 +148,13 @@ add_thirdparty_package(
   DEPENDS ${PYTHON3_TARGET}
 )
 
+add_thirdparty_package(
+  NAME vtr_xml_utils
+  BUILD_INSTALL_COMMAND "cd ${symbiflow-arch-defs_SOURCE_DIR}/third_party/vtr-xml-utils && ${PYTHON3} setup.py develop"
+  PROVIDES vtr_xml_utils
+  DEPENDS ${PYTHON3} ${PYTHON3_TARGET}
+)
+
 include(common/cmake/image_gen.cmake)
 include(common/cmake/gen.cmake)
 
