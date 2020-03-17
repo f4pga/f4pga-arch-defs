@@ -1152,6 +1152,12 @@ def import_routing_timing(csv_file):
         # Read the rest of the timing data
         data = [r for r in csv.DictReader(fp)]
 
+        # Try to guess whether the stage/switch/mux indexing starts from 0 or 1
+        stage_ofs  = min([int(t["Stage_Num"])  for t in data])
+        switch_ofs = min([int(t["Switch_Num"]) for t in data])
+        mux_ofs    = min([int(t["Output_Num"]) for t in data])
+        pin_ofs    = min([int(t["Input_Num"])  for t in data])
+
         # Reformat
         switchbox_timings = {}
         for timing in data:
@@ -1163,25 +1169,25 @@ def import_routing_timing(csv_file):
 
             # Stage id
             stage_timings = switchbox_timings[switchbox_type] 
-            stage_id = int(timing["Stage_Num"]) - 1
+            stage_id = int(timing["Stage_Num"]) - stage_ofs
             if stage_id not in stage_timings:
                 stage_timings[stage_id] = {}
 
             # Switch id
             switch_timings = stage_timings[stage_id] 
-            switch_id = int(timing["Switch_Num"]) - 1
+            switch_id = int(timing["Switch_Num"]) - switch_ofs
             if switch_id not in switch_timings:
                 switch_timings[switch_id] = {}
 
             # Mux id
             mux_timings = switch_timings[switch_id]
-            mux_id = int(timing["Output_Num"])
+            mux_id = int(timing["Output_Num"]) - mux_ofs
             if mux_id not in mux_timings:
                 mux_timings[mux_id] = {}
 
             # Mux route (edge), correspond to its input pin id.
             edge_timings = mux_timings[mux_id]
-            pin_id = int(timing["Input_Num"]) - 1
+            pin_id = int(timing["Input_Num"]) - pin_ofs
             if pin_id not in edge_timings:
                 edge_timings[pin_id] = {}
 
