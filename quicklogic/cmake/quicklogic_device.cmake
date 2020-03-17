@@ -184,7 +184,7 @@ function(QUICKLOGIC_DEFINE_DEVICE)
         --place_delay_model delta_override
 #       FIXME: Once the timing model works correctly, figure out why the route lookahead fails to find some connections.
 #        --router_lookahead connection_box_map
-        --router_lookahead classic
+        --router_lookahead map
         --disable_errors check_unbuffered_edges:check_route:check_place
         --suppress_warnings sum_pin_class:check_unbuffered_edges:load_rr_indexed_data_T_values:check_rr_node:trans_per_R
         --route_chan_width 500

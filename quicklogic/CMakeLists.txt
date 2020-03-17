@@ -30,7 +30,7 @@ define_arch(
   VPR_ARCH_ARGS "\
     --clock_modeling route \
     --place_delay_model delta_override \
-    --router_lookahead classic \
+    --router_lookahead map \
     --quick_check_route on \
     --strict_checks off \
     --allow_dangling_combinational_nodes on \
