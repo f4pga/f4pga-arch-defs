@@ -42,10 +42,11 @@ echo "----------------------------------------"
 	# add installed toolchain to PATH
 	export PATH=${INSTALL_DIR}/bin:$PATH
 	pushd build
-	# activate conda (we'll use yosys from conda)
-	env/conda/bin/conda activate
+	# init and activate conda (we'll use yosys and VPR from conda)
+	STR=$(env/conda/bin/conda init bash | grep modified)
+	read -ra MOD <<< $STR
+	source $MOD
 	# install python deps
-	pip install -r ../xc7/tests/install_test/requirements.txt
 	export VPR_NUM_WORKERS=${CORES}
 	export CTEST_OUTPUT_ON_FAILURE=1
 	ctest -R binary_toolchain_test -j${MAX_CORES}
