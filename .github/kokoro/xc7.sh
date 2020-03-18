@@ -43,9 +43,8 @@ echo "----------------------------------------"
 	export PATH=${INSTALL_DIR}/bin:$PATH
 	pushd build
 	# init and activate conda (we'll use yosys and VPR from conda)
-	STR=$(env/conda/bin/conda init bash | grep modified)
-	read -ra MOD <<< $STR
-	source $(MOD[1])
+	source env/conda/bin/activate
+	conda init
 	# install python deps
 	export VPR_NUM_WORKERS=${CORES}
 	export CTEST_OUTPUT_ON_FAILURE=1
