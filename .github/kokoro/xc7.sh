@@ -45,6 +45,7 @@ echo "----------------------------------------"
 	# init and activate conda (we'll use yosys and VPR from conda)
 	source env/conda/bin/activate
 	conda init
+	source /home/kbuilder/.bashrc
 	# install python deps
 	export VPR_NUM_WORKERS=${CORES}
 	export CTEST_OUTPUT_ON_FAILURE=1
