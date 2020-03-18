@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import pickle
+import itertools
 from collections import defaultdict
 
 import lxml.etree as ET
@@ -54,13 +55,16 @@ def is_local(connection):
 # =============================================================================
 
 
-def add_track(graph, track, segment_id):
+def add_track(graph, track, segment_id, node_timing=None):
     """
     Adds a track to the graph. Returns the node object representing the track
     node.
     """
 
-    node_id = graph.add_track(track, segment_id)
+    if node_timing is None:
+        node_timing = rr.NodeTiming(r=0.0, c=0.0)
+
+    node_id = graph.add_track(track, segment_id, timing=node_timing)
     node = graph.nodes[-1]
     assert node.id == node_id
 
@@ -154,7 +158,7 @@ def connect(graph, src_node, dst_node, switch_id=None, segment_id=None, meta_nam
     Whenever a rule is not met then the connection is made through a padding
     node:
 
-    src -> ["short" swtich] -> pad -> [desired switch] -> dst
+    src -> [delayless] -> pad -> [desired switch] -> dst
 
     Otherwise the connection is made directly
 
@@ -168,12 +172,30 @@ def connect(graph, src_node, dst_node, switch_id=None, segment_id=None, meta_nam
     if switch_id is None:
         switch_id = graph.get_delayless_switch_id()
 
-    # Get the "short" switch id
-    short_id = graph.get_switch_id("short")
-
-    # Use the "pad" segment if none given
+    # Determine which segment to use if none given
     if segment_id is None:
-        segment_id = graph.get_segment_id_from_name("pad")
+        # If the source is IPIN/OPIN then use the same segment as used by 
+        # the destination.
+        # If the destination is IPIN/OPIN then do the opposite.
+        # Finally if both are CHANX/CHANY then use the source's segment.
+
+        if   src_node.type in [rr.NodeType.IPIN, rr.NodeType.OPIN]:
+            segment_id = dst_node.segment.segment_id
+        elif dst_node.type in [rr.NodeType.IPIN, rr.NodeType.OPIN]:
+            segment_id = src_node.segment.segment_id
+        else:        
+            segment_id = src_node.segment.segment_id
+
+   # Connect directly
+#    add_edge(
+#        graph,
+#        src_node.id,
+#        dst_node.id,
+#        switch_id,
+#        meta_name,
+#        meta_value
+#    )
+#    return
 
     # CHANX to CHANY or vice-versa
     if src_node.type == rr.NodeType.CHANX and dst_node.type == rr.NodeType.CHANY or \
@@ -208,8 +230,7 @@ def connect(graph, src_node, dst_node, switch_id=None, segment_id=None, meta_nam
         )
 
         # Connect through the padding node
-        graph.add_edge(src_node.id, pad_node.id, short_id)
-        graph.add_edge(pad_node.id, src_node.id, short_id)
+        graph.add_edge(src_node.id, pad_node.id, graph.get_delayless_switch_id())
 
         add_edge(
             graph,
@@ -241,8 +262,7 @@ def connect(graph, src_node, dst_node, switch_id=None, segment_id=None, meta_nam
             )
 
             # Connect through the padding node
-            graph.add_edge(src_node.id, pad_node.id, short_id)
-            graph.add_edge(pad_node.id, src_node.id, short_id)
+            graph.add_edge(src_node.id, pad_node.id, graph.get_delayless_switch_id())
 
             add_edge(
                 graph,
@@ -291,8 +311,7 @@ def connect(graph, src_node, dst_node, switch_id=None, segment_id=None, meta_nam
             )
 
             # Connect through the padding node
-            graph.add_edge(src_node.id, pad_node.id, short_id)
-            graph.add_edge(pad_node.id, src_node.id, short_id)
+            graph.add_edge(src_node.id, pad_node.id, graph.get_delayless_switch_id())
 
             add_edge(
                 graph,
@@ -356,7 +375,7 @@ class SwitchboxModel(object):
             dir_inp = "X" if (stage.id % 2) else "Y"
             dir_out = "Y" if (stage.id % 2) else "X"
 
-            segment_id = self.graph.get_segment_id_from_name("generic")
+            segment_id = self.graph.get_segment_id_from_name("sbox")
 
             # Output node
             key = (stage.id, switch.id, mux.id)
@@ -401,22 +420,24 @@ class SwitchboxModel(object):
                     meta_name  = None
                     meta_value = ""
 
-                # Get switch id
+                # Get switch id for the switch assigned to the mux edge. If
+                # there is none then use the delayless switch. Probably the
+                # edge is connected to a const.
                 try:
                     switch_id = self.graph.get_switch_id(
                         mux.timing["switches"][pin.id]
                     )
                 except KeyError:
-                    print(mux.timing["switches"], list(mux.inputs.keys()))
-                    switch_id = self.graph.get_delayless_switch_id()
+                    switch_id  = self.graph.get_delayless_switch_id()
 
                 # Mux switch with appropriate timing and fasm metadata
-                self.graph.add_edge(
-                    inp_node.id,
-                    out_node.id,
+                connect(
+                    self.graph,
+                    inp_node,
+                    out_node,
                     switch_id,
-                    name  = meta_name,
-                    value = meta_value,
+                    meta_name  = meta_name,
+                    meta_value = meta_value,
                 )
 
         # Add internal connections between muxes.
@@ -497,13 +518,15 @@ class SwitchboxModel(object):
         dir_inp = "Y" if (stage_id % 2) else "X"
         dir_out = "X" if (stage_id % 2) else "Y"
 
+        segment_id = self.graph.get_segment_id_from_name("sbox")
+
         # Add the new output node if not given
         if dst_node is None:
             dst_node = add_node(
                 self.graph,
                 self.loc,
                 dir_out,
-                self.graph.get_segment_id_from_name("sb_node")
+                segment_id
             )
 
         # Add the output load model to the mux
@@ -511,31 +534,14 @@ class SwitchboxModel(object):
         key = (stage_id, switch_id, mux_id)
         out_node = self.mux_output_to_node[key]
 
-        # Intermediate node with capacitance        
-        segment_id = self.graph.get_segment_id_from_name(
-            mux.timing["segment"]
-        )
+        switch_id = self.graph.get_switch_id(mux.timing["load_switch"])
 
-        load_node = add_node(
-            self.graph,
-            self.loc,
-            dir_inp,
-            segment_id
-        )
-
-        # Pass gate edge to switch the capacitance on/off (delayless)
+        # Buffer with internal capacitance
         connect(
             self.graph,
             out_node,
-            load_node,
-            switch_id = self.graph.get_switch_id("delayless_pass_gate")
-        )
-
-        # Isolating buffer (delayless)
-        connect(
-            self.graph,
-            load_node,
             dst_node,
+            switch_id
         )
 
         return dst_node
@@ -821,8 +827,8 @@ def add_tracks_for_const_network(graph, const, tile_grid):
     xmax, ymax = max(xs), max(ys)
 
     # Get segment id and switch id
-    segment_id = graph.get_segment_id_from_name("generic") 
-    switch_id  = 0
+    segment_id = graph.get_segment_id_from_name(const.lower()) 
+    switch_id  = graph.get_delayless_switch_id()
 
     # Find the source tile
     src_loc = [loc for loc, t in tile_grid.items() if t is not None and t.type == "SYN_{}".format(const)]
@@ -941,7 +947,7 @@ def populate_hop_connections(graph, switchbox_models, connections):
             connect(
                 graph,
                 hop_node,
-                inp_node,
+                inp_node
             )
 
             # FIXME: inp_node and hop_node could be the same.
@@ -1000,6 +1006,10 @@ def populate_tile_connections(graph, switchbox_models, connections, connection_t
 
         # Connection to/from a foreign tile
         else:
+
+            # TODO: FIXME: Having those connection makes the VPR compute place
+            # delay take AGES!
+            continue
 
             # Get segment id and switch id
             segment_id = graph.get_segment_id_from_name("special")
@@ -1260,6 +1270,12 @@ def main():
     # Remove padding channels
     print("Removing padding nodes...")
     xml_graph.graph.nodes = [n for n in xml_graph.graph.nodes if n.capacity > 0]
+
+    # Sanity check edges
+    node_ids = set([n.id for n in xml_graph.graph.nodes])
+    for edge in xml_graph.graph.edges:
+        assert edge.src_node in node_ids, edge
+        assert edge.sink_node in node_ids, edge
 
     # Write the routing graph
     nodes_obj = xml_graph.graph.nodes

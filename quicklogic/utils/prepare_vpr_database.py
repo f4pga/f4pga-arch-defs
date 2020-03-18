@@ -336,28 +336,10 @@ def process_package_pinmap(package_pinmap, phy_tile_grid, loc_map):
 # =============================================================================
 
 
-def create_segment(r, c, length=1):
-    """
-    """
-
-    # Format the segment name
-    name  = ["seg"]
-    name += ["R{:>09.6f}".format(r)]
-    name += ["C{:>09.6f}".format(c * 1e12)]
-    name += ["L{}".format(length)]
-
-    segment = Segment(
-        name    = "_".join(name),
-        length  = length,
-        r_metal = r,
-        c_metal = c,
-    )
-
-    return segment
-
-
 def create_switch(type, tdel, r, c):
     """
+    Creates a VPR switch with the given parameters. Autmatically generates
+    its name with these parameters encoded.
     """
 
     # Format the switch name
@@ -384,14 +366,14 @@ def process_mux_edge_timing(edge_delays, idstr):
     Converts the mux edge delay data into: const. delay, edge resistance and
     maximum load capacitance. Returns these therr parameters.
 
-    A delay thorugh a low-pass RC element is to be T = 0.5 * R * C
+    A delay thorugh a low-pass RC element is to be T = fac * R * C
     """
 
     # An error threshold
     ERROR_THRESHOLD = 0.2  #0.025
 
     # Scaling factor
-    fac = 0.5
+    fac = 1.0
 
     # Must have delay data for at least two load counts to determine common
     # propagation delay and a single load capacitance.
@@ -520,7 +502,7 @@ def process_switchbox_timing(switchbox, vpr_switches, vpr_segments):
         mux.timing["c_load"] = c_load
 
         # Create a switch with the specific internal capacitance
-        vpr_switch = create_switch("mux", 1e-15, 0.0, c_load)
+        vpr_switch = create_switch("mux", 0.0, 0.0, c_load)
         if vpr_switch.name in vpr_switches:
             vpr_switch = vpr_switches[vpr_switch.name]
         else:
@@ -528,12 +510,6 @@ def process_switchbox_timing(switchbox, vpr_switches, vpr_segments):
 
         mux.timing["load_switch"] = vpr_switch.name
 
-#        # Create a segment with the specific load capacitance and add it
-#        segment = create_segment(1e-3, c_load, 1)
-#        if segment.name in segments:
-#            segment = segments[segment.name]
-#        else:
-#            segments[segment.name] = segment
 
 # =============================================================================
 
@@ -548,7 +524,7 @@ def build_switch_list():
     switch = Switch(
         name  = "generic",
         type  = "mux",
-        t_del = 1e-15,
+        t_del = 0.0,
         r     = 0.0,
         c_in  = 0.0,
         c_out = 0.0,
@@ -582,6 +558,25 @@ def build_segment_list():
         c_metal = 0.0,
     )
     segments[segment.name] = segment
+
+    # Switchbox segment    
+    segment = Segment(
+        name    = "sbox",
+        length  = 1,
+        r_metal = 0.0,
+        c_metal = 0.0,
+    )
+    segments[segment.name] = segment
+
+    # VCC and GND segments
+    for const in ["VCC", "GND"]:
+        segment = Segment(
+            name    = const.lower(),
+            length  = 1,
+            r_metal = 0.0,
+            c_metal = 0.0,
+        )
+        segments[segment.name] = segment
 
     # HOP wire segments
     for i in [1,2,3,4]:

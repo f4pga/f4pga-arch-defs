@@ -15,17 +15,27 @@ def add_segment(xml_parent, segment):
     Adds a segment
     """
 
+    segment_type = "bidir"
+
     # Make XML
     xml_seg = ET.SubElement(xml_parent, "segment", {
         "name":   segment.name,
         "length": str(segment.length),
         "freq":   "1.0",
-        "type":   "unidir",
+        "type":   segment_type,
         "Rmetal": str(segment.r_metal),
         "Cmetal": str(segment.c_metal),
     })
 
-    ET.SubElement(xml_seg, "mux", {"name": "generic"})
+    if segment_type == "unidir":
+        ET.SubElement(xml_seg, "mux", {"name": "generic"})
+
+    elif segment_type == "bidir":
+        ET.SubElement(xml_seg, "wire_switch", {"name": "generic"})
+        ET.SubElement(xml_seg, "opin_switch", {"name": "generic"})
+
+    else:
+        assert False, segment_type
 
     e = ET.SubElement(xml_seg, "sb", {"type": "pattern"})
     e.text = " ".join(["1" for i in range(segment.length+1)])
