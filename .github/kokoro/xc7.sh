@@ -45,7 +45,7 @@ echo "----------------------------------------"
 	# init and activate conda (we'll use yosys and VPR from conda)
 	STR=$(env/conda/bin/conda init bash | grep modified)
 	read -ra MOD <<< $STR
-	source $MOD
+	source $(MOD[1])
 	# install python deps
 	export VPR_NUM_WORKERS=${CORES}
 	export CTEST_OUTPUT_ON_FAILURE=1
