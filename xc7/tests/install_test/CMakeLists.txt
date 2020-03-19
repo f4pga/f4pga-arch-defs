@@ -3,7 +3,7 @@ get_target_property_required(CONDA_DIR env CONDA_DIR)
 
 add_test(NAME binary_toolchain_test
 	COMMAND ${CMAKE_COMMAND} -E env
-	PATH=${INSTALLATION_DIR_BIN}:$ENV{PATH}
+	PATH=${INSTALLATION_DIR_BIN}:${CONDA_DIR}/bin:$ENV{PATH}
 	${CMAKE_COMMAND} -E env
 	LD_LIBRARY_PATH=${CONDA_DIR}/lib:$ENV{LD_LIBRARY_PATH}
 	${CMAKE_COMMAND} -E env
