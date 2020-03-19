@@ -39,14 +39,7 @@ echo "Running installed toolchain tests"
 echo "----------------------------------------"
 (
 
-	# add installed toolchain to PATH
-	export PATH=${INSTALL_DIR}/bin:$PATH
 	pushd build
-	# init and activate conda (we'll use yosys and VPR from conda)
-	source env/conda/bin/activate
-	conda init
-	source /home/kbuilder/.bashrc
-	# install python deps
 	export VPR_NUM_WORKERS=${CORES}
 	export CTEST_OUTPUT_ON_FAILURE=1
 	ctest -R binary_toolchain_test -j${MAX_CORES}
