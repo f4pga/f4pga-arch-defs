@@ -158,13 +158,13 @@ dst         - Destination location (always an input pin)
 SwitchConnection = namedtuple("SwitchConnection", "src dst")
 
 """
-Mux edge timing information
+Mux edge timing model.
 
-tdel        - Constant propagation delay when no loads are active
+tdel        - Constant propagation delay when no loads are active [s]
 r           - Switch resistance [ohm]
-c           - A single load capacitance [f]
+c           - A single load capacitance [F]
 """
-MuxTiming = namedtuple("MuxTiming", "tdel r c")
+EdgeTimingModel = namedtuple("EdgeTimingModel", "tdel r c")
 
 # =============================================================================
 
@@ -183,6 +183,17 @@ class Switchbox(object):
         """
         An individual multiplexer inside a switchbox
         """
+
+        class Timing(object):
+            """
+            Mux timing information
+            """
+            def __init__(self):
+                self.edge_timing  = {}   # Edge timings, indexed by pin ids
+                self.edge_switch  = {}   # VPR switch name for each pin is
+                self.load_c       = None # Common load capacitance for the mux
+                self.load_switch  = None # VPR switch name for each load
+
         def __init__(self, id, switch):
             self.id     = id        # The mux ID
             self.switch = switch    # Parent switch od
@@ -284,8 +295,8 @@ PackagePin = namedtuple("PackagePin", "name loc cell_names")
 # =============================================================================
 
 # VPR segment
-Segment = namedtuple("Segment", "name length r_metal c_metal")
+VprSegment = namedtuple("VprSegment", "name length r_metal c_metal")
 
 # VPR switch
-Switch = namedtuple("Switch", "name type t_del r c_in c_out c_int")
+VprSwitch = namedtuple("VprSwitch", "name type t_del r c_in c_out c_int")
 

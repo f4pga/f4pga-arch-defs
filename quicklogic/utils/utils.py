@@ -49,6 +49,8 @@ def fixup_pin_name(name):
     else:
         return "{}_{}".format(*groups)
 
+# =============================================================================
+
 
 def yield_muxes(switchbox):
     """
@@ -61,3 +63,17 @@ def yield_muxes(switchbox):
             for mux in switch.muxes.values():
                 yield stage, switch, mux
 
+
+# =============================================================================
+
+
+def add_named_item(item_dict, item, item_name):
+    """
+    Adds a named item to the given dict if not already there. If it is there
+    then returns the one from the dict.
+    """
+
+    if item_name not in item_dict:
+        item_dict[item_name] = item
+
+    return item_dict[item_name]

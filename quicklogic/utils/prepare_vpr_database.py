@@ -3,10 +3,12 @@ import argparse
 import pickle
 import itertools
 import re
-import statistics
 
 from data_structs import *
 from utils import yield_muxes
+
+from timing import process_timing_data
+from timing import populate_switchbox_timing
 
 # =============================================================================
 
@@ -333,205 +335,6 @@ def process_package_pinmap(package_pinmap, phy_tile_grid, loc_map):
 
     return new_package_pinmap
 
-
-# =============================================================================
-
-
-def create_switch(type, tdel, r, c):
-    """
-    Creates a VPR switch with the given parameters. Autmatically generates
-    its name with these parameters encoded.
-    """
-
-    # Format the switch name
-    name  = ["sw"]
-    name += ["T{:>08.6f}".format(tdel * 1e9)]
-    name += ["R{:>08.6f}".format(r)]
-    name += ["C{:>09.6f}".format(c * 1e12)]
-
-    switch = Switch(
-        name  = "_".join(name),
-        type  = type,
-        t_del = tdel,
-        r     = r,
-        c_in  = 0.0,
-        c_out = 0.0,
-        c_int = c,
-    )
-
-    return switch
-
-
-def process_mux_edge_timing(edge_delays, idstr):
-    """
-    Converts the mux edge delay data into: const. delay, edge resistance and
-    maximum load capacitance. Returns these therr parameters.
-
-    A delay thorugh a low-pass RC element is to be T = fac * R * C
-    """
-
-    # An error threshold
-    ERROR_THRESHOLD = 0.5  #0.025
-
-    # Scaling factor
-    fac = 1.0
-
-    # Must have delay data for at least two load counts to determine common
-    # propagation delay and a single load capacitance.
-    assert len(edge_delays) > 1
-
-    # Must have delays for all load counts
-    max_loads = max(edge_delays.keys())
-    assert list(edge_delays.keys()) == list(range(1, max_loads+1)), \
-        list(edge_delays.keys())
-
-    # Take the worst case delay
-    edge_delays = {n: max(tmin, tmax) for n, (tmin, tmax) in edge_delays.items()}
-
-    # Collect data for linear regression
-    xs = sorted(edge_delays.keys())
-    ys = [edge_delays[x] for x in xs]
-
-    # Compute linear regression coefficients
-    # https://en.wikipedia.org/wiki/Simple_linear_regression
-    x_mean = statistics.mean(xs)
-    y_mean = statistics.mean(ys)
-
-    num, den = 0.0, 0.0
-    for x, y in zip(xs, ys):
-        num += (x - x_mean) * (y - y_mean)
-        den += (x - x_mean) * (x - x_mean) 
-
-    a = num / den
-    b = y_mean - a * x_mean
-    # Now Tdel(n) = a * n + b
-
-    # Cannot have a < 0 (decreasing relation). If such thing happens make the
-    # regression line flat.
-    if a < 0.0:
-        a = 0.0
-        print("WARNING: For '{}' delay decreases with increasing load count!".format(idstr))
-
-    # Cannot have any delay higher than the model. Check if all delays lay
-    # below the regression line and if not then shift the line up accordingly.
-    for x, y in zip(xs, ys):
-        t = a * x + b
-        if y > t:
-            b += y - t
-
-    # Assumed switch capacitance of a single load [f]
-    c = 10.0 * 1e-12 # 10pf
-
-    # Compute switch Tdel and R
-    r = 1e-9 * a / (fac * c)
-    tdel = b
-
-    # Compute error, check if if the model makes sense
-    err = {n: abs(d - (tdel + n * fac * r * c * 1e9)) for n, d in edge_delays.items()}
-    err_max = max(err.values())
-
-    if err_max > ERROR_THRESHOLD:
-
-        print("WARINING: Error of the timing model of '{}' is too high:".format(idstr))
-        print("---------------------------------------------")
-        print("| # loads  | actual   | model    | error    |")
-        print("|----------+----------+----------+----------|")
-        
-        for n, e in err.items():
-            d = edge_delays[n]
-            m = tdel + n * fac * r * c * 1e9
-            e = d - m
-            print("| {:<9}| {:<9.3f}| {:<9.3f}| {:<9.3f}|".format(n, d, m, e))
-
-        print("---------------------------------------------")
-        print("")
-
-    # Convert tdel to seconds
-    tdel *= 1e-9
-
-    # Return the timing
-    return MuxTiming(
-        tdel = tdel,
-        r    = r,
-        c    = c
-        )
-
-
-def process_switchbox_timing(switchbox, vpr_switches, vpr_segments):
-    """
-    Processes the switchbox timing data. Decomposes delays to resistances and
-    capacitances.
-    """
-
-    # Process timing for each mux
-    for stage, switch, mux in yield_muxes(switchbox):
-
-        # No delay data for the mux
-        if mux.timing is None or "delays" not in mux.timing:
-            print("WARNING: No timing for mux {}.{}.{} of switchbox '{}'".format(
-                stage.id,
-                switch.id,
-                mux.id,
-                switchbox.type
-            ))
-            continue
-
-        delays = mux.timing["delays"]
-
-        # Process mux edges
-        mux.timing["params"]   = {}
-        mux.timing["switches"] = {}
-
-        for pin in mux.inputs.values():
-
-            # Check if there is timing data
-            if pin.id not in delays:
-                if pin.name not in ["VCC", "GND"]:
-                    print("WARNING: No timing for pin '{}' ({}.{}.{}.{}) of switchbox '{}'".format(
-                        pin.name,
-                        stage.id,
-                        switch.id,
-                        mux.id,
-                        pin.id,
-                        switchbox.type
-                    ))
-                continue
-
-            edge_delays = delays[pin.id]
-
-            # Compute Tdel, R and C
-            idstr = "{}.{}.{}.{}".format(stage.id, switch.id, mux.id, pin.id)
-            timing = process_mux_edge_timing(edge_delays, idstr)
-
-            # Store it
-            mux.timing["params"][pin.id] = timing
-
-            # Create or get a switch for the edge
-            vpr_switch = create_switch("mux", timing.tdel, timing.r, 0.0)
-            if vpr_switch.name in vpr_switches:
-                vpr_switch = vpr_switches[vpr_switch.name]
-            else:
-                vpr_switches[vpr_switch.name] = vpr_switch
-
-            # Store it
-            mux.timing["switches"][pin.id] = vpr_switch.name
-
-        # Compute worst case load capacitance for the mux (its output).
-        # Due to the way in which R and C are derived, all capacitances
-        # should be identical.
-        c_load = max([timing.c for timing in mux.timing["params"].values()])
-        mux.timing["c_load"] = c_load
-
-        # Create a switch with the specific internal capacitance
-        vpr_switch = create_switch("mux", 0.0, 0.0, c_load)
-        if vpr_switch.name in vpr_switches:
-            vpr_switch = vpr_switches[vpr_switch.name]
-        else:
-            vpr_switches[vpr_switch.name] = vpr_switch
-
-        mux.timing["load_switch"] = vpr_switch.name
-
-
 # =============================================================================
 
 
@@ -542,7 +345,7 @@ def build_switch_list():
     switches = {}   
 
     # Add a generic mux switch to make VPR happy
-    switch = Switch(
+    switch = VprSwitch(
         name  = "generic",
         type  = "mux",
         t_del = 0.0,
@@ -563,7 +366,7 @@ def build_segment_list():
     segments = {}
 
     # A generic segment
-    segment = Segment(
+    segment = VprSegment(
         name    = "generic",
         length  = 1,
         r_metal = 0.0,
@@ -572,7 +375,7 @@ def build_segment_list():
     segments[segment.name] = segment
 
     # Padding segment
-    segment = Segment(
+    segment = VprSegment(
         name    = "pad",
         length  = 1,
         r_metal = 0.0,
@@ -581,7 +384,7 @@ def build_segment_list():
     segments[segment.name] = segment
 
     # Switchbox segment    
-    segment = Segment(
+    segment = VprSegment(
         name    = "sbox",
         length  = 1,
         r_metal = 0.0,
@@ -591,7 +394,7 @@ def build_segment_list():
 
     # VCC and GND segments
     for const in ["VCC", "GND"]:
-        segment = Segment(
+        segment = VprSegment(
             name    = const.lower(),
             length  = 1,
             r_metal = 0.0,
@@ -601,7 +404,7 @@ def build_segment_list():
 
     # HOP wire segments
     for i in [1,2,3,4]:
-        segment = Segment(
+        segment = VprSegment(
             name    = "hop{}".format(i),
             length  = i,
             r_metal = 0.0,
@@ -610,7 +413,7 @@ def build_segment_list():
         segments[segment.name] = segment
 
     # A segment for "hop" connections to "special" tiles.
-    segment = Segment(
+    segment = VprSegment(
         name    = "special",
         length  = 1,
         r_metal = 0.0,
@@ -660,13 +463,14 @@ def main():
     with open(args.phy_db, "rb") as fp:
         db = pickle.load(fp)
 
-        cells_library  = db["cells_library"]
-        tile_types     = db["tile_types"]
-        phy_tile_grid  = db["phy_tile_grid"]
-        switchbox_types= db["switchbox_types"]
+        cells_library = db["cells_library"]
+        tile_types = db["tile_types"]
+        phy_tile_grid = db["phy_tile_grid"]
+        switchbox_types = db["switchbox_types"]
         phy_switchbox_grid = db["switchbox_grid"]
-        connections    = db["connections"]
-        package_pinmaps = db["package_pinmaps"]
+        switchbox_timing = db["switchbox_timing"]
+        connections = db["connections"]
+        package_pinmaps = db["package_pinmaps"]        
 
     # Add synthetic stuff
     add_synthetic_cell_and_tile_types(tile_types, cells_library)
@@ -694,37 +498,47 @@ def main():
     vpr_switchbox_types = {k: v for k, v in switchbox_types.items() if k in vpr_switchbox_types}
     
     # Make switch list
-    switches = build_switch_list()
+    vpr_switches = build_switch_list()
     # Make segment list
-    segments = build_segment_list()
+    vpr_segments = build_segment_list()
 
     # Process timing data
-    print("Processing timing data...")
-    for type, switchbox in vpr_switchbox_types.items():
-        process_switchbox_timing(switchbox, switches, segments)
+    if switchbox_timing is not None:
+        print("Processing timing data...")
+
+        # The timing data seems to be the same for each switchbox type and is
+        # stored under the SB_LC name.
+        timing_data = switchbox_timing["SB_LC"]
+        
+        # Process the data to get Tdel, R and C.
+        timing_models = process_timing_data(timing_data)
+
+        # Populate the timing
+        for type, switchbox in vpr_switchbox_types.items():
+            populate_switchbox_timing(switchbox, timing_models, vpr_switches, vpr_segments)
 
     # DEBUG
-    print("Segments:")
-    for s in segments.values():
+    print("VPR Segments:")
+    for s in vpr_segments.values():
         print("", s)
 
     # DEBUG
-    print("Switches:")
-    for s in switches.values():
+    print("VPR Switches:")
+    for s in vpr_switches.values():
         print("", s)
 
     # Prepare the VPR database and write it
     db_root = {
-        "cells_library":  cells_library,
+        "cells_library": cells_library,
         "loc_map": loc_map,
         "vpr_tile_types": vpr_tile_types,
-        "vpr_tile_grid":  vpr_tile_grid,
+        "vpr_tile_grid":vpr_tile_grid,
         "vpr_switchbox_types": vpr_switchbox_types,
-        "vpr_switchbox_grid":  vpr_switchbox_grid,
-        "connections":    connections,
+        "vpr_switchbox_grid": vpr_switchbox_grid,
+        "connections":connections,
         "vpr_package_pinmaps": vpr_package_pinmaps,
-        "segments": list(segments.values()),
-        "switches": list(switches.values()),
+        "segments": list(vpr_segments.values()),
+        "switches": list(vpr_switches.values()),
     }
 
     with open(args.vpr_db, "wb") as fp:

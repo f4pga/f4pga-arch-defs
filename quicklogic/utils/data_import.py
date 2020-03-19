@@ -1058,54 +1058,6 @@ def import_data(xml_root):
         if type not in switchbox_grid.values():
             del switchbox_types[type]
 
-#    # Pin location map
-#    pin_loc_map = {}
-#    for loc, wire_map in wire_maps.items():
-#        pin_loc_map[loc] = {}
-#
-#        # No switchbox at that location
-#        if loc not in switchbox_grid:
-#            continue
-#
-#        for pin_loc, (wire_name, map_loc) in wire_map.items():
-#
-#            # Get port map at the destination location of the wire that is
-#            # being remapped.
-#            assert map_loc in port_maps, (map_loc, wire_name)
-#            port_map  = port_maps[map_loc]
-#
-#            # Get the actual pin name
-#            key = (wire_name, PinDirection.INPUT)
-#            assert key in port_map, (map_loc, key)
-#            pin_name = port_map[key]
-#
-#            if pin_name is None:
-#                continue
-#
-#            # Find the tile pin name at the destination location
-#            if map_loc not in tile_grid:
-#                continue
-#
-#            tile = tile_grid[map_loc]
-#            if tile is None:
-#                continue
-#
-#            
-#
-#            # Check
-#            print(loc, pin_loc, wire_name, pin_name, map_loc)
-#            if pin_name in pin_loc_map[loc]:
-#                assert pin_loc_map[loc][pin_name] == map_loc, \
-#                    (loc, pin_loc_map[loc][pin_name], map_loc, pin_name)
-#
-#            # Store map
-#            pin_loc_map[loc][pin_name] = map_loc
-##            print(loc, pin_name, map_loc)
-
-
-#    # Find "special" cells that occupy more than one grid location.
-#    find_special_cells(tile_grid)    
-
     # Get the "Packages" section
     xml_packages = xml_root.find("Packages")
     assert xml_packages is not None
@@ -1132,7 +1084,8 @@ def import_routing_timing(csv_file):
     dicts indexed by:
         [switchbox_type][stage_id][switch_id][mux_id][pin_id][num_inputs].
 
-    The last dict holds tuples with rise and fall delays.
+    The last dict holds tuples with rise and fall delays. Delay values are
+    expressed in [ns].
     """
     
     # Read and parse CSV
@@ -1252,38 +1205,9 @@ def main():
 
     # Load timing data if given
     if args.routing_timing is not None:
-
-        # Parse timing
-        routing_timing = import_routing_timing(args.routing_timing)
-
-        # Annotate switchboxes with timing information
-        # FIXME: Ignore switchbox type, assume that all of them has identical
-        # timings.
-        assert len(routing_timing) == 1, routing_timing.keys()
-        timing = next(iter(routing_timing.values()))
-
-        for switchbox in data["switchbox_types"].values():
-            for stage, switch, mux in yield_muxes(switchbox):
-
-                # Copy the timing data
-                mux.timing = {
-                    "delays": {}
-                }
-
-                for pin_id, delays in timing[stage.id][switch.id][mux.id].items():
-                    mux.timing["delays"][pin_id] = deepcopy(delays)
-
-                # Verify that all routes have it
-                for pin_id, pin in mux.inputs.items():
-                    if pin.id not in mux.timing["delays"] and pin.name not in CONST_PINS:
-                        print("WARNING: No timing for pin '{}' ({}.{}.{}.{}) of switchbox '{}'".format(
-                            pin.name,
-                            stage.id,
-                            switch.id,
-                            mux.id,
-                            pin.id,
-                            switchbox.type
-                        ))
+        switchbox_timing = import_routing_timing(args.routing_timing)
+    else:
+        switchbox_timing = None
 
     # Prepare the database
     db_root = {
@@ -1295,6 +1219,9 @@ def main():
         "connections": connections,
         "package_pinmaps": data["package_pinmaps"],
     }
+
+    if switchbox_timing is not None:
+        db_root["switchbox_timing"] = switchbox_timing
 
     # FIXME: Use something more platform-independent than pickle.
     with open(args.db, "wb") as fp:

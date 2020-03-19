@@ -423,12 +423,14 @@ class SwitchboxModel(object):
                 # Get switch id for the switch assigned to the mux edge. If
                 # there is none then use the delayless switch. Probably the
                 # edge is connected to a const.
-                try:
-                    switch_id = self.graph.get_switch_id(
-                        mux.timing["switches"][pin.id]
-                    )
-                except KeyError:
-                    switch_id  = self.graph.get_delayless_switch_id()
+                switch_id  = self.graph.get_delayless_switch_id()
+                if mux.timing is not None:
+                    try:
+                        switch_id = self.graph.get_switch_id(
+                            mux.timing.edge_switch[pin.id]
+                        )
+                    except KeyError:
+                        pass
 
                 # Mux switch with appropriate timing and fasm metadata
                 connect(
@@ -534,7 +536,9 @@ class SwitchboxModel(object):
         key = (stage_id, switch_id, mux_id)
         out_node = self.mux_output_to_node[key]
 
-        switch_id = self.graph.get_switch_id(mux.timing["load_switch"])
+        switch_id = self.graph.get_delayless_switch_id()
+        if mux.timing is not None:
+            switch_id = self.graph.get_switch_id(mux.timing.load_switch)
 
         # Buffer with internal capacitance
         connect(
