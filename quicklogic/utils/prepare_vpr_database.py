@@ -3,6 +3,7 @@ import argparse
 import pickle
 import itertools
 import re
+import statistics
 
 from data_structs import *
 from utils import yield_muxes
@@ -370,7 +371,7 @@ def process_mux_edge_timing(edge_delays, idstr):
     """
 
     # An error threshold
-    ERROR_THRESHOLD = 0.2  #0.025
+    ERROR_THRESHOLD = 0.5  #0.025
 
     # Scaling factor
     fac = 1.0
@@ -379,31 +380,51 @@ def process_mux_edge_timing(edge_delays, idstr):
     # propagation delay and a single load capacitance.
     assert len(edge_delays) > 1
 
-    # Must have delays for all load count
+    # Must have delays for all load counts
     max_loads = max(edge_delays.keys())
     assert list(edge_delays.keys()) == list(range(1, max_loads+1)), \
         list(edge_delays.keys())
 
-    # Assumed switch capacitance of a single load [f]
-    c = 10.0 * 1e-12 # 10pf
-
     # Take the worst case delay
     edge_delays = {n: max(tmin, tmax) for n, (tmin, tmax) in edge_delays.items()}
 
-    # Compute minimal propagation delay and additional delays per load count
-    tdel_min = min(edge_delays.values())
-    tdel_add = {n: (d - tdel_min) for n, d in edge_delays.items()}
+    # Collect data for linear regression
+    xs = sorted(edge_delays.keys())
+    ys = [edge_delays[x] for x in xs]
 
-    # Compute maximum additional delay caused by loads divided by their count.
-    # This will correspond to a single load capacitance.
-    incr_max = max([d / n for n, d in tdel_add.items()])
+    # Compute linear regression coefficients
+    # https://en.wikipedia.org/wiki/Simple_linear_regression
+    x_mean = statistics.mean(xs)
+    y_mean = statistics.mean(ys)
 
-    # Compute the edge resistance [ohm]
-    r = 1e-9 * incr_max / (fac * c)
+    num, den = 0.0, 0.0
+    for x, y in zip(xs, ys):
+        num += (x - x_mean) * (y - y_mean)
+        den += (x - x_mean) * (x - x_mean) 
 
-    # Decrease the minimum delay by the delay increase. There cannot be 0
-    # additional delay for 1 load.
-    tdel = tdel_min - incr_max
+    a = num / den
+    b = y_mean - a * x_mean
+    # Now Tdel(n) = a * n + b
+
+    # Cannot have a < 0 (decreasing relation). If such thing happens make the
+    # regression line flat.
+    if a < 0.0:
+        a = 0.0
+        print("WARNING: For '{}' delay decreases with increasing load count!".format(idstr))
+
+    # Cannot have any delay higher than the model. Check if all delays lay
+    # below the regression line and if not then shift the line up accordingly.
+    for x, y in zip(xs, ys):
+        t = a * x + b
+        if y > t:
+            b += y - t
+
+    # Assumed switch capacitance of a single load [f]
+    c = 10.0 * 1e-12 # 10pf
+
+    # Compute switch Tdel and R
+    r = 1e-9 * a / (fac * c)
+    tdel = b
 
     # Compute error, check if if the model makes sense
     err = {n: abs(d - (tdel + n * fac * r * c * 1e9)) for n, d in edge_delays.items()}
