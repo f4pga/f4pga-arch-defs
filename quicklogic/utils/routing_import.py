@@ -186,17 +186,6 @@ def connect(graph, src_node, dst_node, switch_id=None, segment_id=None, meta_nam
         else:        
             segment_id = src_node.segment.segment_id
 
-   # Connect directly
-#    add_edge(
-#        graph,
-#        src_node.id,
-#        dst_node.id,
-#        switch_id,
-#        meta_name,
-#        meta_value
-#    )
-#    return
-
     # CHANX to CHANY or vice-versa
     if src_node.type == rr.NodeType.CHANX and dst_node.type == rr.NodeType.CHANY or \
        src_node.type == rr.NodeType.CHANY and dst_node.type == rr.NodeType.CHANX:
@@ -348,6 +337,9 @@ def connect(graph, src_node, dst_node, switch_id=None, segment_id=None, meta_nam
 
 
 class SwitchboxModel(object):
+    """
+    Represents a model of connectivity of a concrete instance of a switchbox.
+    """
 
     def __init__(self, graph, loc, phy_loc, switchbox):
         self.graph      = graph
@@ -362,20 +354,60 @@ class SwitchboxModel(object):
 
         self._build()
 
-
-    def _build(self):
+    @staticmethod
+    def get_chan_dirs_for_stage(stage):
         """
-        Build the switchbox model
+        Returns channel directions for inputs and outputs of a stage.
         """
 
-        # Add nodes and edge for all inputs and outputs of all muxes.
-        # Add mux edges.
+        if stage.type == "HIGHWAY":
+            return "Y", "X"
+
+        elif stage.type == "STREET":
+            dir_inp = "Y" if (stage.id % 2) else "X"
+            dir_out = "X" if (stage.id % 2) else "Y"
+            return dir_inp, dir_out
+
+        else:
+            assert False, stage.type
+
+
+    def _create_muxes(self):
+        """
+        Creates nodes for muxes and internal edges within them. Annotates the
+        internal edges with fasm data.
+
+        Builds maps of muxs' inputs and outpus to VPR nodes.
+        """
+
+        # Build mux driver timing map. Assign each mux output its timing data
+        driver_timing = {}
+        for connection in self.switchbox.connections:
+            src = connection.src
+            dst = connection.dst
+
+            stage  = self.switchbox.stages[src.stage_id]
+            switch = stage.switches[src.switch_id]
+            mux    = switch.muxes[src.mux_id]
+            pin    = mux.inputs[src.pin_id]
+
+            if pin.id not in mux.timing:
+                continue
+
+            timing = mux.timing[pin.id].driver
+
+            key = (src.stage_id, src.switch_id, src.mux_id)
+            if key in driver_timing:
+                assert driver_timing[key] == timing, \
+                    (self.loc, key, driver_timing[key], timing)
+            else:
+                driver_timing[key] = timing
+
+        # Create muxes
+        segment_id = self.graph.get_segment_id_from_name("sbox")
+
         for stage, switch, mux in yield_muxes(self.switchbox):
-
-            dir_inp = "X" if (stage.id % 2) else "Y"
-            dir_out = "Y" if (stage.id % 2) else "X"
-
-            segment_id = self.graph.get_segment_id_from_name("sbox")
+            dir_inp, dir_out = self.get_chan_dirs_for_stage(stage)
 
             # Output node
             key = (stage.id, switch.id, mux.id)
@@ -388,6 +420,33 @@ class SwitchboxModel(object):
                 segment_id
             )
             self.mux_output_to_node[key] = out_node
+
+            # Intermediate output node
+            int_node = add_node(
+                self.graph,
+                self.loc,
+                dir_out,
+                segment_id
+            )
+
+            # Get switch id for the switch assigned to the driver. If
+            # there is none then use the delayless switch. Probably the
+            # driver is connected to a const.
+            if key in driver_timing:
+                switch_id = self.graph.get_switch_id(
+                    driver_timing[key].vpr_switch
+                )
+            else:
+                switch_id = self.graph.get_delayless_switch_id()
+
+            # Output driver edge
+            connect(
+                self.graph,
+                int_node,
+                out_node,
+                switch_id  = switch_id,
+                segment_id = segment_id,
+            )
 
             # Input nodes + mux edges
             for pin in mux.inputs.values():
@@ -402,7 +461,6 @@ class SwitchboxModel(object):
                     dir_inp,
                     segment_id
                 )
-
                 self.mux_input_to_node[key] = inp_node
 
                 # Get mux metadata
@@ -423,24 +481,31 @@ class SwitchboxModel(object):
                 # Get switch id for the switch assigned to the mux edge. If
                 # there is none then use the delayless switch. Probably the
                 # edge is connected to a const.
-                switch_id  = self.graph.get_delayless_switch_id()
-                if mux.timing is not None:
-                    try:
-                        switch_id = self.graph.get_switch_id(
-                            mux.timing.edge_switch[pin.id]
-                        )
-                    except KeyError:
-                        pass
+                if pin.id in mux.timing:
+                    switch_id = self.graph.get_switch_id(
+                        mux.timing[pin.id].sink.vpr_switch
+                    )
+                else:
+                    switch_id = self.graph.get_delayless_switch_id()
 
                 # Mux switch with appropriate timing and fasm metadata
                 connect(
                     self.graph,
                     inp_node,
-                    out_node,
-                    switch_id,
+                    int_node,
+                    switch_id  = switch_id,
+                    segment_id = segment_id,
                     meta_name  = meta_name,
                     meta_value = meta_value,
                 )
+
+    def _connect_muxes(self):
+        """
+        Creates VPR edges that connects muxes within the switchbox.
+        """
+
+        segment_id = self.graph.get_segment_id_from_name("sbox")
+        switch_id  = self.graph.get_switch_id("short")
 
         # Add internal connections between muxes.
         for connection in self.switchbox.connections:
@@ -451,31 +516,126 @@ class SwitchboxModel(object):
             assert src.pin_id == 0, src
             assert src.pin_direction == PinDirection.OUTPUT, src
 
-            # Get an input node
+            # Get the input node
             key = (dst.stage_id, dst.switch_id, dst.mux_id, dst.pin_id)
             dst_node = self.mux_input_to_node[key]
 
-            # Create a mux output
-            self._create_mux_output(
-                src.stage_id,
-                src.switch_id,
-                src.mux_id,
-                dst_node
+            # Get the output node
+            key = (src.stage_id, src.switch_id, src.mux_id)
+            src_node = self.mux_output_to_node[key]
+
+            # Connect
+            connect(
+                self.graph,
+                src_node,
+                dst_node,
+                switch_id  = switch_id,
+                segment_id = segment_id
             )
 
-        # Build a map of switchbox input pin names to VPR nodes corresponding
-        # to connected mux inputs.
+
+    def _create_input_drivers(self):
+        """
+        Creates VPR nodes and edges that model input connectivity of the
+        switchbox.
+        """
+
+        # Create a driver map containing all mux pin locations that are
+        # connected to a driver. The map is indexed by (pin_name, vpr_switch)
+        # and groups togeather inputs that should be driver by a specific
+        # switch due to the timing model.
+        driver_map = defaultdict(lambda: [])
+
+        for pin in self.switchbox.inputs.values():
+            for loc in pin.locs:
+
+                stage  = self.switchbox.stages[loc.stage_id]
+                switch = stage.switches[loc.switch_id]
+                mux    = switch.muxes[loc.mux_id]
+                pin    = mux.inputs[loc.pin_id]
+
+                if pin.id not in mux.timing:
+                    vpr_switch = None
+                else:
+                    vpr_switch = mux.timing[pin.id].driver.vpr_switch
+
+                key = (pin.name, vpr_switch)
+                driver_map[key].append(loc)
+
+        # Create input nodes for each input pin
+        segment_id = self.graph.get_segment_id_from_name("sbox")
+
         for pin in self.switchbox.inputs.values():
 
-            # Get the nodes
-            nodes = []
-            for loc in pin.locs:
-                key = (loc.stage_id, loc.switch_id, loc.mux_id, loc.pin_id)
-                node = self.mux_input_to_node[key]
-                nodes.append(node)
+            node = add_node(
+                self.graph,
+                self.loc,
+                "Y",
+                segment_id
+            )
 
-            assert pin.name not in self.input_to_node
-            self.input_to_node[pin.name] = nodes
+            assert pin.name not in self.input_to_node, pin.name
+            self.input_to_node[pin.name] = node
+
+
+        # Create driver nodes, connect everything
+        for (pin_name, vpr_switch), locs in driver_map.items():
+
+            # Create the driver node
+            drv_node = add_node(
+                self.graph,
+                self.loc,
+                "X",
+                segment_id
+            )
+
+            # Connect input node to the driver node. Use the switch with timing.
+            inp_node = self.input_to_node[pin_name]
+
+            # Get switch id for the switch assigned to the driver. If
+            # there is none then use the delayless switch. Probably the
+            # driver is connected to a const.
+            if vpr_switch is not None:
+                switch_id = self.graph.get_switch_id(vpr_switch)
+            else:
+                switch_id = self.graph.get_delayless_switch_id()
+
+            # Connect
+            connect(
+                self.graph,
+                inp_node,
+                drv_node,
+                switch_id  = switch_id,
+                segment_id = segment_id
+            )
+
+            # Now connect the driver node with its loads
+            switch_id = self.graph.get_switch_id("short")
+            for loc in locs:
+
+                key = (loc.stage_id, loc.switch_id, loc.mux_id, loc.pin_id)
+                dst_node = self.mux_input_to_node[key]
+
+                connect(
+                    self.graph,
+                    drv_node,
+                    dst_node,
+                    switch_id  = switch_id,
+                    segment_id = segment_id
+                )
+
+
+    def _build(self):
+        """
+        Build the switchbox model
+        """
+
+        # Create and connect muxes
+        self._create_muxes()
+        self._connect_muxes()
+
+        # Create and connect input drivers models
+        self._create_input_drivers()
 
 
     def _get_metadata_for_mux(self, stage, switch, mux, src_pin_id):
@@ -511,58 +671,15 @@ class SwitchboxModel(object):
         return metadata
 
 
-    def _create_mux_output(self, stage_id, switch_id, mux_id, dst_node=None):
+    def get_input_node(self, pin_name):
         """
-        Creates a new output for the given mux with appropriate timing mode.
-        Returns the output node object
-        """
-
-        dir_inp = "Y" if (stage_id % 2) else "X"
-        dir_out = "X" if (stage_id % 2) else "Y"
-
-        segment_id = self.graph.get_segment_id_from_name("sbox")
-
-        # Add the new output node if not given
-        if dst_node is None:
-            dst_node = add_node(
-                self.graph,
-                self.loc,
-                dir_out,
-                segment_id
-            )
-
-        # Add the output load model to the mux
-        mux = self.switchbox.stages[stage_id].switches[switch_id].muxes[mux_id]
-        key = (stage_id, switch_id, mux_id)
-        out_node = self.mux_output_to_node[key]
-
-        switch_id = self.graph.get_delayless_switch_id()
-        if mux.timing is not None:
-            switch_id = self.graph.get_switch_id(mux.timing.load_switch)
-
-        # Buffer with internal capacitance
-        connect(
-            self.graph,
-            out_node,
-            dst_node,
-            switch_id
-        )
-
-        return dst_node
-
-
-    def get_input_nodes(self, pin_name):
-        """
-        Return a list of VPR node objects that correspond to a particular
-        switchbox input.
+        Returns a VPR node associated with the given input of the switchbox
         """
         return self.input_to_node[pin_name]
 
-
-    def create_output(self, pin_name, dst_node=None):
+    def get_output_node(self, pin_name):
         """
-        Creates a new output for the given switchbox output. Returns the
-        output node object.
+        Returns a VPR node associated with the given output of the switchbox
         """
 
         # Get the output pin
@@ -571,13 +688,10 @@ class SwitchboxModel(object):
         assert len(pin.locs) == 1
         loc = pin.locs[0]
 
-        # Create a mux output for its mux
-        return self._create_mux_output(
-            loc.stage_id,
-            loc.switch_id,
-            loc.mux_id,
-            dst_node
-        )
+        # Return its node
+        key = (loc.stage_id, loc.switch_id, loc.mux_id)
+        return self.mux_output_to_node[key]
+
 
 # =============================================================================
 
@@ -936,25 +1050,25 @@ def populate_hop_connections(graph, switchbox_models, connections):
         src_switchbox_model = switchbox_models[connection.src.loc]
         dst_switchbox_model = switchbox_models[connection.dst.loc]
 
-        # For each mux input of the desitnation switchbox create an output
-        # in the source switchbox
-        inp_nodes = dst_switchbox_model.get_input_nodes(connection.dst.pin)
-        for inp_node in inp_nodes:
+        # Get nodes
+        src_node = src_switchbox_model.get_output_node(connection.src.pin)
+        dst_node = dst_switchbox_model.get_input_node(connection.dst.pin)
 
-            # Create the hop wire, use it as output node of the switchbox
-            hop_node = create_track_for_hop_connection(graph, connection)
+        # Create the hop wire, use it as output node of the switchbox
+        hop_node = create_track_for_hop_connection(graph, connection)
 
-            # Create output in the source switchbox
-            src_switchbox_model.create_output(connection.src.pin, hop_node)
-
-            # Add a delayless edge
-            connect(
-                graph,
-                hop_node,
-                inp_node
+        # Connect
+        connect(
+            graph,
+            src_node,
+            hop_node
             )
 
-            # FIXME: inp_node and hop_node could be the same.
+        connect(
+            graph,
+            hop_node,
+            dst_node
+            )
 
 
 def populate_tile_connections(graph, switchbox_models, connections, connection_to_node):
@@ -990,23 +1104,24 @@ def populate_tile_connections(graph, switchbox_models, connections, connection_t
 
             # To tile
             if connection.dst.type == ConnectionType.TILE:
+                sbox_node = switchbox_model.get_output_node(connection.src.pin)
 
-                # Create an output in the switchbox model. Don't create a new
-                # node. Use the existing IPIN one.
-                sbox_node = switchbox_model.create_output(connection.src.pin, tile_node)
+                connect(
+                    graph,
+                    sbox_node,
+                    tile_node
+                )
 
             # From tile
             if connection.src.type == ConnectionType.TILE:
+                sbox_node = switchbox_model.get_input_node(connection.dst.pin)
 
-                # Add edges between the tile node and switchbox mux inputs
-                for sbox_node in switchbox_model.get_input_nodes(connection.dst.pin):
+                connect(
+                    graph,
+                    tile_node,
+                    sbox_node
+                )
 
-                    # Add a delayless edge
-                    connect(
-                        graph,
-                        tile_node,
-                        sbox_node,
-                    )
 
         # Connection to/from a foreign tile
         else:
@@ -1096,14 +1211,13 @@ def populate_const_connections(graph, switchbox_models, const_node_map):
             # Got a const input
             if pin.name in const_node_map:
                 const_node = const_node_map[pin.name][loc]
+                sbox_node  = switchbox_model.get_input_node(pin.name)
 
-                # Connect it to the switchbox input
-                for inp_node in switchbox_model.get_input_nodes(pin.name):
-                    connect(
-                        graph,
-                        const_node,
-                        inp_node,
-                    )
+                connect(
+                    graph,
+                    const_node,
+                    sbox_node,
+                )
 
 # =============================================================================
 

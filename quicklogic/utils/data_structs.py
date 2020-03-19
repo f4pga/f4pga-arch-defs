@@ -158,13 +158,30 @@ dst         - Destination location (always an input pin)
 SwitchConnection = namedtuple("SwitchConnection", "src dst")
 
 """
-Mux edge timing model.
+Sink timing
 
-tdel        - Constant propagation delay when no loads are active [s]
-r           - Switch resistance [ohm]
-c           - A single load capacitance [F]
+tdel        - Constant propagation delay.
+c           - Load capacitance.
+vpr_switch  - VPR switch name
 """
-EdgeTimingModel = namedtuple("EdgeTimingModel", "tdel r c")
+SinkTiming = namedtuple("SinkTiming", "tdel c vpr_switch")
+
+"""
+Driver timing
+
+tdel        - Constant propagation delay.
+r           - Driver resitance.
+vpr_switch  - VPR switch name
+"""
+DriverTiming = namedtuple("DriverTiming", "tdel r vpr_switch")
+
+"""
+Mux edge timing data
+
+driver      - Driver parameters
+sink        - Sink parameters
+"""
+MuxEdgeTiming = namedtuple("MuxEdgeTiming", "driver sink")
 
 # =============================================================================
 
@@ -184,22 +201,12 @@ class Switchbox(object):
         An individual multiplexer inside a switchbox
         """
 
-        class Timing(object):
-            """
-            Mux timing information
-            """
-            def __init__(self):
-                self.edge_timing  = {}   # Edge timings, indexed by pin ids
-                self.edge_switch  = {}   # VPR switch name for each pin is
-                self.load_c       = None # Common load capacitance for the mux
-                self.load_switch  = None # VPR switch name for each load
-
         def __init__(self, id, switch):
             self.id     = id        # The mux ID
             self.switch = switch    # Parent switch od
             self.inputs = {}        # Input pins by their IDs
             self.output = None      # The output pin
-            self.timing = None      # Timing data for the mux.
+            self.timing  = {}       # Input timing (per input)
 
         @property
         def pins(self):
@@ -256,7 +263,7 @@ class Switchbox(object):
         self.outputs    = {}    # Top-level outputs by their names
         self.stages     = {}    # Stages by their IDs
 
-        self.connections = set()    # Connections between stages
+        self.connections  = set()    # Connections between stages
 
     @property
     def pins(self):

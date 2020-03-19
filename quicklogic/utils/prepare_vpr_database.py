@@ -7,8 +7,8 @@ import re
 from data_structs import *
 from utils import yield_muxes
 
-from timing import process_timing_data
-from timing import populate_switchbox_timing
+from timing import compute_switchbox_timing_model
+from timing import populate_switchbox_timing, copy_switchbox_timing
 
 # =============================================================================
 
@@ -356,6 +356,18 @@ def build_switch_list():
     )
     switches[switch.name] = switch
 
+    # A delayless short
+    switch = VprSwitch(
+        name  = "short",
+        type  = "short",
+        t_del = 0.0,
+        r     = 0.0,
+        c_in  = 0.0,
+        c_out = 0.0,
+        c_int = 0.0,
+    )
+    switches[switch.name] = switch
+
     return switches
 
 
@@ -509,13 +521,19 @@ def main():
         # The timing data seems to be the same for each switchbox type and is
         # stored under the SB_LC name.
         timing_data = switchbox_timing["SB_LC"]
-        
-        # Process the data to get Tdel, R and C.
-        timing_models = process_timing_data(timing_data)
 
-        # Populate the timing
-        for type, switchbox in vpr_switchbox_types.items():
-            populate_switchbox_timing(switchbox, timing_models, vpr_switches, vpr_segments)
+        # Compute the timing model for the most generic SB_LC switchbox.
+        switchbox = vpr_switchbox_types["SB_LC"]
+        driver_timing, sink_map = compute_switchbox_timing_model(switchbox, timing_data)
+
+        # Populate the model, create and assign VPR switches.
+        populate_switchbox_timing(switchbox, driver_timing, sink_map, vpr_switches)
+
+        # Propagate the timing data to all other switchboxes. Even though they
+        # are of different type, physically they are the same.
+        for dst_switchbox in vpr_switchbox_types.values():
+            if dst_switchbox.type != "SB_LC":
+                copy_switchbox_timing(switchbox, dst_switchbox)
 
     # DEBUG
     print("VPR Segments:")

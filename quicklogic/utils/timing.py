@@ -1,6 +1,9 @@
 import itertools
 import statistics
 
+from copy import deepcopy
+from collections import defaultdict
+
 from data_structs import *
 from utils import yield_muxes, add_named_item
 
@@ -28,100 +31,6 @@ def linear_regression(xs, ys):
     return a, b
 
 
-def process_timing_data(timing_data):
-    """
-    Processes the timing data. Converts delays for each mux (joint) edge
-    to: a constant delay, edge switch resistance and mux load capacitance.
-    """
-
-    def yield_timings():
-        """
-        A helper generator
-        """
-        for stage_id, stage_timing in timing_data.items():
-            for switch_id, switch_timing in stage_timing.items():
-                for mux_id, mux_timing in switch_timing.items():
-                    for pin_id, edge_timing in mux_timing.items():
-                        yield stage_id, switch_id, mux_id, pin_id, edge_timing
-
-    # An error threshold
-    ERROR_THRESHOLD = 0.5  #0.025
-
-    # Scaling factor
-    fac = 1.0
-
-    # Process edge timings
-    timing_models = {}
-    for stage_id, switch_id, mux_id, pin_id, edge_delays in yield_timings():
-        idstr = "{}.{}.{}.{}".format(stage_id, switch_id, mux_id, pin_id)
-
-        # Must have delay data for at least two load counts to determine common
-        # propagation delay and a single load capacitance.
-        assert len(edge_delays) > 1
-
-        # Must have delays for all load counts
-        max_loads = max(edge_delays.keys())
-        assert list(edge_delays.keys()) == list(range(1, max_loads+1)), \
-               list(edge_delays.keys())
-
-        # Take the worst case delay
-        edge_delays = {n: max(ts) for n, ts in edge_delays.items()}
-
-        # Collect data for linear regression. Compute the regression
-        xs = sorted(edge_delays.keys())
-        ys = [edge_delays[x] for x in xs]
-
-        a, b = linear_regression(xs, ys)
-
-        # Cannot have a < 0 (decreasing relation). If such thing happens make the
-        # regression line flat.
-        if a < 0.0:
-            print("WARNING: For '{}' the delay decreases with the increasing load count! (a={:.3f})".format(idstr, a))
-            a = 0.0
-
-        # Cannot have any delay higher than the model. Check if all delays lay
-        # below the regression line and if not then shift the line up accordingly.
-        for x, y in zip(xs, ys):
-            t = a * x + b
-            if y > t:
-                b += y - t
-
-        # Assumed switch capacitance of a single load [F]
-        c = 10.0 * 1e-12  # 10pF
-
-        # Compute switch Tdel and R in nanoseconds
-        r = 1e-9 * a / (fac * c)
-        tdel = b
-
-        # Compute error, check if if the model makes sense
-        err = {n: abs(d - (tdel + n * fac * r * c * 1e9)) for n, d in edge_delays.items()}
-        err_max = max(err.values())
-
-        if err_max > ERROR_THRESHOLD:
-
-            print("WARNING: Error of the timing model of '{}' is too high:".format(idstr))
-            print("---------------------------------------------")
-            print("| # loads  | actual   | model    | error    |")
-            print("|----------+----------+----------+----------|")
-            
-            for n, e in err.items():
-                d = edge_delays[n]
-                m = tdel + n * fac * r * c * 1e9
-                e = d - m
-                print("| {:<9}| {:<9.3f}| {:<9.3f}| {:<9.3f}|".format(n, d, m, e))
-
-            print("---------------------------------------------")
-            print("")
-
-        # Convert tdel to seconds
-        tdel *= 1e-9
-
-        # Store the timing model
-        timing_models[(stage_id, switch_id, mux_id, pin_id)] = \
-            EdgeTimingModel(tdel = tdel, r = r, c = c)
-
-    return timing_models
-
 # =============================================================================
 
 
@@ -141,7 +50,7 @@ def create_vpr_switch(type, tdel, r, c):
     name  = ["sw"]
     name += ["T{:>08.6f}".format(tdel * 1e9)]
     name += ["R{:>08.6f}".format(r)]
-    name += ["C{:>09.6f}".format(c * 1e12)]
+    name += ["C{:>010.6f}".format(c * 1e12)]
 
     # Create the VPR switch
     switch = VprSwitch(
@@ -157,46 +66,246 @@ def create_vpr_switch(type, tdel, r, c):
     return switch
 
 
-def populate_switchbox_timing(switchbox, timing_models, vpr_switches, vpr_segments):
+def compute_switchbox_timing_model(switchbox, timing_data):
     """
-    Populates the timing model to the switchbox
+    Processes switchbox timing data.
+
+    The timing data is provided in a form of delays for each mux edge (path
+    from its input pin to the output pin). The delay varies with number of
+    active loads of the source.
+
+    This data is used to compute driver resistances and load capacitances
+    as well as constant propagation delays.
+
+    The timing model assumes that each output of a mux has a certain resistance
+    and constant propagation time. Then, every load has a capacitance which is
+    connected when it is active. All capacitances are identical. The input 
+    timing data does not allow to distinguish between them. Additionally, each
+    load can have a constant propagation delay.
+
+    For multiplexers that are driver by switchbox inputs, fake drivers are
+    assumed solely for the purpose of the timing model.
     """
 
-    for key, timing_model in timing_models.items():
-        stage_id, switch_id, mux_id, pin_id = key
 
-        # Get the mux, create timing data entry
-        mux = switchbox.stages[stage_id].switches[switch_id].muxes[mux_id]
+    # A helper struct
+    Timing = namedtuple("Timing", "driver_r driver_tdel sink_c sink_tdel")
 
-        if mux.timing is None:
-            mux.timing = Switchbox.Mux.Timing()
+    # Delay scaling factor
+    FACTOR = 1.0
 
-        # Store the timing model
-        assert pin_id not in mux.timing.edge_timing
-        mux.timing.edge_timing[pin_id] = timing_model
+    # Error threshold (for reporting) in ns
+    ERROR_THRESHOLD = 0.4 * 1e-9
 
-        # Create a VPR switch or get an existing one for the edge
-        vpr_switch = create_vpr_switch("mux", timing_model.tdel, timing_model.r, 0.0)
-        vpr_switch = add_named_item(vpr_switches, vpr_switch, vpr_switch.name)
+    # Build a map of sinks for each driver
+    # For internal drivers key = (stage_id, switch_id, mux_id)
+    # For external drivers key = (stage_id, input_name)
+    sink_map = defaultdict(lambda: [])
 
-        assert pin_id not in mux.timing.edge_switch
-        mux.timing.edge_switch[pin_id] = vpr_switch.name
+    for connection in switchbox.connections:
+        src = connection.src
+        dst = connection.dst
 
-        # Store the load capacitance.
-        # Note: since each mux edge goes to the same output, the load
-        # capacitance in each edge timing model must be the same. Hence it's
-        # value is fixed during the timing model generation.
-        if mux.timing.load_c is None:
-            mux.timing.load_c = timing_model.c
+        dst_key = (dst.stage_id, dst.switch_id, dst.mux_id, dst.pin_id)
+        src_key = (src.stage_id, src.switch_id, src.mux_id)
 
-        else:
-            assert abs(mux.timing.load_c - timing_model.c) < 1e-15, \
-                (mux.timing.load_c, timing_model.c)
+        sink_map[src_key].append(dst_key)
 
-        # Create a load switch with the specific internal capacitance and
-        # assign it to the mux
-        if mux.timing.load_switch is None:
-            vpr_switch = create_vpr_switch("mux", 0.0, 0.0, mux.timing.load_c)
-            vpr_switch = add_named_item(vpr_switches, vpr_switch, vpr_switch.name)
+    for pin in switchbox.inputs.values():
+        for loc in pin.locs:
 
-            mux.timing.load_switch = vpr_switch.name       
+            dst_key = (loc.stage_id, loc.switch_id, loc.mux_id, loc.pin_id)
+            src_key = (loc.stage_id, pin.name)
+
+            sink_map[src_key].append(dst_key)
+
+
+    # Compute timing model for each driver
+    driver_timing = {}
+    for driver, sinks in sink_map.items():
+
+        # Collect timing data for each sink edge
+        edge_timings = {}
+        for stage_id, switch_id, mux_id, pin_id in sinks:
+
+            # Try getting timing data. If not found then probably we are
+            # computing timing for VCC or GND input.
+            try:
+                data = timing_data[stage_id][switch_id][mux_id][pin_id]
+            except KeyError:
+                continue
+
+            # Sanity check. The number of load counts must be equal to the
+            # number of sinks for the driver.
+            assert len(data) == len(sinks)
+
+            # Take the worst case (max), convert ns to seconds.
+            data = {n: max(d) * 1e-9 for n, d in data.items()}
+
+            # Store
+            key = (stage_id, switch_id, mux_id, pin_id)
+            edge_timings[key] = data
+
+        # No timing data, probably it is a VCC or GND input
+        if not len(edge_timings):
+            continue
+
+        # Compute linear regression for each sink data
+        coeffs = {}
+        for sink in sinks:
+            xs = sorted(edge_timings[sink].keys())
+            ys = [edge_timings[sink][x] for x in xs]
+
+            a, b = linear_regression(xs, ys)
+
+            # Cannot have a < 0 (decreasing relation). If such thing happens
+            # force the regression line to be flat.
+            if a < 0.0:
+                print("WARNING: For '{} {}' the delay model slope is negative! (a={:.2e})".format(switchbox.type, sink, a))
+                a = 0.0
+
+            # Cannot have any delay higher than the model. Check if all delays
+            # lie below the regression line and if not then shift the line up
+            # accordingly.
+            for x, y in zip(xs, ys):
+                t = a * x + b
+                if y > t:
+                    b += y - t
+
+            coeffs[sink] = (a, b)
+
+        # Assumed driver resistance [ohm]
+        driver_r = 1.0
+
+        # Compute driver's Tdel
+        driver_tdel = min([cfs[1] for cfs in coeffs.values()])
+
+        # Compute per-sink Tdel
+        sink_tdel = {s: cfs[1] - driver_tdel for s, cfs in coeffs.items()}
+
+        # Compute sink capacitance. Since we have multiple edge timings that
+        # should yield the same capacitance, compute one for each timing and
+        # then choose the worst case (max).
+        sink_cs = {s: (cfs[0] / (FACTOR * driver_r) - sink_tdel[s]) for s, cfs in coeffs.items()}
+        sink_c = max(sink_cs.values())
+
+        # Sanity check
+        assert sink_c >= 0.0, (switchbox.type, sink, sink_c)
+
+        # Compute error of the delay model
+        for sink in sinks:
+
+            # Compute for this sink
+            error = {}
+            for n, true_delay in edge_timings[sink].items():
+                model_delay = driver_tdel + FACTOR * driver_r * sink_c * n + sink_tdel[sink]
+                error[n] = true_delay - model_delay
+
+            max_error = max([abs(e) for e in error.values()])
+
+            # Report the error
+            if max_error > ERROR_THRESHOLD:
+                print("WARNING: Error of the timing model of '{} {}' is too high:".format(switchbox.type, sink))
+                print("--------------------------------------------")
+                print("| # loads | actual   | model    | error    |")
+                print("|---------+----------+----------+----------|")
+
+                for n in edge_timings[sink].keys():
+                    print("| {:<8}| {:<9.3f}| {:<9.3f}| {:<9.3f}|".format(
+                        n,
+                        1e9 *  edge_timings[sink][n],
+                        1e9 * (edge_timings[sink][n] - error[n]),
+                        1e9 *  error[n]
+                        ))
+
+                print("--------------------------------------------")
+                print("")
+
+        # Store the data
+        driver_timing[driver] = Timing(
+            driver_r    = driver_r,
+            driver_tdel = driver_tdel,
+            sink_tdel   = {s: d for s, d in sink_tdel.items()},
+            sink_c      = sink_c
+        )
+
+    return driver_timing, sink_map
+
+
+def populate_switchbox_timing(switchbox, driver_timing, sink_map, vpr_switches):
+    """
+    Populates the switchbox timing model by annotating its muxes with the timing
+    data. Creates new VPR switches with required parameters or uses existing
+    ones if already created.
+    """
+
+    # Populate timing data to the switchbox
+    for driver, timing in driver_timing.items():
+
+        # Driver VPR switch
+        driver_vpr_switch = create_vpr_switch(
+            type = "mux",
+            tdel = timing.driver_tdel,
+            r    = timing.driver_r,
+            c    = 0.0,
+        )
+
+        driver_vpr_switch = add_named_item(
+            vpr_switches,
+            driver_vpr_switch,
+            driver_vpr_switch.name
+        )
+
+        # Annotate all driver's edges
+        for sink in sink_map[driver]:
+            stage_id, switch_id, mux_id, pin_id = sink
+
+            # Sink VPR switch
+            sink_vpr_switch = create_vpr_switch(
+                type = "mux",
+                tdel = timing.sink_tdel[sink],
+                r    = 0.0,
+                c    = timing.sink_c,
+            )
+
+            sink_vpr_switch = add_named_item(
+                vpr_switches,
+                sink_vpr_switch,
+                sink_vpr_switch.name
+            )
+
+            # Get the mux
+            stage  = switchbox.stages[stage_id]
+            switch = stage.switches[switch_id]
+            mux    = switch.muxes[mux_id]
+
+            assert pin_id not in mux.timing
+
+            mux.timing[pin_id] = MuxEdgeTiming(
+                driver = DriverTiming(
+                    tdel = timing.driver_tdel,
+                    r    = timing.driver_r,
+                    vpr_switch = driver_vpr_switch.name
+                ),
+                sink = SinkTiming(
+                    tdel = timing.sink_tdel,
+                    c    = timing.sink_c,
+                    vpr_switch = sink_vpr_switch.name
+                )
+            )
+
+
+def copy_switchbox_timing(src_switchbox, dst_switchbox):
+    """
+    Copies all timing information from the source switchbox to the destination
+    one.
+    """
+
+    # Mux timing
+    for dst_stage, dst_switch, dst_mux in yield_muxes(dst_switchbox):
+
+        src_stage  = src_switchbox.stages[dst_stage.id]
+        src_switch = src_stage.switches[dst_switch.id]
+        src_mux    = src_switch.muxes[dst_mux.id]
+
+        dst_mux.timing  = deepcopy(src_mux.timing)
