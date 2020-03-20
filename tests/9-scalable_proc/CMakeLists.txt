@@ -2,6 +2,7 @@ add_file_target(FILE simpleuart.v SCANNER_TYPE verilog)
 add_file_target(FILE scalable_proc.v SCANNER_TYPE verilog)
 add_file_target(FILE processing_unit.v SCANNER_TYPE verilog)
 add_file_target(FILE basys3.pcf)
+add_file_target(FILE basys3.sdc)
 
 get_target_property_required(PYTHON3 env PYTHON3)
 get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
@@ -42,6 +43,7 @@ function(SCALABLE_PROC)
     TOP_FILE
     BOARD
     INPUT_IO_FILE
+    INPUT_SDC_FILE
     ROM_STYLE
     MAX_PROC
 
@@ -83,7 +85,7 @@ function(SCALABLE_PROC)
      NAME ${TOP_NAME}
      BOARD ${SCALABLE_PROC_BOARD}
      INPUT_IO_FILE ${SCALABLE_PROC_INPUT_IO_FILE}
-     SDC_FILE ${symbiflow-arch-defs_SOURCE_DIR}/xc7/tests/common/basys3.sdc
+     SDC_FILE ${SCALABLE_PROC_INPUT_SDC_FILE}
      SOURCES
        ${ROM_FILE} processing_unit.v simpleuart.v scalable_proc.v
        ${VERILOG_TOP}
@@ -97,6 +99,7 @@ scalable_proc(
   TOP_FILE basys3_top.v
   BOARD basys3
   INPUT_IO_FILE basys3.pcf
+  INPUT_SDC_FILE basys3.sdc
   ROM_STYLE bram
   MAX_PROC 8
 )
@@ -105,6 +108,7 @@ scalable_proc(
   TOP_FILE basys3_top.v
   BOARD basys3
   INPUT_IO_FILE basys3.pcf
+  INPUT_SDC_FILE basys3.sdc
   ROM_STYLE bram36
   MAX_PROC 8
 )
@@ -113,6 +117,7 @@ scalable_proc(
   TOP_FILE basys3_top.v
   BOARD basys3
   INPUT_IO_FILE basys3.pcf
+  INPUT_SDC_FILE basys3.sdc
   ROM_STYLE dram
   MAX_PROC 3
 )

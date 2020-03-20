@@ -55,8 +55,8 @@ add_fpga_target(
     picorv32.v
     simpleuart.v
     progmem.v
-  SDC_FILE ${symbiflow-arch-defs_SOURCE_DIR}/xc7/tests/common/basys3.sdc
-  INPUT_IO_FILE ${symbiflow-arch-defs_SOURCE_DIR}/xc7/tests/common/basys3.pcf
+  SDC_FILE ${symbiflow-arch-defs_SOURCE_DIR}/xc/xc7/tests/common/basys3.sdc
+  INPUT_IO_FILE ${symbiflow-arch-defs_SOURCE_DIR}/xc/xc7/tests/common/basys3.pcf
   TESTBENCH_SOURCES basys3_demo_tb.v
   EXPLICIT_ADD_FILE_TARGET
 )
@@ -73,7 +73,7 @@ add_fpga_target(
     progmem.v
   # TODO: re-enable once https://github.com/SymbiFlow/vtr-verilog-to-routing/issues/367 is fixed
   #SDC_FILE basys3.sdc
-  INPUT_IO_FILE ${symbiflow-arch-defs_SOURCE_DIR}/xc7/tests/common/basys3.pcf
+  INPUT_IO_FILE ${symbiflow-arch-defs_SOURCE_DIR}/xc/xc7/tests/common/basys3.pcf
   EXPLICIT_ADD_FILE_TARGET
 )
 
