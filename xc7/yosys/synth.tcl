@@ -18,14 +18,13 @@ if { $::env(USE_ROI) == "TRUE" } {
     read_verilog -lib +/xilinx/cells_xtra.v
 
     # Overwrite some models (e.g. IBUF with more parameters)
-    read_verilog -lib $::env(symbiflow-arch-defs_SOURCE_DIR)/xc7/techmap/iobs.v
+    read_verilog -lib $::env(TECHMAP_PATH)/iobs.v
 
     hierarchy -check -auto-top
 
     # Start flow after library reading
     synth_xilinx -vpr -flatten -abc9 -nosrl -noclkbuf -nodsp -iopad -run prepare:check
 }
-
 if { [info exists ::env(INPUT_XDC_FILE)] && $::env(INPUT_XDC_FILE) != "" } {
   read_xdc -part_json $::env(PART_JSON) $::env(INPUT_XDC_FILE)
   write_fasm -part_json $::env(PART_JSON)  $::env(OUT_FASM_EXTRA)
@@ -34,8 +33,8 @@ if { [info exists ::env(INPUT_XDC_FILE)] && $::env(INPUT_XDC_FILE) != "" } {
 write_verilog $::env(OUT_SYNTH_V).premap.v
 
 # Map Xilinx tech library to 7-series VPR tech library.
-read_verilog -lib $::env(symbiflow-arch-defs_SOURCE_DIR)/xc7/techmap/cells_sim.v
-techmap -map  $::env(symbiflow-arch-defs_SOURCE_DIR)/xc7/techmap/cells_map.v
+read_verilog -lib $::env(TECHMAP_PATH)/cells_sim.v
+techmap -map  $::env(TECHMAP_PATH)/cells_map.v
 
 # opt_expr -undriven makes sure all nets are driven, if only by the $undef
 # net.
