@@ -1,0 +1,29 @@
+#!/bin/bash
+set -e
+
+MYPATH=`realpath $0`
+MYPATH=`dirname ${MYPATH}`
+
+source ${MYPATH}/env
+source ${MYPATH}/vpr_common
+
+parse_args $@
+
+if [ -z $PCF ]; then
+     echo "Please provide pcf file name"
+     exit 1
+fi
+
+if [ -z $NET ]; then
+     echo "Please provide net file name"
+     exit 1
+fi
+
+OUT_NOISY_WARNINGS=noisy_warnings-${DEVICE}_place.log
+
+echo "Generating coinstrains ..."
+generate_constraints $PCF $EBLIF $NET $PART $DEVICE $ARCH_DEF
+
+run_vpr --fix_pins constraints.place --place
+
+mv vpr_stdout.log place.log

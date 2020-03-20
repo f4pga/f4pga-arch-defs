@@ -119,6 +119,7 @@ function(DEFINE_ARCH)
     PROTOTYPE_PART
     YOSYS_SYNTH_SCRIPT
     YOSYS_CONV_SCRIPT
+    YOSYS_TECHMAP
     DEVICE_FULL_TEMPLATE
     BITSTREAM_EXTENSION
     BIN_EXTENSION
@@ -170,6 +171,7 @@ function(DEFINE_ARCH)
   set(OPTIONAL_ARGS
     PROTOTYPE_PART
     VPR_ARCH_ARGS
+    YOSYS_TECHMAP
     CELLS_SIM
     )
 
@@ -702,6 +704,12 @@ function(DEFINE_DEVICE)
       PACKAGE ${PACKAGE}
       PROG_TOOL false
       )
+
+    install_device_files(
+      PART ${PART}
+      DEVICE ${DEFINE_DEVICE_DEVICE}
+      DEVICE_TYPE ${DEFINE_DEVICE_DEVICE_TYPE}
+      PACKAGE ${PACKAGE})
   endforeach()
 endfunction()
 
@@ -1048,6 +1056,9 @@ function(ADD_FPGA_TARGET)
     if("${USE_ROI}" STREQUAL "NOTFOUND")
         set(USE_ROI FALSE)
     endif()
+    # TECHMAP is optional for ARCH. We don't care if this is NOTFOUND
+    # as targets not defining it should not use TECHMAP_PATH ENV variable
+    get_target_property(YOSYS_TECHMAP ${ARCH} YOSYS_TECHMAP)
 
     add_custom_command(
       OUTPUT ${OUT_JSON_SYNTH} ${OUT_SYNTH_V} ${OUT_FASM_EXTRA}
@@ -1058,7 +1069,7 @@ function(ADD_FPGA_TARGET)
         ${CMAKE_COMMAND} -E make_directory ${OUT_LOCAL}
       COMMAND
         ${CMAKE_COMMAND} -E env
-          symbiflow-arch-defs_SOURCE_DIR=${symbiflow-arch-defs_SOURCE_DIR}
+          TECHMAP_PATH=${YOSYS_TECHMAP}
           OUT_JSON=${OUT_JSON_SYNTH}
           OUT_SYNTH_V=${OUT_SYNTH_V}
           OUT_FASM_EXTRA=${OUT_FASM_EXTRA}

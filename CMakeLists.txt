@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.3)
+cmake_minimum_required(VERSION 3.12.4)
 project(symbiflow-arch-defs)
 enable_testing()
 
@@ -7,6 +7,7 @@ include(common/cmake/file_targets.cmake)
 include(common/cmake/env.cmake)
 include(common/cmake/xml.cmake)
 include(common/cmake/v2x.cmake)
+include(common/cmake/install.cmake)
 include(common/cmake/devices.cmake)
 include(common/cmake/tools.cmake)
 

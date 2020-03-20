@@ -1,0 +1,5 @@
+lxml
+simplejson
+intervaltree
+python-constraint
+git+https://github.com/symbiflow/fasm
