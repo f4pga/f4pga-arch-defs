@@ -1,6 +1,6 @@
 function(DEFINE_XC_TOOLCHAIN_TARGET)
   set(options)
-  set(oneValueArgs ARCH CONV_SCRIPT SYNTH_SCRIPT BIT_TO_BIN ROUTE_CHAN_WIDTH)
+  set(oneValueArgs ARCH PRJRAY_NAME CONV_SCRIPT SYNTH_SCRIPT BIT_TO_BIN ROUTE_CHAN_WIDTH)
   set(multiValueArgs VPR_ARCH_ARGS)
 
   cmake_parse_arguments(
@@ -34,7 +34,7 @@ function(DEFINE_XC_TOOLCHAIN_TARGET)
   set(TOOLCHAIN_WRAPPERS)
 
   foreach(WRAPPER ${WRAPPERS})
-    set(WRAPPER_PATH "${symbiflow-arch-defs_SOURCE_DIR}/xc7/toolchain_wrappers/${WRAPPER}")
+    set(WRAPPER_PATH "${symbiflow-arch-defs_SOURCE_DIR}/xc/${FAMILY}/toolchain_wrappers/${WRAPPER}")
     list(APPEND TOOLCHAIN_WRAPPERS ${WRAPPER_PATH})
   endforeach()
 
@@ -64,11 +64,11 @@ function(DEFINE_XC_TOOLCHAIN_TARGET)
           DESTINATION bin/python
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
-        install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/xc/${FAMILY}/utils/prjxray_create_ioplace.py
+        install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/prjxray_create_ioplace.py
           DESTINATION bin/python
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
-        install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/xc/${FAMILY}/utils/prjxray_create_place_constraints.py
+        install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/prjxray_create_place_constraints.py
           DESTINATION bin/python
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
@@ -88,7 +88,7 @@ function(DEFINE_XC_TOOLCHAIN_TARGET)
           DESTINATION bin/python/${PRJRAY_NAME})
 
   install(DIRECTORY ${PRJRAY_DIR}/utils
-          DESTINATION bin/python/prjxray)
+          DESTINATION bin/python/${PRJRAY_NAME})
 
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/lib/parse_pcf.py
           DESTINATION bin/python/lib)
