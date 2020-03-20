@@ -1126,10 +1126,6 @@ def populate_tile_connections(graph, switchbox_models, connections, connection_t
         # Connection to/from a foreign tile
         else:
 
-            # TODO: FIXME: Having those connection makes the VPR compute place
-            # delay take AGES!
-            continue
-
             # Get segment id and switch id
             segment_id = graph.get_segment_id_from_name("special")
             switch_id  = graph.get_delayless_switch_id()
@@ -1177,23 +1173,23 @@ def populate_tile_connections(graph, switchbox_models, connections, connection_t
 
                     # To switchbox
                     if ep == connection.dst:
+                        sbox_node = switchbox_model.get_input_node(ep.pin)
 
-                        # Add edges between the track node and switchbox mux inputs
-                        for sbox_node in switchbox_model.get_input_nodes(ep.pin):
-
-                            # Add a delayless edge
-                            connect(
-                                graph,
-                                dst_node,
-                                sbox_node,
-                            )
+                        connect(
+                            graph,
+                            dst_node,
+                            sbox_node
+                        )
 
                     # From switchbox
                     elif ep == connection.src:
+                        sbox_node = switchbox_model.get_output_node(ep.pin)
 
-                        # Create an output in the switchbox model. Don't create a new
-                        # node. Use the existing track node.
-                        sbox_node = switchbox_model.create_output(ep.pin, src_node)
+                        connect(
+                            graph,
+                            sbox_node,
+                            src_node
+                        )
 
 
 def populate_const_connections(graph, switchbox_models, const_node_map):
