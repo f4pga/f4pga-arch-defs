@@ -1,0 +1,5 @@
+project_ray_tile(
+  ARCH artix7
+  TILE CLBLM_L
+  SITE_TYPES SLICEM/SLICEM SLICEL/SLICEL2
+  )

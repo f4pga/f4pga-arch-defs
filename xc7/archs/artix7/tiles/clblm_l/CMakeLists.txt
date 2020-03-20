@@ -1,5 +1,0 @@
-project_xray_tile(
-  ARCH artix7
-  TILE CLBLM_L
-  SITE_TYPES SLICEM/SLICEM SLICEL/SLICEL2
-  )
