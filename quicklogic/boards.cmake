@@ -13,8 +13,8 @@ add_quicklogic_board(
 )
 
 add_quicklogic_board(
-  BOARD jimbo4
+  BOARD jimbob4
   DEVICE ql-pp3e
   PACKAGE wlcsp
-  FABRIC_PACKAGE PD64
+  FABRIC_PACKAGE WD30
 )
