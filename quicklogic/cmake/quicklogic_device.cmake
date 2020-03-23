@@ -33,9 +33,6 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   get_target_property_required(PYTHON3 env PYTHON3)
   get_target_property_required(PYTHON3_TARGET env PYTHON3_TARGET)
 
-  set(SDF_TIMING_DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/timings)
-  set(BELS_MAP ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/bels.json)
-
   set(PHY_DB_FILE "db_phy.pickle")
   set(VPR_DB_FILE "db_vpr.pickle")
   set(ARCH_XML "arch.xml")
@@ -97,21 +94,66 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   )
   add_file_target(FILE ${ARCH_XML} GENERATED)
 
+  # Generate SDF files with timing data
+
+  # TODO: Make source dir device type dependent
+  set(LIB_TIMING_DIR "${symbiflow-arch-defs_SOURCE_DIR}/third_party/${DEVICE}/Timing Data Files/")
+  set(SDF_TIMING_DIR "sdf")
+
+  get_target_property_required(QUICKLOGIC_TIMINGS_IMPORTER env QUICKLOGIC_TIMINGS_IMPORTER)
+  get_target_property_required(QUICKLOGIC_TIMINGS_IMPORTER_TARGET env QUICKLOGIC_TIMINGS_IMPORTER_TARGET)
+  
+  # TODO: How to handle different timing cases that depend on a cell config?
+  # For example BIDIR cells have different timings for different voltages.
+  #
+  # One idea is to have a different model for each in VPR.
+  #
+  # For now select the "commercial" temp. range, worst case, 1.2v core and
+  # 3.3v IO.
+  file(GLOB LIB_TIMING_FILES
+        "${LIB_TIMING_DIR}/*_COM_WC_120V.lib"
+        "${LIB_TIMING_DIR}/*_COM_WC_330V.lib"
+  )
+
+  set(SDF_FILE_TARGETS "")
+  foreach(LIB_TIMING_FILE ${LIB_TIMING_FILES})
+
+    get_filename_component(FILE_NAME ${LIB_TIMING_FILE} NAME)
+    get_filename_component(FILE_TITLE ${FILE_NAME} NAME_WE)
+
+    set(SDF_TIMING_FILE ${SDF_TIMING_DIR}/${FILE_TITLE}.sdf)
+
+    add_custom_command(
+      OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${SDF_TIMING_FILE}
+      COMMAND ${CMAKE_COMMAND} -E make_directory ${SDF_TIMING_DIR}
+      COMMAND ${QUICKLOGIC_TIMINGS_IMPORTER}
+        ${LIB_TIMING_FILE}
+        ${SDF_TIMING_FILE}
+      DEPENDS ${PYTHON3} ${PYTHON3_TARGET} ${QUICKLOGIC_TIMINGS_IMPORTER_TARGET} ${LIB_TIMING_FILE}
+    )
+
+    add_file_target(FILE ${SDF_TIMING_FILE} GENERATED)
+    append_file_dependency(SDF_FILE_TARGETS ${SDF_TIMING_FILE})
+
+  endforeach()
+
   # Timing import stuff
   set(UPDATE_ARCH_TIMINGS ${symbiflow-arch-defs_SOURCE_DIR}/utils/update_arch_timings.py)
   set(PYTHON_SDF_TIMING_DIR ${symbiflow-arch-defs_SOURCE_DIR}/third_party/python-sdf-timing)
   get_target_property(SDF_TIMING_TARGET env SDF_TIMING_TARGET)
 
+  set(BELS_MAP ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/bels.json)
+
   set(TIMING_IMPORT
     "${CMAKE_COMMAND} -E env PYTHONPATH=${PYTHON_SDF_TIMING_DIR}:$PYTHONPATH \
     ${PYTHON3} ${UPDATE_ARCH_TIMINGS} \
-        --sdf_dir ${SDF_TIMING_DIRECTORY} \
+        --sdf_dir ${SDF_TIMING_DIR} \
         --bels_map ${BELS_MAP} \
         --out_arch /dev/stdout \
         --input_arch /dev/stdin \
     ")
 
-  set(TIMING_DEPS ${SDF_TIMING_TARGET} sdf_timing)
+  set(TIMING_DEPS ${SDF_TIMING_TARGET} sdf_timing ${SDF_FILE_TARGETS})
 
   # Define the device type
   define_device_type(

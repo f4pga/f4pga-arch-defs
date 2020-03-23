@@ -1,6 +1,8 @@
 include(cmake/quicklogic_fasm.cmake)
 add_quicklogic_fasm_package()
 
+include(cmake/quicklogic_timings.cmake)
+
 add_custom_target(QL_CELLS_SIM_DEPS)
 
 include(cmake/cells_sim_gen.cmake)
@@ -16,7 +18,6 @@ include(cmake/quicklogic_jlink.cmake)
 
 set(SDF_TIMING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/timings)
 set(BELS_MAP ${CMAKE_CURRENT_SOURCE_DIR}/bels.json)
-
 
 get_target_property_required(PYTHON3 env PYTHON3)
 get_target_property_required(QLFASM env QLFASM)
