@@ -6,11 +6,12 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   #   PACKAGES <package> <package> ...
   #   [GRID_LIMIT <xmin>,<ymin>,<xmax>,<ymax>]
   #   PB_TYPES <pb_type> <pb_type> ...
+  #   TECHFILE_NAME <techfile name>
   #   ROUTING_TIMING_FILE_NAME <routing timing CSV file>
   #   )
   # ~~~
   set(options)
-  set(oneValueArgs DEVICE ARCH GRID_LIMIT ROUTING_TIMING_FILE_NAME)
+  set(oneValueArgs DEVICE ARCH GRID_LIMIT TECHFILE_NAME ROUTING_TIMING_FILE_NAME)
   set(multiValueArgs PACKAGES PB_TYPES)
   cmake_parse_arguments(
     QUICKLOGIC_DEFINE_DEVICE_TYPE
@@ -20,6 +21,7 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
     ${ARGN}
   )
 
+  set(TECHFILE_NAME ${QUICKLOGIC_DEFINE_DEVICE_TYPE_TECHFILE_NAME})
   set(DEVICE ${QUICKLOGIC_DEFINE_DEVICE_TYPE_DEVICE})
   set(ARCH ${QUICKLOGIC_DEFINE_DEVICE_TYPE_ARCH})
   set(GRID_LIMIT ${QUICKLOGIC_DEFINE_DEVICE_TYPE_GRID_LIMIT})
@@ -39,7 +41,7 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   set(ARCH_XML "arch.xml")
 
   # The techfile and routing timing file
-  set(TECHFILE "${symbiflow-arch-defs_SOURCE_DIR}/third_party/${DEVICE}/Device Architecture Files/QLAL4S3B.xml")
+  set(TECHFILE "${symbiflow-arch-defs_SOURCE_DIR}/third_party/${DEVICE}/Device Architecture Files/${TECHFILE_NAME}")
   set(ROUTING_TIMING "${symbiflow-arch-defs_SOURCE_DIR}/third_party/${DEVICE}/Timing Data Files/${ROUTING_TIMING_FILE_NAME}")
 
   # Import data from the techfile
