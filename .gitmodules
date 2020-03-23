@@ -73,3 +73,6 @@
 [submodule "third_party/ql-eos-s3"]
 	path = third_party/ql-eos-s3
 	url = https://github.com/antmicro/EOS-S3
+[submodule "third_party/ql-pp3e"]
+	path = third_party/ql-pp3e
+	url = https://github.com/QuickLogic-Corp/PolarPro3E.git
