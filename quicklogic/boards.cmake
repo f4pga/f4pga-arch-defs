@@ -11,3 +11,10 @@ add_quicklogic_board(
   PACKAGE wlcsp
   FABRIC_PACKAGE PU90
 )
+
+add_quicklogic_board(
+  BOARD jimbo4
+  DEVICE ql-pp3e
+  PACKAGE wlcsp
+  FABRIC_PACKAGE PD64
+)
