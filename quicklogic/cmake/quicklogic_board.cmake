@@ -1,7 +1,7 @@
 function(ADD_QUICKLOGIC_BOARD)
 
   set(options)
-  set(oneValueArgs BOARD DEVICE PACKAGE)
+  set(oneValueArgs BOARD DEVICE PACKAGE FABRIC_PACKAGE)
   set(multiValueArgs)
   cmake_parse_arguments(
      ADD_QUICKLOGIC_BOARD
@@ -41,7 +41,8 @@ function(ADD_QUICKLOGIC_BOARD)
   add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
     COMMAND ${PYTHON3} ${CREATE_PINMAP_CSV}
-      -o $ ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
+      -o ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
+      --package ${ADD_QUICKLOGIC_BOARD_FABRIC_PACKAGE}
       --db ${VPR_DB_FILE_LOC}
     DEPENDS ${PINMAP_CSV_DEPS}
   )
