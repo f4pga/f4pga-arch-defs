@@ -95,8 +95,6 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   add_file_target(FILE ${ARCH_XML} GENERATED)
 
   # Generate SDF files with timing data
-
-  # TODO: Make source dir device type dependent
   set(LIB_TIMING_DIR "${symbiflow-arch-defs_SOURCE_DIR}/third_party/${DEVICE}/Timing Data Files/")
   set(SDF_TIMING_DIR "sdf")
 
@@ -153,7 +151,7 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
         --input_arch /dev/stdin \
     ")
 
-  set(TIMING_DEPS ${SDF_TIMING_TARGET} sdf_timing ${SDF_FILE_TARGETS})
+  set(TIMING_DEPS ${SDF_TIMING_TARGET} sdf_timing ${SDF_FILE_TARGETS} ${BELS_MAP})
 
   # Define the device type
   define_device_type(
