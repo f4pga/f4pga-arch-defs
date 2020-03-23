@@ -1,8 +1,12 @@
 {
-    "TEST_CELL": {
-        "mux0": {
-            "TEST_CELL":
-                ["SELMUX2_1.TEST_CELL/mux0"]
+    "BIDIR": {
+        "bidir_buf": {
+            "INPUT":
+                ["BIDIR3_ESEL_EQ_1_DS_EQ_1.BIDIR3", "BIDIR3_OSEL_EQ_1_IE_EQ_1_DS_EQ_1.BIDIR3", "BIDIR3_IE_EQ_0_INEN_EQ_1.BIDIR3"],
+            "OUTPUT":
+                ["BIDIR3_ESEL_EQ_1_DS_EQ_1.BIDIR3", "BIDIR3_OSEL_EQ_1_IE_EQ_1_DS_EQ_1.BIDIR3", "BIDIR3_IE_EQ_0_INEN_EQ_1.BIDIR3"],
+            "INPUT":
+                ["BIDIR3_ESEL_EQ_1_DS_EQ_1.BIDIR3", "BIDIR3_OSEL_EQ_1_IE_EQ_1_DS_EQ_1.BIDIR3", "BIDIR3_IE_EQ_0_INEN_EQ_1.BIDIR3"]
         }
     },
     "LOGIC": {
