@@ -20,7 +20,9 @@ before_install:
 
 install:
  - stdbuf -i0 -o0 -e0 ./.github/travis/install.sh
-
+ - wget https://cmake.org/files/v3.14/cmake-3.14.0-Linux-x86_64.tar.gz
+ - tar -xf cmake-3.14.0-Linux-x86_64.tar.gz
+ - export PATH=`realpath cmake-3.14.0-Linux-x86_64/bin`:$PATH
 script:
   # ping stdout every 9 minutes or Travis kills build
   # https://docs.travis-ci.com/user/common-build-problems/#Build-times-out-because-no-output-was-received
