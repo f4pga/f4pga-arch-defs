@@ -5,6 +5,8 @@ set -e
 
 $SPACER
 
+which cmake
+
 start_section "symbiflow.configure_cmake" "Configuring CMake (make env)"
 make env
 cd build
