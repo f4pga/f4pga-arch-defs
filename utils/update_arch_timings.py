@@ -114,6 +114,37 @@ def find_timings(timings, bel, location, site, bels, corner, speed_type):
        the selected `bel` in `location` and `site`. If timings
        are not found, empty dict is returned"""
 
+
+    def get_timing(cell, delay, corner, speed_type):
+        """
+        Gets timing for a particular cornet case. If not fount then chooses
+        the next best one.
+        """
+        entries = cell[delay]['delay_paths'][corner.lower()]
+        entry = entries.get(speed_type, None)
+
+        if speed_type == 'min':
+            if entry is None:
+                entry = entries.get('avg', None)
+            if entry is None:
+                entry = entries.get('max', None)
+
+        elif speed_type == 'avg':
+            if entry is None:
+                entry = entries.get('max', None)
+            if entry is None:
+                entry = entries.get('min', None)
+
+        elif speed_type == 'max':
+            if entry is None:
+                entry = entries.get('avg', None)
+            if entry is None:
+                entry = entries.get('min', None)
+
+        assert entry is not None, (delay, corner, speed_type)
+        return entry
+
+
     # Get cells, reverse the list so former timings will be overwritten by
     # latter ones.
     cells = get_cell_types_and_instances(bel, location, site, bels)
@@ -131,9 +162,13 @@ def find_timings(timings, bel, location, site, bels, corner, speed_type):
     bel_timings = dict()
     for delay in cell:
         if cell[delay]['is_absolute']:
-            entry = cell[delay]['delay_paths'][corner.lower()][speed_type]
+            entry = get_timing(cell, delay, corner.lower(), speed_type)
         elif cell[delay]['is_timing_check']:
-            entry = cell[delay]['delay_paths']['nominal'][speed_type]
+            if cell[delay]['type'] == "setuphold":
+                # 'setup' and 'hold' are identical
+                entry = get_timing(cell, delay, 'setup', speed_type)
+            else:
+                entry = get_timing(cell, delay, 'nominal', speed_type)
         bel_timings[delay] = float(entry) * get_scale_seconds('1 ns')
 
     return bel_timings
@@ -197,7 +232,12 @@ def main():
         if not f.endswith('.sdf'):
             continue
         with open(args.sdf_dir + '/' + f, 'r') as fp:
-            tmp = sdfparse.parse(fp.read())
+            try:
+                tmp = sdfparse.parse(fp.read())
+            except Exception as ex:
+                print("{}:".format(args.sdf_dir + '/' + f), file=sys.stderr)
+                print(repr(ex), file=sys.stderr)
+                raise
             mergedicts(tmp, timings)
 
     if DEBUG:
