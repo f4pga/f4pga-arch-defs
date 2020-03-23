@@ -176,6 +176,10 @@ def load_other_cells(xml_placement, cellgrid, cells_library):
         if xml.tag == "Cell":
             cell_name = xml.get("name")
             cell_type = xml.get("type")        
+            import sys
+            if cell_type == "CLOCK":
+                print("Skipping cell_name", cell_name, file=sys.stderr)
+                continue
 
             assert cell_type in cells_library, (cell_type, cell_name,)
 
@@ -960,8 +964,11 @@ def parse_bidir_pinmap(xml_root, tile_grid):
             # Parse cells
             for xml_cell in xml_pin.findall("cell"):
                 cell_name = xml_cell.attrib["name"]
+                cell_loc = get_loc_of_cell(cell_name, tile_grid)
+                if cell_loc is None:
+                    continue
                 cell_names.append(cell_name)
-                cell_locs.append(get_loc_of_cell(cell_name, tile_grid))
+                cell_locs.append(cell_loc)
 
             # Cannot be more than one loc
             assert len(set(cell_locs)) == 1, (pkg_name, pin_name, cell_names, cell_locs)
@@ -1034,10 +1041,11 @@ def import_data(xml_root):
 
     # Get the "DeviceWireMappingTable" section
     xml_wiremap = xml_routing.find("DeviceWireMappingTable")
-    assert xml_wiremap is not None
+    #assert xml_wiremap is not None
 
-    # Import wire mapping
-    wire_maps = parse_wire_mapping_table(xml_wiremap, switchbox_grid, switchbox_types)
+    if xml_wiremap is not None:
+        # Import wire mapping
+        wire_maps = parse_wire_mapping_table(xml_wiremap, switchbox_grid, switchbox_types)
 
     # Get the "DevicePortMappingTable" section
     xml_portmap = xml_routing.find("DevicePortMappingTable")
@@ -1046,8 +1054,9 @@ def import_data(xml_root):
     # Import switchbox port mapping
     port_maps = parse_port_mapping_table(xml_portmap, switchbox_grid)
 
-    # Specialize switchboxes with wire maps
-    specialize_switchboxes_with_wire_maps(switchbox_types, switchbox_grid, port_maps, wire_maps)
+    if xml_wiremap is not None:
+        # Specialize switchboxes with wire maps
+        specialize_switchboxes_with_wire_maps(switchbox_types, switchbox_grid, port_maps, wire_maps)
 
     # Specialize switchboxes with local port maps
     specialize_switchboxes_with_port_maps(switchbox_types, switchbox_grid, port_maps)
