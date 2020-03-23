@@ -4,20 +4,33 @@ module Q_FRAG(QCK, QST, QRT, QEN, QDI, QDS, CZI, QZ);
     (* CLOCK *)
     input  wire QCK;
 
-	(* SETUP="QCK 1e-11" *) (* NO_COMB *)
+    // Cannot model timing, VPR currently does not support async SET/RESET
+	(* SETUP="QCK 1e-10" *) (* NO_COMB *)
     input  wire QST;
-	(* SETUP="QCK 1e-11" *) (* NO_COMB *)
+
+    // Cannot model timing, VPR currently does not support async SET/RESET
+	(* SETUP="QCK 1e-10" *) (* NO_COMB *)
     input  wire QRT;
-	(* SETUP="QCK 1e-11" *) (* NO_COMB *)
+
+    // No timing for QEN -> QZ in LIB/SDF
+	(* SETUP="QCK 1e-10" *) (* NO_COMB *)
     input  wire QEN;
-	(* SETUP="QCK 1e-11" *) (* NO_COMB *)
+
+	(* SETUP="QCK {setup_QCK_QDI}" *) (* NO_COMB *)
+	(* HOLD="QCK {hold_QCK_QDI}" *) (* NO_COMB *)
     input  wire QDI;
-	(* SETUP="QCK 1e-11" *) (* NO_COMB *)
+
+	(* SETUP="QCK {setup_QCK_QDS}" *) (* NO_COMB *)
+	(* HOLD="QCK {hold_QCK_QDS}" *) (* NO_COMB *)
     input  wire QDS;
-	(* SETUP="QCK 1e-11" *) (* NO_COMB *)
+
+    // There is no setup/hold for CZI -> QZ. Instead there are setup/hold
+    // constraints for other LOGIC inputs. Use the same timing as for QDI
+	(* SETUP="QCK {setup_QCK_QDI}" *) (* NO_COMB *)
+	(* HOLD="QCK {hold_QCK_QDI}" *) (* NO_COMB *)
     input  wire CZI;
 
-	(* CLK_TO_Q = "QCK 1e-11" *)
+	(* CLK_TO_Q = "QCK {setuphold_QCK_QZ}" *)
     output reg  QZ;
 
     // Parameters

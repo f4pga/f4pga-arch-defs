@@ -19,27 +19,31 @@ module C_FRAG (TBS, TAB, TSL, TA1, TA2, TB1, TB2, BAB, BSL, BA1, BA2, BB1, BB2, 
     input  wire BB1;
     input  wire BB2;
 
-    (* DELAY_CONST_TAB="1e-11" *)
-    (* DELAY_CONST_TSL="1e-11" *)
-    (* DELAY_CONST_TA1="1e-11" *)
-    (* DELAY_CONST_TA2="1e-11" *)
-    (* DELAY_CONST_TB1="1e-11" *)
-    (* DELAY_CONST_TB2="1e-11" *)
+    // These timings differ whether an input inverter is on or off. To model
+    // this in VPR it would require a different pb_type for each combination
+    // of inverter configurations! So here we take the worst timing. See
+    // bels.json for where these are taken from.
+    (* DELAY_CONST_TAB="{iopath_TAB_TZ}" *)
+    (* DELAY_CONST_TSL="{iopath_TSL_TZ}" *)
+    (* DELAY_CONST_TA1="{iopath_TA1_TZ}" *)
+    (* DELAY_CONST_TA2="{iopath_TA2_TZ}" *)
+    (* DELAY_CONST_TB1="{iopath_TB1_TZ}" *)
+    (* DELAY_CONST_TB2="{iopath_TB2_TZ}" *)
     output wire TZ;
 
-    (* DELAY_CONST_TBS="1e-11" *)
-    (* DELAY_CONST_TAB="1e-11" *)
-    (* DELAY_CONST_TSL="1e-11" *)
-    (* DELAY_CONST_TA1="1e-11" *)
-    (* DELAY_CONST_TA2="1e-11" *)
-    (* DELAY_CONST_TB1="1e-11" *)
-    (* DELAY_CONST_TB2="1e-11" *)
-    (* DELAY_CONST_BAB="1e-11" *)
-    (* DELAY_CONST_BSL="1e-11" *)
-    (* DELAY_CONST_BA1="1e-11" *)
-    (* DELAY_CONST_BA2="1e-11" *)
-    (* DELAY_CONST_BB1="1e-11" *)
-    (* DELAY_CONST_BB2="1e-11" *)
+    (* DELAY_CONST_TBS="{iopath_TBS_CZ}" *)
+    (* DELAY_CONST_TAB="{iopath_TAB_CZ}" *)
+    (* DELAY_CONST_TSL="{iopath_TSL_CZ}" *)
+    (* DELAY_CONST_TA1="{iopath_TA1_CZ}" *)
+    (* DELAY_CONST_TA2="{iopath_TA2_CZ}" *)
+    (* DELAY_CONST_TB1="{iopath_TB1_CZ}" *)
+    (* DELAY_CONST_TB2="{iopath_TB2_CZ}" *)
+    (* DELAY_CONST_BAB="{iopath_BAB_CZ}" *)
+    (* DELAY_CONST_BSL="{iopath_BSL_CZ}" *)
+    (* DELAY_CONST_BA1="{iopath_BA1_CZ}" *)
+    (* DELAY_CONST_BA2="{iopath_BA2_CZ}" *)
+    (* DELAY_CONST_BB1="{iopath_BB1_CZ}" *)
+    (* DELAY_CONST_BB2="{iopath_BB2_CZ}" *)
     output wire CZ;
 
     // Control parameters

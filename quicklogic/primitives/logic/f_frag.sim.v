@@ -4,9 +4,9 @@ module F_FRAG (F1, F2, FS, FZ);
     input  wire F2;
     input  wire FS;
 
-    (* DELAY_CONST_F1="1e-11" *)
-    (* DELAY_CONST_F2="1e-11" *)
-    (* DELAY_CONST_FS="1e-11" *)
+    (* DELAY_CONST_F1="{iopath_F1_FZ}" *)
+    (* DELAY_CONST_F2="{iopath_F2_FZ}" *)
+    (* DELAY_CONST_FS="{iopath_FS_FZ}" *)
     output wire FZ;
 
     // The F-mux
