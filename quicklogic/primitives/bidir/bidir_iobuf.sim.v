@@ -10,12 +10,12 @@ module BIDIR_IOBUF(
     input  wire O_DAT;
     input  wire O_EN;
 
-    (* DELAY_CONST_I_PAD="1e-11" *)
-    (* DELAY_CONST_I_EN="1e-11" *)
+    (* DELAY_CONST_I_PAD="{iopath_IP_IZ}" *)
+    (* DELAY_CONST_I_EN="1e-10" *)  // No timing for INEN -> IZ in LIB/SDF.
     output wire I_DAT;
 
-    (* DELAY_CONST_O_DAT="1e-11" *)
-    (* DELAY_CONST_O_EN="1e-11" *)
+    (* DELAY_CONST_O_DAT="{iopath_IE_IP}" *)
+    (* DELAY_CONST_O_EN="{iopath_OQI_IP}" *)
     output wire O_PAD;
 
     parameter [0:0] ESEL    = 0;
