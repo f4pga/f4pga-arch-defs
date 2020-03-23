@@ -199,6 +199,7 @@ CREATE TABLE switch(
 CREATE TABLE segment(
     pkey INTEGER PRIMARY KEY,
     name TEXT,
+    multiplier INT,
     length INT
 );
 
