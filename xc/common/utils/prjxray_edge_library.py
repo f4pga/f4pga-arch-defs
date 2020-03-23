@@ -670,6 +670,7 @@ AND
             pip,
             src_wire_pkey=None,
             dest_wire_pkey=None,
+            is_fake_connection=False
     ):
         """ Connect two Connector objects at a location within the grid.
 
@@ -700,8 +701,13 @@ AND
 
             switch_pkey = pip.get_pip_switch(src_wire_pkey, dest_wire_pkey)
 
-            yield graph_nodes[idx1], switch_pkey, other_graph_nodes[
-                idx2], pip.pip_pkey
+            if is_fake_connection:
+                pip_pkey = None
+            else:
+                pip_pkey = pip.pip_pkey
+
+            yield graph_nodes[idx1], switch_pkey, other_graph_nodes[idx2
+                                                                    ], pip_pkey
             return
         elif self.pins and other_connector.tracks:
             assert self.pins.site_pin_direction == SitePinDirection.OUT
@@ -1020,16 +1026,26 @@ def create_get_tile_loc(conn):
 
 
 def yield_edges(
-        const_connectors, delayless_switch, phy_tile_pkey, src_connector,
-        sink_connector, pip, pip_obj, src_wire_pkey, sink_wire_pkey, loc,
-        forward
+        const_connectors,
+        delayless_switch,
+        phy_tile_pkey,
+        src_connector,
+        sink_connector,
+        pip,
+        pip_obj,
+        src_wire_pkey,
+        sink_wire_pkey,
+        loc,
+        forward,
+        is_fake_connection=False
 ):
     if forward:
         for (src_graph_node_pkey, switch_pkey, dest_graph_node_pkey,
              pip_pkey) in src_connector.connect_at(
                  pip=pip_obj, src_wire_pkey=src_wire_pkey,
                  dest_wire_pkey=sink_wire_pkey, loc=loc,
-                 other_connector=sink_connector):
+                 other_connector=sink_connector,
+                 is_fake_connection=is_fake_connection):
             assert switch_pkey is not None, (
                 pip, src_graph_node_pkey, dest_graph_node_pkey, phy_tile_pkey,
                 pip_pkey
@@ -1044,7 +1060,8 @@ def yield_edges(
              pip_pkey) in sink_connector.connect_at(
                  pip=pip_obj, src_wire_pkey=sink_wire_pkey,
                  dest_wire_pkey=src_wire_pkey, loc=loc,
-                 other_connector=src_connector):
+                 other_connector=src_connector,
+                 is_fake_connection=is_fake_connection):
             assert switch_pkey is not None, (
                 pip, src_graph_node_pkey, dest_graph_node_pkey, phy_tile_pkey,
                 pip_pkey
@@ -1060,7 +1077,8 @@ def yield_edges(
             for (src_graph_node_pkey, switch_pkey, dest_graph_node_pkey
                  ) in const_connectors[constant_src].connect_at(
                      pip=delayless_switch, loc=loc,
-                     other_connector=sink_connector):
+                     other_connector=sink_connector,
+                     is_fake_connection=is_fake_connection):
                 assert switch_pkey is not None, (
                     pip, src_graph_node_pkey, dest_graph_node_pkey,
                     phy_tile_pkey, pip_pkey
@@ -1074,7 +1092,7 @@ def yield_edges(
 def make_connection(
         conn, input_only_nodes, output_only_nodes, find_wire, find_pip,
         find_connector, get_tile_loc, tile_name, tile_type, pip,
-        delayless_switch, const_connectors, forward
+        delayless_switch, const_connectors, forward, split_edge
 ):
     """ Attempt to connect graph nodes on either side of a pip.
 
@@ -1123,6 +1141,10 @@ def make_connection(
     if sink_node_pkey in output_only_nodes:
         return
 
+    pip_obj = find_pip(tile_type, pip.name)
+
+    loc = get_tile_loc(tile_pkey)
+
     src_connector = find_connector(src_wire_pkey, src_node_pkey)
     if src_connector is None:
         return
@@ -1131,21 +1153,129 @@ def make_connection(
     if sink_connector is None:
         return
 
-    pip_obj = find_pip(tile_type, pip.name)
+    if split_edge:
+        new_node_pkey, new_wire_pkey = add_fake_node(
+            conn, src_wire_pkey, src_node_pkey
+        )
+
+        new_connector = find_connector(new_wire_pkey, new_node_pkey)
+        assert new_connector is not None
 
     # Generally pseudo-pips are skipped, with the exception for BUFHCE related pips,
     # for which we want to create a routing path to have VPR route thorugh these pips.
     assert not pip_obj.is_pseudo or "CLK_HROW_CK" in pip.name
 
-    loc = get_tile_loc(tile_pkey)
+    if split_edge:
+        # Sink and source wires are kept as the original ones to preserve the
+        # original switch to be used.
+        for edge in yield_edges(
+                const_connectors=const_connectors,
+                delayless_switch=delayless_switch, phy_tile_pkey=phy_tile_pkey,
+                src_connector=src_connector, sink_connector=new_connector,
+                pip=pip, pip_obj=pip_obj, src_wire_pkey=src_wire_pkey,
+                sink_wire_pkey=sink_wire_pkey, loc=loc, forward=forward):
+            yield edge
 
-    for edge in yield_edges(
-            const_connectors=const_connectors,
-            delayless_switch=delayless_switch, phy_tile_pkey=phy_tile_pkey,
-            src_connector=src_connector, sink_connector=sink_connector,
-            pip=pip, pip_obj=pip_obj, src_wire_pkey=src_wire_pkey,
-            sink_wire_pkey=sink_wire_pkey, loc=loc, forward=forward):
-        yield edge
+        # One of the two edges generated needs to be associated with a delayless
+        # switch as the edge represents a fake connection.
+        for edge in yield_edges(
+                const_connectors=const_connectors,
+                delayless_switch=delayless_switch, phy_tile_pkey=phy_tile_pkey,
+                src_connector=new_connector, sink_connector=sink_connector,
+                pip=pip, pip_obj=delayless_switch, src_wire_pkey=None,
+                sink_wire_pkey=None, loc=loc, forward=forward,
+                is_fake_connection=True):
+            yield edge
+    else:
+        for edge in yield_edges(
+                const_connectors=const_connectors,
+                delayless_switch=delayless_switch, phy_tile_pkey=phy_tile_pkey,
+                src_connector=src_connector, sink_connector=sink_connector,
+                pip=pip, pip_obj=pip_obj, src_wire_pkey=src_wire_pkey,
+                sink_wire_pkey=sink_wire_pkey, loc=loc, forward=forward):
+            yield edge
+
+
+def add_fake_node(conn, wire_pkey, node_pkey):
+    """ Adds a fake node to allow the split those segments which need to
+    have a special segment with a non-default base cost multiplier
+
+    This operation is needed where a specific path is required to be more or less
+    desirable during routing and lookahead generation.
+
+    The split of an edge requires the following:
+        - addition of a node with a reference to required special segment;
+        - addition of a new edge connecting the new node to the original
+          destination node.
+    """
+    cur = conn.cursor()
+    write_cur = conn.cursor()
+
+    write_cur.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
+
+    cur.execute(
+        """
+SELECT classification, track_pkey FROM node WHERE pkey = ?""", (node_pkey, )
+    )
+
+    classification, track_pkey = cur.fetchone()
+
+    cur.execute(
+        """
+SELECT pkey FROM segment WHERE name = ?""", ("MULTIPLY_COST_SEGMENT", )
+    )
+
+    segment_pkey = cur.fetchone()[0]
+
+    cur.execute(
+        """
+SELECT canon_phy_tile_pkey FROM track WHERE pkey = ?""", (track_pkey, )
+    )
+
+    canon_phy_tile_pkey = cur.fetchone()[0]
+
+    write_cur.execute(
+        """
+INSERT INTO track(segment_pkey, canon_phy_tile_pkey) VALUES (?, ?)""", (
+            segment_pkey,
+            canon_phy_tile_pkey,
+        )
+    )
+
+    track_pkey = write_cur.lastrowid
+
+    write_cur.execute(
+        """
+INSERT INTO node(classification, track_pkey, number_pips) VALUES(?, ?, 0)""", (
+            classification,
+            track_pkey,
+        )
+    )
+
+    fake_node_pkey = write_cur.lastrowid
+
+    for graph_node_type, x_low, x_high, y_low, y_high, ptc, capacity in cur.execute(
+            """
+SELECT graph_node_type, x_low, x_high, y_low, y_high, ptc, capacity
+FROM graph_node
+WHERE node_pkey = ?""", (node_pkey, )):
+        # Duplicate graph nodes
+        write_cur.execute(
+            """
+INSERT INTO graph_node(
+    graph_node_type, track_pkey, node_pkey,
+    x_low, x_high, y_low, y_high, ptc, capacity, capacitance, resistance
+)
+VALUES
+    (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""", (
+                graph_node_type, track_pkey, fake_node_pkey, x_low, x_high,
+                y_low, y_high, ptc, capacity, 0, 0
+            )
+        )
+
+    write_cur.execute("""COMMIT TRANSACTION;""")
+
+    return fake_node_pkey, None
 
 
 def mark_track_liveness(conn, input_only_nodes, output_only_nodes):
@@ -2129,6 +2259,14 @@ def create_and_insert_edges(
             if "PS72_" in pip.net_to or "PS72_" in pip.net_from:
                 continue
 
+            # Mark connections that need an edge split
+            CK_IN = 'HCLK_CMT_CK_BUFHCLK' in pip.net_from and 'HCLK_CMT_CK_IN' in pip.net_to
+            MUX_CLK = 'HCLK_CMT_CK_BUFHCLK' in pip.net_from and 'HCLK_CMT_MUX_CLK_' in pip.net_to
+            CLK_GFAN = 'GCLK' in pip.net_from and 'GFAN' in pip.net_to
+            split_edge = False
+            if CK_IN or MUX_CLK or CLK_GFAN:
+                split_edge = True
+
             connections = make_connection(
                 conn=conn,
                 input_only_nodes=input_only_nodes,
@@ -2143,6 +2281,7 @@ def create_and_insert_edges(
                 delayless_switch=delayless_switch,
                 const_connectors=const_connectors,
                 forward=forward,
+                split_edge=split_edge,
             )
 
             if connections:

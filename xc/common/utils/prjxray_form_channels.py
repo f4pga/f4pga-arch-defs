@@ -53,6 +53,9 @@ SINGLE_PRECISION_FLOAT_MIN = 2**-126
 VCC_NET = 'VCC_NET'
 GND_NET = 'GND_NET'
 
+# Default base cost multiplier used in segments
+DEFAULT_BASE_COST_MULT = 1
+
 
 def import_site_type(db, write_cur, site_types, site_type_name):
     assert site_type_name not in site_types
@@ -2248,15 +2251,26 @@ def import_segments(conn, db):
         if extra_segment not in segments.get_segments():
             write_cur.execute(
                 """
-INSERT INTO segment(name) VALUES (?)
-            """, (extra_segment, )
+INSERT INTO segment(name, multiplier) VALUES (?, ?)
+            """, (extra_segment, DEFAULT_BASE_COST_MULT)
+            )
+
+    base_cost_mult_segments = [('MULTIPLY_COST_SEGMENT', 10)]
+    # Add some additional segments that have a non-default base cost multiplier
+    # (e.g. segments related to nodes that need to have their base cost fine-tuned)
+    for extra_segment, multiplier in base_cost_mult_segments:
+        if extra_segment not in segments.get_segments():
+            write_cur.execute(
+                """
+INSERT INTO segment(name, multiplier) VALUES (?, ?)
+            """, (extra_segment, multiplier)
             )
 
     for segment in segments.get_segments():
         write_cur.execute(
             """
-INSERT INTO segment(name) VALUES (?)
-            """, (segment, )
+INSERT INTO segment(name, multiplier) VALUES (?, ?)
+            """, (segment, DEFAULT_BASE_COST_MULT)
         )
 
     write_cur.execute("CREATE INDEX segment_name_map ON segment(name);")
