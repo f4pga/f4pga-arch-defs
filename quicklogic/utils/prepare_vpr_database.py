@@ -90,18 +90,18 @@ def process_tilegrid(tile_types, tile_grid, grid_limit=None):
     # Find the ASSP tile. There are multiple tiles that contain the ASSP cell
     # but in fact there is only one ASSP cell for the whole FPGA which is
     # "distributed" along top and left edge of the grid.
-    assert "ASSP" in tile_types
+    if "ASSP" in tile_types:
 
-    # Place the ASSP tile
-    assp_loc = Loc(x=0, y=0)
-    if assp_loc in new_tile_grid:
-        assert new_tile_grid[assp_loc] is None, ("ASSP", assp_loc)
+        # Place the ASSP tile
+        assp_loc = Loc(x=0, y=0)
+        if assp_loc in new_tile_grid:
+            assert new_tile_grid[assp_loc] is None, ("ASSP", assp_loc)
 
-    new_tile_grid[assp_loc] = Tile(
-        type = "ASSP",
-        name = "ASSP",
-        cell_names = {"ASSP": "ASSP0"}
-    )
+        new_tile_grid[assp_loc] = Tile(
+            type = "ASSP",
+            name = "ASSP",
+            cell_names = {"ASSP": "ASSP0"}
+        )
 
     # Insert synthetic VCC and GND source tiles.
     # FIXME: This assumes that the locations specified are empty!
