@@ -538,11 +538,11 @@ VALUES (?, ?, ?)""", (
         # tile: pkey name tile_type_pkey grid_x grid_y
         write_cur.execute(
             """
-INSERT INTO phy_tile(name, tile_type_pkey, grid_x, grid_y, clock_region_pkey)
+INSERT INTO phy_tile(name, tile_type_pkey, grid_x, grid_y, clock_region_pkey, prohibited)
 VALUES
-  (?, ?, ?, ?, ?)""", (
+  (?, ?, ?, ?, ?, ?)""", (
                 tile, tile_types[gridinfo.tile_type], loc.grid_x, loc.grid_y,
-                clock_region_pkey
+                clock_region_pkey, len(gridinfo.prohibited_sites) > 0,
             )
         )
         phy_tile_pkey = write_cur.lastrowid
