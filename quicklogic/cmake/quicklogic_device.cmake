@@ -106,11 +106,10 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   #
   # One idea is to have a different model for each in VPR.
   #
-  # For now select the "commercial" temp. range, worst case, 1.2v core and
-  # 3.3v IO.
+  # For now only files with the worst case scenario timings are taken.
   file(GLOB LIB_TIMING_FILES
-        "${LIB_TIMING_DIR}/*_COM_WC_120V.lib"
-        "${LIB_TIMING_DIR}/*_COM_WC_330V.lib"
+        "${LIB_TIMING_DIR}/*_ss_0p990v_m040c.lib"
+        "${LIB_TIMING_DIR}/*_ss_0p990v_m040c_Cmax_2P97V.lib"
   )
 
   set(SDF_FILE_TARGETS "")
