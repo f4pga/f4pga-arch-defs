@@ -81,6 +81,7 @@ CREATE TABLE phy_tile(
   grid_x INT,
   grid_y INT,
   clock_region_pkey INT,
+  prohibited INT,
   FOREIGN KEY(tile_type_pkey) REFERENCES tile_type(pkey),
   FOREIGN KEY(clock_region_pkey) REFERENCES clock_region(pkey)
 );
