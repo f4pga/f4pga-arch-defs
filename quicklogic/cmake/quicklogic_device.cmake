@@ -6,10 +6,11 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   #   PACKAGES <package> <package> ...
   #   [GRID_LIMIT <xmin>,<ymin>,<xmax>,<ymax>]
   #   PB_TYPES <pb_type> <pb_type> ...
+  #   ROUTING_TIMING_FILE_NAME <routing timing CSV file>
   #   )
   # ~~~
   set(options)
-  set(oneValueArgs DEVICE ARCH GRID_LIMIT)
+  set(oneValueArgs DEVICE ARCH GRID_LIMIT ROUTING_TIMING_FILE_NAME)
   set(multiValueArgs PACKAGES PB_TYPES)
   cmake_parse_arguments(
     QUICKLOGIC_DEFINE_DEVICE_TYPE
@@ -23,6 +24,7 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   set(ARCH ${QUICKLOGIC_DEFINE_DEVICE_TYPE_ARCH})
   set(GRID_LIMIT ${QUICKLOGIC_DEFINE_DEVICE_TYPE_GRID_LIMIT})
   set(PB_TYPES ${QUICKLOGIC_DEFINE_DEVICE_TYPE_PB_TYPES})
+  set(ROUTING_TIMING_FILE_NAME ${QUICKLOGIC_DEFINE_DEVICE_TYPE_ROUTING_TIMING_FILE_NAME})
 
   set(DEVICE_TYPE ${DEVICE}-virt)
 
@@ -37,8 +39,8 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   set(ARCH_XML "arch.xml")
 
   # The techfile and routing timing file
-  set(TECHFILE "${symbiflow-arch-defs_SOURCE_DIR}/third_party/ql-eos-s3/Device Architecture Files/QLAL4S3B.xml")
-  set(ROUTING_TIMING "${symbiflow-arch-defs_SOURCE_DIR}/third_party/ql-eos-s3/Timing Data Files/qlal4s3b_RoutingDelays.csv")
+  set(TECHFILE "${symbiflow-arch-defs_SOURCE_DIR}/third_party/${DEVICE}/Device Architecture Files/QLAL4S3B.xml")
+  set(ROUTING_TIMING "${symbiflow-arch-defs_SOURCE_DIR}/third_party/${DEVICE}/Timing Data Files/${ROUTING_TIMING_FILE_NAME}")
 
   # Import data from the techfile
   set(DATA_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/data_import.py)
@@ -48,7 +50,7 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
       --techfile ${TECHFILE}
       --routing-timing ${ROUTING_TIMING}
       --db ${PHY_DB_FILE}
-    DEPENDS ${TECHFILE} ${DATA_IMPORT} ${PYTHON3_TARGET}
+    DEPENDS ${TECHFILE} ${ROUTING_TIMING} ${DATA_IMPORT} ${PYTHON3_TARGET}
   )
   add_file_target(FILE ${PHY_DB_FILE} GENERATED)
 

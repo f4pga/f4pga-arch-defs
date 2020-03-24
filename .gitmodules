@@ -33,4 +33,4 @@
 	url = ../quicklogic-fasm.git
 [submodule "third_party/ql-eos-s3"]
 	path = third_party/ql-eos-s3
-	url = https://github.com/QuickLogic-Corp/EOS-S3
+	url = https://github.com/antmicro/EOS-S3
