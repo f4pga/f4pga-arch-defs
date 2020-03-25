@@ -1316,6 +1316,7 @@ def main():
                         c_out=switch.c_out,
                         c_internal=switch.c_int,
                         t_del=switch.t_del,
+                        p_cost=0.0
                     ),
                     sizing=rr.SwitchSizing(
                         mux_trans_size=0,
