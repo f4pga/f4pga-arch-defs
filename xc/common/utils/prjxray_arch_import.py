@@ -482,7 +482,8 @@ def get_tiles(
 
         if phy_tile_pkey is not None:
             c2.execute(
-                "SELECT name, prohibited FROM phy_tile WHERE pkey = ?", (phy_tile_pkey, )
+                "SELECT prohibited FROM phy_tile WHERE pkey = ?",
+                (phy_tile_pkey, )
             )
 
             is_prohibited_tile = c2.fetchone()[0]
