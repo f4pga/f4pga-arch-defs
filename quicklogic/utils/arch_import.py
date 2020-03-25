@@ -17,14 +17,16 @@ def add_segment(xml_parent, segment):
     segment_type = "bidir"
 
     # Make XML
-    xml_seg = ET.SubElement(xml_parent, "segment", {
-        "name":   segment.name,
-        "length": str(segment.length),
-        "freq":   "1.0",
-        "type":   segment_type,
-        "Rmetal": str(segment.r_metal),
-        "Cmetal": str(segment.c_metal),
-    })
+    xml_seg = ET.SubElement(
+        xml_parent, "segment", {
+            "name": segment.name,
+            "length": str(segment.length),
+            "freq": "1.0",
+            "type": segment_type,
+            "Rmetal": str(segment.r_metal),
+            "Cmetal": str(segment.c_metal),
+        }
+    )
 
     if segment_type == "unidir":
         ET.SubElement(xml_seg, "mux", {"name": "generic"})
@@ -37,7 +39,7 @@ def add_segment(xml_parent, segment):
         assert False, segment_type
 
     e = ET.SubElement(xml_seg, "sb", {"type": "pattern"})
-    e.text = " ".join(["1" for i in range(segment.length+1)])
+    e.text = " ".join(["1" for i in range(segment.length + 1)])
     e = ET.SubElement(xml_seg, "cb", {"type": "pattern"})
     e.text = " ".join(["1" for i in range(segment.length)])
 
@@ -47,14 +49,16 @@ def add_switch(xml_parent, switch):
     Adds a switch
     """
 
-    xml_switch = ET.SubElement(xml_parent, "switch", {
-        "type": switch.type,
-        "name": switch.name,
-        "R"   : str(switch.r),
-        "Cin" : str(switch.c_in),
-        "Cout": str(switch.c_out),
-        "Tdel": str(switch.t_del),
-    })
+    xml_switch = ET.SubElement(
+        xml_parent, "switch", {
+            "type": switch.type,
+            "name": switch.name,
+            "R": str(switch.r),
+            "Cin": str(switch.c_in),
+            "Cout": str(switch.c_out),
+            "Tdel": str(switch.t_del),
+        }
+    )
 
     if switch.type in ["mux", "tristate"]:
         xml_switch.attrib["Cinternal"] = str(switch.c_int)
@@ -69,34 +73,36 @@ def initialize_arch(xml_arch, switches, segments):
     # Device
     xml_device = ET.SubElement(xml_arch, "device")
 
-    ET.SubElement(xml_device, "sizing", {
-        "R_minW_nmos": "6000.0",
-        "R_minW_pmos": "18000.0",
-    })
+    ET.SubElement(
+        xml_device, "sizing", {
+            "R_minW_nmos": "6000.0",
+            "R_minW_pmos": "18000.0",
+        }
+    )
 
-    ET.SubElement(xml_device, "area", {
-        "grid_logic_tile_area": "15000.0"
-    })
+    ET.SubElement(xml_device, "area", {"grid_logic_tile_area": "15000.0"})
 
     xml = ET.SubElement(xml_device, "chan_width_distr")
     ET.SubElement(xml, "x", {"distr": "uniform", "peak": "1.0"})
     ET.SubElement(xml, "y", {"distr": "uniform", "peak": "1.0"})
 
-    ET.SubElement(xml_device, "connection_block", {
-        "input_switch_name": "generic"
-    })
+    ET.SubElement(
+        xml_device, "connection_block", {"input_switch_name": "generic"}
+    )
 
     ET.SubElement(xml_device, "switch_block", {
         "type": "wilton",
         "fs": "3",
     })
 
-    ET.SubElement(xml_device, "default_fc", {
-        "in_type": "frac",
-        "in_val": "1.0",
-        "out_type": "frac",
-        "out_val": "1.0",
-    })
+    ET.SubElement(
+        xml_device, "default_fc", {
+            "in_type": "frac",
+            "in_val": "1.0",
+            "out_type": "frac",
+            "out_val": "1.0",
+        }
+    )
 
     # .................................
     # Switchlist
@@ -115,7 +121,7 @@ def initialize_arch(xml_arch, switches, segments):
 
     # .................................
     # Segmentlist
-    xml_seglist = ET.SubElement(xml_arch, "segmentlist")    
+    xml_seglist = ET.SubElement(xml_arch, "segmentlist")
 
     for segment in segments:
         add_segment(xml_seglist, segment)
@@ -136,10 +142,12 @@ def write_tiles(xml_arch, tile_types, nsmap):
     for tile_type in tile_types.values():
         model_file = "{}.model.xml".format(tile_type.type.lower())
 
-        ET.SubElement(xml_models, xi_include, {
-            "href": "tl-{}".format(model_file),
-            "xpointer": "xpointer(models/child::node())",
-        })
+        ET.SubElement(
+            xml_models, xi_include, {
+                "href": "tl-{}".format(model_file),
+                "xpointer": "xpointer(models/child::node())",
+            }
+        )
 
     # Tiles
     xml_cplx = xml_arch.find("tiles")
@@ -149,9 +157,11 @@ def write_tiles(xml_arch, tile_types, nsmap):
     for tile_type in tile_types.values():
         pb_type_file = "{}.tile.xml".format(tile_type.type.lower())
 
-        ET.SubElement(xml_cplx, xi_include, {
-            "href": "tl-{}".format(pb_type_file),
-        })
+        ET.SubElement(
+            xml_cplx, xi_include, {
+                "href": "tl-{}".format(pb_type_file),
+            }
+        )
 
     # Complexblocklist
     xml_cplx = xml_arch.find("complexblocklist")
@@ -161,9 +171,11 @@ def write_tiles(xml_arch, tile_types, nsmap):
     for tile_type in tile_types.values():
         pb_type_file = "{}.pb_type.xml".format(tile_type.type.lower())
 
-        ET.SubElement(xml_cplx, xi_include, {
-            "href": "tl-{}".format(pb_type_file),
-        })
+        ET.SubElement(
+            xml_cplx, xi_include, {
+                "href": "tl-{}".format(pb_type_file),
+            }
+        )
 
 
 def write_tilegrid(xml_arch, tile_grid, loc_map, layout_name):
@@ -180,16 +192,18 @@ def write_tilegrid(xml_arch, tile_grid, loc_map, layout_name):
     # Grid size
     xs = [loc.x for loc in tile_grid]
     ys = [loc.y for loc in tile_grid]
-    w  = max(xs) + 1
-    h  = max(ys) + 1
+    w = max(xs) + 1
+    h = max(ys) + 1
 
     # Fixed layout
     xml_layout = ET.SubElement(xml_arch, "layout")
-    xml_fixed  = ET.SubElement(xml_layout, "fixed_layout", {
-        "name": layout_name,
-        "width": str(w),
-        "height": str(h),
-    })
+    xml_fixed = ET.SubElement(
+        xml_layout, "fixed_layout", {
+            "name": layout_name,
+            "width": str(w),
+            "height": str(h),
+        }
+    )
 
     # Individual tiles
     for loc, tile in tile_grid.items():
@@ -200,33 +214,39 @@ def write_tilegrid(xml_arch, tile_grid, loc_map, layout_name):
         phy_loc = loc_map.bwd[loc]
         fasm_prefix = "X{}Y{}".format(phy_loc.x, phy_loc.y)
 
-        xml_sing = ET.SubElement(xml_fixed, "single", {
-            "type": "TL-{}".format(tile.type),
-            "x": str(loc.x),
-            "y": str(loc.y),
-            "priority": str(10), # Not sure if we need this
-        })
+        xml_sing = ET.SubElement(
+            xml_fixed,
+            "single",
+            {
+                "type": "TL-{}".format(tile.type),
+                "x": str(loc.x),
+                "y": str(loc.y),
+                "priority": str(10),  # Not sure if we need this
+            }
+        )
 
         xml_metadata = ET.SubElement(xml_sing, "metadata")
-        xml_meta = ET.SubElement(xml_metadata, "meta", {
-            "name": "fasm_prefix",
-        })
+        xml_meta = ET.SubElement(
+            xml_metadata, "meta", {
+                "name": "fasm_prefix",
+            }
+        )
         xml_meta.text = fasm_prefix
+
 
 # =============================================================================
 
 
 def main():
-    
+
     # Parse arguments
-    parser = argparse.ArgumentParser(description=__doc__,
-        formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
 
     parser.add_argument(
-        "--vpr-db",
-        type=str,
-        required=True,
-        help="VPR database file"
+        "--vpr-db", type=str, required=True, help="VPR database file"
     )
     parser.add_argument(
         "--arch-out",
@@ -245,18 +265,18 @@ def main():
 
     xi_url = "http://www.w3.org/2001/XInclude"
     ET.register_namespace("xi", xi_url)
-    nsmap = {"xi": xi_url} 
+    nsmap = {"xi": xi_url}
 
     # Load data from the database
     with open(args.vpr_db, "rb") as fp:
         db = pickle.load(fp)
 
-        cells_library  = db["cells_library"]
-        loc_map        = db["loc_map"]
+        cells_library = db["cells_library"]
+        loc_map = db["loc_map"]
         vpr_tile_types = db["vpr_tile_types"]
-        vpr_tile_grid  = db["vpr_tile_grid"]
-        segments       = db["segments"]
-        switches       = db["switches"]
+        vpr_tile_grid = db["vpr_tile_grid"]
+        segments = db["segments"]
+        switches = db["switches"]
 
     # Initialize the arch XML if file not given
     xml_arch = ET.Element("architecture", nsmap=nsmap)
@@ -268,7 +288,12 @@ def main():
     write_tilegrid(xml_arch, vpr_tile_grid, loc_map, args.device)
 
     # Save the arch
-    ET.ElementTree(xml_arch).write(args.arch_out, pretty_print=True, xml_declaration=True, encoding="utf-8")
+    ET.ElementTree(xml_arch).write(
+        args.arch_out,
+        pretty_print=True,
+        xml_declaration=True,
+        encoding="utf-8"
+    )
 
     # === MOVE ELSEWHERE ====
     from tile_import import make_top_level_model
@@ -291,6 +316,7 @@ def main():
         fname = "tl-{}.model.xml".format(tile_type.type.lower())
         xml = make_top_level_model(tile_type, nsmap)
         ET.ElementTree(xml).write(fname, pretty_print=True)
+
 
 # =============================================================================
 

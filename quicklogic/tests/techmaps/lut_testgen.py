@@ -22,7 +22,7 @@ def generate_design(N, count=1, init=None):
     """
 
     # INIT bit count
-    bits = 2 ** N
+    bits = 2**N
 
     # Header
     verilog = """
@@ -30,7 +30,9 @@ module dut_lut(
   input  wire [{N1}:0] A,
   output wire [{M1}:0] O
 );
-""".format(N1=N-1, M1=count-1)
+""".format(
+        N1=N - 1, M1=count - 1
+    )
 
     # LUT(s)
     for i in range(count):
@@ -46,7 +48,7 @@ module dut_lut(
         # Generate the LUT instance
         verilog += """
   LUT{N} # (.INIT({init})) lut_{i} (
-""".format(N=N, i=i+1, init=init_str)
+""".format(N=N, i=i + 1, init=init_str)
 
         for j in range(N):
             verilog += "  .I{j}(A[{j}]),\n".format(j=j)
@@ -59,22 +61,22 @@ module dut_lut(
     verilog += """
 endmodule"""
 
-    return verilog    
-    
+    return verilog
+
+
 # =============================================================================
 
 
 def main():
 
     # Parse arguments
-    parser = argparse.ArgumentParser(description=__doc__,
-        formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
 
     parser.add_argument(
-        "-n",
-        type=int,
-        required=True,
-        help="LUT address width"
+        "-n", type=int, required=True, help="LUT address width"
     )
 
     parser.add_argument(
@@ -98,8 +100,8 @@ def main():
     # Generate the design
     print(generate_design(args.n, args.lut_count, args.init))
 
-# =============================================================================
 
+# =============================================================================
 
 if __name__ == "__main__":
     main()

@@ -14,8 +14,10 @@ DEBUG = False
 
 # Set to true to print debugging info.
 
+
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
+
 
 def mergedicts(source, destination):
     """This function recursively merges two dictionaries:
@@ -75,18 +77,27 @@ def get_cell_types_and_instances(bel, location, site, bels):
        None otherwise"""
     if site not in bels:
         if DEBUG:
-            eprint("Site '{}' not found among '{}'".format(
-                site, ", ".join(bels.keys())))
+            eprint(
+                "Site '{}' not found among '{}'".format(
+                    site, ", ".join(bels.keys())
+                )
+            )
         return None
     if bel not in bels[site]:
         if DEBUG:
-            eprint("Bel '{}' not found among '{}'".format(
-                bel, ", ".join(bels[site].keys())))
+            eprint(
+                "Bel '{}' not found among '{}'".format(
+                    bel, ", ".join(bels[site].keys())
+                )
+            )
         return None
     if location not in bels[site][bel]:
         if DEBUG:
-            eprint("Location '{}' not found among '{}'".format(
-                location, ", ".join(bels[site][bel].keys())))
+            eprint(
+                "Location '{}' not found among '{}'".format(
+                    location, ", ".join(bels[site][bel].keys())
+                )
+            )
         return None
 
     # Generate a list of tuples (celltype, instance)
