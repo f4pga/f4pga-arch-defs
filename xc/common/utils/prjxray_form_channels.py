@@ -487,6 +487,7 @@ def build_other_indicies(write_cur):
 
 def import_phy_grid(db, grid, conn, get_switch, get_switch_timing):
     write_cur = conn.cursor()
+    cur = conn.cursor()
 
     tile_types = {}
     site_types = {}
@@ -538,15 +539,14 @@ VALUES (?, ?, ?)""", (
         # tile: pkey name tile_type_pkey grid_x grid_y
         write_cur.execute(
             """
-INSERT INTO phy_tile(name, tile_type_pkey, grid_x, grid_y, clock_region_pkey, prohibited)
+INSERT INTO phy_tile(name, tile_type_pkey, grid_x, grid_y, clock_region_pkey)
 VALUES
-  (?, ?, ?, ?, ?, ?)""", (
+  (?, ?, ?, ?, ?)""", (
                 tile,
                 tile_types[gridinfo.tile_type],
                 loc.grid_x,
                 loc.grid_y,
                 clock_region_pkey,
-                len(gridinfo.prohibited_sites) > 0,
             )
         )
         phy_tile_pkey = write_cur.lastrowid
@@ -579,6 +579,15 @@ AND
                     site.y,
                     site.type,
                     tile_types[gridinfo.tile_type],
+                )
+            )
+
+            site_instance_pkey = write_cur.lastrowid
+
+            cur.execute(
+                "UPDATE site_instance SET prohibited = ? WHERE pkey = ?", (
+                    instance_site.name in gridinfo.prohibited_sites,
+                    site_instance_pkey,
                 )
             )
 
