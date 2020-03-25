@@ -63,8 +63,13 @@ Holds the cell type name and the list of its pins.
 CellType = namedtuple("CellType", "type pins")
 """
 A cell instance within a tile. Binds a cell name with its type.
+
+type    - Cell type
+index   - Index within the tile
+name    - Cell name (not necessarly unique)
+alias   - Cell alias (if present)
 """
-Cell = namedtuple("Cell", "type name")
+Cell = namedtuple("Cell", "type index name alias")
 
 # =============================================================================
 
@@ -103,8 +108,12 @@ class TileType(object):
 
 """
 A tile instance within a tilegrid
+
+type    - Tile type
+name    - Tile instance name
+cells   - A list of Cell objects
 """
-Tile = namedtuple("Tile", "type name cell_names")
+Tile = namedtuple("Tile", "type name cells")
 
 # =============================================================================
 
@@ -275,7 +284,6 @@ class Switchbox(object):
 
 
 # =============================================================================
-
 """
 A global clock network mux data.
 

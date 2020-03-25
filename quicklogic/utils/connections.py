@@ -3,7 +3,9 @@ Utility functions for making hop connections between switchboxes and locat
 switchbox - tile connections.
 """
 import re
+
 from data_structs import *
+from utils import get_loc_of_cell, find_cell_in_tile
 
 # =============================================================================
 
@@ -329,12 +331,102 @@ def build_hop_connections(switchbox_types, switchbox_grid):
 # =============================================================================
 
 
-def build_gmux_qmux_connections(tile_types, tile_grid, switchbox_types, switchbox_grid):
+def find_clock_cell(alias, tile_grid):
 
+    for loc, tile in tile_grid.items():
+        if tile is None:
+            continue
+
+        # Must have at least one "CLOCK" cell
+        clock_cells = [c for c in tile.cells if c.type == "CLOCK"]
+        if len(clock_cells) == 0:
+            continue
+
+        for cell in clock_cells:
+            if cell.alias == alias:
+                return loc, tile, cell
+
+    return None, None, None
+
+
+def build_gmux_qmux_connections(
+        tile_types, tile_grid, switchbox_types, switchbox_grid, clock_cells
+):
+
+    # Define names of all global clock wires.
+    # Each global clock mux as an implicitly defined output equal to its name.
+    clock_wires = list(clock_cells.keys())
+
+    # GMUX "IP" inputs are global clock wires too
+    for clock_mux in clock_cells.values():
+        if clock_mux.type == "GMUX":
+            clock_wires.append(clock_mux.pin_map["IP"])
+
+    # Conections between clock cells (muxes)
     connections = []
+    for clock_cell in clock_cells.values():
 
-    #
+        for pin_name, pin_conn in clock_cell.pin_map.items():
 
+            # Destination pin name
+            dst_tile = tile_grid[clock_cell.loc]
+            dst_cell = find_cell_in_tile(clock_cell.name, dst_tile)
+
+            dst_pin_name = "{}{}_{}".format(
+                dst_cell.type, dst_cell.index, pin_name
+            )
+
+            # This pin connects to a global clock wire
+            if pin_conn in clock_wires:
+
+                # Get the other cell
+                other_cell = clock_cells.get(pin_conn, None)
+
+                # Not found in the clock cells. Probably it is the CLOCK cell
+                # try finding it by its name / alias
+                if other_cell is None:
+
+                    src_loc, src_tile, src_cell = \
+                        find_clock_cell(pin_conn, tile_grid)
+
+                    # Didint find the cell
+                    if src_cell is None:
+                        print(
+                            "WARNING: No source cell for global clock wire '{}'"
+                            .format(pin_conn)
+                        )
+                        continue
+
+                    # Connect to the cell
+                    src_pin_name = "{}{}_{}".format(
+                        src_cell.type, src_cell.index, "IC"
+                    )
+
+                # Connect to the other cell
+                else:
+                    src_loc = other_cell.loc
+                    src_tile = tile_grid[other_cell.loc]
+                    src_cell = find_cell_in_tile(other_cell.name, src_tile)
+
+                    src_pin_name = "{}{}_{}".format(
+                        src_cell.type, src_cell.index, "IZ"
+                    )
+
+                # Make the connection
+                connections.append(
+                    Connection(
+                        src=ConnectionLoc(
+                            loc=src_loc,
+                            pin=src_pin_name,
+                            type=ConnectionType.TILE
+                        ),
+                        dst=ConnectionLoc(
+                            loc=clock_cell.loc,
+                            pin=dst_pin_name,
+                            type=ConnectionType.TILE
+                        ),
+                    )
+                )
 
     # DBEUG
     print("GCLK mux connections:")
@@ -343,10 +435,13 @@ def build_gmux_qmux_connections(tile_types, tile_grid, switchbox_types, switchbo
 
     return connections
 
+
 # =============================================================================
 
 
-def build_connections(tile_types, tile_grid, switchbox_types, switchbox_grid):
+def build_connections(
+        tile_types, tile_grid, switchbox_types, switchbox_grid, clock_cells
+):
     """
     Builds a connection map between switchboxes in the grid and between
     switchboxes and underlying tiles.
@@ -362,7 +457,9 @@ def build_connections(tile_types, tile_grid, switchbox_types, switchbox_grid):
     connections += build_hop_connections(switchbox_types, switchbox_grid)
 
     # GMUX and QMUX connections
-    connections += build_gmux_qmux_connections(tile_types, tile_grid, switchbox_types, switchbox_grid)
+    connections += build_gmux_qmux_connections(
+        tile_types, tile_grid, switchbox_types, switchbox_grid, clock_cells
+    )
 
     return connections
 

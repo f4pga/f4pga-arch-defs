@@ -80,7 +80,14 @@ def process_tilegrid(tile_types, tile_grid, grid_limit=None):
             new_tile_grid[loc] = Tile(
                 type="SYN_IO",
                 name=tile.name,
-                cell_names={"BIDIR": ["BIDIR0"]}
+                cells=[
+                    Cell(
+                        type="BIDIR",
+                        index=0,
+                        name="BIDIR",
+                        alias=None
+                    )
+                ]
             )
             continue
 
@@ -100,7 +107,14 @@ def process_tilegrid(tile_types, tile_grid, grid_limit=None):
             assert new_tile_grid[assp_loc] is None, ("ASSP", assp_loc)
 
         new_tile_grid[assp_loc] = Tile(
-            type="ASSP", name="ASSP", cell_names={"ASSP": "ASSP0"}
+            type="ASSP", name="ASSP", cells=[
+                Cell(
+                    type="ASSP",
+                    index=0,
+                    name="ASSP",
+                    alias=None
+                )
+            ]
         )
 
     # Insert synthetic VCC and GND source tiles.
@@ -114,7 +128,14 @@ def process_tilegrid(tile_types, tile_grid, grid_limit=None):
         # Add the tile instance
         name = "SYN_{}".format(const)
         new_tile_grid[loc] = Tile(
-            type=name, name=name, cell_names={name: ["{}0".format(name)]}
+            type=name, name=name, cells= [
+                Cell(
+                    type=const,
+                    index=0,
+                    name=const,
+                    alias=None
+                )
+            ]
         )
 
     # Extend the grid by 1 in every direction. Fill missing locs with empty
@@ -287,9 +308,9 @@ def get_cell_type_by_name_at_loc(loc, cell_name, tile_grid):
         return None
 
     # Find cell
-    for cell_type, cell_names in tile.cell_names.items():
-        if cell_name in cell_names:
-            return cell_type
+    for cell in tile.cells:
+        if cell_name in cell.name:
+            return cell.type
 
     return None
 

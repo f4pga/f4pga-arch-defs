@@ -14,7 +14,7 @@ import csv
 import lxml.etree as ET
 
 from data_structs import *
-from utils import yield_muxes
+from utils import yield_muxes, get_loc_of_cell, find_cell_in_tile, natural_keys
 from connections import build_connections, check_connections
 from connections import hop_to_str, get_name_and_hop, is_regular_hop_wire
 
@@ -22,17 +22,24 @@ from connections import hop_to_str, get_name_and_hop, is_regular_hop_wire
 
 # A list of cells in the global clock network
 GCLK_CELLS = (
-#    "GMUX",
-#    "QMUX",
+    #    "GMUX",
+    #    "QMUX",
     "CAND"
 )
 
 # A List of cells and their pins which are clocks
 CLOCK_PINS = {
-    "LOGIC": ("QCK",),
+    "LOGIC": ("QCK", ),
     "CLOCK": ("OP", ),
-    "GMUX":  ("IP", "IZ",),
-    "QMUX":  ("QCLKIN0", "HSCKIN", "IZ",),
+    "GMUX": (
+        "IP",
+        "IZ",
+    ),
+    "QMUX": (
+        "QCLKIN0",
+        "HSCKIN",
+        "IZ",
+    ),
 }
 
 # A list of const pins
@@ -169,10 +176,9 @@ def load_logic_cells(xml_placement, cellgrid, cells_library):
             cell_type = "LOGIC"
             assert cell_type in cells_library, cell_type
 
-            cellgrid[loc].append(Cell(
-                type=cell_type,
-                name=cell_type,
-            ))
+            cellgrid[loc].append(
+                Cell(type=cell_type, index=None, name=cell_type, alias=None)
+            )
 
 
 def load_other_cells(xml_placement, cellgrid, cells_library):
@@ -205,7 +211,9 @@ def load_other_cells(xml_placement, cellgrid, cells_library):
                         cellgrid[loc].append(
                             Cell(
                                 type=cell_type,
+                                index=None,
                                 name=cell_name,
+                                alias=None,
                             )
                         )
 
@@ -215,11 +223,16 @@ def load_other_cells(xml_placement, cellgrid, cells_library):
                 y = int(xml.get("row"))
 
                 loc = Loc(x, y)
+                alias = xml.get("Alias", None)
 
-                cellgrid[loc].append(Cell(
-                    type=cell_type,
-                    name=cell_name,
-                ))
+                cellgrid[loc].append(
+                    Cell(
+                        type=cell_type,
+                        index=None,
+                        name=cell_name,
+                        alias=alias,
+                    )
+                )
 
         # Got something else, parse recursively
         else:
@@ -292,17 +305,10 @@ def parse_placement(xml_placement, cells_library):
     # present there.
     tile_types = {}
     tile_types_at_loc = {}
-    cell_names_at_loc = {}
     for loc, cells in cellgrid.items():
 
         # Filter out global clock routing cells
         cells = [c for c in cells if c.type not in GCLK_CELLS]
-
-        # Collect cell names
-        cell_names = defaultdict(lambda: [])
-        for cell in cells:
-            cell_names[cell.type].append(cell.name)
-        cell_names_at_loc[loc] = dict(cell_names)
 
         # Generate type and assign
         type = make_tile_type_name(cells)
@@ -324,11 +330,42 @@ def parse_placement(xml_placement, cells_library):
     # Make the final tilegrid
     tilegrid = {}
     for loc, type in tile_types_at_loc.items():
+
+        # Group cells by type
+        tile_cells_by_type = defaultdict(lambda: [])
+        for cell in cellgrid[loc]:
+
+            # Filter out global clock routing cells
+            if cell.type in GCLK_CELLS:
+                continue
+
+            tile_cells_by_type[cell.type].append(cell)
+
+        # Create a list of cell instances within the tile
+        tile_cells = []
+        for cell_type, cell_list in tile_cells_by_type.items():
+            cell_list.sort(key=lambda c: natural_keys(c.name))
+
+            for i, cell in enumerate(cell_list):
+                tile_cells.append(
+                    Cell(
+                        type=cell.type,
+                        index=i,
+                        name=cell.name,
+                        alias=cell.alias
+                    )
+                )
+
         tilegrid[loc] = Tile(
             type=type,
             name="TILE_X{}Y{}".format(loc.x, loc.y),
-            cell_names=cell_names_at_loc[loc]
+            cells=tile_cells
         )
+
+        # DEBUG
+        print(loc, tilegrid[loc].type, tilegrid[loc].name)
+        for c in tilegrid[loc].cells:
+            print("", c)
 
     return tile_types, tilegrid
 
@@ -789,80 +826,77 @@ def parse_clock_network(xml_clock_network):
         """
         Parses a "Cell" tag inside "CLOCK_NETWORK"
         """
-        NON_PIN_TAGS = (
-            "name",
-            "type",
-            "row",
-            "column"
-        )
+        NON_PIN_TAGS = ("name", "type", "row", "column")
 
-        cell_loc  = Loc(
-            x = int(xml_cell.attrib["column"]),
-            y = int(xml_cell.attrib["row"]),
+        cell_loc = Loc(
+            x=int(xml_cell.attrib["column"]),
+            y=int(xml_cell.attrib["row"]),
         )
 
         pin_map = {k: v for k, v in xml_cell.attrib.items() \
             if k not in NON_PIN_TAGS}
 
         return ClockMux(
-            type    = xml_cell.attrib["type"],
-            name    = xml_cell.attrib["name"],
-            loc     = cell_loc,
-            pin_map = pin_map
+            type=xml_cell.attrib["type"],
+            name=xml_cell.attrib["name"],
+            loc=cell_loc,
+            pin_map=pin_map
         )
 
-
-    clk_mux_map = {}
+    clock_cells = {}
 
     # Parse GMUX cells
     xml_gmux = xml_clock_network.find("GMUX")
     assert xml_gmux is not None
 
     for xml_cell in xml_gmux.findall("Cell"):
-        clk_mux = parse_cell(xml_cell)
-        clk_mux_map[clk_mux.name] = clk_mux
-        
+        clock_cell = parse_cell(xml_cell)
+        clock_cells[clock_cell.name] = clock_cell
+
     # Parse QMUX cells
     xml_qmux = xml_clock_network.find("QMUX")
     assert xml_qmux is not None
 
     for xml_quad in xml_qmux:
         for xml_cell in xml_quad.findall("Cell"):
-            clk_mux = parse_cell(xml_cell)
-            clk_mux_map[clk_mux.name] = clk_mux
+            clock_cell = parse_cell(xml_cell)
+            clock_cells[clock_cell.name] = clock_cell
 
     # TODO: Intepret CAND cell data
 
-    return clk_mux_map
+    return clock_cells
 
 
-def populate_clk_mux_port_maps(port_maps, clk_mux_map, cells_library):
+def populate_clk_mux_port_maps(
+        port_maps, clock_cells, tile_grid, cells_library
+):
     """
     Converts global clock network cells port mappings and appends them to
     the port_maps used later for switchbox specialization.
     """
 
-    for clk_mux in clk_mux_map.values():
-        cell_type = clk_mux.type
-        loc = clk_mux.loc
+    for clock_cell in clock_cells.values():
+        cell_type = clock_cell.type
+        loc = clock_cell.loc
 
         # Find the cell in the cells_library to get its pin definitions
         assert cell_type in cells_library, cell_type
         cell_pins = cells_library[cell_type].pins
 
+        # Find the cell in a tile
+        tile = tile_grid[loc]
+        cell = find_cell_in_tile(clock_cell.name, tile)
+
         # Add the mux location to the port map
         if loc not in port_maps:
             port_maps[loc] = {}
 
-        # Determine index of the clock mux within the tile
-        cell_idx = int(clk_mux.name[-1]) # FIXME: Will not work for CAND
-
         # Add map entries
-        for mux_pin_name, sbox_pin_name in clk_mux.pin_map.items():
+        for mux_pin_name, sbox_pin_name in clock_cell.pin_map.items():
 
             # Get the pin definition to get its driection.
             cell_pin = [p for p in cell_pins if p.name == mux_pin_name]
-            assert len(cell_pin) == 1, (clk_mux, mux_pin_name)
+            assert len(cell_pin) == 1, (clock_cell, mux_pin_name)
             cell_pin = cell_pin[0]
 
             # Add entry to the map
@@ -870,15 +904,19 @@ def populate_clk_mux_port_maps(port_maps, clk_mux_map, cells_library):
 
             assert key not in port_maps[loc], (port_maps[loc], key)
             port_maps[loc][key] = "{}{}_{}".format(
-                cell_type,
-                cell_idx,
-                mux_pin_name
-                )
+                cell.type, cell.index, mux_pin_name
+            )
+
+            # DEBUG
+            print(loc, key, port_maps[loc][key])
+
 
 # =============================================================================
 
 
-def specialize_switchboxes_with_port_maps(switchbox_types, switchbox_grid, port_maps):
+def specialize_switchboxes_with_port_maps(
+        switchbox_types, switchbox_grid, port_maps
+):
     """
     Specializes switchboxes by applying port mapping.
     """
@@ -906,19 +944,16 @@ def specialize_switchboxes_with_port_maps(switchbox_types, switchbox_grid, port_
             # Remap output
             alt_name = "{}.{}.{}".format(stage.id, switch.id, mux.id)
 
-            pin  = mux.output
-            keys = (
-                (pin.name, pin.direction),
-                (alt_name, pin.direction)
-            )
+            pin = mux.output
+            keys = ((pin.name, pin.direction), (alt_name, pin.direction))
 
             for key in keys:
                 if key in port_map:
                     did_remap = True
                     mux.output = SwitchPin(
-                        id        = pin.id,
-                        name      = port_map[key],
-                        direction = pin.direction,
+                        id=pin.id,
+                        name=port_map[key],
+                        direction=pin.direction,
                     )
                     break
 
@@ -928,9 +963,9 @@ def specialize_switchboxes_with_port_maps(switchbox_types, switchbox_grid, port_
                 if key in port_map:
                     did_remap = True
                     mux.inputs[pin.id] = SwitchPin(
-                        id        = pin.id,
-                        name      = port_map[key],
-                        direction = pin.direction,
+                        id=pin.id,
+                        name=port_map[key],
+                        direction=pin.direction,
                     )
 
         # Nothing remapped, discard the new switchbox
@@ -1028,7 +1063,7 @@ def find_special_cells(tile_grid):
     # Assign each cell name its locations.
     for loc, tile in tile_grid.items():
         for cell_type, cell_names in tile.cell_names.items():
-            for cell_name in cell_names:
+            for cell_name, in cell_names:
 
                 # Skip LOGIC as it is always contained in a single tile
                 if cell_name == "LOGIC":
@@ -1041,27 +1076,6 @@ def find_special_cells(tile_grid):
 
     # Leave only those that have more than one location
     cells = {k: v for k, v in cells.items() if len(v["locs"]) > 1}
-
-
-# =============================================================================
-
-
-def get_loc_of_cell(cell_name, tile_grid):
-    """
-    Returns loc of a cell with the given name in the tilegrid.
-    """
-
-    # Look for a tile that has the cell
-    for loc, tile in tile_grid.items():
-        if tile is None:
-            continue
-
-        cell_names = [n for ns in tile.cell_names.values() for n in ns]
-        if cell_name in cell_names:
-            return loc
-
-    # Not found
-    return None
 
 
 def parse_bidir_pinmap(xml_root, tile_grid):
@@ -1148,7 +1162,7 @@ def import_data(xml_root):
     xml_clock_network = xml_placement.find("CLOCK_NETWORK")
     assert xml_clock_network is not None
 
-    clk_mux_map = parse_clock_network(xml_clock_network)
+    clock_cells = parse_clock_network(xml_clock_network)
 
     # Get the "Routing" section
     xml_routing = xml_root.find("Routing")
@@ -1195,7 +1209,9 @@ def import_data(xml_root):
     port_maps = parse_port_mapping_table(xml_portmap, switchbox_grid)
 
     # Supply port mapping table with global clock mux map
-    populate_clk_mux_port_maps(port_maps, clk_mux_map, cells_library)
+    populate_clk_mux_port_maps(
+        port_maps, clock_cells, tile_grid, cells_library
+    )
 
     if xml_wiremap is not None:
         # Specialize switchboxes with wire maps
@@ -1227,8 +1243,10 @@ def import_data(xml_root):
         "tile_grid": tile_grid,
         "switchbox_types": switchbox_types,
         "switchbox_grid": switchbox_grid,
+        "clock_cells": clock_cells,
         "package_pinmaps": package_pinmaps
     }
+
 
 # =============================================================================
 
@@ -1356,6 +1374,7 @@ def main():
         data["tile_grid"],
         data["switchbox_types"],
         data["switchbox_grid"],
+        data["clock_cells"],
     )
 
     check_connections(connections)

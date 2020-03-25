@@ -68,6 +68,39 @@ def yield_muxes(switchbox):
 # =============================================================================
 
 
+def get_loc_of_cell(cell_name, tile_grid):
+    """
+    Returns loc of a cell with the given name in the tilegrid.
+    """
+
+    # Look for a tile that has the cell
+    for loc, tile in tile_grid.items():
+        if tile is None:
+            continue
+
+        cell_names = [c.name for c in tile.cells]
+        if cell_name in cell_names:
+            return loc
+
+    # Not found
+    return None
+
+
+def find_cell_in_tile(cell_name, tile):
+    """
+    Finds a cell instance with the given name inside the given tile.
+    Returns the Cell object if found and None otherwise.
+    """
+    for cell in tile.cells:
+        if cell.name == cell_name:
+            return cell
+
+    return None
+
+
+# =============================================================================
+
+
 def add_named_item(item_dict, item, item_name):
     """
     Adds a named item to the given dict if not already there. If it is there
@@ -78,3 +111,21 @@ def add_named_item(item_dict, item, item_name):
         item_dict[item_name] = item
 
     return item_dict[item_name]
+
+
+# =============================================================================
+
+
+def natural_keys(text):
+    """
+    alist.sort(key=natural_keys) sorts in human order
+    http://nedbatchelder.com/blog/200712/human_sorting.html
+    (See Toothy's implementation in the comments)
+
+    https://stackoverflow.com/questions/5967500/how-to-correctly-sort-a-string-with-a-number-inside
+    """
+
+    def atoi(text):
+        return int(text) if text.isdigit() else text
+
+    return [atoi(c) for c in re.split(r'(\d+)', text)]
