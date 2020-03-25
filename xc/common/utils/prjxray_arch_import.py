@@ -482,14 +482,14 @@ def get_tiles(
 
         if phy_tile_pkey is not None:
             c2.execute(
-                "SELECT prohibited FROM phy_tile WHERE pkey = ?",
+                "SELECT prohibited FROM site_instance WHERE phy_tile_pkey = ?",
                 (phy_tile_pkey, )
             )
 
-            is_prohibited_tile = c2.fetchone()[0]
+            prohibited_sites = c2.fetchall()
 
             # Skip generation of prohibited tiles
-            if is_prohibited_tile:
+            if True in prohibited_sites:
                 continue
 
         # Just output synth tiles, no additional processing is required here.
