@@ -10,17 +10,16 @@ import sys
 import re
 from os import path
 
-
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    "inputfile", nargs='+', type=argparse.FileType('r'),
+    "inputfile",
+    nargs='+',
+    type=argparse.FileType('r'),
     help="Input Verilog file"
 )
 parser.add_argument(
-    "outputfile", type=argparse.FileType('w'),
-    help="Output file"
+    "outputfile", type=argparse.FileType('w'), help="Output file"
 )
-
 
 include_re = re.compile(r'^`include *"([^"]+)"', flags=re.MULTILINE)
 slash_star_re = re.compile(r'\s*/\*.*\*/\s*', flags=re.DOTALL)

@@ -60,9 +60,7 @@ def add_tile_tags(arch):
     ATTR_TO_SWAP = ['area', 'height', 'width', 'capacity']
 
     # A map of attribute names which have to be renamed.
-    ATTR_MAP = {
-        'num_pb': 'capacity'
-    }
+    ATTR_MAP = {'num_pb': 'capacity'}
 
     def swap_tags(tile, pb_type):
         # Moving tags from top level pb_type to tile

@@ -6,62 +6,61 @@ from collections import namedtuple
 from enum import Enum
 
 # =============================================================================
-
 """
 Pin direction in terms of its function.
 """
+
+
 class PinDirection(Enum):
     UNSPEC = 0
-    INPUT  = 1
+    INPUT = 1
     OUTPUT = 2
+
 
 """
 An opposite direction map
 """
 OPPOSITE_DIRECTION = {
     PinDirection.UNSPEC: PinDirection.UNSPEC,
-    PinDirection.INPUT:  PinDirection.OUTPUT,
+    PinDirection.INPUT: PinDirection.OUTPUT,
     PinDirection.OUTPUT: PinDirection.INPUT,
 }
-
 """
 A generic pin
 """
 Pin = namedtuple("Pin", "name direction is_clock")
-
 """
 Pin direction in therms where is it "standing out" of a tile.
 """
+
+
 class PinSide(Enum):
     UNSPEC = 0
-    NORTH  = 1
-    SOUTH  = 2
-    EAST   = 3
-    WEST   = 4
+    NORTH = 1
+    SOUTH = 2
+    EAST = 3
+    WEST = 4
+
 
 """
 This is a generic location in the tilegrid
 """
 Loc = namedtuple("Loc", "x y")
-
 """
 FPGA grid quadrant.
 """
 Quadrant = namedtuple("Quadrant", "name x0 y0 x1 y1")
-
 """
 Forwads and backward location mapping
 """
 LocMap = namedtuple("LocMap", "fwd bwd")
 
 # =============================================================================
-
 """
 A cell type within a tile type representation (should be named "site" ?).
 Holds the cell type name and the list of its pins.
 """
 CellType = namedtuple("CellType", "type pins")
-
 """
 A cell instance within a tile. Binds a cell name with its type.
 """
@@ -69,16 +68,17 @@ Cell = namedtuple("Cell", "type name")
 
 # =============================================================================
 
+
 class TileType(object):
     """
     A tile type representation. The Quicklogic FPGA fabric does not define tiles.
     It has rather a group of cells bound to a common geographical location.
     """
 
-    def __init__(self,  type, cells):
-        self.type      = type
-        self.cells     = cells
-        self.pins      = []
+    def __init__(self, type, cells):
+        self.type = type
+        self.cells = cells
+        self.pins = []
 
     def make_pins(self, cells_library):
         """
@@ -92,11 +92,14 @@ class TileType(object):
                 for pin in cells_library[cell_type].pins:
                     name = "{}{}_{}".format(cell_type, i, pin.name)
 
-                    self.pins.append(Pin(
-                        name = name,
-                        direction = pin.direction,
-                        is_clock = pin.is_clock
-                    ))
+                    self.pins.append(
+                        Pin(
+                            name=name,
+                            direction=pin.direction,
+                            is_clock=pin.is_clock
+                        )
+                    )
+
 
 """
 A tile instance within a tilegrid
@@ -105,16 +108,18 @@ Tile = namedtuple("Tile", "type name cell_names")
 
 # =============================================================================
 
+
 class SwitchboxPinType(Enum):
     """
     Switchbox pin types.
     """
-    UNSPEC  = 0 # Unknown.
-    LOCAL   = 1 # Connects to the tile at the same location as the switchbox.
-    HOP     = 2 # Generic hop, connects to another switchbox.
-    GCLK    = 3 # Connects to the global clock network.
-    CONST   = 4 # Connects to the global const network.
-    FOREIGN = 5 # Connects to a tile at a different location.
+    UNSPEC = 0  # Unknown.
+    LOCAL = 1  # Connects to the tile at the same location as the switchbox.
+    HOP = 2  # Generic hop, connects to another switchbox.
+    GCLK = 3  # Connects to the global clock network.
+    CONST = 4  # Connects to the global const network.
+    FOREIGN = 5  # Connects to a tile at a different location.
+
 
 """
 A location that identifies a pin inside a switchbox.
@@ -127,7 +132,6 @@ pin_direction - Logical direction of the pin
 """
 SwitchboxPinLoc = namedtuple("SwitchboxPinLoc", \
     "stage_id switch_id mux_id pin_id pin_direction")
-
 """
 A top-level switchbox pin.
 
@@ -139,7 +143,6 @@ locs        - A list of SwitchboxPinLoc objects representing connections to
 type        - The pin type as according to SwitchboxPinType
 """
 SwitchboxPin = namedtuple("SwitchboxPin", "id name direction locs type")
-
 """
 A switch pin within a switchbox
 
@@ -148,7 +151,6 @@ name        - Pin name. Only for top-level pins. For others is None.
 direction   - Pin direction.
 """
 SwitchPin = namedtuple("SwitchPin", "id name direction")
-
 """
 A connection within a switchbox
 
@@ -156,7 +158,6 @@ src         - Source location (always an output pin)
 dst         - Destination location (always an input pin)
 """
 SwitchConnection = namedtuple("SwitchConnection", "src dst")
-
 """
 Sink timing
 
@@ -165,7 +166,6 @@ c           - Load capacitance.
 vpr_switch  - VPR switch name
 """
 SinkTiming = namedtuple("SinkTiming", "tdel c vpr_switch")
-
 """
 Driver timing
 
@@ -174,7 +174,6 @@ r           - Driver resitance.
 vpr_switch  - VPR switch name
 """
 DriverTiming = namedtuple("DriverTiming", "tdel r vpr_switch")
-
 """
 Mux edge timing data
 
@@ -195,18 +194,17 @@ class Switchbox(object):
     multiple switches. Each switch is a small M-to-N routing box.
     """
 
-
     class Mux(object):
         """
         An individual multiplexer inside a switchbox
         """
 
         def __init__(self, id, switch):
-            self.id     = id        # The mux ID
-            self.switch = switch    # Parent switch od
-            self.inputs = {}        # Input pins by their IDs
-            self.output = None      # The output pin
-            self.timing  = {}       # Input timing (per input)
+            self.id = id  # The mux ID
+            self.switch = switch  # Parent switch od
+            self.inputs = {}  # Input pins by their IDs
+            self.output = None  # The output pin
+            self.timing = {}  # Input timing (per input)
 
         @property
         def pins(self):
@@ -218,15 +216,15 @@ class Switchbox(object):
 
             yield self.output
 
-
     class Switch(object):
         """
         This is a sub-switchbox of a switchbox stage.
         """
+
         def __init__(self, id, stage):
-            self.id    = id         # The switch ID
-            self.stage = stage      # Parent stage id
-            self.muxes = {}         # Muxes by their IDs
+            self.id = id  # The switch ID
+            self.stage = stage  # Parent stage id
+            self.muxes = {}  # Muxes by their IDs
 
         @property
         def pins(self):
@@ -236,34 +234,34 @@ class Switchbox(object):
             for mux in self.muxes.values():
                 yield from mux.pins
 
-
     class Stage(object):
         """
         Represents a routing stage which has some attributes and consists of
         a column of Switch objects
         """
+
         def __init__(self, id, type=None):
-            self.id       = id      # The stage ID
-            self.type     = type    # The stage type ("HIGHWAY" or "STREET")
-            self.switches = {}      # Switches indexed by their IDs
+            self.id = id  # The stage ID
+            self.type = type  # The stage type ("HIGHWAY" or "STREET")
+            self.switches = {}  # Switches indexed by their IDs
 
         @property
         def pins(self):
             """
             Yields all pins of the stage
-            """            
+            """
             for switch in self.switches.values():
                 yield from switch.pins
 
     # ...............................................................
 
     def __init__(self, type):
-        self.type       = type  # Switchbox type
-        self.inputs     = {}    # Top-level inputs by their names
-        self.outputs    = {}    # Top-level outputs by their names
-        self.stages     = {}    # Stages by their IDs
+        self.type = type  # Switchbox type
+        self.inputs = {}  # Top-level inputs by their names
+        self.outputs = {}  # Top-level outputs by their names
+        self.stages = {}  # Stages by their IDs
 
-        self.connections  = set()    # Connections between stages
+        self.connections = set()  # Connections between stages
 
     @property
     def pins(self):
@@ -275,16 +273,19 @@ class Switchbox(object):
         for pin in self.outputs.values():
             yield pin
 
+
 # =============================================================================
+
 
 class ConnectionType(Enum):
     """
     Connection endpoint type
     """
-    UNSPEC      = 0 # Unspecified
-    SWITCHBOX   = 1 # Connection to a pin of a switchbox
-    TILE        = 2 # Connection to a pin of a tile
-    SPECIAL     = 3 # Connection to a special cell like ASSP, RAM and MULT
+    UNSPEC = 0  # Unspecified
+    SWITCHBOX = 1  # Connection to a pin of a switchbox
+    TILE = 2  # Connection to a pin of a tile
+    SPECIAL = 3  # Connection to a special cell like ASSP, RAM and MULT
+
 
 # A connection endpoint location. Specifies location, pin name and connection
 # type.
@@ -306,4 +307,3 @@ VprSegment = namedtuple("VprSegment", "name length r_metal c_metal")
 
 # VPR switch
 VprSwitch = namedtuple("VprSwitch", "name type t_del r c_in c_out c_int")
-

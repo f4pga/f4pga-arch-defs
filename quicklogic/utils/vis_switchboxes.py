@@ -8,18 +8,20 @@ from data_import import import_data
 
 # =============================================================================
 
+
 def fixup_pin_name(name):
     return name.replace("[", "").replace("]", "")
+
 
 def switchbox_to_dot(switchbox, stage_types=("STREET", "HIGHWAY")):
     dot = []
 
     TYPE_TO_COLOR = {
         SwitchboxPinType.UNSPEC: "#C0C0C0",
-        SwitchboxPinType.LOCAL:  "#C0C0FF",
-        SwitchboxPinType.HOP:    "#FFFFC0",
-        SwitchboxPinType.CONST:  "#FFC0C0",
-        SwitchboxPinType.GCLK:   "#C0FFC0",
+        SwitchboxPinType.LOCAL: "#C0C0FF",
+        SwitchboxPinType.HOP: "#FFFFC0",
+        SwitchboxPinType.CONST: "#FFC0C0",
+        SwitchboxPinType.GCLK: "#C0FFC0",
     }
 
     # Add header
@@ -30,7 +32,9 @@ def switchbox_to_dot(switchbox, stage_types=("STREET", "HIGHWAY")):
     dot.append("  margin = 20;")
     dot.append("  node [shape=record, style=filled, fillcolor=white];")
 
-    stage_ids_to_show = set([s.id for s in switchbox.stages.values() if s.type in stage_types])
+    stage_ids_to_show = set(
+        [s.id for s in switchbox.stages.values() if s.type in stage_types]
+    )
 
     # Top-level inputs
     dot.append("  subgraph cluster_inputs {")
@@ -43,9 +47,13 @@ def switchbox_to_dot(switchbox, stage_types=("STREET", "HIGHWAY")):
             continue
 
         color = TYPE_TO_COLOR.get(pin.type, "#C0C0C0")
-        name  = "input_{}".format(fixup_pin_name(pin.name))
-        dot.append("    {} [rank=0, label=\"{}\", fillcolor=\"{}\"];".format(name, pin.name, color))
-        
+        name = "input_{}".format(fixup_pin_name(pin.name))
+        dot.append(
+            "    {} [rank=0, label=\"{}\", fillcolor=\"{}\"];".format(
+                name, pin.name, color
+            )
+        )
+
     dot.append("  }")
 
     # Top-level outputs
@@ -61,10 +69,14 @@ def switchbox_to_dot(switchbox, stage_types=("STREET", "HIGHWAY")):
             continue
 
         color = TYPE_TO_COLOR[pin.type]
-        name  = "output_{}".format(fixup_pin_name(pin.name))
-        dot.append("    {} [rank={}, label=\"{}\", fillcolor=\"{}\"];".format(name, rank, pin.name, color))
-        
-    dot.append("  }")      
+        name = "output_{}".format(fixup_pin_name(pin.name))
+        dot.append(
+            "    {} [rank={}, label=\"{}\", fillcolor=\"{}\"];".format(
+                name, rank, pin.name, color
+            )
+        )
+
+    dot.append("  }")
 
     # Stages
     for stage in switchbox.stages.values():
@@ -75,12 +87,18 @@ def switchbox_to_dot(switchbox, stage_types=("STREET", "HIGHWAY")):
         rank = stage.id + 1
 
         dot.append("  subgraph cluster_st{} {{".format(stage.id))
-        dot.append("    label=\"Stage #{} '{}'\";".format(stage.id, stage.type))
+        dot.append(
+            "    label=\"Stage #{} '{}'\";".format(stage.id, stage.type)
+        )
         dot.append("    bgcolor=\"#D0D0D0\"")
 
         # Switch
         for switch in stage.switches.values():
-            dot.append("    subgraph cluster_st{}_sw{} {{".format(stage.id, switch.id))
+            dot.append(
+                "    subgraph cluster_st{}_sw{} {{".format(
+                    stage.id, switch.id
+                )
+            )
             dot.append("      label=\"Switch #{}\";".format(switch.id))
             dot.append("    bgcolor=\"#F0F0F0\"")
 
@@ -89,12 +107,23 @@ def switchbox_to_dot(switchbox, stage_types=("STREET", "HIGHWAY")):
                 inputs = sorted(mux.inputs.values(), key=lambda p: p.id)
 
                 mux_l = "Mux #{}".format(mux.id)
-                inp_l = "|".join(["<i{}> {}. {}".format(p.id, p.id, p.name) for p in inputs])
-                out_l = "<o{}> {}. {}".format(mux.output.id, mux.output.id, mux.output.name)
+                inp_l = "|".join(
+                    [
+                        "<i{}> {}. {}".format(p.id, p.id, p.name)
+                        for p in inputs
+                    ]
+                )
+                out_l = "<o{}> {}. {}".format(
+                    mux.output.id, mux.output.id, mux.output.name
+                )
                 label = "{}|{{{{{}}}|{{{}}}}}".format(mux_l, inp_l, out_l)
-                name  = "st{}_sw{}_mx{}".format(stage.id, switch.id, mux.id)
+                name = "st{}_sw{}_mx{}".format(stage.id, switch.id, mux.id)
 
-                dot.append("      {} [rank=\"{}\", label=\"{}\"];".format(name, rank, label))
+                dot.append(
+                    "      {} [rank=\"{}\", label=\"{}\"];".format(
+                        name, rank, label
+                    )
+                )
 
             dot.append("    }")
 
@@ -108,17 +137,18 @@ def switchbox_to_dot(switchbox, stage_types=("STREET", "HIGHWAY")):
         if switchbox.stages[conn.dst.stage_id].type not in stage_types:
             continue
 
-        src_node = "st{}_sw{}_mx{}".format(conn.src.stage_id, conn.src.switch_id, conn.src.mux_id)
+        src_node = "st{}_sw{}_mx{}".format(
+            conn.src.stage_id, conn.src.switch_id, conn.src.mux_id
+        )
         src_port = "o{}".format(conn.src.pin_id)
-        dst_node = "st{}_sw{}_mx{}".format(conn.dst.stage_id, conn.dst.switch_id, conn.dst.mux_id)
+        dst_node = "st{}_sw{}_mx{}".format(
+            conn.dst.stage_id, conn.dst.switch_id, conn.dst.mux_id
+        )
         dst_port = "i{}".format(conn.dst.pin_id)
 
-        dot.append("  {}:{} -> {}:{};".format(
-            src_node,
-            src_port,
-            dst_node,
-            dst_port
-        ))
+        dot.append(
+            "  {}:{} -> {}:{};".format(src_node, src_port, dst_node, dst_port)
+        )
 
     # Input pin connections
     for pin in switchbox.inputs.values():
@@ -129,14 +159,12 @@ def switchbox_to_dot(switchbox, stage_types=("STREET", "HIGHWAY")):
             if switchbox.stages[loc.stage_id].type not in stage_types:
                 continue
 
-            dst_node = "st{}_sw{}_mx{}".format(loc.stage_id, loc.switch_id, loc.mux_id)
+            dst_node = "st{}_sw{}_mx{}".format(
+                loc.stage_id, loc.switch_id, loc.mux_id
+            )
             dst_port = "i{}".format(loc.pin_id)
-            
-            dot.append("  {} -> {}:{};".format(
-                src_node,
-                dst_node,
-                dst_port
-            ))
+
+            dot.append("  {} -> {}:{};".format(src_node, dst_node, dst_port))
 
     # Output pin connections
     for pin in switchbox.outputs.values():
@@ -147,33 +175,30 @@ def switchbox_to_dot(switchbox, stage_types=("STREET", "HIGHWAY")):
             if switchbox.stages[loc.stage_id].type not in stage_types:
                 continue
 
-            src_node = "st{}_sw{}_mx{}".format(loc.stage_id, loc.switch_id, loc.mux_id)
+            src_node = "st{}_sw{}_mx{}".format(
+                loc.stage_id, loc.switch_id, loc.mux_id
+            )
             src_port = "o{}".format(loc.pin_id)
-            
-            dot.append("  {}:{} -> {};".format(
-                src_node,
-                src_port,
-                dst_node
-            ))
+
+            dot.append("  {}:{} -> {};".format(src_node, src_port, dst_node))
 
     # Footer
     dot.append("}")
     return "\n".join(dot)
 
+
 # =============================================================================
 
 
 def main():
-    
-    # Parse arguments
-    parser = argparse.ArgumentParser(description=__doc__,
-        formatter_class=argparse.RawDescriptionHelpFormatter)
 
-    parser.add_argument(
-        "i",
-        type=str,
-        help="Quicklogic 'TechFile' file"
+    # Parse arguments
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter
     )
+
+    parser.add_argument("i", type=str, help="Quicklogic 'TechFile' file")
     parser.add_argument(
         "--stages",
         type=str,
@@ -189,13 +214,14 @@ def main():
 
     # Load data
     data = import_data(xml_root)
-    switchbox_types = data["switchbox_types"] 
+    switchbox_types = data["switchbox_types"]
 
     # Generate DOT files with switchbox visualizations
     for switchbox in switchbox_types.values():
         fname = "sbox_{}.dot".format(switchbox.type)
         with open(fname, "w") as fp:
             fp.write(switchbox_to_dot(switchbox, args.stages.split(",")))
+
 
 # =============================================================================
 

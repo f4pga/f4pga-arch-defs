@@ -38,6 +38,7 @@ def is_loc_within_limit(loc, limit):
 
     return True
 
+
 # =============================================================================
 
 
@@ -77,14 +78,15 @@ def process_tilegrid(tile_types, tile_grid, grid_limit=None):
         # just for that cell.
         if "BIDIR" in tile_type.type:
             new_tile_grid[loc] = Tile(
-                type = "SYN_IO",
-                name = tile.name,
-                cell_names = {"BIDIR": ["BIDIR0"]}
+                type="SYN_IO",
+                name=tile.name,
+                cell_names={"BIDIR": ["BIDIR0"]}
             )
             continue
- 
+
         # FIXME: For now keep only tile that contains only one LOGIC cell inside
-        if len(tile_type.cells) == 1 and list(tile_type.cells.keys())[0] == "LOGIC":
+        if len(tile_type.cells) == 1 and list(tile_type.cells.keys()
+                                              )[0] == "LOGIC":
             new_tile_grid[loc] = tile
 
     # Find the ASSP tile. There are multiple tiles that contain the ASSP cell
@@ -98,15 +100,13 @@ def process_tilegrid(tile_types, tile_grid, grid_limit=None):
             assert new_tile_grid[assp_loc] is None, ("ASSP", assp_loc)
 
         new_tile_grid[assp_loc] = Tile(
-            type = "ASSP",
-            name = "ASSP",
-            cell_names = {"ASSP": "ASSP0"}
+            type="ASSP", name="ASSP", cell_names={"ASSP": "ASSP0"}
         )
 
     # Insert synthetic VCC and GND source tiles.
     # FIXME: This assumes that the locations specified are empty!
     for const, loc in [("VCC", Loc(x=1, y=0)), ("GND", Loc(x=2, y=0))]:
-        
+
         # Verify that the location is empty
         if loc in new_tile_grid:
             assert net_tile_grid[loc] is None, (const, loc)
@@ -114,9 +114,7 @@ def process_tilegrid(tile_types, tile_grid, grid_limit=None):
         # Add the tile instance
         name = "SYN_{}".format(const)
         new_tile_grid[loc] = Tile(
-            type = name,
-            name = name,
-            cell_names = {name: ["{}0".format(name)]}
+            type=name, name=name, cell_names={name: ["{}0".format(name)]}
         )
 
     # Extend the grid by 1 in every direction. Fill missing locs with empty
@@ -125,22 +123,22 @@ def process_tilegrid(tile_types, tile_grid, grid_limit=None):
 
     xs = [loc.x for loc in new_tile_grid.keys()]
     ys = [loc.y for loc in new_tile_grid.keys()]
-    
+
     grid_min = Loc(min(xs), min(ys))
     grid_max = Loc(max(xs), max(ys))
 
-    for x, y in itertools.product(range(grid_min[0], grid_max[0]+3),
-                                  range(grid_min[1], grid_max[1]+3)):
-        vpr_tile_grid[Loc(x=x,y=y)] = None
+    for x, y in itertools.product(range(grid_min[0], grid_max[0] + 3),
+                                  range(grid_min[1], grid_max[1] + 3)):
+        vpr_tile_grid[Loc(x=x, y=y)] = None
 
     # Build tile map
     fwd_loc_map = {}
     bwd_loc_map = {}
 
-    for x, y in itertools.product(range(grid_min[0], grid_max[0]+1),
-                                  range(grid_min[1], grid_max[1]+1)):
+    for x, y in itertools.product(range(grid_min[0], grid_max[0] + 1),
+                                  range(grid_min[1], grid_max[1] + 1)):
         loc = Loc(x=x, y=y)
-        new_loc = Loc(x=loc.x+1, y=loc.y+1)
+        new_loc = Loc(x=loc.x + 1, y=loc.y + 1)
 
         fwd_loc_map[loc] = new_loc
         bwd_loc_map[new_loc] = loc
@@ -152,6 +150,7 @@ def process_tilegrid(tile_types, tile_grid, grid_limit=None):
         vpr_tile_grid[new_loc] = tile
 
     return vpr_tile_grid, LocMap(fwd=fwd_loc_map, bwd=bwd_loc_map),
+
 
 # =============================================================================
 
@@ -173,17 +172,19 @@ def process_switchbox_grid(phy_switchbox_grid, loc_map, grid_limit=None):
 
     return vpr_switchbox_grid
 
+
 # =============================================================================
 
 
-def process_connections(phy_connections, loc_map, vpr_tile_grid, grid_limit=None):
+def process_connections(
+        phy_connections, loc_map, vpr_tile_grid, grid_limit=None
+):
     """
     Process the connection list.
     """
 
     # Pin map
-    pin_map = {
-    }
+    pin_map = {}
 
     # Remap locations, remap pins
     vpr_connections = []
@@ -233,9 +234,7 @@ def process_connections(phy_connections, loc_map, vpr_tile_grid, grid_limit=None
         vpr_connections.append(new_connection)
 
     # Find locations of "special" tiles
-    special_tile_loc = {
-        "ASSP": None
-    }
+    special_tile_loc = {"ASSP": None}
 
     for loc, tile in vpr_tile_grid.items():
         if tile is not None and tile.type in special_tile_loc:
@@ -253,24 +252,23 @@ def process_connections(phy_connections, loc_map, vpr_tile_grid, grid_limit=None
                 continue
 
             cell_name, pin = ep.pin.split("_", maxsplit=1)
-            cell_type = cell_name[:-1]  # FIXME: Will fail on cell with index >= 10
+            cell_type = cell_name[:-1
+                                  ]  # FIXME: Will fail on cell with index >= 10
 
             if cell_type in special_tile_loc:
                 loc = special_tile_loc[cell_type]
 
                 eps[j] = ConnectionLoc(
-                    loc  = loc,
-                    pin  = ep.pin,
-                    type = ep.type,
+                    loc=loc,
+                    pin=ep.pin,
+                    type=ep.type,
                 )
 
         # Modify the connection
-        vpr_connections[i] = Connection(
-            src = eps[0],
-            dst = eps[1]
-        )
+        vpr_connections[i] = Connection(src=eps[0], dst=eps[1])
 
     return vpr_connections
+
 
 # =============================================================================
 
@@ -283,7 +281,7 @@ def get_cell_type_by_name_at_loc(loc, cell_name, tile_grid):
 
     if loc not in tile_grid:
         return None
-    
+
     tile = tile_grid[loc]
     if tile is None:
         return None
@@ -314,7 +312,9 @@ def process_package_pinmap(package_pinmap, phy_tile_grid, loc_map):
         cell_names = []
         for cell_name in pin.cell_names:
 
-            cell_type = get_cell_type_by_name_at_loc(pin.loc, cell_name, phy_tile_grid)
+            cell_type = get_cell_type_by_name_at_loc(
+                pin.loc, cell_name, phy_tile_grid
+            )
             assert cell_type is not None, (pin.name, cell_name, pin.loc)
 
             if cell_type not in IGNORED_IO_CELL_TYPES:
@@ -328,12 +328,13 @@ def process_package_pinmap(package_pinmap, phy_tile_grid, loc_map):
         new_loc = loc_map.fwd[pin.loc]
 
         new_package_pinmap[pin_name] = PackagePin(
-            name = pin.name,
-            loc = new_loc,
-            cell_names = cell_names # TODO: Should probably map cell names here
+            name=pin.name,
+            loc=new_loc,
+            cell_names=cell_names  # TODO: Should probably map cell names here
         )
 
     return new_package_pinmap
+
 
 # =============================================================================
 
@@ -342,29 +343,29 @@ def build_switch_list():
     """
     Builds a list of all switch types used by the architecture
     """
-    switches = {}   
+    switches = {}
 
     # Add a generic mux switch to make VPR happy
     switch = VprSwitch(
-        name  = "generic",
-        type  = "mux",
-        t_del = 0.0,
-        r     = 0.0,
-        c_in  = 0.0,
-        c_out = 0.0,
-        c_int = 0.0,
+        name="generic",
+        type="mux",
+        t_del=0.0,
+        r=0.0,
+        c_in=0.0,
+        c_out=0.0,
+        c_int=0.0,
     )
     switches[switch.name] = switch
 
     # A delayless short
     switch = VprSwitch(
-        name  = "short",
-        type  = "short",
-        t_del = 0.0,
-        r     = 0.0,
-        c_in  = 0.0,
-        c_out = 0.0,
-        c_int = 0.0,
+        name="short",
+        type="short",
+        t_del=0.0,
+        r=0.0,
+        c_in=0.0,
+        c_out=0.0,
+        c_int=0.0,
     )
     switches[switch.name] = switch
 
@@ -379,70 +380,73 @@ def build_segment_list():
 
     # A generic segment
     segment = VprSegment(
-        name    = "generic",
-        length  = 1,
-        r_metal = 0.0,
-        c_metal = 0.0,
+        name="generic",
+        length=1,
+        r_metal=0.0,
+        c_metal=0.0,
     )
     segments[segment.name] = segment
 
     # Padding segment
     segment = VprSegment(
-        name    = "pad",
-        length  = 1,
-        r_metal = 0.0,
-        c_metal = 0.0,
+        name="pad",
+        length=1,
+        r_metal=0.0,
+        c_metal=0.0,
     )
     segments[segment.name] = segment
 
-    # Switchbox segment    
+    # Switchbox segment
     segment = VprSegment(
-        name    = "sbox",
-        length  = 1,
-        r_metal = 0.0,
-        c_metal = 0.0,
+        name="sbox",
+        length=1,
+        r_metal=0.0,
+        c_metal=0.0,
     )
     segments[segment.name] = segment
 
     # VCC and GND segments
     for const in ["VCC", "GND"]:
         segment = VprSegment(
-            name    = const.lower(),
-            length  = 1,
-            r_metal = 0.0,
-            c_metal = 0.0,
+            name=const.lower(),
+            length=1,
+            r_metal=0.0,
+            c_metal=0.0,
         )
         segments[segment.name] = segment
 
     # HOP wire segments
-    for i in [1,2,3,4]:
+    for i in [1, 2, 3, 4]:
         segment = VprSegment(
-            name    = "hop{}".format(i),
-            length  = i,
-            r_metal = 0.0,
-            c_metal = 0.0,
+            name="hop{}".format(i),
+            length=i,
+            r_metal=0.0,
+            c_metal=0.0,
         )
         segments[segment.name] = segment
 
     # A segment for "hop" connections to "special" tiles.
     segment = VprSegment(
-        name    = "special",
-        length  = 1,
-        r_metal = 0.0,
-        c_metal = 0.0,
+        name="special",
+        length=1,
+        r_metal=0.0,
+        c_metal=0.0,
     )
     segments[segment.name] = segment
 
     return segments
 
+
 # =============================================================================
 
 
 def main():
-    
+
     # Parse arguments
-    parser = argparse.ArgumentParser(description=__doc__,
-        formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
 
     parser.add_argument(
         "--phy-db",
@@ -482,33 +486,53 @@ def main():
         phy_switchbox_grid = db["switchbox_grid"]
         switchbox_timing = db["switchbox_timing"]
         connections = db["connections"]
-        package_pinmaps = db["package_pinmaps"]        
+        package_pinmaps = db["package_pinmaps"]
 
     # Add synthetic stuff
     add_synthetic_cell_and_tile_types(tile_types, cells_library)
 
     # Process the tilegrid
-    vpr_tile_grid, loc_map = process_tilegrid(tile_types, phy_tile_grid, grid_limit)
+    vpr_tile_grid, loc_map = process_tilegrid(
+        tile_types, phy_tile_grid, grid_limit
+    )
 
     # Process the switchbox grid
-    vpr_switchbox_grid = process_switchbox_grid(phy_switchbox_grid, loc_map, grid_limit)
+    vpr_switchbox_grid = process_switchbox_grid(
+        phy_switchbox_grid, loc_map, grid_limit
+    )
 
     # Process connections
-    connections = process_connections(connections, loc_map, vpr_tile_grid, grid_limit)
+    connections = process_connections(
+        connections, loc_map, vpr_tile_grid, grid_limit
+    )
 
     # Process package pinmaps
     vpr_package_pinmaps = {}
     for package, pkg_pin_map in package_pinmaps.items():
-        vpr_package_pinmaps[package] = process_package_pinmap(pkg_pin_map, phy_tile_grid, loc_map)
+        vpr_package_pinmaps[package] = process_package_pinmap(
+            pkg_pin_map, phy_tile_grid, loc_map
+        )
 
     # Get tile types present in the grid
-    vpr_tile_types = set([t.type for t in vpr_tile_grid.values() if t is not None])
-    vpr_tile_types = {k: v for k, v in tile_types.items() if k in vpr_tile_types}
+    vpr_tile_types = set(
+        [t.type for t in vpr_tile_grid.values() if t is not None]
+    )
+    vpr_tile_types = {
+        k: v
+        for k, v in tile_types.items()
+        if k in vpr_tile_types
+    }
 
     # Get the switchbox types present in the grid
-    vpr_switchbox_types = set([s for s in vpr_switchbox_grid.values() if s is not None])
-    vpr_switchbox_types = {k: v for k, v in switchbox_types.items() if k in vpr_switchbox_types}
-    
+    vpr_switchbox_types = set(
+        [s for s in vpr_switchbox_grid.values() if s is not None]
+    )
+    vpr_switchbox_types = {
+        k: v
+        for k, v in switchbox_types.items()
+        if k in vpr_switchbox_types
+    }
+
     # Make switch list
     vpr_switches = build_switch_list()
     # Make segment list
@@ -524,10 +548,14 @@ def main():
 
         # Compute the timing model for the most generic SB_LC switchbox.
         switchbox = vpr_switchbox_types["SB_LC"]
-        driver_timing, sink_map = compute_switchbox_timing_model(switchbox, timing_data)
+        driver_timing, sink_map = compute_switchbox_timing_model(
+            switchbox, timing_data
+        )
 
         # Populate the model, create and assign VPR switches.
-        populate_switchbox_timing(switchbox, driver_timing, sink_map, vpr_switches)
+        populate_switchbox_timing(
+            switchbox, driver_timing, sink_map, vpr_switches
+        )
 
         # Propagate the timing data to all other switchboxes. Even though they
         # are of different type, physically they are the same.
@@ -550,10 +578,10 @@ def main():
         "cells_library": cells_library,
         "loc_map": loc_map,
         "vpr_tile_types": vpr_tile_types,
-        "vpr_tile_grid":vpr_tile_grid,
+        "vpr_tile_grid": vpr_tile_grid,
         "vpr_switchbox_types": vpr_switchbox_types,
         "vpr_switchbox_grid": vpr_switchbox_grid,
-        "connections":connections,
+        "connections": connections,
         "vpr_package_pinmaps": vpr_package_pinmaps,
         "segments": list(vpr_segments.values()),
         "switches": list(vpr_switches.values()),
@@ -562,8 +590,8 @@ def main():
     with open(args.vpr_db, "wb") as fp:
         pickle.dump(db_root, fp, protocol=3)
 
-# =============================================================================
 
+# =============================================================================
 
 if __name__ == "__main__":
     main()

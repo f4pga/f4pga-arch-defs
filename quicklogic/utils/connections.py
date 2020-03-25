@@ -37,7 +37,7 @@ def hop_to_str(offset):
     if offset[0] != 0:
         assert offset[1] == 0, offset
     if offset[1] != 0:
-        assert offset[0] == 0, offset    
+        assert offset[0] == 0, offset
 
     # Horizontal
     if offset[1] == 0:
@@ -128,7 +128,7 @@ def is_regular_hop_wire(name):
 
     # Check orientation
     orientation = match.group(1)
-    direction   = match.group(3)
+    direction = match.group(3)
 
     if orientation == "H":
         assert direction in ["L", "R"], name
@@ -137,10 +137,13 @@ def is_regular_hop_wire(name):
 
     return True
 
+
 # =============================================================================
 
 
-def build_tile_connections(tile_types, tile_grid, switchbox_types, switchbox_grid):
+def build_tile_connections(
+        tile_types, tile_grid, switchbox_types, switchbox_grid
+):
     """
     Build local and foreign connections between all switchboxes and tiles.
     """
@@ -149,7 +152,7 @@ def build_tile_connections(tile_types, tile_grid, switchbox_types, switchbox_gri
     # Process switchboxes
     for loc, switchbox_type in switchbox_grid.items():
         switchbox = switchbox_types[switchbox_type]
-        
+
         # Get pins
         sbox_pins = [pin for pin in switchbox.pins if pin.type in \
                     [SwitchboxPinType.LOCAL, SwitchboxPinType.FOREIGN]]
@@ -161,7 +164,7 @@ def build_tile_connections(tile_types, tile_grid, switchbox_types, switchbox_gri
             if sbox_pin.type == SwitchboxPinType.LOCAL:
                 pin_name = sbox_pin.name
                 tile_loc = loc
-                
+
             # A foreign connection
             elif sbox_pin.type == SwitchboxPinType.FOREIGN:
 
@@ -170,13 +173,17 @@ def build_tile_connections(tile_types, tile_grid, switchbox_types, switchbox_gri
                 assert hop is not None, sbox_pin
 
                 tile_loc = Loc(
-                    x = loc.x + hop[0],
-                    y = loc.y + hop[1],
+                    x=loc.x + hop[0],
+                    y=loc.y + hop[1],
                 )
 
             # Get the tile
             if tile_loc not in tile_grid:
-                print("WARNING: No tile at loc '{}' for pin '{}'".format(tile_loc, sbox_pin.name))
+                print(
+                    "WARNING: No tile at loc '{}' for pin '{}'".format(
+                        tile_loc, sbox_pin.name
+                    )
+                )
                 continue
 
             tile = tile_types[tile_grid[tile_loc].type]
@@ -195,13 +202,11 @@ def build_tile_connections(tile_types, tile_grid, switchbox_types, switchbox_gri
 
             # Pin not found
             if tile_pin is None:
-                print("WARNING: No pin in tile at '{}' found for switchbox pin '{}' of '{}' at '{}'".format(
-                    tile_loc,
-                    sbox_pin.name,
-                    switchbox.type,
-                    loc
-                ))
-                continue            
+                print(
+                    "WARNING: No pin in tile at '{}' found for switchbox pin '{}' of '{}' at '{}'"
+                    .format(tile_loc, sbox_pin.name, switchbox.type, loc)
+                )
+                continue
 
             # Add the connection
             src = ConnectionLoc(
@@ -246,7 +251,10 @@ def build_hop_connections(switchbox_types, switchbox_grid):
 
         # Process HOP inputs. No need for looping over outputs as each output
         # should go into a HOP input.
-        dst_pins = [pin for pin in dst_switchbox.inputs.values() if pin.type == SwitchboxPinType.HOP]
+        dst_pins = [
+            pin for pin in dst_switchbox.inputs.values()
+            if pin.type == SwitchboxPinType.HOP
+        ]
         for dst_pin in dst_pins:
 
             # Parse the name, determine hop offset. Skip non-hop wires.
@@ -263,21 +271,31 @@ def build_hop_connections(switchbox_types, switchbox_grid):
 
             # Get the switchbox at the source location
             if src_loc not in switchbox_grid:
-                print("WARNING: No switchbox at '{}' for input '{}' of switchbox '{}' at '{}'".format(
-                    src_loc, dst_pin.name, dst_switchbox_type, dst_loc
-                ))
+                print(
+                    "WARNING: No switchbox at '{}' for input '{}' of switchbox '{}' at '{}'"
+                    .format(
+                        src_loc, dst_pin.name, dst_switchbox_type, dst_loc
+                    )
+                )
                 continue
 
             src_switchbox_type = switchbox_grid[src_loc]
-            src_switchbox      = switchbox_types[src_switchbox_type]
+            src_switchbox = switchbox_types[src_switchbox_type]
 
             # Check if there is a matching input pin in that switchbox
-            src_pins = [pin for pin in src_switchbox.outputs.values() if pin.name == hop_name]
+            src_pins = [
+                pin for pin in src_switchbox.outputs.values()
+                if pin.name == hop_name
+            ]
 
             if len(src_pins) != 1:
-                print("WARNING: No output pin '{}' in switchbox '{}' at '{}' for input '{}' of switchbox '{}' at '{}'".format(
-                    hop_name, src_switchbox_type, src_loc, dst_pin.name, dst_switchbox_type, dst_loc
-                ))
+                print(
+                    "WARNING: No output pin '{}' in switchbox '{}' at '{}' for input '{}' of switchbox '{}' at '{}'"
+                    .format(
+                        hop_name, src_switchbox_type, src_loc, dst_pin.name,
+                        dst_switchbox_type, dst_loc
+                    )
+                )
                 continue
 
             src_pin = src_pins[0]
@@ -300,6 +318,7 @@ def build_hop_connections(switchbox_types, switchbox_grid):
 
     return connections
 
+
 # =============================================================================
 
 
@@ -311,7 +330,9 @@ def build_connections(tile_types, tile_grid, switchbox_types, switchbox_grid):
     connections = []
 
     # Local and foreign tile connections
-    connections += build_tile_connections(tile_types, tile_grid, switchbox_types, switchbox_grid)
+    connections += build_tile_connections(
+        tile_types, tile_grid, switchbox_types, switchbox_grid
+    )
 
     # HOP connections
     connections += build_hop_connections(switchbox_types, switchbox_grid)

@@ -17,18 +17,18 @@ from eblif import parse_blif
 PAD_DEFAULT = {
     "func_sel": 0,
     "ctrl_sel": 0,
-    "mode":     "none",
-    "pull":     "none",
-    "drive":    2,
-    "slew":     "slow",
-    "schmitt":  0
+    "mode": "none",
+    "pull": "none",
+    "drive": 2,
+    "slew": "slow",
+    "schmitt": 0
 }
 
 # Base address of the FBIO_SEL registers
 FBIOSEL_BASE = 0x40004D80
 
 # Base address of the IOMUX registers
-IOMUX_BASE   = 0x40004C00
+IOMUX_BASE = 0x40004C00
 
 # =============================================================================
 
@@ -116,16 +116,17 @@ def generate_iomux_register_content(config):
         iomux_regs[adr] = reg
 
     # Generate content of FBIO_SEL_1 and FBIO_SEL_2
-    fbio_sel = {0:0, 1:0}
+    fbio_sel = {0: 0, 1: 0}
     for pad in config["pads"].keys():
         r = int(pad) // 32
-        b = int(pad)  % 32
-        fbio_sel[r] |= (1<<b)
-    
+        b = int(pad) % 32
+        fbio_sel[r] |= (1 << b)
+
     iomux_regs[FBIOSEL_BASE + 0x0] = fbio_sel[0]
     iomux_regs[FBIOSEL_BASE + 0x4] = fbio_sel[1]
 
     return iomux_regs
+
 
 # =============================================================================
 
@@ -134,10 +135,12 @@ def main():
     """
     Main
     """
-    
+
     # Parse arguments
-    parser = argparse.ArgumentParser(description=__doc__,
-        formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
 
     parser.add_argument(
         "--json",
@@ -188,14 +191,12 @@ def main():
             eblif = parse_blif(fp)
 
         # Build the config
-        config = {
-            "pads": {}
-        }
+        config = {"pads": {}}
 
-        eblif_inputs  = eblif["inputs" ]["args"]
+        eblif_inputs = eblif["inputs"]["args"]
         eblif_outputs = eblif["outputs"]["args"]
 
-        for constraint in pcf:           
+        for constraint in pcf:
 
             match = re.match(r"^FBIO_([0-9]+)$", constraint.pad)
             if not match:
@@ -206,15 +207,15 @@ def main():
             # Configure as input
             if constraint.net in eblif_inputs:
                 pad_config = {
-                "ctrl_sel": "fabric",
-                "mode":     "input",
+                    "ctrl_sel": "fabric",
+                    "mode": "input",
                 }
 
             # Configure as output
             elif constraint.net in eblif_outputs:
                 pad_config = {
-                "ctrl_sel": "fabric",
-                "mode":     "output",
+                    "ctrl_sel": "fabric",
+                    "mode": "output",
                 }
 
             else:

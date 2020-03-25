@@ -77,16 +77,16 @@ def add_node(graph, loc, direction, segment_id):
     """
 
     return add_track(
-        graph, 
+        graph,
         tracks.Track(
-            direction = direction,
-            x_low  = loc.x,
-            x_high = loc.x,
-            y_low  = loc.y,
-            y_high = loc.y,
-            ),
-        segment_id
-        )
+            direction=direction,
+            x_low=loc.x,
+            x_high=loc.x,
+            y_low=loc.y,
+            y_high=loc.y,
+        ), segment_id
+    )
+
 
 # =============================================================================
 
@@ -97,10 +97,10 @@ def node_joint_location(node_a, node_b):
     other.
     """
 
-    loc_a1 = Loc(node_a.loc.x_low , node_a.loc.y_low )
+    loc_a1 = Loc(node_a.loc.x_low, node_a.loc.y_low)
     loc_a2 = Loc(node_a.loc.x_high, node_a.loc.y_high)
 
-    loc_b1 = Loc(node_b.loc.x_low , node_b.loc.y_low )
+    loc_b1 = Loc(node_b.loc.x_low, node_b.loc.y_low)
     loc_b2 = Loc(node_b.loc.x_high, node_b.loc.y_high)
 
     if loc_a1 == loc_b1:
@@ -115,20 +115,17 @@ def node_joint_location(node_a, node_b):
     assert False, (node_a, node_b)
 
 
-def add_edge(graph, src_node_id, dst_node_id, switch_id, meta_name=None, meta_value=""):
+def add_edge(
+        graph, src_node_id, dst_node_id, switch_id, meta_name=None,
+        meta_value=""
+):
     """
     Adds an edge to the routing graph. If the given switch corresponds to a
     "pass" type switch then adds two edges going both ways.
     """
 
     # Connect src to dst
-    graph.add_edge(
-        src_node_id,
-        dst_node_id,
-        switch_id,
-        meta_name,
-        meta_value
-    )
+    graph.add_edge(src_node_id, dst_node_id, switch_id, meta_name, meta_value)
 
     # Check if the switch is of the "pass" type. If so then add an edge going
     # in the opposite way.
@@ -136,15 +133,19 @@ def add_edge(graph, src_node_id, dst_node_id, switch_id, meta_name=None, meta_va
     if switch.type in [rr.SwitchType.SHORT, rr.SwitchType.PASS_GATE]:
 
         graph.add_edge(
-            dst_node_id,
-            src_node_id,
-            switch_id,
-            meta_name,
-            meta_value
+            dst_node_id, src_node_id, switch_id, meta_name, meta_value
         )
 
 
-def connect(graph, src_node, dst_node, switch_id=None, segment_id=None, meta_name=None, meta_value=""):
+def connect(
+        graph,
+        src_node,
+        dst_node,
+        switch_id=None,
+        segment_id=None,
+        meta_name=None,
+        meta_value=""
+):
     """
     Connect two VPR nodes in a way that certain rules are obeyed.
 
@@ -174,16 +175,16 @@ def connect(graph, src_node, dst_node, switch_id=None, segment_id=None, meta_nam
 
     # Determine which segment to use if none given
     if segment_id is None:
-        # If the source is IPIN/OPIN then use the same segment as used by 
+        # If the source is IPIN/OPIN then use the same segment as used by
         # the destination.
         # If the destination is IPIN/OPIN then do the opposite.
         # Finally if both are CHANX/CHANY then use the source's segment.
 
-        if   src_node.type in [rr.NodeType.IPIN, rr.NodeType.OPIN]:
+        if src_node.type in [rr.NodeType.IPIN, rr.NodeType.OPIN]:
             segment_id = dst_node.segment.segment_id
         elif dst_node.type in [rr.NodeType.IPIN, rr.NodeType.OPIN]:
             segment_id = src_node.segment.segment_id
-        else:        
+        else:
             segment_id = src_node.segment.segment_id
 
     # CHANX to CHANY or vice-versa
@@ -195,12 +196,7 @@ def connect(graph, src_node, dst_node, switch_id=None, segment_id=None, meta_nam
 
         # Connect directly
         add_edge(
-            graph,
-            src_node.id,
-            dst_node.id,
-            switch_id,
-            meta_name,
-            meta_value
+            graph, src_node.id, dst_node.id, switch_id, meta_name, meta_value
         )
 
     # CHANX to CHANX or CHANY to CHANY
@@ -211,23 +207,15 @@ def connect(graph, src_node, dst_node, switch_id=None, segment_id=None, meta_nam
         direction = "X" if src_node.type == rr.NodeType.CHANY else "Y"
 
         # Padding node
-        pad_node = add_node(
-            graph,
-            loc,
-            direction,
-            segment_id
-        )
+        pad_node = add_node(graph, loc, direction, segment_id)
 
         # Connect through the padding node
-        graph.add_edge(src_node.id, pad_node.id, graph.get_delayless_switch_id())
+        graph.add_edge(
+            src_node.id, pad_node.id, graph.get_delayless_switch_id()
+        )
 
         add_edge(
-            graph,
-            pad_node.id,
-            dst_node.id,
-            switch_id,
-            meta_name,
-            meta_value
+            graph, pad_node.id, dst_node.id, switch_id, meta_name, meta_value
         )
 
     # OPIN to CHANX/CHANY
@@ -243,22 +231,15 @@ def connect(graph, src_node, dst_node, switch_id=None, segment_id=None, meta_nam
             loc = node_joint_location(src_node, dst_node)
 
             # Padding node
-            pad_node = add_node(
-                graph,
-                loc,
-                "Y",
-                segment_id
-            )
+            pad_node = add_node(graph, loc, "Y", segment_id)
 
             # Connect through the padding node
-            graph.add_edge(src_node.id, pad_node.id, graph.get_delayless_switch_id())
+            graph.add_edge(
+                src_node.id, pad_node.id, graph.get_delayless_switch_id()
+            )
 
             add_edge(
-                graph,
-                pad_node.id,
-                dst_node.id,
-                switch_id,
-                meta_name,
+                graph, pad_node.id, dst_node.id, switch_id, meta_name,
                 meta_value
             )
 
@@ -267,11 +248,7 @@ def connect(graph, src_node, dst_node, switch_id=None, segment_id=None, meta_nam
 
             # Directly
             add_edge(
-                graph,
-                src_node.id,
-                dst_node.id,
-                switch_id,
-                meta_name,
+                graph, src_node.id, dst_node.id, switch_id, meta_name,
                 meta_value
             )
 
@@ -292,22 +269,15 @@ def connect(graph, src_node, dst_node, switch_id=None, segment_id=None, meta_nam
             loc = node_joint_location(src_node, dst_node)
 
             # Padding node
-            pad_node = add_node(
-                graph,
-                loc,
-                "X",
-                segment_id
-            )
+            pad_node = add_node(graph, loc, "X", segment_id)
 
             # Connect through the padding node
-            graph.add_edge(src_node.id, pad_node.id, graph.get_delayless_switch_id())
+            graph.add_edge(
+                src_node.id, pad_node.id, graph.get_delayless_switch_id()
+            )
 
             add_edge(
-                graph,
-                pad_node.id,
-                dst_node.id,
-                switch_id,
-                meta_name,
+                graph, pad_node.id, dst_node.id, switch_id, meta_name,
                 meta_value
             )
 
@@ -316,11 +286,7 @@ def connect(graph, src_node, dst_node, switch_id=None, segment_id=None, meta_nam
 
             # Directly
             add_edge(
-                graph,
-                src_node.id,
-                dst_node.id,
-                switch_id,
-                meta_name,
+                graph, src_node.id, dst_node.id, switch_id, meta_name,
                 meta_value
             )
 
@@ -342,12 +308,12 @@ class SwitchboxModel(object):
     """
 
     def __init__(self, graph, loc, phy_loc, switchbox):
-        self.graph      = graph
-        self.loc        = loc
-        self.phy_loc    = phy_loc
-        self.switchbox  = switchbox
+        self.graph = graph
+        self.loc = loc
+        self.phy_loc = phy_loc
+        self.switchbox = switchbox
 
-        self.mux_input_to_node  = {}
+        self.mux_input_to_node = {}
         self.mux_output_to_node = {}
 
         self.input_to_node = {}
@@ -371,7 +337,6 @@ class SwitchboxModel(object):
         else:
             assert False, stage.type
 
-
     def _create_muxes(self):
         """
         Creates nodes for muxes and internal edges within them. Annotates the
@@ -386,10 +351,10 @@ class SwitchboxModel(object):
             src = connection.src
             dst = connection.dst
 
-            stage  = self.switchbox.stages[src.stage_id]
+            stage = self.switchbox.stages[src.stage_id]
             switch = stage.switches[src.switch_id]
-            mux    = switch.muxes[src.mux_id]
-            pin    = mux.inputs[src.pin_id]
+            mux = switch.muxes[src.mux_id]
+            pin = mux.inputs[src.pin_id]
 
             if pin.id not in mux.timing:
                 continue
@@ -412,22 +377,12 @@ class SwitchboxModel(object):
             # Output node
             key = (stage.id, switch.id, mux.id)
             assert key not in self.mux_output_to_node
-            
-            out_node = add_node(
-                self.graph,
-                self.loc,
-                dir_out,
-                segment_id
-            )
+
+            out_node = add_node(self.graph, self.loc, dir_out, segment_id)
             self.mux_output_to_node[key] = out_node
 
             # Intermediate output node
-            int_node = add_node(
-                self.graph,
-                self.loc,
-                dir_out,
-                segment_id
-            )
+            int_node = add_node(self.graph, self.loc, dir_out, segment_id)
 
             # Get switch id for the switch assigned to the driver. If
             # there is none then use the delayless switch. Probably the
@@ -444,8 +399,8 @@ class SwitchboxModel(object):
                 self.graph,
                 int_node,
                 out_node,
-                switch_id  = switch_id,
-                segment_id = segment_id,
+                switch_id=switch_id,
+                segment_id=segment_id,
             )
 
             # Input nodes + mux edges
@@ -455,27 +410,19 @@ class SwitchboxModel(object):
                 assert key not in self.mux_input_to_node
 
                 # Input node
-                inp_node = add_node(
-                    self.graph,
-                    self.loc,
-                    dir_inp,
-                    segment_id
-                )
+                inp_node = add_node(self.graph, self.loc, dir_inp, segment_id)
                 self.mux_input_to_node[key] = inp_node
 
                 # Get mux metadata
                 metadata = self._get_metadata_for_mux(
-                    stage,
-                    switch,
-                    mux,
-                    pin.id
+                    stage, switch, mux, pin.id
                 )
 
                 if len(metadata):
-                    meta_name  = "fasm_features"
+                    meta_name = "fasm_features"
                     meta_value = "\n".join(metadata)
                 else:
-                    meta_name  = None
+                    meta_name = None
                     meta_value = ""
 
                 # Get switch id for the switch assigned to the mux edge. If
@@ -493,10 +440,10 @@ class SwitchboxModel(object):
                     self.graph,
                     inp_node,
                     int_node,
-                    switch_id  = switch_id,
-                    segment_id = segment_id,
-                    meta_name  = meta_name,
-                    meta_value = meta_value,
+                    switch_id=switch_id,
+                    segment_id=segment_id,
+                    meta_name=meta_name,
+                    meta_value=meta_value,
                 )
 
     def _connect_muxes(self):
@@ -505,7 +452,7 @@ class SwitchboxModel(object):
         """
 
         segment_id = self.graph.get_segment_id_from_name("sbox")
-        switch_id  = self.graph.get_switch_id("short")
+        switch_id = self.graph.get_switch_id("short")
 
         # Add internal connections between muxes.
         for connection in self.switchbox.connections:
@@ -529,10 +476,9 @@ class SwitchboxModel(object):
                 self.graph,
                 src_node,
                 dst_node,
-                switch_id  = switch_id,
-                segment_id = segment_id
+                switch_id=switch_id,
+                segment_id=segment_id
             )
-
 
     def _create_input_drivers(self):
         """
@@ -549,10 +495,10 @@ class SwitchboxModel(object):
         for pin in self.switchbox.inputs.values():
             for loc in pin.locs:
 
-                stage  = self.switchbox.stages[loc.stage_id]
+                stage = self.switchbox.stages[loc.stage_id]
                 switch = stage.switches[loc.switch_id]
-                mux    = switch.muxes[loc.mux_id]
-                pin    = mux.inputs[loc.pin_id]
+                mux = switch.muxes[loc.mux_id]
+                pin = mux.inputs[loc.pin_id]
 
                 if pin.id not in mux.timing:
                     vpr_switch = None
@@ -567,27 +513,16 @@ class SwitchboxModel(object):
 
         for pin in self.switchbox.inputs.values():
 
-            node = add_node(
-                self.graph,
-                self.loc,
-                "Y",
-                segment_id
-            )
+            node = add_node(self.graph, self.loc, "Y", segment_id)
 
             assert pin.name not in self.input_to_node, pin.name
             self.input_to_node[pin.name] = node
-
 
         # Create driver nodes, connect everything
         for (pin_name, vpr_switch), locs in driver_map.items():
 
             # Create the driver node
-            drv_node = add_node(
-                self.graph,
-                self.loc,
-                "X",
-                segment_id
-            )
+            drv_node = add_node(self.graph, self.loc, "X", segment_id)
 
             # Connect input node to the driver node. Use the switch with timing.
             inp_node = self.input_to_node[pin_name]
@@ -605,8 +540,8 @@ class SwitchboxModel(object):
                 self.graph,
                 inp_node,
                 drv_node,
-                switch_id  = switch_id,
-                segment_id = segment_id
+                switch_id=switch_id,
+                segment_id=segment_id
             )
 
             # Now connect the driver node with its loads
@@ -620,10 +555,9 @@ class SwitchboxModel(object):
                     self.graph,
                     drv_node,
                     dst_node,
-                    switch_id  = switch_id,
-                    segment_id = segment_id
+                    switch_id=switch_id,
+                    segment_id=segment_id
                 )
-
 
     def _build(self):
         """
@@ -637,7 +571,6 @@ class SwitchboxModel(object):
         # Create and connect input drivers models
         self._create_input_drivers()
 
-
     def _get_metadata_for_mux(self, stage, switch, mux, src_pin_id):
         """
         Formats fasm features for the given edge representin a switchbox mux.
@@ -650,18 +583,12 @@ class SwitchboxModel(object):
 
         # A mux in the HIGHWAY stage
         if stage.type == "HIGHWAY":
-            feature = "I_highway.IM{}.I_pg{}".format(
-                switch.id,
-                src_pin_id
-            )
+            feature = "I_highway.IM{}.I_pg{}".format(switch.id, src_pin_id)
 
         # A mux in the STREET stage
         elif stage.type == "STREET":
             feature = "I_street.Isb{}{}.I_M{}.I_pg{}".format(
-                stage.id + 1,
-                switch.id + 1,
-                mux.id,
-                src_pin_id
+                stage.id + 1, switch.id + 1, mux.id, src_pin_id
             )
 
         else:
@@ -669,7 +596,6 @@ class SwitchboxModel(object):
 
         metadata.append(".".join([prefix, feature]))
         return metadata
-
 
     def get_input_node(self, pin_name):
         """
@@ -728,11 +654,18 @@ def build_tile_pin_to_node_map(graph, tile_types, tile_grid):
             rr_pin_name = tile_pin_to_rr_pin(tile.type, pin.name)
 
             try:
-                nodes = graph.get_nodes_for_pin((loc.x, loc.y,), rr_pin_name)
+                nodes = graph.get_nodes_for_pin((
+                    loc.x,
+                    loc.y,
+                ), rr_pin_name)
                 assert len(nodes) == 1, (rr_pin_name, loc.x, loc.y)
             except KeyError as ex:
-                print("WARNING: No node for pin '{}' at ({},{})".format(rr_pin_name, loc.x, loc.y))
-                continue 
+                print(
+                    "WARNING: No node for pin '{}' at ({},{})".format(
+                        rr_pin_name, loc.x, loc.y
+                    )
+                )
+                continue
 
             # Add to the map
             node_map[loc][pin.name] = nodes[0][0]
@@ -751,17 +684,31 @@ def build_tile_connection_map(graph, nodes_by_id, tile_grid, connections):
         tile = tile_grid[conn_loc.loc]
 
         if tile is None:
-            print("WARNING: No tile for pin '{} at '{}'".format(conn_loc.pin, conn_loc.loc))
+            print(
+                "WARNING: No tile for pin '{} at '{}'".format(
+                    conn_loc.pin, conn_loc.loc
+                )
+            )
             return
 
         rr_pin_name = tile_pin_to_rr_pin(tile.type, conn_loc.pin)
 
         # Get the VPR rr node for the pin
         try:
-            nodes = graph.get_nodes_for_pin((conn_loc.loc.x, conn_loc.loc.y,), rr_pin_name)
-            assert len(nodes) == 1, (rr_pin_name, conn_loc.loc.x, conn_loc.loc.y)
+            nodes = graph.get_nodes_for_pin(
+                (
+                    conn_loc.loc.x,
+                    conn_loc.loc.y,
+                ), rr_pin_name
+            )
+            assert len(nodes
+                       ) == 1, (rr_pin_name, conn_loc.loc.x, conn_loc.loc.y)
         except KeyError as ex:
-            print("WARNING: No node for pin '{}' at ({},{})".format(rr_pin_name, conn_loc.loc.x, conn_loc.loc.y))
+            print(
+                "WARNING: No node for pin '{}' at ({},{})".format(
+                    rr_pin_name, conn_loc.loc.x, conn_loc.loc.y
+                )
+            )
             return
 
         # Convert to Node objects
@@ -790,6 +737,7 @@ def build_tile_connection_map(graph, nodes_by_id, tile_grid, connections):
 
     return node_map
 
+
 # =============================================================================
 
 
@@ -814,21 +762,21 @@ def add_l_track(graph, x0, y0, x1, y1, segment_id, switch_id):
 
         if abs(dy):
             track = tracks.Track(
-                direction = "Y",
-                x_low  = min(x0, xc),
-                x_high = max(x0, xc),
-                y_low  = min(y0, yc),
-                y_high = max(y0, yc),
+                direction="Y",
+                x_low=min(x0, xc),
+                x_high=max(x0, xc),
+                y_low=min(y0, yc),
+                y_high=max(y0, yc),
             )
             nodes[0] = add_track(graph, track, segment_id)
 
         if abs(dx):
             track = tracks.Track(
-                direction = "X",
-                x_low  = min(xc, x1),
-                x_high = max(xc, x1),
-                y_low  = min(yc, y1),
-                y_high = max(yc, y1),
+                direction="X",
+                x_low=min(xc, x1),
+                x_high=max(xc, x1),
+                y_low=min(yc, y1),
+                y_high=max(yc, y1),
             )
             nodes[1] = add_track(graph, track, segment_id)
 
@@ -838,21 +786,21 @@ def add_l_track(graph, x0, y0, x1, y1, segment_id, switch_id):
 
         if abs(dx):
             track = tracks.Track(
-                direction = "X",
-                x_low  = min(x0, xc),
-                x_high = max(x0, xc),
-                y_low  = min(y0, yc),
-                y_high = max(y0, yc),
+                direction="X",
+                x_low=min(x0, xc),
+                x_high=max(x0, xc),
+                y_low=min(y0, yc),
+                y_high=max(y0, yc),
             )
             nodes[0] = add_track(graph, track, segment_id)
 
         if abs(dy):
             track = tracks.Track(
-                direction = "Y",
-                x_low  = min(xc, x1),
-                x_high = max(xc, x1),
-                y_low  = min(yc, y1),
-                y_high = max(yc, y1),
+                direction="Y",
+                x_low=min(xc, x1),
+                x_high=max(xc, x1),
+                y_low=min(yc, y1),
+                y_high=max(yc, y1),
             )
             nodes[1] = add_track(graph, track, segment_id)
 
@@ -880,9 +828,9 @@ def add_track_chain(graph, direction, u, v0, v1, segment_id, switch_id):
 
     # Make range generator
     if v0 > v1:
-        coords = range(v0, v1-1, -1)
+        coords = range(v0, v1 - 1, -1)
     else:
-        coords = range(v0, v1+1)
+        coords = range(v0, v1 + 1)
 
     # Add track chain
     for v in coords:
@@ -890,19 +838,19 @@ def add_track_chain(graph, direction, u, v0, v1, segment_id, switch_id):
         # Add track (node)
         if direction == "X":
             track = tracks.Track(
-                direction = direction,
-                x_low  = v,
-                x_high = v,
-                y_low  = u,
-                y_high = u,
+                direction=direction,
+                x_low=v,
+                x_high=v,
+                y_low=u,
+                y_high=u,
             )
         elif direction == "Y":
             track = tracks.Track(
-                direction = direction,
-                x_low  = u,
-                x_high = u,
-                y_low  = v,
-                y_high = v,
+                direction=direction,
+                x_low=u,
+                x_high=u,
+                y_low=v,
+                y_high=v,
             )
         else:
             assert False, direction
@@ -911,18 +859,14 @@ def add_track_chain(graph, direction, u, v0, v1, segment_id, switch_id):
 
         # Add edge from the previous one
         if prev_node is not None:
-            graph.add_edge(
-                prev_node.id,
-                curr_node.id,
-                switch_id
-                )
+            graph.add_edge(prev_node.id, curr_node.id, switch_id)
 
         # No previous one, this is the first one
         else:
             start_node = curr_node
 
         node_by_v[v] = curr_node
-        prev_node    = curr_node
+        prev_node = curr_node
 
     return start_node, curr_node, node_by_v
 
@@ -945,29 +889,38 @@ def add_tracks_for_const_network(graph, const, tile_grid):
     xmax, ymax = max(xs), max(ys)
 
     # Get segment id and switch id
-    segment_id = graph.get_segment_id_from_name(const.lower()) 
-    switch_id  = graph.get_delayless_switch_id()
+    segment_id = graph.get_segment_id_from_name(const.lower())
+    switch_id = graph.get_delayless_switch_id()
 
     # Find the source tile
-    src_loc = [loc for loc, t in tile_grid.items() if t is not None and t.type == "SYN_{}".format(const)]
+    src_loc = [
+        loc for loc, t in tile_grid.items()
+        if t is not None and t.type == "SYN_{}".format(const)
+    ]
     assert len(src_loc) == 1, const
     src_loc = src_loc[0]
 
     print(const, src_loc)
 
     # Go down from the source to the edge of the tilegrid
-    entry_node, col_node, _ = add_track_chain(graph, "Y", src_loc.x, src_loc.y, 1, segment_id, switch_id)
+    entry_node, col_node, _ = add_track_chain(
+        graph, "Y", src_loc.x, src_loc.y, 1, segment_id, switch_id
+    )
 
     # Connect the tile OPIN to the column
-    pin_name  = "TL-SYN_{const}.{const}0_{const}[0]".format(const=const)
+    pin_name = "TL-SYN_{const}.{const}0_{const}[0]".format(const=const)
     opin_node = graph.get_nodes_for_pin((src_loc[0], src_loc[1]), pin_name)
     assert len(opin_node) == 1, pin_name
-    
+
     graph.add_edge(opin_node[0][0], entry_node.id, switch_id)
 
     # Got left and right from the source column over the bottommost row
-    row_entry_node1, _, row_node_map1 = add_track_chain(graph, "X", 0, src_loc.x,   1,        segment_id, switch_id)
-    row_entry_node2, _, row_node_map2 = add_track_chain(graph, "X", 0, src_loc.x+1, xmax - 1, segment_id, switch_id)
+    row_entry_node1, _, row_node_map1 = add_track_chain(
+        graph, "X", 0, src_loc.x, 1, segment_id, switch_id
+    )
+    row_entry_node2, _, row_node_map2 = add_track_chain(
+        graph, "X", 0, src_loc.x + 1, xmax - 1, segment_id, switch_id
+    )
 
     # Connect rows to the column
     graph.add_edge(col_node.id, row_entry_node1.id, switch_id)
@@ -981,14 +934,12 @@ def add_tracks_for_const_network(graph, const, tile_grid):
     for x in range(xmin, xmax):
 
         # Add the column
-        col_entry_node, _, col_node_map = add_track_chain(graph, "Y", x, ymin + 1, ymax - 1, segment_id, switch_id)
+        col_entry_node, _, col_node_map = add_track_chain(
+            graph, "Y", x, ymin + 1, ymax - 1, segment_id, switch_id
+        )
 
         # Add edge fom the horizontal row
-        graph.add_edge(
-            row_node_map[x].id,
-            col_entry_node.id,
-            switch_id
-            )
+        graph.add_edge(row_node_map[x].id, col_entry_node.id, switch_id)
 
         # Populate the const node map
         for y, node in col_node_map.items():
@@ -1003,7 +954,7 @@ def create_track_for_hop_connection(graph, connection):
     """
 
     # Determine whether the wire goes horizontally or vertically.
-    if   connection.src.loc.y == connection.dst.loc.y:
+    if connection.src.loc.y == connection.dst.loc.y:
         direction = "X"
     elif connection.src.loc.x == connection.dst.loc.x:
         direction = "Y"
@@ -1022,16 +973,19 @@ def create_track_for_hop_connection(graph, connection):
 
     # Add the track to the graph
     track = tracks.Track(
-        direction = direction,
-        x_low  = min(connection.src.loc.x, connection.dst.loc.x),
-        x_high = max(connection.src.loc.x, connection.dst.loc.x),
-        y_low  = min(connection.src.loc.y, connection.dst.loc.y),
-        y_high = max(connection.src.loc.y, connection.dst.loc.y),
+        direction=direction,
+        x_low=min(connection.src.loc.x, connection.dst.loc.x),
+        x_high=max(connection.src.loc.x, connection.dst.loc.x),
+        y_low=min(connection.src.loc.y, connection.dst.loc.y),
+        y_high=max(connection.src.loc.y, connection.dst.loc.y),
     )
 
-    node = add_track(graph, track, graph.get_segment_id_from_name(segment_name))
+    node = add_track(
+        graph, track, graph.get_segment_id_from_name(segment_name)
+    )
 
     return node
+
 
 # =============================================================================
 
@@ -1042,7 +996,7 @@ def populate_hop_connections(graph, switchbox_models, connections):
     """
 
     # Process connections
-    bar   = progressbar_utils.progressbar
+    bar = progressbar_utils.progressbar
     conns = [c for c in connections if is_hop(c)]
     for connection in bar(conns):
 
@@ -1058,26 +1012,20 @@ def populate_hop_connections(graph, switchbox_models, connections):
         hop_node = create_track_for_hop_connection(graph, connection)
 
         # Connect
-        connect(
-            graph,
-            src_node,
-            hop_node
-            )
+        connect(graph, src_node, hop_node)
 
-        connect(
-            graph,
-            hop_node,
-            dst_node
-            )
+        connect(graph, hop_node, dst_node)
 
 
-def populate_tile_connections(graph, switchbox_models, connections, connection_to_node):
+def populate_tile_connections(
+        graph, switchbox_models, connections, connection_to_node
+):
     """
     Populates switchbox to tile and tile to switchbox connections
     """
 
     # Process connections
-    bar   = progressbar_utils.progressbar
+    bar = progressbar_utils.progressbar
     conns = [c for c in connections if is_tile(c)]
     for connection in bar(conns):
 
@@ -1085,7 +1033,7 @@ def populate_tile_connections(graph, switchbox_models, connections, connection_t
         if is_local(connection):
 
             # Must be the same switchbox and tile
-            assert connection.src.loc == connection.dst.loc, connection            
+            assert connection.src.loc == connection.dst.loc, connection
             loc = connection.src.loc
 
             # No switchbox model at the loc, skip.
@@ -1097,7 +1045,10 @@ def populate_tile_connections(graph, switchbox_models, connections, connection_t
 
             # Get the tile IPIN/OPIN node
             if connection not in connection_to_node:
-                print("WARNING: No IPIN/OPIN node for connection {}".format(connection))
+                print(
+                    "WARNING: No IPIN/OPIN node for connection {}".
+                    format(connection)
+                )
                 continue
 
             tile_node = connection_to_node[connection]
@@ -1106,36 +1057,25 @@ def populate_tile_connections(graph, switchbox_models, connections, connection_t
             if connection.dst.type == ConnectionType.TILE:
                 sbox_node = switchbox_model.get_output_node(connection.src.pin)
 
-                connect(
-                    graph,
-                    sbox_node,
-                    tile_node
-                )
+                connect(graph, sbox_node, tile_node)
 
             # From tile
             if connection.src.type == ConnectionType.TILE:
                 sbox_node = switchbox_model.get_input_node(connection.dst.pin)
 
-                connect(
-                    graph,
-                    tile_node,
-                    sbox_node
-                )
-
+                connect(graph, tile_node, sbox_node)
 
         # Connection to/from a foreign tile
         else:
 
             # Get segment id and switch id
             segment_id = graph.get_segment_id_from_name("special")
-            switch_id  = graph.get_delayless_switch_id()
+            switch_id = graph.get_delayless_switch_id()
 
             # Add a track connecting the two locations
             src_node, dst_node = add_l_track(
-                graph,
-                connection.src.loc.x, connection.src.loc.y,
-                connection.dst.loc.x, connection.dst.loc.y,
-                segment_id,
+                graph, connection.src.loc.x, connection.src.loc.y,
+                connection.dst.loc.x, connection.dst.loc.y, segment_id,
                 switch_id
             )
 
@@ -1148,7 +1088,10 @@ def populate_tile_connections(graph, switchbox_models, connections, connection_t
 
                     # Get the tile IPIN/OPIN node
                     if connection not in connection_to_node:
-                        print("WARNING: No IPIN/OPIN node for connection {}".format(connection))
+                        print(
+                            "WARNING: No IPIN/OPIN node for connection {}".
+                            format(connection)
+                        )
                         continue
 
                     node = connection_to_node[connection]
@@ -1175,21 +1118,13 @@ def populate_tile_connections(graph, switchbox_models, connections, connection_t
                     if ep == connection.dst:
                         sbox_node = switchbox_model.get_input_node(ep.pin)
 
-                        connect(
-                            graph,
-                            dst_node,
-                            sbox_node
-                        )
+                        connect(graph, dst_node, sbox_node)
 
                     # From switchbox
                     elif ep == connection.src:
                         sbox_node = switchbox_model.get_output_node(ep.pin)
 
-                        connect(
-                            graph,
-                            sbox_node,
-                            src_node
-                        )
+                        connect(graph, sbox_node, src_node)
 
 
 def populate_const_connections(graph, switchbox_models, const_node_map):
@@ -1207,13 +1142,14 @@ def populate_const_connections(graph, switchbox_models, const_node_map):
             # Got a const input
             if pin.name in const_node_map:
                 const_node = const_node_map[pin.name][loc]
-                sbox_node  = switchbox_model.get_input_node(pin.name)
+                sbox_node = switchbox_model.get_input_node(pin.name)
 
                 connect(
                     graph,
                     const_node,
                     sbox_node,
                 )
+
 
 # =============================================================================
 
@@ -1235,9 +1171,10 @@ def yield_edges(edges):
 
         # Check for repetition
         if (edge.src_node, edge.sink_node) in conns:
-            print("WARNING: Removing duplicated edge from {} to {}, metadata='{}'".format(
-                edge.src_node, edge.sink_node, metadata
-            ))
+            print(
+                "WARNING: Removing duplicated edge from {} to {}, metadata='{}'"
+                .format(edge.src_node, edge.sink_node, metadata)
+            )
             continue
 
         conns.add((edge.src_node, edge.sink_node))
@@ -1245,20 +1182,20 @@ def yield_edges(edges):
         # Yield the edge
         yield (edge.src_node, edge.sink_node, edge.switch_id, metadata)
 
+
 # =============================================================================
 
 
 def main():
-    
+
     # Parse arguments
-    parser = argparse.ArgumentParser(description=__doc__,
-        formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
 
     parser.add_argument(
-        "--vpr-db",
-        type=str,
-        required=True,
-        help="VPR database file"
+        "--vpr-db", type=str, required=True, help="VPR database file"
     )
     parser.add_argument(
         "--rr-graph-in",
@@ -1280,29 +1217,29 @@ def main():
     with open(args.vpr_db, "rb") as fp:
         db = pickle.load(fp)
 
-        cells_library  = db["cells_library"]
-        loc_map        = db["loc_map"]
+        cells_library = db["cells_library"]
+        loc_map = db["loc_map"]
         vpr_tile_types = db["vpr_tile_types"]
-        vpr_tile_grid  = db["vpr_tile_grid"]
+        vpr_tile_grid = db["vpr_tile_grid"]
         vpr_switchbox_types = db["vpr_switchbox_types"]
-        vpr_switchbox_grid  = db["vpr_switchbox_grid"]
-        connections    = db["connections"]
-        segments       = db["segments"]
-        switches       = db["switches"]
+        vpr_switchbox_grid = db["vpr_switchbox_grid"]
+        connections = db["connections"]
+        segments = db["segments"]
+        switches = db["switches"]
 
     # Load the routing graph, build SOURCE -> OPIN and IPIN -> SINK edges.
     print("Loading rr graph...")
     xml_graph = rr_xml.Graph(
-        input_file_name  = args.rr_graph_in,
-        output_file_name = args.rr_graph_out,
-        progressbar      = progressbar_utils.progressbar
+        input_file_name=args.rr_graph_in,
+        output_file_name=args.rr_graph_out,
+        progressbar=progressbar_utils.progressbar
     )
 
     # Add back the switches that were unused in the arch.xml and got pruned
     # byt VPR.
     for switch in switches:
         try:
-            xml_graph.graph.get_switch_id(switch.name)            
+            xml_graph.graph.get_switch_id(switch.name)
             continue
         except KeyError:
             xml_graph.add_switch(
@@ -1339,7 +1276,9 @@ def main():
     nodes_by_id = {node.id: node for node in xml_graph.graph.nodes}
 
     # Build tile pin names to rr node ids map
-    tile_pin_to_node = build_tile_pin_to_node_map(xml_graph.graph, vpr_tile_types, vpr_tile_grid)
+    tile_pin_to_node = build_tile_pin_to_node_map(
+        xml_graph.graph, vpr_tile_types, vpr_tile_grid
+    )
 
     # Add const network
     const_node_map = {}
@@ -1350,12 +1289,14 @@ def main():
     # Connection to node map. Map Connection objects to rr graph node ids
     connection_to_node = {}
 
-    # Build a map of connections to/from tiles and rr nodes. The map points 
+    # Build a map of connections to/from tiles and rr nodes. The map points
     # to an IPIN/OPIN node for a connection that mentions it.
     #
     # FIXME: This won't work for direct tile-tile connections! But there are
     # none.
-    node_map = build_tile_connection_map(xml_graph.graph, nodes_by_id, vpr_tile_grid, connections)
+    node_map = build_tile_connection_map(
+        xml_graph.graph, nodes_by_id, vpr_tile_grid, connections
+    )
     connection_to_node.update(node_map)
 
     # Add switchbox models.
@@ -1366,17 +1307,21 @@ def main():
         phy_loc = loc_map.bwd[loc]
 
         switchbox_models[loc] = SwitchboxModel(
-            graph = xml_graph.graph,
-            loc = loc,
-            phy_loc = phy_loc,
-            switchbox = vpr_switchbox_types[type],
-        )    
+            graph=xml_graph.graph,
+            loc=loc,
+            phy_loc=phy_loc,
+            switchbox=vpr_switchbox_types[type],
+        )
 
     # Populate connections to the switchbox models
     print("Populating connections...")
     populate_hop_connections(xml_graph.graph, switchbox_models, connections)
-    populate_tile_connections(xml_graph.graph, switchbox_models, connections, connection_to_node)
-    populate_const_connections(xml_graph.graph, switchbox_models, const_node_map)
+    populate_tile_connections(
+        xml_graph.graph, switchbox_models, connections, connection_to_node
+    )
+    populate_const_connections(
+        xml_graph.graph, switchbox_models, const_node_map
+    )
 
     # Create channels from tracks
     pad_segment_id = xml_graph.graph.get_segment_id_from_name("pad")
@@ -1384,7 +1329,9 @@ def main():
 
     # Remove padding channels
     print("Removing padding nodes...")
-    xml_graph.graph.nodes = [n for n in xml_graph.graph.nodes if n.capacity > 0]
+    xml_graph.graph.nodes = [
+        n for n in xml_graph.graph.nodes if n.capacity > 0
+    ]
 
     # Sanity check edges
     node_ids = set([n.id for n in xml_graph.graph.nodes])
@@ -1405,6 +1352,7 @@ def main():
         edges_obj=yield_edges(edges_obj),
         node_remap=node_remap,
     )
+
 
 # =============================================================================
 

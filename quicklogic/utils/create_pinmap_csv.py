@@ -19,14 +19,17 @@ def generate_pinmap_csv(package_pinmap):
 
     return csv_lines
 
+
 # =============================================================================
 
 
 def main():
-    
+
     # Parse arguments
-    parser = argparse.ArgumentParser(description=__doc__,
-        formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
 
     parser.add_argument(
         "--db",
@@ -54,16 +57,14 @@ def main():
     package_pinmaps = db["vpr_package_pinmaps"]
 
     # Generate the CSV data
-    csv_lines = generate_pinmap_csv(
-        package_pinmaps[args.package]
-    )
+    csv_lines = generate_pinmap_csv(package_pinmaps[args.package])
 
     # Write the pinmap CSV file
     args.o.write("name,x,y,z\n")
     args.o.write("\n".join(csv_lines) + "\n")
 
-# =============================================================================
 
+# =============================================================================
 
 if __name__ == "__main__":
     main()
