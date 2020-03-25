@@ -1,8 +1,13 @@
 include(cmake/quicklogic_fasm.cmake)
 add_quicklogic_fasm_package()
 
+add_custom_target(QL_CELLS_SIM_DEPS)
+
 include(cmake/cells_sim_gen.cmake)
-add_cells_sim_target(techmap/cells_sim.v)
+add_subdirectory(primitives)
+
+set(CELLS_SIM_FILE ${symbiflow-arch-defs_BINARY_DIR}/quicklogic/techmap/cells_sim.v)
+add_cells_sim_target(${CELLS_SIM_FILE})
 
 include(cmake/quicklogic_device.cmake)
 include(cmake/quicklogic_board.cmake)
@@ -12,15 +17,11 @@ include(cmake/quicklogic_jlink.cmake)
 set(SDF_TIMING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/timings)
 set(BELS_MAP ${CMAKE_CURRENT_SOURCE_DIR}/bels.json)
 
-add_subdirectory(primitives)
 
 get_target_property_required(PYTHON3 env PYTHON3)
 get_target_property_required(QLFASM env QLFASM)
 
 get_target_property_required(QLFASM_TARGET env QLFASM_TARGET)
-
-set(CELLS_SIM_FILE ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/techmap/cells_sim.v)
-get_file_location(CELLS_SIM_LOCATION ${CELLS_SIM_FILE})
 
 define_arch(
   ARCH ql-s3
@@ -64,7 +65,7 @@ define_arch(
         --pcf \${INPUT_IO_FILE} \
         --net \${OUT_NET}"
 
-  FASM_TO_BIT   
+  FASM_TO_BIT
     ${QLFASM}
   FASM_TO_BIT_CMD "\${PYTHON3} \
     \${QLFASM} \
@@ -76,7 +77,7 @@ define_arch(
   BITSTREAM_EXTENSION bit
 
   CELLS_SIM
-    ${CELLS_SIM_LOCATION}
+    ${CELLS_SIM_FILE}
 
   NO_BIT_TO_BIN
   NO_BIT_TO_V

@@ -26,8 +26,8 @@ function(lut_techmap_test N LUT_COUNT)
     get_target_property(VVP_TARGET env VVP_TARGET)
 
     set(VPR_CELLS_MAP_FILE ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/techmap/cells_map.v)
-    set(VPR_CELLS_SIM_FILE ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/techmap/cells_sim.v)
-    append_file_dependency(VPR_CELLS_SIM_FILE_DEP ${VPR_CELLS_SIM_FILE})
+    set(VPR_CELLS_SIM_FILE ${symbiflow-arch-defs_BINARY_DIR}/quicklogic/techmap/cells_sim.v)
+    get_file_target(VPR_CELLS_SIM_FILE_DEP ${VPR_CELLS_SIM_FILE})
     get_file_location(VPR_CELLS_SIM_FILE ${VPR_CELLS_SIM_FILE})
 
     get_filename_component(YOSYS_PATH ${YOSYS} DIRECTORY)
