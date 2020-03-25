@@ -45,6 +45,19 @@ def is_tile(connection):
     return False
 
 
+def is_direct(connection):
+    """
+    Returns True if the connections spans two tiles directly. Not necessarly
+    at the same location
+    """
+
+    if connection.src.type == ConnectionType.TILE and \
+       connection.dst.type == ConnectionType.TILE:
+        return True
+
+    return False
+
+
 def is_local(connection):
     """
     Returns true if a connection is local.
@@ -687,8 +700,8 @@ def build_tile_connection_map(graph, nodes_by_id, tile_grid, connections):
 
     # Adds entry to the map
     def add_to_map(conn_loc):
-        tile = tile_grid[conn_loc.loc]
 
+        tile = tile_grid.get(conn_loc.loc, None)
         if tile is None:
             print(
                 "WARNING: No tile for pin '{} at '{}'".format(
@@ -1141,6 +1154,20 @@ def populate_tile_connections(
                         connect(graph, sbox_node, src_node)
 
 
+def populate_direct_connections(
+        graph, switchbox_models, connections, connection_loc_to_node
+):
+    """
+    Populates direct tile-to-tile connections.
+    """
+
+    # Process connections
+    bar = progressbar_utils.progressbar
+    conns = [c for c in connections if is_direct(c)]
+    for connection in bar(conns):
+        print("Direct:", connection)
+
+
 def populate_const_connections(graph, switchbox_models, const_node_map):
     """
     Connects switchbox inputs that represent VCC and GND constants to
@@ -1329,6 +1356,9 @@ def main():
     print("Populating connections...")
     populate_hop_connections(xml_graph.graph, switchbox_models, connections)
     populate_tile_connections(
+        xml_graph.graph, switchbox_models, connections, connection_loc_to_node
+    )
+    populate_direct_connections(
         xml_graph.graph, switchbox_models, connections, connection_loc_to_node
     )
     populate_const_connections(

@@ -249,7 +249,7 @@ def make_tile_type_name(cells):
         else:
             parts.append("{}x{}".format(c, t))
 
-    return "_".join(parts)
+    return "_".join(parts).upper()
 
 
 def parse_placement(xml_placement, cells_library):

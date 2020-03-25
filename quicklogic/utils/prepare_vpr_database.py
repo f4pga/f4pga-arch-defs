@@ -70,9 +70,6 @@ def add_synthetic_cell_and_tile_types(tile_types, cells_library):
         tile_types[tile_type.type] = tile_type
 
 
-# =============================================================================
-
-
 def make_tile_type(cells, cells_library, tile_types):
     """
     Creates a tile type given a list of cells that constitute to it.
@@ -141,7 +138,7 @@ def process_tilegrid(
 ):
     """
     Processes the tilegrid. May add/remove tiles. Returns a new one.
-    """
+    """    
 
     vpr_tile_grid = {}
     fwd_loc_map = {}
@@ -312,7 +309,7 @@ def process_tilegrid(
     # Find the ASSP tile. There are multiple tiles that contain the ASSP cell
     # but in fact there is only one ASSP cell for the whole FPGA which is
     # "distributed" along top and left edge of the grid.
-    if "ASSP" in tile_types:
+    if "ASSP" in tile_types:        
 
         # Verify that the location is empty
         assp_loc = Loc(x=1, y=1)
@@ -353,6 +350,22 @@ def process_tilegrid(
         if loc not in vpr_tile_grid:
             vpr_tile_grid[loc] = None
 
+    # DEBUG
+    print("")
+    xs = [loc.x for loc in vpr_tile_grid.keys()]
+    ys = [loc.y for loc in vpr_tile_grid.keys()]
+    for y in range(min(ys), max(ys)+1):
+        l = ord("A")
+        for x in range(min(xs), max(xs)+1):
+            loc = Loc(x=x, y=y)
+            if loc not in vpr_tile_grid:
+                l += "."
+            elif vpr_tile_grid[loc] is None:
+                l += "O"
+            else:
+                l += "X"
+        print(l)
+
     return vpr_tile_grid, LocMap(fwd=fwd_loc_map, bwd=bwd_loc_map),
 
 
@@ -370,6 +383,7 @@ def process_switchbox_grid(
     bwd_loc_map = loc_map.bwd
 
     def add_loc_map(phy_loc, vpr_loc):
+
         if phy_loc in fwd_loc_map:
             assert fwd_loc_map[phy_loc] == vpr_loc, (phy_loc, vpr_loc)
         else:

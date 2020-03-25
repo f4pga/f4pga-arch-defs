@@ -63,8 +63,8 @@ def main():
 
     for pin_map_entry in csv.DictReader(args.map):
 
-        # FIXME: TODO: For now only BIDIR, SDIOMUX
-        if pin_map_entry['type'] not in ["BIDIR", "SDIOMUX"]:
+        # FIXME: TODO: For now only CLOCK, BIDIR, SDIOMUX
+        if pin_map_entry['type'] not in ["CLOCK", "BIDIR", "SDIOMUX"]:
             continue
 
         pad_map[pin_map_entry['name']] = (

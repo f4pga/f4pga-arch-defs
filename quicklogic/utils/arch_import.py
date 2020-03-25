@@ -241,7 +241,7 @@ def write_tilegrid(xml_arch, tile_grid, loc_map, layout_name):
             xml_fixed,
             "single",
             {
-                "type": "TL-{}".format(tile.type),
+                "type": "TL-{}".format(tile.type.upper()),
                 "x": str(loc.x),
                 "y": str(loc.y),
                 "priority": str(10),  # Not sure if we need this

@@ -54,6 +54,13 @@
             ]
         }
     },
+    "CLOCK": {
+        "clock_buf": {
+            "CLOCK": [
+                "CLOCK.CLOCK"
+            ]
+        }
+    },
     "LOGIC": {
         "t_frag": {
             "c_frag":[
@@ -98,6 +105,14 @@
                 "LOGIC3.LOGIC3",
                 "LOGIC3_FS_EQ_0.LOGIC3", 
                 "LOGIC3_FS_EQ_1.LOGIC3"
+            ]
+        }
+    },
+    "GMUX": {
+        "GMUX": {
+            "PB-5XGMUX": [
+                "GMUX_IS0_EQ_0.GMUX",
+                "GMUX_IS0_EQ_1.GMUX"
             ]
         }
     }

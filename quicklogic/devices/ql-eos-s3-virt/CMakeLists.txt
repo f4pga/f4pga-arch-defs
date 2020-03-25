@@ -16,7 +16,8 @@ quicklogic_define_device_type(
   PB_TYPES
     GND VCC
     LOGIC
-    BIDIR SDIOMUX
+    CLOCK BIDIR SDIOMUX
+    GMUX
     ASSP
     MULT
 )
