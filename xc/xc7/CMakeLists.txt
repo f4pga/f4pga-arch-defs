@@ -13,7 +13,7 @@ add_custom_target(
 )
 
 add_file_target(FILE ${YOSYS_DATADIR}/xilinx/cells_sim.v ABSOLUTE)
-add_file_target(FILE ${symbiflow-arch-defs_SOURCE_DIR}/xc7/techmap/cells_sim.v ABSOLUTE)
+add_file_target(FILE ${symbiflow-arch-defs_SOURCE_DIR}/xc/xc7/techmap/cells_sim.v ABSOLUTE)
 include(arch.cmake)
 
 get_target_property_required(PYTEST env PYTEST)

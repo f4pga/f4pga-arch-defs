@@ -86,7 +86,7 @@ function(ADD_XC_ARCH_DEFINE)
     YOSYS_TECHMAP ${YOSYS_TECHMAP}
     YOSYS_CONV_SCRIPT ${YOSYS_CONV_SCRIPT}
     DEVICE_FULL_TEMPLATE \${DEVICE}-\${PACKAGE}
-    CELLS_SIM ${YOSYS_DATADIR}/xilinx/cells_sim.v ${symbiflow-arch-defs_SOURCE_DIR}/xc7/techmap/cells_sim.v
+    CELLS_SIM ${YOSYS_DATADIR}/xilinx/cells_sim.v ${symbiflow-arch-defs_SOURCE_DIR}/xc/xc7/techmap/cells_sim.v
     VPR_ARCH_ARGS ${VPR_ARCH_ARGS}
     RR_PATCH_TOOL
       ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/prjxray_routing_import.py
