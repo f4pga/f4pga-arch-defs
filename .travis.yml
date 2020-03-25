@@ -6,6 +6,8 @@ addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
+      - sourceline: 'deb https://apt.kitware.com/ubuntu/ xenial main'
+        key_url: 'https://apt.kitware.com/keys/kitware-archive-latest.asc'
     packages:
      - g++-6
      - bash
@@ -14,13 +16,14 @@ addons:
      - graphviz
      - inkscape
      - make
+     - cmake
 
 before_install:
  - source ./.github/travis/common.sh
 
 install:
  - stdbuf -i0 -o0 -e0 ./.github/travis/install.sh
-
+ - export PATH=/usr/bin:$PATH
 script:
   # ping stdout every 9 minutes or Travis kills build
   # https://docs.travis-ci.com/user/common-build-problems/#Build-times-out-because-no-output-was-received
