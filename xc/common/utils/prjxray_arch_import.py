@@ -486,10 +486,10 @@ def get_tiles(
                 (phy_tile_pkey, )
             )
 
-            prohibited_sites = c2.fetchall()
+            any_prohibited_sites = any(prohibited for (prohibited,) in c2.fetchall())
 
-            # Skip generation of prohibited tiles
-            if True in prohibited_sites:
+            # Skip generation of tiles containing prohibited sites
+            if any_prohibited_sites:
                 continue
 
         # Just output synth tiles, no additional processing is required here.
