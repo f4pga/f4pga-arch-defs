@@ -73,6 +73,8 @@ function(icestorm_setup)
   get_filename_component(ICEBOX_PATH ${ICEBOX_VLOG} DIRECTORY)
   set(ICEBOX_SHARE ${ICEBOX_PATH}/../share/icebox CACHE PATH "")
 
+  add_file_target(FILE ${YOSYS_DATADIR}/ice40/cells_sim.v ABSOLUTE)
+
   set(PYPATH_ARG "PYTHONPATH=\${ICEBOX_PATH}:${PYUTILS_PATH}")
   define_arch(
     ARCH ice40

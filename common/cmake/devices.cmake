@@ -1109,7 +1109,12 @@ function(ADD_FPGA_TARGET)
     append_file_dependency(SOURCE_FILES_DEPS ${SRC})
   endforeach()
 
+  set(CELLS_SIM_DEPS "")
   get_cells_sim_path(PATH_TO_CELLS_SIM ${ARCH})
+  foreach(CELL ${PATH_TO_CELLS_SIM})
+    get_file_target(CELL_TARGET ${CELL})
+    list(APPEND CELLS_SIM_DEPS ${CELL_TARGET})
+  endforeach()
 
   if(NOT ${ADD_FPGA_TARGET_NO_SYNTHESIS})
     set(COMPLETE_YOSYS_SYNTH_SCRIPT "tcl ${YOSYS_SYNTH_SCRIPT}")
@@ -1129,7 +1134,7 @@ function(ADD_FPGA_TARGET)
 
     add_custom_command(
       OUTPUT ${OUT_JSON_SYNTH} ${OUT_SYNTH_V} ${OUT_FASM_EXTRA}
-      DEPENDS ${SOURCE_FILES_DEPS}
+      DEPENDS ${SOURCE_FILES_DEPS} ${CELLS_SIM_DEPS}
               ${YOSYS} ${YOSYS_TARGET} ${QUIET_CMD} ${QUIET_CMD_TARGET}
               ${YOSYS_SYNTH_SCRIPT}
       COMMAND
