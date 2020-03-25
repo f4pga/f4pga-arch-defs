@@ -486,7 +486,9 @@ def get_tiles(
                 (phy_tile_pkey, )
             )
 
-            any_prohibited_sites = any(prohibited for (prohibited,) in c2.fetchall())
+            any_prohibited_sites = any(
+                prohibited for (prohibited, ) in c2.fetchall()
+            )
 
             # Skip generation of tiles containing prohibited sites
             if any_prohibited_sites:
