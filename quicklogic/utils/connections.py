@@ -189,10 +189,17 @@ def build_tile_connections(
             tile = tile_types[tile_grid[tile_loc].type]
 
             # Find the pin in the tile
-            # FIXME: Will not work if there are multiple cell instances with
-            # the same pin name !
             for pin in tile.pins:
                 if pin.direction == OPPOSITE_DIRECTION[sbox_pin.direction]:
+
+                    # Check if the pin name refers to the full tile pin name
+                    # ie. with the cell name.
+                    if pin.name == pin_name:
+                        tile_pin = pin
+                        break
+
+                    # Split the pin name into cell name + pin name, check only
+                    # if the latter matches.
                     cell, name = pin.name.split("_", maxsplit=1)
                     if name == pin_name:
                         tile_pin = pin
@@ -322,6 +329,23 @@ def build_hop_connections(switchbox_types, switchbox_grid):
 # =============================================================================
 
 
+def build_gmux_qmux_connections(tile_types, tile_grid, switchbox_types, switchbox_grid):
+
+    connections = []
+
+    #
+
+
+    # DBEUG
+    print("GCLK mux connections:")
+    for c in connections:
+        print("", c)
+
+    return connections
+
+# =============================================================================
+
+
 def build_connections(tile_types, tile_grid, switchbox_types, switchbox_grid):
     """
     Builds a connection map between switchboxes in the grid and between
@@ -336,6 +360,9 @@ def build_connections(tile_types, tile_grid, switchbox_types, switchbox_grid):
 
     # HOP connections
     connections += build_hop_connections(switchbox_types, switchbox_grid)
+
+    # GMUX and QMUX connections
+    connections += build_gmux_qmux_connections(tile_types, tile_grid, switchbox_types, switchbox_grid)
 
     return connections
 

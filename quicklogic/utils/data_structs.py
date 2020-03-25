@@ -276,6 +276,18 @@ class Switchbox(object):
 
 # =============================================================================
 
+"""
+A global clock network mux data.
+
+type        - Cell type.
+name        - Cell name.
+loc         - Location in the grid.
+pin_map     - A dict with mapping of cell pins to switchbox pins.
+"""
+ClockMux = namedtuple("ClockMux", "type name loc pin_map")
+
+# =============================================================================
+
 
 class ConnectionType(Enum):
     """

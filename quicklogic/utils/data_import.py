@@ -21,11 +21,18 @@ from connections import hop_to_str, get_name_and_hop, is_regular_hop_wire
 # =============================================================================
 
 # A list of cells in the global clock network
-GCLK_CELLS = ("GMUX", "QMUX", "CAND")
+GCLK_CELLS = (
+#    "GMUX",
+#    "QMUX",
+    "CAND"
+)
 
 # A List of cells and their pins which are clocks
 CLOCK_PINS = {
-    "LOGIC": ("QCK", ),
+    "LOGIC": ("QCK",),
+    "CLOCK": ("OP", ),
+    "GMUX":  ("IP", "IZ",),
+    "QMUX":  ("QCLKIN0", "HSCKIN", "IZ",),
 }
 
 # A list of const pins
@@ -177,10 +184,6 @@ def load_other_cells(xml_placement, cellgrid, cells_library):
         if xml.tag == "Cell":
             cell_name = xml.get("name")
             cell_type = xml.get("type")
-            import sys
-            if cell_type == "CLOCK":
-                print("Skipping cell_name", cell_name, file=sys.stderr)
-                continue
 
             assert cell_type in cells_library, (
                 cell_type,
@@ -777,9 +780,105 @@ def parse_port_mapping_table(xml_root, switchbox_grid):
 # =============================================================================
 
 
-def specialize_switchboxes_with_port_maps(
-        switchbox_types, switchbox_grid, port_maps
-):
+def parse_clock_network(xml_clock_network):
+    """
+    Parses the "CLOCK_NETWORK" section of the techfile
+    """
+
+    def parse_cell(xml_cell):
+        """
+        Parses a "Cell" tag inside "CLOCK_NETWORK"
+        """
+        NON_PIN_TAGS = (
+            "name",
+            "type",
+            "row",
+            "column"
+        )
+
+        cell_loc  = Loc(
+            x = int(xml_cell.attrib["column"]),
+            y = int(xml_cell.attrib["row"]),
+        )
+
+        pin_map = {k: v for k, v in xml_cell.attrib.items() \
+            if k not in NON_PIN_TAGS}
+
+        return ClockMux(
+            type    = xml_cell.attrib["type"],
+            name    = xml_cell.attrib["name"],
+            loc     = cell_loc,
+            pin_map = pin_map
+        )
+
+
+    clk_mux_map = {}
+
+    # Parse GMUX cells
+    xml_gmux = xml_clock_network.find("GMUX")
+    assert xml_gmux is not None
+
+    for xml_cell in xml_gmux.findall("Cell"):
+        clk_mux = parse_cell(xml_cell)
+        clk_mux_map[clk_mux.name] = clk_mux
+        
+    # Parse QMUX cells
+    xml_qmux = xml_clock_network.find("QMUX")
+    assert xml_qmux is not None
+
+    for xml_quad in xml_qmux:
+        for xml_cell in xml_quad.findall("Cell"):
+            clk_mux = parse_cell(xml_cell)
+            clk_mux_map[clk_mux.name] = clk_mux
+
+    # TODO: Intepret CAND cell data
+
+    return clk_mux_map
+
+
+def populate_clk_mux_port_maps(port_maps, clk_mux_map, cells_library):
+    """
+    Converts global clock network cells port mappings and appends them to
+    the port_maps used later for switchbox specialization.
+    """
+
+    for clk_mux in clk_mux_map.values():
+        cell_type = clk_mux.type
+        loc = clk_mux.loc
+
+        # Find the cell in the cells_library to get its pin definitions
+        assert cell_type in cells_library, cell_type
+        cell_pins = cells_library[cell_type].pins
+
+        # Add the mux location to the port map
+        if loc not in port_maps:
+            port_maps[loc] = {}
+
+        # Determine index of the clock mux within the tile
+        cell_idx = int(clk_mux.name[-1]) # FIXME: Will not work for CAND
+
+        # Add map entries
+        for mux_pin_name, sbox_pin_name in clk_mux.pin_map.items():
+
+            # Get the pin definition to get its driection.
+            cell_pin = [p for p in cell_pins if p.name == mux_pin_name]
+            assert len(cell_pin) == 1, (clk_mux, mux_pin_name)
+            cell_pin = cell_pin[0]
+
+            # Add entry to the map
+            key = (sbox_pin_name, OPPOSITE_DIRECTION[cell_pin.direction])
+
+            assert key not in port_maps[loc], (port_maps[loc], key)
+            port_maps[loc][key] = "{}{}_{}".format(
+                cell_type,
+                cell_idx,
+                mux_pin_name
+                )
+
+# =============================================================================
+
+
+def specialize_switchboxes_with_port_maps(switchbox_types, switchbox_grid, port_maps):
     """
     Specializes switchboxes by applying port mapping.
     """
@@ -802,31 +901,37 @@ def specialize_switchboxes_with_port_maps(
 
         # Remap pin names
         did_remap = False
-        for stage_id, stage in new_switchbox.stages.items():
-            for switch_id, switch in stage.switches.items():
-                for mux_id, mux in switch.muxes.items():
+        for stage, switch, mux in yield_muxes(new_switchbox):
 
-                    # Remap output
-                    pin = mux.output
-                    key = (pin.name, pin.direction)
-                    if key in port_map:
-                        did_remap = True
-                        mux.output = SwitchPin(
-                            id=pin.id,
-                            name=port_map[key],
-                            direction=pin.direction,
-                        )
+            # Remap output
+            alt_name = "{}.{}.{}".format(stage.id, switch.id, mux.id)
 
-                    # Remap inputs
-                    for pin in mux.inputs.values():
-                        key = (pin.name, pin.direction)
-                        if key in port_map:
-                            did_remap = True
-                            mux.inputs[pin.id] = SwitchPin(
-                                id=pin.id,
-                                name=port_map[key],
-                                direction=pin.direction,
-                            )
+            pin  = mux.output
+            keys = (
+                (pin.name, pin.direction),
+                (alt_name, pin.direction)
+            )
+
+            for key in keys:
+                if key in port_map:
+                    did_remap = True
+                    mux.output = SwitchPin(
+                        id        = pin.id,
+                        name      = port_map[key],
+                        direction = pin.direction,
+                    )
+                    break
+
+            # Remap inputs
+            for pin in mux.inputs.values():
+                key = (pin.name, pin.direction)
+                if key in port_map:
+                    did_remap = True
+                    mux.inputs[pin.id] = SwitchPin(
+                        id        = pin.id,
+                        name      = port_map[key],
+                        direction = pin.direction,
+                    )
 
         # Nothing remapped, discard the new switchbox
         if not did_remap:
@@ -1039,6 +1144,12 @@ def import_data(xml_root):
     cells_library = {cell.type: cell for cell in cells}
     tile_types, tile_grid = parse_placement(xml_placement, cells_library)
 
+    # Import global clock network definition
+    xml_clock_network = xml_placement.find("CLOCK_NETWORK")
+    assert xml_clock_network is not None
+
+    clk_mux_map = parse_clock_network(xml_clock_network)
+
     # Get the "Routing" section
     xml_routing = xml_root.find("Routing")
     assert xml_routing is not None
@@ -1083,6 +1194,9 @@ def import_data(xml_root):
     # Import switchbox port mapping
     port_maps = parse_port_mapping_table(xml_portmap, switchbox_grid)
 
+    # Supply port mapping table with global clock mux map
+    populate_clk_mux_port_maps(port_maps, clk_mux_map, cells_library)
+
     if xml_wiremap is not None:
         # Specialize switchboxes with wire maps
         specialize_switchboxes_with_wire_maps(
@@ -1115,7 +1229,6 @@ def import_data(xml_root):
         "switchbox_grid": switchbox_grid,
         "package_pinmaps": package_pinmaps
     }
-
 
 # =============================================================================
 
