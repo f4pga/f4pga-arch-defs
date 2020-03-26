@@ -487,7 +487,6 @@ def build_other_indicies(write_cur):
 
 def import_phy_grid(db, grid, conn, get_switch, get_switch_timing):
     write_cur = conn.cursor()
-    cur = conn.cursor()
 
     tile_types = {}
     site_types = {}
@@ -584,7 +583,7 @@ AND
 
             site_instance_pkey = write_cur.lastrowid
 
-            cur.execute(
+            write_cur.execute(
                 "UPDATE site_instance SET prohibited = ? WHERE pkey = ?", (
                     instance_site.name in gridinfo.prohibited_sites,
                     site_instance_pkey,
