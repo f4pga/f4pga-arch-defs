@@ -7,7 +7,7 @@ from connections import get_name_and_hop
 
 from pathlib import Path
 from data_structs import Loc, SwitchboxPinLoc, PinDirection
-from pprint import pprint as pp
+from verilogmodule import VModule
 
 Feature = namedtuple('Feature', 'loc typ signature value')
 RouteEntry = namedtuple('RouteEntry', 'typ stage_id switch_id mux_id sel_id')
@@ -45,9 +45,6 @@ class Fasm2Bels(object):
         self.vpr_switchbox_grid  = db["vpr_switchbox_grid"]
         self.connections = db["connections"]
 
-        self.designconnections = defaultdict(dict)
-        self.designhops = defaultdict(dict)
-
         self.connections_by_loc =defaultdict(list)
         for connection in self.connections:
             self.connections_by_loc[connection.dst].append(connection)
@@ -64,15 +61,24 @@ class Fasm2Bels(object):
         self.routingdata = defaultdict(list)
         self.belinversions = defaultdict(lambda: defaultdict(list))
         self.interfaces = defaultdict(lambda: defaultdict(list))
+        self.designconnections = defaultdict(dict)
+        self.designhops = defaultdict(dict)
 
     def parse_logic_line(self, feature: Feature):
         belname, setting = feature.signature.split('.', 1)
         if feature.value == 1:
+            # FIXME handle ZINV pins
+            if 'ZINV.' in setting:
+                setting = setting.replace('ZINV.', '')
+            elif 'INV.' in setting:
+                setting = setting.replace('INV.', '')
             self.belinversions[feature.loc][belname].append(setting)
 
     def parse_interface_line(self, feature: Feature):
         belname, setting = feature.signature.split('.', 1)
         if feature.value == 1:
+            setting = setting.replace('ZINV.', '')
+            setting = setting.replace('INV.', '')
             self.interfaces[feature.loc][belname].append(setting)
 
     def parse_routing_line(self, feature: Feature):
@@ -86,7 +92,7 @@ class Fasm2Bels(object):
             mux_id = 0
             sel_id = int(match.group('sel_id'))
         match = re.match(
-            r'^I_street\.Isb(?P<stage_id>[0-9])(?P<switch_id>[0-9])\.I_M(?P<mux_id>[0-9]+)\.I_pg(?P<sel_id>[0-9]+)$',
+                r'^I_street\.Isb(?P<stage_id>[0-9])(?P<switch_id>[0-9])\.I_M(?P<mux_id>[0-9]+)\.I_pg(?P<sel_id>[0-9]+)$',  # noqa: E501
             feature.signature)
         if match:
             typ = 'STREET'
@@ -145,8 +151,8 @@ class Fasm2Bels(object):
                     mux_sel[stage_id][switch_id][mux_id] = None
 
         for feature in features:
-            assert mux_sel[feature.stage_id][feature.switch_id][feature.mux_id] is None, feature
-            mux_sel[feature.stage_id][feature.switch_id][feature.mux_id] = feature.sel_id
+            assert mux_sel[feature.stage_id][feature.switch_id][feature.mux_id] is None, feature  # noqa: E501
+            mux_sel[feature.stage_id][feature.switch_id][feature.mux_id] = feature.sel_id  # noqa: E501
 
         def expand_mux(out_loc):
             """
@@ -203,19 +209,15 @@ class Fasm2Bels(object):
                 if re.match('[VH][0-9][LRBT][0-9]', k):
                     self.designhops[(loc.x, loc.y)][k] = v
                 else:
-                    self.designconnections[(loc.x, loc.y)][k] = v
-                print(f"X{loc.x:02d}Y{loc.y:02d} {k:<10} <= {v}")
+                    self.designconnections[loc][k] = v
 
     def resolve_hops(self):
         for loc, conns in self.designconnections.items():
             for pin, source in conns.items():
-                # print(f' PIN:  {loc} {pin} {source}')
                 hop = get_name_and_hop(source)
                 tloc = loc
                 while hop[1] is not None:
-                    # print(f'{(loc[0] + hop[1][0], loc[1] + hop[1][1])} {hop[0]}')
-                    # print(f'{loc} {hop}')
-                    tloc = (tloc[0] + hop[1][0], tloc[1] + hop[1][1])
+                    tloc = Loc(tloc[0] + hop[1][0], tloc[1] + hop[1][1])
                     hop = get_name_and_hop(self.designhops[tloc][hop[0]])
                 self.designconnections[loc][pin] = (tloc, hop[0])
 
@@ -234,7 +236,17 @@ class Fasm2Bels(object):
                 typ = self.vpr_switchbox_grid[loc]
                 switchbox = self.vpr_switchbox_types[typ]
                 self.process_switchbox(loc, switchbox, routingfeatures)
+        self.resolve_hops()
 
+    def produce_verilog(self):
+        module = VModule(
+            self.vpr_tile_grid,
+            self.belinversions,
+            self.interfaces,
+            self.designconnections)
+        module.parse_bels()
+        verilog = module.generate_verilog()
+        return verilog
 
 if __name__ == '__main__':
     # Parse arguments
@@ -243,7 +255,7 @@ if __name__ == '__main__':
 
     parser.add_argument(
         "fasm_file",
-        type=str,
+        type=Path,
         help="Input fasm file"
     )
 
@@ -252,6 +264,13 @@ if __name__ == '__main__':
         type=str,
         required=True,
         help="VPR database file"
+    )
+
+    parser.add_argument(
+        "--output-verilog",
+        type=Path,
+        required=True,
+        help="Output Verilog file"
     )
 
     args = parser.parse_args()
@@ -264,24 +283,10 @@ if __name__ == '__main__':
 
     f2b = Fasm2Bels(db)
 
-    print('Fasm2bels created')
     fasmlines = [line for line in fasm.parse_fasm_filename(args.fasm_file)]
     f2b.parse_fasm_lines(fasmlines)
     f2b.resolve_connections()
 
-    print('Connections resolved')
-
-    # print('BEL set features')
-    # pp(f2b.belinversions)
-    # print('BEL interfaces')
-    # pp(f2b.interfaces)
-    # print('Routing data')
-    # pp(f2b.routingdata)
-    # pp(f2b.connections)
-    print('DESIGN HOPS')
-    pp(f2b.designhops)
-    print('DESIGN CONNECTIONS')
-    pp(f2b.designconnections)
-    f2b.resolve_hops()
-    print('DESIGN CONNECTIONS v2')
-    pp(f2b.designconnections)
+    verilog = f2b.produce_verilog()
+    with open(args.output_verilog, 'w') as outv:
+        outv.write(verilog)
