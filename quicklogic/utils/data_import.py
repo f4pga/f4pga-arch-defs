@@ -1078,13 +1078,13 @@ def find_special_cells(tile_grid):
     cells = {k: v for k, v in cells.items() if len(v["locs"]) > 1}
 
 
-def parse_bidir_pinmap(xml_root, tile_grid):
+def parse_pinmap(xml_root, tile_grid):
     """
-    Parses the "Package" section that holds IO pin to BIDIR cell map.
+    Parses the "Package" section that holds IO pin to BIDIR/CLOCK cell map.
 
-    Returns a dict indexed by package name. That dict holds another dicts
-    that are indexed by IO pin names. They contain lists of BIDIR cell names
-    that the IO pin is physically connected to.
+    Returns a dict indexed by package name which holds dicts indexed by logical
+    pin names (eg. "FBIO_1"). Then, for each logical pin name there is a list
+    of PackagePin objects.
     """
     pin_map = {}
 
@@ -1093,8 +1093,7 @@ def parse_bidir_pinmap(xml_root, tile_grid):
 
         # Initialize map
         pkg_name = xml_package.attrib["name"]
-        pkg_pin_map = {}
-        pin_map[pkg_name] = pkg_pin_map
+        pkg_pin_map = defaultdict(lambda: [])
 
         xml_pins = xml_package.find("Pins")
         assert xml_pins is not None
@@ -1114,23 +1113,48 @@ def parse_bidir_pinmap(xml_root, tile_grid):
                 cell_names.append(cell_name)
                 cell_locs.append(cell_loc)
 
-            # Cannot be more than one loc
-            assert len(set(cell_locs)
-                       ) == 1, (pkg_name, pin_name, cell_names, cell_locs)
-            loc = cell_locs[0]
-
             # Location not found
-            if loc is None:
+            if not cell_locs:
                 print(
-                    "WARNING: No loc for package pin '{}' of package '{}'".
+                    "WARNING: No locs for package pin '{}' of package '{}'".
                     format(pin_name, pkg_name)
                 )
                 continue
 
             # Add the pin mapping
-            pkg_pin_map[pin_name] = PackagePin(
-                name=pin_name, loc=loc, cell_names=cell_names
-            )
+            for cell_name, cell_loc in zip(cell_names, cell_locs):
+
+                # Find the cell
+                if cell_loc not in tile_grid:
+                    print(
+                        "WARNING: No tile for package pin '{}' at '{}'".format(
+                            pin_name, cell_loc
+                        )
+                    )
+                    continue
+                tile = tile_grid[cell_loc]
+
+                cell = find_cell_in_tile(cell_name, tile)
+                if cell is None:
+                    print(
+                        "WARNING: No cell in tile '{}' for package pin '{}' at '{}'"
+                        .format(tile.name, pin_name, cell_loc)
+                    )
+                    continue
+
+                # Store the mapping
+                pkg_pin_map[pin_name].append(
+                    PackagePin(name=pin_name, loc=cell_loc, cell=cell)
+                )
+
+        # Convert to a regular dict
+        pin_map[pkg_name] = dict(**pkg_pin_map)
+
+        # DEBUG
+        for k, l in pkg_pin_map.items():
+            print(k)
+            for v in l:
+                print("", v)
 
     return pin_map
 
@@ -1235,7 +1259,7 @@ def import_data(xml_root):
     assert xml_packages is not None
 
     # Import BIDIR cell names to package pin mapping
-    package_pinmaps = parse_bidir_pinmap(xml_packages, tile_grid)
+    package_pinmaps = parse_pinmap(xml_packages, tile_grid)
 
     return {
         "cells_library": cells_library,

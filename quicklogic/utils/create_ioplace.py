@@ -62,6 +62,11 @@ def main():
     pad_map = {}
 
     for pin_map_entry in csv.DictReader(args.map):
+
+        # FIXME: TODO: For now only BIDIR
+        if pin_map_entry['type'] != "BIDIR":
+            continue
+
         pad_map[pin_map_entry['name']] = (
             int(pin_map_entry['x']),
             int(pin_map_entry['y']),

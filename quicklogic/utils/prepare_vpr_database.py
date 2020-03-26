@@ -3,9 +3,10 @@ import argparse
 import pickle
 import itertools
 import re
+from collections import defaultdict
 
 from data_structs import *
-from utils import yield_muxes
+from utils import yield_muxes, find_cell_in_tile
 
 from timing import compute_switchbox_timing_model
 from timing import populate_switchbox_timing, copy_switchbox_timing
@@ -80,14 +81,7 @@ def process_tilegrid(tile_types, tile_grid, grid_limit=None):
             new_tile_grid[loc] = Tile(
                 type="SYN_IO",
                 name=tile.name,
-                cells=[
-                    Cell(
-                        type="BIDIR",
-                        index=0,
-                        name="BIDIR",
-                        alias=None
-                    )
-                ]
+                cells=[Cell(type="BIDIR", index=0, name="BIDIR", alias=None)]
             )
             continue
 
@@ -107,14 +101,9 @@ def process_tilegrid(tile_types, tile_grid, grid_limit=None):
             assert new_tile_grid[assp_loc] is None, ("ASSP", assp_loc)
 
         new_tile_grid[assp_loc] = Tile(
-            type="ASSP", name="ASSP", cells=[
-                Cell(
-                    type="ASSP",
-                    index=0,
-                    name="ASSP",
-                    alias=None
-                )
-            ]
+            type="ASSP",
+            name="ASSP",
+            cells=[Cell(type="ASSP", index=0, name="ASSP", alias=None)]
         )
 
     # Insert synthetic VCC and GND source tiles.
@@ -128,14 +117,9 @@ def process_tilegrid(tile_types, tile_grid, grid_limit=None):
         # Add the tile instance
         name = "SYN_{}".format(const)
         new_tile_grid[loc] = Tile(
-            type=name, name=name, cells= [
-                Cell(
-                    type=const,
-                    index=0,
-                    name=const,
-                    alias=None
-                )
-            ]
+            type=name,
+            name=name,
+            cells=[Cell(type=const, index=0, name=const, alias=None)]
         )
 
     # Extend the grid by 1 in every direction. Fill missing locs with empty
@@ -294,65 +278,41 @@ def process_connections(
 # =============================================================================
 
 
-def get_cell_type_by_name_at_loc(loc, cell_name, tile_grid):
-    """
-    Returns type of a cell with the given name at the given loc. Returns None
-    if the cell cannot be found.
-    """
-
-    if loc not in tile_grid:
-        return None
-
-    tile = tile_grid[loc]
-    if tile is None:
-        return None
-
-    # Find cell
-    for cell in tile.cells:
-        if cell_name in cell.name:
-            return cell.type
-
-    return None
-
-
 def process_package_pinmap(package_pinmap, phy_tile_grid, loc_map):
     """
     Processes the package pinmap. Reloacted pin mappings. Reject mappings
     that lie outside the grid limit.
     """
 
-    # Remap locations
-    new_package_pinmap = {}
-    for pin_name, pin in package_pinmap.items():
+    # Remap locations, reject cells that are either ignored or not in the
+    # tilegrid.
+    new_package_pinmap = defaultdict(lambda: [])
 
-        # The loc is outside the grid limit, skip it.
-        if pin.loc not in loc_map.fwd:
-            continue
+    for pin_name, pins in package_pinmap.items():
+        for pin in pins:
 
-        # Process cells. Look for cells from the ignore list and remove them
-        cell_names = []
-        for cell_name in pin.cell_names:
+            # The loc is outside the grid limit, skip it.
+            if pin.loc not in loc_map.fwd:
+                continue
 
-            cell_type = get_cell_type_by_name_at_loc(
-                pin.loc, cell_name, phy_tile_grid
+            # Ignore this one
+            if pin.cell.type in IGNORED_IO_CELL_TYPES:
+                continue
+
+            # Remap location
+            new_loc = loc_map.fwd[pin.loc]
+            new_package_pinmap[pin.name].append(
+                PackagePin(name=pin.name, loc=new_loc, cell=pin.cell)
             )
-            assert cell_type is not None, (pin.name, cell_name, pin.loc)
 
-            if cell_type not in IGNORED_IO_CELL_TYPES:
-                cell_names.append(cell_name)
+    # Convert to regular dict
+    new_package_pinmap = dict(**new_package_pinmap)
 
-        # No cells for that pin, skip it
-        if len(cell_names) == 0:
-            continue
-
-        # Remap location
-        new_loc = loc_map.fwd[pin.loc]
-
-        new_package_pinmap[pin_name] = PackagePin(
-            name=pin.name,
-            loc=new_loc,
-            cell_names=cell_names  # TODO: Should probably map cell names here
-        )
+    # DEBUG
+    for p, l in new_package_pinmap.items():
+        print(p)
+        for m in l:
+            print("", m)
 
     return new_package_pinmap
 

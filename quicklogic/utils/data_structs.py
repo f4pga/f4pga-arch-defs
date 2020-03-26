@@ -315,10 +315,15 @@ ConnectionLoc = namedtuple("ConnectionLoc", "loc pin type")
 Connection = namedtuple("Connection", "src dst")
 
 # =============================================================================
+"""
+A package pin. Holds information about what cells the pin cooresponds to and
+where it is in the tilegrid.
 
-# A package pin. Holds information about what cells the pin cooresponds to and
-# where it is in the tilegrid.
-PackagePin = namedtuple("PackagePin", "name loc cell_names")
+name    - The pin name
+loc     - Location in the physical FPGA gric
+cell    - Cell object that the package pin correspond to
+"""
+PackagePin = namedtuple("PackagePin", "name loc cell")
 
 # =============================================================================
 
