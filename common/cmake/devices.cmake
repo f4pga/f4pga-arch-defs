@@ -421,7 +421,7 @@ function(DEFINE_DEVICE_TYPE)
       separate_arguments(CMD_W_ARGS UNIX_COMMAND ${SCRIPT})
       list(GET CMD_W_ARGS 0 CMD)
       set(TEMP_TARGET arch.${OUTPUT_NAME}.xml)
-      set(DEFINE_DEVICE_DEPS ${PYTHON3} ${PYTHON3_TARGET} ${CMD} ${${DEFINE_DEVICE_TYPE_SCRIPT_DEP_VAR}})
+      set(DEFINE_DEVICE_DEPS ${PYTHON3} ${PYTHON3_TARGET} ${CMD} ${DEFINE_DEVICE_TYPE_SCRIPT_DEP_VAR})
       append_file_dependency(DEFINE_DEVICE_DEPS ${FINAL_OUTPUT})
 
       add_custom_command(
