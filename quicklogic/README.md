@@ -140,7 +140,7 @@ To to add a new design to the flow, and use it as a test follow the guide:
     
     ```plaintext
     add_file_target(FILE btn_counter.v SCANNER_TYPE verilog)
-    add_file_target(FILE chandalar-top.pcf)
+    add_file_target(FILE chandalar.pcf)
     ```
     
     The verilog scanner will automatically add all the verilog dependecies explicitely included in the added file.
