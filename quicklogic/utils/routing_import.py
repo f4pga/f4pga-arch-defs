@@ -680,7 +680,7 @@ def build_tile_connection_map(graph, nodes_by_id, tile_grid, connections):
     node_map = {}
 
     # Adds entry to the map
-    def add_to_map(connection, conn_loc):
+    def add_to_map(conn_loc):
         tile = tile_grid[conn_loc.loc]
 
         if tile is None:
@@ -715,25 +715,15 @@ def build_tile_connection_map(graph, nodes_by_id, tile_grid, connections):
         node = nodes_by_id[nodes[0][0]]
 
         # Add to the map
-        node_map[connection] = node
+        node_map[conn_loc] = node
 
-    # Look for connections to/from tiles.
-    for connection in connections:
+    # Look for connection endpoints that mention tiles
+    endpoints  = set([c.src for c in connections if c.src.type == ConnectionType.TILE])
+    endpoints |= set([c.dst for c in connections if c.dst.type == ConnectionType.TILE])
 
-        # FIXME: This is not correct if there are direct connections between
-        # two different tiles!
-        assert not (connection.src.type == ConnectionType.TILE and \
-                    connection.dst.type == ConnectionType.TILE), connection
-
-        # Connection to a tile
-        if connection.dst.type == ConnectionType.TILE:
-            add_to_map(connection, connection.dst)
-            continue
-
-        # Connection from a tile
-        if connection.src.type == ConnectionType.TILE:
-            add_to_map(connection, connection.src)
-            continue
+    # Build the map
+    for ep in endpoints:
+        add_to_map(ep)
 
     return node_map
 
@@ -1018,7 +1008,7 @@ def populate_hop_connections(graph, switchbox_models, connections):
 
 
 def populate_tile_connections(
-        graph, switchbox_models, connections, connection_to_node
+        graph, switchbox_models, connections, connection_loc_to_node
 ):
     """
     Populates switchbox to tile and tile to switchbox connections
@@ -1043,24 +1033,30 @@ def populate_tile_connections(
             # Get the switchbox model (both locs are the same)
             switchbox_model = switchbox_models[loc]
 
-            # Get the tile IPIN/OPIN node
-            if connection not in connection_to_node:
-                print(
-                    "WARNING: No IPIN/OPIN node for connection {}".
-                    format(connection)
-                )
-                continue
-
-            tile_node = connection_to_node[connection]
-
             # To tile
             if connection.dst.type == ConnectionType.TILE:
+                if connection.dst not in connection_loc_to_node:
+                    print(
+                        "WARNING: No IPIN node for connection {}".
+                        format(connection)
+                    )
+                    continue
+
+                tile_node = connection_loc_to_node[connection.dst]
                 sbox_node = switchbox_model.get_output_node(connection.src.pin)
 
                 connect(graph, sbox_node, tile_node)
 
             # From tile
             if connection.src.type == ConnectionType.TILE:
+                if connection.src not in connection_loc_to_node:
+                    print(
+                        "WARNING: No OPIN node for connection {}".
+                        format(connection)
+                    )
+                    continue
+
+                tile_node = connection_loc_to_node[connection.src]
                 sbox_node = switchbox_model.get_input_node(connection.dst.pin)
 
                 connect(graph, tile_node, sbox_node)
@@ -1086,22 +1082,28 @@ def populate_tile_connections(
                 # Endpoint at tile
                 if ep.type == ConnectionType.TILE:
 
-                    # Get the tile IPIN/OPIN node
-                    if connection not in connection_to_node:
-                        print(
-                            "WARNING: No IPIN/OPIN node for connection {}".
-                            format(connection)
-                        )
-                        continue
-
-                    node = connection_to_node[connection]
-
                     # To tile
                     if ep == connection.dst:
+                        if ep not in connection_loc_to_node:
+                            print(
+                                "WARNING: No IPIN node for connection {}".
+                                format(connection)
+                            )
+                            continue
+
+                        node = connection_loc_to_node[ep]
                         connect(graph, dst_node, node, switch_id)
 
                     # From tile
                     elif ep == connection.src:
+                        if ep not in connection_loc_to_node:
+                            print(
+                                "WARNING: No OPIN node for connection {}".
+                                format(connection)
+                            )
+                            continue
+
+                        node = connection_loc_to_node[ep]
                         connect(graph, node, src_node, switch_id)
 
                 # Endpoint at switchbox
@@ -1286,18 +1288,16 @@ def main():
         m = add_tracks_for_const_network(xml_graph.graph, const, vpr_tile_grid)
         const_node_map[const] = m
 
-    # Connection to node map. Map Connection objects to rr graph node ids
-    connection_to_node = {}
+    # Connection loc (endpoint) to node map. Map ConnectionLoc objects to VPR
+    # rr graph node ids.
+    connection_loc_to_node = {}
 
     # Build a map of connections to/from tiles and rr nodes. The map points
-    # to an IPIN/OPIN node for a connection that mentions it.
-    #
-    # FIXME: This won't work for direct tile-tile connections! But there are
-    # none.
+    # to an IPIN/OPIN node for a connection loc that mentions it.
     node_map = build_tile_connection_map(
         xml_graph.graph, nodes_by_id, vpr_tile_grid, connections
     )
-    connection_to_node.update(node_map)
+    connection_loc_to_node.update(node_map)
 
     # Add switchbox models.
     print("Building switchbox models...")
@@ -1317,7 +1317,7 @@ def main():
     print("Populating connections...")
     populate_hop_connections(xml_graph.graph, switchbox_models, connections)
     populate_tile_connections(
-        xml_graph.graph, switchbox_models, connections, connection_to_node
+        xml_graph.graph, switchbox_models, connections, connection_loc_to_node
     )
     populate_const_connections(
         xml_graph.graph, switchbox_models, const_node_map
