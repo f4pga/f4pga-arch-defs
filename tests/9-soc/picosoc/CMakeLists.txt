@@ -112,8 +112,8 @@ add_fpga_target(
     simpleuart.v
     progmem.v
   SDC_FILE basys3.sdc
-  INPUT_IO_FILE ${symbiflow-arch-defs_SOURCE_DIR}/xc7/tests/common/nexys_video.pcf
-  INPUT_XDC_FILE ${symbiflow-arch-defs_SOURCE_DIR}/xc7/tests/common/nexys_video.xdc
+  INPUT_IO_FILE ${symbiflow-arch-defs_SOURCE_DIR}/xc/xc7/tests/common/nexys_video.pcf
+  INPUT_XDC_FILE ${symbiflow-arch-defs_SOURCE_DIR}/xc/xc7/tests/common/nexys_video.xdc
   EXPLICIT_ADD_FILE_TARGET
 )
 
