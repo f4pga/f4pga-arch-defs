@@ -15,6 +15,7 @@ DEBUG = False
 # Set to true to print debugging info.
 
 
+
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
@@ -114,7 +115,6 @@ def find_timings(timings, bel, location, site, bels, corner, speed_type):
        the selected `bel` in `location` and `site`. If timings
        are not found, empty dict is returned"""
 
-
     def get_timing(cell, delay, corner, speed_type):
         """
         Gets timing for a particular cornet case. If not fount then chooses
@@ -143,7 +143,6 @@ def find_timings(timings, bel, location, site, bels, corner, speed_type):
 
         assert entry is not None, (delay, corner, speed_type)
         return entry
-
 
     # Get cells, reverse the list so former timings will be overwritten by
     # latter ones.
