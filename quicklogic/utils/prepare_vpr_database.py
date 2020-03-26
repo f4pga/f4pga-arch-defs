@@ -40,6 +40,18 @@ def is_loc_within_limit(loc, limit):
     return True
 
 
+def is_loc_free(loc, tile_grid):
+    """
+    Checks whether a location in the given tilegrid is free.
+    """
+
+    if loc not in tile_grid:
+        return True
+    if tile_grid[loc] == None:
+        return True
+
+    return False
+
 # =============================================================================
 
 
@@ -50,6 +62,11 @@ def add_synthetic_cell_and_tile_types(tile_types, cells_library):
     tile_type.make_pins(cells_library)
     tile_types[tile_type.type] = tile_type
 
+    # The synthetic CLOCK input tile.
+    tile_type = TileType("SYN_CLK", {"CLOCK": 1})
+    tile_type.make_pins(cells_library)
+    tile_types[tile_type.type] = tile_type
+
     # Add a synthetic tile types for the VCC and GND const sources.
     # Models of the VCC and GND cells are already there in the cells_library.
     for const in ["VCC", "GND"]:
@@ -57,50 +74,168 @@ def add_synthetic_cell_and_tile_types(tile_types, cells_library):
         tile_type.make_pins(cells_library)
         tile_types[tile_type.type] = tile_type
 
+# =============================================================================
 
-def process_tilegrid(tile_types, tile_grid, grid_limit=None):
+
+def make_tile_type(cells, cells_library):
+    """
+    Creates a tile type given a list of cells that constitute to it.
+    """
+
+    # Count cell types
+    cell_types  = sorted([c.type for c in cells])
+    cell_counts = {t: 0 for t in cell_types}
+
+    for cell in cells:
+        cell_counts[cell.type] += 1
+
+    # Format type name
+    parts = []
+    for t, c in cell_counts.items():
+        if c == 1:
+            parts.append(t)
+        else:
+            parts.append("{}x{}".format(c, t))
+
+    # Create the tile type
+    tile_type = TileType(
+        type  = "_".join(parts),
+        cells = cell_counts
+        )
+
+    # Create pins
+    tile_type.make_pins(cells_library)
+    return tile_type
+
+
+def strip_cells(tile, cell_types, tile_types, cells_library):
+    """
+    Removes cells of the particular type from the tile and tile_type.
+    Possibly creates a new tile type
+    """
+    tile_type = tile_types[tile.type]
+
+    # Check if there is something to remove
+    if not len(set(cell_types) & set(tile_type.cells.keys())):
+        return tile
+
+    # Filter cells, create a new tile type
+    new_cells = [c for c in tile.cells if c.type not in cell_types]
+    new_tile_type = make_tile_type(new_cells, cells_library)
+
+    # If the new tile type already exists, use the existing one
+    if new_tile_type.type not in tile_types:
+        tile_types[new_tile_type.type] = new_tile_type
+    else:
+        new_tile_type = tile_types[new_tile_type.type]
+
+    # Create the new tile
+    new_tile = Tile(
+        type = new_tile_type.type,
+        name = tile.name,
+        cells = new_cells
+    )
+
+    return new_tile
+
+
+def process_tilegrid(tile_types, tile_grid, cells_library, grid_limit=None):
     """
     Processes the tilegrid. May add/remove tiles. Returns a new one.
-    """
+    """    
 
-    # TODO: This function is messy. Do something about it.
+    vpr_tile_grid = {}
+    fwd_loc_map = {}
+    bwd_loc_map = {}
+
+    def add_loc_map(phy_loc, vpr_loc):
+        fwd_loc_map[phy_loc] = vpr_loc
+        bwd_loc_map[vpr_loc] = phy_loc
 
     # Generate the VPR tile grid
-    new_tile_grid = {}
-    for loc, tile in tile_grid.items():
+    for phy_loc, tile in tile_grid.items():
 
         # Limit the grid range
-        if not is_loc_within_limit(loc, grid_limit):
+        if not is_loc_within_limit(phy_loc, grid_limit):
             continue
 
+        # Initial VPR location, shifted by (+1, +1) to have a margin so
+        # channels can run freely over the entire occupied part of the grid
+        vpr_loc = Loc(phy_loc.x + 1, phy_loc.y + 1)
+
+        # If the tile contains CAND then strip it. Possibly create a new tile
+        # type.
         tile_type = tile_types[tile.type]
+        if "CAND" in tile_type.cells:
+            tile = strip_cells(tile, ["CAND"], tile_types, cells_library)
+            tile_type = tile_types[tile.type]
 
-        # For a tile that contains at least one BIDIR cell make a new tile
-        # just for that cell.
-        if "BIDIR" in tile_type.type:
-            new_tile_grid[loc] = Tile(
-                type="SYN_IO",
-                name=tile.name,
-                cells=[Cell(type="BIDIR", index=0, name="BIDIR", alias=None)]
-            )
+            # TODO: Store where the CAND was
+
+        # The tile contains a BIDIR or CLOCK cell. it is an IO tile
+        if "BIDIR" in tile_type.cells or "CLOCK" in tile_type.cells:
+
+            # For the BIDIR cell create a synthetic tile
+            if "BIDIR" in tile_type.cells:
+                assert tile_type.cells["BIDIR"] == 1
+
+                add_loc_map(phy_loc, vpr_loc)
+                vpr_tile_grid[vpr_loc] = Tile(
+                    type="SYN_IO",
+                    name=tile.name,
+                    cells=[c for c in tile.cells if c.type == "BIDIR"]
+                )
+
+            # For the CLOCK cell create a synthetic tile
+            if "CLOCK" in tile_type.cells:
+                assert tile_type.cells["CLOCK"] == 1
+
+                # If the tile has a BIDIR cell then place the CLOCK tile in a 
+                # free location next to the original one.
+                if "BIDIR" in tile_type.cells:
+                    for ox, oy in ((-1,0),(+1,0),(0,-1),(0,+1)):
+                        test_loc = Loc(x=phy_loc.x+ox, y=phy_loc.y+oy)
+                        if is_loc_free(test_loc, tile_grid):
+                            new_loc = Loc(x=vpr_loc.x+ox, y=vpr_loc.y+oy)
+                            break
+                    else:
+                        assert False, ("No free location to place CLOCK tile", vpr_loc)
+
+                # Don't move
+                else:
+                    new_loc = vpr_loc
+
+                # Add only the backward location correspondence for CLOCK tile
+                bwd_loc_map[new_loc] = phy_loc
+                vpr_tile_grid[new_loc] = Tile(
+                    type="SYN_CLK",
+                    name="TILE_X{}Y{}".format(new_loc.x, new_loc.y),
+                    cells=[c for c in tile.cells if c.type == "CLOCK"]
+                )
+
             continue
 
-        # FIXME: For now keep only tile that contains only one LOGIC cell inside
-        if len(tile_type.cells) == 1 and list(tile_type.cells.keys()
-                                              )[0] == "LOGIC":
-            new_tile_grid[loc] = tile
+        # A homogeneous tile
+        if len(tile_type.cells) == 1:
+            cell_type = list(tile_type.cells.keys())[0] 
+      
+            # Keep only these types 
+            if cell_type in ["LOGIC", "GMUX"]: 
+                add_loc_map(phy_loc, vpr_loc)
+                vpr_tile_grid[vpr_loc] = tile
+                continue
 
     # Find the ASSP tile. There are multiple tiles that contain the ASSP cell
     # but in fact there is only one ASSP cell for the whole FPGA which is
     # "distributed" along top and left edge of the grid.
     if "ASSP" in tile_types:
 
-        # Place the ASSP tile
-        assp_loc = Loc(x=0, y=0)
-        if assp_loc in new_tile_grid:
-            assert new_tile_grid[assp_loc] is None, ("ASSP", assp_loc)
+        # Verify that the location is empty
+        assp_loc = Loc(x=1, y=1)
+        assert is_loc_free(vpr_tile_grid, assp_loc), ("ASSP", assp_loc)
 
-        new_tile_grid[assp_loc] = Tile(
+        # Place the ASSP tile
+        vpr_tile_grid[assp_loc] = Tile(
             type="ASSP",
             name="ASSP",
             cells=[Cell(type="ASSP", index=0, name="ASSP", alias=None)]
@@ -108,51 +243,29 @@ def process_tilegrid(tile_types, tile_grid, grid_limit=None):
 
     # Insert synthetic VCC and GND source tiles.
     # FIXME: This assumes that the locations specified are empty!
-    for const, loc in [("VCC", Loc(x=1, y=0)), ("GND", Loc(x=2, y=0))]:
+    for const, loc in [("VCC", Loc(x=2, y=1)), ("GND", Loc(x=3, y=1))]:
 
         # Verify that the location is empty
-        if loc in new_tile_grid:
-            assert net_tile_grid[loc] is None, (const, loc)
+        assert is_loc_free(vpr_tile_grid, loc), (const, loc)
 
         # Add the tile instance
         name = "SYN_{}".format(const)
-        new_tile_grid[loc] = Tile(
+        vpr_tile_grid[loc] = Tile(
             type=name,
             name=name,
             cells=[Cell(type=const, index=0, name=const, alias=None)]
         )
 
-    # Extend the grid by 1 in every direction. Fill missing locs with empty
-    # tiles.
-    vpr_tile_grid = {}
+    # Extend the grid by 1 on the right and bottom side. Fill missing locs
+    # with empty tiles.
+    xmax = max([loc.x for loc in vpr_tile_grid.keys()])
+    ymax = max([loc.y for loc in vpr_tile_grid.keys()])
 
-    xs = [loc.x for loc in new_tile_grid.keys()]
-    ys = [loc.y for loc in new_tile_grid.keys()]
-
-    grid_min = Loc(min(xs), min(ys))
-    grid_max = Loc(max(xs), max(ys))
-
-    for x, y in itertools.product(range(grid_min[0], grid_max[0] + 3),
-                                  range(grid_min[1], grid_max[1] + 3)):
-        vpr_tile_grid[Loc(x=x, y=y)] = None
-
-    # Build tile map
-    fwd_loc_map = {}
-    bwd_loc_map = {}
-
-    for x, y in itertools.product(range(grid_min[0], grid_max[0] + 1),
-                                  range(grid_min[1], grid_max[1] + 1)):
+    for x, y in itertools.product(range(xmax+1), range(ymax+1)):
         loc = Loc(x=x, y=y)
-        new_loc = Loc(x=loc.x + 1, y=loc.y + 1)
 
-        fwd_loc_map[loc] = new_loc
-        bwd_loc_map[new_loc] = loc
-
-    # Populate tiles
-    for loc, tile in new_tile_grid.items():
-        new_loc = fwd_loc_map[loc]
-        assert vpr_tile_grid[new_loc] is None, (loc, new_loc, tile.type)
-        vpr_tile_grid[new_loc] = tile
+        if loc not in vpr_tile_grid:
+            vpr_tile_grid[loc] = None
 
     return vpr_tile_grid, LocMap(fwd=fwd_loc_map, bwd=bwd_loc_map),
 
@@ -474,7 +587,7 @@ def main():
 
     # Process the tilegrid
     vpr_tile_grid, loc_map = process_tilegrid(
-        tile_types, phy_tile_grid, grid_limit
+        tile_types, phy_tile_grid, cells_library, grid_limit
     )
 
     # Process the switchbox grid

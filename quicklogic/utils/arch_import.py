@@ -211,9 +211,6 @@ def write_tilegrid(xml_arch, tile_grid, loc_map, layout_name):
         if tile is None:
             continue
 
-        phy_loc = loc_map.bwd[loc]
-        fasm_prefix = "X{}Y{}".format(phy_loc.x, phy_loc.y)
-
         xml_sing = ET.SubElement(
             xml_fixed,
             "single",
@@ -225,13 +222,16 @@ def write_tilegrid(xml_arch, tile_grid, loc_map, layout_name):
             }
         )
 
-        xml_metadata = ET.SubElement(xml_sing, "metadata")
-        xml_meta = ET.SubElement(
-            xml_metadata, "meta", {
-                "name": "fasm_prefix",
-            }
-        )
-        xml_meta.text = fasm_prefix
+        if loc in loc_map.bwd:
+            phy_loc = loc_map.bwd[loc]
+
+            xml_metadata = ET.SubElement(xml_sing, "metadata")
+            xml_meta = ET.SubElement(
+                xml_metadata, "meta", {
+                    "name": "fasm_prefix",
+                }
+            )
+            xml_meta.text = "X{}Y{}".format(phy_loc.x, phy_loc.y)
 
 
 # =============================================================================

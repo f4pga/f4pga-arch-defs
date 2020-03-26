@@ -20,13 +20,6 @@ from connections import hop_to_str, get_name_and_hop, is_regular_hop_wire
 
 # =============================================================================
 
-# A list of cells in the global clock network
-GCLK_CELLS = (
-    #    "GMUX",
-    #    "QMUX",
-    "CAND"
-)
-
 # A List of cells and their pins which are clocks
 CLOCK_PINS = {
     "LOGIC": ("QCK", ),
@@ -307,9 +300,6 @@ def parse_placement(xml_placement, cells_library):
     tile_types_at_loc = {}
     for loc, cells in cellgrid.items():
 
-        # Filter out global clock routing cells
-        cells = [c for c in cells if c.type not in GCLK_CELLS]
-
         # Generate type and assign
         type = make_tile_type_name(cells)
         tile_types_at_loc[loc] = type
@@ -334,10 +324,6 @@ def parse_placement(xml_placement, cells_library):
         # Group cells by type
         tile_cells_by_type = defaultdict(lambda: [])
         for cell in cellgrid[loc]:
-
-            # Filter out global clock routing cells
-            if cell.type in GCLK_CELLS:
-                continue
 
             tile_cells_by_type[cell.type].append(cell)
 
