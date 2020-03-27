@@ -7,7 +7,7 @@ import fasm
 from connections import get_name_and_hop
 
 from pathlib import Path
-from data_structs import Loc, SwitchboxPinLoc, PinDirection
+from data_structs import Loc, SwitchboxPinLoc, PinDirection, Tile
 from verilogmodule import VModule
 
 from quicklogic_fasm.qlfasm import QL732BAssembler, load_quicklogic_database
@@ -48,6 +48,31 @@ class Fasm2Bels(object):
         self.vpr_switchbox_grid  = db["vpr_switchbox_grid"]
         self.connections = db["connections"]
 
+        # TODO maybe this should be added in original vpr_tile_grid
+        # set all cels in row 1 and column 2 to ASSP
+        numassp = 1
+        for i in range(32):
+            updateloc = self.loc_map.fwd[Loc(x=1+i,y=1)]
+            if self.vpr_tile_grid[updateloc] is not None:
+                self.vpr_tile_grid[updateloc].cell_names['ASSP'] = f'ASSP{numassp}'
+            else:
+                self.vpr_tile_grid[updateloc] = Tile(
+                    type='ASSP',
+                    name='ASSP',
+                    cell_names={'ASSP': f'ASSP{numassp}'})
+            numassp += 1
+
+        for i in range(29):
+            updateloc = self.loc_map.fwd[Loc(x=0,y=2+i)]
+            if self.vpr_tile_grid[updateloc] is not None:
+                self.vpr_tile_grid[updateloc].cell_names['ASSP'] = f'ASSP{numassp}'
+            else:
+                self.vpr_tile_grid[updateloc] = Tile(
+                    type='ASSP',
+                    name='ASSP',
+                    cell_names={'ASSP': f'ASSP{numassp}'})
+            numassp += 1
+
         self.connections_by_loc =defaultdict(list)
         for connection in self.connections:
             self.connections_by_loc[connection.dst].append(connection)
@@ -66,6 +91,14 @@ class Fasm2Bels(object):
         self.interfaces = defaultdict(lambda: defaultdict(list))
         self.designconnections = defaultdict(dict)
         self.designhops = defaultdict(dict)
+        # self.locmapping = {}
+        # for x in range(0,35):
+        #     for y in range(0,33):
+        #         locmapping[Loc(x=x, y=y)] = Loc(x=x, y=y)
+
+        # for i in range(32):
+        #     locmapping[Loc(x=1+i, y=1)] = Loc(1, 1)
+
 
     def parse_logic_line(self, feature: Feature):
         belname, setting = feature.signature.split('.', 1)
@@ -284,13 +317,23 @@ if __name__ == '__main__':
         help="Output Verilog file"
     )
 
+    parser.add_argument(
+        "--output-pcf",
+        type=Path,
+        help="Output PCF file"
+    )
+
+    parser.add_argument(
+        "--output-qcf",
+        type=Path,
+        help="Output QCF file"
+    )
+
     args = parser.parse_args()
 
     # Load data from the database
-    print("Loading database...")
     with open(args.vpr_db, "rb") as fp:
         db = pickle.load(fp)
-    print('Database loaded')
 
     f2b = Fasm2Bels(db)
 

@@ -86,21 +86,6 @@ class VModule(object):
                     {srconame: wirename})
             else:
                 self.elements[wire[0]][srctype].ios[srconame] = wirename
-            # if isoutput:
-            #     wirename = self.ios[loc].name
-            # else:
-            #     srcname = self.vpr_tile_grid[wire[0]].name
-            #     srctype = self.vpr_tile_grid[wire[0]].type
-            #     srconame = wire[1]
-            #     wirename = f'{srcname}_{srconame}'
-            #     if not srctype in self.elements[wire[0]]:
-            #         self.elements[wire[0]][srctype] = Element(
-            #             wire[0],
-            #             srctype,
-            #             self.get_element_name(self.vpr_tile_grid[wire[0]]),
-            #             {srconame: wirename})
-            #     else:
-            #         self.elements[wire[0]][srctype].ios[srconame] = wirename
             if not isoutput:
                 self.wires[uninvertedwireid] = wirename
 
@@ -160,6 +145,9 @@ class VModule(object):
                     # FIXME handle already inverted pins
                     wirename = self.get_wire(currloc, wire, inputname)
                     inputs[inputname] = wirename
+                elif srctype == 'ASSP':
+                    wirename = self.get_wire(currloc, wire, inputname)
+                    inputs[inputname] = wirename
                 else:
                     raise Exception('Not supported cell type')
             if not currtype in self.elements[currloc]:
@@ -178,6 +166,7 @@ class VModule(object):
 
         qlal4s3bmapping = {
             'LOGIC': 'logic_cell_macro',
+            'ASSP': 'qlal4s3b_cell_macro',
             'inv' : 'inv'
         }
 
@@ -197,11 +186,15 @@ class VModule(object):
         if len(self.elements) > 0:
             for locelements in self.elements.values():
                 for element in locelements.values():
-                    elements += '\n'
-                    elements += self.form_verilog_element(
-                        qlal4s3bmapping[element.type],
-                        element.name,
-                        element.ios)
+                    if element.type != 'SYN_IO':
+                        elements += '\n'
+                        elements += self.form_verilog_element(
+                            qlal4s3bmapping[element.type],
+                            element.name,
+                            element.ios)
+                    else:
+                        # FIXME add support for assign
+                        pass
 
         verilog = (
             f'module top ({ios});\n'
@@ -211,47 +204,3 @@ class VModule(object):
             f'endmodule'
         )
         return verilog
-
-# class LogicCell(object):
-#     '''Represents a QLALS3B logic cell.'''
-# 
-#     def __init__(self):
-#         self.inputs = {
-#             'QST': None,
-#             'QDS': None,
-#             'TBS': None,
-#             'TAB': None,
-#             'TSL': None,
-#             'TA1': None,
-#             'TA2': None,
-#             'TB1': None,
-#             'TB2': None,
-#             'BAB': None,
-#             'BSL': None,
-#             'BA1': None,
-#             'BA2': None,
-#             'BB1': None,
-#             'BB2': None,
-#             'QDI': None,
-#             'QEN': None,
-#             'QCK': None,
-#             'QRT': None,
-#             'F1': None,
-#             'F2': None,
-#             'FS': None
-#         }
-# 
-#         self.outputs = {
-#             'TZ': None,
-#             'CZ': None,
-#             'QZ': None,
-#             'FZ': None
-#         }
-# 
-#         self.invertedsignals = []
-# 
-#     def __str__(self):
-#         for output, variable in self.outputs.items():
-#             if variable is not None:
-#                 pass
-# 
