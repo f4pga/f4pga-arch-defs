@@ -8,11 +8,12 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   #   PB_TYPES <pb_type> <pb_type> ...
   #   TECHFILE_NAME <techfile name>
   #   ROUTING_TIMING_FILE_NAME <routing timing CSV file>
+  #   LIB_TIMING_FILES <list timing lib files [can be wildcard]>
   #   )
   # ~~~
   set(options)
   set(oneValueArgs DEVICE ARCH GRID_LIMIT TECHFILE_NAME ROUTING_TIMING_FILE_NAME)
-  set(multiValueArgs PACKAGES PB_TYPES)
+  set(multiValueArgs PACKAGES PB_TYPES LIB_TIMING_FILES)
   cmake_parse_arguments(
     QUICKLOGIC_DEFINE_DEVICE_TYPE
     "${options}"
@@ -107,13 +108,21 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   # One idea is to have a different model for each in VPR.
   #
   # For now only files with the worst case scenario timings are taken.
-  file(GLOB LIB_TIMING_FILES
-        "${LIB_TIMING_DIR}/*_ss_0p990v_m040c.lib"
-        "${LIB_TIMING_DIR}/*_ss_0p990v_m040c_Cmax_2P97V.lib"
-  )
+  set(TIMING_FILES "")
+  message("LIB_TIMING FILES ${LIB_TIMING_FILES}")
+  foreach(LIB ${LIB_TIMING_FILES})
+
+    message("PROCESSING ${LIB}")
+    file(GLOB TIMING_FILE
+      "${LIB_TIMING_DIR}/${LIB}"
+    )
+    list(APPEND TIMING_FILES ${TIMING_FILE})
+  endforeach()
+
+  message("TIMING FILES ${TIMING_FILES}")
 
   set(SDF_FILE_TARGETS "")
-  foreach(LIB_TIMING_FILE ${LIB_TIMING_FILES})
+  foreach(LIB_TIMING_FILE ${TIMING_FILES})
 
     get_filename_component(FILE_NAME ${LIB_TIMING_FILE} NAME)
     get_filename_component(FILE_TITLE ${FILE_NAME} NAME_WE)
