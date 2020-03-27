@@ -23,3 +23,7 @@ add_subdirectory(soc_clocks)
 
 # More complex tests/examples that use the SoC interface.
 add_subdirectory(soc_litex_pwm)
+
+# QuickLogic test suite
+add_subdirectory(quicklogic_testsuite)
+
