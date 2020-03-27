@@ -3,11 +3,14 @@ import pickle
 import re
 from collections import defaultdict, namedtuple
 import fasm
+
 from connections import get_name_and_hop
 
 from pathlib import Path
 from data_structs import Loc, SwitchboxPinLoc, PinDirection
 from verilogmodule import VModule
+
+from quicklogic_fasm.qlfasm import QL732BAssembler, load_quicklogic_database
 
 Feature = namedtuple('Feature', 'loc typ signature value')
 RouteEntry = namedtuple('RouteEntry', 'typ stage_id switch_id mux_id sel_id')
@@ -254,7 +257,7 @@ if __name__ == '__main__':
         formatter_class=argparse.RawDescriptionHelpFormatter)
 
     parser.add_argument(
-        "fasm_file",
+        "input_file",
         type=Path,
         help="Input fasm file"
     )
@@ -264,6 +267,14 @@ if __name__ == '__main__':
         type=str,
         required=True,
         help="VPR database file"
+    )
+
+    parser.add_argument(
+        "--input-type",
+        type=str,
+        choices=['bitstream', 'fasm'],
+        default='fasm',
+        help="Determines whether the input is a FASM file or bitstream"
     )
 
     parser.add_argument(
@@ -283,7 +294,15 @@ if __name__ == '__main__':
 
     f2b = Fasm2Bels(db)
 
-    fasmlines = [line for line in fasm.parse_fasm_filename(args.fasm_file)]
+    if args.input_type == 'bitstream':
+        qlfasmdb = load_quicklogic_database()
+        assembler = QL732BAssembler(qlfasmdb)
+        assembler.read_bitstream(args.input_file)
+        fasmlines = assembler.disassemble()
+        fasmlines = [line for line in fasm.parse_fasm_string('\n'.join(fasmlines))]
+    else:
+        fasmlines = [line for line in fasm.parse_fasm_filename(args.input_file)]
+
     f2b.parse_fasm_lines(fasmlines)
     f2b.resolve_connections()
 
