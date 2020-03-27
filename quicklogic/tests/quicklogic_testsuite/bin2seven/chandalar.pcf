@@ -1,0 +1,15 @@
+set_io clock_100Mhz FBIO_0
+set_io reset        FBIO_1
+
+set_io Anode_Activate(0) FBIO_2
+set_io Anode_Activate(1) FBIO_3
+set_io Anode_Activate(2) FBIO_4
+set_io Anode_Activate(3) FBIO_5
+
+set_io LED_out(0)        FBIO_21
+set_io LED_out(1)        FBIO_22
+set_io LED_out(2)        FBIO_23
+set_io LED_out(3)        FBIO_24
+set_io LED_out(4)        FBIO_25
+set_io LED_out(5)        FBIO_26
+set_io LED_out(6)        FBIO_27
