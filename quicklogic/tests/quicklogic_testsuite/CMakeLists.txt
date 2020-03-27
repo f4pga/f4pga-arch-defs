@@ -1,4 +1,4 @@
 add_subdirectory(bin2seven)
 add_subdirectory(clock_tree_design)
 add_subdirectory(Simon_bit_serial_top_module)
-
+add_subdirectory(rs_decoder_1)
