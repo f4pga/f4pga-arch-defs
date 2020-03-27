@@ -7,7 +7,7 @@
 First, download the sources from the Antmicro's Yosys fork:
 
 ```bash
-git clone https://github.com/antmicro/yosys.git -b quicklogic quicklogic-yosys
+git clone https://github.com/antmicro/yosys.git -b quicklogic-rebased quicklogic-yosys
 cd quicklogic-yosys
 ```
 
@@ -31,7 +31,7 @@ Note: Once the QuickLogic specific changes in Yosys are merged with Yosys used b
 Clone the SymbiFlow repository, make sure you're using `master+quicklogic` branch:
 
 ```bash
-git clone https://github.com/antmicro/symbiflow-arch-defs -b master+quicklogic
+git clone https://github.com/antmicro/symbiflow-arch-defs -b quicklogic-upstream-rebase
 ```
 
 Setup the environment:
