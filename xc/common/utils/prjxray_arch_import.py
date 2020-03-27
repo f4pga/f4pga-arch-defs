@@ -480,6 +480,20 @@ def get_tiles(
         SELECT pkey, grid_x, grid_y, phy_tile_pkey, tile_type_pkey, site_as_tile_pkey FROM tile
         """):
 
+        if phy_tile_pkey is not None:
+            c2.execute(
+                "SELECT prohibited FROM site_instance WHERE phy_tile_pkey = ?",
+                (phy_tile_pkey, )
+            )
+
+            any_prohibited_sites = any(
+                prohibited for (prohibited, ) in c2.fetchall()
+            )
+
+            # Skip generation of tiles containing prohibited sites
+            if any_prohibited_sites:
+                continue
+
         # Just output synth tiles, no additional processing is required here.
         if (grid_x, grid_y) in synth_loc_map:
             vpr_tile_type = synth_loc_map[(grid_x, grid_y)]

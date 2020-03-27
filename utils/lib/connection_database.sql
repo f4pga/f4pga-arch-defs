@@ -117,6 +117,7 @@ CREATE TABLE site_instance(
     y_coord INT,
     site_pkey INT,
     phy_tile_pkey INT,
+    prohibited BOOLEAN,
     FOREIGN KEY(site_pkey) REFERENCES site(pkey),
     FOREIGN KEY(phy_tile_pkey) REFERENCES phy_tile(pkey)
 );
