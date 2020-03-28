@@ -145,7 +145,7 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   set(PYTHON_SDF_TIMING_DIR ${symbiflow-arch-defs_SOURCE_DIR}/third_party/python-sdf-timing)
   get_target_property(SDF_TIMING_TARGET env SDF_TIMING_TARGET)
 
-  set(BELS_MAP ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/bels.json)
+  set(BELS_MAP ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${DEVICE}-bels.json)
 
   set(TIMING_IMPORT
     "${CMAKE_COMMAND} -E env PYTHONPATH=${PYTHON_SDF_TIMING_DIR}:$PYTHONPATH \
