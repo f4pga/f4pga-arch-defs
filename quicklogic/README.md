@@ -2,7 +2,7 @@
 
 ## Quickstart guide
 
-### 1. Yosys with QuickLogic support installation
+### 1. Install Yosys with QuickLogic support
 
 First, download the sources from the Antmicro's Yosys fork:
 
@@ -26,7 +26,7 @@ Note: If you want to build Yosys using clang, replace `make config-gcc` with `ma
 
 Note: Once the QuickLogic specific changes in Yosys are merged with Yosys used by mainline Symbilow, this step will be unnecessary.
 
-### 2. SymbiFlow installation
+### 2. Install SymbiFlow
 
 Clone the SymbiFlow repository, make sure you're using `master+quicklogic` branch:
 
@@ -34,7 +34,7 @@ Clone the SymbiFlow repository, make sure you're using `master+quicklogic` branc
 git clone https://github.com/antmicro/symbiflow-arch-defs -b quicklogic-upstream-rebase
 ```
 
-Setup the environment:
+Set up the environment:
 
 ```bash
 export YOSYS=/usr/bin/yosys
@@ -72,7 +72,7 @@ For details of each of the test design please refer to its `README.md` file.
 
 ### 4. Programming the EOS S3 SoC
 
-To ease up the programming process helper scripts were integrated with the flow.
+To simplify the programming process, some helper scripts were integrated with the flow.
 The scripts can automatically configure the IOMUX of the SoC so that all top-level IO ports of the design are routed to the physical pads of the chip.
 
 In order to generate the programming script, build the following target:
@@ -81,7 +81,7 @@ In order to generate the programming script, build the following target:
 make counter-ql-chandalar_jlink
 ```
 
-The script will contain both bitstream and IOMUX configuration.
+The script will contain both the bitstream and IOMUX configuration.
 
 ## Naming convention
 
@@ -94,7 +94,7 @@ The last part `<stage_name>` defines the last stage of the flow that is to be ex
 The most important stages are:
 
 - **eblif**
-    Runs Yosys synthesis and generates an EBLIF file suitable for 	VPR. The output EBLIF file is named `top.eblif`
+    Runs Yosys synthesis and generates an EBLIF file suitable for VPR. The output EBLIF file is named `top.eblif`
 
 - **route**
     Runs VPR pack, place and route flow. The packed design is written to the `top.net` file. design placement and routing data is stored in the `top.place` and `top.route` files respectively. IO placement constraints for VPR are written to the `top_io.place` file.
@@ -106,7 +106,7 @@ The most important stages are:
     Generates a binary bitstream file from the FASM file using the `qlfasm.py` tool. The bitstream is ready to be loaded to the FPGA.
 
 - **jlink**
-    For the conveniance of programming the EOS S3 SoC the `jlink` stage generates a command script which configures the IOMUX of the SoC and loads the bitstream to the FPGA. The script is ready to be executed via the *JLink commander* tool.
+    For convenience of programming the EOS S3 SoC, the `jlink` stage generates a command script which configures the IOMUX of the SoC and loads the bitstream to the FPGA. The script is ready to be executed via the *JLink commander* tool.
 
 Executing a particular stage implies that all stages before it will be executed as well (if needed). They form a dependency chain.
 
