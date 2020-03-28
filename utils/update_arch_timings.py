@@ -141,7 +141,11 @@ def find_timings(timings, bel, location, site, bels, corner, speed_type):
             if entry is None:
                 entry = entries.get('min', None)
 
-        assert entry is not None, (delay, corner, speed_type)
+        if entry is None:
+            # if we failed with desired corner, try the opposite
+            newcorner = 'FAST' if corner == 'SLOW' else 'SLOW'
+            entry = get_timing(cell, delay, newcorner, speed_type)
+            assert entry is not None, (delay, corner, speed_type)
         return entry
 
     # Get cells, reverse the list so former timings will be overwritten by
