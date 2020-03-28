@@ -169,6 +169,12 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   )
 
   # Set the device type properties
+  if(NOT "${GRID_LIMIT}" STREQUAL "")
+    set_target_properties(${DEVICE_TYPE} PROPERTIES USE_ROI TRUE)
+  else()
+    set_target_properties(${DEVICE_TYPE} PROPERTIES USE_ROI FALSE)
+  endif()
+
   set_target_properties(
     ${DEVICE_TYPE}
     PROPERTIES
