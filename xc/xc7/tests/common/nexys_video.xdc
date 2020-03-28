@@ -17,6 +17,3 @@ set_property IOSTANDARD LVCMOS12 [get_ports {sw[4]}]
 set_property IOSTANDARD LVCMOS12 [get_ports {sw[5]}]
 set_property IOSTANDARD LVCMOS12 [get_ports {sw[6]}]
 set_property IOSTANDARD LVCMOS12 [get_ports {sw[7]}]
-
-set_property IOSTANDARD LVCMOS33 [get_ports tx]
-set_property IOSTANDARD LVCMOS33 [get_ports rx]
