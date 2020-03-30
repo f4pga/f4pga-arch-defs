@@ -3,33 +3,20 @@
 `include "../iob/iob.sim.v"
 
 (* MODES="INPUT;OUTPUT;INOUT" *)
-module BIDIR(
+module SDIOMUX(
     input  wire IE,
-    input  wire IQC,
     input  wire OQI,
-    input  wire OQE,
-    input  wire IQE,
-    input  wire IQR,
-    input  wire INEN,
-    input  wire IQIN,
-    output wire IZ,
-    output wire IQZ
+    input  wire OE,
+    output wire IZ
 );
 
     parameter MODE = "INPUT";
 
-    // TODO: Clock inverter
-    wire clk = IQC;
-
     (* pack="IPAD_TO_IBUF" *)
     wire i_pad;
-    wire i_dat;
-    wire i_en;
 
     (* pack="OBUF_TO_OPAD" *)
     wire o_pad;
-    wire o_dat;
-    wire o_en;
 
     // Input or inout mode
     generate if (MODE == "INPUT" || MODE == "INOUT") begin
@@ -37,61 +24,50 @@ module BIDIR(
         (* keep *)
         VPR_IPAD inpad(i_pad);
 
-        // TODO: Add FF here
-
     // Output or inout mode
     end else if (MODE == "OUTPUT" || MODE == "INOUT") begin
 
         (* keep *)
         VPR_OPAD outpad(o_pad);
 
-        // TODO: Add FFs and routing MUXes here
-
     end endgenerate
 
-    assign IZ    = i_dat;
-    assign i_en  = INEN;
-    assign o_en  = IE;
-    assign o_dat = OQI;
 
     // IO buffer
     generate if (MODE == "INPUT") begin
 
         (* keep *)
-        (* FASM_PREFIX="INTERFACE.BIDIR" *)
         IOB iob(
             .I_PAD(i_pad),
-            .I_DAT(i_dat),
-            .I_EN (i_en),
+            .I_DAT(IZ),
+            .I_EN (IE),
             .O_PAD(),
-            .O_DAT(o_dat),
-            .O_EN (o_en)
+            .O_DAT(),
+            .O_EN ()
         );
 
     end else if (MODE == "OUTPUT") begin
     
         (* keep *)
-        (* FASM_PREFIX="INTERFACE.BIDIR" *)
         IOB iob(
             .I_PAD(),
-            .I_DAT(i_dat),
-            .I_EN (i_en),
+            .I_DAT(),
+            .I_EN (),
             .O_PAD(o_pad),
-            .O_DAT(o_dat),
-            .O_EN (o_en)
+            .O_DAT(OQI),
+            .O_EN (OE)
         );
 
     end else if (MODE == "INOUT") begin
     
         (* keep *)
-        (* FASM_PREFIX="INTERFACE.BIDIR" *)
         IOB iob(
             .I_PAD(i_pad),
-            .I_DAT(i_dat),
-            .I_EN (i_en),
+            .I_DAT(IZ),
+            .I_EN (IE),
             .O_PAD(o_pad),
-            .O_DAT(o_dat),
-            .O_EN (o_en)
+            .O_DAT(OQI),
+            .O_EN (OE)
         );
 
     end endgenerate
