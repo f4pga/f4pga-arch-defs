@@ -348,11 +348,6 @@ def parse_placement(xml_placement, cells_library):
             cells=tile_cells
         )
 
-        # DEBUG
-        print(loc, tilegrid[loc].type, tilegrid[loc].name)
-        for c in tilegrid[loc].cells:
-            print("", c)
-
     return tile_types, tilegrid
 
 
@@ -1135,12 +1130,6 @@ def parse_pinmap(xml_root, tile_grid):
 
         # Convert to a regular dict
         pin_map[pkg_name] = dict(**pkg_pin_map)
-
-        # DEBUG
-        for k, l in pkg_pin_map.items():
-            print(k)
-            for v in l:
-                print("", v)
 
     return pin_map
 

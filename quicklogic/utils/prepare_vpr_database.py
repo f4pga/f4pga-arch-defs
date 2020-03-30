@@ -6,12 +6,16 @@ import re
 from collections import defaultdict
 
 from data_structs import *
-from utils import yield_muxes, find_cell_in_tile
+from utils import yield_muxes, get_loc_of_cell, find_cell_in_tile
+from utils import get_pin_name
 
 from timing import compute_switchbox_timing_model
 from timing import populate_switchbox_timing, copy_switchbox_timing
 
 # =============================================================================
+
+# Grid margin size (left, top, right, bottom)
+GRID_MARGIN = (3, 2, 1, 2)
 
 # IO cell types to ignore. They do not correspond to routable IO pads.
 IGNORED_IO_CELL_TYPES = (
@@ -57,16 +61,6 @@ def is_loc_free(loc, tile_grid):
 
 def add_synthetic_cell_and_tile_types(tile_types, cells_library):
 
-    # The synthetic IO tile.
-    tile_type = TileType("SYN_IO", {"BIDIR": 1})
-    tile_type.make_pins(cells_library)
-    tile_types[tile_type.type] = tile_type
-
-    # The synthetic CLOCK input tile.
-    tile_type = TileType("SYN_CLK", {"CLOCK": 1})
-    tile_type.make_pins(cells_library)
-    tile_types[tile_type.type] = tile_type
-
     # Add a synthetic tile types for the VCC and GND const sources.
     # Models of the VCC and GND cells are already there in the cells_library.
     for const in ["VCC", "GND"]:
@@ -77,7 +71,7 @@ def add_synthetic_cell_and_tile_types(tile_types, cells_library):
 # =============================================================================
 
 
-def make_tile_type(cells, cells_library):
+def make_tile_type(cells, cells_library, tile_types):
     """
     Creates a tile type given a list of cells that constitute to it.
     """
@@ -97,14 +91,23 @@ def make_tile_type(cells, cells_library):
         else:
             parts.append("{}x{}".format(c, t))
 
-    # Create the tile type
+    type_name = "_".join(parts).upper()
+
+    # If the new tile type already exists, use the existing one
+    if type_name in tile_types:
+        return tile_types[type_name]
+
+    # Create the new tile type
     tile_type = TileType(
-        type  = "_".join(parts),
+        type  = type_name,
         cells = cell_counts
         )
 
     # Create pins
     tile_type.make_pins(cells_library)
+
+    # Add it to the list
+    tile_types[type_name] = tile_type
     return tile_type
 
 
@@ -121,13 +124,7 @@ def strip_cells(tile, cell_types, tile_types, cells_library):
 
     # Filter cells, create a new tile type
     new_cells = [c for c in tile.cells if c.type not in cell_types]
-    new_tile_type = make_tile_type(new_cells, cells_library)
-
-    # If the new tile type already exists, use the existing one
-    if new_tile_type.type not in tile_types:
-        tile_types[new_tile_type.type] = new_tile_type
-    else:
-        new_tile_type = tile_types[new_tile_type.type]
+    new_tile_type = make_tile_type(new_cells, cells_library, tile_types)
 
     # Create the new tile
     new_tile = Tile(
@@ -139,7 +136,7 @@ def strip_cells(tile, cell_types, tile_types, cells_library):
     return new_tile
 
 
-def process_tilegrid(tile_types, tile_grid, cells_library, grid_limit=None):
+def process_tilegrid(tile_types, tile_grid, cells_library, grid_size, grid_offset, grid_limit=None):
     """
     Processes the tilegrid. May add/remove tiles. Returns a new one.
     """    
@@ -159,9 +156,10 @@ def process_tilegrid(tile_types, tile_grid, cells_library, grid_limit=None):
         if not is_loc_within_limit(phy_loc, grid_limit):
             continue
 
-        # Initial VPR location, shifted by (+1, +1) to have a margin so
-        # channels can run freely over the entire occupied part of the grid
-        vpr_loc = Loc(phy_loc.x + 1, phy_loc.y + 1)
+        vpr_loc = Loc(
+            x = phy_loc.x + grid_offset[0],
+            y = phy_loc.y + grid_offset[1]
+            )
 
         # If the tile contains CAND then strip it. Possibly create a new tile
         # type.
@@ -179,38 +177,86 @@ def process_tilegrid(tile_types, tile_grid, cells_library, grid_limit=None):
             if "BIDIR" in tile_type.cells:
                 assert tile_type.cells["BIDIR"] == 1
 
+                cells=[c for c in tile.cells if c.type == "BIDIR"]                
+                new_type = make_tile_type(cells, cells_library, tile_types)
+
                 add_loc_map(phy_loc, vpr_loc)
                 vpr_tile_grid[vpr_loc] = Tile(
-                    type="SYN_IO",
+                    type=new_type.type,
                     name=tile.name,
-                    cells=[c for c in tile.cells if c.type == "BIDIR"]
+                    cells=cells
                 )
 
             # For the CLOCK cell create a synthetic tile
             if "CLOCK" in tile_type.cells:
-                assert tile_type.cells["CLOCK"] == 1
 
-                # If the tile has a BIDIR cell then place the CLOCK tile in a 
-                # free location next to the original one.
-                if "BIDIR" in tile_type.cells:
-                    for ox, oy in ((-1,0),(+1,0),(0,-1),(0,+1)):
-                        test_loc = Loc(x=phy_loc.x+ox, y=phy_loc.y+oy)
-                        if is_loc_free(test_loc, tile_grid):
-                            new_loc = Loc(x=vpr_loc.x+ox, y=vpr_loc.y+oy)
-                            break
-                    else:
-                        assert False, ("No free location to place CLOCK tile", vpr_loc)
+                # TODO: FIXME: CLOCK IO/s are WIP. skip them for now
+                continue
+#
+#                assert tile_type.cells["CLOCK"] == 1
+#
+#                # If the tile has a BIDIR cell then place the CLOCK tile in a 
+#                # free location next to the original one.
+#                if "BIDIR" in tile_type.cells:
+#                    for ox, oy in ((-1,0),(+1,0),(0,-1),(0,+1)):
+#                        test_loc = Loc(x=phy_loc.x+ox, y=phy_loc.y+oy)
+#                        if is_loc_free(test_loc, tile_grid):
+#                            new_loc = Loc(x=vpr_loc.x+ox, y=vpr_loc.y+oy)
+#                            break
+#                    else:
+#                        assert False, ("No free location to place CLOCK tile", vpr_loc)
+#
+#                # Don't move
+#                else:
+#                    new_loc = vpr_loc
+#
+#                # Add only the backward location correspondence for CLOCK tile
+#                bwd_loc_map[new_loc] = phy_loc
+#                vpr_tile_grid[new_loc] = Tile(
+#                    type="SYN_CLK",
+#                    name="TILE_X{}Y{}".format(new_loc.x, new_loc.y),
+#                    cells=[c for c in tile.cells if c.type == "CLOCK"]
+#                )
 
-                # Don't move
+            continue
+
+        # The tile contains SDIOMUX cell(s). This is an IO tile.
+        if "SDIOMUX" in tile_type.cells:
+
+            # Split the tile into individual SDIOMUX cells. Each one will be
+            # inside a synthetic tile occupying different grid location.
+            cells = [c for c in tile.cells if c.type == "SDIOMUX"]
+            for i, cell in enumerate(cells):
+
+                # Create a synthetic tile that will hold just the SDIOMUX cell
+                new_type = make_tile_type([cell], cells_library, tile_types)
+
+                # Choose a new location for the tile
+                # FIXME: It is assumed that SDIOMUX tiles are on the left edge
+                # of the grid and there is enough space to split them.
+                new_loc = Loc(vpr_loc.x - i, vpr_loc.y)
+                assert new_loc.x >= 1, new_loc
+
+                # For the offset 0 add the full mapping, for others, just the
+                # backward correspondence.
+                if new_loc == vpr_loc:
+                    add_loc_map(phy_loc, new_loc)
                 else:
-                    new_loc = vpr_loc
+                    bwd_loc_map[new_loc] = phy_loc
 
-                # Add only the backward location correspondence for CLOCK tile
-                bwd_loc_map[new_loc] = phy_loc
+                # Change index of the cell
+                new_cell = Cell(
+                    type = cell.type,
+                    index = 0,
+                    name = cell.name,
+                    alias = cell.alias
+                )
+
+                # Add the tile instance
                 vpr_tile_grid[new_loc] = Tile(
-                    type="SYN_CLK",
-                    name="TILE_X{}Y{}".format(new_loc.x, new_loc.y),
-                    cells=[c for c in tile.cells if c.type == "CLOCK"]
+                    type=new_type.type,
+                    name=tile.name,
+                    cells=[new_cell]
                 )
 
             continue
@@ -220,7 +266,7 @@ def process_tilegrid(tile_types, tile_grid, cells_library, grid_limit=None):
             cell_type = list(tile_type.cells.keys())[0] 
       
             # Keep only these types 
-            if cell_type in ["LOGIC", "GMUX"]: 
+            if cell_type in ["LOGIC",]: # TODO: FIXME: GMUX is WIP, skip it.
                 add_loc_map(phy_loc, vpr_loc)
                 vpr_tile_grid[vpr_loc] = tile
                 continue
@@ -228,7 +274,7 @@ def process_tilegrid(tile_types, tile_grid, cells_library, grid_limit=None):
     # Find the ASSP tile. There are multiple tiles that contain the ASSP cell
     # but in fact there is only one ASSP cell for the whole FPGA which is
     # "distributed" along top and left edge of the grid.
-    if "ASSP" in tile_types:
+    if "ASSP" in tile_types:        
 
         # Verify that the location is empty
         assp_loc = Loc(x=1, y=1)
@@ -258,10 +304,7 @@ def process_tilegrid(tile_types, tile_grid, cells_library, grid_limit=None):
 
     # Extend the grid by 1 on the right and bottom side. Fill missing locs
     # with empty tiles.
-    xmax = max([loc.x for loc in vpr_tile_grid.keys()])
-    ymax = max([loc.y for loc in vpr_tile_grid.keys()])
-
-    for x, y in itertools.product(range(xmax+1), range(ymax+1)):
+    for x, y in itertools.product(range(grid_size[0]), range(grid_size[1])):
         loc = Loc(x=x, y=y)
 
         if loc not in vpr_tile_grid:
@@ -273,22 +316,46 @@ def process_tilegrid(tile_types, tile_grid, cells_library, grid_limit=None):
 # =============================================================================
 
 
-def process_switchbox_grid(phy_switchbox_grid, loc_map, grid_limit=None):
+def process_switchbox_grid(phy_switchbox_grid, loc_map, grid_offset, grid_limit=None):
     """
     Processes the switchbox grid
     """
 
+    fwd_loc_map = loc_map.fwd
+    bwd_loc_map = loc_map.bwd
+
+    def add_loc_map(phy_loc, vpr_loc):
+        if phy_loc in fwd_loc_map:
+            assert fwd_loc_map[phy_loc] == vpr_loc, (phy_loc, vpr_loc)
+        else:
+            fwd_loc_map[phy_loc] = vpr_loc
+
+        if vpr_loc in bwd_loc_map:
+            assert bwd_loc_map[vpr_loc] == phy_loc, (phy_loc, vpr_loc)
+        else:
+            bwd_loc_map[vpr_loc] = phy_loc
+
     # Remap locations
     vpr_switchbox_grid = {}
-    for loc, switchbox_type in phy_switchbox_grid.items():
+    for phy_loc, switchbox_type in phy_switchbox_grid.items():
 
-        if loc not in loc_map.fwd:
+        # Limit the grid range
+        if not is_loc_within_limit(phy_loc, grid_limit):
             continue
 
-        new_loc = loc_map.fwd[loc]
-        vpr_switchbox_grid[new_loc] = switchbox_type
+        # compute VPR grid location
+        vpr_loc = Loc(
+            x = phy_loc.x + grid_offset[0],
+            y = phy_loc.y + grid_offset[1]
+            )
 
-    return vpr_switchbox_grid
+        # Place the switchbox
+        vpr_switchbox_grid[vpr_loc] = switchbox_type
+
+        # Add location correspondence
+        add_loc_map(phy_loc, vpr_loc)
+
+    return vpr_switchbox_grid, LocMap(fwd=fwd_loc_map, bwd=bwd_loc_map),
 
 
 # =============================================================================
@@ -351,6 +418,60 @@ def process_connections(
         )
         vpr_connections.append(new_connection)
 
+
+    # Find SFBIO connections, map their endpoints to SDIOMUX tiles
+    # FIXME: This should be read from the techfine. Definition of the SDIOMUX
+    # cell has  "realPortName" fields.
+    SDIOMUX_PIN_MAP = {
+        "FBIO_In": "IZ",
+        "FBIO_In_En": "IE",
+        "FBIO_Out": "OQI",
+        "FBIO_Out_En": "OE",
+    }
+
+    for i, connection in enumerate(vpr_connections):
+
+        eps = [connection.src, connection.dst]
+        for j, ep in enumerate(eps):
+
+            # Must have "ASSP" and "FBIO_" in name and refer to a tile.
+            if "ASSP" not in ep.pin:
+                continue
+            if "FBIO_" not in ep.pin:
+                continue
+            if ep.type != ConnectionType.TILE:
+                continue
+
+            # Get the pin name and index
+            pin_name, pin_index = get_pin_name(ep.pin)
+            assert pin_index is not None, ep
+
+            # Strip cell name
+            pin_name = pin_name.split("_", maxsplit=1)[1]            
+
+            # Find where is an SDIOMUX cell for that index
+            cell_name = "SFB_{}_IO".format(pin_index)
+
+            # New location and pin name
+            new_loc = get_loc_of_cell(cell_name, vpr_tile_grid)
+            cell = find_cell_in_tile(cell_name, vpr_tile_grid[new_loc])
+
+            new_pin = "{}{}_{}".format(
+                cell.type,
+                cell.index,
+                SDIOMUX_PIN_MAP[pin_name]
+            )
+
+            eps[j] = ConnectionLoc(
+                loc=new_loc,
+                pin=new_pin,
+                type=ep.type,
+            )
+
+        # Modify the connection
+        vpr_connections[i] = Connection(src=eps[0], dst=eps[1])
+
+
     # Find locations of "special" tiles
     special_tile_loc = {"ASSP": None}
 
@@ -370,8 +491,8 @@ def process_connections(
                 continue
 
             cell_name, pin = ep.pin.split("_", maxsplit=1)
-            cell_type = cell_name[:-1
-                                  ]  # FIXME: Will fail on cell with index >= 10
+            cell_type = cell_name[:-1]
+            # FIXME: The above will fail on cell with index >= 10
 
             if cell_type in special_tile_loc:
                 loc = special_tile_loc[cell_type]
@@ -391,7 +512,7 @@ def process_connections(
 # =============================================================================
 
 
-def process_package_pinmap(package_pinmap, phy_tile_grid, loc_map):
+def process_package_pinmap(package_pinmap, vpr_tile_grid, grid_limit=None):
     """
     Processes the package pinmap. Reloacted pin mappings. Reject mappings
     that lie outside the grid limit.
@@ -405,27 +526,28 @@ def process_package_pinmap(package_pinmap, phy_tile_grid, loc_map):
         for pin in pins:
 
             # The loc is outside the grid limit, skip it.
-            if pin.loc not in loc_map.fwd:
+            if not is_loc_within_limit(pin.loc, grid_limit):
                 continue
 
             # Ignore this one
             if pin.cell.type in IGNORED_IO_CELL_TYPES:
                 continue
 
+            # Find the cell
+            loc = get_loc_of_cell(pin.cell.name, vpr_tile_grid)
+            if loc is None:
+                continue
+
+            cell = find_cell_in_tile(pin.cell.name, vpr_tile_grid[loc])
+            assert cell is not None, (loc, pin)
+
             # Remap location
-            new_loc = loc_map.fwd[pin.loc]
             new_package_pinmap[pin.name].append(
-                PackagePin(name=pin.name, loc=new_loc, cell=pin.cell)
+                PackagePin(name=pin.name, loc=loc, cell=cell)
             )
 
     # Convert to regular dict
     new_package_pinmap = dict(**new_package_pinmap)
-
-    # DEBUG
-    for p, l in new_package_pinmap.items():
-        print(p)
-        for m in l:
-            print("", m)
 
     return new_package_pinmap
 
@@ -585,14 +707,37 @@ def main():
     # Add synthetic stuff
     add_synthetic_cell_and_tile_types(tile_types, cells_library)
 
+    # Determine the grid offset so occupied locations start at GRID_MARGIN
+    tl_min = min([loc.x for loc in phy_tile_grid]), \
+             min([loc.y for loc in phy_tile_grid])
+    tl_max = max([loc.x for loc in phy_tile_grid]), \
+             max([loc.y for loc in phy_tile_grid])
+
+    sb_min = min([loc.x for loc in phy_switchbox_grid]), \
+             min([loc.y for loc in phy_switchbox_grid])
+    sb_max = max([loc.x for loc in phy_switchbox_grid]), \
+             max([loc.y for loc in phy_switchbox_grid])
+
+    grid_min = min(tl_min[0], sb_min[0]), min(tl_min[1], sb_min[1])
+    grid_max = max(tl_max[0], sb_max[0]), max(tl_max[1], sb_max[1])
+
+    # Compute VPR grid offset w.r.t the physical grid and its size
+    grid_offset = GRID_MARGIN[0] - grid_min[0], \
+                  GRID_MARGIN[1] - grid_min[1]
+
+    grid_size = GRID_MARGIN[0] + GRID_MARGIN[2] + \
+                (grid_max[0] - grid_min[0] + 1), \
+                GRID_MARGIN[1] + GRID_MARGIN[3] + \
+                (grid_max[1] - grid_min[1] + 1)
+
     # Process the tilegrid
     vpr_tile_grid, loc_map = process_tilegrid(
-        tile_types, phy_tile_grid, cells_library, grid_limit
+        tile_types, phy_tile_grid, cells_library, grid_size, grid_offset, grid_limit
     )
 
     # Process the switchbox grid
-    vpr_switchbox_grid = process_switchbox_grid(
-        phy_switchbox_grid, loc_map, grid_limit
+    vpr_switchbox_grid, loc_map = process_switchbox_grid(
+        phy_switchbox_grid, loc_map, grid_offset, grid_limit
     )
 
     # Process connections
@@ -604,7 +749,7 @@ def main():
     vpr_package_pinmaps = {}
     for package, pkg_pin_map in package_pinmaps.items():
         vpr_package_pinmaps[package] = process_package_pinmap(
-            pkg_pin_map, phy_tile_grid, loc_map
+            pkg_pin_map, vpr_tile_grid, grid_limit
         )
 
     # Get tile types present in the grid
@@ -656,6 +801,40 @@ def main():
         for dst_switchbox in vpr_switchbox_types.values():
             if dst_switchbox.type != "SB_LC":
                 copy_switchbox_timing(switchbox, dst_switchbox)
+
+    # DBEUG
+    print("Tile grid:")
+    xmax = max([loc.x for loc in vpr_tile_grid])
+    ymax = max([loc.y for loc in vpr_tile_grid])
+    for y in range(ymax+1):
+        l = " {:>2}: ".format(y)
+        for x in range(xmax+1):
+            loc = Loc(x=x, y=y)
+            if loc not in vpr_tile_grid:
+                l += " "
+            elif vpr_tile_grid[loc] is not None:
+                tile_type = vpr_tile_types[vpr_tile_grid[loc].type]
+                label = sorted(list(tile_type.cells.keys()))[0][0].upper()
+                l += label
+            else:
+                l += "."
+        print(l)
+
+    # DEBUG
+    print("Switchbox grid:")
+    xmax = max([loc.x for loc in vpr_switchbox_grid])
+    ymax = max([loc.y for loc in vpr_switchbox_grid])
+    for y in range(ymax+1):
+        l = " {:>2}: ".format(y)
+        for x in range(xmax+1):
+            loc = Loc(x=x, y=y)
+            if loc not in vpr_switchbox_grid:
+                l += " "
+            elif vpr_switchbox_grid[loc] is not None:
+                l += "X"
+            else:
+                l += "."
+        print(l)
 
     # DEBUG
     print("VPR Segments:")
