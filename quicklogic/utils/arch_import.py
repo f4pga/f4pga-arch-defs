@@ -302,9 +302,10 @@ def main():
 
     for tile_type in vpr_tile_types.values():
 
+
         # The top-level tile tag
         fname = "tl-{}.tile.xml".format(tile_type.type.lower())
-        xml = make_top_level_tile(tile_type)
+        xml = make_top_level_tile(tile_type.type, vpr_tile_types, equivalent_tiles)
         ET.ElementTree(xml).write(fname, pretty_print=True)
 
         # The top-level pb_type wrapper tag
