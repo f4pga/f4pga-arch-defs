@@ -36,11 +36,13 @@ def create_synth_io_tiles(complexblocklist_xml, tiles_xml, pb_name, is_input):
         'name': pb_name,
     })
 
-    equivalent_sites = ET.SubElement(tile_xml, 'equivalent_sites')
+    sub_tile_xml = ET.SubElement(tile_xml, 'sub_tile', {'name': pb_name})
+
+    equivalent_sites = ET.SubElement(sub_tile_xml, 'equivalent_sites')
     site = ET.SubElement(equivalent_sites, 'site', {'pb_type': pb_name})
 
     ET.SubElement(
-        tile_xml, 'fc', {
+        sub_tile_xml, 'fc', {
             'in_type': 'abs',
             'in_val': '2',
             'out_type': 'abs',
@@ -64,10 +66,12 @@ def create_synth_io_tiles(complexblocklist_xml, tiles_xml, pb_name, is_input):
         'num_pins': '1',
     })
 
-    ET.SubElement(tile_xml, port_type, {
-        'name': pad_name,
-        'num_pins': '1',
-    })
+    ET.SubElement(
+        sub_tile_xml, port_type, {
+            'name': pad_name,
+            'num_pins': '1',
+        }
+    )
 
     port_pin = '{}.{}'.format(pb_name, pad_name)
     pad_pin = '{}.{}'.format(pad_name, pad_name)
@@ -130,11 +134,13 @@ def create_synth_constant_tiles(
         'name': pb_name,
     })
 
-    equivalent_sites = ET.SubElement(tile_xml, 'equivalent_sites')
+    sub_tile_xml = ET.SubElement(tile_xml, 'sub_tile', {'name': pb_name})
+
+    equivalent_sites = ET.SubElement(sub_tile_xml, 'equivalent_sites')
     site = ET.SubElement(equivalent_sites, 'site', {'pb_type': pb_name})
 
     ET.SubElement(
-        tile_xml, 'fc', {
+        sub_tile_xml, 'fc', {
             'in_type': 'abs',
             'in_val': '2',
             'out_type': 'abs',
@@ -153,10 +159,12 @@ def create_synth_constant_tiles(
         'num_pins': '1',
     })
 
-    ET.SubElement(tile_xml, port_type, {
-        'name': pin_name,
-        'num_pins': '1',
-    })
+    ET.SubElement(
+        sub_tile_xml, port_type, {
+            'name': pin_name,
+            'num_pins': '1',
+        }
+    )
 
     port_pin = '{}.{}'.format(pb_name, pin_name)
     pad_pin = '{}.{}'.format(pin_name, pin_name)
@@ -695,9 +703,16 @@ def main():
 
             tile_root = tile_xml.getroot()
             assert tile_root.tag == 'tile'
-            tile_capacity[tile_type] = 1
-            if 'capacity' in tile_root.attrib:
-                tile_capacity[tile_type] = int(tile_root.attrib['capacity'])
+            tile_capacity[tile_type] = 0
+
+            for sub_tile in tile_root.iter('sub_tile'):
+                print("ITERATION")
+                if 'capacity' in sub_tile.attrib:
+                    tile_capacity[tile_type] += int(
+                        sub_tile.attrib['capacity']
+                    )
+                else:
+                    tile_capacity[tile_type] += 1
 
     complexblocklist_xml = ET.SubElement(arch_xml, 'complexblocklist')
     for pb_type in pb_types:
