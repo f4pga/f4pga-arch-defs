@@ -118,6 +118,11 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
     list(APPEND TIMING_FILES ${TIMING_FILE})
   endforeach()
 
+  add_custom_command(
+    OUTPUT ${SDF_TIMING_DIR}
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${SDF_TIMING_DIR}
+  )
+
   set(SDF_FILE_TARGETS "")
   foreach(LIB_TIMING_FILE ${TIMING_FILES})
 
@@ -127,23 +132,23 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
     set(SDF_TIMING_FILE ${SDF_TIMING_DIR}/${FILE_TITLE}.sdf)
 
     add_custom_command(
-      OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${SDF_TIMING_FILE}
-      COMMAND ${CMAKE_COMMAND} -E make_directory ${SDF_TIMING_DIR}
+      OUTPUT ${SDF_TIMING_FILE}
       COMMAND ${QUICKLOGIC_TIMINGS_IMPORTER}
         ${LIB_TIMING_FILE}
         ${SDF_TIMING_FILE}
-      DEPENDS ${PYTHON3} ${PYTHON3_TARGET} ${QUICKLOGIC_TIMINGS_IMPORTER_TARGET} ${LIB_TIMING_FILE}
+        DEPENDS ${PYTHON3} ${PYTHON3_TARGET} ${QUICKLOGIC_TIMINGS_IMPORTER_TARGET} ${LIB_TIMING_FILE} ${SDF_TIMING_DIR}
     )
 
     add_file_target(FILE ${SDF_TIMING_FILE} GENERATED)
-    append_file_dependency(SDF_FILE_TARGETS ${SDF_TIMING_FILE})
+    get_file_target(SDF_FILE_TARGET ${SDF_TIMING_FILE})
+    list(APPEND SDF_FILE_TARGETS ${SDF_FILE_TARGET})
 
   endforeach()
 
   # Timing import stuff
   set(UPDATE_ARCH_TIMINGS ${symbiflow-arch-defs_SOURCE_DIR}/utils/update_arch_timings.py)
   set(PYTHON_SDF_TIMING_DIR ${symbiflow-arch-defs_SOURCE_DIR}/third_party/python-sdf-timing)
-  get_target_property(SDF_TIMING_TARGET env SDF_TIMING_TARGET)
+  get_target_property_required(SDF_TIMING_TARGET env SDF_TIMING_TARGET)
 
   set(BELS_MAP ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${DEVICE}-bels.json)
 
@@ -156,7 +161,7 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
         --input_arch /dev/stdin \
     ")
 
-  set(TIMING_DEPS ${SDF_TIMING_TARGET} sdf_timing ${SDF_FILE_TARGETS} ${BELS_MAP})
+  set(TIMING_DEPS ${SDF_TIMING_TARGET} ${SDF_FILE_TARGETS} ${BELS_MAP})
 
   # Define the device type
   define_device_type(
