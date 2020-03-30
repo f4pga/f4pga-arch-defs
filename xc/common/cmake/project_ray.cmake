@@ -607,7 +607,6 @@ function(PROJECT_RAY_TILE_CAPACITY)
   #   ARCH <arch>
   #   TILE <tile>
   #   SITE_TYPE <site type>
-  #   SITE_COORDS [X|Y|XY]
   #   )
   # ~~~
   #
@@ -617,7 +616,7 @@ function(PROJECT_RAY_TILE_CAPACITY)
   # Future support: Emit tiles with capacity that contain more than 1 site type
   # once VPR supports it.
   set(options)
-  set(oneValueArgs ARCH TILE SITE_TYPE SITE_COORDS)
+  set(oneValueArgs ARCH TILE SITE_TYPES)
   set(multiValueArgs)
   cmake_parse_arguments(
     PROJECT_RAY_TILE_CAPACITY
@@ -658,9 +657,8 @@ function(PROJECT_RAY_TILE_CAPACITY)
       --output_directory ${CMAKE_CURRENT_BINARY_DIR}
       --site_directory ${symbiflow-arch-defs_BINARY_DIR}/xc/common/primitives
       --tile_type ${TILE}
-      --pb_type ${PROJECT_RAY_TILE_CAPACITY_SITE_TYPE}
+      --pb_types ${PROJECT_RAY_TILE_CAPACITY_SITE_TYPES}
       --pin_assignments ${PIN_ASSIGNMENTS}
-      --site_coords ${PROJECT_RAY_TILE_CAPACITY_SITE_COORDS}
     DEPENDS
       ${TILE_CAPACITY_IMPORT}
       ${DEPS}

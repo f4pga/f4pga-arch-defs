@@ -1,6 +1,6 @@
 project_ray_tile_capacity(
     ARCH artix7
     TILE CLK_BUFG_BOT_R
-    SITE_TYPE BUFGCTRL
+    SITE_TYPES BUFGCTRL
     SITE_COORDS XY
     )

@@ -23,9 +23,9 @@ import sqlite3
 
 import lxml.etree as ET
 from lib.pb_type_xml import (
-    start_pb_type, add_vpr_tile_prefix, add_tile_direct, object_ref,
-    add_switchblock_locations, write_xml, ModelXml, add_direct, XI_INCLUDE,
-    XI_URL
+    start_pb_type, start_tile, add_vpr_tile_prefix, add_tile_direct,
+    object_ref, add_switchblock_locations, write_xml, ModelXml, add_direct,
+    XI_INCLUDE, XI_URL
 )
 
 
@@ -618,7 +618,6 @@ GROUP BY site_pin.direction;
         pin_assignments,
         ['{}_{}'.format(site, pin) for site, pin in all_pb_type_output_pins],
         ['{}_{}'.format(site, pin) for site, pin in all_pb_type_input_pins],
-        root_pb_type=False
     )
 
     interconnect_xml = ET.Element('interconnect')
@@ -823,13 +822,11 @@ AND
                 else:
                     assert False, (wire_name, direction)
 
-    tile_xml = start_pb_type(
+    tile_xml = start_tile(
         tile_type,
         pin_assignments,
         input_wires,
         output_wires,
-        root_pb_type=True,
-        root_tag='tile',
     )
 
     equivalent_sites_xml = ET.Element('equivalent_sites')
@@ -859,7 +856,9 @@ AND
                     ),
                 )
 
-    tile_xml.append(equivalent_sites_xml)
+    sub_tile_xml = tile_xml.find('./sub_tile')
+
+    sub_tile_xml.append(equivalent_sites_xml)
 
     add_switchblock_locations(tile_xml)
 

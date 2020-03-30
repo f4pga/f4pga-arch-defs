@@ -123,18 +123,27 @@ def import_physical_tile(args):
         nsmap={'xi': XI_URL},
     )
 
-    add_ports(tile_xml, pb_type_root)
+    sub_tile_xml = ET.Element(
+        'sub_tile',
+        {
+            'name': tile_import.add_vpr_tile_prefix(tile_name),
+        },
+        nsmap={'xi': XI_URL},
+    )
+
+    add_ports(sub_tile_xml, pb_type_root)
 
     equivalent_sites = args.equivalent_sites
-    add_equivalent_sites(tile_xml, equivalent_sites)
+    add_equivalent_sites(sub_tile_xml, equivalent_sites)
 
-    fc_xml = tile_import.add_fc(tile_xml)
+    fc_xml = tile_import.add_fc(sub_tile_xml)
 
     pin_assignments = json.load(args.pin_assignments)
     tile_import.add_pinlocations(
-        tile_name, tile_xml, fc_xml, pin_assignments, ports
+        tile_name, sub_tile_xml, fc_xml, pin_assignments, ports
     )
 
+    tile_xml.append(sub_tile_xml)
     tile_import.add_switchblock_locations(tile_xml)
 
     tile_str = ET.tostring(tile_xml, pretty_print=True).decode('utf-8')
