@@ -1,4 +1,7 @@
 set(XC7_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+set(BELS_MAP ${XC7_DIR}/bels.json)
+add_file_target(FILE ${BELS_MAP} ABSOLUTE)
+
 set(PRJXRAY_DIR ${symbiflow-arch-defs_SOURCE_DIR}/third_party/prjxray
   CACHE PATH "Path to prjxray library")
 set(PRJXRAY_DB_DIR
