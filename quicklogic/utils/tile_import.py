@@ -158,7 +158,7 @@ def make_top_level_tile(tile_type, tile_types, equivalent_tiles=None):
     Makes a tile definition for the given tile
     """
 
-    # No equivalent tiles given, make the tile equivalent to itself
+    # Make the tile equivalent to itself
     if equivalent_tiles is None:
         equivalent_tiles = {tile_type: None}
 
@@ -185,7 +185,7 @@ def make_top_level_tile(tile_type, tile_types, equivalent_tiles=None):
         )
 
         # Same type, map one-to-one
-        if pb_name == tl_name:
+        if tile_type.upper() == site_type.upper():
 
             all_pins = {
                 **tile_pinlists["clock"],
@@ -204,7 +204,14 @@ def make_top_level_tile(tile_type, tile_types, equivalent_tiles=None):
 
         # Explicit pinmap as a list of tuples (from, to)
         elif isinstance(site_pinmap, list):
-            assert False, "Bing!"
+
+            for tl_pin, pb_pin in site_pinmap:
+                ET.SubElement(
+                    xml_site, "direct", {
+                        "from": "{}.{}".format(tl_name, tl_pin),
+                        "to": "{}.{}".format(pb_name, pb_pin)
+                    }
+                )
 
         # Should not happen
         else:

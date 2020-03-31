@@ -68,6 +68,32 @@ def add_synthetic_cell_and_tile_types(tile_types, cells_library):
         tile_type.make_pins(cells_library)
         tile_types[tile_type.type] = tile_type
 
+
+def add_logical_tile_types(tile_types, cells_library):
+    """
+    Creates logical cell types / tile types. Adds them to the dicts.
+    """
+
+    # Create a logical IO cell type
+    cell_type = CellType(
+        type="IOB",
+        pins=[
+            Pin(name="ID", direction=PinDirection.OUTPUT, is_clock=False),
+            Pin(name="IE", direction=PinDirection.INPUT,  is_clock=False),
+            Pin(name="OD", direction=PinDirection.INPUT,  is_clock=False),
+            Pin(name="OE", direction=PinDirection.INPUT,  is_clock=False),
+        ]
+    )
+    cells_library[cell_type.type] = cell_type
+
+    # Create a logical IO tile type
+    tile_type = TileType(
+        type="IOB",
+        cells={"IOB": 1}
+    )
+    tile_type.make_pins(cells_library)
+    tile_types[tile_type.type] = tile_type
+
 # =============================================================================
 
 
@@ -772,6 +798,29 @@ def main():
         if k in vpr_switchbox_types
     }
 
+    # Add logical tile types
+    add_logical_tile_types(vpr_tile_types, cells_library)
+
+    # Make tile -> site equivalence list
+    vpr_equivalent_sites = {
+        "BIDIR": {
+            "IOB": [
+                ("BIDIR0_OQI",  "IOB0_OD"),
+                ("BIDIR0_IE",   "IOB0_OE"),
+                ("BIDIR0_IZ",   "IOB0_ID"),
+                ("BIDIR0_INEN", "IOB0_IE"),
+            ]
+        },
+        "SDIOMUX": {
+            "IOB": [
+                ("SDIOMUX0_OQI", "IOB0_OD"),
+                ("SDIOMUX0_OE",  "IOB0_OE"),
+                ("SDIOMUX0_IZ",  "IOB0_ID"),
+                ("SDIOMUX0_IE",  "IOB0_IE"),
+            ]
+        }
+    }
+
     # Make switch list
     vpr_switches = build_switch_list()
     # Make segment list
@@ -852,6 +901,7 @@ def main():
         "loc_map": loc_map,
         "vpr_tile_types": vpr_tile_types,
         "vpr_tile_grid": vpr_tile_grid,
+        "vpr_equivalent_sites": vpr_equivalent_sites,
         "vpr_switchbox_types": vpr_switchbox_types,
         "vpr_switchbox_grid": vpr_switchbox_grid,
         "connections": connections,

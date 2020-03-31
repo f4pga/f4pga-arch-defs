@@ -1,13 +1,13 @@
 `include "../vpr_pad/vpr_ipad.sim.v"
 `include "../vpr_pad/vpr_opad.sim.v"
-`include "../iob/iob.sim.v"
+`include "./iobuf.sim.v"
 
 (* MODES="INPUT;OUTPUT;INOUT" *)
-module SDIOMUX(
+module IOB(
+    output wire ID,
     input  wire IE,
-    input  wire OQI,
-    input  wire OE,
-    output wire IZ
+    input  wire OD,
+    input  wire OE
 );
 
     parameter MODE = "INPUT";
@@ -37,9 +37,9 @@ module SDIOMUX(
     generate if (MODE == "INPUT") begin
 
         (* keep *)
-        IOB iob(
+        IOBUF iob(
             .I_PAD(i_pad),
-            .I_DAT(IZ),
+            .I_DAT(ID),
             .I_EN (IE),
             .O_PAD(),
             .O_DAT(),
@@ -49,24 +49,24 @@ module SDIOMUX(
     end else if (MODE == "OUTPUT") begin
     
         (* keep *)
-        IOB iob(
+        IOBUF iob(
             .I_PAD(),
             .I_DAT(),
             .I_EN (),
             .O_PAD(o_pad),
-            .O_DAT(OQI),
+            .O_DAT(OD),
             .O_EN (OE)
         );
 
     end else if (MODE == "INOUT") begin
     
         (* keep *)
-        IOB iob(
+        IOBUF iob(
             .I_PAD(i_pad),
-            .I_DAT(IZ),
+            .I_DAT(ID),
             .I_EN (IE),
             .O_PAD(o_pad),
-            .O_DAT(OQI),
+            .O_DAT(OD),
             .O_EN (OE)
         );
 

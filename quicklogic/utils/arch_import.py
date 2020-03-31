@@ -1,10 +1,19 @@
 #!/usr/bin/env python3
 import argparse
 import pickle
+from collections import namedtuple
 
 import lxml.etree as ET
 
 from data_structs import *
+
+from tile_import import make_top_level_model
+from tile_import import make_top_level_pb_type
+from tile_import import make_top_level_tile
+
+# =============================================================================
+
+ArchTileType = namedtuple("ArchTileType", "type is_tile is_pb_type")
 
 # =============================================================================
 
@@ -127,19 +136,47 @@ def initialize_arch(xml_arch, switches, segments):
         add_segment(xml_seglist, segment)
 
 
-def write_tiles(xml_arch, tile_types, nsmap):
+def write_pb_types(xml_arch, pb_types, nsmap):
     """
     Generates "models" and "complexblocklist" sections.
     """
 
     xi_include = "{{{}}}include".format(nsmap["xi"])
 
+
+def write_tiles(xml_arch, arch_tile_types, nsmap):
+    """
+    Generates "models", "complexblocklist" and "tiles" sections.
+    """
+
+    xi_include = "{{{}}}include".format(nsmap["xi"])
+
+    # Tiles
+    xml_cplx = xml_arch.find("tiles")
+    if xml_cplx is None:
+        xml_cplx = ET.SubElement(xml_arch, "tiles")
+
+    for tile_type in arch_tile_types:
+        if not tile_type.is_tile:
+            continue
+
+        tile_file = "{}.tile.xml".format(tile_type.type.lower())
+
+        ET.SubElement(
+            xml_cplx, xi_include, {
+                "href": "tl-{}".format(tile_file),
+            }
+        )
+
     # Models
     xml_models = xml_arch.find("models")
     if xml_models is None:
         xml_models = ET.SubElement(xml_arch, "models")
 
-    for tile_type in tile_types.values():
+    for tile_type in arch_tile_types:
+        if not tile_type.is_pb_type:
+            continue
+
         model_file = "{}.model.xml".format(tile_type.type.lower())
 
         ET.SubElement(
@@ -149,26 +186,15 @@ def write_tiles(xml_arch, tile_types, nsmap):
             }
         )
 
-    # Tiles
-    xml_cplx = xml_arch.find("tiles")
-    if xml_cplx is None:
-        xml_cplx = ET.SubElement(xml_arch, "tiles")
-
-    for tile_type in tile_types.values():
-        pb_type_file = "{}.tile.xml".format(tile_type.type.lower())
-
-        ET.SubElement(
-            xml_cplx, xi_include, {
-                "href": "tl-{}".format(pb_type_file),
-            }
-        )
-
     # Complexblocklist
     xml_cplx = xml_arch.find("complexblocklist")
     if xml_cplx is None:
         xml_cplx = ET.SubElement(xml_arch, "complexblocklist")
 
-    for tile_type in tile_types.values():
+    for tile_type in arch_tile_types:
+        if not tile_type.is_pb_type:
+            continue
+
         pb_type_file = "{}.pb_type.xml".format(tile_type.type.lower())
 
         ET.SubElement(
@@ -275,6 +301,7 @@ def main():
         loc_map = db["loc_map"]
         vpr_tile_types = db["vpr_tile_types"]
         vpr_tile_grid = db["vpr_tile_grid"]
+        vpr_equivalent_sites = db["vpr_equivalent_sites"]
         segments = db["segments"]
         switches = db["switches"]
 
@@ -282,8 +309,27 @@ def main():
     xml_arch = ET.Element("architecture", nsmap=nsmap)
     initialize_arch(xml_arch, switches, segments)
 
+    # Make a list of pb_type names which are pb_type only, not tile.
+    pb_names = set()
+    for tile, sites in vpr_equivalent_sites.items():
+        pb_names |= set(sites.keys())
+
+    # Make list of arch tile types
+    arch_tile_types = []
+    for tile_type in vpr_tile_types.keys():
+        arch_tile_types.append(
+            ArchTileType(
+                type = tile_type,
+                is_tile = \
+                    tile_type not in pb_names,
+                is_pb_type = \
+                    tile_type not in vpr_equivalent_sites or \
+                    tile_type in pb_names
+            )
+        )
+
     # Write tiles
-    write_tiles(xml_arch, vpr_tile_types, nsmap)
+    write_tiles(xml_arch, arch_tile_types, nsmap)
     # Write the tilegrid to arch
     write_tilegrid(xml_arch, vpr_tile_grid, loc_map, args.device)
 
@@ -295,28 +341,34 @@ def main():
         encoding="utf-8"
     )
 
-    # === MOVE ELSEWHERE ====
-    from tile_import import make_top_level_model
-    from tile_import import make_top_level_pb_type
-    from tile_import import make_top_level_tile
-
-    for tile_type in vpr_tile_types.values():
-
+    # Generate tile, model and pb_type XMLs
+    for arch_tile in arch_tile_types:
 
         # The top-level tile tag
-        fname = "tl-{}.tile.xml".format(tile_type.type.lower())
-        xml = make_top_level_tile(tile_type.type, vpr_tile_types, equivalent_tiles)
-        ET.ElementTree(xml).write(fname, pretty_print=True)
+        if arch_tile.is_tile:
 
-        # The top-level pb_type wrapper tag
-        fname = "tl-{}.pb_type.xml".format(tile_type.type.lower())
-        xml = make_top_level_pb_type(tile_type, nsmap)
-        ET.ElementTree(xml).write(fname, pretty_print=True)
+            xml = make_top_level_tile(
+                arch_tile.type,
+                vpr_tile_types,
+                vpr_equivalent_sites.get(arch_tile.type, None)
+            )
 
-        # The top-level models wrapper tag
-        fname = "tl-{}.model.xml".format(tile_type.type.lower())
-        xml = make_top_level_model(tile_type, nsmap)
-        ET.ElementTree(xml).write(fname, pretty_print=True)
+            fname = "tl-{}.tile.xml".format(arch_tile.type.lower())
+            ET.ElementTree(xml).write(fname, pretty_print=True)
+
+
+        # The top-level pb_type and model
+        if arch_tile.is_pb_type:
+
+            tile_type = vpr_tile_types[arch_tile.type]
+
+            fname = "tl-{}.pb_type.xml".format(arch_tile.type.lower())
+            xml = make_top_level_pb_type(tile_type, nsmap)
+            ET.ElementTree(xml).write(fname, pretty_print=True)
+
+            fname = "tl-{}.model.xml".format(arch_tile.type.lower())
+            xml = make_top_level_model(tile_type, nsmap)
+            ET.ElementTree(xml).write(fname, pretty_print=True)
 
 
 # =============================================================================
