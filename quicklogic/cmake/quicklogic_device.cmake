@@ -244,7 +244,7 @@ function(QUICKLOGIC_DEFINE_DEVICE)
         --suppress_warnings sum_pin_class:check_unbuffered_edges:load_rr_indexed_data_T_values:check_rr_node:trans_per_R
         --route_chan_width 500
         --allow_dangling_combinational_nodes on
-        --allowed_tiles_for_delay_model TL-LOGIC,TL-SYN_IO # TODO: Make this a parameter !
+        --allowed_tiles_for_delay_model TL-LOGIC # TODO: Make this a parameter !
     )
 
   endforeach()

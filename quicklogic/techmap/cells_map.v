@@ -17,7 +17,7 @@ endmodule
 
 module inpad(output Q, input P);
 
-  BIDIR_IOBUF # (
+  IOBUF # (
   .ESEL     (1'b1),
   .OSEL     (1'b1),
   .FIXHOLD  (1'b0),
@@ -36,7 +36,7 @@ endmodule
 
 module outpad(output P, input A);
 
-  BIDIR_IOBUF # (
+  IOBUF # (
   .ESEL     (1'b1),
   .OSEL     (1'b1),
   .FIXHOLD  (1'b0),
@@ -57,7 +57,7 @@ module ckpad(output Q, input P);
 
   // TODO: Map this to a cell that would have two modes: one for BIDIR and
   // one for CLOCK. For now just make it a BIDIR input.
-  BIDIR_IOBUF # (
+  IOBUF # (
   .ESEL     (1'b1),
   .OSEL     (1'b1),
   .FIXHOLD  (1'b0),

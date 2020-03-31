@@ -42,8 +42,8 @@ module IOB(
             .I_DAT(ID),
             .I_EN (IE),
             .O_PAD(),
-            .O_DAT(),
-            .O_EN ()
+            .O_DAT(OD),
+            .O_EN (OE)
         );
 
     end else if (MODE == "OUTPUT") begin
@@ -51,8 +51,8 @@ module IOB(
         (* keep *)
         IOBUF iob(
             .I_PAD(),
-            .I_DAT(),
-            .I_EN (),
+            .I_DAT(ID),
+            .I_EN (IE),
             .O_PAD(o_pad),
             .O_DAT(OD),
             .O_EN (OE)
