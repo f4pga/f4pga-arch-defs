@@ -102,9 +102,9 @@ class VModule(object):
         }
 
         inverterelement = Element(wire[0], 'inv', invertername, inverterios)
-        self.elements[wire[0]][inv] = inverterelement
+        self.elements[wire[0]]['inv'] = inverterelement
         invertedwireid = Wire(wire[0], wire[1], True)
-        self.wires[invertedwireid]['inv'] = invwirename
+        self.wires[invertedwireid] = invwirename
         return invwirename
 
     def parse_bels(self):
@@ -178,7 +178,6 @@ class VModule(object):
                 [f'{x.direction} {x.name}' for x in sortedios])
 
         if len(self.wires) > 0:
-            # wires = '\n    '.join([f'wire 
             wires += '\n'
             for wire in self.wires.values():
                 wires += f'    wire {wire};\n'
