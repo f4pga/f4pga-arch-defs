@@ -20,6 +20,7 @@ add_subdirectory(ext_mult)
 # Test designs that use clock
 add_subdirectory(counter)
 add_subdirectory(soc_clocks)
+add_subdirectory(sdiomux_counter)
 
 # More complex tests/examples that use the SoC interface.
 add_subdirectory(soc_litex_pwm)
