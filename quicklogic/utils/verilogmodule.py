@@ -5,6 +5,7 @@ Element = namedtuple('Element', 'loc type name ios')
 Wire = namedtuple('Wire', 'srcloc name inverted')
 VerilogIO = namedtuple('VerilogIO', 'name direction')
 
+
 class VModule(object):
     '''Represents a Verilog module for QLAL4S3B FASM'''
 
@@ -14,21 +15,42 @@ class VModule(object):
         belinversions,
         interfaces,
         designconnections):
+        '''Prepares initial structures.
+
+        Refer to fasm2bels.py for input description.
+        '''
 
         self.vpr_tile_grid = vpr_tile_grid
         self.belinversions = belinversions
         self.interfaces = interfaces
         self.designconnections = designconnections
 
+        # dictionary holding inputs, outputs
         self.ios = {}
+        # dictionary holding declared wires (wire value;)
         self.wires = {}
+        # dictionary holding Verilog elements
         self.elements = defaultdict(dict)
+        # dictionary holding assigns (assign key = value;)
         self.assigns = {}
 
+        # helper representing last input id
         self.last_input_id = 0
+        # helper representing last output id
         self.last_output_id = 0
 
     def group_array_values(self, parameters: dict):
+        '''Groups pin names that represent array indices.
+
+        Parameters
+        ----------
+        parameters: dict
+            A dictionary holding original parameters
+
+        Returns
+        -------
+        dict: parameters with grouped array indices
+        '''
         newparameters = dict()
         arraydst = re.compile(r'(?P<varname>[a-zA-Z_][a-zA-Z_0-9$]+)\[(?P<arrindex>[0-9]+)\]')
         for dst, src in parameters.items():
@@ -43,8 +65,23 @@ class VModule(object):
             else:
                 newparameters[dst] = src
         return newparameters
-            
+
     def form_verilog_element(self, typ: str, name: str, parameters: dict):
+        '''Creates an entry representing single Verilog submodule.
+
+        Parameters
+        ----------
+        typ: str
+            Type of the submodule
+        name: str
+            Name of the submodule
+        parameters: dict
+            Map from input pin to source wire
+
+        Returns
+        -------
+        str: Verilog entry
+        '''
         result = f'    {typ} {name} ('
         params = []
         fixedparameters = self.group_array_values(parameters)
@@ -66,9 +103,17 @@ class VModule(object):
 
     @staticmethod
     def get_element_name(tile):
+        '''Forms element name from its type and FASM feature name.'''
         return f'{tile.type}_{tile.name}'
 
     def new_io_name(self, direction):
+        '''Creates a new IO name for a given direction.
+
+        Parameters
+        ----------
+        direction: str
+            Direction of the IO, can be 'input' or 'output'
+        '''
         # TODO add support for inout
         assert direction in ['input', 'output']
         if direction == 'output':
@@ -80,30 +125,47 @@ class VModule(object):
         else:
             pass
         return name
-    
-    @staticmethod
-    def form_element_out_name(tilename, outname):
-        return f'{tilename}_{outname}'
 
     def get_wire(self, loc, wire, inputname):
+        '''Creates or gets an existing wire for a given source.
+
+        Parameters
+        ----------
+        loc: Loc
+            Location of the destination cell
+        wire: tuple
+            A tuple of location of the source cell and source pin name
+        inputname: str
+            A name of the destination pin
+
+        Returns
+        -------
+        str: wire name
+        '''
         isoutput = self.vpr_tile_grid[loc].type == 'SYN_IO'
         if isoutput:
+            # outputs are never inverted
             inverted = False
         else:
+            # determine if inverted
             inverted = (inputname in
                         self.belinversions[loc][self.vpr_tile_grid[loc].type])
         wireid = Wire(wire[0], wire[1], inverted)
         if wireid in self.wires:
+            # if wire already exists, use it
             return self.wires[wireid]
 
+        # first create uninverted wire
         uninvertedwireid = Wire(wire[0], wire[1], False)
         if uninvertedwireid in self.wires:
+            # if wire already exists, use it
             wirename = self.wires[uninvertedwireid]
         else:
             srcname = self.vpr_tile_grid[wire[0]].name
             srctype = self.vpr_tile_grid[wire[0]].type
             srconame = wire[1]
             if srctype == 'SYN_IO':
+                # if source is input, use its name
                 if wire[0] not in self.ios:
                     self.ios[wire[0]] = VerilogIO(
                         name=self.new_io_name('input'),
@@ -111,23 +173,30 @@ class VModule(object):
                 assert self.ios[wire[0]].direction == 'input'
                 wirename = self.ios[wire[0]].name
             else:
+                # form a new wire name
                 wirename = f'{srcname}_{srconame}'
-            if not srctype in self.elements[wire[0]]:
+            if srctype not in self.elements[wire[0]]:
+                # if the source element does not exist, create it
                 self.elements[wire[0]][srctype] = Element(
                     wire[0],
                     srctype,
                     self.get_element_name(self.vpr_tile_grid[wire[0]]),
                     {srconame: wirename})
             else:
+                # add wirename to the existing element
                 self.elements[wire[0]][srctype].ios[srconame] = wirename
             if not isoutput and srctype != 'SYN_IO':
+                # add wire
                 self.wires[uninvertedwireid] = wirename
             elif isoutput:
+                # add assign to output
                 self.assigns[self.ios[loc].name] = wirename
 
         if not inverted:
+            # if not inverted, just finish
             return wirename
 
+        # else create an inverted and wire for it
         invertername = f'{wirename}_inverter'
 
         invwirename = f'{wirename}_inv'
@@ -144,8 +213,11 @@ class VModule(object):
         return invwirename
 
     def parse_bels(self):
+        '''Converts BELs to Verilog-like structures.'''
         # TODO add support for direct input-to-output
         # first parse outputs to create wires for them
+
+        # parse outputs first to properly handle namings
         for currloc, connections in self.designconnections.items():
             if self.vpr_tile_grid[currloc].type == 'SYN_IO':
                 if 'OQI' in connections:
@@ -155,10 +227,13 @@ class VModule(object):
                     self.get_wire(currloc, connections['OQI'], 'OQI')
                 # TODO parse IE/INEN, check iz
 
+        # process of BELs
         for currloc, connections in self.designconnections.items():
+            # Extract type and form name for the BEL
             currtype = self.vpr_tile_grid[currloc].type
             currname = self.get_element_name(self.vpr_tile_grid[currloc])
             inputs = {}
+            # form all inputs for the BEL
             for inputname, wire in connections.items():
                 if wire[1] == 'VCC':
                     inputs[inputname] = "1'b1"
@@ -174,16 +249,24 @@ class VModule(object):
                     inputs[inputname] = wirename
                 else:
                     raise Exception('Not supported cell type')
-            if not currtype in self.elements[currloc]:
+            if currtype not in self.elements[currloc]:
+                # If Element does not exist, create it
                 self.elements[currloc][currtype] = Element(
                     currloc,
                     currtype,
                     currname,
                     inputs)
             else:
+                # else update IOs
                 self.elements[currloc][currtype].ios.update(inputs)
 
     def generate_verilog(self):
+        '''Creates Verilog module
+
+        Returns
+        -------
+        str: A Verilog module for given BELs
+        '''
         ios = ''
         wires = ''
         assigns = ''
@@ -192,7 +275,7 @@ class VModule(object):
         qlal4s3bmapping = {
             'LOGIC': 'logic_cell_macro',
             'ASSP': 'qlal4s3b_cell_macro',
-            'inv' : 'inv'
+            'inv': 'inv'
         }
 
         if len(self.ios) > 0:

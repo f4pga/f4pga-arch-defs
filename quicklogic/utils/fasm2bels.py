@@ -19,6 +19,10 @@ MultiLocCellMapping = namedtuple('MultiLocCellMapping', 'typ fromlocset toloc pi
 
 class Fasm2Bels(object):
     '''Class for parsing FASM file and producing BEL representation.
+
+    It takes FASM lines and VPR database and converts the data to Basic
+    Elements and connections between them. It allows converting this data to
+    Verilog.
     '''
 
     class Fasm2BelsException(Exception):
@@ -32,7 +36,7 @@ class Fasm2Bels(object):
             return self.message
 
     def __init__(self, vpr_db):
-        '''Prepares required structures.
+        '''Prepares required structures for converting FASM to BELs.
 
         Parameters
         ----------
@@ -41,20 +45,23 @@ class Fasm2Bels(object):
             vpr_tile_grid, vpr_switchbox_types, vpr_switchbox_grid,
             connections, vpr_package_pinmaps
         '''
+
+        # load vpr_db data
         self.cells_library = db["cells_library"]
         self.loc_map = db["loc_map"]
         self.vpr_tile_types = db["vpr_tile_types"]
-        self.vpr_tile_grid  = db["vpr_tile_grid"]
+        self.vpr_tile_grid = db["vpr_tile_grid"]
         self.vpr_switchbox_types = db["vpr_switchbox_types"]
-        self.vpr_switchbox_grid  = db["vpr_switchbox_grid"]
+        self.vpr_switchbox_grid = db["vpr_switchbox_grid"]
         self.connections = db["connections"]
 
+        # Add ASSP to all locations it covers
         # TODO maybe this should be added in original vpr_tile_grid
         # set all cels in row 1 and column 2 to ASSP
         numassp = 1
         assplocs = set()
         for i in range(32):
-            updateloc = self.loc_map.fwd[Loc(x=1+i,y=1)]
+            updateloc = self.loc_map.fwd[Loc(x=1 + i, y=1)]
             if self.vpr_tile_grid[updateloc] is not None:
                 self.vpr_tile_grid[updateloc].cell_names['ASSP'] = f'ASSP{numassp}'
             else:
@@ -66,7 +73,7 @@ class Fasm2Bels(object):
             numassp += 1
 
         for i in range(29):
-            updateloc = self.loc_map.fwd[Loc(x=0,y=2+i)]
+            updateloc = self.loc_map.fwd[Loc(x=0, y=2 + i)]
             if self.vpr_tile_grid[updateloc] is not None:
                 self.vpr_tile_grid[updateloc].cell_names['ASSP'] = f'ASSP{numassp}'
             else:
@@ -77,11 +84,13 @@ class Fasm2Bels(object):
             assplocs.add(updateloc)
             numassp += 1
 
-        self.connections_by_loc =defaultdict(list)
+        # prepare helper structure for connections
+        self.connections_by_loc = defaultdict(list)
         for connection in self.connections:
             self.connections_by_loc[connection.dst].append(connection)
             self.connections_by_loc[connection.src].append(connection)
 
+        # a mapping from the type of cell FASM line refers to to its parser
         self.featureparsers = {
             'LOGIC': self.parse_logic_line,
             'QMUX': self.parse_logic_line,
@@ -90,32 +99,38 @@ class Fasm2Bels(object):
             'ROUTING': self.parse_routing_line
         }
 
+        # a mapping from cell type to a set of possible pin names
         self.pinnames = defaultdict(set)
-
         for celltype in self.cells_library.values():
             typ = celltype.type
             for pin in celltype.pins:
                 self.pinnames[typ].add(pin.name)
 
+        # a mapping from cell types that occupy multiple locations
+        # to a single location
         self.multiloccells = {
-            'ASSP' : MultiLocCellMapping('ASSP', assplocs, Loc(1, 1), self.pinnames['ASSP'])
+            'ASSP': MultiLocCellMapping('ASSP', assplocs, Loc(1, 1), self.pinnames['ASSP'])
         }
 
+        # helper routing data
         self.routingdata = defaultdict(list)
+        # a dictionary holding bit settings for BELs
         self.belinversions = defaultdict(lambda: defaultdict(list))
+        # a dictionary holding bit settings for IOs
         self.interfaces = defaultdict(lambda: defaultdict(list))
+        # a dictionary holding simplified connections between BELs
         self.designconnections = defaultdict(dict)
+        # a dictionary holding hops from routing
         self.designhops = defaultdict(dict)
-        # self.locmapping = {}
-        # for x in range(0,35):
-        #     for y in range(0,33):
-        #         locmapping[Loc(x=x, y=y)] = Loc(x=x, y=y)
-
-        # for i in range(32):
-        #     locmapping[Loc(x=1+i, y=1)] = Loc(1, 1)
-
 
     def parse_logic_line(self, feature: Feature):
+        '''Parses a setting for a BEL.
+
+        Parameters
+        ----------
+        feature: Feature
+            FASM line for BEL
+        '''
         belname, setting = feature.signature.split('.', 1)
         if feature.value == 1:
             # FIXME handle ZINV pins
@@ -126,6 +141,13 @@ class Fasm2Bels(object):
             self.belinversions[feature.loc][belname].append(setting)
 
     def parse_interface_line(self, feature: Feature):
+        '''Parses a setting for IO.
+
+        Parameters
+        ----------
+        feature: Feature
+            FASM line for BEL
+        '''
         belname, setting = feature.signature.split('.', 1)
         if feature.value == 1:
             setting = setting.replace('ZINV.', '')
@@ -133,12 +155,19 @@ class Fasm2Bels(object):
             self.interfaces[feature.loc][belname].append(setting)
 
     def parse_routing_line(self, feature: Feature):
+        '''Parses a routing setting.
+
+        Parameters
+        ----------
+        feature: Feature
+            FASM line for BEL
+        '''
         match = re.match(
             r'^I_highway\.IM(?P<switch_id>[0-9]+)\.I_pg(?P<sel_id>[0-9]+)$',
             feature.signature)
         if match:
             typ = 'HIGHWAY'
-            stage_id = 3 # FIXME: Get HIGHWAY stage id from the switchbox def
+            stage_id = 3  # FIXME: Get HIGHWAY stage id from the switchbox def
             switch_id = int(match.group('switch_id'))
             mux_id = 0
             sel_id = int(match.group('sel_id'))
@@ -160,13 +189,13 @@ class Fasm2Bels(object):
 
     def parse_fasm_lines(self, fasmlines):
         '''Parses FASM lines.
-        
+
         Parameters
         ----------
         fasmlines: list
             A list of FasmLine objects
         '''
-    
+
         loctyp = re.compile(r'^X(?P<x>[0-9]+)Y(?P<y>[0-9]+)\.(?P<type>[A-Z]+)\.(?P<signature>.*)$')  # noqa: E501
 
         for line in fasmlines:
@@ -178,7 +207,7 @@ class Fasm2Bels(object):
             loc = Loc(
                 x=int(match.group('x')),
                 y=int(match.group('y')))
-            typ=match.group('type')
+            typ = match.group('type')
             feature = Feature(
                 loc=loc,
                 typ=typ,
@@ -187,6 +216,21 @@ class Fasm2Bels(object):
             self.featureparsers[typ](feature)
 
     def decode_switchbox(self, switchbox, features):
+        '''Decodes all switchboxes to extract full connections' info.
+
+        For every output, this method determines its input in the routing
+        switchboxes. In this representation, an input and output can be either
+        directly connected to a BEL, or to a hop wire.
+
+        Parameters
+        ----------
+        switchbox: a Switchbox object from vpr_switchbox_types
+        features: features regarding given switchbox
+
+        Returns
+        -------
+        dict: a mapping from output pin to input pin for a given switchbox
+        '''
         # Group switchbox connections by destinationa
         conn_by_dst = defaultdict(set)
         for c in switchbox.connections:
@@ -209,6 +253,14 @@ class Fasm2Bels(object):
             """
             Expands a multiplexer output until a switchbox input is reached.
             Returns name of the input or None if not found.
+
+            Parameters
+            ----------
+            out_loc: the last output location
+
+            Returns
+            -------
+            str: None if input name not found, else string
             """
 
             # Get mux selection, If it is set to None then the mux is
@@ -254,6 +306,20 @@ class Fasm2Bels(object):
         return routes
 
     def process_switchbox(self, loc, switchbox, features):
+        '''Processes all switchboxes and extract hops from connections.
+
+        The function extracts final connections from inputs to outputs, and
+        hops into separate structures for further processing.
+
+        Parameters
+        ----------
+        loc: Loc
+            location of the current switchbox
+        switchbox: Switchbox
+            a switchbox
+        features: list
+            list of features regarding given switchbox
+        '''
         routes = self.decode_switchbox(switchbox, features)
         for k, v in routes.items():
             if v is not None:
@@ -263,6 +329,11 @@ class Fasm2Bels(object):
                     self.designconnections[loc][k] = v
 
     def resolve_hops(self):
+        '''Resolves remaining hop wires.
+
+        It determines the absolute input for the given pin by resolving hop
+        wires and adds those final connections to the design connections.
+        '''
         for loc, conns in self.designconnections.items():
             for pin, source in conns.items():
                 hop = get_name_and_hop(source)
@@ -273,7 +344,7 @@ class Fasm2Bels(object):
                 self.designconnections[loc][pin] = (tloc, hop[0])
 
     def resolve_connections(self):
-        '''Resolves connections between BELs based on switchboxes.
+        '''Resolves connections between BELs and IOs.
         '''
         keys = sorted(self.routingdata.keys(), key=lambda loc: (loc.x, loc.y))
         for phy_loc in keys:
@@ -290,6 +361,26 @@ class Fasm2Bels(object):
         self.resolve_hops()
 
     def remap_multiloc_loc(self, loc, pinname=None, celltype=None):
+        '''Unifies coordinates of cells occupying multiple locations.
+
+        Some cells, like ASSP, RAM or multipliers occupy multiple locations.
+        This method groups bits and connections for those cells into a single
+        artificial location.
+
+        Parameters
+        ----------
+        loc: Loc
+            The current location
+        pinname: str
+            The optional name of the pin (used to determine to which cell
+            pin refers to)
+        celltype: str
+            The optional name of the cell type
+
+        Returns
+        -------
+        Loc: the new location of the cell
+        '''
         finloc = loc
         for multiloc in self.multiloccells.values():
             if pinname is None or pinname in multiloc.pinnames or celltype == multiloc.typ:
@@ -299,14 +390,17 @@ class Fasm2Bels(object):
         return finloc
 
     def resolve_multiloc_cells(self):
+        '''Groups cells that are scattered around multiple locations.
+        '''
         newbelinversions = defaultdict(lambda: defaultdict(list))
         newdesignconnections = defaultdict(dict)
-        newinterfaces =  defaultdict(lambda: defaultdict(list))
 
         for bellockey, bellocpair in self.belinversions.items():
             for belloctype, belloc in bellocpair.items():
                 if belloctype in self.multiloccells:
-                    newbelinversions[self.remap_multiloc_loc(bellockey, celltype=belloctype)][belloctype].extend(belloc)
+                    newbelinversions[self.remap_multiloc_loc(
+                        bellockey,
+                        celltype=belloctype)][belloctype].extend(belloc)
         self.belinversion = newbelinversions
         for loc, conns in self.designconnections.items():
             for pin, src in conns.items():
@@ -316,6 +410,12 @@ class Fasm2Bels(object):
         self.designconnections = newdesignconnections
 
     def produce_verilog(self):
+        '''Produces string containing Verilog module representing FASM.
+
+        Returns
+        -------
+        str: a Verilog module
+        '''
         module = VModule(
             self.vpr_tile_grid,
             self.belinversions,
@@ -326,15 +426,28 @@ class Fasm2Bels(object):
         return verilog
 
     def convert_to_verilog(self, fasmlines):
+        '''Runs all methods required to convert FASM lines to Verilog module.
+
+        Parameters
+        ----------
+        fasmlines: list
+            FASM lines to process
+
+        Returns
+        -------
+        str: a Verilog module
+        '''
         self.parse_fasm_lines(fasmlines)
         self.resolve_connections()
         self.resolve_multiloc_cells()
         verilog = self.produce_verilog()
         return verilog
 
+
 if __name__ == '__main__':
     # Parse arguments
-    parser = argparse.ArgumentParser(description=__doc__,
+    parser = argparse.ArgumentParser(
+        description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
 
     parser.add_argument(
