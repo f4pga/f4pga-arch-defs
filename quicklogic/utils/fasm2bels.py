@@ -84,6 +84,21 @@ class Fasm2Bels(object):
             assplocs.add(updateloc)
             numassp += 1
 
+        # this map represents the mapping from input name to its inverter name
+        self.inversionpins = {
+            'LOGIC': {
+                'TA1': 'TAS1',
+                'TA2': 'TAS2',
+                'TB1': 'TBS1',
+                'TB2': 'TBS2',
+                'BA1': 'BAS1',
+                'BA2': 'BAS2',
+                'BB1': 'BBS1',
+                'BB2': 'BBS2',
+                'QCK': 'QCKS'
+            }
+        }
+
         # prepare helper structure for connections
         self.connections_by_loc = defaultdict(list)
         for connection in self.connections:

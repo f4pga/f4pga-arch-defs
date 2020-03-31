@@ -14,7 +14,9 @@ class VModule(object):
         vpr_tile_grid,
         belinversions,
         interfaces,
-        designconnections):
+        designconnections,
+        inversionpins,
+        useinversionpins=True):
         '''Prepares initial structures.
 
         Refer to fasm2bels.py for input description.
@@ -24,6 +26,8 @@ class VModule(object):
         self.belinversions = belinversions
         self.interfaces = interfaces
         self.designconnections = designconnections
+        self.inversionpins = inversionpins
+        self.useinversionpins = useinversionpins
 
         # dictionary holding inputs, outputs
         self.ios = {}
@@ -38,6 +42,12 @@ class VModule(object):
         self.last_input_id = 0
         # helper representing last output id
         self.last_output_id = 0
+
+        self.qlal4s3bmapping = {
+            'LOGIC': 'logic_cell_macro',
+            'ASSP': 'qlal4s3b_cell_macro',
+            'inv': 'inv'
+        }
 
     def group_array_values(self, parameters: dict):
         '''Groups pin names that represent array indices.
@@ -66,13 +76,15 @@ class VModule(object):
                 newparameters[dst] = src
         return newparameters
 
-    def form_verilog_element(self, typ: str, name: str, parameters: dict):
+    def form_verilog_element(self, loc, typ: str, name: str, parameters: dict):
         '''Creates an entry representing single Verilog submodule.
 
         Parameters
         ----------
+        loc: Loc
+            Cell coordinates
         typ: str
-            Type of the submodule
+            Cell type
         name: str
             Name of the submodule
         parameters: dict
@@ -82,8 +94,9 @@ class VModule(object):
         -------
         str: Verilog entry
         '''
-        result = f'    {typ} {name} ('
         params = []
+        moduletype = self.qlal4s3bmapping[typ]
+        result = f'    {moduletype} {name} ('
         fixedparameters = self.group_array_values(parameters)
         for inpname, inp in fixedparameters.items():
             if isinstance(inp, dict):
@@ -98,6 +111,14 @@ class VModule(object):
                 params.append(f'.{inpname}({{{arrlist}}})')
             else:
                 params.append(f'.{inpname}({inp})')
+        if self.useinversionpins:
+            if typ in self.inversionpins:
+                for toinvert, inversionpin in self.inversionpins[typ].items():
+                    if toinvert in self.belinversions[loc][typ]:
+                        params.append(f".{inversionpin}(1'b1)")
+                    else:
+                        params.append(f".{inversionpin}(1'b0)")
+
         result += f',\n{" " * len(result)}'.join(sorted(params)) + ');\n'
         return result
 
@@ -192,8 +213,10 @@ class VModule(object):
                 # add assign to output
                 self.assigns[self.ios[loc].name] = wirename
 
-        if not inverted:
-            # if not inverted, just finish
+        if not inverted or (
+                self.useinversionpins and
+                inputname in self.inversionpins[self.vpr_tile_grid[loc].type]):
+            # if not inverted or we're not inverting, just finish
             return wirename
 
         # else create an inverted and wire for it
@@ -272,12 +295,6 @@ class VModule(object):
         assigns = ''
         elements = ''
 
-        qlal4s3bmapping = {
-            'LOGIC': 'logic_cell_macro',
-            'ASSP': 'qlal4s3b_cell_macro',
-            'inv': 'inv'
-        }
-
         if len(self.ios) > 0:
             sortedios = sorted(
                 self.ios.values(), key=lambda x: (x.direction, x.name))
@@ -296,12 +313,13 @@ class VModule(object):
                 assigns += f'    assign {dst} = {src};\n'
 
         if len(self.elements) > 0:
-            for locelements in self.elements.values():
+            for eloc, locelements in self.elements.items():
                 for element in locelements.values():
                     if element.type != 'SYN_IO':
                         elements += '\n'
                         elements += self.form_verilog_element(
-                            qlal4s3bmapping[element.type],
+                            eloc,
+                            element.type,
                             element.name,
                             element.ios)
 
