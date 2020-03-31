@@ -124,6 +124,10 @@ def add_edge(
     "pass" type switch then adds two edges going both ways.
     """
 
+    # Sanity check
+    assert src_node_id != dst_node_id, \
+        (src_node_id, dst_node_id, switch_id, meta_name, meta_value)
+
     # Connect src to dst
     graph.add_edge(src_node_id, dst_node_id, switch_id, meta_name, meta_value)
 
@@ -210,8 +214,8 @@ def connect(
         pad_node = add_node(graph, loc, direction, segment_id)
 
         # Connect through the padding node
-        graph.add_edge(
-            src_node.id, pad_node.id, graph.get_delayless_switch_id()
+        add_edge(
+            graph, src_node.id, pad_node.id, graph.get_delayless_switch_id()
         )
 
         add_edge(
@@ -234,8 +238,8 @@ def connect(
             pad_node = add_node(graph, loc, "Y", segment_id)
 
             # Connect through the padding node
-            graph.add_edge(
-                src_node.id, pad_node.id, graph.get_delayless_switch_id()
+            add_edge(
+                graph, src_node.id, pad_node.id, graph.get_delayless_switch_id()
             )
 
             add_edge(
@@ -272,8 +276,8 @@ def connect(
             pad_node = add_node(graph, loc, "X", segment_id)
 
             # Connect through the padding node
-            graph.add_edge(
-                src_node.id, pad_node.id, graph.get_delayless_switch_id()
+            add_edge(
+                graph, src_node.id, pad_node.id, graph.get_delayless_switch_id()
             )
 
             add_edge(
@@ -802,8 +806,10 @@ def add_l_track(graph, x0, y0, x1, y1, segment_id, switch_id):
     if nodes[1] is None:
         nodes[1] = nodes[0]
 
-    # Add edge
-    graph.add_edge(nodes[0].id, nodes[1].id, switch_id)
+    # Add edge connecting the two nodes if needed
+    if nodes[0].id != nodes[1].id:
+        add_edge(graph, nodes[0].id, nodes[1].id, switch_id)
+
     return nodes
 
 
@@ -849,7 +855,7 @@ def add_track_chain(graph, direction, u, v0, v1, segment_id, switch_id):
 
         # Add edge from the previous one
         if prev_node is not None:
-            graph.add_edge(prev_node.id, curr_node.id, switch_id)
+            add_edge(graph, prev_node.id, curr_node.id, switch_id)
 
         # No previous one, this is the first one
         else:
@@ -902,7 +908,7 @@ def add_tracks_for_const_network(graph, const, tile_grid):
     opin_node = graph.get_nodes_for_pin((src_loc[0], src_loc[1]), pin_name)
     assert len(opin_node) == 1, pin_name
 
-    graph.add_edge(opin_node[0][0], entry_node.id, switch_id)
+    add_edge(graph, opin_node[0][0], entry_node.id, switch_id)
 
     # Got left and right from the source column over the bottommost row
     row_entry_node1, _, row_node_map1 = add_track_chain(
@@ -913,8 +919,8 @@ def add_tracks_for_const_network(graph, const, tile_grid):
     )
 
     # Connect rows to the column
-    graph.add_edge(col_node.id, row_entry_node1.id, switch_id)
-    graph.add_edge(col_node.id, row_entry_node2.id, switch_id)
+    add_edge(graph, col_node.id, row_entry_node1.id, switch_id)
+    add_edge(graph, col_node.id, row_entry_node2.id, switch_id)
     row_node_map = {**row_node_map1, **row_node_map2}
 
     row_node_map[0] = row_node_map[1]
@@ -929,7 +935,7 @@ def add_tracks_for_const_network(graph, const, tile_grid):
         )
 
         # Add edge fom the horizontal row
-        graph.add_edge(row_node_map[x].id, col_entry_node.id, switch_id)
+        add_edge(graph, row_node_map[x].id, col_entry_node.id, switch_id)
 
         # Populate the const node map
         for y, node in col_node_map.items():
@@ -1334,10 +1340,12 @@ def main():
     ]
 
     # Sanity check edges
+    print("Sanity checking edges...")
     node_ids = set([n.id for n in xml_graph.graph.nodes])
     for edge in xml_graph.graph.edges:
         assert edge.src_node in node_ids, edge
         assert edge.sink_node in node_ids, edge
+        assert edge.src_node != edge.sink_node, edge
 
     # Write the routing graph
     nodes_obj = xml_graph.graph.nodes
