@@ -37,6 +37,7 @@ module IOB(
     generate if (MODE == "INPUT") begin
 
         (* keep *)
+        (* FASM_PREFIX="INTERFACE.BIDIR" *)
         IOBUF iob(
             .I_PAD(i_pad),
             .I_DAT(ID),
@@ -49,6 +50,7 @@ module IOB(
     end else if (MODE == "OUTPUT") begin
     
         (* keep *)
+        (* FASM_PREFIX="INTERFACE.BIDIR" *)
         IOBUF iob(
             .I_PAD(),
             .I_DAT(ID),
@@ -61,6 +63,7 @@ module IOB(
     end else if (MODE == "INOUT") begin
     
         (* keep *)
+        (* FASM_PREFIX="INTERFACE.BIDIR" *)
         IOBUF iob(
             .I_PAD(i_pad),
             .I_DAT(ID),
