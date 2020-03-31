@@ -4,15 +4,13 @@ Element = namedtuple('Element', 'loc type name ios')
 Wire = namedtuple('Wire', 'srcloc name inverted')
 VerilogIO = namedtuple('VerilogIO', 'name direction')
 
+
 class VModule(object):
     '''Represents a Verilog module for QLAL4S3B FASM'''
 
     def __init__(
-        self,
-        vpr_tile_grid,
-        belinversions,
-        interfaces,
-        designconnections):
+            self, vpr_tile_grid, belinversions, interfaces, designconnections
+    ):
 
         self.vpr_tile_grid = vpr_tile_grid
         self.belinversions = belinversions
@@ -51,7 +49,7 @@ class VModule(object):
         else:
             pass
         return name
-    
+
     @staticmethod
     def form_element_out_name(tilename, outname):
         return f'{tilename}_{outname}'
@@ -61,8 +59,10 @@ class VModule(object):
         if isoutput:
             inverted = False
         else:
-            inverted = (inputname in
-                        self.belinversions[loc][self.vpr_tile_grid[loc].type])
+            inverted = (
+                inputname in self.belinversions[loc][
+                    self.vpr_tile_grid[loc].type]
+            )
         wireid = Wire(wire[0], wire[1], inverted)
         if wireid in self.wires:
             return self.wires[wireid]
@@ -80,10 +80,10 @@ class VModule(object):
                 wirename = f'{srcname}_{srconame}'
             if not srctype in self.elements[wire[0]]:
                 self.elements[wire[0]][srctype] = Element(
-                    wire[0],
-                    srctype,
+                    wire[0], srctype,
                     self.get_element_name(self.vpr_tile_grid[wire[0]]),
-                    {srconame: wirename})
+                    {srconame: wirename}
+                )
             else:
                 self.elements[wire[0]][srctype].ios[srconame] = wirename
             if not isoutput:
@@ -96,10 +96,7 @@ class VModule(object):
 
         invwirename = f'{wirename}_inv'
 
-        inverterios = {
-            'Q': invwirename,
-            'A': wirename
-        }
+        inverterios = {'Q': invwirename, 'A': wirename}
 
         inverterelement = Element(wire[0], 'inv', invertername, inverterios)
         self.elements[wire[0]][inv] = inverterelement
@@ -114,8 +111,8 @@ class VModule(object):
             if self.vpr_tile_grid[currloc].type == 'SYN_IO':
                 if 'OQI' in connections:
                     self.ios[currloc] = VerilogIO(
-                        name=self.new_io_name('output'),
-                        direction='output')
+                        name=self.new_io_name('output'), direction='output'
+                    )
                     self.get_wire(currloc, connections['OQI'], 'OQI')
                 # TODO parse IE/INEN, check iz
 
@@ -136,8 +133,8 @@ class VModule(object):
                 if srctype == 'SYN_IO':
                     if wire[0] not in self.ios:
                         self.ios[wire[0]] = VerilogIO(
-                            name=self.new_io_name('input'),
-                            direction='input')
+                            name=self.new_io_name('input'), direction='input'
+                        )
                     # TODO handle inouts
                     assert self.ios[wire[0]].direction == 'input'
                     inputs[inputname] = self.ios[wire[0]].name
@@ -152,10 +149,8 @@ class VModule(object):
                     raise Exception('Not supported cell type')
             if not currtype in self.elements[currloc]:
                 self.elements[currloc][currtype] = Element(
-                    currloc,
-                    currtype,
-                    currname,
-                    inputs)
+                    currloc, currtype, currname, inputs
+                )
             else:
                 self.elements[currloc][currtype].ios.update(inputs)
 
@@ -167,18 +162,20 @@ class VModule(object):
         qlal4s3bmapping = {
             'LOGIC': 'logic_cell_macro',
             'ASSP': 'qlal4s3b_cell_macro',
-            'inv' : 'inv'
+            'inv': 'inv'
         }
 
         if len(self.ios) > 0:
             sortedios = sorted(
-                self.ios.values(), key=lambda x: (x.direction, x.name))
+                self.ios.values(), key=lambda x: (x.direction, x.name)
+            )
             ios = '\n    '
             ios += ',\n    '.join(
-                [f'{x.direction} {x.name}' for x in sortedios])
+                [f'{x.direction} {x.name}' for x in sortedios]
+            )
 
         if len(self.wires) > 0:
-            # wires = '\n    '.join([f'wire 
+            # wires = '\n    '.join([f'wire
             wires += '\n'
             for wire in self.wires.values():
                 wires += f'    wire {wire};\n'
@@ -189,9 +186,9 @@ class VModule(object):
                     if element.type != 'SYN_IO':
                         elements += '\n'
                         elements += self.form_verilog_element(
-                            qlal4s3bmapping[element.type],
-                            element.name,
-                            element.ios)
+                            qlal4s3bmapping[element.type], element.name,
+                            element.ios
+                        )
                     else:
                         # FIXME add support for assign
                         pass

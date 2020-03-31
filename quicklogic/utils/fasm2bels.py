@@ -43,37 +43,41 @@ class Fasm2Bels(object):
         self.cells_library = db["cells_library"]
         self.loc_map = db["loc_map"]
         self.vpr_tile_types = db["vpr_tile_types"]
-        self.vpr_tile_grid  = db["vpr_tile_grid"]
+        self.vpr_tile_grid = db["vpr_tile_grid"]
         self.vpr_switchbox_types = db["vpr_switchbox_types"]
-        self.vpr_switchbox_grid  = db["vpr_switchbox_grid"]
+        self.vpr_switchbox_grid = db["vpr_switchbox_grid"]
         self.connections = db["connections"]
 
         # TODO maybe this should be added in original vpr_tile_grid
         # set all cels in row 1 and column 2 to ASSP
         numassp = 1
         for i in range(32):
-            updateloc = self.loc_map.fwd[Loc(x=1+i,y=1)]
+            updateloc = self.loc_map.fwd[Loc(x=1 + i, y=1)]
             if self.vpr_tile_grid[updateloc] is not None:
-                self.vpr_tile_grid[updateloc].cell_names['ASSP'] = f'ASSP{numassp}'
+                self.vpr_tile_grid[updateloc].cell_names['ASSP'
+                                                         ] = f'ASSP{numassp}'
             else:
                 self.vpr_tile_grid[updateloc] = Tile(
                     type='ASSP',
                     name='ASSP',
-                    cell_names={'ASSP': f'ASSP{numassp}'})
+                    cell_names={'ASSP': f'ASSP{numassp}'}
+                )
             numassp += 1
 
         for i in range(29):
-            updateloc = self.loc_map.fwd[Loc(x=0,y=2+i)]
+            updateloc = self.loc_map.fwd[Loc(x=0, y=2 + i)]
             if self.vpr_tile_grid[updateloc] is not None:
-                self.vpr_tile_grid[updateloc].cell_names['ASSP'] = f'ASSP{numassp}'
+                self.vpr_tile_grid[updateloc].cell_names['ASSP'
+                                                         ] = f'ASSP{numassp}'
             else:
                 self.vpr_tile_grid[updateloc] = Tile(
                     type='ASSP',
                     name='ASSP',
-                    cell_names={'ASSP': f'ASSP{numassp}'})
+                    cell_names={'ASSP': f'ASSP{numassp}'}
+                )
             numassp += 1
 
-        self.connections_by_loc =defaultdict(list)
+        self.connections_by_loc = defaultdict(list)
         for connection in self.connections:
             self.connections_by_loc[connection.dst].append(connection)
             self.connections_by_loc[connection.src].append(connection)
@@ -99,7 +103,6 @@ class Fasm2Bels(object):
         # for i in range(32):
         #     locmapping[Loc(x=1+i, y=1)] = Loc(1, 1)
 
-
     def parse_logic_line(self, feature: Feature):
         belname, setting = feature.signature.split('.', 1)
         if feature.value == 1:
@@ -120,28 +123,33 @@ class Fasm2Bels(object):
     def parse_routing_line(self, feature: Feature):
         match = re.match(
             r'^I_highway\.IM(?P<switch_id>[0-9]+)\.I_pg(?P<sel_id>[0-9]+)$',
-            feature.signature)
+            feature.signature
+        )
         if match:
             typ = 'HIGHWAY'
-            stage_id = 3 # FIXME: Get HIGHWAY stage id from the switchbox def
+            stage_id = 3  # FIXME: Get HIGHWAY stage id from the switchbox def
             switch_id = int(match.group('switch_id'))
             mux_id = 0
             sel_id = int(match.group('sel_id'))
         match = re.match(
-                r'^I_street\.Isb(?P<stage_id>[0-9])(?P<switch_id>[0-9])\.I_M(?P<mux_id>[0-9]+)\.I_pg(?P<sel_id>[0-9]+)$',  # noqa: E501
-            feature.signature)
+            r'^I_street\.Isb(?P<stage_id>[0-9])(?P<switch_id>[0-9])\.I_M(?P<mux_id>[0-9]+)\.I_pg(?P<sel_id>[0-9]+)$',  # noqa: E501
+            feature.signature
+        )
         if match:
             typ = 'STREET'
             stage_id = int(match.group('stage_id')) - 1
             switch_id = int(match.group('switch_id')) - 1
             mux_id = int(match.group('mux_id'))
             sel_id = int(match.group('sel_id'))
-        self.routingdata[feature.loc].append(RouteEntry(
-            typ=typ,
-            stage_id=stage_id,
-            switch_id=switch_id,
-            mux_id=mux_id,
-            sel_id=sel_id))
+        self.routingdata[feature.loc].append(
+            RouteEntry(
+                typ=typ,
+                stage_id=stage_id,
+                switch_id=switch_id,
+                mux_id=mux_id,
+                sel_id=sel_id
+            )
+        )
 
     def parse_fasm_lines(self, fasmlines):
         '''Parses FASM lines.
@@ -151,24 +159,27 @@ class Fasm2Bels(object):
         fasmlines: list
             A list of FasmLine objects
         '''
-    
-        loctyp = re.compile(r'^X(?P<x>[0-9]+)Y(?P<y>[0-9]+)\.(?P<type>[A-Z]+)\.(?P<signature>.*)$')  # noqa: E501
+
+        loctyp = re.compile(
+            r'^X(?P<x>[0-9]+)Y(?P<y>[0-9]+)\.(?P<type>[A-Z]+)\.(?P<signature>.*)$'
+        )  # noqa: E501
 
         for line in fasmlines:
             if not line.set_feature:
                 continue
             match = loctyp.match(line.set_feature.feature)
             if not match:
-                raise self.Fasm2BelsException(f'FASM features have unsupported format:  {line.set_feature}')  # noqa: E501
-            loc = Loc(
-                x=int(match.group('x')),
-                y=int(match.group('y')))
-            typ=match.group('type')
+                raise self.Fasm2BelsException(
+                    f'FASM features have unsupported format:  {line.set_feature}'
+                )  # noqa: E501
+            loc = Loc(x=int(match.group('x')), y=int(match.group('y')))
+            typ = match.group('type')
             feature = Feature(
                 loc=loc,
                 typ=typ,
                 signature=match.group('signature'),
-                value=line.set_feature.value)
+                value=line.set_feature.value
+            )
             self.featureparsers[typ](feature)
 
     def decode_switchbox(self, switchbox, features):
@@ -187,8 +198,10 @@ class Fasm2Bels(object):
                     mux_sel[stage_id][switch_id][mux_id] = None
 
         for feature in features:
-            assert mux_sel[feature.stage_id][feature.switch_id][feature.mux_id] is None, feature  # noqa: E501
-            mux_sel[feature.stage_id][feature.switch_id][feature.mux_id] = feature.sel_id  # noqa: E501
+            assert mux_sel[feature.stage_id][feature.switch_id][
+                feature.mux_id] is None, feature  # noqa: E501
+            mux_sel[feature.stage_id][feature.switch_id][
+                feature.mux_id] = feature.sel_id  # noqa: E501
 
         def expand_mux(out_loc):
             """
@@ -276,30 +289,25 @@ class Fasm2Bels(object):
 
     def produce_verilog(self):
         module = VModule(
-            self.vpr_tile_grid,
-            self.belinversions,
-            self.interfaces,
-            self.designconnections)
+            self.vpr_tile_grid, self.belinversions, self.interfaces,
+            self.designconnections
+        )
         module.parse_bels()
         verilog = module.generate_verilog()
         return verilog
 
+
 if __name__ == '__main__':
     # Parse arguments
-    parser = argparse.ArgumentParser(description=__doc__,
-        formatter_class=argparse.RawDescriptionHelpFormatter)
-
-    parser.add_argument(
-        "input_file",
-        type=Path,
-        help="Input fasm file"
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter
     )
 
+    parser.add_argument("input_file", type=Path, help="Input fasm file")
+
     parser.add_argument(
-        "--vpr-db",
-        type=str,
-        required=True,
-        help="VPR database file"
+        "--vpr-db", type=str, required=True, help="VPR database file"
     )
 
     parser.add_argument(
@@ -317,17 +325,9 @@ if __name__ == '__main__':
         help="Output Verilog file"
     )
 
-    parser.add_argument(
-        "--output-pcf",
-        type=Path,
-        help="Output PCF file"
-    )
+    parser.add_argument("--output-pcf", type=Path, help="Output PCF file")
 
-    parser.add_argument(
-        "--output-qcf",
-        type=Path,
-        help="Output QCF file"
-    )
+    parser.add_argument("--output-qcf", type=Path, help="Output QCF file")
 
     args = parser.parse_args()
 
@@ -342,9 +342,13 @@ if __name__ == '__main__':
         assembler = QL732BAssembler(qlfasmdb)
         assembler.read_bitstream(args.input_file)
         fasmlines = assembler.disassemble()
-        fasmlines = [line for line in fasm.parse_fasm_string('\n'.join(fasmlines))]
+        fasmlines = [
+            line for line in fasm.parse_fasm_string('\n'.join(fasmlines))
+        ]
     else:
-        fasmlines = [line for line in fasm.parse_fasm_filename(args.input_file)]
+        fasmlines = [
+            line for line in fasm.parse_fasm_filename(args.input_file)
+        ]
 
     f2b.parse_fasm_lines(fasmlines)
     f2b.resolve_connections()
