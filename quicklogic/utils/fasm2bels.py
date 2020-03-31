@@ -14,6 +14,7 @@ from quicklogic_fasm.qlfasm import QL732BAssembler, load_quicklogic_database
 
 Feature = namedtuple('Feature', 'loc typ signature value')
 RouteEntry = namedtuple('RouteEntry', 'typ stage_id switch_id mux_id sel_id')
+MultiLocCellMapping = namedtuple('MultiLocCellMapping', 'typ fromlocset toloc pinnames')
 
 
 class Fasm2Bels(object):
@@ -51,6 +52,7 @@ class Fasm2Bels(object):
         # TODO maybe this should be added in original vpr_tile_grid
         # set all cels in row 1 and column 2 to ASSP
         numassp = 1
+        assplocs = set()
         for i in range(32):
             updateloc = self.loc_map.fwd[Loc(x=1+i,y=1)]
             if self.vpr_tile_grid[updateloc] is not None:
@@ -60,6 +62,7 @@ class Fasm2Bels(object):
                     type='ASSP',
                     name='ASSP',
                     cell_names={'ASSP': f'ASSP{numassp}'})
+            assplocs.add(updateloc)
             numassp += 1
 
         for i in range(29):
@@ -71,6 +74,7 @@ class Fasm2Bels(object):
                     type='ASSP',
                     name='ASSP',
                     cell_names={'ASSP': f'ASSP{numassp}'})
+            assplocs.add(updateloc)
             numassp += 1
 
         self.connections_by_loc =defaultdict(list)
@@ -84,6 +88,17 @@ class Fasm2Bels(object):
             'GMUX': self.parse_logic_line,
             'INTERFACE': self.parse_interface_line,
             'ROUTING': self.parse_routing_line
+        }
+
+        self.pinnames = defaultdict(set)
+
+        for celltype in self.cells_library.values():
+            typ = celltype.type
+            for pin in celltype.pins:
+                self.pinnames[typ].add(pin.name)
+
+        self.multiloccells = {
+            'ASSP' : MultiLocCellMapping('ASSP', assplocs, Loc(1, 1), self.pinnames['ASSP'])
         }
 
         self.routingdata = defaultdict(list)
@@ -274,6 +289,32 @@ class Fasm2Bels(object):
                 self.process_switchbox(loc, switchbox, routingfeatures)
         self.resolve_hops()
 
+    def remap_multiloc_loc(self, loc, pinname=None, celltype=None):
+        finloc = loc
+        for multiloc in self.multiloccells.values():
+            if pinname is None or pinname in multiloc.pinnames or celltype == multiloc.typ:
+                if loc in multiloc.fromlocset:
+                    finloc = multiloc.toloc
+                    break
+        return finloc
+
+    def resolve_multiloc_cells(self):
+        newbelinversions = defaultdict(lambda: defaultdict(list))
+        newdesignconnections = defaultdict(dict)
+        newinterfaces =  defaultdict(lambda: defaultdict(list))
+
+        for bellockey, bellocpair in self.belinversions.items():
+            for belloctype, belloc in bellocpair.items():
+                if belloctype in self.multiloccells:
+                    newbelinversions[self.remap_multiloc_loc(bellockey, celltype=belloctype)][belloctype].extend(belloc)
+        self.belinversion = newbelinversions
+        for loc, conns in self.designconnections.items():
+            for pin, src in conns.items():
+                dstloc = self.remap_multiloc_loc(loc, pinname=pin)
+                srcloc = self.remap_multiloc_loc(src[0], pinname=src[1])
+                newdesignconnections[dstloc][pin] = (srcloc, src[1])
+        self.designconnections = newdesignconnections
+
     def produce_verilog(self):
         module = VModule(
             self.vpr_tile_grid,
@@ -282,6 +323,13 @@ class Fasm2Bels(object):
             self.designconnections)
         module.parse_bels()
         verilog = module.generate_verilog()
+        return verilog
+
+    def convert_to_verilog(self, fasmlines):
+        self.parse_fasm_lines(fasmlines)
+        self.resolve_connections()
+        self.resolve_multiloc_cells()
+        verilog = self.produce_verilog()
         return verilog
 
 if __name__ == '__main__':
@@ -346,9 +394,7 @@ if __name__ == '__main__':
     else:
         fasmlines = [line for line in fasm.parse_fasm_filename(args.input_file)]
 
-    f2b.parse_fasm_lines(fasmlines)
-    f2b.resolve_connections()
+    verilog = f2b.convert_to_verilog(fasmlines)
 
-    verilog = f2b.produce_verilog()
     with open(args.output_verilog, 'w') as outv:
         outv.write(verilog)
