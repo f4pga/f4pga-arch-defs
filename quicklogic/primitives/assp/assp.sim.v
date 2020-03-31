@@ -42,12 +42,7 @@ module ASSP (
   output        SPIm_PReady,
   output        SPIm_PSlvErr,
   output [31:0] SPIm_Prdata,
-  input  [15:0] Device_ID,
-  input  [13:0] FBIO_In_En,
-  input  [13:0] FBIO_Out,
-  input  [13:0] FBIO_Out_En,
-  output [13:0] FBIO_In
-  //inout  [13:0] SFBIO, // FIXME: These should be "inout" but cannot model it this way
+  input  [15:0] Device_ID
 );
 
 endmodule

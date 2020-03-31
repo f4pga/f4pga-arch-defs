@@ -537,15 +537,8 @@ module qlal4s3b_cell_macro (
   .SPIm_PReady      (SPIm_PReady    ),
   .SPIm_PSlvErr     (SPIm_PSlvErr   ),
   .SPIm_Prdata      (SPIm_Prdata    ),
-  .Device_ID        (Device_ID      ),
-  .FBIO_In_En       (FBIO_In_En     ),
-  .FBIO_Out         (FBIO_Out       ),
-  .FBIO_Out_En      (FBIO_Out_En    ),
-  .FBIO_In          (FBIO_In        )
+  .Device_ID        (Device_ID      )
   );
-
-  // TODO: SFBIO signals are inout and not actually present in the physical
-  // ASSP cell. Figure out how to handle that.
 
   // TODO: The macro "qlal4s3b_cell_macro" has a bunch of non-routable signals
   // Figure out what they are responsible for and if there are any bits they

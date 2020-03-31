@@ -313,6 +313,11 @@ def process_tilegrid(tile_types, tile_grid, cells_library, grid_size, grid_offse
             cells=[Cell(type="ASSP", index=0, name="ASSP", alias=None)]
         )
 
+        # Remove "FBIO_*" pins from the ASSP tile. These pins are handled by
+        # SDIOMUX IO cells
+        tile_type = tile_types["ASSP"]
+        tile_type.pins = [p for p in tile_type.pins if "FBIO_" not in p.name]
+
     # Insert synthetic VCC and GND source tiles.
     # FIXME: This assumes that the locations specified are empty!
     for const, loc in [("VCC", Loc(x=2, y=1)), ("GND", Loc(x=3, y=1))]:
