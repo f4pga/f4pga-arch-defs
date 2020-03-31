@@ -3,7 +3,7 @@ from collections import namedtuple, defaultdict
 
 Element = namedtuple('Element', 'loc type name ios')
 Wire = namedtuple('Wire', 'srcloc name inverted')
-VerilogIO = namedtuple('VerilogIO', 'name direction')
+VerilogIO = namedtuple('VerilogIO', 'name direction ioloc')
 
 
 class VModule(object):
@@ -16,6 +16,7 @@ class VModule(object):
         interfaces,
         designconnections,
         inversionpins,
+        io_to_fbio,
         useinversionpins=True):
         '''Prepares initial structures.
 
@@ -28,6 +29,7 @@ class VModule(object):
         self.designconnections = designconnections
         self.inversionpins = inversionpins
         self.useinversionpins = useinversionpins
+        self.io_to_fbio = io_to_fbio
 
         # dictionary holding inputs, outputs
         self.ios = {}
@@ -190,7 +192,8 @@ class VModule(object):
                 if wire[0] not in self.ios:
                     self.ios[wire[0]] = VerilogIO(
                         name=self.new_io_name('input'),
-                        direction='input')
+                        direction='input',
+                        ioloc=wire[0])
                 assert self.ios[wire[0]].direction == 'input'
                 wirename = self.ios[wire[0]].name
             else:
@@ -246,7 +249,8 @@ class VModule(object):
                 if 'OQI' in connections:
                     self.ios[currloc] = VerilogIO(
                         name=self.new_io_name('output'),
-                        direction='output')
+                        direction='output',
+                        ioloc=currloc)
                     self.get_wire(currloc, connections['OQI'], 'OQI')
                 # TODO parse IE/INEN, check iz
 
@@ -332,3 +336,15 @@ class VModule(object):
             f'endmodule'
         )
         return verilog
+
+    def generate_pcf(self):
+        pcf = ''
+        for io in self.ios.values():
+            pcf += f'set_io {io.name} {self.io_to_fbio[io.ioloc]}\n'
+        return pcf
+
+    def generate_qcf(self):
+        qcf = '#[Fixed Pin Placement]\n'
+        for io in self.ios.values():
+            qcf += f'place {io.name} {self.io_to_fbio[io.ioloc]}\n'
+        return qcf

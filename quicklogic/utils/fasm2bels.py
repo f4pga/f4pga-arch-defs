@@ -55,6 +55,11 @@ class Fasm2Bels(object):
         self.vpr_switchbox_grid = db["vpr_switchbox_grid"]
         self.connections = db["connections"]
 
+        self.io_to_fbio = dict()
+
+        for name, package in db['vpr_package_pinmaps']['PU90'].items():
+            self.io_to_fbio[package.loc] = name
+
         # Add ASSP to all locations it covers
         # TODO maybe this should be added in original vpr_tile_grid
         # set all cels in row 1 and column 2 to ASSP
@@ -429,16 +434,20 @@ class Fasm2Bels(object):
 
         Returns
         -------
-        str: a Verilog module
+        str, str: a Verilog module and PCF
         '''
         module = VModule(
             self.vpr_tile_grid,
             self.belinversions,
             self.interfaces,
-            self.designconnections)
+            self.designconnections,
+            self.inversionpins,
+            self.io_to_fbio)
         module.parse_bels()
         verilog = module.generate_verilog()
-        return verilog
+        pcf = module.generate_pcf()
+        qcf = module.generate_qcf()
+        return verilog, pcf, qcf
 
     def convert_to_verilog(self, fasmlines):
         '''Runs all methods required to convert FASM lines to Verilog module.
@@ -455,8 +464,8 @@ class Fasm2Bels(object):
         self.parse_fasm_lines(fasmlines)
         self.resolve_connections()
         self.resolve_multiloc_cells()
-        verilog = self.produce_verilog()
-        return verilog
+        verilog, pcf, qcf = self.produce_verilog()
+        return verilog, pcf, qcf
 
 
 if __name__ == '__main__':
@@ -522,7 +531,13 @@ if __name__ == '__main__':
     else:
         fasmlines = [line for line in fasm.parse_fasm_filename(args.input_file)]
 
-    verilog = f2b.convert_to_verilog(fasmlines)
+    verilog, pcf, qcf = f2b.convert_to_verilog(fasmlines)
 
     with open(args.output_verilog, 'w') as outv:
         outv.write(verilog)
+    if args.output_pcf:
+        with open(args.output_pcf, 'w') as outpcf:
+            outpcf.write(pcf)
+    if args.output_qcf:
+        with open(args.output_qcf, 'w') as outqcf:
+            outqcf.write(qcf)
