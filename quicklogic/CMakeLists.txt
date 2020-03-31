@@ -44,7 +44,7 @@ define_arch(
     --initial_pres_fac 4.0 \
     --check_rr_graph off \
     --suppress_warnings \${OUT_NOISY_WARNINGS},sum_pin_class:check_unbuffered_edges:load_rr_indexed_data_T_values:check_rr_node:trans_per_R:check_route"
-
+ 
   # FIXME: Once the timing model works check why --router_lookahead connection_box_map does not.
 
   RR_PATCH_TOOL

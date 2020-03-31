@@ -1,3 +1,4 @@
+import re
 from collections import namedtuple, defaultdict
 
 Element = namedtuple('Element', 'loc type name ios')
@@ -26,12 +27,39 @@ class VModule(object):
         self.last_input_id = 0
         self.last_output_id = 0
 
-    @staticmethod
-    def form_verilog_element(typ: str, name: str, parameters: dict):
+    def group_array_values(self, parameters: dict):
+        newparameters = dict()
+        arraydst = re.compile(r'(?P<varname>[a-zA-Z_][a-zA-Z_0-9$]+)\[(?P<arrindex>[0-9]+)\]')
+        for dst, src in parameters.items():
+            match = arraydst.match(dst)
+            if match:
+                varname = match.group('varname')
+                arrindex = int(match.group('arrindex'))
+                if varname not in newparameters:
+                    newparameters[varname] = {arrindex: src}
+                else:
+                    newparameters[varname][arrindex] = src
+            else:
+                newparameters[dst] = src
+        return newparameters
+            
+    def form_verilog_element(self, typ: str, name: str, parameters: dict):
         result = f'    {typ} {name} ('
         params = []
-        for inpname, inp in parameters.items():
-            params.append(f'.{inpname}({inp})')
+        fixedparameters = self.group_array_values(parameters)
+        for inpname, inp in fixedparameters.items():
+            if isinstance(inp, dict):
+                arr = []
+                maxindex = max([val for val in inp.keys()])
+                for i in range(maxindex + 1):
+                    if i not in inp:
+                        arr.append("1'b0")
+                    else:
+                        arr.append(inp[i])
+                arrlist = ', '.join(arr)
+                params.append(f'.{inpname}({{{arrlist}}})')
+            else:
+                params.append(f'.{inpname}({inp})')
         result += f',\n{" " * len(result)}'.join(sorted(params)) + ');\n'
         return result
 
