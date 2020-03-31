@@ -23,6 +23,7 @@ class VModule(object):
         self.ios = {}
         self.wires = {}
         self.elements = defaultdict(dict)
+        self.assigns = {}
 
         self.last_input_id = 0
         self.last_output_id = 0
@@ -102,8 +103,13 @@ class VModule(object):
             srcname = self.vpr_tile_grid[wire[0]].name
             srctype = self.vpr_tile_grid[wire[0]].type
             srconame = wire[1]
-            if isoutput:
-                wirename = self.ios[loc].name
+            if srctype == 'SYN_IO':
+                if wire[0] not in self.ios:
+                    self.ios[wire[0]] = VerilogIO(
+                        name=self.new_io_name('input'),
+                        direction='input')
+                assert self.ios[wire[0]].direction == 'input'
+                wirename = self.ios[wire[0]].name
             else:
                 wirename = f'{srcname}_{srconame}'
             if not srctype in self.elements[wire[0]]:
@@ -114,8 +120,10 @@ class VModule(object):
                     {srconame: wirename})
             else:
                 self.elements[wire[0]][srctype].ios[srconame] = wirename
-            if not isoutput:
+            if not isoutput and srctype != 'SYN_IO':
                 self.wires[uninvertedwireid] = wirename
+            elif isoutput:
+                self.assigns[self.ios[loc].name] = wirename
 
         if not inverted:
             return wirename
@@ -149,8 +157,6 @@ class VModule(object):
 
         for currloc, connections in self.designconnections.items():
             currtype = self.vpr_tile_grid[currloc].type
-            if currtype == 'SYN_IO':
-                continue
             currname = self.get_element_name(self.vpr_tile_grid[currloc])
             inputs = {}
             for inputname, wire in connections.items():
@@ -161,19 +167,9 @@ class VModule(object):
                     inputs[inputname] = "1'b0"
                     continue
                 srctype = self.vpr_tile_grid[wire[0]].type
-                if srctype == 'SYN_IO':
-                    if wire[0] not in self.ios:
-                        self.ios[wire[0]] = VerilogIO(
-                            name=self.new_io_name('input'),
-                            direction='input')
-                    # TODO handle inouts
-                    assert self.ios[wire[0]].direction == 'input'
-                    inputs[inputname] = self.ios[wire[0]].name
-                elif srctype == 'LOGIC':
+                if srctype in ['SYN_IO', 'LOGIC', 'ASSP']:
                     # FIXME handle already inverted pins
-                    wirename = self.get_wire(currloc, wire, inputname)
-                    inputs[inputname] = wirename
-                elif srctype == 'ASSP':
+                    # TODO handle inouts
                     wirename = self.get_wire(currloc, wire, inputname)
                     inputs[inputname] = wirename
                 else:
@@ -190,6 +186,7 @@ class VModule(object):
     def generate_verilog(self):
         ios = ''
         wires = ''
+        assigns = ''
         elements = ''
 
         qlal4s3bmapping = {
@@ -210,6 +207,11 @@ class VModule(object):
             for wire in self.wires.values():
                 wires += f'    wire {wire};\n'
 
+        if len(self.assigns) > 0:
+            assigns += '\n'
+            for dst, src in self.assigns.items():
+                assigns += f'    assign {dst} = {src};\n'
+
         if len(self.elements) > 0:
             for locelements in self.elements.values():
                 for element in locelements.values():
@@ -219,13 +221,11 @@ class VModule(object):
                             qlal4s3bmapping[element.type],
                             element.name,
                             element.ios)
-                    else:
-                        # FIXME add support for assign
-                        pass
 
         verilog = (
             f'module top ({ios});\n'
             f'{wires}'
+            f'{assigns}'
             f'{elements}'
             f'\n'
             f'endmodule'
