@@ -197,12 +197,19 @@ def main():
         eblif_outputs = eblif["outputs"]["args"]
 
         for constraint in pcf:
+            pad = None
 
             match = re.match(r"^FBIO_([0-9]+)$", constraint.pad)
-            if not match:
-                continue
+            if match is not None:
+                pad = int(match.group(1))
 
-            pad = int(match.group(1))
+            match = re.match(r"^SFBIO_([0-9]+)$", constraint.pad)
+            if match is not None:
+                pad = int(match.group(1)) + 32
+
+            # Pad not found or out of range
+            if pad is None or pad < 0 or pad >= 46:
+                continue
 
             # Configure as input
             if constraint.net in eblif_inputs:
