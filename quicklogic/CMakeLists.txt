@@ -88,7 +88,7 @@ define_arch(
     \${PYTHON3} \${BIT_TO_V} \${OUT_BITSTREAM}
       --vpr-db ${CMAKE_CURRENT_BINARY_DIR}/devices/\${DEVICE_TYPE}/db_vpr.pickle
       --input-type bitstream
-      --output-verilog ${OUT_BIT_VERILOG}"
+      --output-verilog \${OUT_BIT_VERILOG}"
   NO_BIT_TIME
   NO_PLACE_CONSTR
   ROUTE_CHAN_WIDTH 100
