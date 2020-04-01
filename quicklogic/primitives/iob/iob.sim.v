@@ -12,26 +12,40 @@ module IOB(
 
     parameter MODE = "INPUT";
 
-    (* pack="IPAD_TO_IBUF" *)
-    wire i_pad;
+    // Input mode
+    generate if (MODE == "INPUT") begin
 
-    (* pack="OBUF_TO_OPAD" *)
-    wire o_pad;
-
-    // Input or inout mode
-    generate if (MODE == "INPUT" || MODE == "INOUT") begin
+        (* pack="IPAD_TO_IBUF" *)
+        wire i_pad;
 
         (* keep *)
         VPR_IPAD inpad(i_pad);
 
-    // Output or inout mode
-    end else if (MODE == "OUTPUT" || MODE == "INOUT") begin
+    // Output mode
+    end else if (MODE == "OUTPUT") begin
+
+        (* pack="OBUF_TO_OPAD" *)
+        wire o_pad;
+
+        (* keep *)
+        VPR_OPAD outpad(o_pad);
+
+    // InOut mode
+    end if (MODE == "INOUT") begin
+
+        (* pack="IOPAD_TO_IOBUF" *)
+        wire i_pad;
+
+        (* pack="IOPAD_TO_IOBUF" *)
+        wire o_pad;
+
+        (* keep *)
+        VPR_IPAD inpad(i_pad);
 
         (* keep *)
         VPR_OPAD outpad(o_pad);
 
     end endgenerate
-
 
     // IO buffer
     generate if (MODE == "INPUT") begin
@@ -39,36 +53,36 @@ module IOB(
         (* keep *)
         (* FASM_PREFIX="INTERFACE.BIDIR" *)
         IOBUF iob(
-            .I_PAD(i_pad),
+            .I_PAD_$inp(i_pad),
             .I_DAT(ID),
             .I_EN (IE),
-            .O_PAD(),
+            .O_PAD_$out(),
             .O_DAT(OD),
             .O_EN (OE)
         );
 
     end else if (MODE == "OUTPUT") begin
-    
+
         (* keep *)
         (* FASM_PREFIX="INTERFACE.BIDIR" *)
         IOBUF iob(
-            .I_PAD(),
+            .I_PAD_$inp(),
             .I_DAT(ID),
             .I_EN (IE),
-            .O_PAD(o_pad),
+            .O_PAD_$out(o_pad),
             .O_DAT(OD),
             .O_EN (OE)
         );
 
     end else if (MODE == "INOUT") begin
-    
+
         (* keep *)
         (* FASM_PREFIX="INTERFACE.BIDIR" *)
         IOBUF iob(
-            .I_PAD(i_pad),
+            .I_PAD_$inp(i_pad),
             .I_DAT(ID),
             .I_EN (IE),
-            .O_PAD(o_pad),
+            .O_PAD_$out(o_pad),
             .O_DAT(OD),
             .O_EN (OE)
         );

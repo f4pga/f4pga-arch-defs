@@ -24,10 +24,10 @@ module inpad(output Q, input P);
   .WPD      (1'b0),
   .DS       (1'b0)
   ) _TECHMAP_REPLACE_ (
-  .I_PAD(P),
+  .I_PAD_$inp(P),
   .I_DAT(Q),
   .I_EN (1'b1),
-  .O_PAD(),
+  .O_PAD_$out(),
   .O_DAT(),
   .O_EN (1'b0)
   );
@@ -43,16 +43,34 @@ module outpad(output P, input A);
   .WPD      (1'b0),
   .DS       (1'b0)
   ) _TECHMAP_REPLACE_ (
-  .I_PAD(),
+  .I_PAD_$inp(),
   .I_DAT(),
   .I_EN (1'b0),
-  .O_PAD(P),
+  .O_PAD_$out(P),
   .O_DAT(A),
   .O_EN (1'b1)
   );
 
 endmodule
 
+module bipad(input A, input EN, output Q, inout P);
+
+  IOBUF # (
+  .ESEL     (1'b1),
+  .OSEL     (1'b1),
+  .FIXHOLD  (1'b0),
+  .WPD      (1'b0),
+  .DS       (1'b0)
+  ) _TECHMAP_REPLACE_ (
+  .I_PAD_$inp(P),
+  .I_DAT(Q),
+  .I_EN (1'b1),
+  .O_PAD_$out(P),
+  .O_DAT(A),
+  .O_EN (EN)
+  );
+
+endmodule
 module ckpad(output Q, input P);
 
   // TODO: Map this to a cell that would have two modes: one for BIDIR and
@@ -64,10 +82,10 @@ module ckpad(output Q, input P);
   .WPD      (1'b0),
   .DS       (1'b0)
   ) _TECHMAP_REPLACE_ (
-  .I_PAD(P),
+  .I_PAD_$inp(P),
   .I_DAT(Q),
   .I_EN (1'b1),
-  .O_PAD(),
+  .O_PAD_$out(),
   .O_DAT(),
   .O_EN (1'b0)
   );
