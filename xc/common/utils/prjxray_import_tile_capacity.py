@@ -3,10 +3,7 @@ import argparse
 import json
 import prjxray.db
 from prjxray.site_type import SitePinDirection
-from lib.pb_type_xml import (
-    start_pb_type, start_tile, add_vpr_tile_prefix, add_tile_direct,
-    object_ref, add_switchblock_locations
-)
+from lib.pb_type_xml import start_tile, add_switchblock_locations
 import lxml.etree as ET
 
 

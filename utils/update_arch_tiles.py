@@ -205,7 +205,7 @@ def add_sub_tiles(arch):
             sub_tile.attrib['capacity'] = tile.attrib['capacity']
             del tile.attrib['capacity']
 
-        #Transfer tags to swap from tile to sub tile
+        # Transfer tags to swap from tile to sub tile
         swap_tags(sub_tile, tile)
 
         tile.append(sub_tile)
