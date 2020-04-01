@@ -1,0 +1,40 @@
+set_io clk        FBIO_0
+set_io reset      FBIO_1
+set_io start      FBIO_2
+set_io din(0)     FBIO_3
+set_io din(1)     FBIO_4
+set_io din(2)     FBIO_5
+set_io din(3)     FBIO_6
+set_io din(4)     FBIO_7
+set_io din(5)     FBIO_8
+set_io din(6)     FBIO_9
+set_io din(7)     FBIO_10
+
+set_io dout(0)     FBIO_11
+set_io dout(1)     FBIO_12
+set_io dout(2)     FBIO_13
+set_io dout(3)     FBIO_14
+set_io dout(4)     FBIO_15
+set_io dout(5)     FBIO_16
+set_io dout(6)     FBIO_17
+set_io dout(7)     FBIO_18
+
+set_io params(0)     FBIO_19
+set_io params(1)     FBIO_20
+set_io params(2)     FBIO_21
+set_io params(3)     FBIO_22
+set_io params(4)     FBIO_23
+set_io params(5)     FBIO_24
+set_io params(6)     FBIO_25
+set_io params(7)     FBIO_26
+set_io params(8)     FBIO_27
+set_io params(9)     FBIO_28
+set_io params(11)    FBIO_29
+set_io params(12)    FBIO_30
+set_io params(13)    FBIO_31
+set_io params(14)    SFBIO_0
+set_io params(15)    SFBIO_1
+
+set_io ready         SFBIO_2
+set_io iir_start     SFBIO_3
+set_io iir_done      SFBIO_4
