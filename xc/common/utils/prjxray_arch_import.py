@@ -706,7 +706,6 @@ def main():
             tile_capacity[tile_type] = 0
 
             for sub_tile in tile_root.iter('sub_tile'):
-                print("ITERATION")
                 if 'capacity' in sub_tile.attrib:
                     tile_capacity[tile_type] += int(
                         sub_tile.attrib['capacity']
