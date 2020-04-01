@@ -5,6 +5,8 @@ module top (
 );
 
 wire pwm0;
+wire pwm1;
+wire pwm2;
 
 wire WB_CLK;
 wire Sys_Clk0;
@@ -58,6 +60,8 @@ litex_core u_soc (
     .sys_clk ( WB_CLK ),
     .wb_err ( WBs_ERR ),
     .pwm0( pwm0 ),
+    .pwm0( pwm1 ),
+    .pwm0( pwm2 ),
     .sys_rst ( WB_RST_FPGA ),
     );
 
@@ -174,21 +178,10 @@ always @(posedge WB_CLK)
     else
         cnt <= cnt + 1;
 
-// A pulse generator for WB signals
-reg [20:0] wcnt;
-initial wcnt <= 0;
-always @(posedge WB_CLK)
-    if (WB_RST_FPGA)
-        wcnt <= -1;
-    else if (WBs_WE | WBs_RD)
-        wcnt <= 'h0FFFFF;
-    else if (!wcnt[20])
-        wcnt <= wcnt - 1;
-
 // LED connections
 assign led[0] = pwm0;
-assign led[2] = !wcnt[20];
-assign led[1] = 0;
+assign led[2] = pwm1;
+assign led[1] = pwm2;
 assign led[3] = cnt[19];
 
 endmodule
