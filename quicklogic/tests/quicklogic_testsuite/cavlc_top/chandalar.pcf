@@ -1,0 +1,37 @@
+set_io clk FBIO_0
+set_io rst_n FBIO_1
+
+set_io ena FBIO_2
+set_io start FBIO_3
+set_io rbsp(0) FBIO_4
+set_io rbsp(1) FBIO_5
+set_io rbsp(2) FBIO_6
+set_io rbsp(3) FBIO_7
+set_io rbsp(4) FBIO_8
+set_io rbsp(5) FBIO_9
+set_io rbsp(6) FBIO_10
+set_io rbsp(7) FBIO_11
+set_io rbsp(8) FBIO_12
+set_io rbsp(8) FBIO_13
+
+set_io nC(0) FBIO_14
+set_io nC(1) FBIO_15
+set_io nC(2) FBIO_16
+set_io nC(3) FBIO_17
+set_io nC(4) FBIO_18
+set_io nC(5) FBIO_19
+
+set_io max_coeff_num(0) FBIO_20
+set_io max_coeff_num(1) FBIO_21
+set_io max_coeff_num(2) FBIO_22
+set_io max_coeff_num(3) FBIO_23
+
+set_io coeff(0) FBIO_24
+set_io coeff(1) FBIO_25
+set_io coeff(2) FBIO_26
+set_io coeff(3) FBIO_27
+set_io coeff(4) FBIO_28
+set_io coeff(5) FBIO_29
+set_io coeff(6) FBIO_30
+set_io coeff(7) FBIO_31
+set_io coeff(8) SFBIO_0
