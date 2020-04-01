@@ -247,9 +247,7 @@ def start_tile(
 
                 tile_xml.append(sub_tile_xml)
     else:
-        sub_tile_xml = start_sub_tile(
-            tile_name, pin_assignments, input_wires, output_wires
-        )
+        sub_tile_xml = start_sub_tile(tile_name, input_wires, output_wires)
 
         fc_xml = add_fc(sub_tile_xml)
 
