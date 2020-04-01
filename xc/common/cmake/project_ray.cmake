@@ -606,15 +606,14 @@ function(PROJECT_RAY_TILE_CAPACITY)
   # PROJECT_RAY_TILE_CAPACITY(
   #   ARCH <arch>
   #   TILE <tile>
-  #   SITE_TYPE <site type>
+  #   SITE_TYPES <site type>
   #   )
   # ~~~
   #
-  # Import a tile from project xray that contains exactly 1 site type, and emit
-  # a tile with capacity for each instance of that site type.
-  #
-  # Future support: Emit tiles with capacity that contain more than 1 site type
-  # once VPR supports it.
+  # SITE_TYPES: contains the comma separated list of sites that are going to be used
+  #             as sub tiles for the specified tile. The total number of instances
+  #             of a site type appears as the capacity of the sub tile
+
   set(options)
   set(oneValueArgs ARCH TILE SITE_TYPES)
   set(multiValueArgs)

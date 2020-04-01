@@ -97,7 +97,12 @@ def add_switchblock_locations(xml):
     })
 
 
-def start_sub_tile(sub_tile_name, pin_assignments, input_wires, output_wires):
+def start_sub_tile(sub_tile_name, input_wires, output_wires):
+    """This function returns the sub tile definition for a given tile.
+
+    The returned sub tile contains only input, output and clock ports.
+    The rest of the tags are going to be added by the caller.
+    """
     sub_tile_xml = ET.Element(
         'sub_tile', {
             'name': add_vpr_tile_prefix(sub_tile_name),
@@ -147,7 +152,39 @@ def start_tile(
         output_wires=None,
         sites=None,
 ):
-    """ Starts a pb_type by adding input, clock and output tags. """
+    """ Returns a new tile xml definition.
+
+    Input parameters are:
+        - tile_name: name to assign to the tile
+        - pin_assignments: location of the pins to correctly build pin locations
+        - input and output wires: needed to correctly assign input, output and clock ports
+        - sites: set of pb_types that are going to be related to this tile
+
+    Input/Output wires and sites are mutually exclusive.
+    Both of the parameters cannot be assigned
+
+    When sites is not None, it will contain a set of different kinds of sub tiles
+    to be added to the tile definition, each corresponding to one of the site types
+    present in the parameter.
+
+    As an example:
+        - HCLK_IOI has in total 9 sites:
+            - 4 BUFR
+            - 4 BUFIO
+            - 1 IDELAYCTRL
+
+        The resulting sites parameter is a dictionary that looks like this:
+            {
+                "BUFR": [bufr_instance_1, bufr_instance_2, ...],
+                "BUFIO": [bufio_instance_1, bufio_instance_2, ...],
+                "IDELAYCTRL": [idleayctrl_instance_1]
+            }
+
+    When Input/Output wires are set, there will be only one corresponding sub tile that
+    takes the same name as the parent tile.
+    """
+
+    # Check whether sites and Input/Output wires are mutually exclusive
     assert bool(input_wires) == bool(output_wires)
     assert bool(sites) != bool(input_wires)
 
@@ -161,8 +198,7 @@ def start_tile(
 
     if sites is not None:
         for site_type in sites.keys():
-            num_sub_tile = 0
-            for site in sites[site_type]:
+            for num_sub_tile, site in enumerate(sites[site_type]):
                 sub_tile_name = "{}_{}_{}".format(
                     tile_name, site_type, num_sub_tile
                 )
@@ -170,7 +206,7 @@ def start_tile(
                 site, input_wires, output_wires = site
 
                 sub_tile_xml = start_sub_tile(
-                    sub_tile_name, pin_assignments, input_wires, output_wires
+                    sub_tile_name, input_wires, output_wires
                 )
 
                 fc_xml = add_fc(sub_tile_xml)
@@ -210,8 +246,6 @@ def start_tile(
                 sub_tile_xml.append(equivalent_sites_xml)
 
                 tile_xml.append(sub_tile_xml)
-
-                num_sub_tile = num_sub_tile + 1
     else:
         sub_tile_xml = start_sub_tile(
             tile_name, pin_assignments, input_wires, output_wires
