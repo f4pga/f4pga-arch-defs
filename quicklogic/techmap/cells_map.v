@@ -128,42 +128,31 @@ module LUT2 (
 );
   parameter [3:0] INIT = 0;
 
-  wire TSL = I0;
-  wire TAB = I1;
+  wire XSL = I0;
+  wire XAB = I1;
 
-  wire TA1 = INIT[0];
-  wire TA2 = INIT[1];
-  wire TB1 = INIT[2];
-  wire TB2 = INIT[3];
+  wire XA1 = INIT[0];
+  wire XA2 = INIT[1];
+  wire XB1 = INIT[2];
+  wire XB2 = INIT[3];
 
-  // The C-Frag as T-Frag
-  C_FRAG # (
-  .TAS1(1'b0),
-  .TAS2(1'b0),
-  .TBS1(1'b0),
-  .TBS2(1'b0),
-  .BAS1(1'b0),
-  .BAS2(1'b0),
-  .BBS1(1'b0),
-  .BBS2(1'b0)
+  // T_FRAG to be packed either into T_FRAG or B_FRAG.
+  T_FRAG # (
+  .XAS1(1'b0),
+  .XAS2(1'b0),
+  .XBS1(1'b0),
+  .XBS2(1'b0)
   )
-  c_frag
+  t_frag
   (
-  .TBS(1'b0),
-  .TAB(TAB),
-  .TSL(TSL),
-  .TA1(TA1),
-  .TA2(TA2),
-  .TB1(TB1),
-  .TB2(TB2),
-  .BAB(1'b0),
-  .BSL(1'b0),
-  .BA1(1'b0),
-  .BA2(1'b0),
-  .BB1(1'b0),
-  .BB2(1'b0),
-  .TZ (O),
-  .CZ ()
+  .TBS(1'b1), // Always route to const1
+  .XAB(XAB),
+  .XSL(XSL),
+  .XA1(XA1),
+  .XA2(XA2),
+  .XB1(XB1),
+  .XB2(XB2),
+  .XZ (O)
   );
 
 endmodule
@@ -177,75 +166,64 @@ module LUT3 (
 );
   parameter [7:0] INIT = 0;
 
-  wire TSL = I1;
-  wire TAB = I2;
+  wire XSL = I1;
+  wire XAB = I2;
 
   // Two bit group [H,L]
   // H =0:  T[AB]S[12] = GND, H=1:   VCC
   // HL=00: T[AB][12]  = GND, HL=11: VCC, else I0
 
-  wire TA1;
-  wire TA2;
-  wire TB1;
-  wire TB2;
+  wire XA1;
+  wire XA2;
+  wire XB1;
+  wire XB2;
 
   generate case(INIT[1:0])
-    2'b00:   assign TA1 = 1'b0;
-    2'b11:   assign TA1 = 1'b0;
-    default: assign TA1 = I0;
+    2'b00:   assign XA1 = 1'b0;
+    2'b11:   assign XA1 = 1'b0;
+    default: assign XA1 = I0;
   endcase endgenerate
 
   generate case(INIT[3:2])
-    2'b00:   assign TA2 = 1'b0;
-    2'b11:   assign TA2 = 1'b0;
-    default: assign TA2 = I0;
+    2'b00:   assign XA2 = 1'b0;
+    2'b11:   assign XA2 = 1'b0;
+    default: assign XA2 = I0;
   endcase endgenerate
 
   generate case(INIT[5:4])
-    2'b00:   assign TB1 = 1'b0;
-    2'b11:   assign TB1 = 1'b0;
-    default: assign TB1 = I0;
+    2'b00:   assign XB1 = 1'b0;
+    2'b11:   assign XB1 = 1'b0;
+    default: assign XB1 = I0;
   endcase endgenerate
 
   generate case(INIT[7:6])
-    2'b00:   assign TB2 = 1'b0;
-    2'b11:   assign TB2 = 1'b0;
-    default: assign TB2 = I0;
+    2'b00:   assign XB2 = 1'b0;
+    2'b11:   assign XB2 = 1'b0;
+    default: assign XB2 = I0;
   endcase endgenerate
 
-  localparam TAS1 = INIT[0];
-  localparam TAS2 = INIT[2];
-  localparam TBS1 = INIT[4];
-  localparam TBS2 = INIT[6];
+  localparam XAS1 = INIT[0];
+  localparam XAS2 = INIT[2];
+  localparam XBS1 = INIT[4];
+  localparam XBS2 = INIT[6];
 
-  // The C-Frag as T-Frag
-  C_FRAG # (
-  .TAS1(TAS1),
-  .TAS2(TAS2),
-  .TBS1(TBS1),
-  .TBS2(TBS2),
-  .BAS1(1'b0),
-  .BAS2(1'b0),
-  .BBS1(1'b0),
-  .BBS2(1'b0)
+  // T_FRAG to be packed either into T_FRAG or B_FRAG.
+  T_FRAG # (
+  .XAS1(XAS1),
+  .XAS2(XAS2),
+  .XBS1(XBS1),
+  .XBS2(XBS2)
   )
-  c_frag
+  t_frag
   (
-  .TBS(1'b0),
-  .TAB(TAB),
-  .TSL(TSL),
-  .TA1(TA1),
-  .TA2(TA2),
-  .TB1(TB1),
-  .TB2(TB2),
-  .BAB(1'b0),
-  .BSL(1'b0),
-  .BA1(1'b0),
-  .BA2(1'b0),
-  .BB1(1'b0),
-  .BB2(1'b0),
-  .TZ (O),
-  .CZ ()
+  .TBS(1'b1), // Always route to const1
+  .XAB(XAB),
+  .XSL(XSL),
+  .XA1(XA1),
+  .XA2(XA2),
+  .XB1(XB1),
+  .XB2(XB2),
+  .XZ (O)
   );
 
 endmodule
@@ -260,110 +238,30 @@ module LUT4 (
 );
   parameter [15:0] INIT = 0;
 
-  wire TSL = I1;
-  wire BSL = I1;
-  wire TAB = I2;
-  wire BAB = I2;
-  wire TBS = I3;
+  // Split a LUT4 into 2xLUT3 + F_FRAG
+  wire t;
+  wire b;
 
-  // Two bit group [H,L]
-  // H =0:  [TB][AB]S[12] = GND, H=1:   VCC
-  // HL=00: [TB][AB][12]  = GND, HL=11: VCC, else I0
+  LUT3 #(.INIT(INIT[7:0])) t_lut (
+    .I0(I0),
+    .I1(I1),
+    .I2(I2),
+    .O (t)
+  );
 
-  wire TA1;
-  wire TA2;
-  wire TB1;
-  wire TB2;
-  wire BA1;
-  wire BA2;
-  wire BB1;
-  wire BB2;
+  LUT3 #(.INIT(INIT[15:8])) b_lut (
+    .I0(I0),
+    .I1(I1),
+    .I2(I2),
+    .O (b)
+  );
 
-  generate case(INIT[ 1: 0])
-    2'b00:   assign TA1 = 1'b0;
-    2'b11:   assign TA1 = 1'b0;
-    default: assign TA1 = I0;
-  endcase endgenerate
-
-  generate case(INIT[ 3: 2])
-    2'b00:   assign TA2 = 1'b0;
-    2'b11:   assign TA2 = 1'b0;
-    default: assign TA2 = I0;
-  endcase endgenerate
-
-  generate case(INIT[ 5: 4])
-    2'b00:   assign TB1 = 1'b0;
-    2'b11:   assign TB1 = 1'b0;
-    default: assign TB1 = I0;
-  endcase endgenerate
-
-  generate case(INIT[ 7: 6])
-    2'b00:   assign TB2 = 1'b0;
-    2'b11:   assign TB2 = 1'b0;
-    default: assign TB2 = I0;
-  endcase endgenerate
-
-  generate case(INIT[ 9: 8])
-    2'b00:   assign BA1 = 1'b0;
-    2'b11:   assign BA1 = 1'b0;
-    default: assign BA1 = I0;
-  endcase endgenerate
-
-  generate case(INIT[11:10])
-    2'b00:   assign BA2 = 1'b0;
-    2'b11:   assign BA2 = 1'b0;
-    default: assign BA2 = I0;
-  endcase endgenerate
-
-  generate case(INIT[13:12])
-    2'b00:   assign BB1 = 1'b0;
-    2'b11:   assign BB1 = 1'b0;
-    default: assign BB1 = I0;
-  endcase endgenerate
-
-  generate case(INIT[15:14])
-    2'b00:   assign BB2 = 1'b0;
-    2'b11:   assign BB2 = 1'b0;
-    default: assign BB2 = I0;
-  endcase endgenerate
-
-  localparam TAS1 = INIT[ 0];
-  localparam TAS2 = INIT[ 2];
-  localparam TBS1 = INIT[ 4];
-  localparam TBS2 = INIT[ 6];
-  localparam BAS1 = INIT[ 8];
-  localparam BAS2 = INIT[10];
-  localparam BBS1 = INIT[12];
-  localparam BBS2 = INIT[14];
-
-  // The C-Frag
-  C_FRAG # (
-  .TAS1(TAS1),
-  .TAS2(TAS2),
-  .TBS1(TBS1),
-  .TBS2(TBS2),
-  .BAS1(BAS1),
-  .BAS2(BAS2),
-  .BBS1(BBS1),
-  .BBS2(BBS2)
-  )
-  c_frag
-  (
-  .TBS(TBS),
-  .TAB(TAB),
-  .TSL(TSL),
-  .TA1(TA1),
-  .TA2(TA2),
-  .TB1(TB1),
-  .TB2(TB2),
-  .BAB(BAB),
-  .BSL(BSL),
-  .BA1(BA1),
-  .BA2(BA2),
-  .BB1(BB1),
-  .BB2(BB2),
-  .TZ (),
-  .CZ (O)
+  // The F-Frag
+  F_FRAG f_frag (
+    .F1(t),
+    .F2(b),
+    .FS(I3),
+    .FZ(O)
   );
 
 endmodule
