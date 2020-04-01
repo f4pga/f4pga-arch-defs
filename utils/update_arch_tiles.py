@@ -180,7 +180,9 @@ def add_sub_tiles(arch):
 
     """
 
-    TAGS_TO_SWAP = ['fc', 'pinlocations', 'input', 'output', 'clock', 'equivalent_sites']
+    TAGS_TO_SWAP = [
+        'fc', 'pinlocations', 'input', 'output', 'clock', 'equivalent_sites'
+    ]
 
     def swap_tags(sub_tile, tile):
         # Moving tags from top level pb_type to tile
