@@ -319,6 +319,32 @@ module dffc(
   );
 
 endmodule
+
+module dffp(
+  output Q,
+  input  D,
+  input  CLK,
+  input  PRE
+);
+
+  parameter [0:0] INIT = 1'b0;
+
+  Q_FRAG # (
+  .Z_QCKS (1'b1)
+  )
+  _TECHMAP_REPLACE_
+  (
+  .QCK(CLK),
+  .QST(PRE),
+  .QRT(1'b0),
+  .QEN(1'b1),
+  .QDI(D),
+  .QDS(1'b1), // FIXME: Always select QDI as the FF's input
+  .CZI(),
+  .QZ (Q)
+  );
+
+endmodule
 // ============================================================================
 // The "qlal4s3b_cell_macro" macro
 
