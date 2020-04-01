@@ -291,6 +291,7 @@
     <xs:attribute name="Tdel" type="xs:float"/>
     <xs:attribute name="buf_size" type="buf_size" default="auto"/>
     <xs:attribute name="mux_trans_size" type="xs:float"/>
+    <xs:attribute name="penalty_cost" type="xs:float"/>
     <xs:attribute name="power_buf_size" type="xs:int"/>
   </xs:complexType>
 
@@ -631,7 +632,7 @@
     </xs:choice>
   </xs:complexType>
 
-  <xs:complexType name="tile">
+  <xs:complexType name="sub_tile">
     <xs:choice maxOccurs="unbounded" minOccurs="0">
       <xs:element name="input" type="input_port"/>
       <xs:element name="output" type="output_port"/>
@@ -639,10 +640,17 @@
       <xs:element name="equivalent_sites" type="equivalent_sites"/>
       <xs:element name="pinlocations" type="pinlocations"/>
       <xs:element name="fc" type="fc"/>
-      <xs:element name="switchblock_locations" type="switchblock_locations"/>
     </xs:choice>
     <xs:attribute name="name" type="xs:string" use="required"/>
     <xs:attribute name="capacity" type="xs:int"/>
+  </xs:complexType>
+
+  <xs:complexType name="tile">
+    <xs:choice maxOccurs="unbounded" minOccurs="0">
+      <xs:element name="sub_tile" type="sub_tile"/>
+      <xs:element name="switchblock_locations" type="switchblock_locations"/>
+    </xs:choice>
+    <xs:attribute name="name" type="xs:string" use="required"/>
     <xs:attribute name="width" type="xs:int"/>
     <xs:attribute name="height" type="xs:int"/>
     <xs:attribute name="area" type="xs:float"/>
