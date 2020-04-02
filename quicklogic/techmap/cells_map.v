@@ -26,7 +26,7 @@ module inpad(output Q, input P);
       SDIOMUX_CELL _TECHMAP_REPLACE_ (
       .I_PAD_$inp(P),
       .I_DAT(Q),
-      .I_EN (1'b0),
+      .I_EN (1'b1),
       .O_PAD_$out(),
       .O_DAT(),
       .O_EN (1'b1)
@@ -109,7 +109,7 @@ module bipad(input A, input EN, output Q, inout P);
       SDIOMUX_CELL SDIOMUX (
       .I_PAD_$inp(P),
       .I_DAT(Q),
-      .I_EN (1'b0),
+      .I_EN (1'b1),
       .O_PAD_$out(P),
       .O_DAT(A),
       .O_EN (nEN)
