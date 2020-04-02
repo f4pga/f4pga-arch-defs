@@ -90,6 +90,9 @@ define_arch(
       --package-name PU90
       --input-type bitstream
       --output-verilog \${OUT_BIT_VERILOG}"
+  BIT_TO_V_DEPS
+    ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/verilogmodule.py
+    ${CMAKE_CURRENT_BINARY_DIR}/devices/\${DEVICE_TYPE}/db_vpr.pickle
   NO_BIT_TIME
   NO_PLACE_CONSTR
   ROUTE_CHAN_WIDTH 100
