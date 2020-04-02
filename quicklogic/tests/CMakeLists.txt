@@ -12,6 +12,7 @@ add_subdirectory(consts)
 add_subdirectory(btn_xor)
 add_subdirectory(btn_ff)
 add_subdirectory(btn_counter)
+add_subdirectory(sdiomux_xor)
 
 # Tests that require an external clock/data
 add_subdirectory(ext_counter)
