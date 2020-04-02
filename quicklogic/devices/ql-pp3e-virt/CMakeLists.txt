@@ -9,5 +9,5 @@ quicklogic_define_device_type(
   PB_TYPES
     GND VCC
     LOGIC
-    IOB
+    BIDIR
 )

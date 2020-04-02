@@ -1,13 +1,13 @@
 `include "../vpr_pad/vpr_ipad.sim.v"
 `include "../vpr_pad/vpr_opad.sim.v"
-`include "./iobuf.sim.v"
+`include "./sdiomux_site.sim.v"
 
 (* MODES="INPUT;OUTPUT;INOUT" *)
-module IOB(
-    output wire ID,
+module SDIOMUX(
+    input  wire OQI,
     input  wire IE,
-    input  wire OD,
-    input  wire OE
+    input  wire OE,
+    output wire IZ,
 );
 
     parameter MODE = "INPUT";
@@ -52,12 +52,12 @@ module IOB(
 
         (* keep *)
         (* FASM_PREFIX="INTERFACE.BIDIR" *)
-        IOBUF iob(
+        SDIOMUX_SITE sdiomux(
             .I_PAD_$inp(i_pad),
-            .I_DAT(ID),
+            .I_DAT(IZ),
             .I_EN (IE),
             .O_PAD_$out(),
-            .O_DAT(OD),
+            .O_DAT(OQI),
             .O_EN (OE)
         );
 
@@ -65,12 +65,12 @@ module IOB(
 
         (* keep *)
         (* FASM_PREFIX="INTERFACE.BIDIR" *)
-        IOBUF iob(
+        SDIOMUX_SITE sdiomux(
             .I_PAD_$inp(),
-            .I_DAT(ID),
+            .I_DAT(IZ),
             .I_EN (IE),
             .O_PAD_$out(o_pad),
-            .O_DAT(OD),
+            .O_DAT(OQI),
             .O_EN (OE)
         );
 
@@ -78,12 +78,12 @@ module IOB(
 
         (* keep *)
         (* FASM_PREFIX="INTERFACE.BIDIR" *)
-        IOBUF iob(
+        SDIOMUX_SITE sdiomux(
             .I_PAD_$inp(i_pad),
-            .I_DAT(ID),
+            .I_DAT(IZ),
             .I_EN (IE),
             .O_PAD_$out(o_pad),
-            .O_DAT(OD),
+            .O_DAT(OQI),
             .O_EN (OE)
         );
 

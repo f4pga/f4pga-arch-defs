@@ -888,10 +888,6 @@ def populate_clk_mux_port_maps(
                 cell.type, cell.index, mux_pin_name
             )
 
-            # DEBUG
-            print(loc, key, port_maps[loc][key])
-
-
 # =============================================================================
 
 

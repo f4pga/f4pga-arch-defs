@@ -1,6 +1,6 @@
 {
-    "IOB": {
-        "iob": {
+    "BIDIR": {
+        "bidir": {
             "INPUT": [
                 "BIDIR3_ESEL_EQ_1_DS_EQ_1.IO2",
                 "BIDIR3_OSEL_EQ_1_IE_EQ_1_DS_EQ_1.IO2",
@@ -15,6 +15,25 @@
                 "BIDIR3_ESEL_EQ_1_DS_EQ_1.IO2",
                 "BIDIR3_OSEL_EQ_1_IE_EQ_1_DS_EQ_1.IO2",
                 "BIDIR3_IE_EQ_0_INEN_EQ_1.IO2"
+            ]
+        }
+    },
+    "SDIOMUX": {
+        "sdiomux": {
+            "INPUT": [
+                "SDIOMUX.SFB_0_IO",
+                "SDIOMUX_IE_EQ_0_OE_EQ_0.SFB_0_IO",
+                "SDIOMUX_IE_EQ_1_OE_EQ_1.SFB_0_IO"
+            ],
+            "OUTPUT": [
+                "SDIOMUX.SFB_0_IO",
+                "SDIOMUX_IE_EQ_0_OE_EQ_0.SFB_0_IO",
+                "SDIOMUX_IE_EQ_1_OE_EQ_1.SFB_0_IO"
+            ],
+            "INOUT": [
+                "SDIOMUX.SFB_0_IO",
+                "SDIOMUX_IE_EQ_0_OE_EQ_0.SFB_0_IO",
+                "SDIOMUX_IE_EQ_1_OE_EQ_1.SFB_0_IO"
             ]
         }
     },

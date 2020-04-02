@@ -1,8 +1,8 @@
 .model top
 .inputs I
 .outputs O
-.subckt IOBUF I_DAT=x I_PAD_$inp=I
+.subckt BIDIR I_DAT=x I_PAD_$inp=I
 .cname ibuf
-.subckt IOBUF O_DAT=x O_PAD_$out=O
+.subckt BIDIR O_DAT=x O_PAD_$out=O
 .cname obuf
 .end

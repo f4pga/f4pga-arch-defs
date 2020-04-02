@@ -428,11 +428,6 @@ def build_gmux_qmux_connections(
                     )
                 )
 
-    # DBEUG
-    print("GCLK mux connections:")
-    for c in connections:
-        print("", c)
-
     return connections
 
 
