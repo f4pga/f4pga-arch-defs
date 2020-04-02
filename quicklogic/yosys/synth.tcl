@@ -6,6 +6,12 @@ read_verilog -lib $::env(symbiflow-arch-defs_BINARY_DIR)/quicklogic/techmap/cell
 # Synthesize
 synth_quicklogic -flatten
 
+# Assing parameters to IO cells basing on constraints and package pinmap
+if { $::env(PCF_FILE) != "" && $::env(PINMAP_FILE) != ""} {
+    plugin -i ql-iob
+    quicklogic_iob $::env(PCF_FILE) $::env(PINMAP_FILE)
+}
+
 # Write a pre-mapped design
 write_verilog $::env(OUT_SYNTH_V).premap.v
 
