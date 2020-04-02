@@ -35,7 +35,7 @@ class Fasm2Bels(object):
         def __str__(self):
             return self.message
 
-    def __init__(self, vpr_db):
+    def __init__(self, vpr_db, package_name):
         '''Prepares required structures for converting FASM to BELs.
 
         Parameters
@@ -54,10 +54,11 @@ class Fasm2Bels(object):
         self.vpr_switchbox_types = db["vpr_switchbox_types"]
         self.vpr_switchbox_grid = db["vpr_switchbox_grid"]
         self.connections = db["connections"]
+        self.package_name = package_name
 
         self.io_to_fbio = dict()
 
-        for name, package in db['vpr_package_pinmaps']['PU90'].items():
+        for name, package in db['vpr_package_pinmaps'][self.package_name].items():
             self.io_to_fbio[package.loc] = name
 
         # Add ASSP to all locations it covers
@@ -488,6 +489,14 @@ if __name__ == '__main__':
     )
 
     parser.add_argument(
+        "--package-name",
+        type=str,
+        required=True,
+        choices=['PU90'],
+        help="The package name"
+    )
+
+    parser.add_argument(
         "--input-type",
         type=str,
         choices=['bitstream', 'fasm'],
@@ -520,7 +529,7 @@ if __name__ == '__main__':
     with open(args.vpr_db, "rb") as fp:
         db = pickle.load(fp)
 
-    f2b = Fasm2Bels(db)
+    f2b = Fasm2Bels(db, args.package_name)
 
     if args.input_type == 'bitstream':
         qlfasmdb = load_quicklogic_database()

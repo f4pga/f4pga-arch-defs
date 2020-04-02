@@ -87,6 +87,7 @@ define_arch(
     "${CMAKE_COMMAND} -E env PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils:$PYTHONPATH \
     \${PYTHON3} \${BIT_TO_V} \${OUT_BITSTREAM}
       --vpr-db ${CMAKE_CURRENT_BINARY_DIR}/devices/\${DEVICE_TYPE}/db_vpr.pickle
+      --package-name PU90
       --input-type bitstream
       --output-verilog \${OUT_BIT_VERILOG}"
   NO_BIT_TIME
