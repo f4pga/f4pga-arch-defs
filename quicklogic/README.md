@@ -20,15 +20,33 @@ make -j$(nproc)
 sudo make install
 ```
 
-This will install Yosys into your `/usr/bin/` directory.
+This will install Yosys into your `/usr/local/bin/` directory.
 
 Note: If you want to build Yosys using clang, replace `make config-gcc` with `make config-clang`.
 
 Note: Once the QuickLogic specific changes in Yosys are merged with Yosys used by mainline Symbilow, this step will be unnecessary.
 
+Next, download necessary Yosys plugins from the `yosys-symbiflow-plugins` repository:
+
+```bash
+git clone https://github.com/antmicro/yosys-symbiflow-plugins -b ql-ios
+cd yosys-symbiflow-plugins
+```
+
+Build and install the plugins using the commands:
+
+```bash
+make
+sudo make install
+```
+
+This will build and install the plugins to `/usr/local/share/yosys/plugins`.
+
+Note: Until the Yosys with Quicklogic support is available as a symbiflow Conda package the plugins have to be downloaded and installed manually.
+
 ### 2. Install SymbiFlow
 
-Clone the SymbiFlow repository, make sure you're using `master+quicklogic` branch:
+Clone the SymbiFlow repository, make sure you're using `quicklogic-upstream-rebase` branch:
 
 ```bash
 git clone https://github.com/antmicro/symbiflow-arch-defs -b quicklogic-upstream-rebase
@@ -37,7 +55,7 @@ git clone https://github.com/antmicro/symbiflow-arch-defs -b quicklogic-upstream
 Set up the environment:
 
 ```bash
-export YOSYS=/usr/bin/yosys
+export YOSYS=/usr/local/bin/yosys
 # assuming default Yosys installation path
 make env
 cd build && make all_conda
