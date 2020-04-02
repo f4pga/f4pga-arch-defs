@@ -1,6 +1,5 @@
 (* whitebox *)
-(* MODEL_NAME="SDIOMUX" *)
-module SDIOMUX_SITE(
+module SDIOMUX_CELL(
     I_PAD_$inp, I_DAT, I_EN,
     O_PAD_$out, O_DAT, O_EN
 );
@@ -19,7 +18,7 @@ module SDIOMUX_SITE(
     output wire O_PAD_$out;
 
     // Behavioral model
-    assign I_DAT = (I_EN == 1'b1) ? I_PAD_$inp : 1'b0;
-    assign O_PAD_$out = (O_EN == 1'b1) ? O_DAT : 1'b0;
+    assign I_DAT = (I_EN == 1'b0) ? I_PAD_$inp : 1'b0;
+    assign O_PAD_$out = (O_EN == 1'b0) ? O_DAT : 1'b0;
 
 endmodule

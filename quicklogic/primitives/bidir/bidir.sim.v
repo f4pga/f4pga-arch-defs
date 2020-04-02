@@ -1,6 +1,6 @@
 `include "../vpr_pad/vpr_ipad.sim.v"
 `include "../vpr_pad/vpr_opad.sim.v"
-`include "./bidir_site.sim.v"
+`include "./bidir_cell.sim.v"
 
 (* MODES="INPUT;OUTPUT;INOUT" *)
 module BIDIR(
@@ -21,7 +21,7 @@ module BIDIR(
     // Input mode
     generate if (MODE == "INPUT") begin
 
-        (* pack="IPAD_TO_IBUF" *)
+        (* pack="IPAD_TO_BIDIR" *)
         wire i_pad;
 
         (* keep *)
@@ -30,7 +30,7 @@ module BIDIR(
     // Output mode
     end else if (MODE == "OUTPUT") begin
 
-        (* pack="OBUF_TO_OPAD" *)
+        (* pack="BIDIR_TO_OPAD" *)
         wire o_pad;
 
         (* keep *)
@@ -39,10 +39,10 @@ module BIDIR(
     // InOut mode
     end if (MODE == "INOUT") begin
 
-        (* pack="IOPAD_TO_IOBUF" *)
+        (* pack="IOPAD_TO_BIDIR" *)
         wire i_pad;
 
-        (* pack="IOPAD_TO_IOBUF" *)
+        (* pack="IOPAD_TO_BIDIR" *)
         wire o_pad;
 
         (* keep *)
@@ -58,7 +58,7 @@ module BIDIR(
 
         (* keep *)
         (* FASM_PREFIX="INTERFACE.BIDIR" *)
-        BIDIR_SITE bidir(
+        BIDIR_CELL bidir(
             .I_PAD_$inp(i_pad),
             .I_DAT(IZ),
             .I_EN (INEN),
@@ -71,7 +71,7 @@ module BIDIR(
 
         (* keep *)
         (* FASM_PREFIX="INTERFACE.BIDIR" *)
-        BIDIR_SITE bidir(
+        BIDIR_CELL bidir(
             .I_PAD_$inp(),
             .I_DAT(IZ),
             .I_EN (INEN),
@@ -84,7 +84,7 @@ module BIDIR(
 
         (* keep *)
         (* FASM_PREFIX="INTERFACE.BIDIR" *)
-        BIDIR_SITE bidir(
+        BIDIR_CELL bidir(
             .I_PAD_$inp(i_pad),
             .I_DAT(IZ),
             .I_EN (INEN),

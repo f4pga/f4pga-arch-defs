@@ -1,7 +1,6 @@
 (* whitebox *)
 (* FASM_PARAMS="INV.ESEL=ESEL;INV.OSEL=OSEL;INV.FIXHOLD=FIXHOLD;INV.WPD=WPD;INV.DS=DS" *)
-(* MODEL_NAME="BIDIR" *)
-module BIDIR_SITE(
+module BIDIR_CELL(
     I_PAD_$inp, I_DAT, I_EN,
     O_PAD_$out, O_DAT, O_EN
 );

@@ -1,6 +1,6 @@
 `include "../vpr_pad/vpr_ipad.sim.v"
 `include "../vpr_pad/vpr_opad.sim.v"
-`include "./sdiomux_site.sim.v"
+`include "./sdiomux_cell.sim.v"
 
 (* MODES="INPUT;OUTPUT;INOUT" *)
 module SDIOMUX(
@@ -15,7 +15,7 @@ module SDIOMUX(
     // Input mode
     generate if (MODE == "INPUT") begin
 
-        (* pack="IPAD_TO_IBUF" *)
+        (* pack="IPAD_TO_SDIOMUX" *)
         wire i_pad;
 
         (* keep *)
@@ -24,7 +24,7 @@ module SDIOMUX(
     // Output mode
     end else if (MODE == "OUTPUT") begin
 
-        (* pack="OBUF_TO_OPAD" *)
+        (* pack="SDIOMUX_TO_OPAD" *)
         wire o_pad;
 
         (* keep *)
@@ -33,10 +33,10 @@ module SDIOMUX(
     // InOut mode
     end if (MODE == "INOUT") begin
 
-        (* pack="IOPAD_TO_IOBUF" *)
+        (* pack="IOPAD_TO_SDIOMUX" *)
         wire i_pad;
 
-        (* pack="IOPAD_TO_IOBUF" *)
+        (* pack="IOPAD_TO_SDIOMUX" *)
         wire o_pad;
 
         (* keep *)
@@ -51,8 +51,7 @@ module SDIOMUX(
     generate if (MODE == "INPUT") begin
 
         (* keep *)
-        (* FASM_PREFIX="INTERFACE.BIDIR" *)
-        SDIOMUX_SITE sdiomux(
+        SDIOMUX_CELL sdiomux(
             .I_PAD_$inp(i_pad),
             .I_DAT(IZ),
             .I_EN (IE),
@@ -64,8 +63,7 @@ module SDIOMUX(
     end else if (MODE == "OUTPUT") begin
 
         (* keep *)
-        (* FASM_PREFIX="INTERFACE.BIDIR" *)
-        SDIOMUX_SITE sdiomux(
+        SDIOMUX_CELL sdiomux(
             .I_PAD_$inp(),
             .I_DAT(IZ),
             .I_EN (IE),
@@ -77,8 +75,7 @@ module SDIOMUX(
     end else if (MODE == "INOUT") begin
 
         (* keep *)
-        (* FASM_PREFIX="INTERFACE.BIDIR" *)
-        SDIOMUX_SITE sdiomux(
+        SDIOMUX_CELL sdiomux(
             .I_PAD_$inp(i_pad),
             .I_DAT(IZ),
             .I_EN (IE),
