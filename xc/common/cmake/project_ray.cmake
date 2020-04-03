@@ -120,6 +120,9 @@ function(PROJECT_RAY_ARCH)
   get_file_location(PIN_ASSIGNMENTS ${symbiflow-arch-defs_SOURCE_DIR}/xc/${FAMILY}/archs/${ARCH}/pin_assignments.json)
   list(APPEND CHANNELS_DEPS ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/${PART}/tilegrid.json)
   list(APPEND CHANNELS_DEPS ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/${PART}/tileconn.json)
+  
+  get_target_property(NUMPY_TARGET env NUMPY_TARGET)
+  set(CREATE_EDGES_DEPS ${NUMPY_TARGET})
 
   add_custom_command(
     OUTPUT channels.db
@@ -132,8 +135,7 @@ function(PROJECT_RAY_ARCH)
       --connection_database ${CMAKE_CURRENT_BINARY_DIR}/channels.db
       ${ROI_ARG_FOR_CREATE_EDGES}
     DEPENDS
-    ${PYTHON3} ${PYTHON3_TARGET} ${CREATE_EDGES}
-      ${CHANNELS_DEPS}
+    ${PYTHON3} ${PYTHON3_TARGET} ${CREATE_EDGES} ${CREATE_EDGES_DEPS} ${CHANNELS_DEPS}
     )
 
   add_file_target(FILE channels.db GENERATED)
