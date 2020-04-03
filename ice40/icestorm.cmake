@@ -54,7 +54,7 @@ function(icestorm_setup)
     NAME icestorm
     PROVIDES iceprog icebox_hlc2asc icebox_vlog icepack icetime
     FILES share/icebox/timings_hx1k.txt
-    BUILD_INSTALL_COMMAND "make -C ${ICESTORM_SRC} clean && make -C ${ICESTORM_SRC} ${ICESTORM_PREFIX} PKG_CONFIG=${PKG-CONFIG} install"
+    BUILD_INSTALL_COMMAND "make -j1 -C ${ICESTORM_SRC} clean && make -j1 -C ${ICESTORM_SRC} ${ICESTORM_PREFIX} PKG_CONFIG=${PKG-CONFIG} install"
     DEPENDS ${LIBFTDI_TARGET} ${PKG-CONFIG} ${PKG-CONFIG_TARGET}
     )
 
