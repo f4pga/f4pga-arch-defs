@@ -76,6 +76,19 @@ function(ADD_XC_ARCH_DEFINE)
       --suppress_warnings \${OUT_NOISY_WARNINGS},sum_pin_class:check_unbuffered_edges:load_rr_indexed_data_T_values:check_rr_node:trans_per_R:check_route"
       )
 
+  set(YOSYS_CELLS_SIM ${YOSYS_DATADIR}/xilinx/cells_sim.v) 
+  set(VPR_CELLS_SIM ${symbiflow-arch-defs_SOURCE_DIR}/xc/${FAMILY}/techmap/cells_sim.v)
+
+  get_file_target(YOSYS_CELLS_SIM_TARGET ${YOSYS_CELLS_SIM})
+  if (NOT TARGET ${YOSYS_CELLS_SIM_TARGET})
+    add_file_target(FILE ${YOSYS_CELLS_SIM} ABSOLUTE)
+  endif ()
+
+  get_file_target(VPR_CELLS_SIM_TARGET ${VPR_CELLS_SIM})
+  if (NOT TARGET ${VPR_CELLS_SIM_TARGET})
+      add_file_target(FILE ${VPR_CELLS_SIM} ABSOLUTE)
+  endif ()
+
   define_arch(
     ARCH ${ARCH}
     FAMILY ${FAMILY}
@@ -87,7 +100,7 @@ function(ADD_XC_ARCH_DEFINE)
     YOSYS_TECHMAP ${YOSYS_TECHMAP}
     YOSYS_CONV_SCRIPT ${YOSYS_CONV_SCRIPT}
     DEVICE_FULL_TEMPLATE \${DEVICE}-\${PACKAGE}
-    CELLS_SIM ${YOSYS_DATADIR}/xilinx/cells_sim.v ${symbiflow-arch-defs_SOURCE_DIR}/xc7/techmap/cells_sim.v
+    CELLS_SIM ${YOSYS_CELLS_SIM} ${VPR_CELLS_SIM}
     VPR_ARCH_ARGS ${VPR_ARCH_ARGS}
     RR_PATCH_TOOL
       ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/prjxray_routing_import.py
