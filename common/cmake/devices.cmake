@@ -34,7 +34,7 @@ function(DEFINE_ARCH)
   #    [NO_BITSTREAM]
   #    [NO_BIT_TO_BIN]
   #    [NO_BIT_TO_V]
-  #    CELLS_SIM <path to verilog file used for simulation>
+  #    [CELLS_SIM <path to verilog file used for simulation>]
   #    HLC_TO_BIT <path to HLC to bitstream converter>
   #    HLC_TO_BIT_CMD <command to run HLC_TO_BIT>
   #    FASM_TO_BIT <path to FASM to bitstream converter>

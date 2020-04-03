@@ -73,6 +73,9 @@ function(icestorm_setup)
   get_filename_component(ICEBOX_PATH ${ICEBOX_VLOG} DIRECTORY)
   set(ICEBOX_SHARE ${ICEBOX_PATH}/../share/icebox CACHE PATH "")
 
+  set(CELLS_SIM ${YOSYS_DATADIR}/ice40/cells_sim.v)
+  add_file_target(FILE ${CELLS_SIM} ABSOLUTE)
+
   set(PYPATH_ARG "PYTHONPATH=\${ICEBOX_PATH}:${PYUTILS_PATH}")
   define_arch(
     ARCH ice40
@@ -100,7 +103,7 @@ function(icestorm_setup)
     --map \${PINMAP} \
     --blif \${OUT_EBLIF} \
     --pcf \${INPUT_IO_FILE}"
-    CELLS_SIM ${YOSYS_DATADIR}/ice40/cells_sim.v
+    CELLS_SIM ${CELLS_SIM}
     BIT_TO_V ${ICEBOX_VLOG_TARGET}
     BIT_TO_V_CMD "${ICEBOX_VLOG} -D -c -n \${TOP} -p \${INPUT_IO_FILE} -d \${PACKAGE} \${OUT_BITSTREAM} > \${OUT_BIT_VERILOG}"
     BITSTREAM_EXTENSION asc
