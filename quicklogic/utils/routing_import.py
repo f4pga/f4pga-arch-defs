@@ -1339,6 +1339,9 @@ def main():
         n for n in xml_graph.graph.nodes if n.capacity > 0
     ]
 
+    # Build node id to node map again since there have been new nodes added.
+    nodes_by_id = {node.id: node for node in xml_graph.graph.nodes}
+
     # Sanity check edges
     print("Sanity checking edges...")
     node_ids = set([n.id for n in xml_graph.graph.nodes])
@@ -1346,6 +1349,33 @@ def main():
         assert edge.src_node in node_ids, edge
         assert edge.sink_node in node_ids, edge
         assert edge.src_node != edge.sink_node, edge
+
+    # Sanity check IPIN/OPIN connections. There must be no tile completely 
+    # disconnected from the routing network
+    print("Sanity checking tile connections...")
+
+    connected_locs = set()
+    for edge in xml_graph.graph.edges:
+        src = nodes_by_id[edge.src_node]
+        dst = nodes_by_id[edge.sink_node]
+
+        if src.type == rr.NodeType.OPIN:
+            loc = (src.loc.x_low, src.loc.y_low)
+            connected_locs.add(loc)
+
+        if dst.type == rr.NodeType.IPIN:
+            loc = (src.loc.x_low, src.loc.y_low)
+            connected_locs.add(loc)
+
+    non_empty_locs = set((loc.x, loc.y) for loc in xml_graph.graph.grid \
+                         if loc.block_type_id > 0)
+
+    unconnected_locs = non_empty_locs - connected_locs
+    for loc in unconnected_locs:
+        block_type = xml_graph.graph.block_type_ad_loc(loc)
+        print(" ERROR: Tile '{}' at ({}, {}) is not connected!".format(
+            block_type, loc[0], loc[1]
+        ))
 
     # Write the routing graph
     nodes_obj = xml_graph.graph.nodes
