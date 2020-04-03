@@ -275,15 +275,16 @@ function(ADD_CONDA_PIP)
   if(${USE_CONDA})
     get_target_property_required(CONDA_DIR env CONDA_DIR)
     get_target_property_required(PIP env PIP)
+    get_target_property_required(PYTHON3 env PYTHON3)
     get_target_property(PIP_TARGET env PIP_TARGET)
 
     if(ADD_CONDA_PIP_NO_EXE)
       add_custom_command(
         OUTPUT ${NAME}.pip
         COMMAND ${CMAKE_COMMAND} -E echo "Taking ${PIP}.lock"
-        COMMAND flock ${PIP}.lock ${PIP} install ${NAME}
+        COMMAND flock ${PIP}.lock ${PYTHON3} -m pip install ${NAME}
         COMMAND ${CMAKE_COMMAND} -E touch ${NAME}.pip
-        DEPENDS ${PIP} ${PIP_TARGET}
+        DEPENDS ${PYTHON3} ${PIP} ${PIP_TARGET}
         )
 
       add_custom_target(
@@ -296,8 +297,8 @@ function(ADD_CONDA_PIP)
       add_custom_command(
         OUTPUT ${BIN}
         COMMAND ${CMAKE_COMMAND} -E echo "Taking ${PIP}.lock"
-        COMMAND flock ${PIP}.lock ${PIP} install ${NAME}
-        DEPENDS ${PIP} ${PIP_TARGET}
+        COMMAND flock ${PIP}.lock ${PYTHON3} -m pip install ${NAME}
+        DEPENDS ${PYTHON3} ${PIP} ${PIP_TARGET}
         )
       add_custom_target(
         ${NAME}
@@ -375,7 +376,7 @@ function(ADD_THIRDPARTY_PACKAGE)
       message(FATAL_ERROR "BUILD_INSTALL_COMMAND not supplied for thirdparty package ${NAME}")
     endif()
 
-    separate_arguments(INSTALL_COMMAND UNIX_COMMAND ${ADD_THIRDPARTY_PACKAGE_BUILD_INSTALL_COMMAND})
+    set(INSTALL_COMMAND ${ADD_THIRDPARTY_PACKAGE_BUILD_INSTALL_COMMAND})
 
     set(OUTPUTS "")
     set(TOUCH_COMMANDS "")
@@ -394,11 +395,15 @@ function(ADD_THIRDPARTY_PACKAGE)
       endforeach()
     endif()
 
+    get_target_property_required(PIP env PIP)
+
     add_custom_command(
       OUTPUT ${OUTPUTS}
-      COMMAND ${INSTALL_COMMAND}
+      COMMAND ${CMAKE_COMMAND} -E echo "Taking ${PIP}.lock"
+      COMMAND flock ${PIP}.lock -c "${INSTALL_COMMAND}"
       ${TOUCH_COMMANDS}
       DEPENDS ${ADD_THIRDPARTY_PACKAGE_DEPENDS}
+      VERBATIM
       )
 
     add_custom_target(${NAME} DEPENDS ${OUTPUTS})

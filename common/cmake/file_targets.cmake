@@ -211,6 +211,7 @@ function(ADD_FILE_TARGET)
   # ADD_FILE_TARGET(
   #   FILE <source file location>
   #   [GENERATED | SCANNER_TYPE <verilog|xml>]
+  #   [ABSOLUTE]
   #   )
   # ~~~
   #
@@ -223,12 +224,13 @@ function(ADD_FILE_TARGET)
   # ADD_FILE_TARGET ensures that all sources are in one folder, because of how
   # the verilog include directive is defined.
   #
-  # SCANNER_TYPE argument can be used if GENERATED is not set.  Valid
+  # SCANNER_TYPE argument can be used if GENERATED or ABSOLUTE are not set.  Valid
   # SCANNER_TYPE are "verilog" and "xml".
+  # ABSOLUTE parameter must be used to mark passed path is absolute
   #
   # GENERATED must be passed if the source file is generated and is placed
   # within the binary directory.
-  set(options GENERATED)
+  set(options GENERATED ABSOLUTE)
   set(oneValueArgs FILE SCANNER_TYPE)
   set(multiValueArgs)
   cmake_parse_arguments(
@@ -261,7 +263,7 @@ function(ADD_FILE_TARGET)
     append_file_dependency(INCLUDE_FILES_TARGETS ${INCLUDE})
   endforeach()
 
-  if(NOT ${ADD_FILE_TARGET_GENERATED})
+  if(NOT ${ADD_FILE_TARGET_GENERATED} AND NOT ${ADD_FILE_TARGET_ABSOLUTE})
     add_custom_command(
       OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${ADD_FILE_TARGET_FILE}
       COMMAND
@@ -271,16 +273,22 @@ function(ADD_FILE_TARGET)
     )
   endif()
 
+  if(${ADD_FILE_TARGET_ABSOLUTE})
+    set(FILE_PATH ${ADD_FILE_TARGET_FILE})
+  else()
+    set(FILE_PATH ${CMAKE_CURRENT_BINARY_DIR}/${ADD_FILE_TARGET_FILE})
+  endif()
+
   add_custom_target(
     ${TARGET_NAME}
     DEPENDS
-      ${CMAKE_CURRENT_BINARY_DIR}/${ADD_FILE_TARGET_FILE}
+      ${FILE_PATH}
       ${INCLUDE_FILES_TARGETS}
   )
 
   set_target_properties(
     ${TARGET_NAME}
-    PROPERTIES LOCATION ${CMAKE_CURRENT_BINARY_DIR}/${ADD_FILE_TARGET_FILE}
+    PROPERTIES LOCATION ${FILE_PATH}
   )
   set_target_properties(${TARGET_NAME} PROPERTIES INCLUDE_FILES "${INCLUDE_FILES}")
   set_target_properties(${TARGET_NAME} PROPERTIES INCLUDES "")
