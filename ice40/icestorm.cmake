@@ -18,11 +18,6 @@ function(icestorm_setup)
     )
   get_target_property(LIBFTDI_TARGET env LIBFTDI_TARGET)
 
-  add_conda_pip(
-    NAME numpy
-    NO_EXE
-    )
-
   add_thirdparty_package(
     NAME fasm
     BUILD_INSTALL_COMMAND "cd ${symbiflow-arch-defs_SOURCE_DIR}/third_party/fasm && ${PYTHON3} setup.py develop"
@@ -32,10 +27,13 @@ function(icestorm_setup)
 
   get_target_property_required(FASM_TARGET env FASM_TARGET)
 
+  get_target_property(NUMPY_TARGET env NUMPY_TARGET)
+  set(FASM2ASC_DEPS ${NUMPY_TARGET})
+
   set(FASM2ASC ${symbiflow-arch-defs_SOURCE_DIR}/ice40/utils/fasm_icebox/fasm2asc.py)
   add_custom_target(
     fasm2asc_deps
-    DEPENDS numpy ${FASM_TARGET} ${FASM2ASC} ${PYTHON3} ${PYTHON3_TARGET}
+    DEPENDS ${FASM2ASC_DEPS} ${FASM_TARGET} ${FASM2ASC} ${PYTHON3} ${PYTHON3_TARGET}
     )
 
   get_target_property_required(SDF_TIMING_TARGET env SDF_TIMING_TARGET)
