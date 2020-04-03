@@ -432,6 +432,140 @@ module dffp(
   );
 
 endmodule
+
+module dffpc(
+  output Q,
+  input  D,
+  input  CLK,
+  input  CLR,
+  input  PRE
+);
+
+  parameter [0:0] INIT = 1'b0;
+
+  Q_FRAG # (
+  .Z_QCKS (1'b1)
+  )
+  _TECHMAP_REPLACE_
+  (
+  .QCK(CLK),
+  .QST(PRE),
+  .QRT(CLR),
+  .QEN(1'b1),
+  .QDI(D),
+  .QDS(1'b1), // FIXME: Always select QDI as the FF's input
+  .CZI(),
+  .QZ (Q)
+  );
+
+endmodule
+
+module dffe(
+  output Q,
+  input  D,
+  input  CLK,
+  input  EN
+);
+
+  parameter [0:0] INIT = 1'b0;
+
+  Q_FRAG # (
+  .Z_QCKS (1'b1)
+  )
+  _TECHMAP_REPLACE_
+  (
+  .QCK(CLK),
+  .QST(1'b0),
+  .QRT(1'b0),
+  .QEN(EN),
+  .QDI(D),
+  .QDS(1'b1), // FIXME: Always select QDI as the FF's input
+  .CZI(),
+  .QZ (Q)
+  );
+
+endmodule
+
+module dffec(
+  output Q,
+  input  D,
+  input  CLK,
+  input  EN,
+  input  CLR
+);
+
+  parameter [0:0] INIT = 1'b0;
+
+  Q_FRAG # (
+  .Z_QCKS (1'b1)
+  )
+  _TECHMAP_REPLACE_
+  (
+  .QCK(CLK),
+  .QST(1'b0),
+  .QRT(CLR),
+  .QEN(EN),
+  .QDI(D),
+  .QDS(1'b1), // FIXME: Always select QDI as the FF's input
+  .CZI(),
+  .QZ (Q)
+  );
+
+endmodule
+
+module dffepc(
+  output Q,
+  input  D,
+  input  CLK,
+  input  EN,
+  input  CLR,
+  input  PRE
+);
+
+  parameter [0:0] INIT = 1'b0;
+
+  Q_FRAG # (
+  .Z_QCKS (1'b1)
+  )
+  _TECHMAP_REPLACE_
+  (
+  .QCK(CLK),
+  .QST(PRE),
+  .QRT(CLR),
+  .QEN(EN),
+  .QDI(D),
+  .QDS(1'b1), // FIXME: Always select QDI as the FF's input
+  .CZI(),
+  .QZ (Q)
+  );
+
+endmodule
+
+module dffsc(
+  output Q,
+  input  D,
+  input  CLK,
+  input  CLR,
+);
+
+  parameter [0:0] INIT = 1'b0;
+
+  Q_FRAG # (
+  .Z_QCKS (1'b1)
+  )
+  _TECHMAP_REPLACE_
+  (
+  .QCK(CLK),
+  .QST(1'b0),
+  .QRT(CLR),
+  .QEN(1'b1),
+  .QDI(D),
+  .QDS(1'b1), // FIXME: Always select QDI as the FF's input
+  .CZI(),
+  .QZ (Q)
+  );
+
+endmodule
 // ============================================================================
 // The "qlal4s3b_cell_macro" macro
 
