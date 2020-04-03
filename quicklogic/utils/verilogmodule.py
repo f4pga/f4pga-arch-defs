@@ -10,14 +10,15 @@ class VModule(object):
     '''Represents a Verilog module for QLAL4S3B FASM'''
 
     def __init__(
-        self,
-        vpr_tile_grid,
-        belinversions,
-        interfaces,
-        designconnections,
-        inversionpins,
-        io_to_fbio,
-        useinversionpins=True):
+            self,
+            vpr_tile_grid,
+            belinversions,
+            interfaces,
+            designconnections,
+            inversionpins,
+            io_to_fbio,
+            useinversionpins=True
+    ):
         '''Prepares initial structures.
 
         Refer to fasm2bels.py for input description.
@@ -64,7 +65,9 @@ class VModule(object):
         dict: parameters with grouped array indices
         '''
         newparameters = dict()
-        arraydst = re.compile(r'(?P<varname>[a-zA-Z_][a-zA-Z_0-9$]+)\[(?P<arrindex>[0-9]+)\]')
+        arraydst = re.compile(
+            r'(?P<varname>[a-zA-Z_][a-zA-Z_0-9$]+)\[(?P<arrindex>[0-9]+)\]'
+        )
         for dst, src in parameters.items():
             match = arraydst.match(dst)
             if match:
@@ -171,8 +174,10 @@ class VModule(object):
             inverted = False
         else:
             # determine if inverted
-            inverted = (inputname in
-                        self.belinversions[loc][self.vpr_tile_grid[loc].type])
+            inverted = (
+                inputname in self.belinversions[loc][
+                    self.vpr_tile_grid[loc].type]
+            )
         wireid = Wire(wire[0], wire[1], inverted)
         if wireid in self.wires:
             # if wire already exists, use it
@@ -193,7 +198,8 @@ class VModule(object):
                     self.ios[wire[0]] = VerilogIO(
                         name=self.new_io_name('input'),
                         direction='input',
-                        ioloc=wire[0])
+                        ioloc=wire[0]
+                    )
                 assert self.ios[wire[0]].direction == 'input'
                 wirename = self.ios[wire[0]].name
             else:
@@ -202,10 +208,10 @@ class VModule(object):
             if srctype not in self.elements[wire[0]]:
                 # if the source element does not exist, create it
                 self.elements[wire[0]][srctype] = Element(
-                    wire[0],
-                    srctype,
+                    wire[0], srctype,
                     self.get_element_name(self.vpr_tile_grid[wire[0]]),
-                    {srconame: wirename})
+                    {srconame: wirename}
+                )
             else:
                 # add wirename to the existing element
                 self.elements[wire[0]][srctype].ios[srconame] = wirename
@@ -227,10 +233,7 @@ class VModule(object):
 
         invwirename = f'{wirename}_inv'
 
-        inverterios = {
-            'Q': invwirename,
-            'A': wirename
-        }
+        inverterios = {'Q': invwirename, 'A': wirename}
 
         inverterelement = Element(wire[0], 'inv', invertername, inverterios)
         self.elements[wire[0]]['inv'] = inverterelement
@@ -250,7 +253,8 @@ class VModule(object):
                     self.ios[currloc] = VerilogIO(
                         name=self.new_io_name('output'),
                         direction='output',
-                        ioloc=currloc)
+                        ioloc=currloc
+                    )
                     self.get_wire(currloc, connections['OQI'], 'OQI')
                 # TODO parse IE/INEN, check iz
 
@@ -279,10 +283,8 @@ class VModule(object):
             if currtype not in self.elements[currloc]:
                 # If Element does not exist, create it
                 self.elements[currloc][currtype] = Element(
-                    currloc,
-                    currtype,
-                    currname,
-                    inputs)
+                    currloc, currtype, currname, inputs
+                )
             else:
                 # else update IOs
                 self.elements[currloc][currtype].ios.update(inputs)
@@ -301,10 +303,12 @@ class VModule(object):
 
         if len(self.ios) > 0:
             sortedios = sorted(
-                self.ios.values(), key=lambda x: (x.direction, x.name))
+                self.ios.values(), key=lambda x: (x.direction, x.name)
+            )
             ios = '\n    '
             ios += ',\n    '.join(
-                [f'{x.direction} {x.name}' for x in sortedios])
+                [f'{x.direction} {x.name}' for x in sortedios]
+            )
 
         if len(self.wires) > 0:
             wires += '\n'
@@ -322,10 +326,8 @@ class VModule(object):
                     if element.type != 'SYN_IO':
                         elements += '\n'
                         elements += self.form_verilog_element(
-                            eloc,
-                            element.type,
-                            element.name,
-                            element.ios)
+                            eloc, element.type, element.name, element.ios
+                        )
 
         verilog = (
             f'module top ({ios});\n'

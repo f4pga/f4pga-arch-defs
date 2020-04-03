@@ -239,7 +239,8 @@ def connect(
 
             # Connect through the padding node
             add_edge(
-                graph, src_node.id, pad_node.id, graph.get_delayless_switch_id()
+                graph, src_node.id, pad_node.id,
+                graph.get_delayless_switch_id()
             )
 
             add_edge(
@@ -277,7 +278,8 @@ def connect(
 
             # Connect through the padding node
             add_edge(
-                graph, src_node.id, pad_node.id, graph.get_delayless_switch_id()
+                graph, src_node.id, pad_node.id,
+                graph.get_delayless_switch_id()
             )
 
             add_edge(
@@ -722,8 +724,12 @@ def build_tile_connection_map(graph, nodes_by_id, tile_grid, connections):
         node_map[conn_loc] = node
 
     # Look for connection endpoints that mention tiles
-    endpoints  = set([c.src for c in connections if c.src.type == ConnectionType.TILE])
-    endpoints |= set([c.dst for c in connections if c.dst.type == ConnectionType.TILE])
+    endpoints = set(
+        [c.src for c in connections if c.src.type == ConnectionType.TILE]
+    )
+    endpoints |= set(
+        [c.dst for c in connections if c.dst.type == ConnectionType.TILE]
+    )
 
     # Build the map
     for ep in endpoints:
@@ -1350,7 +1356,7 @@ def main():
         assert edge.sink_node in node_ids, edge
         assert edge.src_node != edge.sink_node, edge
 
-    # Sanity check IPIN/OPIN connections. There must be no tile completely 
+    # Sanity check IPIN/OPIN connections. There must be no tile completely
     # disconnected from the routing network
     print("Sanity checking tile connections...")
 
@@ -1373,9 +1379,11 @@ def main():
     unconnected_locs = non_empty_locs - connected_locs
     for loc in unconnected_locs:
         block_type = xml_graph.graph.block_type_ad_loc(loc)
-        print(" ERROR: Tile '{}' at ({}, {}) is not connected!".format(
-            block_type, loc[0], loc[1]
-        ))
+        print(
+            " ERROR: Tile '{}' at ({}, {}) is not connected!".format(
+                block_type, loc[0], loc[1]
+            )
+        )
 
     # Write the routing graph
     nodes_obj = xml_graph.graph.nodes

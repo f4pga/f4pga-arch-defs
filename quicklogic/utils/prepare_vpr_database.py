@@ -56,6 +56,7 @@ def is_loc_free(loc, tile_grid):
 
     return False
 
+
 # =============================================================================
 
 
@@ -78,7 +79,7 @@ def make_tile_type(cells, cells_library, tile_types):
     """
 
     # Count cell types
-    cell_types  = sorted([c.type for c in cells])
+    cell_types = sorted([c.type for c in cells])
     cell_counts = {t: 0 for t in cell_types}
 
     for cell in cells:
@@ -99,10 +100,7 @@ def make_tile_type(cells, cells_library, tile_types):
         return tile_types[type_name]
 
     # Create the new tile type
-    tile_type = TileType(
-        type  = type_name,
-        cells = cell_counts
-        )
+    tile_type = TileType(type=type_name, cells=cell_counts)
 
     # Create pins
     tile_type.make_pins(cells_library)
@@ -128,19 +126,22 @@ def strip_cells(tile, cell_types, tile_types, cells_library):
     new_tile_type = make_tile_type(new_cells, cells_library, tile_types)
 
     # Create the new tile
-    new_tile = Tile(
-        type = new_tile_type.type,
-        name = tile.name,
-        cells = new_cells
-    )
+    new_tile = Tile(type=new_tile_type.type, name=tile.name, cells=new_cells)
 
     return new_tile
 
 
-def process_tilegrid(tile_types, tile_grid, cells_library, grid_size, grid_offset, grid_limit=None):
+def process_tilegrid(
+        tile_types,
+        tile_grid,
+        cells_library,
+        grid_size,
+        grid_offset,
+        grid_limit=None
+):
     """
     Processes the tilegrid. May add/remove tiles. Returns a new one.
-    """    
+    """
 
     vpr_tile_grid = {}
     fwd_loc_map = {}
@@ -158,9 +159,8 @@ def process_tilegrid(tile_types, tile_grid, cells_library, grid_size, grid_offse
             continue
 
         vpr_loc = Loc(
-            x = phy_loc.x + grid_offset[0],
-            y = phy_loc.y + grid_offset[1]
-            )
+            x=phy_loc.x + grid_offset[0], y=phy_loc.y + grid_offset[1]
+        )
 
         # If the tile contains CAND then strip it. Possibly create a new tile
         # type.
@@ -178,14 +178,12 @@ def process_tilegrid(tile_types, tile_grid, cells_library, grid_size, grid_offse
             if "BIDIR" in tile_type.cells:
                 assert tile_type.cells["BIDIR"] == 1
 
-                cells=[c for c in tile.cells if c.type == "BIDIR"]                
+                cells = [c for c in tile.cells if c.type == "BIDIR"]
                 new_type = make_tile_type(cells, cells_library, tile_types)
 
                 add_loc_map(phy_loc, vpr_loc)
                 vpr_tile_grid[vpr_loc] = Tile(
-                    type=new_type.type,
-                    name=tile.name,
-                    cells=cells
+                    type=new_type.type, name=tile.name, cells=cells
                 )
 
             # For the CLOCK cell create a synthetic tile
@@ -196,7 +194,7 @@ def process_tilegrid(tile_types, tile_grid, cells_library, grid_size, grid_offse
 #
 #                assert tile_type.cells["CLOCK"] == 1
 #
-#                # If the tile has a BIDIR cell then place the CLOCK tile in a 
+#                # If the tile has a BIDIR cell then place the CLOCK tile in a
 #                # free location next to the original one.
 #                if "BIDIR" in tile_type.cells:
 #                    for ox, oy in ((-1,0),(+1,0),(0,-1),(0,+1)):
@@ -247,27 +245,24 @@ def process_tilegrid(tile_types, tile_grid, cells_library, grid_size, grid_offse
 
                 # Change index of the cell
                 new_cell = Cell(
-                    type = cell.type,
-                    index = 0,
-                    name = cell.name,
-                    alias = cell.alias
+                    type=cell.type, index=0, name=cell.name, alias=cell.alias
                 )
 
                 # Add the tile instance
                 vpr_tile_grid[new_loc] = Tile(
-                    type=new_type.type,
-                    name=tile.name,
-                    cells=[new_cell]
+                    type=new_type.type, name=tile.name, cells=[new_cell]
                 )
 
             continue
 
         # A homogeneous tile
         if len(tile_type.cells) == 1:
-            cell_type = list(tile_type.cells.keys())[0] 
-      
-            # Keep only these types 
-            if cell_type in ["LOGIC",]: # TODO: FIXME: GMUX is WIP, skip it.
+            cell_type = list(tile_type.cells.keys())[0]
+
+            # Keep only these types
+            if cell_type in [
+                    "LOGIC",
+            ]:  # TODO: FIXME: GMUX is WIP, skip it.
                 add_loc_map(phy_loc, vpr_loc)
                 vpr_tile_grid[vpr_loc] = tile
                 continue
@@ -275,7 +270,7 @@ def process_tilegrid(tile_types, tile_grid, cells_library, grid_size, grid_offse
     # Find the ASSP tile. There are multiple tiles that contain the ASSP cell
     # but in fact there is only one ASSP cell for the whole FPGA which is
     # "distributed" along top and left edge of the grid.
-    if "ASSP" in tile_types:        
+    if "ASSP" in tile_types:
 
         # Verify that the location is empty
         assp_loc = Loc(x=1, y=1)
@@ -322,7 +317,9 @@ def process_tilegrid(tile_types, tile_grid, cells_library, grid_size, grid_offse
 # =============================================================================
 
 
-def process_switchbox_grid(phy_switchbox_grid, loc_map, grid_offset, grid_limit=None):
+def process_switchbox_grid(
+        phy_switchbox_grid, loc_map, grid_offset, grid_limit=None
+):
     """
     Processes the switchbox grid
     """
@@ -351,9 +348,8 @@ def process_switchbox_grid(phy_switchbox_grid, loc_map, grid_offset, grid_limit=
 
         # compute VPR grid location
         vpr_loc = Loc(
-            x = phy_loc.x + grid_offset[0],
-            y = phy_loc.y + grid_offset[1]
-            )
+            x=phy_loc.x + grid_offset[0], y=phy_loc.y + grid_offset[1]
+        )
 
         # Place the switchbox
         vpr_switchbox_grid[vpr_loc] = switchbox_type
@@ -424,7 +420,6 @@ def process_connections(
         )
         vpr_connections.append(new_connection)
 
-
     # Find SFBIO connections, map their endpoints to SDIOMUX tiles
     # FIXME: This should be read from the techfine. Definition of the SDIOMUX
     # cell has  "realPortName" fields.
@@ -453,7 +448,7 @@ def process_connections(
             assert pin_index is not None, ep
 
             # Strip cell name
-            pin_name = pin_name.split("_", maxsplit=1)[1]            
+            pin_name = pin_name.split("_", maxsplit=1)[1]
 
             # Find where is an SDIOMUX cell for that index
             cell_name = "SFB_{}_IO".format(pin_index)
@@ -463,9 +458,7 @@ def process_connections(
             cell = find_cell_in_tile(cell_name, vpr_tile_grid[new_loc])
 
             new_pin = "{}{}_{}".format(
-                cell.type,
-                cell.index,
-                SDIOMUX_PIN_MAP[pin_name]
+                cell.type, cell.index, SDIOMUX_PIN_MAP[pin_name]
             )
 
             eps[j] = ConnectionLoc(
@@ -476,7 +469,6 @@ def process_connections(
 
         # Modify the connection
         vpr_connections[i] = Connection(src=eps[0], dst=eps[1])
-
 
     # Find locations of "special" tiles
     special_tile_loc = {"ASSP": None}
@@ -738,7 +730,8 @@ def main():
 
     # Process the tilegrid
     vpr_tile_grid, loc_map = process_tilegrid(
-        tile_types, phy_tile_grid, cells_library, grid_size, grid_offset, grid_limit
+        tile_types, phy_tile_grid, cells_library, grid_size, grid_offset,
+        grid_limit
     )
 
     # Process the switchbox grid
@@ -779,8 +772,7 @@ def main():
     }
 
     # Make tile -> site equivalence list
-    vpr_equivalent_sites = {
-    }
+    vpr_equivalent_sites = {}
 
     # Make switch list
     vpr_switches = build_switch_list()
@@ -816,9 +808,9 @@ def main():
     print("Tile grid:")
     xmax = max([loc.x for loc in vpr_tile_grid])
     ymax = max([loc.y for loc in vpr_tile_grid])
-    for y in range(ymax+1):
+    for y in range(ymax + 1):
         l = " {:>2}: ".format(y)
-        for x in range(xmax+1):
+        for x in range(xmax + 1):
             loc = Loc(x=x, y=y)
             if loc not in vpr_tile_grid:
                 l += " "
@@ -834,9 +826,9 @@ def main():
     print("Switchbox grid:")
     xmax = max([loc.x for loc in vpr_switchbox_grid])
     ymax = max([loc.y for loc in vpr_switchbox_grid])
-    for y in range(ymax+1):
+    for y in range(ymax + 1):
         l = " {:>2}: ".format(y)
-        for x in range(xmax+1):
+        for x in range(xmax + 1):
             loc = Loc(x=x, y=y)
             if loc not in vpr_switchbox_grid:
                 l += " "

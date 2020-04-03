@@ -348,14 +348,12 @@ def main():
         if arch_tile.is_tile:
 
             xml = make_top_level_tile(
-                arch_tile.type,
-                vpr_tile_types,
+                arch_tile.type, vpr_tile_types,
                 vpr_equivalent_sites.get(arch_tile.type, None)
             )
 
             fname = "tl-{}.tile.xml".format(arch_tile.type.lower())
             ET.ElementTree(xml).write(fname, pretty_print=True)
-
 
         # The top-level pb_type and model
         if arch_tile.is_pb_type:
