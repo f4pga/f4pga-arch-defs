@@ -3,7 +3,7 @@ import argparse
 import json
 import prjxray.db
 from prjxray.site_type import SitePinDirection
-from lib.pb_type_xml import start_tile, add_switchblock_locations
+from lib.pb_type_xml import start_heterogeneous_tile, add_switchblock_locations
 import lxml.etree as ET
 
 
@@ -60,10 +60,10 @@ def main():
 
         sites[site.type].append((site, input_wires, output_wires))
 
-    tile_xml = start_tile(
+    tile_xml = start_heterogeneous_tile(
         args.tile_type,
         pin_assignments,
-        sites=sites,
+        sites,
     )
 
     add_switchblock_locations(tile_xml)
