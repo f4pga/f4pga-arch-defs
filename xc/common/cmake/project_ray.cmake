@@ -610,9 +610,8 @@ function(PROJECT_RAY_TILE_CAPACITY)
   #   )
   # ~~~
   #
-  # SITE_TYPES: contains the comma separated list of sites that are going to be used
-  #             as sub tiles for the specified tile. The total number of instances
-  #             of a site type appears as the capacity of the sub tile
+  # SITE_TYPES: contains a list of sites that are used as sub tiles for the specified tile.
+  #             The total number of instances of a site type appears as the capacity of the sub tile
 
   set(options)
   set(oneValueArgs ARCH TILE)
