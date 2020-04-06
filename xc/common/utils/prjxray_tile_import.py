@@ -15,7 +15,6 @@ import argparse
 import sys
 import prjxray.db
 import prjxray.site_type
-import simplejson as json
 import re
 import sqlite3
 
