@@ -7,41 +7,6 @@ parsing capabilities of Verilog-to-Routing.
 This script needs to be used only if the architecture import scripts do not
 take into account the physical tiles tags. In fact, it is used as last step
 of the architecture description generation.
-
-It moves the top level pb_types attributes and tags to the tiles high-level tag.
-
-BEFORE:
-<complexblocklist>
-    <pb_type name="BRAM" area="2" height="4" width="1" capacity="1">
-        <inputs ... />
-        <outputs ... />
-        <interconnect ... />
-        <fc ... />
-        <pinlocations ... />
-        <switchblock_locations ... />
-    </pb_type>
-</complexblocklist>
-
-AFTER:
-<tiles>
-    <tile name="BRAM" area="2" height="4" width="1" capacity="1">
-        <inputs ... />
-        <outputs ... />
-        <fc ... />
-        <pinlocations ... />
-        <switchblock_locations ... />
-        <equivalent_sites>
-            <site pb_type="BRAM"/>
-        </equivalent_sites>
-    </tile>
-</tiles>
-<complexblocklist
-    <pb_type name="BRAM">
-        <inputs ... />
-        <outputs ... />
-        <interconnect ... />
-    </pb_type>
-</complexblocklist>
 """
 
 import argparse
@@ -52,6 +17,44 @@ from lxml import etree as ET
 
 
 def add_tile_tags(arch):
+    """
+    This function moves the top level pb_types attributes
+    and tags to the tiles high-level tag.
+
+    BEFORE:
+    <complexblocklist>
+        <pb_type name="BRAM" area="2" height="4" width="1" capacity="1">
+            <inputs ... />
+            <outputs ... />
+            <interconnect ... />
+            <fc ... />
+            <pinlocations ... />
+            <switchblock_locations ... />
+        </pb_type>
+    </complexblocklist>
+
+    AFTER:
+    <tiles>
+        <tile name="BRAM" area="2" height="4" width="1" capacity="1">
+            <inputs ... />
+            <outputs ... />
+            <fc ... />
+            <pinlocations ... />
+            <switchblock_locations ... />
+            <equivalent_sites>
+                <site pb_type="BRAM"/>
+            </equivalent_sites>
+        </tile>
+    </tiles>
+    <complexblocklist
+        <pb_type name="BRAM">
+            <inputs ... />
+            <outputs ... />
+            <interconnect ... />
+        </pb_type>
+    </complexblocklist>
+    """
+
     TAGS_TO_SWAP = ['fc', 'pinlocations', 'switchblock_locations']
     TAGS_TO_COPY = ['input', 'output', 'clock']
     ATTR_TO_SWAP = ['area', 'height', 'width', 'capacity']
@@ -138,6 +141,80 @@ def add_site_directs(arch):
     return True
 
 
+def add_sub_tiles(arch):
+    """
+    This function adds the sub tiles tags to the input architecture.
+    Each physical tile must contain at least one sub tile.
+
+    Note: the example below is only for explanatory reasons, the port/tile names are invented.
+
+    BEFORE:
+    <tiles>
+        <tile name="BRAM_TILE" area="2" height="4" width="1" capacity="1">
+            <inputs ... />
+            <outputs ... />
+            <fc ... />
+            <pinlocations ... />
+            <switchblock_locations ... />
+            <equivalent_sites>
+                <site pb_type="BRAM" pin_mapping="direct">
+            </equivalent_sites>
+        </tile>
+    </tiles>
+
+    AFTER:
+    <tiles>
+        <tile name="BRAM_TILE" area="2" height="4" width="1">
+            <sub_tile name="BRAM_SUB_TILE_X" capacity="1">
+                <inputs ... />
+                <outputs ... />
+                <fc ... />
+                <pinlocations ... />
+                <equivalent_sites>
+                    <site pb_type="BRAM" pin_mapping="direct">
+                </equivalent_sites>
+            </sub_tile>
+            <switchblock_locations ... />
+        </tile>
+    </tiles>
+
+    """
+
+    TAGS_TO_SWAP = [
+        'fc', 'pinlocations', 'input', 'output', 'clock', 'equivalent_sites'
+    ]
+
+    def swap_tags(sub_tile, tile):
+        # Moving tags from top level pb_type to tile
+        for child in tile:
+            if child.tag in TAGS_TO_SWAP:
+                tile.remove(child)
+                sub_tile.append(child)
+
+    modified = False
+
+    for tile in arch.iter('tile'):
+        if tile.findall('./sub_tile'):
+            continue
+
+        sub_tile_name = tile.attrib['name']
+        sub_tile = ET.Element('sub_tile', name='{}'.format(sub_tile_name))
+
+        # Transfer capacity to sub tile
+        if 'capacity' in tile.attrib.keys():
+            sub_tile.attrib['capacity'] = tile.attrib['capacity']
+            del tile.attrib['capacity']
+
+        # Transfer tags to swap from tile to sub tile
+        swap_tags(sub_tile, tile)
+
+        tile.append(sub_tile)
+
+        modified = True
+
+    return modified
+
+
 def main():
     parser = argparse.ArgumentParser()
 
@@ -160,6 +237,7 @@ def main():
     modified = False
     result = add_tile_tags(arch)
     result = add_site_directs(arch)
+    result = add_sub_tiles(arch)
 
     if result:
         modified = True

@@ -15,7 +15,6 @@ import argparse
 import sys
 import prjxray.db
 import prjxray.site_type
-import simplejson as json
 import re
 import sqlite3
 
@@ -152,68 +151,6 @@ class ModelXml(object):
         write_xml(self.f, self.model_xml)
 
 
-def add_pinlocations(tile_name, xml, fc_xml, pin_assignments, wires):
-    """ Adds the pin locations.
-
-    It requires the ports of the physical tile which are retrieved
-    by the pb_type.xml definition.
-    """
-    pinlocations_xml = ET.SubElement(
-        xml, 'pinlocations', {
-            'pattern': 'custom',
-        }
-    )
-
-    sides = {}
-    for pin in wires:
-        for side in pin_assignments['pin_directions'][tile_name][pin]:
-            if side not in sides:
-                sides[side] = []
-
-            sides[side].append(object_ref(add_vpr_tile_prefix(tile_name), pin))
-
-    for side, pins in sides.items():
-        ET.SubElement(pinlocations_xml, 'loc', {
-            'side': side.lower(),
-        }).text = ' '.join(pins)
-
-    direct_pins = set()
-    for direct in pin_assignments['direct_connections']:
-        if direct['from_pin'].split('.')[0] == tile_name:
-            direct_pins.add(direct['from_pin'].split('.')[1])
-
-        if direct['to_pin'].split('.')[0] == tile_name:
-            direct_pins.add(direct['to_pin'].split('.')[1])
-
-    for fc_override in direct_pins:
-        ET.SubElement(
-            fc_xml, 'fc_override', {
-                'fc_type': 'frac',
-                'fc_val': '0.0',
-                'port_name': fc_override,
-            }
-        )
-
-
-def add_fc(xml):
-    fc_xml = ET.SubElement(
-        xml, 'fc', {
-            'in_type': 'abs',
-            'in_val': '2',
-            'out_type': 'abs',
-            'out_val': '2',
-        }
-    )
-
-    return fc_xml
-
-
-def add_switchblock_locations(xml):
-    ET.SubElement(xml, 'switchblock_locations', {
-        'pattern': 'all',
-    })
-
-
 def start_pb_type(tile_name, f_pin_assignments, input_wires, output_wires):
     """ Starts a pb_type by adding input, clock and output tags. """
     pb_type_xml = ET.Element(
@@ -253,14 +190,6 @@ def start_pb_type(tile_name, f_pin_assignments, input_wires, output_wires):
                 'num_pins': '1'
             },
         )
-
-    fc_xml = add_fc(pb_type_xml)
-
-    pin_assignments = json.load(f_pin_assignments)
-    add_pinlocations(
-        tile_name, pb_type_xml, fc_xml, pin_assignments,
-        input_wires | output_wires
-    )
 
     pb_type_xml.append(ET.Comment(" Internal Sites "))
 
@@ -642,8 +571,6 @@ def import_tile(db, args):
 
     pb_type_xml.append(interconnect_xml)
 
-    add_switchblock_locations(pb_type_xml)
-
     model.write_model()
     write_xml(args.output_pb_type, pb_type_xml)
 
@@ -734,8 +661,6 @@ def import_site_as_tile(db, args):
             assert False, site_type_pin.direction
 
     pb_type_xml.append(interconnect_xml)
-
-    add_switchblock_locations(pb_type_xml)
 
     write_xml(args.output_pb_type, pb_type_xml)
 
@@ -1402,8 +1327,6 @@ WHERE
         )
 
     pb_type_xml.append(interconnect_xml)
-
-    add_switchblock_locations(pb_type_xml)
 
     write_xml(args.output_pb_type, pb_type_xml)
 
