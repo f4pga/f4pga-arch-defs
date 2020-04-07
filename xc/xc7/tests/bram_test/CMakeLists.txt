@@ -31,5 +31,7 @@ foreach(type 18 36)
       PARENT_NAME bram_test_${type}
       CLOCK_PINS clk
       CLOCK_PERIODS 10.0
+      # FIXME: https://github.com/SymbiFlow/symbiflow-arch-defs/issues/1400
+      DISABLE_DIFF_TEST
       )
 endforeach()

@@ -18,7 +18,7 @@ import argparse
 import sys
 import copy
 import simplejson as json
-import prjxray_tile_import as tile_import
+from lib.pb_type_xml import add_fc, add_vpr_tile_prefix, add_pinlocations, add_switchblock_locations
 
 import lxml.etree as ET
 
@@ -93,7 +93,7 @@ def import_physical_tile(args):
 
             site_xml = ET.SubElement(
                 equivalent_sites_xml, 'site', {
-                    'pb_type': tile_import.add_vpr_tile_prefix(eq_site),
+                    'pb_type': add_vpr_tile_prefix(eq_site),
                     'pin_mapping': 'custom'
                 }
             )
@@ -118,24 +118,31 @@ def import_physical_tile(args):
     tile_xml = ET.Element(
         'tile',
         {
-            'name': tile_import.add_vpr_tile_prefix(tile_name),
+            'name': add_vpr_tile_prefix(tile_name),
         },
         nsmap={'xi': XI_URL},
     )
 
-    add_ports(tile_xml, pb_type_root)
-
-    equivalent_sites = args.equivalent_sites
-    add_equivalent_sites(tile_xml, equivalent_sites)
-
-    fc_xml = tile_import.add_fc(tile_xml)
-
-    pin_assignments = json.load(args.pin_assignments)
-    tile_import.add_pinlocations(
-        tile_name, tile_xml, fc_xml, pin_assignments, ports
+    sub_tile_xml = ET.Element(
+        'sub_tile',
+        {
+            'name': add_vpr_tile_prefix(tile_name),
+        },
+        nsmap={'xi': XI_URL},
     )
 
-    tile_import.add_switchblock_locations(tile_xml)
+    add_ports(sub_tile_xml, pb_type_root)
+
+    equivalent_sites = args.equivalent_sites
+    add_equivalent_sites(sub_tile_xml, equivalent_sites)
+
+    fc_xml = add_fc(sub_tile_xml)
+
+    pin_assignments = json.load(args.pin_assignments)
+    add_pinlocations(tile_name, sub_tile_xml, fc_xml, pin_assignments, ports)
+
+    tile_xml.append(sub_tile_xml)
+    add_switchblock_locations(tile_xml)
 
     tile_str = ET.tostring(tile_xml, pretty_print=True).decode('utf-8')
     args.output_tile.write(tile_str)

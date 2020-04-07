@@ -473,12 +473,16 @@ def get_tile_capacities(arch_xml_filename):
     tile_capacities = {}
     for el in root.iter('tile'):
         tile_name = el.attrib['name']
-        capacity = 1
 
-        if 'capacity' in el.attrib:
-            capacity = int(el.attrib['capacity'])
+        tile_capacities[tile_name] = 0
 
-        tile_capacities[tile_name] = capacity
+        for sub_tile in el.iter('sub_tile'):
+            capacity = 1
+
+            if 'capacity' in sub_tile.attrib:
+                capacity = int(sub_tile.attrib['capacity'])
+
+            tile_capacities[tile_name] += capacity
 
     grid = {}
     for el in root.iter('single'):

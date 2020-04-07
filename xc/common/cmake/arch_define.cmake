@@ -59,6 +59,7 @@ function(ADD_XC_ARCH_DEFINE)
   set(YOSYS_CONV_SCRIPT ${ADD_XC_ARCH_DEFINE_YOSYS_CONV_SCRIPT})
   set(YOSYS_TECHMAP ${symbiflow-arch-defs_SOURCE_DIR}/xc/${FAMILY}/techmap)
   set(VPR_ARCH_ARGS "\
+      --router_heap bucket \
       --clock_modeling route \
       --place_delay_model delta_override \
       --router_lookahead connection_box_map \

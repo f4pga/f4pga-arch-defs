@@ -28,11 +28,16 @@ def object_ref(pb_name, pin_name, pb_idx=None, pin_idx=None):
     return '{}{}.{}{}'.format(pb_name, pb_addr, pin_name, pin_addr)
 
 
-def add_pinlocations(tile_name, xml, fc_xml, pin_assignments, wires):
+def add_pinlocations(
+        tile_name, xml, fc_xml, pin_assignments, wires, sub_tile_name=None
+):
     """ Adds the pin locations.
 
     It requires the ports of the physical tile which are retrieved
     by the pb_type.xml definition.
+
+    Optionally, a sub_tile_name can be assigned. This is necessary to have
+    unique sub tile names in case a tile contains more than one sub_tile types.
     """
     pinlocations_xml = ET.SubElement(
         xml, 'pinlocations', {
@@ -46,7 +51,12 @@ def add_pinlocations(tile_name, xml, fc_xml, pin_assignments, wires):
             if side not in sides:
                 sides[side] = []
 
-            sides[side].append(object_ref(add_vpr_tile_prefix(tile_name), pin))
+            if sub_tile_name is not None:
+                name = sub_tile_name
+            else:
+                name = tile_name
+
+            sides[side].append(object_ref(add_vpr_tile_prefix(name), pin))
 
     for side, pins in sides.items():
         ET.SubElement(pinlocations_xml, 'loc', {
@@ -90,19 +100,209 @@ def add_switchblock_locations(xml):
     })
 
 
-def start_pb_type(
+def start_sub_tile(sub_tile_name, input_wires, output_wires):
+    """This function returns the sub tile definition for a given tile.
+
+    This function requires:
+        - sub_tile_name: this must be a unique name among the sibling sub_tiles
+                         of a given tile.
+        - input/output wires: all the input/output wires of the tile that need
+                              to be assigned to the new sub tile.
+                              In case there are two or more subtile that are the same
+                              but differ only in pinlocations, the I/O wires must be
+                              the same for each sub tile.
+
+    The returned sub tile contains only input, output and clock ports.
+    The rest of the tags are going to be added by the caller.
+
+    As default, each sub tile has capacity of 1. If there are two or more sites for
+    each site type in a tile, there will be the same number of sub tiles, each with
+    capacity of 1.
+    """
+    sub_tile_xml = ET.Element(
+        'sub_tile', {
+            'name': add_vpr_tile_prefix(sub_tile_name),
+            'capacity': "1",
+        }
+    )
+
+    # Input definitions for the TILE
+    sub_tile_xml.append(ET.Comment(" Sub Tile Inputs "))
+    for name in sorted(input_wires):
+        input_type = 'input'
+
+        if name.startswith('CLK_BUFG_'):
+            if name.endswith('I0') or name.endswith('I1'):
+                input_type = 'clock'
+        elif 'CLK' in name:
+            input_type = 'clock'
+
+        ET.SubElement(
+            sub_tile_xml,
+            input_type,
+            {
+                'name': name,
+                'num_pins': '1'
+            },
+        )
+
+    # Output definitions for the TILE
+    sub_tile_xml.append(ET.Comment(" Sub Tile Outputs "))
+    for name in sorted(output_wires):
+        ET.SubElement(
+            sub_tile_xml,
+            'output',
+            {
+                'name': name,
+                'num_pins': '1'
+            },
+        )
+
+    return sub_tile_xml
+
+
+def start_heterogeneous_tile(
+        tile_name,
+        pin_assignments,
+        sites,
+):
+    """ Returns a new tile xml definition.
+
+    Input parameters are:
+        - tile_name: name to assign to the tile
+        - pin_assignments: location of the pins to correctly build pin locations
+        - sites: set of pb_types that are going to be related to this tile
+
+    Sites contains a set of different kinds of sub tiles to be added to the tile definition,
+    each corresponding to one of the site types present in the parameter.
+
+    As an example:
+        - HCLK_IOI has in total 9 sites:
+            - 4 BUFR
+            - 4 BUFIO
+            - 1 IDELAYCTRL
+
+        The resulting sites parameter is a dictionary that looks like this:
+            {
+                "BUFR": [bufr_instance_1, bufr_instance_2, ...],
+                "BUFIO": [bufio_instance_1, bufio_instance_2, ...],
+                "IDELAYCTRL": [idleayctrl_instance_1]
+            }
+    """
+
+    # Check whether sites and Input/Output wires are mutually exclusive
+    assert sites
+
+    tile_xml = ET.Element(
+        'tile',
+        {
+            'name': add_vpr_tile_prefix(tile_name),
+        },
+        nsmap={'xi': XI_URL},
+    )
+
+    for site_type in sites.keys():
+        for num_sub_tile, site in enumerate(sites[site_type]):
+            sub_tile_name = "{}_{}_{}".format(
+                tile_name, site_type, num_sub_tile
+            )
+
+            site, input_wires, output_wires = site
+
+            sub_tile_xml = start_sub_tile(
+                sub_tile_name, input_wires, output_wires
+            )
+
+            fc_xml = add_fc(sub_tile_xml)
+
+            add_pinlocations(
+                tile_name,
+                sub_tile_xml,
+                fc_xml,
+                pin_assignments,
+                set(input_wires) | set(output_wires),
+                sub_tile_name=sub_tile_name
+            )
+
+            equivalent_sites_xml = ET.Element('equivalent_sites')
+
+            site_xml = ET.Element(
+                'site', {
+                    'pb_type': add_vpr_tile_prefix(site.type),
+                    'pin_mapping': 'custom'
+                }
+            )
+
+            for site_pin in site.site_pins:
+                add_tile_direct(
+                    site_xml,
+                    tile=object_ref(
+                        add_vpr_tile_prefix(sub_tile_name),
+                        site_pin.wire,
+                    ),
+                    pb_type=object_ref(
+                        pb_name=add_vpr_tile_prefix(site.type),
+                        pin_name=site_pin.name,
+                    ),
+                )
+
+            equivalent_sites_xml.append(site_xml)
+            sub_tile_xml.append(equivalent_sites_xml)
+
+            tile_xml.append(sub_tile_xml)
+
+    return tile_xml
+
+
+def start_tile(
         tile_name,
         pin_assignments,
         input_wires,
         output_wires,
-        root_pb_type,
-        root_tag='pb_type'
+):
+    """ Returns a new tile xml definition.
+
+    Input parameters are:
+        - tile_name: name to assign to the tile
+        - pin_assignments: location of the pins to correctly build pin locations
+        - input and output wires: needed to correctly assign input, output and clock ports
+
+    """
+
+    assert bool(input_wires) and bool(output_wires)
+
+    tile_xml = ET.Element(
+        'tile',
+        {
+            'name': add_vpr_tile_prefix(tile_name),
+        },
+        nsmap={'xi': XI_URL},
+    )
+
+    sub_tile_xml = start_sub_tile(tile_name, input_wires, output_wires)
+
+    fc_xml = add_fc(sub_tile_xml)
+
+    add_pinlocations(
+        tile_name, sub_tile_xml, fc_xml, pin_assignments,
+        set(input_wires) | set(output_wires)
+    )
+    tile_xml.append(sub_tile_xml)
+
+    return tile_xml
+
+
+def start_pb_type(
+        pb_type_name,
+        pin_assignments,
+        input_wires,
+        output_wires,
 ):
     """ Starts a pb_type by adding input, clock and output tags. """
     pb_type_xml = ET.Element(
-        root_tag,
+        'pb_type',
         {
-            'name': add_vpr_tile_prefix(tile_name),
+            'name': add_vpr_tile_prefix(pb_type_name),
         },
         nsmap={'xi': XI_URL},
     )
@@ -138,14 +338,6 @@ def start_pb_type(
                 'name': name,
                 'num_pins': '1'
             },
-        )
-
-    if root_pb_type:
-        fc_xml = add_fc(pb_type_xml)
-
-        add_pinlocations(
-            tile_name, pb_type_xml, fc_xml, pin_assignments,
-            set(input_wires) | set(output_wires)
         )
 
     pb_type_xml.append(ET.Comment(" Internal Sites "))

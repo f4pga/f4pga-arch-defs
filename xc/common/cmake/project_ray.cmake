@@ -606,19 +606,16 @@ function(PROJECT_RAY_TILE_CAPACITY)
   # PROJECT_RAY_TILE_CAPACITY(
   #   ARCH <arch>
   #   TILE <tile>
-  #   SITE_TYPE <site type>
-  #   SITE_COORDS [X|Y|XY]
+  #   SITE_TYPES <site types>
   #   )
   # ~~~
   #
-  # Import a tile from project xray that contains exactly 1 site type, and emit
-  # a tile with capacity for each instance of that site type.
-  #
-  # Future support: Emit tiles with capacity that contain more than 1 site type
-  # once VPR supports it.
+  # SITE_TYPES: contains a list of sites that are used as sub tiles for the specified tile.
+  #             The total number of instances of a site type appears as the capacity of the sub tile
+
   set(options)
-  set(oneValueArgs ARCH TILE SITE_TYPE SITE_COORDS)
-  set(multiValueArgs)
+  set(oneValueArgs ARCH TILE)
+  set(multiValueArgs SITE_TYPES)
   cmake_parse_arguments(
     PROJECT_RAY_TILE_CAPACITY
     "${options}"
@@ -647,6 +644,8 @@ function(PROJECT_RAY_TILE_CAPACITY)
 
   set(TILE_CAPACITY_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/prjxray_import_tile_capacity.py)
 
+  string(REPLACE ";" "," SITE_TYPES_COMMA "${PROJECT_RAY_TILE_CAPACITY_SITE_TYPES}")
+
   string(TOLOWER ${TILE} TILE_LOWER)
 
   add_custom_command(
@@ -658,9 +657,8 @@ function(PROJECT_RAY_TILE_CAPACITY)
       --output_directory ${CMAKE_CURRENT_BINARY_DIR}
       --site_directory ${symbiflow-arch-defs_BINARY_DIR}/xc/common/primitives
       --tile_type ${TILE}
-      --pb_type ${PROJECT_RAY_TILE_CAPACITY_SITE_TYPE}
+      --pb_types ${SITE_TYPES_COMMA}
       --pin_assignments ${PIN_ASSIGNMENTS}
-      --site_coords ${PROJECT_RAY_TILE_CAPACITY_SITE_COORDS}
     DEPENDS
       ${TILE_CAPACITY_IMPORT}
       ${DEPS}
