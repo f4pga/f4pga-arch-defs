@@ -3,6 +3,7 @@
 SCRIPT_SRC="$(realpath ${BASH_SOURCE[0]})"
 SCRIPT_DIR="$(dirname "${SCRIPT_SRC}")"
 INSTALL_DIR="$(pwd)/install"
+GIT_DESCRIBE="$(git describe)"
 
 export CMAKE_FLAGS="-GNinja -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}"
 export BUILD_TOOL=ninja
@@ -30,6 +31,16 @@ echo "----------------------------------------"
 	export VPR_NUM_WORKERS=${CORES}
 	ninja -j${MAX_CORES} install
 	popd
+)
+echo "----------------------------------------"
+
+echo
+echo "========================================"
+echo "Compressing and uploading install dir"
+echo "----------------------------------------"
+(
+	tar -c --use-compress-program="pigz" -f install-${GIT_DESCRIBE}.tar.gz ${INSTALL_DIR}
+	# TODO: Upload the tarball somewhere
 )
 echo "----------------------------------------"
 
