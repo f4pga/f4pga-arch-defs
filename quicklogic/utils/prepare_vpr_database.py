@@ -146,6 +146,7 @@ def process_tilegrid(
     vpr_tile_grid = {}
     fwd_loc_map = {}
     bwd_loc_map = {}
+    ram_blocks = []
 
     def add_loc_map(phy_loc, vpr_loc):
         fwd_loc_map[phy_loc] = vpr_loc
@@ -216,6 +217,18 @@ def process_tilegrid(
 #                    name="TILE_X{}Y{}".format(new_loc.x, new_loc.y),
 #                    cells=[c for c in tile.cells if c.type == "CLOCK"]
 #                )
+
+            continue
+
+        if tile.type == "MULT_RAM":
+            for cell in tile.cells:
+                if cell.type != 'RAM':
+                    continue
+                if cell.name not in ram_blocks:
+                    ram_blocks.append(cell.name)
+                    assert is_loc_free(vpr_tile_grid, vpr_loc), ("RAM", vpr_loc)
+                    tile_type = make_tile_type([cell], cells_library, tile_types)
+                    vpr_tile_grid[vpr_loc] = Tile(tile_type.type, name="RAM", cells=[cell])
 
             continue
 
