@@ -22,4 +22,39 @@ echo "----------------------------------------"
 )
 echo "----------------------------------------"
 
+echo
+echo "========================================"
+echo "Running install tests (make install)"
+echo "----------------------------------------"
+(
+	pushd build
+	export VPR_NUM_WORKERS=${CORES}
+	ninja -j${MAX_CORES} install
+	popd
+)
+echo "----------------------------------------"
+
+echo
+echo "========================================"
+echo "Compressing install directory"
+echo "----------------------------------------"
+(
+	tar -c --use-compress-program="pigz" -f symbiflow-arch-defs-install-${GIT_DESCRIBE}.tar.gz ${INSTALL_DIR}
+)
+echo "----------------------------------------"
+
+echo
+echo "========================================"
+echo "Running installed toolchain tests"
+echo "----------------------------------------"
+(
+
+	pushd build
+	export VPR_NUM_WORKERS=${CORES}
+	export CTEST_OUTPUT_ON_FAILURE=1
+	ctest -R binary_toolchain_test -j${MAX_CORES}
+	popd
+)
+echo "----------------------------------------"
+
 source ${SCRIPT_DIR}/package_results.sh
