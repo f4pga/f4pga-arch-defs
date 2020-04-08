@@ -22,40 +22,4 @@ echo "----------------------------------------"
 )
 echo "----------------------------------------"
 
-echo
-echo "========================================"
-echo "Running install tests (make install)"
-echo "----------------------------------------"
-(
-	pushd build
-	export VPR_NUM_WORKERS=${CORES}
-	ninja -j${MAX_CORES} install
-	popd
-)
-echo "----------------------------------------"
-
-echo
-echo "========================================"
-echo "Compressing and uploading install dir"
-echo "----------------------------------------"
-(
-	tar -c --use-compress-program="pigz" -f install-${GIT_DESCRIBE}.tar.gz ${INSTALL_DIR}
-	# TODO: Upload the tarball somewhere
-)
-echo "----------------------------------------"
-
-echo
-echo "========================================"
-echo "Running installed toolchain tests"
-echo "----------------------------------------"
-(
-
-	pushd build
-	export VPR_NUM_WORKERS=${CORES}
-	export CTEST_OUTPUT_ON_FAILURE=1
-	ctest -R binary_toolchain_test -j${MAX_CORES}
-	popd
-)
-echo "----------------------------------------"
-
 source ${SCRIPT_DIR}/package_results.sh
