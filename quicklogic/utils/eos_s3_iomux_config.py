@@ -211,8 +211,14 @@ def main():
             if pad is None or pad < 0 or pad >= 46:
                 continue
 
-            # Configure as input
-            if constraint.net in eblif_inputs:
+            # Detect inouts:
+            if constraint.net + '_$inp' in eblif_inputs and constraint.net + '_$out' in eblif_outputs:
+                pad_config = {
+                    "ctrl_sel": "fabric",
+                    "mode": "inout",
+                }
+
+            elif constraint.net in eblif_inputs:
                 pad_config = {
                     "ctrl_sel": "fabric",
                     "mode": "input",
