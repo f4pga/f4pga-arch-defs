@@ -12,4 +12,5 @@ quicklogic_define_device_type(
     LOGIC
     BIDIR SDIOMUX
     ASSP
+    RAM8K_2X1_CELL_MACRO
 )
