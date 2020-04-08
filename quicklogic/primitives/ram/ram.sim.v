@@ -1,5 +1,5 @@
 (* blackbox *)
-module RAM8K_2X1_CELL_MACRO (
+module RAM (
     input [10:0] A1_0,
     input [10:0] A1_1,
     input [10:0] A2_0,
