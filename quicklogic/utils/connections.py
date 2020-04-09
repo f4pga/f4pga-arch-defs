@@ -224,7 +224,7 @@ def build_tile_connections(
                 type=ConnectionType.SWITCHBOX,
             )
             dst = ConnectionLoc(
-                loc=loc,
+                loc=tile_loc,
                 pin=tile_pin.name,
                 type=ConnectionType.TILE,
             )
