@@ -377,14 +377,15 @@ def process_switchbox_grid(
 
 
 def process_connections(
-        phy_connections, loc_map, vpr_tile_grid, grid_limit=None
+        phy_connections, loc_map, vpr_tile_grid, phy_tile_grid, grid_limit=None
 ):
     """
     Process the connection list.
     """
-
     # Pin map
     pin_map = {}
+    fwd_loc_map = loc_map.fwd
+    bwd_loc_map = loc_map.bwd
 
     # Remap locations, remap pins
     vpr_connections = []
@@ -507,6 +508,44 @@ def process_connections(
 
             if cell_type in special_tile_loc:
                 loc = special_tile_loc[cell_type]
+
+                eps[j] = ConnectionLoc(
+                    loc=loc,
+                    pin=ep.pin,
+                    type=ep.type,
+                )
+
+        # Modify the connection
+        vpr_connections[i] = Connection(src=eps[0], dst=eps[1])
+
+    # handle RAM locations
+    ram_locations = {}
+    for loc, tile in vpr_tile_grid.items():
+        if tile is not None and tile.type == "RAM":
+            cell = tile.cells[0]
+            cell_name = cell.name
+            ram_locations[cell_name] = loc
+
+    ram_cell = 0
+    for i, connection in enumerate(vpr_connections):
+        # Process connection endpoints
+        eps = [connection.src, connection.dst]
+        for j, ep in enumerate(eps):
+
+            if ep.type != ConnectionType.TILE:
+                continue
+
+            cell_name, pin = ep.pin.split("_", maxsplit=1)
+            cell_type = cell_name[:-1]
+            # FIXME: The above will fail on cell with index >= 10
+
+            if cell_type == "RAM":
+                loc = bwd_loc_map[ep.loc]
+                tile = phy_tile_grid[loc]
+                cell = [cell for cell in tile.cells if cell.type == "RAM"]
+                cell_name = cell[0].name
+
+                loc = ram_locations[cell_name]
 
                 eps[j] = ConnectionLoc(
                     loc=loc,
@@ -754,7 +793,8 @@ def main():
 
     # Process connections
     connections = process_connections(
-        connections, loc_map, vpr_tile_grid, grid_limit
+        connections, loc_map, vpr_tile_grid,
+        phy_tile_grid, grid_limit
     )
 
     # Process package pinmaps
