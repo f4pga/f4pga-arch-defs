@@ -786,3 +786,45 @@ module ram8k_2x1_cell_macro (
   );
 
 endmodule /* ram8k_2x1_cell_macro */
+
+module qlal4s3_mult_32x32_cell (
+    input [31:0] Amult,
+    input [31:0] Bmult,
+    input [1:0] Valid_mult,
+    output [63:0] Cmult);
+
+    MULT #() _TECHMAP_REPLACE_
+    (
+      .Amult(Amult),
+      .BMult(Bmult),
+      .Valid_mult(Valid_mult),
+      .Cmult(Cmult),
+      .sel_mul_32x32(1'b1)
+    );
+
+endmodule /* qlal4s3_32x32_mult_cell */
+
+module qlal4s3_mult_16x16_cell (
+    input [15:0] Amult,
+    input [15:0] Bmult,
+    input [1:0] Valid_mult,
+    output [31:0] Cmult);
+
+    wire [31:0] Amult_int;
+    wire [31:0] Bmult_int;
+    wire [63:0] Cmult_int;
+
+    assign Amult_int = {16'b0, Amult};
+    assign Bmult_int = {16'b0, Bmult};
+    assign Cmult = Cmult_int[15:0];
+
+    MULT #() _TECHMAP_REPLACE_
+    (
+      .Amult(Amult_int),
+      .BMult(Bmult_int),
+      .Valid_mult(Valid_mult),
+      .Cmult(Cmult_int),
+      .sel_mul_32x32(1'b0)
+    );
+
+endmodule /* qlal4s3_16x16_mult_cell */
