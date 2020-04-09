@@ -13,4 +13,5 @@ quicklogic_define_device_type(
     BIDIR SDIOMUX
     ASSP
     RAM
+    MULT
 )
