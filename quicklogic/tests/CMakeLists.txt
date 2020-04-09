@@ -29,3 +29,5 @@ add_subdirectory(soc_litex_pwm)
 # QuickLogic test suite
 add_subdirectory(quicklogic_testsuite)
 
+# Hardblocks tests
+add_subdirectory(ram)

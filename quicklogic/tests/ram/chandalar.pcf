@@ -1,0 +1,14 @@
+set_io write_address(0)  FBIO_0
+set_io write_address(1)  FBIO_1
+
+set_io read_address(0)   FBIO_2
+set_io read_address(1)   FBIO_3
+
+set_io write_value(0)    FBIO_4
+set_io write_value(1)    FBIO_5
+
+set_io read_value(0)     FBIO_6
+set_io read_value(1)     FBIO_7
+
+set_io write_enable      FBIO_8
+set_io sanity_led        FBIO_9
