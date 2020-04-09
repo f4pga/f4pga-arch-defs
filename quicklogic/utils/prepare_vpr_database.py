@@ -147,6 +147,7 @@ def process_tilegrid(
     fwd_loc_map = {}
     bwd_loc_map = {}
     ram_blocks = []
+    mult_blocks = []
 
     def add_loc_map(phy_loc, vpr_loc):
         fwd_loc_map[phy_loc] = vpr_loc
@@ -220,17 +221,29 @@ def process_tilegrid(
 
             continue
 
+        # Mults and RAMs occupy multiple cells
+        # We'll create a synthetic tile with a single cell for each
+        # RAM and MULT block
         if tile.type == "MULT_RAM":
             for cell in tile.cells:
-                if cell.type != 'RAM':
+                # Check if the current location is not taken
+                # this could happen because RAM and MULTS share
+                # the same location. General rule here is that
+                # we create a synthetic Tile/Cell in the first
+                # available location of the original block of cells
+                if not is_loc_free(vpr_loc, vpr_tile_grid):
                     continue
-                if cell.name not in ram_blocks:
-                    ram_blocks.append(cell.name)
-                    assert is_loc_free(vpr_tile_grid, vpr_loc), ("RAM", vpr_loc)
-                    tile_type = make_tile_type([cell], cells_library, tile_types)
-                    vpr_tile_grid[vpr_loc] = Tile(tile_type.type, name="RAM", cells=[cell])
+                if cell.type == 'RAM':
+                    cells_set = ram_blocks
+                elif cell.type == 'MULT':
+                    cells_set = mult_blocks
+                else:
+                    continue
 
-            continue
+                if cell.name not in cells_set:
+                    cells_set.append(cell.name)
+                    tile_type = make_tile_type([cell], cells_library, tile_types)
+                    vpr_tile_grid[vpr_loc] = Tile(tile_type.type, name=cell.type, cells=[cell])
 
         # The tile contains SDIOMUX cell(s). This is an IO tile.
         if "SDIOMUX" in tile_type.cells:
@@ -518,13 +531,18 @@ def process_connections(
         # Modify the connection
         vpr_connections[i] = Connection(src=eps[0], dst=eps[1])
 
-    # handle RAM locations
+    # handle RAM and MULT locations
     ram_locations = {}
+    mult_locations = {}
     for loc, tile in vpr_tile_grid.items():
-        if tile is not None and tile.type == "RAM":
-            cell = tile.cells[0]
-            cell_name = cell.name
+        if tile is None:
+            continue
+        cell = tile.cells[0]
+        cell_name = cell.name
+        if tile.type == "RAM":
             ram_locations[cell_name] = loc
+        if tile.type == "MULT":
+            mult_locations[cell_name] = loc
 
     ram_cell = 0
     for i, connection in enumerate(vpr_connections):
@@ -539,19 +557,26 @@ def process_connections(
             cell_type = cell_name[:-1]
             # FIXME: The above will fail on cell with index >= 10
 
-            if cell_type == "RAM":
-                loc = bwd_loc_map[ep.loc]
-                tile = phy_tile_grid[loc]
-                cell = [cell for cell in tile.cells if cell.type == "RAM"]
-                cell_name = cell[0].name
+            # We handle on MULT and RAM here
+            if cell_type != "MULT" and cell_type != "RAM":
+                continue
 
+            loc = bwd_loc_map[ep.loc]
+            tile = phy_tile_grid[loc]
+            cell = [cell for cell in tile.cells if cell.type == cell_type]
+
+            cell_name = cell[0].name
+
+            if cell_type == "MULT":
+                loc = mult_locations[cell_name]
+            else:
                 loc = ram_locations[cell_name]
 
-                eps[j] = ConnectionLoc(
-                    loc=loc,
-                    pin=ep.pin,
-                    type=ep.type,
-                )
+            eps[j] = ConnectionLoc(
+                loc=loc,
+                pin=ep.pin,
+                type=ep.type,
+            )
 
         # Modify the connection
         vpr_connections[i] = Connection(src=eps[0], dst=eps[1])
