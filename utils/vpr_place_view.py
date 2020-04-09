@@ -98,9 +98,6 @@ def generate_image(grid_size, placement, block_size=8, colormap=None):
 
 
 def main():
-    """
-    Main.
-    """
 
     # Parse arguments
     parser = argparse.ArgumentParser(
