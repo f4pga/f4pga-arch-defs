@@ -828,3 +828,22 @@ module qlal4s3_mult_16x16_cell (
     );
 
 endmodule /* qlal4s3_16x16_mult_cell */
+
+(* blackbox *)
+module qlal4s3_mult_cell_macro(
+    input [31:0] Amult,
+    input [31:0] Bmult,
+    input [1:0] Valid_mult,
+    input sel_mul_32x32,
+    output [63:0] Cmult);
+
+    MULT #() _TECHMAP_REPLACE_
+    (
+      .Amult(Amult),
+      .Bmult(Bmult),
+      .Valid_mult(Valid_mult),
+      .Cmult(Cmult),
+      .sel_mul_32x32(sel_mul_32x32)
+    );
+endmodule
+
