@@ -796,7 +796,7 @@ module qlal4s3_mult_32x32_cell (
     MULT #() _TECHMAP_REPLACE_
     (
       .Amult(Amult),
-      .BMult(Bmult),
+      .Bmult(Bmult),
       .Valid_mult(Valid_mult),
       .Cmult(Cmult),
       .sel_mul_32x32(1'b1)
@@ -821,7 +821,7 @@ module qlal4s3_mult_16x16_cell (
     MULT #() _TECHMAP_REPLACE_
     (
       .Amult(Amult_int),
-      .BMult(Bmult_int),
+      .Bmult(Bmult_int),
       .Valid_mult(Valid_mult),
       .Cmult(Cmult_int),
       .sel_mul_32x32(1'b0)
