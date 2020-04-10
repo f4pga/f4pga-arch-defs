@@ -829,7 +829,6 @@ module qlal4s3_mult_16x16_cell (
 
 endmodule /* qlal4s3_16x16_mult_cell */
 
-(* blackbox *)
 module qlal4s3_mult_cell_macro(
     input [31:0] Amult,
     input [31:0] Bmult,
