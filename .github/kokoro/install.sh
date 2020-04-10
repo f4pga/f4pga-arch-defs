@@ -26,7 +26,7 @@ echo "========================================"
 echo "Compressing and uploading install dir"
 echo "----------------------------------------"
 (
-	tar -c --use-compress-program="pigz" -f symbiflow-arch-defs-install-${GIT_DESCRIBE}.tar.gz ${INSTALL_DIR}
+	tar -cf - install | xz -9 -T`nproc` > install-$(git describe).tar.xz
 )
 echo "----------------------------------------"
 
