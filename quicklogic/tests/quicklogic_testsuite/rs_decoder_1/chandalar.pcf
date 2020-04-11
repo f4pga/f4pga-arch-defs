@@ -1,0 +1,22 @@
+set_io clk FBIO_0
+set_io clrn FBIO_1
+
+set_io x(0) FBIO_2
+set_io x(1) FBIO_3
+set_io x(2) FBIO_4
+set_io x(3) FBIO_5
+
+set_io k(0) FBIO_6
+set_io k(1) FBIO_7
+set_io k(2) FBIO_8
+set_io k(3) FBIO_9
+
+set_io error(0) FBIO_10
+set_io error(1) FBIO_11
+set_io error(2) FBIO_12
+set_io error(3) FBIO_13
+
+set_io enable FBIO_14
+set_io valid FBIO_15
+set_io with_error FBIO_16
+

@@ -1,0 +1,7 @@
+set_io clk FBIO_0
+set_io data_in FBIO_1
+
+set_io data_rdy(0) FBIO_2
+set_io data_rdy(1) FBIO_3
+
+set_io cipher_out FBIO_4

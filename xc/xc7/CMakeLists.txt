@@ -1,4 +1,7 @@
 set(XC7_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+set(BELS_MAP ${XC7_DIR}/bels.json)
+add_file_target(FILE ${BELS_MAP} ABSOLUTE)
+
 set(PRJXRAY_DIR ${symbiflow-arch-defs_SOURCE_DIR}/third_party/prjxray
   CACHE PATH "Path to prjxray library")
 set(PRJXRAY_DB_DIR
@@ -12,6 +15,8 @@ add_custom_target(
   DEPENDS ${ARCH_IMPORT_TIMING} ${SDF_TIMING_TARGET}
 )
 
+add_file_target(FILE ${YOSYS_DATADIR}/xilinx/cells_sim.v ABSOLUTE)
+add_file_target(FILE ${symbiflow-arch-defs_SOURCE_DIR}/xc/xc7/techmap/cells_sim.v ABSOLUTE)
 include(arch.cmake)
 
 get_target_property_required(PYTEST env PYTEST)

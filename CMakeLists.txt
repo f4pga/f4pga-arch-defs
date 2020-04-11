@@ -6,6 +6,7 @@ include(common/cmake/util.cmake)
 include(common/cmake/file_targets.cmake)
 include(common/cmake/env.cmake)
 include(common/cmake/xml.cmake)
+include(common/cmake/timings.cmake)
 include(common/cmake/v2x.cmake)
 include(common/cmake/install.cmake)
 include(common/cmake/devices.cmake)
@@ -81,6 +82,11 @@ add_conda_package(
   PACKAGE_SPEC "yosys-plugins 1.0.0.7_0025_ge04ea5b 20200308_024213"
   NO_EXE
   )
+# For python-symbiflow-v2x
+add_conda_package(
+  NAME libiconv
+  NO_EXE
+  )
 
 add_conda_pip(
   NAME progressbar2
@@ -141,6 +147,7 @@ add_conda_pip(
 
 get_target_property_required(PYTHON3 env PYTHON3)
 get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
+get_target_property(LIBICONV_TARGET env LIBICONV_TARGET)
 
 add_thirdparty_package(
   NAME sdf_timing
@@ -154,6 +161,13 @@ add_thirdparty_package(
   BUILD_INSTALL_COMMAND "cd ${symbiflow-arch-defs_SOURCE_DIR}/third_party/vtr-xml-utils && ${PYTHON3} setup.py develop"
   PROVIDES vtr_xml_utils
   DEPENDS ${PYTHON3} ${PYTHON3_TARGET}
+)
+
+add_thirdparty_package(
+  NAME v2x
+  BUILD_INSTALL_COMMAND "cd ${symbiflow-arch-defs_SOURCE_DIR}/third_party/python-symbiflow-v2x && ${PYTHON3} setup.py develop"
+  NO_EXE
+  DEPENDS ${PYTHON3_TARGET} ${LIBICONV_TARGET}
 )
 
 include(common/cmake/image_gen.cmake)
@@ -188,6 +202,7 @@ if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
 add_subdirectory(xc)
 endif (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
 add_subdirectory(ice40)
+add_subdirectory(quicklogic)
 add_subdirectory(testarch)
 add_subdirectory(tests)
 

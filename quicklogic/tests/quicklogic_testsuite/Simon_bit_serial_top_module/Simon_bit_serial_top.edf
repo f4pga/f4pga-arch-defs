@@ -1,0 +1,2816 @@
+(edif Simon_bit_serial_top 
+ (edifVersion 2 0 0)
+ (edifLevel 0)
+ (keywordMap (keywordLevel 0))
+ (status 
+  (written 
+   (timestamp 2020 03 06 08 10 34)
+   (program "Precision RTL Synthesis" (version "OEM Quicklogic 64-bit 2019.1.0.13"))
+   (author "Mentor Graphics Corporation")))
+ (external arcticlink4 
+  (edifLevel 0)
+  (technology (numberDefinition ))
+  (cell mux2x0 (cellType GENERIC)
+   (view NETLIST  (viewType NETLIST)
+    (interface 
+     (port A (direction INPUT))
+     (port B (direction INPUT))
+     (port S (direction INPUT))
+     (port Q (direction OUTPUT)))
+    (property same_tech_noopt (string "T"))
+    (property AREA (string "0.500000"))))
+  (cell dffsep (cellType GENERIC)
+   (view NETLIST  (viewType NETLIST)
+    (interface 
+     (port CLK (direction INPUT))
+     (port D (direction INPUT))
+     (port EN (direction INPUT))
+     (port P (direction INPUT))
+     (port Q (direction OUTPUT)))
+    (property same_tech_noopt (string "T"))
+    (property AREA (string "1.000000"))))
+  (cell dffsle (cellType GENERIC)
+   (view NETLIST  (viewType NETLIST)
+    (interface 
+     (port CLK (direction INPUT))
+     (port D (direction INPUT))
+     (port DATA (direction INPUT))
+     (port EN (direction INPUT))
+     (port LD (direction INPUT))
+     (port Q (direction OUTPUT)))
+    (property same_tech_noopt (string "T"))
+    (property AREA (string "1.000000"))))
+  (cell outpad (cellType GENERIC)
+   (view NETLIST  (viewType NETLIST)
+    (interface 
+     (port A (direction INPUT))
+     (port P (direction OUTPUT)))
+    (property same_tech_noopt (string "T"))))
+  (cell inpad (cellType GENERIC)
+   (view NETLIST  (viewType NETLIST)
+    (interface 
+     (port P (direction INPUT))
+     (port Q (direction OUTPUT)))))
+  (cell dffe (cellType GENERIC)
+   (view NETLIST  (viewType NETLIST)
+    (interface 
+     (port CLK (direction INPUT))
+     (port D (direction INPUT))
+     (port EN (direction INPUT))
+     (port Q (direction OUTPUT)))
+    (property AREA (string "1.000000"))))
+  (cell dff (cellType GENERIC)
+   (view NETLIST  (viewType NETLIST)
+    (interface 
+     (port CLK (direction INPUT))
+     (port D (direction INPUT))
+     (port Q (direction OUTPUT)))
+    (property AREA (string "1.000000"))))
+  (cell LUT2 (cellType GENERIC)
+   (view NETLIST  (viewType NETLIST)
+    (interface 
+     (port I0 (direction INPUT))
+     (port I1 (direction INPUT))
+     (port O (direction OUTPUT)))
+    (property IS_LUT (string "1"))
+    (property AREA (string "0.500000"))))
+  (cell LUT3 (cellType GENERIC)
+   (view NETLIST  (viewType NETLIST)
+    (interface 
+     (port I0 (direction INPUT))
+     (port I1 (direction INPUT))
+     (port I2 (direction INPUT))
+     (port O (direction OUTPUT)))
+    (property IS_LUT (string "1"))
+    (property same_tech_noopt (string "T"))
+    (property AREA (string "0.500000"))))
+  (cell logic_1 (cellType GENERIC)
+   (view NETLIST  (viewType NETLIST)
+    (interface 
+     (port a (direction OUTPUT)))
+    (property const_sch_val (string "1"))))
+  (cell LUT4 (cellType GENERIC)
+   (view NETLIST  (viewType NETLIST)
+    (interface 
+     (port I0 (direction INPUT))
+     (port I1 (direction INPUT))
+     (port I2 (direction INPUT))
+     (port I3 (direction INPUT))
+     (port O (direction OUTPUT)))
+    (property IS_LUT (string "1"))
+    (property same_tech_noopt (string "T"))
+    (property AREA (string "1.000000"))))
+  (cell ckpad (cellType GENERIC)
+   (view NETLIST  (viewType NETLIST)
+    (interface 
+     (port P (direction INPUT))
+     (port Q (direction OUTPUT)))
+    (property pad_type (string "clock"))
+    (property same_tech_noopt (string "T")))))
+ (library work 
+  (edifLevel 0)
+  (technology (numberDefinition ))
+  (cell Simon_bit_serial_top (cellType GENERIC)
+   (property package_type (string "PU90"))
+   (property device_type (string "QLAL4S3"))
+   (property SpeedGrade (string "8"))
+   (view INTERFACE  (viewType NETLIST)
+    (interface 
+     (port clk (direction INPUT)
+      (property INFF (string "FALSE")))
+     (port data_in (direction INPUT))
+     (port (rename data_rdy_1_ "data_rdy(1)") (direction INPUT))
+     (port (rename data_rdy_0_ "data_rdy(0)") (direction INPUT))
+     (port cipher_out (direction OUTPUT)))
+    (property AREA (string "38.500000"))
+    (property DESIGN_IS_RTL (string "NO"))
+    (contents 
+     (instance ix11512z22256 (viewRef NETLIST  (cellRef mux2x0 (libraryRef arcticlink4 ))))
+     (instance ix11512z22255 (viewRef NETLIST  (cellRef mux2x0 (libraryRef arcticlink4 ))))
+     (instance ix11512z22254 (viewRef NETLIST  (cellRef mux2x0 (libraryRef arcticlink4 ))))
+     (instance ix11512z22253 (viewRef NETLIST  (cellRef mux2x0 (libraryRef arcticlink4 ))))
+     (instance datapath_reg_fifo_ff63 (viewRef NETLIST  (cellRef dffsep (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_59__s33_rtlcGen_CrossHier_n21 "reg_shifter1[59]_s33_rtlcGen_CrossHier_n21") (viewRef NETLIST  (cellRef dffsle (libraryRef arcticlink4 ))))
+     (instance datapath_reg_lut_ff63 (viewRef NETLIST  (cellRef dffsle (libraryRef arcticlink4 ))))
+     (instance cipher_out_obuf (viewRef NETLIST  (cellRef outpad (libraryRef arcticlink4 ))))
+     (instance (rename data_rdy_ibuf_0_ "data_rdy_ibuf(0)") (viewRef NETLIST  (cellRef inpad (libraryRef arcticlink4 ))))
+     (instance (rename data_rdy_ibuf_1_ "data_rdy_ibuf(1)") (viewRef NETLIST  (cellRef inpad (libraryRef arcticlink4 ))))
+     (instance data_in_ibuf (viewRef NETLIST  (cellRef inpad (libraryRef arcticlink4 ))))
+     (instance reg_lut_ff3_s25_rtlcGen_CrossHier_n14 (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance datapath_reg_fifo_ff62 (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance datapath_reg_lut_ff62 (viewRef NETLIST  (cellRef dff (libraryRef arcticlink4 ))))
+     (instance key_exp_reg_fifo_ff3 (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_55_ "reg_shifter1(55)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_54_ "reg_shifter1(54)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_53_ "reg_shifter1(53)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_52_ "reg_shifter1(52)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_51_ "reg_shifter1(51)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_50_ "reg_shifter1(50)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_49_ "reg_shifter1(49)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_48_ "reg_shifter1(48)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_47_ "reg_shifter1(47)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_46_ "reg_shifter1(46)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_45_ "reg_shifter1(45)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_44_ "reg_shifter1(44)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_43_ "reg_shifter1(43)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_42_ "reg_shifter1(42)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_41_ "reg_shifter1(41)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_40_ "reg_shifter1(40)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_39_ "reg_shifter1(39)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_38_ "reg_shifter1(38)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_37_ "reg_shifter1(37)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_36_ "reg_shifter1(36)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_35_ "reg_shifter1(35)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_34_ "reg_shifter1(34)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_33_ "reg_shifter1(33)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_32_ "reg_shifter1(32)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_31_ "reg_shifter1(31)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_30_ "reg_shifter1(30)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_29_ "reg_shifter1(29)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_28_ "reg_shifter1(28)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_27_ "reg_shifter1(27)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_26_ "reg_shifter1(26)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_25_ "reg_shifter1(25)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_24_ "reg_shifter1(24)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_23_ "reg_shifter1(23)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_22_ "reg_shifter1(22)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_21_ "reg_shifter1(21)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_20_ "reg_shifter1(20)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_19_ "reg_shifter1(19)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_18_ "reg_shifter1(18)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_17_ "reg_shifter1(17)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_16_ "reg_shifter1(16)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_15_ "reg_shifter1(15)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_14_ "reg_shifter1(14)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_13_ "reg_shifter1(13)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_12_ "reg_shifter1(12)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_11_ "reg_shifter1(11)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_10_ "reg_shifter1(10)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_9_ "reg_shifter1(9)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_8_ "reg_shifter1(8)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_7_ "reg_shifter1(7)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_6_ "reg_shifter1(6)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_5_ "reg_shifter1(5)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_4_ "reg_shifter1(4)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_3_ "reg_shifter1(3)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_2_ "reg_shifter1(2)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_1_ "reg_shifter1(1)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_0_ "reg_shifter1(0)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_63_ "reg_shifter2(63)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_62_ "reg_shifter2(62)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_61_ "reg_shifter2(61)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_60_ "reg_shifter2(60)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_59_ "reg_shifter2(59)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_58_ "reg_shifter2(58)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_57_ "reg_shifter2(57)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_56_ "reg_shifter2(56)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_55_ "reg_shifter2(55)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_54_ "reg_shifter2(54)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_53_ "reg_shifter2(53)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_52_ "reg_shifter2(52)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_51_ "reg_shifter2(51)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_50_ "reg_shifter2(50)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_49_ "reg_shifter2(49)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_48_ "reg_shifter2(48)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_47_ "reg_shifter2(47)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_46_ "reg_shifter2(46)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_45_ "reg_shifter2(45)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_44_ "reg_shifter2(44)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_43_ "reg_shifter2(43)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_42_ "reg_shifter2(42)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_41_ "reg_shifter2(41)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_40_ "reg_shifter2(40)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_39_ "reg_shifter2(39)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_38_ "reg_shifter2(38)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_37_ "reg_shifter2(37)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_36_ "reg_shifter2(36)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_35_ "reg_shifter2(35)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_34_ "reg_shifter2(34)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_33_ "reg_shifter2(33)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_32_ "reg_shifter2(32)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_31_ "reg_shifter2(31)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_30_ "reg_shifter2(30)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_29_ "reg_shifter2(29)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_28_ "reg_shifter2(28)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_27_ "reg_shifter2(27)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_26_ "reg_shifter2(26)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_25_ "reg_shifter2(25)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_24_ "reg_shifter2(24)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_23_ "reg_shifter2(23)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_22_ "reg_shifter2(22)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_21_ "reg_shifter2(21)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_20_ "reg_shifter2(20)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_19_ "reg_shifter2(19)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_18_ "reg_shifter2(18)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_17_ "reg_shifter2(17)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_16_ "reg_shifter2(16)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_15_ "reg_shifter2(15)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_14_ "reg_shifter2(14)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_13_ "reg_shifter2(13)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_12_ "reg_shifter2(12)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_11_ "reg_shifter2(11)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_10_ "reg_shifter2(10)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_9_ "reg_shifter2(9)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_8_ "reg_shifter2(8)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_7_ "reg_shifter2(7)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_6_ "reg_shifter2(6)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_5_ "reg_shifter2(5)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_4_ "reg_shifter2(4)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_3_ "reg_shifter2(3)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_2_ "reg_shifter2(2)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_1_ "reg_shifter2(1)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_0_ "reg_shifter2(0)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance reg_fifo_ff61 (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance reg_fifo_ff60 (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance reg_fifo_ff59 (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance reg_fifo_ff58 (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance reg_fifo_ff57 (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance reg_fifo_ff56 (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance reg_lut_ff61 (viewRef NETLIST  (cellRef dff (libraryRef arcticlink4 ))))
+     (instance reg_lut_ff60 (viewRef NETLIST  (cellRef dff (libraryRef arcticlink4 ))))
+     (instance reg_lut_ff59 (viewRef NETLIST  (cellRef dff (libraryRef arcticlink4 ))))
+     (instance reg_lut_ff58 (viewRef NETLIST  (cellRef dff (libraryRef arcticlink4 ))))
+     (instance reg_lut_ff57 (viewRef NETLIST  (cellRef dff (libraryRef arcticlink4 ))))
+     (instance reg_lut_ff56 (viewRef NETLIST  (cellRef dff (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_58_ "reg_shifter1(58)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_57_ "reg_shifter1(57)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_56_ "reg_shifter1(56)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_55__dup_0 "reg_shifter1(55)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_54__dup_0 "reg_shifter1(54)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_53__dup_0 "reg_shifter1(53)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_52__dup_0 "reg_shifter1(52)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_51__dup_0 "reg_shifter1(51)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_50__dup_0 "reg_shifter1(50)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_49__dup_0 "reg_shifter1(49)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_48__dup_0 "reg_shifter1(48)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_47__dup_0 "reg_shifter1(47)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_46__dup_0 "reg_shifter1(46)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_45__dup_0 "reg_shifter1(45)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_44__dup_0 "reg_shifter1(44)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_43__dup_0 "reg_shifter1(43)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_42__dup_0 "reg_shifter1(42)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_41__dup_0 "reg_shifter1(41)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_40__dup_0 "reg_shifter1(40)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_39__dup_0 "reg_shifter1(39)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_38__dup_0 "reg_shifter1(38)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_37__dup_0 "reg_shifter1(37)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_36__dup_0 "reg_shifter1(36)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_35__dup_0 "reg_shifter1(35)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_34__dup_0 "reg_shifter1(34)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_33__dup_0 "reg_shifter1(33)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_32__dup_0 "reg_shifter1(32)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_31__dup_0 "reg_shifter1(31)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_30__dup_0 "reg_shifter1(30)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_29__dup_0 "reg_shifter1(29)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_28__dup_0 "reg_shifter1(28)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_27__dup_0 "reg_shifter1(27)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_26__dup_0 "reg_shifter1(26)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_25__dup_0 "reg_shifter1(25)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_24__dup_0 "reg_shifter1(24)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_23__dup_0 "reg_shifter1(23)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_22__dup_0 "reg_shifter1(22)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_21__dup_0 "reg_shifter1(21)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_20__dup_0 "reg_shifter1(20)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_19__dup_0 "reg_shifter1(19)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_18__dup_0 "reg_shifter1(18)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_17__dup_0 "reg_shifter1(17)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_16__dup_0 "reg_shifter1(16)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_15__dup_0 "reg_shifter1(15)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_14__dup_0 "reg_shifter1(14)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_13__dup_0 "reg_shifter1(13)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_12__dup_0 "reg_shifter1(12)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_11__dup_0 "reg_shifter1(11)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_10__dup_0 "reg_shifter1(10)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_9__dup_0 "reg_shifter1(9)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_8__dup_0 "reg_shifter1(8)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_7__dup_0 "reg_shifter1(7)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_6__dup_0 "reg_shifter1(6)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_5__dup_0 "reg_shifter1(5)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_4__dup_0 "reg_shifter1(4)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_3__dup_0 "reg_shifter1(3)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_2__dup_0 "reg_shifter1(2)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_1__dup_0 "reg_shifter1(1)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter1_0__dup_0 "reg_shifter1(0)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_63__dup_0 "reg_shifter2(63)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_62__dup_0 "reg_shifter2(62)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_61__dup_0 "reg_shifter2(61)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_60__dup_0 "reg_shifter2(60)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_59__dup_0 "reg_shifter2(59)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_58__dup_0 "reg_shifter2(58)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_57__dup_0 "reg_shifter2(57)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_56__dup_0 "reg_shifter2(56)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_55__dup_0 "reg_shifter2(55)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_54__dup_0 "reg_shifter2(54)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_53__dup_0 "reg_shifter2(53)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_52__dup_0 "reg_shifter2(52)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_51__dup_0 "reg_shifter2(51)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_50__dup_0 "reg_shifter2(50)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_49__dup_0 "reg_shifter2(49)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_48__dup_0 "reg_shifter2(48)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_47__dup_0 "reg_shifter2(47)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_46__dup_0 "reg_shifter2(46)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_45__dup_0 "reg_shifter2(45)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_44__dup_0 "reg_shifter2(44)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_43__dup_0 "reg_shifter2(43)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_42__dup_0 "reg_shifter2(42)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_41__dup_0 "reg_shifter2(41)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_40__dup_0 "reg_shifter2(40)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_39__dup_0 "reg_shifter2(39)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_38__dup_0 "reg_shifter2(38)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_37__dup_0 "reg_shifter2(37)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_36__dup_0 "reg_shifter2(36)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_35__dup_0 "reg_shifter2(35)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_34__dup_0 "reg_shifter2(34)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_33__dup_0 "reg_shifter2(33)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_32__dup_0 "reg_shifter2(32)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_31__dup_0 "reg_shifter2(31)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_30__dup_0 "reg_shifter2(30)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_29__dup_0 "reg_shifter2(29)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_28__dup_0 "reg_shifter2(28)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_27__dup_0 "reg_shifter2(27)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_26__dup_0 "reg_shifter2(26)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_25__dup_0 "reg_shifter2(25)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_24__dup_0 "reg_shifter2(24)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_23__dup_0 "reg_shifter2(23)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_22__dup_0 "reg_shifter2(22)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_21__dup_0 "reg_shifter2(21)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_20__dup_0 "reg_shifter2(20)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_19__dup_0 "reg_shifter2(19)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_18__dup_0 "reg_shifter2(18)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_17__dup_0 "reg_shifter2(17)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_16__dup_0 "reg_shifter2(16)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_15__dup_0 "reg_shifter2(15)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_14__dup_0 "reg_shifter2(14)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_13__dup_0 "reg_shifter2(13)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_12__dup_0 "reg_shifter2(12)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_11__dup_0 "reg_shifter2(11)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_10__dup_0 "reg_shifter2(10)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_9__dup_0 "reg_shifter2(9)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_8__dup_0 "reg_shifter2(8)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_7__dup_0 "reg_shifter2(7)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_6__dup_0 "reg_shifter2(6)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_5__dup_0 "reg_shifter2(5)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_4__dup_0 "reg_shifter2(4)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_3__dup_0 "reg_shifter2(3)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_2__dup_0 "reg_shifter2(2)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_1__dup_0 "reg_shifter2(1)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename reg_shifter2_0__dup_0 "reg_shifter2(0)_dup_0") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance reg_fifo_ff2 (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance reg_fifo_ff1 (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance reg_fifo_ff0 (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance reg_lut_ff2 (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance reg_lut_ff1 (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance reg_lut_ff0 (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 ))))
+     (instance (rename modgen_counter_bit_counter_reg_q_5_ "modgen_counter_bit_counter_reg_q(5)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 )))
+      (property no_enable_dff (string "TRUE")))
+     (instance (rename modgen_counter_bit_counter_reg_q_4_ "modgen_counter_bit_counter_reg_q(4)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 )))
+      (property no_enable_dff (string "TRUE")))
+     (instance (rename modgen_counter_bit_counter_reg_q_3_ "modgen_counter_bit_counter_reg_q(3)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 )))
+      (property no_enable_dff (string "TRUE")))
+     (instance (rename modgen_counter_bit_counter_reg_q_2_ "modgen_counter_bit_counter_reg_q(2)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 )))
+      (property no_enable_dff (string "TRUE")))
+     (instance (rename modgen_counter_bit_counter_reg_q_1_ "modgen_counter_bit_counter_reg_q(1)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 )))
+      (property no_enable_dff (string "TRUE")))
+     (instance (rename modgen_counter_bit_counter_reg_q_0_ "modgen_counter_bit_counter_reg_q(0)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 )))
+      (property no_enable_dff (string "TRUE")))
+     (instance (rename key_exp_modgen_counter_round_counter_reg_q_6_ "key_exp_modgen_counter_round_counter_reg_q(6)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 )))
+      (property no_enable_dff (string "TRUE")))
+     (instance (rename key_exp_modgen_counter_round_counter_reg_q_5_ "key_exp_modgen_counter_round_counter_reg_q(5)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 )))
+      (property no_enable_dff (string "TRUE")))
+     (instance (rename key_exp_modgen_counter_round_counter_reg_q_4_ "key_exp_modgen_counter_round_counter_reg_q(4)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 )))
+      (property no_enable_dff (string "TRUE")))
+     (instance (rename key_exp_modgen_counter_round_counter_reg_q_3_ "key_exp_modgen_counter_round_counter_reg_q(3)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 )))
+      (property no_enable_dff (string "TRUE")))
+     (instance (rename key_exp_modgen_counter_round_counter_reg_q_2_ "key_exp_modgen_counter_round_counter_reg_q(2)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 )))
+      (property no_enable_dff (string "TRUE")))
+     (instance (rename key_exp_modgen_counter_round_counter_reg_q_1_ "key_exp_modgen_counter_round_counter_reg_q(1)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 )))
+      (property no_enable_dff (string "TRUE")))
+     (instance (rename key_exp_modgen_counter_round_counter_reg_q_0_ "key_exp_modgen_counter_round_counter_reg_q(0)") (viewRef NETLIST  (cellRef dffe (libraryRef arcticlink4 )))
+      (property no_enable_dff (string "TRUE")))
+     (instance ix47804z1324 (viewRef NETLIST  (cellRef LUT2 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*~I1)+(I0*I1))"))
+      (property INIT (string "9")))
+     (instance ix32649z1542 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*I1)+(I0*I2))"))
+      (property INIT (string "E4")))
+     (instance ix63794z1542 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*I1)+(I0*I2))"))
+      (property INIT (string "E4")))
+     (instance ix13022z1419 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*~I1*~I2)+(~I0*I1*I2)+(I0*~I1*I2)+(I0*I1*~I2))"))
+      (property INIT (string "69")))
+     (instance ix51044z53415 (viewRef NETLIST  (cellRef logic_1 (libraryRef arcticlink4 ))))
+     (instance ix48429z1400 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*I1)+(~I0*I2)+(I0*~I1*~I2))"))
+      (property INIT (string "56")))
+     (instance ix11512z1550 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*I1)+(I0*I2))"))
+      (property INIT (string "E4")))
+     (instance ix11512z53688 (viewRef NETLIST  (cellRef LUT4 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*~I1*I2*~I3)+(~I0*I1*~I2)+(I0*~I1*~I2*~I3)+(I0*I1*I2)+(I1*I3))"))
+      (property INIT (string "CC96")))
+     (instance ix43767z1548 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((I0)+(I1*I2))"))
+      (property INIT (string "EA")))
+     (instance ix63935z1398 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*I1)+(~I0*I2))"))
+      (property INIT (string "54")))
+     (instance ix62938z1334 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*~I1*I2)+(~I0*I1*~I2))"))
+      (property INIT (string "14")))
+     (instance ix61941z1423 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*I1)+(I0*~I1*I2)+(I1*~I2))"))
+      (property INIT (string "6C")))
+     (instance ix61941z1482 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((I0*I1)+(I0*I2))"))
+      (property INIT (string "A8")))
+     (instance ix60944z1334 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*~I1*I2)+(~I0*I1*~I2))"))
+      (property INIT (string "14")))
+     (instance ix59947z1462 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*~I1)+(I0*I1*I2)+(~I1*~I2))"))
+      (property INIT (string "93")))
+     (instance ix59947z1398 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*I1)+(~I0*I2))"))
+      (property INIT (string "54")))
+     (instance ix58950z1332 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*~I1*I2)+(I0*~I1*~I2))"))
+      (property INIT (string "12")))
+     (instance ix63935z1320 (viewRef NETLIST  (cellRef LUT2 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*~I1))"))
+      (property INIT (string "1")))
+     (instance ix63935z1335 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*~I1)+(~I1*~I2))"))
+      (property INIT (string "13")))
+     (instance ix63935z1380 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*~I1*~I2)+(~I0*I1*I2))"))
+      (property INIT (string "41")))
+     (instance ix60944z1443 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((I0*I1*I2))"))
+      (property INIT (string "80")))
+     (instance ix57953z1444 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((I0*I1*I2))"))
+      (property INIT (string "80")))
+     (instance ix57953z1423 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*I1)+(I0*~I1*I2)+(I1*~I2))"))
+      (property INIT (string "6C")))
+     (instance ix57953z1482 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((I0*I1)+(I0*I2))"))
+      (property INIT (string "A8")))
+     (instance ix47804z1318 (viewRef NETLIST  (cellRef LUT2 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*I1))"))
+      (property INIT (string "4")))
+     (instance ix46807z1410 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*I1*I2)+(I0*~I1*I2))"))
+      (property INIT (string "60")))
+     (instance ix45810z1336 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*~I1)+(~I0*~I2))"))
+      (property INIT (string "15")))
+     (instance ix45810z1330 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*~I1*I2))"))
+      (property INIT (string "10")))
+     (instance ix44813z1410 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*I1*I2)+(I0*~I1*I2))"))
+      (property INIT (string "60")))
+     (instance ix43816z1334 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*~I1)+(~I1*~I2))"))
+      (property INIT (string "13")))
+     (instance ix43816z1330 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*~I1*I2))"))
+      (property INIT (string "10")))
+     (instance ix63935z1446 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((I0*I1*I2))"))
+      (property INIT (string "80")))
+     (instance ix63935z1445 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((I0*I1*I2))"))
+      (property INIT (string "80")))
+     (instance ix42819z1410 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*I1*I2)+(I0*~I1*I2))"))
+      (property INIT (string "60")))
+     (instance ix32649z1320 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*I1*~I2))"))
+      (property INIT (string "04")))
+     (instance ix32649z1391 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*I1)+(I1*~I2))"))
+      (property INIT (string "4C")))
+     (instance ix63794z1380 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*~I1*~I2)+(~I0*I1*I2))"))
+      (property INIT (string "41")))
+     (instance ix13022z1460 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((I0*I1*I2))"))
+      (property INIT (string "80")))
+     (instance ix11512z1464 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((I0*I1)+(I1*~I2))"))
+      (property INIT (string "8C")))
+     (instance ix11512z1461 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((I0*I1)+(I0*~I2))"))
+      (property INIT (string "8A")))
+     (instance ix13022z1436 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*~I1*~I2)+(~I0*I1*I2)+(I0*~I1*I2)+(I0*I1*~I2))"))
+      (property INIT (string "69")))
+     (instance ix13022z1435 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*~I1*~I2)+(~I0*I1*I2)+(I0*~I1*I2)+(I0*I1*~I2))"))
+      (property INIT (string "69")))
+     (instance ix13022z1331 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((I0*~I1*~I2))"))
+      (property INIT (string "02")))
+     (instance ix13022z1544 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*I2)+(I0*I1))"))
+      (property INIT (string "D8")))
+     (instance ix11512z1319 (viewRef NETLIST  (cellRef LUT2 (libraryRef arcticlink4 )))
+      (property EQN (string "((I0*~I1))"))
+      (property INIT (string "2")))
+     (instance ix32649z1328 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*~I1*~I2))"))
+      (property INIT (string "01")))
+     (instance ix32649z1319 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*~I1*~I2))"))
+      (property INIT (string "01")))
+     (instance ix32649z1325 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((I0*I1*~I2))"))
+      (property INIT (string "08")))
+     (instance ix11512z17940 (viewRef NETLIST  (cellRef LUT4 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*I1*I2)+(I2*~I3))"))
+      (property INIT (string "40F0")))
+     (instance ix11512z1456 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*~I2)+(I0*I1))"))
+      (property INIT (string "8D")))
+     (instance ix13022z1335 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((I0*I1*~I2))"))
+      (property INIT (string "08")))
+     (instance ix63794z1317 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*~I1*~I2))"))
+      (property INIT (string "01")))
+     (instance ix13022z1328 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((I0*~I1*~I2))"))
+      (property INIT (string "02")))
+     (instance ix13022z1327 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((I0*~I1*~I2))"))
+      (property INIT (string "02")))
+     (instance ix13022z53487 (viewRef NETLIST  (cellRef LUT4 (libraryRef arcticlink4 )))
+      (property EQN (string "((I0*~I2*I3)+(~I1*~I2)+(I1*I2))"))
+      (property INIT (string "CBC3")))
+     (instance ix13022z1355 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((I0*~I1*I2))"))
+      (property INIT (string "20")))
+     (instance ix13022z20484 (viewRef NETLIST  (cellRef LUT4 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*I1*I2)+(~I0*I2*~I3)+(I0*~I2)+(I1*I2*~I3))"))
+      (property INIT (string "4ADA")))
+     (instance ix13022z1322 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*~I1*~I2))"))
+      (property INIT (string "01")))
+     (instance ix13022z1321 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*~I1*~I2))"))
+      (property INIT (string "01")))
+     (instance ix13022z18945 (viewRef NETLIST  (cellRef LUT4 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*I1*I3)+(~I0*I2*~I3)+(I0*~I2*~I3)+(I1*I2*~I3))"))
+      (property INIT (string "44DA")))
+     (instance ix13022z55633 (viewRef NETLIST  (cellRef LUT4 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*I1*I3)+(~I0*I2*I3)+(I0*~I1*~I3)+(I0*~I2*~I3)+(~I1*~I2*~I3)+(I1*I2*I3))"))
+      (property INIT (string "D42B")))
+     (instance ix13022z1375 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((I0*~I2)+(~I1*I2))"))
+      (property INIT (string "3A")))
+     (instance ix13022z1320 (viewRef NETLIST  (cellRef LUT2 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*I1))"))
+      (property INIT (string "4")))
+     (instance ix13022z1491 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((I0*I2)+(~I1*I2))"))
+      (property INIT (string "B0")))
+     (instance ix43767z1448 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((I0*I1*I2))"))
+      (property INIT (string "80")))
+     (instance ix43767z1383 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*I1*I2))"))
+      (property INIT (string "40")))
+     (instance ix48429z1343 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*~I1)+(I0*~I2))"))
+      (property INIT (string "1B")))
+     (instance ix48429z1420 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*~I1*~I2)+(~I0*I1*I2)+(I0*~I1*I2)+(I0*I1*~I2))"))
+      (property INIT (string "69")))
+     (instance ix43767z1487 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*~I1*~I2)+(I0*I1)+(I0*I2))"))
+      (property INIT (string "A9")))
+     (instance ix43767z1333 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*~I1*I2))"))
+      (property INIT (string "10")))
+     (instance ix43767z1320 (viewRef NETLIST  (cellRef LUT2 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*I1))"))
+      (property INIT (string "4")))
+     (instance ix43767z1331 (viewRef NETLIST  (cellRef LUT3 (libraryRef arcticlink4 )))
+      (property EQN (string "((~I0*~I1*I2))"))
+      (property INIT (string "10")))
+     (instance clk_ibuf (viewRef NETLIST  (cellRef ckpad (libraryRef arcticlink4 ))))
+     (net clk 
+      (joined 
+       (portRef clk )
+       (portRef P (instanceRef clk_ibuf ))))
+     (net data_in 
+      (joined 
+       (portRef data_in )
+       (portRef P (instanceRef data_in_ibuf ))))
+     (net (rename data_rdy_1_ "data_rdy(1)") 
+      (joined 
+       (portRef data_rdy_1_ )
+       (portRef P (instanceRef data_rdy_ibuf_1_ ))))
+     (net (rename data_rdy_0_ "data_rdy(0)") 
+      (joined 
+       (portRef data_rdy_0_ )
+       (portRef P (instanceRef data_rdy_ibuf_0_ ))))
+     (net key 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_0__dup_0 ))
+       (portRef I0 (instanceRef ix13022z1436 ))
+       (portRef I0 (instanceRef ix13022z1435 ))
+       (portRef I1 (instanceRef ix48429z1420 ))))
+     (net (rename bit_counter_5_ "bit_counter(5)") 
+      (joined 
+       (portRef Q (instanceRef modgen_counter_bit_counter_reg_q_5_ ))
+       (portRef I2 (instanceRef ix63935z1335 ))
+       (portRef I1 (instanceRef ix42819z1410 ))
+       (portRef I0 (instanceRef ix63794z1317 ))
+       (portRef A (instanceRef ix11512z22256 ))))
+     (net (rename bit_counter_4_ "bit_counter(4)") 
+      (joined 
+       (portRef Q (instanceRef modgen_counter_bit_counter_reg_q_4_ ))
+       (portRef I1 (instanceRef ix43816z1334 ))
+       (portRef I1 (instanceRef ix63935z1445 ))
+       (portRef I1 (instanceRef ix63794z1317 ))
+       (portRef S (instanceRef ix11512z22254 ))))
+     (net (rename bit_counter_3_ "bit_counter(3)") 
+      (joined 
+       (portRef Q (instanceRef modgen_counter_bit_counter_reg_q_3_ ))
+       (portRef I1 (instanceRef ix44813z1410 ))
+       (portRef I2 (instanceRef ix43816z1334 ))
+       (portRef I2 (instanceRef ix63935z1445 ))
+       (portRef I2 (instanceRef ix63794z1317 ))
+       (portRef S (instanceRef ix11512z22255 ))))
+     (net (rename bit_counter_2_ "bit_counter(2)") 
+      (joined 
+       (portRef Q (instanceRef modgen_counter_bit_counter_reg_q_2_ ))
+       (portRef I0 (instanceRef ix45810z1336 ))
+       (portRef I0 (instanceRef ix63935z1446 ))
+       (portRef I2 (instanceRef ix32649z1320 ))
+       (portRef I2 (instanceRef ix13022z1331 ))
+       (portRef I1 (instanceRef ix11512z1319 ))
+       (portRef I2 (instanceRef ix13022z1327 ))
+       (portRef S (instanceRef ix11512z22256 ))))
+     (net (rename bit_counter_1_ "bit_counter(1)") 
+      (joined 
+       (portRef Q (instanceRef modgen_counter_bit_counter_reg_q_1_ ))
+       (portRef I0 (instanceRef ix46807z1410 ))
+       (portRef I1 (instanceRef ix45810z1336 ))
+       (portRef I1 (instanceRef ix63935z1446 ))
+       (portRef I1 (instanceRef ix13022z1328 ))
+       (portRef S (instanceRef ix11512z22253 ))))
+     (net (rename bit_counter_0_ "bit_counter(0)") 
+      (joined 
+       (portRef Q (instanceRef modgen_counter_bit_counter_reg_q_0_ ))
+       (portRef I0 (instanceRef ix47804z1318 ))
+       (portRef I1 (instanceRef ix46807z1410 ))
+       (portRef I2 (instanceRef ix45810z1336 ))
+       (portRef I2 (instanceRef ix63935z1446 ))
+       (portRef I2 (instanceRef ix13022z1328 ))))
+     (net round_counter_out 
+      (joined 
+       (portRef Q (instanceRef key_exp_modgen_counter_round_counter_reg_q_0_ ))
+       (portRef LD (instanceRef datapath_reg_lut_ff63 ))
+       (portRef I0 (instanceRef ix63935z1398 ))
+       (portRef I1 (instanceRef ix62938z1334 ))
+       (portRef I0 (instanceRef ix61941z1423 ))
+       (portRef I0 (instanceRef ix60944z1443 ))
+       (portRef I2 (instanceRef ix63794z1380 ))
+       (portRef I0 (instanceRef ix32649z1328 ))
+       (portRef I0 (instanceRef ix13022z1335 ))
+       (portRef I0 (instanceRef ix13022z53487 ))
+       (portRef I0 (instanceRef ix13022z20484 ))
+       (portRef I0 (instanceRef ix13022z18945 ))
+       (portRef I0 (instanceRef ix13022z55633 ))
+       (portRef I0 (instanceRef ix43767z1448 ))
+       (portRef I0 (instanceRef ix43767z1383 ))
+       (portRef I0 (instanceRef ix48429z1343 ))
+       (portRef I2 (instanceRef ix43767z1333 ))
+       (portRef I1 (instanceRef ix43767z1331 ))))
+     (net lut_ff3_s25_rtlcGen_CrossHier_n14 
+      (joined 
+       (portRef Q (instanceRef reg_lut_ff3_s25_rtlcGen_CrossHier_n14 ))
+       (portRef I1 (instanceRef ix13022z1435 ))
+       (portRef D (instanceRef reg_lut_ff2 ))))
+     (net nx32649z7 
+      (joined 
+       (portRef Q (instanceRef reg_lut_ff0 ))
+       (portRef I1 (instanceRef ix32649z1542 ))
+       (portRef I1 (instanceRef ix11512z1456 ))))
+     (net nx11512z10 
+      (joined 
+       (portRef Q (instanceRef reg_fifo_ff0 ))
+       (portRef I2 (instanceRef ix32649z1542 ))
+       (portRef I1 (instanceRef ix11512z1550 ))))
+     (net (rename shifter1_59__s33_rtlcGen_CrossHier_n21 "shifter1[59]_s33_rtlcGen_CrossHier_n21") 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_59__s33_rtlcGen_CrossHier_n21 ))
+       (portRef D (instanceRef reg_shifter1_58_ ))))
+     (net nx11512z5 
+      (joined 
+       (portRef Q (instanceRef ix11512z22253 ))
+       (portRef I2 (instanceRef ix13022z1419 ))
+       (portRef I2 (instanceRef ix11512z1456 ))))
+     (net (rename datapath_shifter1_0_ "datapath_shifter1(0)") 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_0_ ))
+       (portRef DATA (instanceRef datapath_reg_lut_ff63 ))
+       (portRef I2 (instanceRef ix43767z1331 ))
+       (portRef D (instanceRef reg_shifter2_63_ ))))
+     (net (rename datapath_shifter2_0_ "datapath_shifter2(0)") 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_0_ ))
+       (portRef I2 (instanceRef ix48429z1420 ))))
+     (net datapath_fifo_ff63 
+      (joined 
+       (portRef Q (instanceRef datapath_reg_fifo_ff63 ))
+       (portRef D (instanceRef datapath_reg_fifo_ff62 ))
+       (portRef I1 (instanceRef ix43767z1383 ))))
+     (net datapath_fifo_ff62 
+      (joined 
+       (portRef Q (instanceRef datapath_reg_fifo_ff62 ))
+       (portRef I1 (instanceRef ix48429z1343 ))
+       (portRef D (instanceRef reg_fifo_ff61 ))))
+     (net datapath_fifo_ff56 
+      (joined 
+       (portRef Q (instanceRef reg_fifo_ff56 ))
+       (portRef I1 (instanceRef ix63794z1542 ))
+       (portRef I2 (instanceRef ix43767z1383 ))))
+     (net datapath_lut_ff63 
+      (joined 
+       (portRef Q (instanceRef datapath_reg_lut_ff63 ))
+       (portRef D (instanceRef datapath_reg_lut_ff62 ))
+       (portRef I1 (instanceRef ix43767z1448 ))))
+     (net datapath_lut_ff62 
+      (joined 
+       (portRef Q (instanceRef datapath_reg_lut_ff62 ))
+       (portRef I2 (instanceRef ix48429z1343 ))
+       (portRef D (instanceRef reg_lut_ff61 ))))
+     (net datapath_lut_ff56 
+      (joined 
+       (portRef Q (instanceRef reg_lut_ff56 ))
+       (portRef I2 (instanceRef ix63794z1542 ))
+       (portRef I2 (instanceRef ix43767z1448 ))))
+     (net (rename key_exp_shifter1_0_ "key_exp_shifter1(0)") 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_0__dup_0 ))
+       (portRef I1 (instanceRef ix13022z1436 ))
+       (portRef I2 (instanceRef ix13022z1435 ))
+       (portRef D (instanceRef key_exp_reg_fifo_ff3 ))))
+     (net (rename key_exp_round_counter_6_ "key_exp_round_counter(6)") 
+      (joined 
+       (portRef Q (instanceRef key_exp_modgen_counter_round_counter_reg_q_6_ ))
+       (portRef I1 (instanceRef ix57953z1423 ))
+       (portRef I1 (instanceRef ix32649z1328 ))
+       (portRef I1 (instanceRef ix13022z1335 ))
+       (portRef I2 (instanceRef ix13022z1321 ))))
+     (net (rename key_exp_round_counter_5_ "key_exp_round_counter(5)") 
+      (joined 
+       (portRef Q (instanceRef key_exp_modgen_counter_round_counter_reg_q_5_ ))
+       (portRef I2 (instanceRef ix58950z1332 ))
+       (portRef I2 (instanceRef ix57953z1423 ))
+       (portRef I2 (instanceRef ix32649z1328 ))
+       (portRef I1 (instanceRef ix13022z53487 ))
+       (portRef I1 (instanceRef ix13022z20484 ))
+       (portRef I1 (instanceRef ix13022z18945 ))
+       (portRef I1 (instanceRef ix13022z55633 ))))
+     (net (rename key_exp_round_counter_4_ "key_exp_round_counter(4)") 
+      (joined 
+       (portRef Q (instanceRef key_exp_modgen_counter_round_counter_reg_q_4_ ))
+       (portRef I1 (instanceRef ix59947z1462 ))
+       (portRef I1 (instanceRef ix57953z1444 ))
+       (portRef I2 (instanceRef ix32649z1325 ))
+       (portRef I1 (instanceRef ix13022z1355 ))
+       (portRef I1 (instanceRef ix13022z1322 ))
+       (portRef I1 (instanceRef ix13022z1320 ))))
+     (net (rename key_exp_round_counter_3_ "key_exp_round_counter(3)") 
+      (joined 
+       (portRef Q (instanceRef key_exp_modgen_counter_round_counter_reg_q_3_ ))
+       (portRef I2 (instanceRef ix60944z1334 ))
+       (portRef I2 (instanceRef ix59947z1462 ))
+       (portRef I2 (instanceRef ix57953z1444 ))
+       (portRef I0 (instanceRef ix32649z1319 ))
+       (portRef I2 (instanceRef ix13022z53487 ))
+       (portRef I2 (instanceRef ix13022z20484 ))
+       (portRef I2 (instanceRef ix13022z18945 ))
+       (portRef I2 (instanceRef ix13022z55633 ))))
+     (net (rename key_exp_round_counter_2_ "key_exp_round_counter(2)") 
+      (joined 
+       (portRef Q (instanceRef key_exp_modgen_counter_round_counter_reg_q_2_ ))
+       (portRef I1 (instanceRef ix61941z1423 ))
+       (portRef I1 (instanceRef ix60944z1443 ))
+       (portRef I1 (instanceRef ix32649z1319 ))
+       (portRef I2 (instanceRef ix13022z1355 ))
+       (portRef I2 (instanceRef ix13022z1322 ))
+       (portRef I2 (instanceRef ix13022z1375 ))))
+     (net (rename key_exp_round_counter_1_ "key_exp_round_counter(1)") 
+      (joined 
+       (portRef Q (instanceRef key_exp_modgen_counter_round_counter_reg_q_1_ ))
+       (portRef I2 (instanceRef ix62938z1334 ))
+       (portRef I2 (instanceRef ix61941z1423 ))
+       (portRef I2 (instanceRef ix60944z1443 ))
+       (portRef I2 (instanceRef ix32649z1319 ))
+       (portRef I2 (instanceRef ix13022z1335 ))
+       (portRef I3 (instanceRef ix13022z53487 ))
+       (portRef I3 (instanceRef ix13022z20484 ))
+       (portRef I3 (instanceRef ix13022z18945 ))
+       (portRef I3 (instanceRef ix13022z55633 ))))
+     (net key_exp_fifo_ff3 
+      (joined 
+       (portRef Q (instanceRef key_exp_reg_fifo_ff3 ))
+       (portRef I2 (instanceRef ix13022z1436 ))
+       (portRef D (instanceRef reg_fifo_ff2 ))))
+     (net nx11512z8 
+      (joined 
+       (portRef Q (instanceRef ix11512z22256 ))
+       (portRef A (instanceRef ix11512z22255 ))))
+     (net nx11512z7 
+      (joined 
+       (portRef Q (instanceRef ix11512z22255 ))
+       (portRef A (instanceRef ix11512z22254 ))))
+     (net nx11512z6 
+      (joined 
+       (portRef Q (instanceRef ix11512z22254 ))
+       (portRef A (instanceRef ix11512z22253 ))))
+     (net nx64791z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_55_ ))
+       (portRef D (instanceRef reg_shifter1_54_ ))))
+     (net nx252z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_54_ ))
+       (portRef D (instanceRef reg_shifter1_53_ ))))
+     (net nx1249z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_53_ ))
+       (portRef D (instanceRef reg_shifter1_52_ ))))
+     (net nx2246z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_52_ ))
+       (portRef D (instanceRef reg_shifter1_51_ ))))
+     (net nx3243z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_51_ ))
+       (portRef D (instanceRef reg_shifter1_50_ ))))
+     (net nx5239z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_50_ ))
+       (portRef D (instanceRef reg_shifter1_49_ ))))
+     (net nx6236z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_49_ ))
+       (portRef D (instanceRef reg_shifter1_48_ ))))
+     (net nx7233z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_48_ ))
+       (portRef D (instanceRef reg_shifter1_47_ ))))
+     (net nx8230z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_47_ ))
+       (portRef D (instanceRef reg_shifter1_46_ ))))
+     (net nx9227z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_46_ ))
+       (portRef D (instanceRef reg_shifter1_45_ ))))
+     (net nx10224z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_45_ ))
+       (portRef D (instanceRef reg_shifter1_44_ ))))
+     (net nx11221z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_44_ ))
+       (portRef D (instanceRef reg_shifter1_43_ ))))
+     (net nx12218z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_43_ ))
+       (portRef D (instanceRef reg_shifter1_42_ ))))
+     (net nx13215z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_42_ ))
+       (portRef D (instanceRef reg_shifter1_41_ ))))
+     (net nx14212z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_41_ ))
+       (portRef D (instanceRef reg_shifter1_40_ ))))
+     (net nx16208z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_40_ ))
+       (portRef D (instanceRef reg_shifter1_39_ ))))
+     (net nx17205z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_39_ ))
+       (portRef D (instanceRef reg_shifter1_38_ ))))
+     (net nx18202z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_38_ ))
+       (portRef D (instanceRef reg_shifter1_37_ ))))
+     (net nx19199z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_37_ ))
+       (portRef D (instanceRef reg_shifter1_36_ ))))
+     (net nx20196z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_36_ ))
+       (portRef D (instanceRef reg_shifter1_35_ ))))
+     (net nx21193z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_35_ ))
+       (portRef D (instanceRef reg_shifter1_34_ ))))
+     (net nx22190z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_34_ ))
+       (portRef D (instanceRef reg_shifter1_33_ ))))
+     (net nx23187z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_33_ ))
+       (portRef D (instanceRef reg_shifter1_32_ ))))
+     (net nx24184z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_32_ ))
+       (portRef D (instanceRef reg_shifter1_31_ ))))
+     (net nx25181z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_31_ ))
+       (portRef D (instanceRef reg_shifter1_30_ ))))
+     (net nx27177z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_30_ ))
+       (portRef D (instanceRef reg_shifter1_29_ ))))
+     (net nx28174z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_29_ ))
+       (portRef D (instanceRef reg_shifter1_28_ ))))
+     (net nx29171z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_28_ ))
+       (portRef D (instanceRef reg_shifter1_27_ ))))
+     (net nx30168z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_27_ ))
+       (portRef D (instanceRef reg_shifter1_26_ ))))
+     (net nx31165z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_26_ ))
+       (portRef D (instanceRef reg_shifter1_25_ ))))
+     (net nx32162z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_25_ ))
+       (portRef D (instanceRef reg_shifter1_24_ ))))
+     (net nx33159z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_24_ ))
+       (portRef D (instanceRef reg_shifter1_23_ ))))
+     (net nx34156z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_23_ ))
+       (portRef D (instanceRef reg_shifter1_22_ ))))
+     (net nx35153z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_22_ ))
+       (portRef D (instanceRef reg_shifter1_21_ ))))
+     (net nx36150z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_21_ ))
+       (portRef D (instanceRef reg_shifter1_20_ ))))
+     (net nx38146z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_20_ ))
+       (portRef D (instanceRef reg_shifter1_19_ ))))
+     (net nx39143z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_19_ ))
+       (portRef D (instanceRef reg_shifter1_18_ ))))
+     (net nx40140z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_18_ ))
+       (portRef D (instanceRef reg_shifter1_17_ ))))
+     (net nx41137z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_17_ ))
+       (portRef D (instanceRef reg_shifter1_16_ ))))
+     (net nx42134z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_16_ ))
+       (portRef D (instanceRef reg_shifter1_15_ ))))
+     (net nx43131z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_15_ ))
+       (portRef D (instanceRef reg_shifter1_14_ ))))
+     (net nx44128z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_14_ ))
+       (portRef D (instanceRef reg_shifter1_13_ ))))
+     (net nx45125z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_13_ ))
+       (portRef D (instanceRef reg_shifter1_12_ ))))
+     (net nx46122z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_12_ ))
+       (portRef D (instanceRef reg_shifter1_11_ ))))
+     (net nx47119z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_11_ ))
+       (portRef D (instanceRef reg_shifter1_10_ ))))
+     (net nx42167z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_10_ ))
+       (portRef D (instanceRef reg_shifter1_9_ ))))
+     (net nx43164z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_9_ ))
+       (portRef D (instanceRef reg_shifter1_8_ ))))
+     (net nx44161z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_8_ ))
+       (portRef D (instanceRef reg_shifter1_7_ ))))
+     (net nx45158z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_7_ ))
+       (portRef D (instanceRef reg_shifter1_6_ ))))
+     (net nx46155z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_6_ ))
+       (portRef D (instanceRef reg_shifter1_5_ ))))
+     (net nx47152z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_5_ ))
+       (portRef D (instanceRef reg_shifter1_4_ ))))
+     (net nx48149z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_4_ ))
+       (portRef D (instanceRef reg_shifter1_3_ ))))
+     (net nx49146z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_3_ ))
+       (portRef D (instanceRef reg_shifter1_2_ ))))
+     (net nx50143z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_2_ ))
+       (portRef D (instanceRef reg_shifter1_1_ ))))
+     (net nx51140z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_1_ ))
+       (portRef D (instanceRef reg_shifter1_0_ ))))
+     (net nx60951z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_63_ ))
+       (portRef D (instanceRef reg_shifter2_62_ ))))
+     (net nx61948z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_62_ ))
+       (portRef D (instanceRef reg_shifter2_61_ ))))
+     (net nx62945z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_61_ ))
+       (portRef D (instanceRef reg_shifter2_60_ ))))
+     (net nx64941z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_60_ ))
+       (portRef D (instanceRef reg_shifter2_59_ ))))
+     (net nx402z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_59_ ))
+       (portRef D (instanceRef reg_shifter2_58_ ))))
+     (net nx1399z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_58_ ))
+       (portRef D (instanceRef reg_shifter2_57_ ))))
+     (net nx2396z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_57_ ))
+       (portRef D (instanceRef reg_shifter2_56_ ))))
+     (net nx3393z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_56_ ))
+       (portRef D (instanceRef reg_shifter2_55_ ))))
+     (net nx4390z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_55_ ))
+       (portRef D (instanceRef reg_shifter2_54_ ))))
+     (net nx5387z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_54_ ))
+       (portRef D (instanceRef reg_shifter2_53_ ))))
+     (net nx6384z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_53_ ))
+       (portRef D (instanceRef reg_shifter2_52_ ))))
+     (net nx7381z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_52_ ))
+       (portRef D (instanceRef reg_shifter2_51_ ))))
+     (net nx8378z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_51_ ))
+       (portRef D (instanceRef reg_shifter2_50_ ))))
+     (net nx10374z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_50_ ))
+       (portRef D (instanceRef reg_shifter2_49_ ))))
+     (net nx11371z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_49_ ))
+       (portRef D (instanceRef reg_shifter2_48_ ))))
+     (net nx12368z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_48_ ))
+       (portRef D (instanceRef reg_shifter2_47_ ))))
+     (net nx13365z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_47_ ))
+       (portRef D (instanceRef reg_shifter2_46_ ))))
+     (net nx14362z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_46_ ))
+       (portRef D (instanceRef reg_shifter2_45_ ))))
+     (net nx15359z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_45_ ))
+       (portRef D (instanceRef reg_shifter2_44_ ))))
+     (net nx16356z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_44_ ))
+       (portRef D (instanceRef reg_shifter2_43_ ))))
+     (net nx17353z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_43_ ))
+       (portRef D (instanceRef reg_shifter2_42_ ))))
+     (net nx18350z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_42_ ))
+       (portRef D (instanceRef reg_shifter2_41_ ))))
+     (net nx19347z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_41_ ))
+       (portRef D (instanceRef reg_shifter2_40_ ))))
+     (net nx21343z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_40_ ))
+       (portRef D (instanceRef reg_shifter2_39_ ))))
+     (net nx22340z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_39_ ))
+       (portRef D (instanceRef reg_shifter2_38_ ))))
+     (net nx23337z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_38_ ))
+       (portRef D (instanceRef reg_shifter2_37_ ))))
+     (net nx24334z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_37_ ))
+       (portRef D (instanceRef reg_shifter2_36_ ))))
+     (net nx25331z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_36_ ))
+       (portRef D (instanceRef reg_shifter2_35_ ))))
+     (net nx26328z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_35_ ))
+       (portRef D (instanceRef reg_shifter2_34_ ))))
+     (net nx27325z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_34_ ))
+       (portRef D (instanceRef reg_shifter2_33_ ))))
+     (net nx28322z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_33_ ))
+       (portRef D (instanceRef reg_shifter2_32_ ))))
+     (net nx29319z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_32_ ))
+       (portRef D (instanceRef reg_shifter2_31_ ))))
+     (net nx30316z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_31_ ))
+       (portRef D (instanceRef reg_shifter2_30_ ))))
+     (net nx32312z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_30_ ))
+       (portRef D (instanceRef reg_shifter2_29_ ))))
+     (net nx33309z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_29_ ))
+       (portRef D (instanceRef reg_shifter2_28_ ))))
+     (net nx34306z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_28_ ))
+       (portRef D (instanceRef reg_shifter2_27_ ))))
+     (net nx35303z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_27_ ))
+       (portRef D (instanceRef reg_shifter2_26_ ))))
+     (net nx36300z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_26_ ))
+       (portRef D (instanceRef reg_shifter2_25_ ))))
+     (net nx37297z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_25_ ))
+       (portRef D (instanceRef reg_shifter2_24_ ))))
+     (net nx38294z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_24_ ))
+       (portRef D (instanceRef reg_shifter2_23_ ))))
+     (net nx39291z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_23_ ))
+       (portRef D (instanceRef reg_shifter2_22_ ))))
+     (net nx40288z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_22_ ))
+       (portRef D (instanceRef reg_shifter2_21_ ))))
+     (net nx41285z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_21_ ))
+       (portRef D (instanceRef reg_shifter2_20_ ))))
+     (net nx43281z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_20_ ))
+       (portRef D (instanceRef reg_shifter2_19_ ))))
+     (net nx44278z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_19_ ))
+       (portRef D (instanceRef reg_shifter2_18_ ))))
+     (net nx45275z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_18_ ))
+       (portRef D (instanceRef reg_shifter2_17_ ))))
+     (net nx46272z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_17_ ))
+       (portRef D (instanceRef reg_shifter2_16_ ))))
+     (net nx47269z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_16_ ))
+       (portRef D (instanceRef reg_shifter2_15_ ))))
+     (net nx48266z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_15_ ))
+       (portRef D (instanceRef reg_shifter2_14_ ))))
+     (net nx49263z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_14_ ))
+       (portRef D (instanceRef reg_shifter2_13_ ))))
+     (net nx50260z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_13_ ))
+       (portRef D (instanceRef reg_shifter2_12_ ))))
+     (net nx51257z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_12_ ))
+       (portRef D (instanceRef reg_shifter2_11_ ))))
+     (net nx52254z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_11_ ))
+       (portRef D (instanceRef reg_shifter2_10_ ))))
+     (net nx50586z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_10_ ))
+       (portRef D (instanceRef reg_shifter2_9_ ))))
+     (net nx51583z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_9_ ))
+       (portRef D (instanceRef reg_shifter2_8_ ))))
+     (net nx52580z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_8_ ))
+       (portRef D (instanceRef reg_shifter2_7_ ))))
+     (net nx53577z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_7_ ))
+       (portRef D (instanceRef reg_shifter2_6_ ))))
+     (net nx54574z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_6_ ))
+       (portRef D (instanceRef reg_shifter2_5_ ))))
+     (net nx55571z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_5_ ))
+       (portRef D (instanceRef reg_shifter2_4_ ))))
+     (net nx56568z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_4_ ))
+       (portRef D (instanceRef reg_shifter2_3_ ))))
+     (net nx57565z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_3_ ))
+       (portRef D (instanceRef reg_shifter2_2_ ))))
+     (net nx58562z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_2_ ))
+       (portRef D (instanceRef reg_shifter2_1_ ))))
+     (net nx59559z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_1_ ))
+       (portRef D (instanceRef reg_shifter2_0_ ))))
+     (net nx57270z1 
+      (joined 
+       (portRef Q (instanceRef reg_fifo_ff61 ))
+       (portRef D (instanceRef reg_fifo_ff60 ))))
+     (net nx58258z1 
+      (joined 
+       (portRef Q (instanceRef reg_fifo_ff60 ))
+       (portRef D (instanceRef reg_fifo_ff59 ))))
+     (net nx58259z1 
+      (joined 
+       (portRef Q (instanceRef reg_fifo_ff59 ))
+       (portRef D (instanceRef reg_fifo_ff58 ))))
+     (net nx58260z1 
+      (joined 
+       (portRef Q (instanceRef reg_fifo_ff58 ))
+       (portRef D (instanceRef reg_fifo_ff57 ))))
+     (net nx58261z1 
+      (joined 
+       (portRef Q (instanceRef reg_fifo_ff57 ))
+       (portRef D (instanceRef reg_fifo_ff56 ))))
+     (net nx53449z1 
+      (joined 
+       (portRef Q (instanceRef reg_lut_ff61 ))
+       (portRef D (instanceRef reg_lut_ff60 ))))
+     (net nx54437z1 
+      (joined 
+       (portRef Q (instanceRef reg_lut_ff60 ))
+       (portRef D (instanceRef reg_lut_ff59 ))))
+     (net nx54438z1 
+      (joined 
+       (portRef Q (instanceRef reg_lut_ff59 ))
+       (portRef D (instanceRef reg_lut_ff58 ))))
+     (net nx54439z1 
+      (joined 
+       (portRef Q (instanceRef reg_lut_ff58 ))
+       (portRef D (instanceRef reg_lut_ff57 ))))
+     (net nx54440z1 
+      (joined 
+       (portRef Q (instanceRef reg_lut_ff57 ))
+       (portRef D (instanceRef reg_lut_ff56 ))))
+     (net nx61800z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_58_ ))
+       (portRef D (instanceRef reg_shifter1_57_ ))))
+     (net nx62797z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_57_ ))
+       (portRef D (instanceRef reg_shifter1_56_ ))))
+     (net nx51063z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_56_ ))
+       (portRef D (instanceRef reg_shifter1_55__dup_0 ))))
+     (net nx36668z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_55__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_54__dup_0 ))))
+     (net nx58863z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_54__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_53__dup_0 ))))
+     (net nx50014z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_53__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_52__dup_0 ))))
+     (net nx27819z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_52__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_51__dup_0 ))))
+     (net nx59912z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_51__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_50__dup_0 ))))
+     (net nx34012z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_50__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_49__dup_0 ))))
+     (net nx56207z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_49__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_48__dup_0 ))))
+     (net nx52670z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_48__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_47__dup_0 ))))
+     (net nx35061z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_47__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_46__dup_0 ))))
+     (net nx57256z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_46__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_45__dup_0 ))))
+     (net nx51621z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_45__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_44__dup_0 ))))
+     (net nx29426z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_44__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_43__dup_0 ))))
+     (net nx58305z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_43__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_42__dup_0 ))))
+     (net nx14964z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_42__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_41__dup_0 ))))
+     (net nx28377z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_41__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_40__dup_0 ))))
+     (net nx54277z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_40__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_39__dup_0 ))))
+     (net nx33454z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_39__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_38__dup_0 ))))
+     (net nx55649z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_38__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_37__dup_0 ))))
+     (net nx53228z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_37__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_36__dup_0 ))))
+     (net nx31033z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_36__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_35__dup_0 ))))
+     (net nx56698z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_35__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_34__dup_0 ))))
+     (net nx13357z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_34__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_33__dup_0 ))))
+     (net nx29984z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_33__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_32__dup_0 ))))
+     (net nx7789z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_32__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_31__dup_0 ))))
+     (net nx14406z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_31__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_30__dup_0 ))))
+     (net nx54042z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_30__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_29__dup_0 ))))
+     (net nx54835z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_29__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_28__dup_0 ))))
+     (net nx32640z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_28__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_27__dup_0 ))))
+     (net nx55091z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_27__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_26__dup_0 ))))
+     (net nx11750z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_26__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_25__dup_0 ))))
+     (net nx31591z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_25__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_24__dup_0 ))))
+     (net nx9396z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_24__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_23__dup_0 ))))
+     (net nx12799z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_23__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_22__dup_0 ))))
+     (net nx30542z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_22__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_21__dup_0 ))))
+     (net nx8347z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_21__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_20__dup_0 ))))
+     (net nx34247z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_20__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_19__dup_0 ))))
+     (net nx53484z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_19__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_18__dup_0 ))))
+     (net nx10143z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_18__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_17__dup_0 ))))
+     (net nx33198z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_17__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_16__dup_0 ))))
+     (net nx11003z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_16__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_15__dup_0 ))))
+     (net nx11192z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_15__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_14__dup_0 ))))
+     (net nx33387z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_14__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_13__dup_0 ))))
+     (net nx9954z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_13__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_12__dup_0 ))))
+     (net nx12241z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_12__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_11__dup_0 ))))
+     (net nx34436z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_11__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_10__dup_0 ))))
+     (net nx8860z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_10__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_9__dup_0 ))))
+     (net nx34481z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_9__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_8__dup_0 ))))
+     (net nx12286z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_8__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_7__dup_0 ))))
+     (net nx9909z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_7__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_6__dup_0 ))))
+     (net nx32104z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_6__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_5__dup_0 ))))
+     (net nx11237z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_5__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_4__dup_0 ))))
+     (net nx54578z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_4__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_3__dup_0 ))))
+     (net nx33153z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_3__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_2__dup_0 ))))
+     (net nx10188z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_2__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_1__dup_0 ))))
+     (net nx53529z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter1_1__dup_0 ))
+       (portRef D (instanceRef reg_shifter1_0__dup_0 ))))
+     (net nx10692z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_63__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_62__dup_0 ))))
+     (net nx54033z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_62__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_61__dup_0 ))))
+     (net nx33698z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_61__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_60__dup_0 ))))
+     (net nx7798z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_60__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_59__dup_0 ))))
+     (net nx35543z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_59__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_58__dup_0 ))))
+     (net nx13348z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_58__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_57__dup_0 ))))
+     (net nx8847z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_57__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_56__dup_0 ))))
+     (net nx31042z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_56__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_55__dup_0 ))))
+     (net nx12299z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_55__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_54__dup_0 ))))
+     (net nx55640z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_54__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_53__dup_0 ))))
+     (net nx32091z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_53__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_52__dup_0 ))))
+     (net nx54286z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_52__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_51__dup_0 ))))
+     (net nx54591z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_51__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_50__dup_0 ))))
+     (net nx14955z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_50__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_49__dup_0 ))))
+     (net nx7240z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_49__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_48__dup_0 ))))
+     (net nx29435z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_48__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_47__dup_0 ))))
+     (net nx13906z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_47__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_46__dup_0 ))))
+     (net nx57247z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_46__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_45__dup_0 ))))
+     (net nx30484z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_45__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_44__dup_0 ))))
+     (net nx52679z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_44__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_43__dup_0 ))))
+     (net nx56198z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_43__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_42__dup_0 ))))
+     (net nx31533z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_42__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_41__dup_0 ))))
+     (net nx53728z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_41__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_40__dup_0 ))))
+     (net nx27828z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_40__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_39__dup_0 ))))
+     (net nx15513z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_39__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_38__dup_0 ))))
+     (net nx58854z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_38__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_37__dup_0 ))))
+     (net nx28877z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_37__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_36__dup_0 ))))
+     (net nx51072z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_36__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_35__dup_0 ))))
+     (net nx57805z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_35__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_34__dup_0 ))))
+     (net nx35610z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_34__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_33__dup_0 ))))
+     (net nx52121z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_33__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_32__dup_0 ))))
+     (net nx56756z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_32__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_31__dup_0 ))))
+     (net nx34561z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_31__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_30__dup_0 ))))
+     (net nx60461z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_30__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_29__dup_0 ))))
+     (net nx27270z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_29__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_28__dup_0 ))))
+     (net nx49465z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_28__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_27__dup_0 ))))
+     (net nx59412z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_27__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_26__dup_0 ))))
+     (net nx37217z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_26__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_25__dup_0 ))))
+     (net nx50514z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_25__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_24__dup_0 ))))
+     (net nx58363z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_24__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_23__dup_0 ))))
+     (net nx36168z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_23__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_22__dup_0 ))))
+     (net nx51563z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_22__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_21__dup_0 ))))
+     (net nx8222z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_21__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_20__dup_0 ))))
+     (net nx47858z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_20__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_19__dup_0 ))))
+     (net nx61019z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_19__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_18__dup_0 ))))
+     (net nx38824z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_18__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_17__dup_0 ))))
+     (net nx48907z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_17__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_16__dup_0 ))))
+     (net nx5566z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_16__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_15__dup_0 ))))
+     (net nx37775z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_15__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_14__dup_0 ))))
+     (net nx49956z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_14__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_13__dup_0 ))))
+     (net nx6615z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_13__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_12__dup_0 ))))
+     (net nx36726z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_12__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_11__dup_0 ))))
+     (net nx14531z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_11__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_10__dup_0 ))))
+     (net nx47391z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_10__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_9__dup_0 ))))
+     (net nx40340z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_9__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_8__dup_0 ))))
+     (net nx62535z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_8__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_7__dup_0 ))))
+     (net nx46342z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_7__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_6__dup_0 ))))
+     (net nx24147z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_6__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_5__dup_0 ))))
+     (net nx63584z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_5__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_4__dup_0 ))))
+     (net nx20243z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_4__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_3__dup_0 ))))
+     (net nx23098z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_3__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_2__dup_0 ))))
+     (net nx903z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_2__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_1__dup_0 ))))
+     (net nx21292z1 
+      (joined 
+       (portRef Q (instanceRef reg_shifter2_1__dup_0 ))
+       (portRef D (instanceRef reg_shifter2_0__dup_0 ))))
+     (net nx11763z1 
+      (joined 
+       (portRef Q (instanceRef reg_fifo_ff2 ))
+       (portRef D (instanceRef reg_fifo_ff1 ))))
+     (net nx11764z1 
+      (joined 
+       (portRef Q (instanceRef reg_fifo_ff1 ))
+       (portRef D (instanceRef reg_fifo_ff0 ))))
+     (net nx4214z1 
+      (joined 
+       (portRef Q (instanceRef reg_lut_ff2 ))
+       (portRef D (instanceRef reg_lut_ff1 ))))
+     (net nx4213z1 
+      (joined 
+       (portRef Q (instanceRef reg_lut_ff1 ))
+       (portRef D (instanceRef reg_lut_ff0 ))))
+     (net clk_int 
+      (joined 
+       (portRef Q (instanceRef clk_ibuf ))
+       (portRef CLK (instanceRef datapath_reg_fifo_ff62 ))
+       (portRef CLK (instanceRef datapath_reg_fifo_ff63 ))
+       (portRef CLK (instanceRef datapath_reg_lut_ff62 ))
+       (portRef CLK (instanceRef datapath_reg_lut_ff63 ))
+       (portRef CLK (instanceRef key_exp_modgen_counter_round_counter_reg_q_0_ ))
+       (portRef CLK (instanceRef key_exp_modgen_counter_round_counter_reg_q_1_ ))
+       (portRef CLK (instanceRef key_exp_modgen_counter_round_counter_reg_q_2_ ))
+       (portRef CLK (instanceRef key_exp_modgen_counter_round_counter_reg_q_3_ ))
+       (portRef CLK (instanceRef key_exp_modgen_counter_round_counter_reg_q_4_ ))
+       (portRef CLK (instanceRef key_exp_modgen_counter_round_counter_reg_q_5_ ))
+       (portRef CLK (instanceRef key_exp_modgen_counter_round_counter_reg_q_6_ ))
+       (portRef CLK (instanceRef key_exp_reg_fifo_ff3 ))
+       (portRef CLK (instanceRef modgen_counter_bit_counter_reg_q_0_ ))
+       (portRef CLK (instanceRef modgen_counter_bit_counter_reg_q_1_ ))
+       (portRef CLK (instanceRef modgen_counter_bit_counter_reg_q_2_ ))
+       (portRef CLK (instanceRef modgen_counter_bit_counter_reg_q_3_ ))
+       (portRef CLK (instanceRef modgen_counter_bit_counter_reg_q_4_ ))
+       (portRef CLK (instanceRef modgen_counter_bit_counter_reg_q_5_ ))
+       (portRef CLK (instanceRef reg_fifo_ff0 ))
+       (portRef CLK (instanceRef reg_fifo_ff1 ))
+       (portRef CLK (instanceRef reg_fifo_ff2 ))
+       (portRef CLK (instanceRef reg_fifo_ff56 ))
+       (portRef CLK (instanceRef reg_fifo_ff57 ))
+       (portRef CLK (instanceRef reg_fifo_ff58 ))
+       (portRef CLK (instanceRef reg_fifo_ff59 ))
+       (portRef CLK (instanceRef reg_fifo_ff60 ))
+       (portRef CLK (instanceRef reg_fifo_ff61 ))
+       (portRef CLK (instanceRef reg_lut_ff0 ))
+       (portRef CLK (instanceRef reg_lut_ff1 ))
+       (portRef CLK (instanceRef reg_lut_ff2 ))
+       (portRef CLK (instanceRef reg_lut_ff3_s25_rtlcGen_CrossHier_n14 ))
+       (portRef CLK (instanceRef reg_lut_ff56 ))
+       (portRef CLK (instanceRef reg_lut_ff57 ))
+       (portRef CLK (instanceRef reg_lut_ff58 ))
+       (portRef CLK (instanceRef reg_lut_ff59 ))
+       (portRef CLK (instanceRef reg_lut_ff60 ))
+       (portRef CLK (instanceRef reg_lut_ff61 ))
+       (portRef CLK (instanceRef reg_shifter1_0_ ))
+       (portRef CLK (instanceRef reg_shifter1_0__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_1_ ))
+       (portRef CLK (instanceRef reg_shifter1_1__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_10_ ))
+       (portRef CLK (instanceRef reg_shifter1_10__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_11_ ))
+       (portRef CLK (instanceRef reg_shifter1_11__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_12_ ))
+       (portRef CLK (instanceRef reg_shifter1_12__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_13_ ))
+       (portRef CLK (instanceRef reg_shifter1_13__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_14_ ))
+       (portRef CLK (instanceRef reg_shifter1_14__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_15_ ))
+       (portRef CLK (instanceRef reg_shifter1_15__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_16_ ))
+       (portRef CLK (instanceRef reg_shifter1_16__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_17_ ))
+       (portRef CLK (instanceRef reg_shifter1_17__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_18_ ))
+       (portRef CLK (instanceRef reg_shifter1_18__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_19_ ))
+       (portRef CLK (instanceRef reg_shifter1_19__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_2_ ))
+       (portRef CLK (instanceRef reg_shifter1_2__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_20_ ))
+       (portRef CLK (instanceRef reg_shifter1_20__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_21_ ))
+       (portRef CLK (instanceRef reg_shifter1_21__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_22_ ))
+       (portRef CLK (instanceRef reg_shifter1_22__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_23_ ))
+       (portRef CLK (instanceRef reg_shifter1_23__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_24_ ))
+       (portRef CLK (instanceRef reg_shifter1_24__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_25_ ))
+       (portRef CLK (instanceRef reg_shifter1_25__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_26_ ))
+       (portRef CLK (instanceRef reg_shifter1_26__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_27_ ))
+       (portRef CLK (instanceRef reg_shifter1_27__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_28_ ))
+       (portRef CLK (instanceRef reg_shifter1_28__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_29_ ))
+       (portRef CLK (instanceRef reg_shifter1_29__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_3_ ))
+       (portRef CLK (instanceRef reg_shifter1_3__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_30_ ))
+       (portRef CLK (instanceRef reg_shifter1_30__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_31_ ))
+       (portRef CLK (instanceRef reg_shifter1_31__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_32_ ))
+       (portRef CLK (instanceRef reg_shifter1_32__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_33_ ))
+       (portRef CLK (instanceRef reg_shifter1_33__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_34_ ))
+       (portRef CLK (instanceRef reg_shifter1_34__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_35_ ))
+       (portRef CLK (instanceRef reg_shifter1_35__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_36_ ))
+       (portRef CLK (instanceRef reg_shifter1_36__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_37_ ))
+       (portRef CLK (instanceRef reg_shifter1_37__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_38_ ))
+       (portRef CLK (instanceRef reg_shifter1_38__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_39_ ))
+       (portRef CLK (instanceRef reg_shifter1_39__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_4_ ))
+       (portRef CLK (instanceRef reg_shifter1_4__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_40_ ))
+       (portRef CLK (instanceRef reg_shifter1_40__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_41_ ))
+       (portRef CLK (instanceRef reg_shifter1_41__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_42_ ))
+       (portRef CLK (instanceRef reg_shifter1_42__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_43_ ))
+       (portRef CLK (instanceRef reg_shifter1_43__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_44_ ))
+       (portRef CLK (instanceRef reg_shifter1_44__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_45_ ))
+       (portRef CLK (instanceRef reg_shifter1_45__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_46_ ))
+       (portRef CLK (instanceRef reg_shifter1_46__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_47_ ))
+       (portRef CLK (instanceRef reg_shifter1_47__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_48_ ))
+       (portRef CLK (instanceRef reg_shifter1_48__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_49_ ))
+       (portRef CLK (instanceRef reg_shifter1_49__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_5_ ))
+       (portRef CLK (instanceRef reg_shifter1_5__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_50_ ))
+       (portRef CLK (instanceRef reg_shifter1_50__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_51_ ))
+       (portRef CLK (instanceRef reg_shifter1_51__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_52_ ))
+       (portRef CLK (instanceRef reg_shifter1_52__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_53_ ))
+       (portRef CLK (instanceRef reg_shifter1_53__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_54_ ))
+       (portRef CLK (instanceRef reg_shifter1_54__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_55_ ))
+       (portRef CLK (instanceRef reg_shifter1_55__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_56_ ))
+       (portRef CLK (instanceRef reg_shifter1_57_ ))
+       (portRef CLK (instanceRef reg_shifter1_58_ ))
+       (portRef CLK (instanceRef reg_shifter1_6_ ))
+       (portRef CLK (instanceRef reg_shifter1_6__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_7_ ))
+       (portRef CLK (instanceRef reg_shifter1_7__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_8_ ))
+       (portRef CLK (instanceRef reg_shifter1_8__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_9_ ))
+       (portRef CLK (instanceRef reg_shifter1_9__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter1_59__s33_rtlcGen_CrossHier_n21 ))
+       (portRef CLK (instanceRef reg_shifter2_0_ ))
+       (portRef CLK (instanceRef reg_shifter2_0__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_1_ ))
+       (portRef CLK (instanceRef reg_shifter2_1__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_10_ ))
+       (portRef CLK (instanceRef reg_shifter2_10__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_11_ ))
+       (portRef CLK (instanceRef reg_shifter2_11__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_12_ ))
+       (portRef CLK (instanceRef reg_shifter2_12__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_13_ ))
+       (portRef CLK (instanceRef reg_shifter2_13__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_14_ ))
+       (portRef CLK (instanceRef reg_shifter2_14__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_15_ ))
+       (portRef CLK (instanceRef reg_shifter2_15__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_16_ ))
+       (portRef CLK (instanceRef reg_shifter2_16__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_17_ ))
+       (portRef CLK (instanceRef reg_shifter2_17__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_18_ ))
+       (portRef CLK (instanceRef reg_shifter2_18__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_19_ ))
+       (portRef CLK (instanceRef reg_shifter2_19__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_2_ ))
+       (portRef CLK (instanceRef reg_shifter2_2__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_20_ ))
+       (portRef CLK (instanceRef reg_shifter2_20__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_21_ ))
+       (portRef CLK (instanceRef reg_shifter2_21__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_22_ ))
+       (portRef CLK (instanceRef reg_shifter2_22__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_23_ ))
+       (portRef CLK (instanceRef reg_shifter2_23__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_24_ ))
+       (portRef CLK (instanceRef reg_shifter2_24__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_25_ ))
+       (portRef CLK (instanceRef reg_shifter2_25__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_26_ ))
+       (portRef CLK (instanceRef reg_shifter2_26__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_27_ ))
+       (portRef CLK (instanceRef reg_shifter2_27__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_28_ ))
+       (portRef CLK (instanceRef reg_shifter2_28__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_29_ ))
+       (portRef CLK (instanceRef reg_shifter2_29__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_3_ ))
+       (portRef CLK (instanceRef reg_shifter2_3__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_30_ ))
+       (portRef CLK (instanceRef reg_shifter2_30__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_31_ ))
+       (portRef CLK (instanceRef reg_shifter2_31__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_32_ ))
+       (portRef CLK (instanceRef reg_shifter2_32__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_33_ ))
+       (portRef CLK (instanceRef reg_shifter2_33__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_34_ ))
+       (portRef CLK (instanceRef reg_shifter2_34__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_35_ ))
+       (portRef CLK (instanceRef reg_shifter2_35__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_36_ ))
+       (portRef CLK (instanceRef reg_shifter2_36__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_37_ ))
+       (portRef CLK (instanceRef reg_shifter2_37__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_38_ ))
+       (portRef CLK (instanceRef reg_shifter2_38__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_39_ ))
+       (portRef CLK (instanceRef reg_shifter2_39__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_4_ ))
+       (portRef CLK (instanceRef reg_shifter2_4__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_40_ ))
+       (portRef CLK (instanceRef reg_shifter2_40__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_41_ ))
+       (portRef CLK (instanceRef reg_shifter2_41__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_42_ ))
+       (portRef CLK (instanceRef reg_shifter2_42__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_43_ ))
+       (portRef CLK (instanceRef reg_shifter2_43__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_44_ ))
+       (portRef CLK (instanceRef reg_shifter2_44__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_45_ ))
+       (portRef CLK (instanceRef reg_shifter2_45__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_46_ ))
+       (portRef CLK (instanceRef reg_shifter2_46__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_47_ ))
+       (portRef CLK (instanceRef reg_shifter2_47__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_48_ ))
+       (portRef CLK (instanceRef reg_shifter2_48__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_49_ ))
+       (portRef CLK (instanceRef reg_shifter2_49__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_5_ ))
+       (portRef CLK (instanceRef reg_shifter2_5__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_50_ ))
+       (portRef CLK (instanceRef reg_shifter2_50__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_51_ ))
+       (portRef CLK (instanceRef reg_shifter2_51__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_52_ ))
+       (portRef CLK (instanceRef reg_shifter2_52__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_53_ ))
+       (portRef CLK (instanceRef reg_shifter2_53__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_54_ ))
+       (portRef CLK (instanceRef reg_shifter2_54__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_55_ ))
+       (portRef CLK (instanceRef reg_shifter2_55__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_56_ ))
+       (portRef CLK (instanceRef reg_shifter2_56__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_57_ ))
+       (portRef CLK (instanceRef reg_shifter2_57__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_58_ ))
+       (portRef CLK (instanceRef reg_shifter2_58__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_59_ ))
+       (portRef CLK (instanceRef reg_shifter2_59__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_6_ ))
+       (portRef CLK (instanceRef reg_shifter2_6__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_60_ ))
+       (portRef CLK (instanceRef reg_shifter2_60__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_61_ ))
+       (portRef CLK (instanceRef reg_shifter2_61__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_62_ ))
+       (portRef CLK (instanceRef reg_shifter2_62__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_63_ ))
+       (portRef CLK (instanceRef reg_shifter2_63__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_7_ ))
+       (portRef CLK (instanceRef reg_shifter2_7__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_8_ ))
+       (portRef CLK (instanceRef reg_shifter2_8__dup_0 ))
+       (portRef CLK (instanceRef reg_shifter2_9_ ))
+       (portRef CLK (instanceRef reg_shifter2_9__dup_0 )))
+      (property NOBUFF (string "TRUE")))
+     (net data_in_int 
+      (joined 
+       (portRef Q (instanceRef data_in_ibuf ))
+       (portRef I2 (instanceRef ix11512z1550 ))
+       (portRef I2 (instanceRef ix43767z1548 ))))
+     (net (rename data_rdy_int_1_ "data_rdy_int(1)") 
+      (joined 
+       (portRef Q (instanceRef data_rdy_ibuf_1_ ))
+       (portRef I0 (instanceRef ix47804z1324 ))
+       (portRef I1 (instanceRef ix63935z1398 ))
+       (portRef I1 (instanceRef ix61941z1482 ))
+       (portRef I1 (instanceRef ix59947z1398 ))
+       (portRef I0 (instanceRef ix63935z1320 ))
+       (portRef I1 (instanceRef ix63935z1380 ))
+       (portRef I1 (instanceRef ix57953z1482 ))
+       (portRef I1 (instanceRef ix47804z1318 ))
+       (portRef I2 (instanceRef ix46807z1410 ))
+       (portRef I2 (instanceRef ix45810z1330 ))
+       (portRef I2 (instanceRef ix44813z1410 ))
+       (portRef I2 (instanceRef ix43816z1330 ))
+       (portRef I2 (instanceRef ix42819z1410 ))
+       (portRef I1 (instanceRef ix32649z1391 ))
+       (portRef I1 (instanceRef ix13022z1460 ))
+       (portRef I1 (instanceRef ix11512z1464 ))
+       (portRef I2 (instanceRef ix11512z17940 ))
+       (portRef I0 (instanceRef ix43767z1320 ))
+       (portRef EN (instanceRef key_exp_reg_fifo_ff3 ))
+       (portRef EN (instanceRef reg_fifo_ff0 ))
+       (portRef EN (instanceRef reg_fifo_ff1 ))
+       (portRef EN (instanceRef reg_fifo_ff2 ))
+       (portRef EN (instanceRef reg_shifter1_0__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_1__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_10__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_11__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_12__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_13__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_14__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_15__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_16__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_17__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_18__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_19__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_2__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_20__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_21__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_22__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_23__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_24__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_25__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_26__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_27__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_28__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_29__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_3__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_30__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_31__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_32__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_33__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_34__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_35__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_36__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_37__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_38__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_39__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_4__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_40__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_41__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_42__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_43__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_44__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_45__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_46__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_47__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_48__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_49__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_5__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_50__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_51__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_52__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_53__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_54__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_55__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_56_ ))
+       (portRef EN (instanceRef reg_shifter1_57_ ))
+       (portRef EN (instanceRef reg_shifter1_58_ ))
+       (portRef EN (instanceRef reg_shifter1_6__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_7__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_8__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_9__dup_0 ))
+       (portRef EN (instanceRef reg_shifter1_59__s33_rtlcGen_CrossHier_n21 ))
+       (portRef EN (instanceRef reg_shifter2_0__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_1__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_10__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_11__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_12__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_13__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_14__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_15__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_16__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_17__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_18__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_19__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_2__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_20__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_21__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_22__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_23__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_24__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_25__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_26__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_27__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_28__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_29__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_3__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_30__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_31__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_32__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_33__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_34__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_35__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_36__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_37__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_38__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_39__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_4__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_40__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_41__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_42__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_43__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_44__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_45__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_46__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_47__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_48__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_49__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_5__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_50__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_51__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_52__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_53__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_54__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_55__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_56__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_57__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_58__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_59__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_6__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_60__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_61__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_62__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_63__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_7__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_8__dup_0 ))
+       (portRef EN (instanceRef reg_shifter2_9__dup_0 ))))
+     (net (rename data_rdy_int_0_ "data_rdy_int(0)") 
+      (joined 
+       (portRef Q (instanceRef data_rdy_ibuf_0_ ))
+       (portRef EN (instanceRef datapath_reg_fifo_ff62 ))
+       (portRef EN (instanceRef datapath_reg_fifo_ff63 ))
+       (portRef I1 (instanceRef ix47804z1324 ))
+       (portRef I2 (instanceRef ix63935z1398 ))
+       (portRef I2 (instanceRef ix61941z1482 ))
+       (portRef I2 (instanceRef ix59947z1398 ))
+       (portRef I1 (instanceRef ix63935z1320 ))
+       (portRef I2 (instanceRef ix63935z1380 ))
+       (portRef I2 (instanceRef ix57953z1482 ))
+       (portRef I2 (instanceRef ix32649z1391 ))
+       (portRef I2 (instanceRef ix13022z1460 ))
+       (portRef I2 (instanceRef ix11512z1464 ))
+       (portRef I2 (instanceRef ix11512z1461 ))
+       (portRef I3 (instanceRef ix11512z17940 ))
+       (portRef I1 (instanceRef ix43767z1320 ))
+       (portRef EN (instanceRef reg_fifo_ff56 ))
+       (portRef EN (instanceRef reg_fifo_ff57 ))
+       (portRef EN (instanceRef reg_fifo_ff58 ))
+       (portRef EN (instanceRef reg_fifo_ff59 ))
+       (portRef EN (instanceRef reg_fifo_ff60 ))
+       (portRef EN (instanceRef reg_fifo_ff61 ))
+       (portRef EN (instanceRef reg_shifter1_0_ ))
+       (portRef EN (instanceRef reg_shifter1_1_ ))
+       (portRef EN (instanceRef reg_shifter1_10_ ))
+       (portRef EN (instanceRef reg_shifter1_11_ ))
+       (portRef EN (instanceRef reg_shifter1_12_ ))
+       (portRef EN (instanceRef reg_shifter1_13_ ))
+       (portRef EN (instanceRef reg_shifter1_14_ ))
+       (portRef EN (instanceRef reg_shifter1_15_ ))
+       (portRef EN (instanceRef reg_shifter1_16_ ))
+       (portRef EN (instanceRef reg_shifter1_17_ ))
+       (portRef EN (instanceRef reg_shifter1_18_ ))
+       (portRef EN (instanceRef reg_shifter1_19_ ))
+       (portRef EN (instanceRef reg_shifter1_2_ ))
+       (portRef EN (instanceRef reg_shifter1_20_ ))
+       (portRef EN (instanceRef reg_shifter1_21_ ))
+       (portRef EN (instanceRef reg_shifter1_22_ ))
+       (portRef EN (instanceRef reg_shifter1_23_ ))
+       (portRef EN (instanceRef reg_shifter1_24_ ))
+       (portRef EN (instanceRef reg_shifter1_25_ ))
+       (portRef EN (instanceRef reg_shifter1_26_ ))
+       (portRef EN (instanceRef reg_shifter1_27_ ))
+       (portRef EN (instanceRef reg_shifter1_28_ ))
+       (portRef EN (instanceRef reg_shifter1_29_ ))
+       (portRef EN (instanceRef reg_shifter1_3_ ))
+       (portRef EN (instanceRef reg_shifter1_30_ ))
+       (portRef EN (instanceRef reg_shifter1_31_ ))
+       (portRef EN (instanceRef reg_shifter1_32_ ))
+       (portRef EN (instanceRef reg_shifter1_33_ ))
+       (portRef EN (instanceRef reg_shifter1_34_ ))
+       (portRef EN (instanceRef reg_shifter1_35_ ))
+       (portRef EN (instanceRef reg_shifter1_36_ ))
+       (portRef EN (instanceRef reg_shifter1_37_ ))
+       (portRef EN (instanceRef reg_shifter1_38_ ))
+       (portRef EN (instanceRef reg_shifter1_39_ ))
+       (portRef EN (instanceRef reg_shifter1_4_ ))
+       (portRef EN (instanceRef reg_shifter1_40_ ))
+       (portRef EN (instanceRef reg_shifter1_41_ ))
+       (portRef EN (instanceRef reg_shifter1_42_ ))
+       (portRef EN (instanceRef reg_shifter1_43_ ))
+       (portRef EN (instanceRef reg_shifter1_44_ ))
+       (portRef EN (instanceRef reg_shifter1_45_ ))
+       (portRef EN (instanceRef reg_shifter1_46_ ))
+       (portRef EN (instanceRef reg_shifter1_47_ ))
+       (portRef EN (instanceRef reg_shifter1_48_ ))
+       (portRef EN (instanceRef reg_shifter1_49_ ))
+       (portRef EN (instanceRef reg_shifter1_5_ ))
+       (portRef EN (instanceRef reg_shifter1_50_ ))
+       (portRef EN (instanceRef reg_shifter1_51_ ))
+       (portRef EN (instanceRef reg_shifter1_52_ ))
+       (portRef EN (instanceRef reg_shifter1_53_ ))
+       (portRef EN (instanceRef reg_shifter1_54_ ))
+       (portRef EN (instanceRef reg_shifter1_55_ ))
+       (portRef EN (instanceRef reg_shifter1_6_ ))
+       (portRef EN (instanceRef reg_shifter1_7_ ))
+       (portRef EN (instanceRef reg_shifter1_8_ ))
+       (portRef EN (instanceRef reg_shifter1_9_ ))
+       (portRef EN (instanceRef reg_shifter2_0_ ))
+       (portRef EN (instanceRef reg_shifter2_1_ ))
+       (portRef EN (instanceRef reg_shifter2_10_ ))
+       (portRef EN (instanceRef reg_shifter2_11_ ))
+       (portRef EN (instanceRef reg_shifter2_12_ ))
+       (portRef EN (instanceRef reg_shifter2_13_ ))
+       (portRef EN (instanceRef reg_shifter2_14_ ))
+       (portRef EN (instanceRef reg_shifter2_15_ ))
+       (portRef EN (instanceRef reg_shifter2_16_ ))
+       (portRef EN (instanceRef reg_shifter2_17_ ))
+       (portRef EN (instanceRef reg_shifter2_18_ ))
+       (portRef EN (instanceRef reg_shifter2_19_ ))
+       (portRef EN (instanceRef reg_shifter2_2_ ))
+       (portRef EN (instanceRef reg_shifter2_20_ ))
+       (portRef EN (instanceRef reg_shifter2_21_ ))
+       (portRef EN (instanceRef reg_shifter2_22_ ))
+       (portRef EN (instanceRef reg_shifter2_23_ ))
+       (portRef EN (instanceRef reg_shifter2_24_ ))
+       (portRef EN (instanceRef reg_shifter2_25_ ))
+       (portRef EN (instanceRef reg_shifter2_26_ ))
+       (portRef EN (instanceRef reg_shifter2_27_ ))
+       (portRef EN (instanceRef reg_shifter2_28_ ))
+       (portRef EN (instanceRef reg_shifter2_29_ ))
+       (portRef EN (instanceRef reg_shifter2_3_ ))
+       (portRef EN (instanceRef reg_shifter2_30_ ))
+       (portRef EN (instanceRef reg_shifter2_31_ ))
+       (portRef EN (instanceRef reg_shifter2_32_ ))
+       (portRef EN (instanceRef reg_shifter2_33_ ))
+       (portRef EN (instanceRef reg_shifter2_34_ ))
+       (portRef EN (instanceRef reg_shifter2_35_ ))
+       (portRef EN (instanceRef reg_shifter2_36_ ))
+       (portRef EN (instanceRef reg_shifter2_37_ ))
+       (portRef EN (instanceRef reg_shifter2_38_ ))
+       (portRef EN (instanceRef reg_shifter2_39_ ))
+       (portRef EN (instanceRef reg_shifter2_4_ ))
+       (portRef EN (instanceRef reg_shifter2_40_ ))
+       (portRef EN (instanceRef reg_shifter2_41_ ))
+       (portRef EN (instanceRef reg_shifter2_42_ ))
+       (portRef EN (instanceRef reg_shifter2_43_ ))
+       (portRef EN (instanceRef reg_shifter2_44_ ))
+       (portRef EN (instanceRef reg_shifter2_45_ ))
+       (portRef EN (instanceRef reg_shifter2_46_ ))
+       (portRef EN (instanceRef reg_shifter2_47_ ))
+       (portRef EN (instanceRef reg_shifter2_48_ ))
+       (portRef EN (instanceRef reg_shifter2_49_ ))
+       (portRef EN (instanceRef reg_shifter2_5_ ))
+       (portRef EN (instanceRef reg_shifter2_50_ ))
+       (portRef EN (instanceRef reg_shifter2_51_ ))
+       (portRef EN (instanceRef reg_shifter2_52_ ))
+       (portRef EN (instanceRef reg_shifter2_53_ ))
+       (portRef EN (instanceRef reg_shifter2_54_ ))
+       (portRef EN (instanceRef reg_shifter2_55_ ))
+       (portRef EN (instanceRef reg_shifter2_56_ ))
+       (portRef EN (instanceRef reg_shifter2_57_ ))
+       (portRef EN (instanceRef reg_shifter2_58_ ))
+       (portRef EN (instanceRef reg_shifter2_59_ ))
+       (portRef EN (instanceRef reg_shifter2_6_ ))
+       (portRef EN (instanceRef reg_shifter2_60_ ))
+       (portRef EN (instanceRef reg_shifter2_61_ ))
+       (portRef EN (instanceRef reg_shifter2_62_ ))
+       (portRef EN (instanceRef reg_shifter2_63_ ))
+       (portRef EN (instanceRef reg_shifter2_7_ ))
+       (portRef EN (instanceRef reg_shifter2_8_ ))
+       (portRef EN (instanceRef reg_shifter2_9_ ))))
+     (net cipher_out 
+      (joined 
+       (portRef cipher_out )
+       (portRef P (instanceRef cipher_out_obuf ))))
+     (net nx47804z2 
+      (joined 
+       (portRef O (instanceRef ix47804z1324 ))
+       (portRef EN (instanceRef modgen_counter_bit_counter_reg_q_0_ ))
+       (portRef EN (instanceRef modgen_counter_bit_counter_reg_q_1_ ))
+       (portRef EN (instanceRef modgen_counter_bit_counter_reg_q_2_ ))
+       (portRef EN (instanceRef modgen_counter_bit_counter_reg_q_3_ ))
+       (portRef EN (instanceRef modgen_counter_bit_counter_reg_q_4_ ))
+       (portRef EN (instanceRef modgen_counter_bit_counter_reg_q_5_ ))))
+     (net nx32649z1 
+      (joined 
+       (portRef O (instanceRef ix32649z1542 ))
+       (portRef D (instanceRef reg_shifter2_63__dup_0 ))))
+     (net nx63794z1 
+      (joined 
+       (portRef O (instanceRef ix63794z1542 ))
+       (portRef D (instanceRef reg_shifter1_55_ ))))
+     (net nx13022z1 
+      (joined 
+       (portRef O (instanceRef ix13022z1419 ))
+       (portRef D (instanceRef reg_lut_ff3_s25_rtlcGen_CrossHier_n14 ))))
+     (net nx51044z1 
+      (joined 
+       (portRef a (instanceRef ix51044z53415 ))
+       (portRef EN (instanceRef datapath_reg_lut_ff63 ))
+       (portRef B (instanceRef ix11512z22253 ))
+       (portRef B (instanceRef ix11512z22254 ))
+       (portRef B (instanceRef ix11512z22255 ))
+       (portRef B (instanceRef ix11512z22256 ))))
+     (net nx48429z1 
+      (joined 
+       (portRef O (instanceRef ix48429z1400 ))
+       (portRef A (instanceRef cipher_out_obuf ))
+       (portRef D (instanceRef datapath_reg_lut_ff63 ))))
+     (net nx11512z9 
+      (joined 
+       (portRef O (instanceRef ix11512z1550 ))
+       (portRef DATA (instanceRef reg_shifter1_59__s33_rtlcGen_CrossHier_n21 ))))
+     (net nx11512z1 
+      (joined 
+       (portRef O (instanceRef ix11512z53688 ))
+       (portRef D (instanceRef reg_shifter1_59__s33_rtlcGen_CrossHier_n21 ))))
+     (net nx43767z1 
+      (joined 
+       (portRef O (instanceRef ix43767z1548 ))
+       (portRef D (instanceRef datapath_reg_fifo_ff63 ))))
+     (net nx63935z1 
+      (joined 
+       (portRef O (instanceRef ix63935z1398 ))
+       (portRef D (instanceRef key_exp_modgen_counter_round_counter_reg_q_0_ ))))
+     (net nx62938z1 
+      (joined 
+       (portRef O (instanceRef ix62938z1334 ))
+       (portRef D (instanceRef key_exp_modgen_counter_round_counter_reg_q_1_ ))))
+     (net nx61941z2 
+      (joined 
+       (portRef O (instanceRef ix61941z1423 ))
+       (portRef I0 (instanceRef ix61941z1482 ))))
+     (net nx61941z1 
+      (joined 
+       (portRef O (instanceRef ix61941z1482 ))
+       (portRef D (instanceRef key_exp_modgen_counter_round_counter_reg_q_2_ ))))
+     (net nx60944z1 
+      (joined 
+       (portRef O (instanceRef ix60944z1334 ))
+       (portRef D (instanceRef key_exp_modgen_counter_round_counter_reg_q_3_ ))))
+     (net nx59947z2 
+      (joined 
+       (portRef O (instanceRef ix59947z1462 ))
+       (portRef I0 (instanceRef ix59947z1398 ))))
+     (net nx59947z1 
+      (joined 
+       (portRef O (instanceRef ix59947z1398 ))
+       (portRef D (instanceRef key_exp_modgen_counter_round_counter_reg_q_4_ ))))
+     (net nx58950z1 
+      (joined 
+       (portRef O (instanceRef ix58950z1332 ))
+       (portRef D (instanceRef key_exp_modgen_counter_round_counter_reg_q_5_ ))))
+     (net nx63935z6 
+      (joined 
+       (portRef O (instanceRef ix63935z1320 ))
+       (portRef I0 (instanceRef ix62938z1334 ))
+       (portRef I0 (instanceRef ix60944z1334 ))
+       (portRef I1 (instanceRef ix58950z1332 ))
+       (portRef I1 (instanceRef ix63935z1335 ))))
+     (net nx63935z3 
+      (joined 
+       (portRef O (instanceRef ix63935z1335 ))
+       (portRef I0 (instanceRef ix63935z1380 ))))
+     (net nx63935z2 
+      (joined 
+       (portRef O (instanceRef ix63935z1380 ))
+       (portRef EN (instanceRef key_exp_modgen_counter_round_counter_reg_q_0_ ))
+       (portRef EN (instanceRef key_exp_modgen_counter_round_counter_reg_q_1_ ))
+       (portRef EN (instanceRef key_exp_modgen_counter_round_counter_reg_q_2_ ))
+       (portRef EN (instanceRef key_exp_modgen_counter_round_counter_reg_q_3_ ))
+       (portRef EN (instanceRef key_exp_modgen_counter_round_counter_reg_q_4_ ))
+       (portRef EN (instanceRef key_exp_modgen_counter_round_counter_reg_q_5_ ))
+       (portRef EN (instanceRef key_exp_modgen_counter_round_counter_reg_q_6_ ))))
+     (net nx60944z2 
+      (joined 
+       (portRef O (instanceRef ix60944z1443 ))
+       (portRef I1 (instanceRef ix60944z1334 ))
+       (portRef I0 (instanceRef ix59947z1462 ))
+       (portRef I0 (instanceRef ix57953z1444 ))))
+     (net nx57953z3 
+      (joined 
+       (portRef O (instanceRef ix57953z1444 ))
+       (portRef I0 (instanceRef ix58950z1332 ))
+       (portRef I0 (instanceRef ix57953z1423 ))))
+     (net nx57953z2 
+      (joined 
+       (portRef O (instanceRef ix57953z1423 ))
+       (portRef I0 (instanceRef ix57953z1482 ))))
+     (net nx57953z1 
+      (joined 
+       (portRef O (instanceRef ix57953z1482 ))
+       (portRef D (instanceRef key_exp_modgen_counter_round_counter_reg_q_6_ ))))
+     (net nx47804z1 
+      (joined 
+       (portRef O (instanceRef ix47804z1318 ))
+       (portRef D (instanceRef modgen_counter_bit_counter_reg_q_0_ ))))
+     (net nx46807z1 
+      (joined 
+       (portRef O (instanceRef ix46807z1410 ))
+       (portRef D (instanceRef modgen_counter_bit_counter_reg_q_1_ ))))
+     (net nx45810z2 
+      (joined 
+       (portRef O (instanceRef ix45810z1336 ))
+       (portRef I1 (instanceRef ix45810z1330 ))))
+     (net nx45810z1 
+      (joined 
+       (portRef O (instanceRef ix45810z1330 ))
+       (portRef D (instanceRef modgen_counter_bit_counter_reg_q_2_ ))))
+     (net nx44813z1 
+      (joined 
+       (portRef O (instanceRef ix44813z1410 ))
+       (portRef D (instanceRef modgen_counter_bit_counter_reg_q_3_ ))))
+     (net nx43816z2 
+      (joined 
+       (portRef O (instanceRef ix43816z1334 ))
+       (portRef I1 (instanceRef ix43816z1330 ))))
+     (net nx43816z1 
+      (joined 
+       (portRef O (instanceRef ix43816z1330 ))
+       (portRef D (instanceRef modgen_counter_bit_counter_reg_q_4_ ))))
+     (net nx63935z5 
+      (joined 
+       (portRef O (instanceRef ix63935z1446 ))
+       (portRef I0 (instanceRef ix45810z1330 ))
+       (portRef I0 (instanceRef ix44813z1410 ))
+       (portRef I0 (instanceRef ix43816z1334 ))
+       (portRef I0 (instanceRef ix63935z1445 ))))
+     (net nx63935z4 
+      (joined 
+       (portRef O (instanceRef ix63935z1445 ))
+       (portRef I0 (instanceRef ix63935z1335 ))
+       (portRef I0 (instanceRef ix43816z1330 ))
+       (portRef I0 (instanceRef ix42819z1410 ))))
+     (net nx42819z1 
+      (joined 
+       (portRef O (instanceRef ix42819z1410 ))
+       (portRef D (instanceRef modgen_counter_bit_counter_reg_q_5_ ))))
+     (net nx32649z3 
+      (joined 
+       (portRef O (instanceRef ix32649z1320 ))
+       (portRef I0 (instanceRef ix32649z1391 ))))
+     (net nx32649z2 
+      (joined 
+       (portRef O (instanceRef ix32649z1391 ))
+       (portRef I0 (instanceRef ix32649z1542 ))))
+     (net nx63794z2 
+      (joined 
+       (portRef O (instanceRef ix63794z1380 ))
+       (portRef I0 (instanceRef ix63794z1542 ))))
+     (net nx13022z19 
+      (joined 
+       (portRef O (instanceRef ix13022z1460 ))
+       (portRef EN (instanceRef reg_lut_ff0 ))
+       (portRef EN (instanceRef reg_lut_ff1 ))
+       (portRef EN (instanceRef reg_lut_ff2 ))
+       (portRef EN (instanceRef reg_lut_ff3_s25_rtlcGen_CrossHier_n14 ))))
+     (net nx11512z12 
+      (joined 
+       (portRef O (instanceRef ix11512z1464 ))
+       (portRef I0 (instanceRef ix11512z1461 ))))
+     (net nx11512z11 
+      (joined 
+       (portRef O (instanceRef ix11512z1461 ))
+       (portRef LD (instanceRef reg_shifter1_59__s33_rtlcGen_CrossHier_n21 ))))
+     (net nx13022z18 
+      (joined 
+       (portRef O (instanceRef ix13022z1436 ))
+       (portRef I2 (instanceRef ix13022z1544 ))))
+     (net nx13022z17 
+      (joined 
+       (portRef O (instanceRef ix13022z1435 ))
+       (portRef I1 (instanceRef ix13022z1544 ))))
+     (net nx13022z16 
+      (joined 
+       (portRef O (instanceRef ix13022z1331 ))
+       (portRef I0 (instanceRef ix13022z1544 ))))
+     (net nx13022z15 
+      (joined 
+       (portRef O (instanceRef ix13022z1544 ))
+       (portRef I1 (instanceRef ix13022z1419 ))
+       (portRef I2 (instanceRef ix11512z53688 ))))
+     (net nx11512z4 
+      (joined 
+       (portRef O (instanceRef ix11512z1319 ))
+       (portRef I0 (instanceRef ix13022z1460 ))
+       (portRef I0 (instanceRef ix11512z1464 ))
+       (portRef I1 (instanceRef ix11512z17940 ))))
+     (net nx32649z6 
+      (joined 
+       (portRef O (instanceRef ix32649z1328 ))
+       (portRef I1 (instanceRef ix32649z1325 ))))
+     (net nx32649z5 
+      (joined 
+       (portRef O (instanceRef ix32649z1319 ))
+       (portRef I0 (instanceRef ix32649z1325 ))))
+     (net nx32649z4 
+      (joined 
+       (portRef O (instanceRef ix32649z1325 ))
+       (portRef I0 (instanceRef ix32649z1320 ))
+       (portRef I1 (instanceRef ix11512z1461 ))
+       (portRef I1 (instanceRef ix13022z1331 ))
+       (portRef I0 (instanceRef ix11512z17940 ))))
+     (net nx11512z3 
+      (joined 
+       (portRef O (instanceRef ix11512z17940 ))
+       (portRef I0 (instanceRef ix11512z1550 ))
+       (portRef I3 (instanceRef ix11512z53688 ))
+       (portRef I0 (instanceRef ix11512z1456 ))))
+     (net nx11512z2 
+      (joined 
+       (portRef O (instanceRef ix11512z1456 ))
+       (portRef I1 (instanceRef ix11512z53688 ))))
+     (net nx13022z14 
+      (joined 
+       (portRef O (instanceRef ix13022z1335 ))
+       (portRef I1 (instanceRef ix13022z1327 ))))
+     (net nx63794z3 
+      (joined 
+       (portRef O (instanceRef ix63794z1317 ))
+       (portRef I1 (instanceRef ix32649z1320 ))
+       (portRef I1 (instanceRef ix63794z1380 ))
+       (portRef I0 (instanceRef ix11512z1319 ))
+       (portRef I0 (instanceRef ix13022z1328 ))))
+     (net nx13022z13 
+      (joined 
+       (portRef O (instanceRef ix13022z1328 ))
+       (portRef I0 (instanceRef ix13022z1331 ))
+       (portRef I0 (instanceRef ix13022z1327 ))))
+     (net nx13022z12 
+      (joined 
+       (portRef O (instanceRef ix13022z1327 ))
+       (portRef I2 (instanceRef ix13022z1491 ))))
+     (net nx13022z11 
+      (joined 
+       (portRef O (instanceRef ix13022z53487 ))
+       (portRef I0 (instanceRef ix13022z1355 ))))
+     (net nx13022z10 
+      (joined 
+       (portRef O (instanceRef ix13022z1355 ))
+       (portRef I1 (instanceRef ix13022z1321 ))))
+     (net nx13022z9 
+      (joined 
+       (portRef O (instanceRef ix13022z20484 ))
+       (portRef I0 (instanceRef ix13022z1322 ))))
+     (net nx13022z8 
+      (joined 
+       (portRef O (instanceRef ix13022z1322 ))
+       (portRef I0 (instanceRef ix13022z1321 ))))
+     (net nx13022z7 
+      (joined 
+       (portRef O (instanceRef ix13022z1321 ))
+       (portRef I1 (instanceRef ix13022z1491 ))))
+     (net nx13022z6 
+      (joined 
+       (portRef O (instanceRef ix13022z18945 ))
+       (portRef I1 (instanceRef ix13022z1375 ))))
+     (net nx13022z5 
+      (joined 
+       (portRef O (instanceRef ix13022z55633 ))
+       (portRef I0 (instanceRef ix13022z1375 ))))
+     (net nx13022z4 
+      (joined 
+       (portRef O (instanceRef ix13022z1375 ))
+       (portRef I0 (instanceRef ix13022z1320 ))))
+     (net nx13022z3 
+      (joined 
+       (portRef O (instanceRef ix13022z1320 ))
+       (portRef I0 (instanceRef ix13022z1491 ))))
+     (net nx13022z2 
+      (joined 
+       (portRef O (instanceRef ix13022z1491 ))
+       (portRef I0 (instanceRef ix13022z1419 ))
+       (portRef I0 (instanceRef ix11512z53688 ))))
+     (net nx43767z7 
+      (joined 
+       (portRef O (instanceRef ix43767z1448 ))
+       (portRef I2 (instanceRef ix48429z1400 ))
+       (portRef I2 (instanceRef ix43767z1487 ))))
+     (net nx43767z6 
+      (joined 
+       (portRef O (instanceRef ix43767z1383 ))
+       (portRef I1 (instanceRef ix48429z1400 ))
+       (portRef I1 (instanceRef ix43767z1487 ))))
+     (net nx48429z3 
+      (joined 
+       (portRef O (instanceRef ix48429z1343 ))
+       (portRef I0 (instanceRef ix48429z1420 ))))
+     (net nx48429z2 
+      (joined 
+       (portRef O (instanceRef ix48429z1420 ))
+       (portRef I0 (instanceRef ix48429z1400 ))
+       (portRef I0 (instanceRef ix43767z1487 ))))
+     (net nx43767z5 
+      (joined 
+       (portRef O (instanceRef ix43767z1487 ))
+       (portRef I0 (instanceRef ix43767z1333 ))))
+     (net nx43767z4 
+      (joined 
+       (portRef O (instanceRef ix43767z1333 ))
+       (portRef P (instanceRef datapath_reg_fifo_ff63 ))))
+     (net nx43767z3 
+      (joined 
+       (portRef O (instanceRef ix43767z1320 ))
+       (portRef I1 (instanceRef ix43767z1548 ))
+       (portRef I0 (instanceRef ix63794z1380 ))
+       (portRef I1 (instanceRef ix43767z1333 ))
+       (portRef I0 (instanceRef ix43767z1331 ))))
+     (net nx43767z2 
+      (joined 
+       (portRef O (instanceRef ix43767z1331 ))
+       (portRef I0 (instanceRef ix43767z1548 ))))))))
+ (design Simon_bit_serial_top (cellRef Simon_bit_serial_top (libraryRef work ))))

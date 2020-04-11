@@ -1,0 +1,15 @@
+(* whitebox *)
+module F_FRAG (F1, F2, FS, FZ);
+    input  wire F1;
+    input  wire F2;
+    input  wire FS;
+
+    (* DELAY_CONST_F1="{iopath_F1_FZ}" *)
+    (* DELAY_CONST_F2="{iopath_F2_FZ}" *)
+    (* DELAY_CONST_FS="{iopath_FS_FZ}" *)
+    output wire FZ;
+
+    // The F-mux
+    assign FZ = FS ? F2 : F1;
+
+endmodule
