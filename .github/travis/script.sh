@@ -35,10 +35,6 @@ make_target lint_python "Check code style"
 
 $SPACER
 
-make_target all_v2x_tests "Run v2x unit tests"
-
-$SPACER
-
 make_target test_python "Run Python unit tests"
 
 $SPACER
