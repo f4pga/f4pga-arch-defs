@@ -1,7 +1,0 @@
-<models xmlns:xi="http://www.w3.org/2001/XInclude">
-  <xi:include href="../dsp_combinational/dsp_combinational.model.xml" xpointer="xpointer(models/child::node())"/>
-  <xi:include href="../dsp_in_registered/dsp_in_registered.model.xml" xpointer="xpointer(models/child::node())"/>
-  <xi:include href="../dsp_inout_registered/dsp_inout_registered.model.xml" xpointer="xpointer(models/child::node())"/>
-  <xi:include href="../dsp_out_registered/dsp_out_registered.model.xml" xpointer="xpointer(models/child::node())"/>
-  <xi:include href="../dsp_partial_registered/dsp_partial_registered.model.xml" xpointer="xpointer(models/child::node())"/>
-</models>

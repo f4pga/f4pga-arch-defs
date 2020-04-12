@@ -9,7 +9,7 @@ function(V2X)
   # ~~~
   #
   # V2X converts SRCS from verilog to .pb_type.xml and .model.xml via the
-  # utilities in <root>/util/vlog/vlog_to_<x>.
+  # utilities in <root>/ ./third_party/../python-symbiflow-v2x/v2x/vlog_to_<x>.
   #
   # V2X requires all files in SRCS to have a file target via ADD_FILE_TARGET.
   #
@@ -41,7 +41,10 @@ function(V2X)
   get_target_property(YOSYS_TARGET env YOSYS_TARGET)
   list(APPEND DEPENDS_LIST ${YOSYS} ${YOSYS_TARGET})
 
-  set(PYUTILS_PATH ${symbiflow-arch-defs_SOURCE_DIR}/utils)
+  get_target_property(V2X_TARGET env V2X_TARGET)
+  list(APPEND DEPENDS_LIST ${V2X_TARGET})
+
+  set(V2X_DIR ${symbiflow-arch-defs_SOURCE_DIR}/third_party/python-symbiflow-v2x)
 
   set(REAL_SOURCE_LIST "")
   foreach(SRC ${V2X_SRCS})
@@ -94,13 +97,13 @@ function(V2X)
     OUTPUT "${V2X_NAME}.pb_type.xml"
     DEPENDS
       ${DEPENDS_LIST}
-      ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_pbtype.py
+      ${V2X_DIR}/v2x/vlog_to_pbtype.py
     COMMAND
-    ${CMAKE_COMMAND} -E env YOSYS=${YOSYS} PYTHONPATH=${PYUTILS_PATH}
-      ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_pbtype.py ${TOP_ARG}
+    ${CMAKE_COMMAND} -E env YOSYS=${YOSYS} PYTHONPATH=${V2X_DIR}:${symbiflow-arch-defs_BINARY_DIR}/env/conda/lib/python3.7/site-packages
+      ${PYTHON3} -m v2x --mode=pb_type ${TOP_ARG}
       -o ${CMAKE_CURRENT_BINARY_DIR}/${V2X_NAME}.pb_type.xml ${FIRST_SOURCE}
       ${INCLUDE_ARG}
-    WORKING_DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/
+    WORKING_DIRECTORY ${V2X_DIR}/v2x/
   )
   add_file_target(FILE "${V2X_NAME}.pb_type.xml" GENERATED)
   get_file_target(SRC_TARGET_NAME "${V2X_NAME}.pb_type.xml")
@@ -110,13 +113,13 @@ function(V2X)
     OUTPUT "${V2X_NAME}.model.xml"
     DEPENDS
       ${DEPENDS_LIST}
-      ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_model.py
+      ${V2X_DIR}/v2x/vlog_to_model.py
     COMMAND
-    ${CMAKE_COMMAND} -E env YOSYS=${YOSYS} PYTHONPATH=${PYUTILS_PATH}
-      ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_model.py ${TOP_ARG}
+    ${CMAKE_COMMAND} -E env YOSYS=${YOSYS} PYTHONPATH=${V2X_DIR}:${symbiflow-arch-defs_BINARY_DIR}/env/conda/lib/python3.7/site-packages
+      ${PYTHON3} -m v2x --mode=model ${TOP_ARG}
       -o ${CMAKE_CURRENT_BINARY_DIR}/${V2X_NAME}.model.xml ${FIRST_SOURCE}
       ${INCLUDE_ARG}
-    WORKING_DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/
+    WORKING_DIRECTORY ${V2X_DIR}/v2x/
   )
   add_file_target(FILE "${V2X_NAME}.model.xml" GENERATED)
   get_file_target(SRC_TARGET_NAME "${V2X_NAME}.model.xml")
@@ -201,24 +204,32 @@ function(VPR_TEST_PB_TYPE)
   )
   add_file_target(FILE "${VPR_TEST_PB_TYPE_NAME}.test.eblif" GENERATED)
 
+  set(ARCH_MERGED_XML "${VPR_TEST_PB_TYPE_NAME}.arch.merged.xml")
+  set(ARCH_TILES_XML "${VPR_TEST_PB_TYPE_NAME}.arch.tiles.xml")
+  set(ARCH_TIMINGS_XML "${VPR_TEST_PB_TYPE_NAME}.arch.timings.xml")
+
+  set(update_arch_tiles_py "${symbiflow-arch-defs_SOURCE_DIR}/utils/update_arch_tiles.py")
+
   xml_canonicalize_merge(
     NAME ${VPR_TEST_PB_TYPE_NAME}_arch_merged
     FILE ${VPR_TEST_PB_TYPE_NAME}.arch.xml
-    OUTPUT ${VPR_TEST_PB_TYPE_NAME}.arch.merged.xml
+    OUTPUT ${ARCH_MERGED_XML}
   )
 
-  add_file_target(FILE "${VPR_TEST_PB_TYPE_NAME}.arch.tiles.xml" GENERATED)
+  add_file_target(FILE ${ARCH_TILES_XML} GENERATED)
   add_custom_command(
-    OUTPUT "${VPR_TEST_PB_TYPE_NAME}.arch.tiles.xml"
+    OUTPUT "${ARCH_TILES_XML}"
     DEPENDS
       ${PYTHON3} ${PYTHON3_TARGET}
-      ${VPR_TEST_PB_TYPE_NAME}.arch.merged.xml
-      ${symbiflow-arch-defs_SOURCE_DIR}/utils/update_arch_tiles.py
+      ${ARCH_MERGED_XML}
+      ${update_arch_tiles_py}
     COMMAND
-      ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/update_arch_tiles.py
-        --in_xml ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PB_TYPE_NAME}.arch.merged.xml
-        --out_xml ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PB_TYPE_NAME}.arch.tiles.xml
-    )
+      ${PYTHON3} ${update_arch_tiles_py}
+        --in_xml ${ARCH_MERGED_XML}
+        --out_xml ${ARCH_TILES_XML}
+  )
+
+  update_arch_timings(INPUT ${ARCH_TILES_XML} OUTPUT ${ARCH_TIMINGS_XML})
 
   get_target_property_required(VPR env VPR)
   get_target_property(VPR_TARGET env VPR_TARGET)
@@ -228,7 +239,7 @@ function(VPR_TEST_PB_TYPE)
   set(OUT_LOCAL ${CMAKE_CURRENT_BINARY_DIR}/${OUT_LOCAL_REL})
 
   set(DEPENDS_TEST "")
-  append_file_dependency(DEPENDS_TEST ${VPR_TEST_PB_TYPE_NAME}.arch.tiles.xml)
+  append_file_dependency(DEPENDS_TEST ${ARCH_TIMINGS_XML})
   append_file_dependency(DEPENDS_TEST ${VPR_TEST_PB_TYPE_NAME}.test.eblif)
   add_custom_command(
     OUTPUT
@@ -242,10 +253,11 @@ function(VPR_TEST_PB_TYPE)
     COMMAND
       ${CMAKE_COMMAND} -E chdir ${OUT_LOCAL}
       ${QUIET_CMD} ${VPR}
-      ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PB_TYPE_NAME}.arch.tiles.xml
+      ${CMAKE_CURRENT_BINARY_DIR}/${ARCH_TIMINGS_XML}
       ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PB_TYPE_NAME}.test.eblif
       --echo_file on
       --pack
+      --pack_verbosity 100
       --place
       --route
       --device device
