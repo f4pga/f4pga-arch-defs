@@ -32,12 +32,14 @@ function(DEFINE_ARCH)
   #    PLACE_CONSTR_TOOL <path to place constraints tool>
   #    PLACE_CONSTR_TOOL_CMD <command to run PLACE_CONSTR_TOOL>
   #    [NO_BITSTREAM]
+  #    [NO_BIT_TO_BIN]
   #    [NO_BIT_TO_V]
-  #    CELLS_SIM <path to verilog file used for simulation>
+  #    [CELLS_SIM <path to verilog file used for simulation>]
   #    HLC_TO_BIT <path to HLC to bitstream converter>
   #    HLC_TO_BIT_CMD <command to run HLC_TO_BIT>
   #    FASM_TO_BIT <path to FASM to bitstream converter>
   #    FASM_TO_BIT_CMD <command to run FASM_TO_BIT>
+  #    FASM_TO_BIT_DEPS <list of dependencies for FASM_TO_BIT_CMD>
   #    BIT_TO_V <path to bitstream to verilog converter>
   #    BIT_TO_V_CMD <command to run BIT_TO_V>
   #    BIT_TO_BIN <path to bitstream to binary>
@@ -63,6 +65,8 @@ function(DEFINE_ARCH)
   # If NO_PINS is set, PLACE_TOOL and PLACE_TOOL_CMD cannot be specified.
   # If NO_BITSTREAM is set, HLC_TO_BIT, HLC_TO_BIT_CMD BIT_TO_V,
   # BIT_TO_V_CMD, BIT_TO_BIN and BIT_TO_BIN_CMD cannot be specified.
+  #
+  # if NO_BIT_TO_BIN is given then there will be no BIT to BIN stage.
   #
   # YOSYS_SYNTH_SCRIPT - The main design synthesis script. It needs to write
   #  the synthesized design in JSON format to a file name pointed by the
@@ -125,7 +129,16 @@ function(DEFINE_ARCH)
   # * PACKAGE - Package of bitstream.
   # * OUT_BITSTREAM - Input path to bitstream.
   # * OUT_BIT_VERILOG - Output path to verilog version of bitstream.
-  set(options NO_PLACE_CONSTR NO_PINS NO_BITSTREAM NO_BIT_TO_V NO_BIT_TIME USE_FASM)
+  set(options
+    NO_PLACE_CONSTR
+    NO_PINS
+    NO_BITSTREAM
+    NO_BIT_TO_BIN
+    NO_BIT_TO_V
+    NO_BIT_TIME
+    USE_FASM
+  )
+
   set(
     oneValueArgs
     ARCH
@@ -158,7 +171,14 @@ function(DEFINE_ARCH)
     RR_GRAPH_EXT
     ROUTE_CHAN_WIDTH
   )
-  set(multiValueArgs CELLS_SIM VPR_ARCH_ARGS)
+
+  set(
+    multiValueArgs
+    CELLS_SIM
+    VPR_ARCH_ARGS
+    FASM_TO_BIT_DEPS
+  )
+
   cmake_parse_arguments(
     DEFINE_ARCH
     "${options}"
@@ -178,6 +198,7 @@ function(DEFINE_ARCH)
     NO_PLACE_CONSTR
     NO_PINS
     NO_BITSTREAM
+    NO_BIT_TO_BIN
     NO_BIT_TO_V
     NO_BIT_TIME
     USE_FASM
@@ -216,6 +237,9 @@ function(DEFINE_ARCH)
 
   set(BIT_ARGS
     BITSTREAM_EXTENSION
+    )
+
+  set(BIN_ARGS
     BIN_EXTENSION
     BIT_TO_BIN
     BIT_TO_BIN_CMD
@@ -231,11 +255,19 @@ function(DEFINE_ARCH)
     BIT_TIME_CMD
     )
 
+  if(NOT ${DEFINE_ARCH_NO_BIT_TO_BIN})
+    list(APPEND BIT_ARGS ${BIN_ARGS})
+  else()
+    list(APPEND DISALLOWED_ARGS ${BIN_ARGS})
+  endif()
+
   if(${DEFINE_ARCH_USE_FASM})
     list(APPEND DISALLOWED_ARGS ${HLC_BIT_ARGS})
+    list(APPEND OPTIONAL_ARGS FASM_TO_BIT_DEPS)
     list(APPEND BIT_ARGS ${FASM_BIT_ARGS})
   else()
     list(APPEND DISALLOWED_ARGS ${FASM_BIT_ARGS})
+    list(APPEND DISALLOWED_ARGS FASM_TO_BIT_DEPS)
     list(APPEND BIT_ARGS ${HLC_BIT_ARGS})
   endif()
 
@@ -389,7 +421,7 @@ function(DEFINE_DEVICE_TYPE)
       separate_arguments(CMD_W_ARGS UNIX_COMMAND ${SCRIPT})
       list(GET CMD_W_ARGS 0 CMD)
       set(TEMP_TARGET arch.${OUTPUT_NAME}.xml)
-      set(DEFINE_DEVICE_DEPS ${PYTHON3} ${PYTHON3_TARGET} ${CMD} ${${DEFINE_DEVICE_TYPE_SCRIPT_DEP_VAR}})
+      set(DEFINE_DEVICE_DEPS ${PYTHON3} ${PYTHON3_TARGET} ${CMD} ${DEFINE_DEVICE_TYPE_SCRIPT_DEP_VAR})
       append_file_dependency(DEFINE_DEVICE_DEPS ${FINAL_OUTPUT})
 
       add_custom_command(
@@ -455,6 +487,7 @@ function(DEFINE_DEVICE)
   #   PART <part>
   #   DEVICE_TYPE <device_type>
   #   PACKAGES <list of packages>
+  #   [WIRE_EBLIF <a dummy design eblif file>
   #   [CACHE_PLACE_DELAY]
   #   [CACHE_LOOKAHEAD]
   #   [CACHE_ARGS <args>]
@@ -466,6 +499,9 @@ function(DEFINE_DEVICE)
   # Creates dummy targets <arch>_<device>_<package>_rrxml_virt and
   # <arch>_<device>_<package>_rrxml_virt  that generates the the virtual and
   # real rr_graph for a specific device and package.
+  #
+  # The WIRE_EBLIF specifies a dummy design file to use. If not given then
+  # the default "common/wire.eblif" is used.
   #
   # To prevent VPR from recomputing the place delay matrix and/or lookahead,
   # CACHE_PLACE_DELAY and CACHE_LOOKAHEAD options may be specified.
@@ -481,7 +517,7 @@ function(DEFINE_DEVICE)
   # WARNING: Using a different place delay or lookahead algorithm will result
   # in an invalid cache.
   set(options CACHE_LOOKAHEAD CACHE_PLACE_DELAY)
-  set(oneValueArgs DEVICE ARCH PART DEVICE_TYPE PACKAGES)
+  set(oneValueArgs DEVICE ARCH PART DEVICE_TYPE PACKAGES WIRE_EBLIF)
   set(multiValueArgs RR_PATCH_DEPS RR_PATCH_EXTRA_ARGS CACHE_ARGS)
   cmake_parse_arguments(
     DEFINE_DEVICE
@@ -501,6 +537,12 @@ function(DEFINE_DEVICE)
       PROPERTIES ${ARG} ${DEFINE_DEVICE_${ARG}}
     )
   endforeach()
+
+  if("${DEFINE_DEVICE_WIRE_EBLIF}" STREQUAL "")
+    set(WIRE_EBLIF ${symbiflow-arch-defs_SOURCE_DIR}/common/wire.eblif)
+  else()
+    set(WIRE_EBLIF ${DEFINE_DEVICE_WIRE_EBLIF})
+  endif()
 
   get_target_property_required(
     RR_PATCH_TOOL ${DEFINE_DEVICE_ARCH} RR_PATCH_TOOL
@@ -551,14 +593,14 @@ function(DEFINE_DEVICE)
     add_custom_command(
       OUTPUT ${OUT_RRXML_VIRT} rr_graph_${DEVICE}_${PACKAGE}.virt.out
       DEPENDS
-        ${symbiflow-arch-defs_SOURCE_DIR}/common/wire.eblif
+        ${WIRE_EBLIF}
         ${DEVICE_MERGED_FILE} ${DEVICE_MERGED_FILE_TARGET}
         ${QUIET_CMD} ${QUIET_CMD_TARGET}
         ${VPR} ${VPR_TARGET} ${DEFINE_DEVICE_DEVICE_TYPE}
       COMMAND
         ${QUIET_CMD} ${VPR} ${DEVICE_MERGED_FILE}
         --device ${DEVICE_FULL}
-        ${symbiflow-arch-defs_SOURCE_DIR}/common/wire.eblif
+        ${WIRE_EBLIF}
         --place_algorithm bounding_box
         --enable_timing_computations off
         --route_chan_width 6
@@ -567,7 +609,9 @@ function(DEFINE_DEVICE)
         --write_rr_graph ${OUT_RRXML_VIRT}
         --outfile_prefix ${DEVICE}_${PACKAGE}
         --pack
+        --pack_verbosity 100
         --place
+        --allow_dangling_combinational_nodes on
       COMMAND
         ${CMAKE_COMMAND} -E copy vpr_stdout.log
         rr_graph_${DEVICE}_${PACKAGE}.virt.out
@@ -648,7 +692,7 @@ function(DEFINE_DEVICE)
     add_custom_command(
       OUTPUT ${OUT_RRXML_REAL}.cache ${OUTPUTS}
       DEPENDS
-          ${symbiflow-arch-defs_SOURCE_DIR}/common/wire.eblif
+          ${WIRE_EBLIF}
           ${VPR} ${VPR_TARGET}
           ${QUIET_CMD} ${QUIET_CMD_TARGET}
           ${DEFINE_DEVICE_DEVICE_TYPE}
@@ -657,7 +701,7 @@ function(DEFINE_DEVICE)
           ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/check_cache.py ${OUT_RRXML_REAL} ${OUT_RRXML_REAL}.cache ${OUTPUTS} || (
           ${QUIET_CMD} ${VPR} ${DEVICE_MERGED_FILE}
           --device ${DEVICE_FULL}
-          ${symbiflow-arch-defs_SOURCE_DIR}/common/wire.eblif
+          ${WIRE_EBLIF}
           --read_rr_graph ${OUT_RRXML_REAL}
           --write_rr_graph ${OUT_RRBIN_REAL}
           --read_rr_edge_metadata on
@@ -954,6 +998,8 @@ function(ADD_FPGA_TARGET)
     "${multiValueArgs}"
     ${ARGN}
   )
+ 
+  get_target_property_required(PYTHON3 env PYTHON3)
 
   set(TOP "top")
   if(NOT "${ADD_FPGA_TARGET_TOP}" STREQUAL "")
@@ -1043,11 +1089,8 @@ function(ADD_FPGA_TARGET)
     endif()
   endif()
 
-  set(SOURCE_FILES_DEPS "")
-  set(SOURCE_FILES "")
   if(NOT "${ADD_FPGA_TARGET_INPUT_XDC_FILE}" STREQUAL "")
     get_file_location(INPUT_XDC_FILE ${ADD_FPGA_TARGET_INPUT_XDC_FILE})
-    append_file_dependency(SOURCE_FILES_DEPS ${ADD_FPGA_TARGET_INPUT_XDC_FILE})
   endif()
 
   #
@@ -1059,10 +1102,32 @@ function(ADD_FPGA_TARGET)
   set(OUT_SYNTH_V_REL ${OUT_LOCAL_REL}/${TOP}_synth.v)
   set(OUT_FASM_EXTRA ${OUT_LOCAL}/${TOP}_fasm_extra.fasm)
 
+  set(SOURCE_FILES_DEPS "")
+  set(SOURCE_FILES "")
   foreach(SRC ${ADD_FPGA_TARGET_SOURCES})
     append_file_location(SOURCE_FILES ${SRC})
     append_file_dependency(SOURCE_FILES_DEPS ${SRC})
   endforeach()
+
+  set(CELLS_SIM_DEPS "")
+  get_cells_sim_path(PATH_TO_CELLS_SIM ${ARCH})
+  foreach(CELL ${PATH_TO_CELLS_SIM})
+    get_file_target(CELL_TARGET ${CELL})
+    list(APPEND CELLS_SIM_DEPS ${CELL_TARGET})
+  endforeach()
+
+  set(YOSYS_IO_DEPS "")
+
+  if(NOT ${ADD_FPGA_TARGET_INPUT_IO_FILE} STREQUAL "")
+    get_target_property_required(PINMAP_FILE ${BOARD} PINMAP)
+
+    get_file_location(INPUT_IO_FILE ${ADD_FPGA_TARGET_INPUT_IO_FILE})
+    get_file_location(PINMAP ${PINMAP_FILE})
+
+    append_file_dependency(YOSYS_IO_DEPS ${ADD_FPGA_TARGET_INPUT_IO_FILE})
+    append_file_dependency(YOSYS_IO_DEPS ${PINMAP_FILE})
+
+  endif()
 
   if(NOT ${ADD_FPGA_TARGET_NO_SYNTHESIS})
     set(COMPLETE_YOSYS_SYNTH_SCRIPT "tcl ${YOSYS_SYNTH_SCRIPT}")
@@ -1082,20 +1147,24 @@ function(ADD_FPGA_TARGET)
 
     add_custom_command(
       OUTPUT ${OUT_JSON_SYNTH} ${OUT_SYNTH_V} ${OUT_FASM_EXTRA}
-      DEPENDS ${SOURCE_FILES_DEPS}
-              ${YOSYS} ${YOSYS_TARGET} ${QUIET_CMD} ${QUIET_CMD_TARGET}
+      DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS} ${INPUT_XDC_FILE} ${CELLS_SIM_DEPS}
+              ${YOSYS} ${YOSYS_TARGET} ${QUIET_CMD} ${QUIET_CMD_TARGET} ${YOSYS_IO_DEPS}
               ${YOSYS_SYNTH_SCRIPT}
       COMMAND
         ${CMAKE_COMMAND} -E make_directory ${OUT_LOCAL}
       COMMAND
         ${CMAKE_COMMAND} -E env
           TECHMAP_PATH=${YOSYS_TECHMAP}
+          symbiflow-arch-defs_SOURCE_DIR=${symbiflow-arch-defs_SOURCE_DIR}
+          symbiflow-arch-defs_BINARY_DIR=${symbiflow-arch-defs_BINARY_DIR}
           OUT_JSON=${OUT_JSON_SYNTH}
           OUT_SYNTH_V=${OUT_SYNTH_V}
           OUT_FASM_EXTRA=${OUT_FASM_EXTRA}
           PART_JSON=${PART_JSON}
           INPUT_XDC_FILE=${INPUT_XDC_FILE}
           USE_ROI=${USE_ROI}
+          PCF_FILE=${INPUT_IO_FILE}
+          PINMAP_FILE=${PINMAP}
           ${ADD_FPGA_TARGET_DEFINES}
           ${QUIET_CMD} ${YOSYS} -p "${COMPLETE_YOSYS_SYNTH_SCRIPT}" -l ${OUT_JSON_SYNTH}.log ${SOURCE_FILES}
       COMMAND
@@ -1294,7 +1363,6 @@ function(ADD_FPGA_TARGET)
     endif()
 
     get_target_property_required(PYTHON3 env PYTHON3)
-    get_target_property_required(PINMAP_FILE ${BOARD} PINMAP)
 
 
     # Add complete dependency chain
@@ -1312,8 +1380,6 @@ function(ADD_FPGA_TARGET)
     set(OUT_CONSTR ${OUT_LOCAL}/${TOP}_constraints.place)
     set(OUT_CONSTR_REL ${OUT_LOCAL_REL}/${TOP}_constraints.place)
     set(OUT_NET ${OUT_LOCAL}/${TOP}.net)
-    get_file_location(INPUT_IO_FILE ${ADD_FPGA_TARGET_INPUT_IO_FILE})
-    get_file_location(PINMAP ${PINMAP_FILE})
 
     # Generate IO constraints
     string(CONFIGURE ${PLACE_TOOL_CMD} PLACE_TOOL_CMD_FOR_TARGET)
@@ -1515,11 +1581,19 @@ function(ADD_FPGA_TARGET)
     if(${USE_FASM})
       get_target_property_required(FASM_TO_BIT ${ARCH} FASM_TO_BIT)
       get_target_property_required(FASM_TO_BIT_CMD ${ARCH} FASM_TO_BIT_CMD)
+      get_target_property(FASM_TO_BIT_DEPS ${ARCH} FASM_TO_BIT_DEPS)
+      if ("${FASM_TO_BIT_DEPS}" STREQUAL "FASM_TO_BIT_DEPS-NOTFOUND")
+        set(FASM_TO_BIT_DEPS "")
+      endif()
       get_target_property(FASM_TO_BIT_EXTRA_ARGS ${BOARD} FASM_TO_BIT_EXTRA_ARGS)
       if ("${FASM_TO_BIT_EXTRA_ARGS}" STREQUAL "FASM_TO_BIT_EXTRA_ARGS-NOTFOUND")
         set(FASM_TO_BIT_EXTRA_ARGS "")
       endif()
+
       get_target_property_required(PYTHON3 env PYTHON3)
+
+      set(BITSTREAM_DEPS ${OUT_FASM} ${FASM_TO_BIT} ${FASM_TO_BIT_DEPS})
+
       string(CONFIGURE ${FASM_TO_BIT_CMD} FASM_TO_BIT_CMD_FOR_TARGET)
       separate_arguments(
         FASM_TO_BIT_CMD_FOR_TARGET_LIST UNIX_COMMAND ${FASM_TO_BIT_CMD_FOR_TARGET}
@@ -1532,7 +1606,7 @@ function(ADD_FPGA_TARGET)
 
       add_custom_command(
         OUTPUT ${OUT_BITSTREAM}
-        DEPENDS ${OUT_FASM} ${FASM_TO_BIT}
+        DEPENDS ${BITSTREAM_DEPS}
         COMMAND ${FASM_TO_BIT_CMD_FOR_TARGET_LIST}
       )
     else()
@@ -1550,28 +1624,34 @@ function(ADD_FPGA_TARGET)
     endif()
 
     add_custom_target(${NAME}_bit DEPENDS ${OUT_BITSTREAM})
+    add_output_to_fpga_target(${NAME} BIT ${OUT_LOCAL_REL}/${TOP}.${BITSTREAM_EXTENSION})
 
-    get_target_property_required(BIN_EXTENSION ${ARCH} BIN_EXTENSION)
-    set(OUT_BIN ${OUT_LOCAL}/${TOP}.${BIN_EXTENSION})
-    get_target_property_required(BIT_TO_BIN ${ARCH} BIT_TO_BIN)
-    get_target_property_required(BIT_TO_BIN_CMD ${ARCH} BIT_TO_BIN_CMD)
-    get_target_property(BIT_TO_BIN_EXTRA_ARGS ${BOARD} BIT_TO_BIN_EXTRA_ARGS)
-    if (${BIT_TO_BIN_EXTRA_ARGS} STREQUAL NOTFOUND)
-      set(BIT_TO_BIN_EXTRA_ARGS "")
-    endif()
-    string(CONFIGURE ${BIT_TO_BIN_CMD} BIT_TO_BIN_CMD_FOR_TARGET)
-    separate_arguments(
-      BIT_TO_BIN_CMD_FOR_TARGET_LIST UNIX_COMMAND ${BIT_TO_BIN_CMD_FOR_TARGET}
-    )
-    add_custom_command(
-      OUTPUT ${OUT_BIN}
-      COMMAND ${BIT_TO_BIN_CMD_FOR_TARGET_LIST}
-      DEPENDS ${BIT_TO_BIN} ${OUT_BITSTREAM}
+    get_target_property_required(NO_BIT_TO_BIN ${ARCH} NO_BIT_TO_BIN)
+    if(NOT ${NO_BIT_TO_BIN})
+      get_target_property_required(BIN_EXTENSION ${ARCH} BIN_EXTENSION)
+      set(OUT_BIN ${OUT_LOCAL}/${TOP}.${BIN_EXTENSION})
+      get_target_property_required(BIT_TO_BIN ${ARCH} BIT_TO_BIN)
+      get_target_property_required(BIT_TO_BIN_CMD ${ARCH} BIT_TO_BIN_CMD)
+      get_target_property(BIT_TO_BIN_EXTRA_ARGS ${BOARD} BIT_TO_BIN_EXTRA_ARGS)
+      if (${BIT_TO_BIN_EXTRA_ARGS} STREQUAL NOTFOUND)
+        set(BIT_TO_BIN_EXTRA_ARGS "")
+      endif()
+      string(CONFIGURE ${BIT_TO_BIN_CMD} BIT_TO_BIN_CMD_FOR_TARGET)
+      separate_arguments(
+        BIT_TO_BIN_CMD_FOR_TARGET_LIST UNIX_COMMAND ${BIT_TO_BIN_CMD_FOR_TARGET}
       )
-
-    add_custom_target(${NAME}_bin DEPENDS ${OUT_BIN})
-    add_output_to_fpga_target(${NAME} BIN ${OUT_LOCAL_REL}/${TOP}.${BIN_EXTENSION})
-    add_dependencies(all_${BOARD}_bin ${NAME}_bin)
+      add_custom_command(
+        OUTPUT ${OUT_BIN}
+        COMMAND ${BIT_TO_BIN_CMD_FOR_TARGET_LIST}
+        DEPENDS ${BIT_TO_BIN} ${OUT_BITSTREAM}
+        )
+  
+      add_custom_target(${NAME}_bin DEPENDS ${OUT_BIN})
+      add_output_to_fpga_target(${NAME} BIN ${OUT_LOCAL_REL}/${TOP}.${BIN_EXTENSION})
+      add_dependencies(all_${BOARD}_bin ${NAME}_bin)
+    else()
+      add_dependencies(all_${BOARD}_bin ${NAME}_bit)
+    endif()
 
     get_target_property(PROG_TOOL ${BOARD} PROG_TOOL)
     get_target_property(PROG_CMD ${BOARD} PROG_CMD)
@@ -1605,7 +1685,8 @@ function(ADD_FPGA_TARGET)
         )
 
         get_target_property(BIT_TO_V_EXTRA_ARGS ${BOARD} BIT_TO_V_EXTRA_ARGS)
-        if (${BIT_TO_V_EXTRA_ARGS} STREQUAL NOTFOUND)
+        if (${BIT_TO_V_EXTRA_ARGS} STREQUAL BIT_TO_V_EXTRA_ARGS-NOTFOUND OR
+            ${BIT_TO_V_EXTRA_ARGS} STREQUAL NOTFOUND)
           set(BIT_TO_V_EXTRA_ARGS "")
         endif()
 

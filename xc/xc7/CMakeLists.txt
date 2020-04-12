@@ -12,6 +12,8 @@ add_custom_target(
   DEPENDS ${ARCH_IMPORT_TIMING} ${SDF_TIMING_TARGET}
 )
 
+add_file_target(FILE "bels.json")
+
 include(arch.cmake)
 
 get_target_property_required(PYTEST env PYTEST)

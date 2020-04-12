@@ -6,6 +6,7 @@ include(common/cmake/util.cmake)
 include(common/cmake/file_targets.cmake)
 include(common/cmake/env.cmake)
 include(common/cmake/xml.cmake)
+include(common/cmake/timings.cmake)
 include(common/cmake/v2x.cmake)
 include(common/cmake/install.cmake)
 include(common/cmake/devices.cmake)
@@ -143,8 +144,14 @@ add_conda_pip(
   NO_EXE
 )
 
+add_conda_pip(
+  NAME numpy
+  NO_EXE
+)
+
 get_target_property_required(PYTHON3 env PYTHON3)
 get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
+get_target_property(LIBICONV_TARGET env LIBICONV_TARGET)
 
 add_thirdparty_package(
   NAME sdf_timing
