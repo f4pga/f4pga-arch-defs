@@ -3,6 +3,7 @@
 SCRIPT_SRC="$(realpath ${BASH_SOURCE[0]})"
 SCRIPT_DIR="$(dirname "${SCRIPT_SRC}")"
 INSTALL_DIR="$(pwd)/install"
+ROOT_DIR="$(pwd)"
 GIT_DESCRIBE=$(git describe)
 
 export CMAKE_FLAGS="-GNinja -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}"
@@ -26,7 +27,7 @@ echo "========================================"
 echo "Compressing and uploading install dir"
 echo "----------------------------------------"
 (
-	tar -cf - install | xz -9 -T`nproc` > install-$(git describe).tar.xz
+	tar -cf - ${INSTALL_DIR} | xz -9 -T`nproc` > ${ROOT_DIR}/symbiflow-arch-defs-install-$(git describe).tar.xz
 )
 echo "----------------------------------------"
 
