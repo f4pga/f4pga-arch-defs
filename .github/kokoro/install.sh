@@ -27,7 +27,9 @@ echo "========================================"
 echo "Compressing and uploading install dir"
 echo "----------------------------------------"
 (
-	tar -cf - ${INSTALL_DIR} | xz -9 -T`nproc` > ${ROOT_DIR}/symbiflow-arch-defs-install-$(git describe).tar.xz
+	pushd ${ROOT_DIR}
+	tar -cf install | xz -9 -T`nproc` > ${ROOT_DIR}/symbiflow-arch-defs-install-$(git describe).tar.xz
+	popd
 )
 echo "----------------------------------------"
 
