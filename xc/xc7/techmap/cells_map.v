@@ -180,6 +180,21 @@ FDPE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|1))
 endmodule
 
 // ============================================================================
+// Latches
+
+module LDCE (
+   output reg Q,
+   input CLR, D, G, GE
+);
+
+parameter [0:0] INIT = 1'b0;
+
+LDCE_ZINI #(.ZINI(!INIT))
+  _TECHMAP_REPLACE_ (.Q(Q), .CLR(CLR), .D(D), .G(G), .GE(GE));
+
+endmodule
+
+// ============================================================================
 // LUTs
 
 module LUT1(output O, input I0);

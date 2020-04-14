@@ -50,6 +50,24 @@ module FDPE_ZINI (output reg Q, input C, CE, D, PRE);
 endmodule
 
 // ============================================================================
+// Latches
+
+module LDCE_ZINI (
+  output reg Q,
+  input CLR,
+  input D,
+  input G,
+  input GE
+);
+  parameter [0:0] ZINI = 1'b0;
+
+  initial Q = !ZINI;
+  always @*
+    if (CLR) Q <= 1'b0;
+    else if (GE && g) Q <= D;
+endmodule
+
+// ============================================================================
 // LUT related muxes
 
 module MUXF6(output O, input I0, I1, S);
