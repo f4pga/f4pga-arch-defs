@@ -26,7 +26,7 @@ echo "========================================"
 echo "Compressing and uploading install dir"
 echo "----------------------------------------"
 (
-	tar -cf install | xz -9 -T${CORES} > symbiflow-arch-defs-install-${GIT_DESCRIBE}.tar.xz
+	tar vcf - install | xz -9 -T${CORES} - > symbiflow-arch-defs-install-${GIT_DESCRIBE}.tar.xz
 )
 echo "----------------------------------------"
 
