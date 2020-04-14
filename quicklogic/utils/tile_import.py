@@ -168,11 +168,21 @@ def make_top_level_tile(tile_type, tile_types, equivalent_tiles=None):
         "name": tl_name,
     })
 
+    # The sub-tile tag
+    # FIXME: There is no real support for the heterogeneous tiles yet. There
+    # is always only one sub_tile tag added. The capacity is also always 1.
+    xml_sub_tile = ET.SubElement(
+        xml_tile, "sub_tile", {
+            "name": tl_name,
+            "capacity": "1"
+        }
+    )
+
     # Top-level ports
-    tile_pinlists = add_ports(xml_tile, tile_types[tile_type].pins, False)
+    tile_pinlists = add_ports(xml_sub_tile, tile_types[tile_type].pins, False)
 
     # Equivalent sites
-    xml_equiv = ET.SubElement(xml_tile, "equivalent_sites")
+    xml_equiv = ET.SubElement(xml_sub_tile, "equivalent_sites")
     for site_type, site_pinmap in equivalent_tiles.items():
 
         # Site tag
@@ -233,7 +243,9 @@ def make_top_level_tile(tile_type, tile_types, equivalent_tiles=None):
         pins_by_loc["right"].append(pin)
 
     # Dump pin locations
-    xml_pinloc = ET.SubElement(xml_tile, "pinlocations", {"pattern": "custom"})
+    xml_pinloc = ET.SubElement(
+        xml_sub_tile, "pinlocations", {"pattern": "custom"}
+    )
     for loc, pins in pins_by_loc.items():
         if len(pins):
             xml_loc = ET.SubElement(xml_pinloc, "loc", {"side": loc})
@@ -244,6 +256,6 @@ def make_top_level_tile(tile_type, tile_types, equivalent_tiles=None):
     # Switchbox locations
     # This is actually not needed in the end but has to be present to make
     # VPR happy
-    ET.SubElement(xml_tile, "switchbox_locations", {"pattern": "all"})
+    ET.SubElement(xml_sub_tile, "switchbox_locations", {"pattern": "all"})
 
     return xml_tile
