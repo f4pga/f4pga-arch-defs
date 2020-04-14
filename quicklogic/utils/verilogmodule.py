@@ -5,6 +5,8 @@ Element = namedtuple('Element', 'loc type name ios')
 Wire = namedtuple('Wire', 'srcloc name inverted')
 VerilogIO = namedtuple('VerilogIO', 'name direction ioloc')
 
+def loc2str(loc):
+    return "X" + str(loc.x) + "Y" + str(loc.y)
 
 class VModule(object):
     '''Represents a Verilog module for QLAL4S3B FASM'''
@@ -49,6 +51,7 @@ class VModule(object):
         self.qlal4s3bmapping = {
             'LOGIC': 'logic_cell_macro',
             'ASSP': 'qlal4s3b_cell_macro',
+            'BIDIR': 'gpio_cell_macro',
             'inv': 'inv'
         }
 
@@ -123,6 +126,10 @@ class VModule(object):
                         params.append(f".{inversionpin}(1'b1)")
                     else:
                         params.append(f".{inversionpin}(1'b0)")
+        # handle BIDIRs
+        if typ == 'BIDIR':
+            bloc = loc2str(loc)
+            params.append(f".IP({bloc}_inout)")
 
         result += f',\n{" " * len(result)}'.join(sorted(params)) + ');\n'
         return result
@@ -141,7 +148,7 @@ class VModule(object):
             Direction of the IO, can be 'input' or 'output'
         '''
         # TODO add support for inout
-        assert direction in ['input', 'output']
+        assert direction in ['input', 'output', 'inout']
         if direction == 'output':
             name = f'out_{self.last_output_id}'
             self.last_output_id += 1
@@ -273,13 +280,13 @@ class VModule(object):
                     inputs[inputname] = "1'b0"
                     continue
                 srctype = self.vpr_tile_grid[wire[0]].type
-                if srctype in ['SYN_IO', 'LOGIC', 'ASSP']:
+                if srctype in ['BIDIR', 'LOGIC', 'ASSP']:
                     # FIXME handle already inverted pins
                     # TODO handle inouts
                     wirename = self.get_wire(currloc, wire, inputname)
                     inputs[inputname] = wirename
                 else:
-                    raise Exception('Not supported cell type')
+                    raise Exception('Not supported cell type {}'.format(srctype))
             if currtype not in self.elements[currloc]:
                 # If Element does not exist, create it
                 self.elements[currloc][currtype] = Element(
@@ -288,6 +295,25 @@ class VModule(object):
             else:
                 # else update IOs
                 self.elements[currloc][currtype].ios.update(inputs)
+
+    def generate_ios(self):
+        '''Generates IOs and their wires
+
+        Returns
+        -------
+        None
+        '''
+        for eloc, locelements in self.elements.items():
+            for element in locelements.values():
+                if element.type == 'BIDIR':
+                    name = loc2str(eloc) + '_inout'
+                    self.ios[eloc] = VerilogIO(
+                        name=name,
+                        direction='inout',
+                        ioloc=eloc
+                    )
+                    wireid = Wire(name, "inout_pin", False)
+                    self.wires[wireid] = name
 
     def generate_verilog(self):
         '''Creates Verilog module
@@ -300,6 +326,8 @@ class VModule(object):
         wires = ''
         assigns = ''
         elements = ''
+
+        self.generate_ios()
 
         if len(self.ios) > 0:
             sortedios = sorted(
