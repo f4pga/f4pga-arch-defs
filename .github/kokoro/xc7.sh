@@ -2,9 +2,8 @@
 
 SCRIPT_SRC="$(realpath ${BASH_SOURCE[0]})"
 SCRIPT_DIR="$(dirname "${SCRIPT_SRC}")"
-INSTALL_DIR="$(pwd)/install"
 
-export CMAKE_FLAGS="-GNinja -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}"
+export CMAKE_FLAGS="-GNinja"
 export BUILD_TOOL=ninja
 source ${SCRIPT_DIR}/common.sh
 
