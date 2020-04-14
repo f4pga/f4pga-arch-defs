@@ -42,6 +42,8 @@
   <!-- The following timings depend on the PLL COMPENSATION setting.
        For now the worst ones were chosen (for the "BUF_IN" mode). This may
        be changed in the bels.json file -->
+  <!-- FIXME: delay constants are not allowed for clock generators as the combinational sink
+       cannot be used in the model
   <delay_constant max="{iopath_CLKIN1_CLKFBOUT}" in_port="CLKIN1" out_port="CLKFBOUT"/>
   <delay_constant max="{iopath_CLKIN1_CLKOUT0}" in_port="CLKIN1" out_port="CLKOUT0"/>
   <delay_constant max="{iopath_CLKIN1_CLKOUT1}" in_port="CLKIN1" out_port="CLKOUT1"/>
@@ -56,7 +58,7 @@
   <delay_constant max="{iopath_CLKIN2_CLKOUT2}" in_port="CLKIN2" out_port="CLKOUT2"/>
   <delay_constant max="{iopath_CLKIN2_CLKOUT3}" in_port="CLKIN2" out_port="CLKOUT3"/>
   <delay_constant max="{iopath_CLKIN2_CLKOUT4}" in_port="CLKIN2" out_port="CLKOUT4"/>
-  <delay_constant max="{iopath_CLKIN2_CLKOUT5}" in_port="CLKIN2" out_port="CLKOUT5"/>
+  <delay_constant max="{iopath_CLKIN2_CLKOUT5}" in_port="CLKIN2" out_port="CLKOUT5"/> -->
 
   <!-- Metadata -->
   <metadata>

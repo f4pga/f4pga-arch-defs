@@ -12,7 +12,7 @@
    <port name="S1" />
   </input_ports>
   <output_ports>
-   <port name="O" is_clock="1" />
+   <port name="O" />
   </output_ports>
  </model>
 </models>

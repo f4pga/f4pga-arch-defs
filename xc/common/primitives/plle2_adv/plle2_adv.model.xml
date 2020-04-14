@@ -8,8 +8,8 @@
       <port clock="DCLK" name="DI"/>
 
       <port is_clock="1" name="CLKFBIN"/>
-      <port is_clock="1" name="CLKIN1" combinational_sink_ports="CLKFBOUT CLKOUT0 CLKOUT1 CLKOUT2 CLKOUT3 CLKOUT4 CLKOUT5"/>
-      <port is_clock="1" name="CLKIN2" combinational_sink_ports="CLKFBOUT CLKOUT0 CLKOUT1 CLKOUT2 CLKOUT3 CLKOUT4 CLKOUT5"/>
+      <port is_clock="1" name="CLKIN1"/>
+      <port is_clock="1" name="CLKIN2"/>
       <port name="CLKINSEL"/>
       <port name="PWRDWN"/>
       <port name="RST" combinational_sink_ports="LOCKED"/>
