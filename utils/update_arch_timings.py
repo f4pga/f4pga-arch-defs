@@ -12,12 +12,8 @@ import sys
 # in bels.json
 DEBUG = False
 
-# Set to true to print debugging info.
-
-
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
-
 
 def mergedicts(source, destination):
     """This function recursively merges two dictionaries:
