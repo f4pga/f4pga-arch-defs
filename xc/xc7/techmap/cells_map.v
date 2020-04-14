@@ -3057,6 +3057,28 @@ module BUFGCE (
   );
 endmodule
 
+module BUFGMUX (
+  input I0,
+  input I1,
+  input S,
+  output O
+  );
+
+  BUFGCTRL #(
+    .IS_CE0_INVERTED(1'b1)
+  )_TECHMAP_REPLACE_ (
+    .O(O),
+    .CE0(S),
+    .CE1(S),
+    .I0(I0),
+    .I1(I1),
+    .IGNORE0(1'b0),
+    .IGNORE1(1'b0),
+    .S0(1'b1),
+    .S1(1'b1)
+  );
+endmodule
+
 module BUFGCTRL (
 output O,
 input I0, input I1,
