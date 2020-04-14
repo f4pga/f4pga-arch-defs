@@ -62,37 +62,40 @@ class Fasm2Bels(object):
 
         for name, package in db['vpr_package_pinmaps'][self.package_name
                                                        ].items():
-            self.io_to_fbio[package.loc] = name
+            self.io_to_fbio[package[0].loc] = name
 
         # Add ASSP to all locations it covers
         # TODO maybe this should be added in original vpr_tile_grid
         # set all cels in row 1 and column 2 to ASSP
+        # In VPR grid, the ASSP tile is located in (1, 1)
         numassp = 1
         assplocs = set()
+
+        assp_tile = self.vpr_tile_grid[Loc(1, 1)]
+        assp_cell = assp_tile.cells[0]
+
         for i in range(32):
             updateloc = self.loc_map.fwd[Loc(x=1 + i, y=1)]
             if self.vpr_tile_grid[updateloc] is not None:
-                self.vpr_tile_grid[updateloc].cell_names['ASSP'
-                                                         ] = f'ASSP{numassp}'
+                self.vpr_tile_grid[updateloc].cells.append(assp_cell)
             else:
                 self.vpr_tile_grid[updateloc] = Tile(
                     type='ASSP',
                     name='ASSP',
-                    cell_names={'ASSP': f'ASSP{numassp}'}
+                    cells=assp_cell
                 )
             assplocs.add(updateloc)
             numassp += 1
 
-        for i in range(29):
+        for i in range(27):
             updateloc = self.loc_map.fwd[Loc(x=0, y=2 + i)]
             if self.vpr_tile_grid[updateloc] is not None:
-                self.vpr_tile_grid[updateloc].cell_names['ASSP'
-                                                         ] = f'ASSP{numassp}'
+                self.vpr_tile_grid[updateloc].cells.append(assp_cell)
             else:
                 self.vpr_tile_grid[updateloc] = Tile(
                     type='ASSP',
                     name='ASSP',
-                    cell_names={'ASSP': f'ASSP{numassp}'}
+                    cells=assp_cell
                 )
             assplocs.add(updateloc)
             numassp += 1
