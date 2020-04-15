@@ -4,7 +4,6 @@ SCRIPT_SRC="$(realpath ${BASH_SOURCE[0]})"
 SCRIPT_DIR="$(dirname "${SCRIPT_SRC}")"
 INSTALL_DIR="$(pwd)/github/${KOKORO_DIR}/install"
 
-export GIT_DESCRIBE=$(git describe)
 export CMAKE_FLAGS="-GNinja -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}"
 export BUILD_TOOL=ninja
 source ${SCRIPT_DIR}/common.sh
@@ -26,6 +25,7 @@ echo "========================================"
 echo "Compressing and uploading install dir"
 echo "----------------------------------------"
 (
+	export GIT_DESCRIBE=$(git describe)
 	tar vcf - install | xz -9 -T${CORES} - > symbiflow-arch-defs-install-${GIT_DESCRIBE}.tar.xz
 )
 echo "----------------------------------------"
