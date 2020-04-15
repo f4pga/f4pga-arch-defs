@@ -15,7 +15,7 @@ from timing import populate_switchbox_timing, copy_switchbox_timing
 # =============================================================================
 
 # Grid margin size (left, top, right, bottom)
-GRID_MARGIN = (3, 2, 1, 2)
+GRID_MARGIN = (3, 2, 2, 2)
 
 # IO cell types to ignore. They do not correspond to routable IO pads.
 IGNORED_IO_CELL_TYPES = (
@@ -188,11 +188,11 @@ def process_tilegrid(
                     type=new_type.type, name=tile.name, cells=cells
                 )
 
-            # For the CLOCK cell create a synthetic tile
-            if "CLOCK" in tile_type.cells:
+#            # For the CLOCK cell create a synthetic tile
+#            if "CLOCK" in tile_type.cells:
 
-                # TODO: FIXME: CLOCK IO/s are WIP. skip them for now
-                continue
+#                # TODO: FIXME: CLOCK IO/s are WIP. skip them for now
+#                continue
 #
 #                assert tile_type.cells["CLOCK"] == 1
 #
@@ -219,20 +219,16 @@ def process_tilegrid(
 #                    cells=[c for c in tile.cells if c.type == "CLOCK"]
 #                )
 
-            continue
-
-        # Mults and RAMs occupy multiple cells
-        # We'll create a synthetic tile with a single cell for each
-        # RAM and MULT block
-        if tile.type == "MULT_RAM":
+# Mults and RAMs occupy multiple cells
+# We'll create a synthetic tile with a single cell for each
+# RAM and MULT block
+        if "RAM" in tile_type.cells or "MULT" in tile_type.cells:
             for cell in tile.cells:
                 # Check if the current location is not taken
                 # this could happen because RAM and MULTS share
                 # the same location. General rule here is that
                 # we create a synthetic Tile/Cell in the first
-                # available location of the original block of cells
-                if not is_loc_free(vpr_loc, vpr_tile_grid):
-                    continue
+                # available neighboring location of the original block of cells
                 if cell.type == 'RAM':
                     cells_set = ram_blocks
                 elif cell.type == 'MULT':
@@ -240,10 +236,32 @@ def process_tilegrid(
                 else:
                     continue
 
+                # Find free location in the physical tile grid close to the
+                # original one. Once found, convert it to location in the
+                # VPR tile grid.
+                for ox, oy in ((0, -1), (0, +1), (-1, 0), (+1, 0)):
+                    test_loc = Loc(x=phy_loc.x + ox, y=phy_loc.y + oy)
+                    if is_loc_free(test_loc, tile_grid):
+                        new_loc = Loc(x=vpr_loc.x + ox, y=vpr_loc.y + oy)
+                        break
+                else:
+                    assert False, "No free location to place {} tile".format(
+                        cell.type
+                    )
+
+                # The VPR location is already occupied. Probably another
+                # instance of the same cell is already there.
+                if not is_loc_free(new_loc, vpr_tile_grid):
+                    continue
+
                 if cell.name not in cells_set:
                     cells_set.append(cell.name)
-                    tile_type = make_tile_type([cell], cells_library, tile_types)
-                    vpr_tile_grid[vpr_loc] = Tile(tile_type.type, name=cell.type, cells=[cell])
+                    tile_type = make_tile_type(
+                        [cell], cells_library, tile_types
+                    )
+                    vpr_tile_grid[new_loc] = Tile(
+                        tile_type.type, name=cell.type, cells=[cell]
+                    )
 
         # The tile contains SDIOMUX cell(s). This is an IO tile.
         if "SDIOMUX" in tile_type.cells:
@@ -278,8 +296,6 @@ def process_tilegrid(
                 vpr_tile_grid[new_loc] = Tile(
                     type=new_type.type, name=tile.name, cells=[new_cell]
                 )
-
-            continue
 
         # A homogeneous tile
         if len(tile_type.cells) == 1:
@@ -818,8 +834,7 @@ def main():
 
     # Process connections
     connections = process_connections(
-        connections, loc_map, vpr_tile_grid,
-        phy_tile_grid, grid_limit
+        connections, loc_map, vpr_tile_grid, phy_tile_grid, grid_limit
     )
 
     # Process package pinmaps
