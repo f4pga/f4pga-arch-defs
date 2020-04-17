@@ -1,6 +1,6 @@
 function(DEFINE_XC_TOOLCHAIN_TARGET)
   set(options)
-  set(oneValueArgs ARCH PRJRAY_NAME CONV_SCRIPT SYNTH_SCRIPT BIT_TO_BIN ROUTE_CHAN_WIDTH)
+  set(oneValueArgs ARCH CONV_SCRIPT SYNTH_SCRIPT BIT_TO_BIN ROUTE_CHAN_WIDTH)
   set(multiValueArgs VPR_ARCH_ARGS)
 
   cmake_parse_arguments(
@@ -26,10 +26,6 @@ function(DEFINE_XC_TOOLCHAIN_TARGET)
   get_target_property_required(DOC_PRJ ${ARCH} DOC_PRJ)
   get_target_property_required(DOC_PRJ_DB ${ARCH} DOC_PRJ_DB)
 
-  set(PRJRAY_DIR ${DOC_PRJ})
-  set(PRJRAY_DB_DIR ${DOC_PRJ_DB})
-  set(PRJRAY_NAME ${DEFINE_XC_TOOLCHAIN_TARGET_PRJRAY_NAME})
-
   set(WRAPPERS env generate_constraints pack place route synth write_bitstream write_fasm)
   set(TOOLCHAIN_WRAPPERS)
 
@@ -53,13 +49,6 @@ function(DEFINE_XC_TOOLCHAIN_TARGET)
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
   # install python scripts
-  install(FILES ${FASM_TO_BIT}
-          DESTINATION bin/python
-          PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
-
-  install(DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/third_party/fasm
-          DESTINATION bin/python)
-
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/split_inouts.py
           DESTINATION bin/python
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
@@ -84,12 +73,6 @@ function(DEFINE_XC_TOOLCHAIN_TARGET)
           DESTINATION bin/python
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
-  install(DIRECTORY ${PRJRAY_DIR}/${PRJRAY_NAME}
-          DESTINATION bin/python/${PRJRAY_NAME})
-
-  install(DIRECTORY ${PRJRAY_DIR}/utils
-          DESTINATION bin/python/${PRJRAY_NAME})
-
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/lib/parse_pcf.py
           DESTINATION bin/python/lib)
 
@@ -98,13 +81,9 @@ function(DEFINE_XC_TOOLCHAIN_TARGET)
   install(DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/xc/${FAMILY}/techmap
           DESTINATION share/techmaps/${FAMILY}_vpr)
 
-  # install prjxray database
-  install(DIRECTORY ${PRJRAY_DB_DIR}
-          DESTINATION share/${PRJRAY_NAME})
-
   # install Yosys scripts
   install(FILES  ${DEFINE_XC_TOOLCHAIN_TARGET_CONV_SCRIPT} ${DEFINE_XC_TOOLCHAIN_TARGET_SYNTH_SCRIPT}
-    DESTINATION share/${PRJRAY_NAME})
+    DESTINATION share/${FAMILY})
 
 endfunction()
 
@@ -130,6 +109,12 @@ function(DEFINE_XC_PINMAP_CSV_INSTALL_TARGET)
   get_target_property(USE_ROI ${DEVICE_TYPE} USE_ROI)
   if(USE_ROI OR USE_ROI STREQUAL "USE_ROI-NOTFOUND")
     message(STATUS "Skipping pinmap installation for ${DEVICE}-${PACKAGE} part: ${PART}")
+    return()
+  endif()
+
+  get_target_property(USE_GRAPH_LIMIT ${DEVICE_TYPE} USE_GRAPH_LIMIT)
+  if(USE_GRAPH_LIMIT OR USE_GRAPH_LIMIT STREQUAL "USE_GRAPH_LIMIT-NOTFOUND")
+    message(STATUS "Skipping device files installation for ${DEVICE}-${PACKAGE} type: ${DEVICE_TYPE}")
     return()
   endif()
 

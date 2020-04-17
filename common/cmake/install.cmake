@@ -28,6 +28,12 @@ function(INSTALL_DEVICE_FILES)
     return()
   endif()
 
+  get_target_property(USE_GRAPH_LIMIT ${DEVICE_TYPE} USE_GRAPH_LIMIT)
+  if(USE_GRAPH_LIMIT OR USE_GRAPH_LIMIT STREQUAL "USE_GRAPH_LIMIT-NOTFOUND")
+    message(STATUS "Skipping device files installation for ${DEVICE}-${PACKAGE} type: ${DEVICE_TYPE}")
+    return()
+  endif()
+
   set(INSTALL_FILES)
 
   # FIXME: do not install a200t
