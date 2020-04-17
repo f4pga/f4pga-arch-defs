@@ -51,4 +51,6 @@ add_custom_target(
   DEPENDS ${OUT_FASM}
   )
 
-add_dependencies(all_xc7_tests simple_ff_full_loc_check)
+# XXX: need to fix attribute trimming when running with abc9
+# https://github.com/YosysHQ/yosys/issues/2176
+#add_dependencies(all_xc7_tests simple_ff_full_loc_check)
