@@ -180,7 +180,6 @@ function(ADD_XC_ARCH_DEFINE)
   add_custom_target(all_${ARCH}_diff_fasm)
   define_xc_toolchain_target(
       ARCH ${ARCH}
-      PRJRAY_NAME ${PRJRAY_NAME}
       ROUTE_CHAN_WIDTH 500
       VPR_ARCH_ARGS ${VPR_ARCH_ARGS}
       BIT_TO_BIN xc7frames2bit
