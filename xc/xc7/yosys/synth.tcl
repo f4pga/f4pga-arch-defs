@@ -44,6 +44,9 @@ opt_clean
 setundef -zero -params
 stat
 
+# TODO: remove this as soon as new VTR master+wip is pushed: https://github.com/SymbiFlow/vtr-verilog-to-routing/pull/525
+attrmap -remove hdlname
+
 # Write the design in JSON format.
 write_json $::env(OUT_JSON)
 # Write the design in Verilog format.
