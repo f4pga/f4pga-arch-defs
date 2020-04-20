@@ -79,11 +79,11 @@ function(DEFINE_XC_TOOLCHAIN_TARGET)
 
   # install prjxray techmap
   install(DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/xc/${FAMILY}/techmap
-          DESTINATION share/techmaps/${FAMILY}_vpr)
+          DESTINATION share/symbiflow/techmaps/${FAMILY}_vpr)
 
   # install Yosys scripts
   install(FILES  ${DEFINE_XC_TOOLCHAIN_TARGET_CONV_SCRIPT} ${DEFINE_XC_TOOLCHAIN_TARGET_SYNTH_SCRIPT}
-    DESTINATION share/${FAMILY})
+    DESTINATION share/symbiflow/scripts/${FAMILY})
 
 endfunction()
 
@@ -112,8 +112,8 @@ function(DEFINE_XC_PINMAP_CSV_INSTALL_TARGET)
     return()
   endif()
 
-  get_target_property(USE_GRAPH_LIMIT ${DEVICE_TYPE} USE_GRAPH_LIMIT)
-  if(USE_GRAPH_LIMIT OR USE_GRAPH_LIMIT STREQUAL "USE_GRAPH_LIMIT-NOTFOUND")
+  get_target_property(LIMIT_GRAPH_TO_DEVICE ${DEVICE_TYPE} LIMIT_GRAPH_TO_DEVICE)
+  if(LIMIT_GRAPH_TO_DEVICE OR LIMIT_GRAPH_TO_DEVICE STREQUAL "LIMIT_GRAPH_TO_DEVICE-NOTFOUND")
     message(STATUS "Skipping device files installation for ${DEVICE}-${PACKAGE} type: ${DEVICE_TYPE}")
     return()
   endif()
@@ -134,6 +134,6 @@ function(DEFINE_XC_PINMAP_CSV_INSTALL_TARGET)
     DEPENDS ${DEPS}
     )
   install(FILES ${PINMAP_FILE}
-    DESTINATION "share/arch/${DEVICE}_${PACKAGE}/${PART}"
+    DESTINATION "share/symbiflow/arch/${DEVICE}_${PACKAGE}/${PART}"
     RENAME "pinmap.csv")
 endfunction()
