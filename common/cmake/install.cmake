@@ -77,7 +77,7 @@ function(INSTALL_DEVICE_FILES)
       ALL
       DEPENDS ${DEPS})
     install(FILES ${SRC_FILE}
-      DESTINATION "share/arch/${DEVICE}_${PACKAGE}")
+      DESTINATION "share/symbiflow/arch/${DEVICE}_${PACKAGE}")
   endforeach()
 
 endfunction()
