@@ -101,6 +101,11 @@ add_vivado_pnr_target(
 
 add_file_target(FILE nexys_video_demo.v SCANNER_TYPE verilog)
 
+get_file_target(TARGET_NEXYS_VIDEO_DEMO_V nexys_video_demo.v)
+get_file_target(TARGET_NEXYS_VIDEO_PCF ${symbiflow-arch-defs_SOURCE_DIR}/xc/xc7/tests/common/nexys_video.pcf)
+get_file_target(TARGET_NEXYS_VIDEO_XDC ${symbiflow-arch-defs_SOURCE_DIR}/xc/xc7/tests/common/nexys_video.xdc)
+add_dependencies(${TARGET_NEXYS_VIDEO_DEMO_V} ${TARGET_NEXYS_VIDEO_XDC} ${TARGET_NEXYS_VIDEO_PCF})
+
 add_fpga_target(
   NAME picosoc_nexys_video
   BOARD nexys_video
