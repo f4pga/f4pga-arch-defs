@@ -49,18 +49,18 @@ class Fasm2Bels(object):
         '''
 
         # load vpr_db data
-        self.cells_library = db["cells_library"]
-        self.loc_map = db["loc_map"]
-        self.vpr_tile_types = db["vpr_tile_types"]
-        self.vpr_tile_grid = db["vpr_tile_grid"]
-        self.vpr_switchbox_types = db["vpr_switchbox_types"]
-        self.vpr_switchbox_grid = db["vpr_switchbox_grid"]
-        self.connections = db["connections"]
+        self.cells_library = vpr_db["cells_library"]
+        #self.loc_map = db["loc_map"]
+        self.vpr_tile_types = vpr_db["tile_types"]
+        self.vpr_tile_grid = vpr_db["phy_tile_grid"]
+        self.vpr_switchbox_types = vpr_db["switchbox_types"]
+        self.vpr_switchbox_grid = vpr_db["switchbox_grid"]
+        self.connections = vpr_db["connections"]
         self.package_name = package_name
 
         self.io_to_fbio = dict()
 
-        for name, package in db['vpr_package_pinmaps'][self.package_name
+        for name, package in db['package_pinmaps'][self.package_name
                                                        ].items():
             self.io_to_fbio[package[0].loc] = name
 
@@ -70,35 +70,31 @@ class Fasm2Bels(object):
         # In VPR grid, the ASSP tile is located in (1, 1)
         numassp = 1
         assplocs = set()
+        ramlocs = dict()
+        multlocs = dict()
 
         assp_tile = self.vpr_tile_grid[Loc(1, 1)]
         assp_cell = assp_tile.cells[0]
+        for phy_loc, tile in self.vpr_tile_grid.items():
+            tile_type = self.vpr_tile_types[tile.type]
+            if "ASSP" in tile_type.cells:
+                assplocs.add(phy_loc)
 
-        for i in range(32):
-            updateloc = self.loc_map.fwd[Loc(x=1 + i, y=1)]
-            if self.vpr_tile_grid[updateloc] is not None:
-                self.vpr_tile_grid[updateloc].cells.append(assp_cell)
-            else:
-                self.vpr_tile_grid[updateloc] = Tile(
-                    type='ASSP',
-                    name='ASSP',
-                    cells=assp_cell
-                )
-            assplocs.add(updateloc)
-            numassp += 1
+            if "RAM" in tile_type.cells:
+                ramcell = [cell for cell in tile.cells if cell.type == "RAM"]
+                cellname = ramcell[0].name
+                if cellname not in ramlocs:
+                    ramlocs[cellname] = set()
 
-        for i in range(27):
-            updateloc = self.loc_map.fwd[Loc(x=0, y=2 + i)]
-            if self.vpr_tile_grid[updateloc] is not None:
-                self.vpr_tile_grid[updateloc].cells.append(assp_cell)
-            else:
-                self.vpr_tile_grid[updateloc] = Tile(
-                    type='ASSP',
-                    name='ASSP',
-                    cells=assp_cell
-                )
-            assplocs.add(updateloc)
-            numassp += 1
+                ramlocs[cellname].add(phy_loc)
+
+            if "MULT" in tile_type.cells:
+                multcell = [cell for cell in tile.cells if cell.type == "MULT"]
+                cellname = multcell[0].name
+                if cellname not in multlocs:
+                    multlocs[cellname] = set()
+
+                multlocs[cellname].add(phy_loc)
 
         # this map represents the mapping from input name to its inverter name
         self.inversionpins = {
@@ -146,6 +142,14 @@ class Fasm2Bels(object):
                     'ASSP', assplocs, Loc(1, 1), self.pinnames['ASSP']
                 )
         }
+        for ram in ramlocs:
+            self.multiloccells[ram] = MultiLocCellMapping(
+                        ram, ramlocs[ram], list(ramlocs[ram])[0], self.pinnames['RAM']
+                    )
+        for mult in multlocs:
+            self.multiloccells[mult] = MultiLocCellMapping(
+                        mult, multlocs[mult], list(multlocs[mult])[1], self.pinnames['MULT']
+                    )
 
         # helper routing data
         self.routingdata = defaultdict(list)
@@ -385,19 +389,25 @@ class Fasm2Bels(object):
                 tloc = loc
                 while hop[1] is not None:
                     tloc = Loc(tloc[0] + hop[1][0], tloc[1] + hop[1][1])
-                    hop = get_name_and_hop(self.designhops[tloc][hop[0]])
+                    # in some cases BEL is distanced from a switchbox, in those
+                    # cases the hop will not point to another hop. We should
+                    # simply return the pin here in the correct location
+                    if hop[0] in self.designhops[tloc]:
+                        hop = get_name_and_hop(self.designhops[tloc][hop[0]])
+                    else:
+                        hop = (hop[0], None)
                 self.designconnections[loc][pin] = (tloc, hop[0])
 
     def resolve_connections(self):
         '''Resolves connections between BELs and IOs.
         '''
         keys = sorted(self.routingdata.keys(), key=lambda loc: (loc.x, loc.y))
-        for phy_loc in keys:
-            routingfeatures = self.routingdata[phy_loc]
+        for loc in keys:
+            routingfeatures = self.routingdata[loc]
             # map location to VPR coordinates
-            if phy_loc not in self.loc_map.fwd:
-                continue
-            loc = self.loc_map.fwd[phy_loc]
+            #if phy_loc not in self.loc_map.fwd:
+            #    continue
+            #loc = self.loc_map.fwd[phy_loc]
 
             if loc in self.vpr_switchbox_grid:
                 typ = self.vpr_switchbox_grid[loc]
@@ -462,7 +472,8 @@ class Fasm2Bels(object):
         str, str: a Verilog module and PCF
         '''
         module = VModule(
-            self.vpr_tile_grid, self.belinversions, self.interfaces,
+            self.vpr_tile_grid, self.vpr_tile_types, self.cells_library,
+            self.belinversions, self.interfaces,
             self.designconnections, self.inversionpins, self.io_to_fbio
         )
         module.parse_bels()
