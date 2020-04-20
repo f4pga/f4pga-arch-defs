@@ -1,8 +1,8 @@
-add_file_target(FILE mem.init)
-add_file_target(FILE mem_1.init)
-add_file_target(FILE mem_2.init)
-add_file_target(FILE arty.sdc)
-add_file_target(FILE arty_clocks.xdc)
+add_subdirectory(arty)
+
+# Disabled until there is support for IDDR prmitives.
+# https://github.com/SymbiFlow/symbiflow-arch-defs/issues/1432
+#add_subdirectory(nexys_video)
 
 get_target_property_required(PYTHON3 env PYTHON3)
 get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
