@@ -69,5 +69,35 @@ add_vivado_pnr_target(
     CLOCK_PERIODS 10.0
     IOSTANDARD LVCMOS33
     )
+
+
+add_file_target(FILE nexys_video_toplevel.v SCANNER_TYPE verilog)
+add_file_target(FILE nexys_video.sdc)
+
+get_file_target(TARGET_NEXYS_VIDEO_TOPLEVEL_V nexys_video_toplevel.v)
+get_file_target(TARGET_NEXYS_VIDEO_PCF ${symbiflow-arch-defs_SOURCE_DIR}/xc/xc7/tests/common/nexys_video.pcf)
+get_file_target(TARGET_NEXYS_VIDEO_XDC ${symbiflow-arch-defs_SOURCE_DIR}/xc/xc7/tests/common/nexys_video.xdc)
+add_dependencies(${TARGET_NEXYS_VIDEO_TOPLEVEL_V} ${TARGET_NEXYS_VIDEO_XDC} ${TARGET_NEXYS_VIDEO_PCF})
+
+add_fpga_target(
+  NAME murax_nexys_video
+  BOARD nexys_video
+  TOP top
+  SOURCES
+    nexys_video_toplevel.v
+    Murax.v
+  SDC_FILE nexys_video.sdc
+  INPUT_IO_FILE ${symbiflow-arch-defs_SOURCE_DIR}/xc/xc7/tests/common/nexys_video.pcf
+  INPUT_XDC_FILE ${symbiflow-arch-defs_SOURCE_DIR}/xc/xc7/tests/common/nexys_video.xdc
+  EXPLICIT_ADD_FILE_TARGET
+)
+
+add_vivado_target(
+  NAME murax_nexys_video_vivado
+  PARENT_NAME murax_nexys_video
+  CLOCK_PINS clk
+  CLOCK_PERIODS 10.0
+)
+
 endif (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
 
