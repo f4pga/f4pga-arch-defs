@@ -259,14 +259,14 @@ function(ADD_XC_DEVICE_DEFINE_TYPE)
     set_target_properties(
       ${DEVICE_TYPE}
       PROPERTIES
-      USE_GRAPH_LIMIT TRUE
+      LIMIT_GRAPH_TO_DEVICE TRUE
       GRAPH_LIMIT "${ADD_XC_DEVICE_DEFINE_TYPE_GRAPH_LIMIT}"
       )
   else()
     set_target_properties(
       ${DEVICE_TYPE}
       PROPERTIES
-      USE_GRAPH_LIMIT FALSE
+      LIMIT_GRAPH_TO_DEVICE FALSE
       )
   endif()
 endfunction()
@@ -318,9 +318,9 @@ function(ADD_XC_DEVICE_DEFINE)
         set(RR_PATCH_EXTRA_ARGS --synth_tiles ${SYNTH_TILES_LOCATION} ${RR_PATCH_EXTRA_ARGS})
     endif()
 
-    get_target_property_required(USE_GRAPH_LIMIT ${DEVICE_TYPE} USE_GRAPH_LIMIT)
+    get_target_property_required(LIMIT_GRAPH_TO_DEVICE ${DEVICE_TYPE} LIMIT_GRAPH_TO_DEVICE)
 
-    if(${USE_GRAPH_LIMIT})
+    if(${LIMIT_GRAPH_TO_DEVICE})
         get_target_property_required(GRAPH_LIMIT ${DEVICE_TYPE} GRAPH_LIMIT)
         set(RR_PATCH_EXTRA_ARGS --graph_limit ${GRAPH_LIMIT} ${RR_PATCH_EXTRA_ARGS})
     endif()

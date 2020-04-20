@@ -4,10 +4,10 @@ set -e
 MYPATH=`realpath $0`
 MYPATH=`dirname ${MYPATH}`
 
-export TECHMAP_PATH=`realpath ${MYPATH}/../share/techmaps/xc7_vpr/techmap`
+export TECHMAP_PATH=`realpath ${MYPATH}/../share/symbiflow/techmaps/xc7_vpr/techmap`
 
-SYNTH_TCL_PATH=`realpath ${MYPATH}/../share/xc7/synth.tcl`
-CONV_TCL_PATH=`realpath ${MYPATH}/../share/xc7/conv.tcl`
+SYNTH_TCL_PATH=`realpath ${MYPATH}/../share/symbiflow/scripts/xc7/synth.tcl`
+CONV_TCL_PATH=`realpath ${MYPATH}/../share/symbiflow/scripts/xc7/conv.tcl`
 SPLIT_INOUTS=`realpath ${MYPATH}/python/split_inouts.py`
 
 if [ -z ${XRAY_DATABASE_DIR} ]; then
