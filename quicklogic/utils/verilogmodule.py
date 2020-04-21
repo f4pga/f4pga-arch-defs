@@ -143,9 +143,9 @@ class VModule(object):
         return result
 
     @staticmethod
-    def get_element_name(tile):
+    def get_element_name(type, loc):
         '''Forms element name from its type and FASM feature name.'''
-        return f'{tile.type}_{tile.name}'
+        return f'{type}_X{loc.x}_Y{loc.y}'
 
     def get_bel_type(self, loc, connections, direction):
         '''Returns bel type for a given connection list'''
@@ -224,7 +224,7 @@ class VModule(object):
             wirename = self.wires[uninvertedwireid]
         else:
             srcname = self.vpr_tile_grid[wire[0]].name
-            srctype = self.get_bel_type(wire[0], wire[1], PinDirection.OUTPUT)# self.vpr_tile_grid[wire[0]].type
+            srctype = self.get_bel_type(wire[0], wire[1], PinDirection.OUTPUT)
             srconame = wire[1]
             if srctype == 'SYN_IO':
                 # if source is input, use its name
@@ -243,7 +243,7 @@ class VModule(object):
                 # if the source element does not exist, create it
                 self.elements[wire[0]][srctype] = Element(
                     wire[0], srctype,
-                    self.get_element_name(self.vpr_tile_grid[wire[0]]),
+                    self.get_element_name(srctype, wire[0]),
                     {srconame: wirename}
                 )
             else:
@@ -298,7 +298,7 @@ class VModule(object):
             # Extract type and form name for the BEL
             # currtype = self.vpr_tile_grid[currloc].type
             currtype = self.get_bel_type(currloc, connections, PinDirection.INPUT)
-            currname = self.get_element_name(self.vpr_tile_grid[currloc])
+            currname = self.get_element_name(currtype, currloc)
             inputs = {}
             # form all inputs for the BEL
             for inputname, wire in connections.items():
