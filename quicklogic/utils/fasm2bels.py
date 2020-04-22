@@ -501,17 +501,17 @@ class Fasm2Bels(object):
         return verilog, pcf, qcf
 
 
-    def parse_pcf(pcf):
-        pcf_data = {}
-        with open(pcf, 'r') as fp:
-            for l in fp:
-                line = l.strip().split()
-                if len(line) != 3:
-                    continue
-                if line[0] != 'set_io':
-                    continue
-                pcf_data[line[2]] = line[1]
-        return pcf_data
+def parse_pcf(pcf):
+    pcf_data = {}
+    with open(pcf, 'r') as fp:
+        for l in fp:
+            line = l.strip().split()
+            if len(line) != 3:
+                continue
+            if line[0] != 'set_io':
+                continue
+            pcf_data[line[2]] = line[1]
+    return pcf_data
 
 
 if __name__ == '__main__':
