@@ -310,7 +310,7 @@ class VModule(object):
                     continue
                 srctype = self.vpr_tile_grid[wire[0]].type
                 srctype_cells = self.vpr_tile_types[srctype].cells
-                if len(set(srctype_cells).intersection(set(['BIDIR', 'LOGIC', 'ASSP', 'RAM']))) > 0:
+                if len(set(srctype_cells).intersection(set(['BIDIR', 'LOGIC', 'ASSP', 'RAM', 'MULT']))) > 0:
                     # FIXME handle already inverted pins
                     # TODO handle inouts
                     wirename = self.get_wire(currloc, wire, inputname)
