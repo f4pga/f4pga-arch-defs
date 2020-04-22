@@ -464,7 +464,7 @@ class Fasm2Bels(object):
                 newdesignconnections[dstloc][pin] = (srcloc, src[1])
         self.designconnections = newdesignconnections
 
-    def produce_verilog(self):
+    def produce_verilog(self, pcf_data):
         '''Produces string containing Verilog module representing FASM.
 
         Returns
@@ -473,7 +473,7 @@ class Fasm2Bels(object):
         '''
         module = VModule(
             self.vpr_tile_grid, self.vpr_tile_types, self.cells_library,
-            self.belinversions, self.interfaces,
+            pcf_data, self.belinversions, self.interfaces,
             self.designconnections, self.inversionpins, self.io_to_fbio
         )
         module.parse_bels()
@@ -497,8 +497,21 @@ class Fasm2Bels(object):
         self.parse_fasm_lines(fasmlines)
         self.resolve_connections()
         self.resolve_multiloc_cells()
-        verilog, pcf, qcf = self.produce_verilog()
+        verilog, pcf, qcf = self.produce_verilog(pcf_data)
         return verilog, pcf, qcf
+
+
+    def parse_pcf(pcf):
+        pcf_data = {}
+        with open(pcf, 'r') as fp:
+            for l in fp:
+                line = l.strip().split()
+                if len(line) != 3:
+                    continue
+                if line[0] != 'set_io':
+                    continue
+                pcf_data[line[2]] = line[1]
+        return pcf_data
 
 
 if __name__ == '__main__':
@@ -536,12 +549,24 @@ if __name__ == '__main__':
         required=True,
         help="Output Verilog file"
     )
+    parser.add_argument(
+        "--input-pcf",
+        type=Path,
+        required=False,
+        help="Pins constraint file. If provided the tool will use the info to keep the original io pins names"
+    )
 
     parser.add_argument("--output-pcf", type=Path, help="Output PCF file")
 
     parser.add_argument("--output-qcf", type=Path, help="Output QCF file")
 
+
     args = parser.parse_args()
+
+    pcf_data = {}
+
+    if args.input_pcf is not None:
+        pcf_data = parse_pcf(args.input_pcf)
 
     # Load data from the database
     with open(args.vpr_db, "rb") as fp:

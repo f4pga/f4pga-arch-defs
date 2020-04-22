@@ -18,6 +18,7 @@ class VModule(object):
             vpr_tile_grid,
             vpr_tile_types,
             cells_library,
+            pcf_data,
             belinversions,
             interfaces,
             designconnections,
@@ -33,6 +34,7 @@ class VModule(object):
         self.vpr_tile_grid = vpr_tile_grid
         self.vpr_tile_types = vpr_tile_types
         self.cells_library = cells_library
+        self.pcf_data = pcf_data
         self.belinversions = belinversions
         self.interfaces = interfaces
         self.designconnections = designconnections
@@ -137,7 +139,8 @@ class VModule(object):
         # handle BIDIRs
         if typ == 'BIDIR':
             bloc = loc2str(loc)
-            params.append(f".IP({bloc}_inout)")
+            ioname = self.get_io_name(loc)
+            params.append(f".IP({ioname})")
 
         result += f',\n{" " * len(result)}'.join(sorted(params)) + ');\n'
         return result
@@ -326,6 +329,21 @@ class VModule(object):
                 # else update IOs
                 self.elements[currloc][currtype].ios.update(inputs)
 
+
+    def get_io_name(self, loc):
+
+        # default pin name
+        name = loc2str(loc) + '_inout'
+        wirename = name
+        # check if we have the original name for this io
+        if self.pcf_data is not None:
+            pin = self.io_to_fbio[loc]
+            if pin in self.pcf_data:
+                name = self.pcf_data[pin]
+
+        return name
+
+
     def generate_ios(self):
         '''Generates IOs and their wires
 
@@ -335,13 +353,15 @@ class VModule(object):
         '''
         for eloc, locelements in self.elements.items():
             for element in locelements.values():
-                if element.type == 'BIDIR':
-                    name = loc2str(eloc) + '_inout'
+                if element.type == 'BIDIR' or element.type == 'SDIOMUX':
+
+                    name = self.get_io_name(eloc)
                     self.ios[eloc] = VerilogIO(
                         name=name,
                         direction='inout',
                         ioloc=eloc
                     )
+                    # keep the original wire name for generating the wireid
                     wireid = Wire(name, "inout_pin", False)
                     self.wires[wireid] = name
 

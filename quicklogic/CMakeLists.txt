@@ -89,7 +89,8 @@ define_arch(
       --vpr-db ${CMAKE_CURRENT_BINARY_DIR}/devices/\${DEVICE_TYPE}/db_phy.pickle
       --package-name PU90
       --input-type bitstream
-      --output-verilog \${OUT_BIT_VERILOG}"
+      --output-verilog \${OUT_BIT_VERILOG}
+      --input-pcf \${INPUT_IO_FILE}"
   BIT_TO_V_DEPS
     ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/verilogmodule.py
     ${CMAKE_CURRENT_BINARY_DIR}/devices/\${DEVICE_TYPE}/db_vpr.pickle
