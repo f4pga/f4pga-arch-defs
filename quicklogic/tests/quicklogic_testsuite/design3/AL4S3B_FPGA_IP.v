@@ -416,6 +416,7 @@ outpad u_outpad_I27 ( .A( SOUT_o        ), .P( SOUT         ) );
 
 // I2S Slave (RX mode) support with DMA
 //
+(* keep *)
 i2s_slave_w_DMA              #(
 
     .ADDRWIDTH                 ( ADDRWIDTH_DMA_REG              ),

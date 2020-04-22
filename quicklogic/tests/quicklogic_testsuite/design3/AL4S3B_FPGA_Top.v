@@ -193,6 +193,7 @@ gclkbuff u_gclkbuff_clock48khz ( .A(SYS_C21_ACSLIPREF_Clk_sig ) , .Z(sys_ref_clk
 
 // Example FPGA Design
 //
+(* keep *)
 AL4S3B_FPGA_IP             
 
      u_AL4S3B_FPGA_IP        (
@@ -255,6 +256,7 @@ AL4S3B_FPGA_IP
 
 // Empty Verilog model of QLAL4S3B
 //
+(* keep *)
 qlal4s3b_cell_macro              u_qlal4s3b_cell_macro
                                (
     // AHB-To-FPGA Bridge
