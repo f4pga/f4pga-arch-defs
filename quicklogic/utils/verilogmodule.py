@@ -340,6 +340,8 @@ class VModule(object):
             pin = self.io_to_fbio[loc]
             if pin in self.pcf_data:
                 name = self.pcf_data[pin]
+                name = name.replace('(', '[')
+                name = name.replace(')', ']')
 
         return name
 
