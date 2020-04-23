@@ -9,6 +9,7 @@ add_test(NAME binary_toolchain_test
 	${CMAKE_COMMAND} -E env
 	PYTHONPATH=${CONDA_DIR}/lib/python3.7/site-packages:${PRJXRAY_DIR}:${PRJXRAY_DIR}/third_party/fasm
 	XRAY_FASM2FRAMES=${PRJXRAY_DIR}/utils/fasm2frames.py
+	XRAY_TOOLS_DIR=${CONDA_DIR}/bin
 	XRAY_DATABASE_DIR=${PRJXRAY_DB_DIR}
 	make
 	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
