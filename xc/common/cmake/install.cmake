@@ -1,6 +1,6 @@
 function(DEFINE_XC_TOOLCHAIN_TARGET)
   set(options)
-  set(oneValueArgs ARCH CONV_SCRIPT SYNTH_SCRIPT BIT_TO_BIN ROUTE_CHAN_WIDTH)
+  set(oneValueArgs ARCH CONV_SCRIPT SYNTH_SCRIPT ROUTE_CHAN_WIDTH)
   set(multiValueArgs VPR_ARCH_ARGS)
 
   cmake_parse_arguments(
@@ -21,7 +21,6 @@ function(DEFINE_XC_TOOLCHAIN_TARGET)
   set(ROUTE_CHAN_WIDTH ${DEFINE_XC_TOOLCHAIN_TARGET_ROUTE_CHAN_WIDTH})
   list(JOIN VPR_BASE_ARGS " " VPR_BASE_ARGS)
   string(JOIN " " VPR_ARGS ${VPR_BASE_ARGS} "--route_chan_width ${ROUTE_CHAN_WIDTH}" ${VPR_ARCH_ARGS})
-  get_target_property_required(FASM_TO_BIT ${ARCH} FASM_TO_BIT)
   get_target_property_required(FAMILY ${ARCH} FAMILY)
   get_target_property_required(DOC_PRJ ${ARCH} DOC_PRJ)
   get_target_property_required(DOC_PRJ_DB ${ARCH} DOC_PRJ_DB)
@@ -39,12 +38,6 @@ function(DEFINE_XC_TOOLCHAIN_TARGET)
   configure_file(${VPR_COMMON_TEMPLATE} "${VPR_COMMON}" @ONLY)
 
   install(FILES ${TOOLCHAIN_WRAPPERS} ${VPR_COMMON}
-          DESTINATION bin
-          PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
-
-  # install binaries
-  install(TARGETS ${DEFINE_XC_TOOLCHAIN_TARGET_BIT_TO_BIN}
-          RUNTIME
           DESTINATION bin
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
@@ -114,7 +107,7 @@ function(DEFINE_XC_PINMAP_CSV_INSTALL_TARGET)
 
   get_target_property(LIMIT_GRAPH_TO_DEVICE ${DEVICE_TYPE} LIMIT_GRAPH_TO_DEVICE)
   if(LIMIT_GRAPH_TO_DEVICE OR LIMIT_GRAPH_TO_DEVICE STREQUAL "LIMIT_GRAPH_TO_DEVICE-NOTFOUND")
-    message(STATUS "Skipping device files installation for ${DEVICE}-${PACKAGE} type: ${DEVICE_TYPE}")
+    message(STATUS "Graph limited to a sub-area of the device. Skipping files installation for ${DEVICE}-${PACKAGE} type: ${DEVICE_TYPE}")
     return()
   endif()
 
