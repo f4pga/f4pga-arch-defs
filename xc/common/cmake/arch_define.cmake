@@ -61,6 +61,7 @@ function(ADD_XC_ARCH_DEFINE)
   set(VPR_ARCH_ARGS "\
       --router_heap bucket \
       --clock_modeling route \
+      --place_delta_delay_matrix_calculation_method dijkstra \
       --place_delay_model delta_override \
       --router_lookahead connection_box_map \
       --quick_check_route on \
