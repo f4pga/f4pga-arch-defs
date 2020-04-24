@@ -77,5 +77,5 @@ DBROOT=`realpath ${XRAY_DATABASE_DIR}/${DEVICE}`
 
 python3 ${XRAY_FASM2FRAMES} --db-root ${DBROOT} --part ${PART} --sparse --emit_pudc_b_pullup ${FASM} ${FRAMES}
 
-${XRAY_TOOLS_DIR}/xcframes2bit --frm_file ${FRAMES} --output_file ${BIT} --part_name ${PART} --part_file ${DBROOT}/${PART}/part.yaml
+${XRAY_TOOLS_DIR}/xc7frames2bit --frm_file ${FRAMES} --output_file ${BIT} --part_name ${PART} --part_file ${DBROOT}/${PART}/part.yaml
 
