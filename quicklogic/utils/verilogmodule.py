@@ -65,6 +65,69 @@ class VModule(object):
             'inv': 'inv'
         }
 
+    def group_vector_signals(self, signals, io = False):
+
+        # IOs beside name, have also direction, convert them to format
+        # we can process
+        if io:
+            orig_ios = signals
+            ios = dict()
+            for s in signals:
+                id = Wire(s.name, 'io', False)
+                ios[id] = s.name
+            signals = ios
+
+        vectors = dict()
+        new_signals = dict()
+
+        array = re.compile(
+            r'(?P<varname>[a-zA-Z_][a-zA-Z_0-9$]+)\[(?P<arrindex>[0-9]+)\]'
+        )
+
+        # first find the vectors
+        for signalid in signals:
+            match = array.match(signals[signalid])
+            if match:
+                varname = match.group('varname')
+                arrayindex = int(match.group('arrindex'))
+
+                if varname not in vectors:
+                    vectors[varname] = dict()
+                    vectors[varname]['max'] = 0
+                    vectors[varname]['min'] = 0
+
+                if arrayindex > vectors[varname]['max']:
+                    vectors[varname]['max'] = arrayindex
+
+                if arrayindex < vectors[varname]['min']:
+                    vectors[varname]['min'] = arrayindex
+
+            # if signal is not a part of a vector leave it
+            else:
+                new_signals[signalid] = signals[signalid]
+
+        # add vectors to signals dict
+        for vec in vectors:
+            name = '[{max}:{min}] {name}'.format(
+                    max = vectors[vec]['max'],
+                    min = vectors[vec]['min'],
+                    name = vec)
+            id = Wire(name, 'vector', False)
+            new_signals[id] = name
+
+        if io:
+            # we need to restore the direction info
+            new_ios = list()
+            for s in new_signals:
+                signalname = new_signals[s].split()
+                signalname = signalname[-1]
+                io = [x.direction for x in orig_ios if x.name.startswith(signalname)]
+                direction = io[0]
+                new_ios.append((direction, new_signals[s]))
+            return new_ios
+        else:
+            return new_signals
+
     def group_array_values(self, parameters: dict):
         '''Groups pin names that represent array indices.
 
@@ -385,14 +448,16 @@ class VModule(object):
             sortedios = sorted(
                 self.ios.values(), key=lambda x: (x.direction, x.name)
             )
+            grouped_ios = self.group_vector_signals(sortedios, True)
             ios = '\n    '
             ios += ',\n    '.join(
-                [f'{x.direction} {x.name}' for x in sortedios]
+                [f'{x[0]} {x[1]}' for x in grouped_ios]
             )
 
-        if len(self.wires) > 0:
+        grouped_wires = self.group_vector_signals(self.wires)
+        if len(grouped_wires) > 0:
             wires += '\n'
-            for wire in self.wires.values():
+            for wire in grouped_wires.values():
                 wires += f'    wire {wire};\n'
 
         if len(self.assigns) > 0:
