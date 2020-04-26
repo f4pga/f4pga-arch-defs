@@ -45,7 +45,11 @@ class PlaceConstraints(object):
                 self.block_to_root_block[el.attrib['name']
                                          ] = root_block.attrib['name']
 
-        for attr in net_root.xpath("//attribute[@name='LOC']"):
+        for attr in net_root.xpath("//attribute"):
+            name = attr.attrib["name"]
+            if name != 'LOC':
+                continue
+
             # Get block name
             top_block = attr.getparent()
             assert top_block is not None
