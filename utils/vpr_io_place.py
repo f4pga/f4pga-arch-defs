@@ -56,9 +56,11 @@ class IoPlace(object):
         net_root = net_xml.getroot()
         self.net_to_block = {}
 
-        for block in net_root.xpath(
-                "//block[@instance='inpad[0]'] | //block[@instance='outpad[0]']"
-        ):
+        for block in net_root.xpath("//block"):
+            instance = block.attrib["instance"]
+            if instance != "inpad[0]" and instance != "outpad[0]":
+                continue
+
             top_block = block.getparent()
             assert top_block is not None
             while top_block.getparent() is not net_root:
