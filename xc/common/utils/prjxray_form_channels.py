@@ -1994,8 +1994,10 @@ SELECT site_instance.name, site.site_type_pkey, phy_tile.name,
 FROM site_instance
 INNER JOIN phy_tile ON site_instance.phy_tile_pkey = phy_tile.pkey
 INNER JOIN site ON site.pkey = site_instance.site_pkey
+INNER JOIN site_type ON site.site_type_pkey = site_type.pkey
 INNER JOIN tile ON phy_tile.pkey = tile.phy_tile_pkey
-WHERE site.pkey = ? AND tile.pkey = ?""", (
+WHERE site.pkey = ? AND tile.pkey = ?
+ORDER_BY site_type.name, site_instance.x_coord, site_instance.y_coord""", (
                     site.site_pkey,
                     tile_pkey,
                 )
