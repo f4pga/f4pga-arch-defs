@@ -95,7 +95,7 @@ CLOCKS = {
 
 
 class ClockPlacer(object):
-    def __init__(self, cmt_dict, io_locs, blif_data):
+    def __init__(self, cmt_dict, io_locs, blif_data, roi):
         def get_cmt(cmt_dict, loc):
             for k, v in cmt_dict.items():
                 for (x, y) in v['vpr_loc']:
@@ -104,6 +104,7 @@ class ClockPlacer(object):
 
             return None
 
+        self.roi = roi
         self.cmt_to_bufg_tile = {}
         self.bufg_from_cmt = {
             'TOP': [],
@@ -133,17 +134,16 @@ class ClockPlacer(object):
                 self.cmt_to_bufg_tile[clock_region] = "BOT"
 
         self.input_pins = {}
-        for input_pin in blif_data['inputs']['args']:
-            if input_pin not in io_locs.keys():
-                continue
+        if not self.roi:
+            for input_pin in blif_data['inputs']['args']:
+                if input_pin not in io_locs.keys():
+                    continue
 
-            loc = io_locs[input_pin]
+                loc = io_locs[input_pin]
+                cmt = get_cmt(cmt_dict, loc)
+                assert cmt is not None, loc
 
-            cmt = get_cmt(cmt_dict, loc)
-
-            assert cmt is not None, loc
-
-            self.input_pins[input_pin] = cmt
+                self.input_pins[input_pin] = cmt
 
         self.clock_blocks = {}
 
@@ -535,6 +535,7 @@ def main():
         required=True,
         help='BLIF / eBLIF file'
     )
+    parser.add_argument('--roi', action='store_true', help='Using ROI')
 
     args = parser.parse_args()
 
@@ -619,7 +620,7 @@ def main():
             block, vpr_loc, "Constraining block {}".format(block)
         )
 
-    clock_placer = ClockPlacer(cmt_dict, io_blocks, eblif_data)
+    clock_placer = ClockPlacer(cmt_dict, io_blocks, eblif_data, args.roi)
     if clock_placer.has_clock_nets():
         for block, loc in clock_placer.place_clocks(
                 site_dict, site_type_dict, tile_dict, loc_in_use, block_locs,
