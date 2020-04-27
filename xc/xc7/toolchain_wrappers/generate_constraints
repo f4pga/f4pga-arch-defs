@@ -11,7 +11,7 @@ PART=$4
 DEVICE=$5
 ARCH_DEF=$6
 
-CHANNELS=`realpath ${MYPATH}/../share/symbiflow/arch/${DEVICE}/channels.db`
+VPR_GRID_MAP=`realpath ${MYPATH}/../share/symbiflow/arch/${DEVICE}/vpr_grid_map.csv`
 PINMAP=`realpath ${MYPATH}/../share/symbiflow/arch/${DEVICE}/${PART}/pinmap.csv`
 IOGEN=`realpath ${MYPATH}/python/prjxray_create_ioplace.py`
 CONSTR_GEN=`realpath ${MYPATH}/python/prjxray_create_place_constraints.py`
@@ -19,5 +19,5 @@ PROJECT=$(basename -- "$EBLIF")
 IOPLACE_FILE="${PROJECT%.*}.ioplace"
 
 python3 ${IOGEN} --pcf $PCF --blif $EBLIF --map $PINMAP --net $NET > ${IOPLACE_FILE}
-python3 ${CONSTR_GEN} --net $NET --arch ${ARCH_DEF} --blif $EBLIF --connection_database ${CHANNELS} --input ${IOPLACE_FILE} > constraints.place
+python3 ${CONSTR_GEN} --net $NET --arch ${ARCH_DEF} --blif $EBLIF --vpr_grid_map ${VPR_GRID_MAP} --input ${IOPLACE_FILE} > constraints.place
 
