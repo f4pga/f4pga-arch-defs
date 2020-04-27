@@ -143,7 +143,13 @@ function(PROJECT_RAY_ARCH)
     )
 
   add_file_target(FILE channels.db GENERATED)
+  get_file_target(CHAN channels.db)
+
   add_file_target(FILE vpr_grid_map.csv GENERATED)
+
+  # Linearize dependency to avoid double builds
+  get_file_target(GRID_MAP vpr_grid_map.csv)
+  add_dependencies(${GRID_MAP} ${CHAN})
 
   append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc/${FAMILY}/archs/${ARCH}/pin_assignments.json)
   append_file_dependency(DEPS channels.db)
@@ -222,8 +228,14 @@ function(PROJECT_RAY_PREPARE_DATABASE)
       )
 
     add_file_target(FILE ${CHANNELS} GENERATED)
-    add_file_target(FILE ${VPR_GRID_MAP} GENERATED)
     get_file_target(CHAN ${CHANNELS})
+
+    add_file_target(FILE ${VPR_GRID_MAP} GENERATED)
+
+    # Linearize dependency to avoid double builds
+    get_file_target(GRID_MAP ${VPR_GRID_MAP})
+    add_dependencies(${GRID_MAP} ${CHAN})
+
   endforeach()
 
   set(PROTOTYPE_CHANNELS channels/${PROTOTYPE_PART}/channels.db)
