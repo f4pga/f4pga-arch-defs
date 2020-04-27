@@ -4,7 +4,6 @@ import argparse
 import eblif
 import sys
 import vpr_place_constraints
-import sqlite3
 import lxml.etree as ET
 import constraint
 
@@ -467,7 +466,6 @@ def get_vpr_coords_from_site_name(
         site_dict, tile_dict, site_name, grid_capacities
 ):
     site_name = site_name.replace('"', '')
-    site_type = site_dict[site_name]['type']
     tile = site_dict[site_name]['tile']
 
     capacity = 0
