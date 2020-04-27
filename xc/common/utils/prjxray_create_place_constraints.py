@@ -524,8 +524,6 @@ def main():
         required=True,
         help='top.net file'
     )
-    parser.add_argument('--db_root', help='Database root', required=True)
-    parser.add_argument('--part', help='FPGA part', required=True)
     parser.add_argument(
         '--vpr_grid_map',
         help='Map of canonical to VPR grid locations',

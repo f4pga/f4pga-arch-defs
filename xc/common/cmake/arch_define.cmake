@@ -134,8 +134,6 @@ function(ADD_XC_ARCH_DEFINE)
         --blif \${OUT_EBLIF} \
         --input /dev/stdin \
         --output /dev/stdout \
-        --db-root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH} \
-        --part \${PART} \
         \${PLACE_CONSTR_TOOL_EXTRA_ARGS}"
     BITSTREAM_EXTENSION frames
     BIN_EXTENSION bit
