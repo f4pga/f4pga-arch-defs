@@ -245,6 +245,7 @@ function(ADD_XC_DEVICE_DEFINE_TYPE)
       ROI_DIR ${ROI_DIR}
       CHANNELS_DB ${CMAKE_CURRENT_SOURCE_DIR}/channels.db
       SYNTH_TILES ${CMAKE_CURRENT_SOURCE_DIR}/synth_tiles.json
+      VPR_GRID_MAP ${CMAKE_CURRENT_SOURCE_DIR}/vpr_grid_map.csv
       )
   else()
     set_target_properties(
@@ -252,6 +253,7 @@ function(ADD_XC_DEVICE_DEFINE_TYPE)
       PROPERTIES
       USE_ROI FALSE
       CHANNELS_DB ${CMAKE_CURRENT_SOURCE_DIR}/channels.db
+      VPR_GRID_MAP ${CMAKE_CURRENT_SOURCE_DIR}/vpr_grid_map.csv
       )
   endif()
 
