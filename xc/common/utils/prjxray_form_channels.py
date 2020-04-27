@@ -1997,7 +1997,7 @@ INNER JOIN site ON site.pkey = site_instance.site_pkey
 INNER JOIN site_type ON site.site_type_pkey = site_type.pkey
 INNER JOIN tile ON phy_tile.pkey = tile.phy_tile_pkey
 WHERE site.pkey = ? AND tile.pkey = ?
-ORDER_BY site_type.name, site_instance.x_coord, site_instance.y_coord""", (
+ORDER BY site_type.name, site_instance.x_coord, site_instance.y_coord""", (
                     site.site_pkey,
                     tile_pkey,
                 )
