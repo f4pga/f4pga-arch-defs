@@ -73,6 +73,10 @@ function(ADD_XC_BOARD)
   ")
   get_target_property_required(CHANNELS_DB ${DEVICE_TYPE} CHANNELS_DB)
   get_file_location(CHANNELS_LOCATION ${CHANNELS_DB})
+
+  get_target_property_required(VPR_GRID_MAP ${DEVICE_TYPE} VPR_GRID_MAP)
+  get_file_location(VPR_GRID_MAP_LOCATION ${VPR_GRID_MAP})
+
   set_target_properties(${BOARD}
     PROPERTIES BIT_TO_V_EXTRA_ARGS " \
     --part ${PART}
@@ -81,7 +85,7 @@ function(ADD_XC_BOARD)
 
   set_target_properties(${BOARD}
     PROPERTIES PLACE_CONSTR_TOOL_EXTRA_ARGS " \
-    --connection_database ${CHANNELS_LOCATION}
+    --vpr_grid_map ${VPR_GRID_MAP_LOCATION}
   ")
 
   get_target_property_required(PYTHON3 env PYTHON3)
