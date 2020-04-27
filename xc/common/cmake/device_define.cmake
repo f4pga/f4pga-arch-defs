@@ -141,10 +141,14 @@ function(ADD_XC_BOARD)
       PINMAP
       ${CMAKE_CURRENT_SOURCE_DIR}/${PINMAP_CSV}
   )
+
+  get_target_property_required(VPR_GRID_MAP ${DEVICE_TYPE} VPR_GRID_MAP)
+  get_file_location(VPR_GRID_MAP_LOCATION ${VPR_GRID_MAP})
+
   set_target_properties(
     dummy_${ARCH}_${DEVICE}_${ADD_XC_BOARD_PACKAGE}
     PROPERTIES
-    PLACE_CONSTR_TOOL_EXTRA_ARGS "--connection_database ${CHANNELS_LOCATION}"
+    PLACE_CONSTR_TOOL_EXTRA_ARGS "--vpr_grid_map ${VPR_GRID_MAP_LOCATION}"
     PINMAP
     ${CMAKE_CURRENT_SOURCE_DIR}/${PINMAP_CSV})
 
