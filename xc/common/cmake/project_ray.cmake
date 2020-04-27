@@ -78,6 +78,9 @@ function(PROJECT_RAY_ARCH)
   set(GENERIC_CHANNELS
     ${symbiflow-arch-defs_SOURCE_DIR}/xc/${FAMILY}/archs/${ARCH}/channels/${PART}/channels.db)
   get_file_location(GENERIC_CHANNELS_LOCATION ${GENERIC_CHANNELS})
+  set(VPR_GRID_MAP
+    ${symbiflow-arch-defs_SOURCE_DIR}/xc/${FAMILY}/archs/${ARCH}/channels/${PART}/vpr_grid_map.csv)
+  get_file_location(VPR_GRID_MAP_LOCATION ${VPR_GRID_MAP})
 
   if(NOT "${PROJECT_RAY_ARCH_USE_ROI}" STREQUAL "")
     set(SYNTH_DEPS "")
@@ -120,13 +123,14 @@ function(PROJECT_RAY_ARCH)
   get_file_location(PIN_ASSIGNMENTS ${symbiflow-arch-defs_SOURCE_DIR}/xc/${FAMILY}/archs/${ARCH}/pin_assignments.json)
   list(APPEND CHANNELS_DEPS ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/${PART}/tilegrid.json)
   list(APPEND CHANNELS_DEPS ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/${PART}/tileconn.json)
-  
+
   get_target_property(NUMPY_TARGET env NUMPY_TARGET)
   set(CREATE_EDGES_DEPS ${NUMPY_TARGET})
 
   add_custom_command(
-    OUTPUT channels.db
+    OUTPUT channels.db vpr_grid_map.csv
     COMMAND ${CMAKE_COMMAND} -E copy ${GENERIC_CHANNELS_LOCATION} ${CMAKE_CURRENT_BINARY_DIR}/channels.db
+    COMMAND ${CMAKE_COMMAND} -E copy ${VPR_GRID_MAP_LOCATION} ${CMAKE_CURRENT_BINARY_DIR}/vpr_grid_map.csv
     COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
     ${PYTHON3} ${CREATE_EDGES}
       --db_root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/
@@ -139,6 +143,7 @@ function(PROJECT_RAY_ARCH)
     )
 
   add_file_target(FILE channels.db GENERATED)
+  add_file_target(FILE vpr_grid_map.csv GENERATED)
 
   append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc/${FAMILY}/archs/${ARCH}/pin_assignments.json)
   append_file_dependency(DEPS channels.db)
@@ -201,13 +206,15 @@ function(PROJECT_RAY_PREPARE_DATABASE)
   foreach(PART ${PROJECT_RAY_PREPARE_DATABASE_PARTS})
     file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/channels/${PART})
     set(CHANNELS channels/${PART}/channels.db)
+    set(VPR_GRID_MAP channels/${PART}/vpr_grid_map.csv)
     add_custom_command(
-      OUTPUT ${CHANNELS}
+      OUTPUT ${CHANNELS} ${VPR_GRID_MAP}
       COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
       ${PYTHON3} ${FORM_CHANNELS}
       --db_root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/
       --part ${PROTOTYPE_PART}
       --connection_database ${CMAKE_CURRENT_BINARY_DIR}/${CHANNELS}
+      --grid_map_output ${CMAKE_CURRENT_BINARY_DIR}/${VPR_GRID_MAP}
       DEPENDS
       ${FORM_CHANNELS}
       ${DEPS} ${DEPS2} ${DEPS3} simplejson progressbar2 intervaltree hilbertcurve
@@ -215,6 +222,7 @@ function(PROJECT_RAY_PREPARE_DATABASE)
       )
 
     add_file_target(FILE ${CHANNELS} GENERATED)
+    add_file_target(FILE ${VPR_GRID_MAP} GENERATED)
     get_file_target(CHAN ${CHANNELS})
   endforeach()
 
