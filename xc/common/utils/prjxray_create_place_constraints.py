@@ -3,6 +3,7 @@ from __future__ import print_function
 import argparse
 import eblif
 import sys
+import csv
 import vpr_place_constraints
 import lxml.etree as ET
 import constraint
@@ -114,13 +115,17 @@ class VprGrid(object):
         self.cmt_dict = dict()
         self.tile_dict = dict()
 
-        with open(vpr_grid_map, 'r') as f:
-            # Skip first header row
-            next(f)
-            for l in f:
-                site_name, site_type, phy_tile, vpr_x, vpr_y, can_x, can_y, clk_region = l.split(
-                    ','
-                )
+        with open(vpr_grid_map, 'r') as csv_vpr_grid:
+            csv_reader = csv.DictReader(csv_vpr_grid)
+            for row in csv_reader:
+                site_name = row['site_name']
+                site_type = row['site_type']
+                phy_tile = row['physical_tile']
+                vpr_x = row['vpr_x']
+                vpr_y = row['vpr_y']
+                can_x = row['canon_x']
+                can_y = row['canon_y']
+                clk_region = row['clock_region']
 
                 clk_region = clk_region.rstrip()
                 clk_region = None if clk_region == 'None' else int(clk_region)
