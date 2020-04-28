@@ -94,15 +94,92 @@ CLOCKS = {
 }
 
 
-class ClockPlacer(object):
-    def __init__(self, cmt_dict, io_locs, blif_data, roi):
-        def get_cmt(cmt_dict, loc):
-            for k, v in cmt_dict.items():
-                for (x, y) in v['vpr_loc']:
-                    if x == loc[0] and y == loc[1]:
-                        return v['clock_region']
+def get_cmt(cmt_dict, loc):
+    """Returns the clock region of an input location."""
+    for k, v in cmt_dict.items():
+        for (x, y) in v['vpr_loc']:
+            if x == loc[0] and y == loc[1]:
+                return v['clock_region']
 
-            return None
+    return None
+
+
+class VprGrid(object):
+    """This class contains a set of dictionaries helpful
+    to have a fast lookup at the various coordinates mapping."""
+
+    def __init__(self, vpr_grid_map):
+        self.site_dict = dict()
+        self.site_type_dict = dict()
+        self.cmt_dict = dict()
+        self.tile_dict = dict()
+
+        with open(vpr_grid_map, 'r') as f:
+            # Skip first header row
+            next(f)
+            for l in f:
+                site_name, site_type, phy_tile, vpr_x, vpr_y, can_x, can_y, clk_region = l.split(
+                    ','
+                )
+
+                clk_region = clk_region.rstrip()
+                clk_region = None if clk_region == 'None' else int(clk_region)
+
+                # Generating the site dictionary
+                self.site_dict[site_name] = {
+                    'type': site_type,
+                    'tile': phy_tile,
+                    'vpr_loc': (int(vpr_x), int(vpr_y)),
+                    'canon_loc': (int(can_x), int(can_y)),
+                    'clock_region': clk_region,
+                }
+
+                # Generating site types dictionary.
+                if site_type not in self.site_type_dict:
+                    self.site_type_dict[site_type] = []
+
+                self.site_type_dict[site_type].append(
+                    (site_name, phy_tile, clk_region)
+                )
+
+                # Generating the cmt dictionary.
+                # Each entry has:
+                #   - canonical location
+                #   - a list of vpr coordinates
+                #   - clock region
+                if phy_tile not in self.cmt_dict:
+                    self.cmt_dict[phy_tile] = {
+                        'canon_loc': (int(can_x), int(can_y)),
+                        'vpr_loc': [(int(vpr_x), int(vpr_y))],
+                        'clock_region': clk_region,
+                    }
+                else:
+                    self.cmt_dict[phy_tile]['vpr_loc'].append(
+                        (int(vpr_x), int(vpr_y))
+                    )
+
+                # Generating the tile dictionary.
+                # Each tile has a list of (site, site_type) pairs
+                if phy_tile not in self.tile_dict:
+                    self.tile_dict[phy_tile] = []
+
+                self.tile_dict[phy_tile].append((site_name, site_type))
+
+    def get_site_dict(self):
+        return self.site_dict
+
+    def get_site_type_dict(self):
+        return self.site_type_dict
+
+    def get_cmt_dict(self):
+        return self.cmt_dict
+
+    def get_tile_dict(self):
+        return self.tile_dict
+
+
+class ClockPlacer(object):
+    def __init__(self, vpr_grid, io_locs, blif_data, roi):
 
         self.roi = roi
         self.cmt_to_bufg_tile = {}
@@ -110,6 +187,8 @@ class ClockPlacer(object):
             'TOP': [],
             'BOT': [],
         }
+
+        cmt_dict = vpr_grid.get_cmt_dict()
 
         top_cmt_tile = next(
             k for k, v in cmt_dict.items() if k.startswith('CLK_BUFG_TOP')
@@ -243,10 +322,12 @@ class ClockPlacer(object):
 
                     self.clock_sources[sink_net].append(cname)
 
-    def assign_cmts(self, site_dict, blocks):
+    def assign_cmts(self, vpr_grid, blocks):
         """ Assign CMTs to subckt's that require it (e.g. BURF/PLL/MMCM). """
 
         problem = constraint.Problem()
+
+        site_dict = vpr_grid.get_site_dict()
 
         # Any clocks that have LOC's already defined should be respected.
         # Store the parent CMT in clock_cmts.
@@ -353,10 +434,11 @@ class ClockPlacer(object):
             self.clock_cmts.update(solutions[0])
 
     def place_clocks(
-            self, site_dict, site_type_dict, tile_dict, loc_in_use, block_locs,
-            blocks, grid_capacities
+            self, vpr_grid, loc_in_use, block_locs, blocks, grid_capacities
     ):
-        self.assign_cmts(site_dict, block_locs)
+        self.assign_cmts(vpr_grid, block_locs)
+
+        site_type_dict = vpr_grid.get_site_type_dict()
 
         # Key is (type, clock_region_pkey)
         available_placements = {}
@@ -383,7 +465,7 @@ class ClockPlacer(object):
 
                 available_placements[key].append(loc)
                 vpr_loc = get_vpr_coords_from_site_name(
-                    site_dict, tile_dict, loc, grid_capacities
+                    vpr_grid, loc, grid_capacities
                 )
 
                 if vpr_loc is None:
@@ -462,10 +544,12 @@ def get_tile_capacities(arch_xml_filename):
     return grid
 
 
-def get_vpr_coords_from_site_name(
-        site_dict, tile_dict, site_name, grid_capacities
-):
+def get_vpr_coords_from_site_name(vpr_grid, site_name, grid_capacities):
     site_name = site_name.replace('"', '')
+
+    site_dict = vpr_grid.get_site_dict()
+    tile_dict = vpr_grid.get_tile_dict()
+
     tile = site_dict[site_name]['tile']
 
     capacity = 0
@@ -559,54 +643,12 @@ def main():
 
     eblif_data = eblif.parse_blif(args.blif)
 
-    site_dict = dict()
-    site_type_dict = dict()
-    cmt_dict = dict()
-    tile_dict = dict()
-    with open(args.vpr_grid_map, 'r') as f:
-        # Skip first header row
-        next(f)
-        for l in f:
-            site_name, site_type, phy_tile, vpr_x, vpr_y, can_x, can_y, clk_region = l.split(
-                ','
-            )
-
-            clk_region = clk_region.rstrip()
-            clk_region = None if clk_region == 'None' else int(clk_region)
-
-            site_dict[site_name] = {
-                'type': site_type,
-                'tile': phy_tile,
-                'vpr_loc': (int(vpr_x), int(vpr_y)),
-                'canon_loc': (int(can_x), int(can_y)),
-                'clock_region': clk_region,
-            }
-
-            if site_type not in site_type_dict:
-                site_type_dict[site_type] = []
-
-            site_type_dict[site_type].append((site_name, phy_tile, clk_region))
-
-            if phy_tile not in cmt_dict:
-                cmt_dict[phy_tile] = {
-                    'canon_loc': (int(can_x), int(can_y)),
-                    'vpr_loc': [(int(vpr_x), int(vpr_y))],
-                    'clock_region': clk_region,
-                }
-            else:
-                cmt_dict[phy_tile]['vpr_loc'].append((int(vpr_x), int(vpr_y)))
-
-            if phy_tile not in tile_dict:
-                tile_dict[phy_tile] = []
-
-            tile_dict[phy_tile].append((site_name, site_type))
+    vpr_grid = VprGrid(args.vpr_grid_map)
 
     blocks = {}
     block_locs = {}
     for block, loc in place_constraints.get_loc_sites():
-        vpr_loc = get_vpr_coords_from_site_name(
-            site_dict, tile_dict, loc, grid_capacities
-        )
+        vpr_loc = get_vpr_coords_from_site_name(vpr_grid, loc, grid_capacities)
         loc_in_use.add(vpr_loc)
 
         if block in io_blocks:
@@ -621,13 +663,12 @@ def main():
             block, vpr_loc, "Constraining block {}".format(block)
         )
 
-    clock_placer = ClockPlacer(cmt_dict, io_blocks, eblif_data, args.roi)
+    clock_placer = ClockPlacer(vpr_grid, io_blocks, eblif_data, args.roi)
     if clock_placer.has_clock_nets():
         for block, loc in clock_placer.place_clocks(
-                site_dict, site_type_dict, tile_dict, loc_in_use, block_locs,
-                blocks, grid_capacities):
+                vpr_grid, loc_in_use, block_locs, blocks, grid_capacities):
             vpr_loc = get_vpr_coords_from_site_name(
-                site_dict, tile_dict, loc, grid_capacities
+                vpr_grid, loc, grid_capacities
             )
             place_constraints.constrain_block(
                 block, vpr_loc, "Constraining clock block {}".format(block)
