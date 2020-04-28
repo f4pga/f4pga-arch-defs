@@ -471,7 +471,8 @@ def get_vpr_coords_from_site_name(
     capacity = 0
     x, y = site_dict[site_name]['vpr_loc']
 
-    capacity = grid_capacities[(x, y)]
+    if (x, y) in grid_capacities.keys():
+        capacity = grid_capacities[(x, y)]
 
     if not capacity:
         # If capacity is zero it means that the site is out of
