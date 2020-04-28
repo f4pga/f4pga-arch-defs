@@ -32,6 +32,7 @@ prjxray_assign_tile_pin_direction.
 """
 
 import argparse
+import csv
 import prjxray.db
 import prjxray.tile
 from prjxray.timing import PvtCorner
@@ -1697,10 +1698,6 @@ def create_vpr_grid(conn, grid_map_output):
     write_cur = conn.cursor()
     write_cur.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
 
-    grid_map_output.write(
-        "site_name,site_type,physical_tile,vpr_x,vpr_y,canon_x,canon_y,clock_region\n"
-    )
-
     # Insert synthetic tile types for CLB sites and iopad sites.
     for name in [
             'SLICEL',
@@ -1923,6 +1920,19 @@ SELECT site_pkey FROM wire_in_tile WHERE tile_type_pkey = ? AND site_pkey IS NOT
 
     new_grid = shifted_grid
 
+    fieldnames = [
+        "site_name",
+        "site_type",
+        "physical_tile",
+        "vpr_x",
+        "vpr_y",
+        "canon_x",
+        "canon_y",
+        "clock_region",
+    ]
+    csv_writer = csv.DictWriter(grid_map_output, fieldnames=fieldnames)
+    csv_writer.writeheader()
+
     write_cur.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
 
     # Create tile rows for each tile in the VPR grid.  As provide map entries
@@ -2012,11 +2022,17 @@ SELECT name FROM site_type WHERE pkey = ?
 
                 site_type = cur2.fetchone()[0]
 
-                grid_map_output.write(
-                    "{},{},{},{},{},{},{},{}\n".format(
-                        site_name, site_type, phy_tile_name, grid_x, grid_y,
-                        canon_x, canon_y, clock_region
-                    )
+                csv_writer.writerow(
+                    {
+                        "site_name": site_name,
+                        "site_type": site_type,
+                        "physical_tile": phy_tile_name,
+                        "vpr_x": grid_x,
+                        "vpr_y": grid_y,
+                        "canon_x": canon_x,
+                        "canon_y": canon_y,
+                        "clock_region": clock_region
+                    }
                 )
 
         # First assign all wires at the root_phy_tile_pkeys to this tile_pkey.
