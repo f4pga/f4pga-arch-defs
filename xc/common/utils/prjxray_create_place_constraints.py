@@ -127,8 +127,7 @@ class VprGrid(object):
                 can_y = row['canon_y']
                 clk_region = row['clock_region']
 
-                clk_region = clk_region.rstrip()
-                clk_region = None if clk_region == 'None' else int(clk_region)
+                clk_region = None if not clk_region else int(clk_region)
 
                 # Generating the site dictionary
                 self.site_dict[site_name] = {
