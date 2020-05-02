@@ -48,3 +48,23 @@ stat
 write_json $::env(OUT_JSON)
 # Write the design in Verilog format.
 write_verilog $::env(OUT_SYNTH_V)
+
+exec python3 $::env(SPLIT_INOUTS) -i $::env(OUT_JSON) -o $::env(SYNTH_JSON)
+
+# Clean
+opt_clean
+
+# Designs that directly tie OPAD's to constants cannot use the dedicate
+# constant network as an artifact of the way the ROI is configured.
+# Until the ROI is removed, enable designs to selectively disable the dedicated
+# constant network.
+if { [info exists ::env(USE_LUT_CONSTANTS)] } {
+    write_blif -attr -cname -param \
+      $::env(OUT_EBLIF)
+} else {
+    write_blif -attr -cname -param \
+      -true VCC VCC \
+      -false GND GND \
+      -undef VCC VCC \
+    $::env(OUT_EBLIF)
+}

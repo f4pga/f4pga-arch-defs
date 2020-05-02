@@ -8,7 +8,6 @@ export TECHMAP_PATH=`realpath ${MYPATH}/../share/techmaps/xc7_vpr/techmap`
 
 SYNTH_TCL_PATH=`realpath ${MYPATH}/../share/prjxray/synth.tcl`
 CONV_TCL_PATH=`realpath ${MYPATH}/../share/prjxray/conv.tcl`
-SPLIT_INOUTS=`realpath ${MYPATH}/python/split_inouts.py`
 
 VERILOG_FILES=()
 XDC_FILES=()
@@ -95,8 +94,7 @@ export OUT_SYNTH_V=${TOP}_synth.v
 export OUT_EBLIF=${TOP}.eblif
 export PART_JSON=`realpath ${MYPATH}/../share/prjxray/prjxray-db/$DEVICE/$PART/part.json`
 export OUT_FASM_EXTRA=${TOP}_fasm_extra.fasm
+export SPLIT_INOUTS=`realpath ${MYPATH}/python/split_inouts.py`
 LOG=${TOP}_synth.log
 
 yosys -p "tcl ${SYNTH_TCL_PATH}" -l $LOG ${VERILOG_FILES[*]}
-python3 ${SPLIT_INOUTS} -i ${OUT_JSON} -o ${SYNTH_JSON}
-yosys -p "read_json $SYNTH_JSON; tcl ${CONV_TCL_PATH}"
