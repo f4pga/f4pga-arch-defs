@@ -73,14 +73,13 @@ function(ADD_XC_BOARD)
   ")
   get_target_property_required(CHANNELS_DB ${DEVICE_TYPE} CHANNELS_DB)
   get_file_location(CHANNELS_LOCATION ${CHANNELS_DB})
+
+  get_target_property_required(VPR_GRID_MAP ${DEVICE_TYPE} VPR_GRID_MAP)
+  get_file_location(VPR_GRID_MAP_LOCATION ${VPR_GRID_MAP})
+
   set_target_properties(${BOARD}
     PROPERTIES BIT_TO_V_EXTRA_ARGS " \
     --part ${PART}
-    --connection_database ${CHANNELS_LOCATION}
-  ")
-
-  set_target_properties(${BOARD}
-    PROPERTIES PLACE_CONSTR_TOOL_EXTRA_ARGS " \
     --connection_database ${CHANNELS_LOCATION}
   ")
 
@@ -94,6 +93,12 @@ function(ADD_XC_BOARD)
       PROPERTIES FASM_TO_BIT_EXTRA_ARGS " \
       --roi ${ROI_DIR}/design.json \
       --part ${PART} \
+    ")
+
+    set_target_properties(${BOARD}
+      PROPERTIES PLACE_CONSTR_TOOL_EXTRA_ARGS " \
+      --vpr_grid_map ${VPR_GRID_MAP_LOCATION} \
+      --roi
     ")
 
     get_target_property_required(SYNTH_TILES ${DEVICE_TYPE} SYNTH_TILES)
@@ -116,6 +121,11 @@ function(ADD_XC_BOARD)
     set_target_properties(${BOARD}
       PROPERTIES FASM_TO_BIT_EXTRA_ARGS " \
       --part ${PART} \
+    ")
+
+    set_target_properties(${BOARD}
+      PROPERTIES PLACE_CONSTR_TOOL_EXTRA_ARGS " \
+      --vpr_grid_map ${VPR_GRID_MAP_LOCATION}
     ")
 
     set(CREATE_PINMAP_CSV ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/prjxray_create_pinmap_csv.py)
@@ -141,10 +151,14 @@ function(ADD_XC_BOARD)
       PINMAP
       ${CMAKE_CURRENT_SOURCE_DIR}/${PINMAP_CSV}
   )
+
+  get_target_property_required(VPR_GRID_MAP ${DEVICE_TYPE} VPR_GRID_MAP)
+  get_file_location(VPR_GRID_MAP_LOCATION ${VPR_GRID_MAP})
+
   set_target_properties(
     dummy_${ARCH}_${DEVICE}_${ADD_XC_BOARD_PACKAGE}
     PROPERTIES
-    PLACE_CONSTR_TOOL_EXTRA_ARGS "--connection_database ${CHANNELS_LOCATION}"
+    PLACE_CONSTR_TOOL_EXTRA_ARGS "--vpr_grid_map ${VPR_GRID_MAP_LOCATION} --roi"
     PINMAP
     ${CMAKE_CURRENT_SOURCE_DIR}/${PINMAP_CSV})
 
@@ -245,6 +259,7 @@ function(ADD_XC_DEVICE_DEFINE_TYPE)
       ROI_DIR ${ROI_DIR}
       CHANNELS_DB ${CMAKE_CURRENT_SOURCE_DIR}/channels.db
       SYNTH_TILES ${CMAKE_CURRENT_SOURCE_DIR}/synth_tiles.json
+      VPR_GRID_MAP ${CMAKE_CURRENT_SOURCE_DIR}/vpr_grid_map.csv
       )
   else()
     set_target_properties(
@@ -252,6 +267,7 @@ function(ADD_XC_DEVICE_DEFINE_TYPE)
       PROPERTIES
       USE_ROI FALSE
       CHANNELS_DB ${CMAKE_CURRENT_SOURCE_DIR}/channels.db
+      VPR_GRID_MAP ${CMAKE_CURRENT_SOURCE_DIR}/vpr_grid_map.csv
       )
   endif()
 
@@ -259,14 +275,14 @@ function(ADD_XC_DEVICE_DEFINE_TYPE)
     set_target_properties(
       ${DEVICE_TYPE}
       PROPERTIES
-      USE_GRAPH_LIMIT TRUE
+      LIMIT_GRAPH_TO_DEVICE TRUE
       GRAPH_LIMIT "${ADD_XC_DEVICE_DEFINE_TYPE_GRAPH_LIMIT}"
       )
   else()
     set_target_properties(
       ${DEVICE_TYPE}
       PROPERTIES
-      USE_GRAPH_LIMIT FALSE
+      LIMIT_GRAPH_TO_DEVICE FALSE
       )
   endif()
 endfunction()
@@ -318,9 +334,9 @@ function(ADD_XC_DEVICE_DEFINE)
         set(RR_PATCH_EXTRA_ARGS --synth_tiles ${SYNTH_TILES_LOCATION} ${RR_PATCH_EXTRA_ARGS})
     endif()
 
-    get_target_property_required(USE_GRAPH_LIMIT ${DEVICE_TYPE} USE_GRAPH_LIMIT)
+    get_target_property_required(LIMIT_GRAPH_TO_DEVICE ${DEVICE_TYPE} LIMIT_GRAPH_TO_DEVICE)
 
-    if(${USE_GRAPH_LIMIT})
+    if(${LIMIT_GRAPH_TO_DEVICE})
         get_target_property_required(GRAPH_LIMIT ${DEVICE_TYPE} GRAPH_LIMIT)
         set(RR_PATCH_EXTRA_ARGS --graph_limit ${GRAPH_LIMIT} ${RR_PATCH_EXTRA_ARGS})
     endif()

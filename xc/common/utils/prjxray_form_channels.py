@@ -32,6 +32,7 @@ prjxray_assign_tile_pin_direction.
 """
 
 import argparse
+import csv
 import prjxray.db
 import prjxray.tile
 from prjxray.timing import PvtCorner
@@ -1687,7 +1688,7 @@ def update_wire_in_tile_types(
     )
 
 
-def create_vpr_grid(conn):
+def create_vpr_grid(conn, grid_map_output):
     """ Create VPR grid from prjxray grid. """
     cur = conn.cursor()
     cur2 = conn.cursor()
@@ -1769,6 +1770,7 @@ def create_vpr_grid(conn):
     split_map = {}
 
     grid_loc_map = {}
+
     for phy_tile_pkey, tile_type_pkey, grid_x, grid_y in progressbar_utils.progressbar(
             cur.execute("""
         SELECT pkey, tile_type_pkey, grid_x, grid_y FROM phy_tile;
@@ -1918,6 +1920,19 @@ SELECT site_pkey FROM wire_in_tile WHERE tile_type_pkey = ? AND site_pkey IS NOT
 
     new_grid = shifted_grid
 
+    fieldnames = [
+        "site_name",
+        "site_type",
+        "physical_tile",
+        "vpr_x",
+        "vpr_y",
+        "canon_x",
+        "canon_y",
+        "clock_region",
+    ]
+    csv_writer = csv.DictWriter(grid_map_output, fieldnames=fieldnames)
+    csv_writer.writeheader()
+
     write_cur.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
 
     # Create tile rows for each tile in the VPR grid.  As provide map entries
@@ -1977,6 +1992,48 @@ INSERT INTO tile(phy_tile_pkey, tile_type_pkey, grid_x, grid_y) VALUES (
 INSERT INTO tile_map(tile_pkey, phy_tile_pkey) VALUES (?, ?)
                 """, (tile_pkey, phy_tile_pkey)
             )
+
+        for site in tile.sites:
+            for site_name in cur:
+                print(site_name)
+
+            cur.execute(
+                """
+SELECT site_instance.name, site.site_type_pkey, phy_tile.name,
+    phy_tile.clock_region_pkey, phy_tile.grid_x, phy_tile.grid_y
+FROM site_instance
+INNER JOIN phy_tile ON site_instance.phy_tile_pkey = phy_tile.pkey
+INNER JOIN site ON site.pkey = site_instance.site_pkey
+INNER JOIN site_type ON site.site_type_pkey = site_type.pkey
+INNER JOIN tile ON phy_tile.pkey = tile.phy_tile_pkey
+WHERE site.pkey = ? AND tile.pkey = ?
+ORDER BY site_type.name, site_instance.x_coord, site_instance.y_coord""", (
+                    site.site_pkey,
+                    tile_pkey,
+                )
+            )
+
+            for site_name, site_type_pkey, phy_tile_name, clock_region, canon_x, canon_y in cur:
+                cur2.execute(
+                    """
+SELECT name FROM site_type WHERE pkey = ?
+                    """, (site_type_pkey, )
+                )
+
+                site_type = cur2.fetchone()[0]
+
+                csv_writer.writerow(
+                    {
+                        "site_name": site_name,
+                        "site_type": site_type,
+                        "physical_tile": phy_tile_name,
+                        "vpr_x": grid_x,
+                        "vpr_y": grid_y,
+                        "canon_x": canon_x,
+                        "canon_y": canon_y,
+                        "clock_region": clock_region
+                    }
+                )
 
         # First assign all wires at the root_phy_tile_pkeys to this tile_pkey.
         # This ensures all wires, (including wires without sites) have a home.
@@ -2211,6 +2268,11 @@ def main():
     parser.add_argument(
         '--connection_database', help='Connection database', required=True
     )
+    parser.add_argument(
+        '--grid_map_output',
+        help='Location of the grid map output',
+        required=True
+    )
 
     args = parser.parse_args()
     if os.path.exists(args.connection_database):
@@ -2234,7 +2296,8 @@ def main():
         print("{}: Counted sites and pips".format(datetime.datetime.now()))
         classify_nodes(conn, get_switch_timing)
         print("{}: Create VPR grid".format(datetime.datetime.now()))
-        create_vpr_grid(conn)
+        with open(args.grid_map_output, 'w') as f:
+            create_vpr_grid(conn, f)
         print("{}: Nodes classified".format(datetime.datetime.now()))
         form_tracks(conn, segments)
         print("{}: Tracks formed".format(datetime.datetime.now()))

@@ -28,6 +28,12 @@ function(INSTALL_DEVICE_FILES)
     return()
   endif()
 
+  get_target_property(LIMIT_GRAPH_TO_DEVICE ${DEVICE_TYPE} LIMIT_GRAPH_TO_DEVICE)
+  if(LIMIT_GRAPH_TO_DEVICE OR LIMIT_GRAPH_TO_DEVICE STREQUAL "LIMIT_GRAPH_TO_DEVICE-NOTFOUND")
+    message(STATUS "Graph limited to a sub-area of the device. Skipping files installation for ${DEVICE}-${PACKAGE} type: ${DEVICE_TYPE}")
+    return()
+  endif()
+
   set(INSTALL_FILES)
 
   # FIXME: do not install a200t
@@ -53,9 +59,9 @@ function(INSTALL_DEVICE_FILES)
   get_target_property_required(ARCH_FILE ${DEVICE_TYPE} DEVICE_MERGED_FILE)
   list(APPEND INSTALL_FILES ${ARCH_FILE})
 
-  get_target_property(CHANNELS_DB_FILE ${DEVICE_TYPE} CHANNELS_DB)
-  if(NOT ${CHANNELS_DB_FILE} STREQUAL "CHANNELS_DB_FILE-NOTFOUND")
-    list(APPEND INSTALL_FILES ${CHANNELS_DB_FILE})
+  get_target_property(VPR_GRID_MAP_FILE ${DEVICE_TYPE} VPR_GRID_MAP)
+  if(NOT ${VPR_GRID_MAP_FILE} STREQUAL "VPR_GRID_MAP_FILE-NOTFOUND")
+    list(APPEND INSTALL_FILES ${VPR_GRID_MAP_FILE})
   endif()
 
   # Generate installation target for the files
@@ -71,7 +77,7 @@ function(INSTALL_DEVICE_FILES)
       ALL
       DEPENDS ${DEPS})
     install(FILES ${SRC_FILE}
-      DESTINATION "share/arch/${DEVICE}_${PACKAGE}")
+      DESTINATION "share/symbiflow/arch/${DEVICE}_${PACKAGE}")
   endforeach()
 
 endfunction()

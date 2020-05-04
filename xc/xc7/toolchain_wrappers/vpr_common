@@ -66,10 +66,11 @@ function parse_args {
      export NET=$NET
      export SDC=$SDC
 
-     export ARCH_DIR=`realpath ${MYPATH}/../share/arch/$DEVICE`
+     export ARCH_DIR=`realpath ${MYPATH}/../share/symbiflow/arch/$DEVICE`
      export ARCH_DEF=${ARCH_DIR}/arch.timing.xml
      export LOOKAHEAD=${ARCH_DIR}/rr_graph_${DEVICE}.lookahead.bin
      export RR_GRAPH=${ARCH_DIR}/rr_graph_${DEVICE}.rr_graph.real.bin
+     export RR_GRAPH_XML=${ARCH_DIR}/rr_graph_${DEVICE}.rr_graph.real.xml
      export PLACE_DELAY=${ARCH_DIR}/rr_graph_${DEVICE}.place_delay.bin
      export DEVICE_NAME=`echo $DEVICE | sed -n 's/_/-/p'`
 }
@@ -105,6 +106,18 @@ function run_genfasm {
          ${VPR_OPTIONS} \
          --read_rr_graph ${RR_GRAPH} \
          $@
+
+     return $?
+}
+
+function run_vpr_xml_rr_graph {
+     set -e
+
+     vpr ${ARCH_DEF} \
+          ${EBLIF} \
+          --read_rr_graph ${RR_GRAPH}
+          --write_rr_graph ${RR_GRAPH_XML}
+          $@
 
      return $?
 }
