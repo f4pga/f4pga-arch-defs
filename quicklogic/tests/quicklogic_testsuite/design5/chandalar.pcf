@@ -1,0 +1,4 @@
+set_io I2S_CLK_o SFBIO_1
+set_io I2S_DIN_i SFBIO_0
+set_io I2S_CLK_i FBIO_8
+set_io I2S_WS_CLK_i FBIO_6
