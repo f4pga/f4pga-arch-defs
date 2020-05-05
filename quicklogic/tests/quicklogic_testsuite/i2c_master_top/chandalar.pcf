@@ -1,0 +1,41 @@
+set_io wb_clk_i FBIO_0
+set_io wb_rst_i FBIO_1
+
+set_io arst_i FBIO_2
+set_io wb_adr_i(0) FBIO_3
+set_io wb_adr_i(1) FBIO_4
+set_io wb_adr_i(2) FBIO_5
+
+set_io wb_dat_i(0) FBIO_6
+set_io wb_dat_i(1) FBIO_7
+set_io wb_dat_i(2) FBIO_8
+set_io wb_dat_i(3) FBIO_9
+set_io wb_dat_i(4) FBIO_10
+set_io wb_dat_i(5) FBIO_11
+set_io wb_dat_i(6) FBIO_12
+set_io wb_dat_i(7) FBIO_13
+
+set_io wb_dat_o(0) FBIO_14
+set_io wb_dat_o(1) FBIO_15
+set_io wb_dat_o(2) FBIO_16
+set_io wb_dat_o(3) FBIO_17
+set_io wb_dat_o(4) FBIO_18
+set_io wb_dat_o(5) FBIO_19
+set_io wb_dat_o(6) FBIO_20
+set_io wb_dat_o(7) FBIO_21
+
+set_io wb_we_i FBIO_22
+set_io wb_stb_i FBIO_23
+set_io wb_cyc_i FBIO_24
+set_io wb_ack_o FBIO_25
+set_io wb_inta_o FBIO_26
+set_io tip_o FBIO_27
+set_io DrivingI2cBusOut FBIO_28
+set_io scl_pad_i FBIO_29
+set_io scl_pad_o FBIO_30
+set_io scl_padoen_o SFBIO_0
+set_io sda_pad_i SFBIO_1
+set_io sda_pad_o SFBIO_2
+set_io sda_padoen_o SFBIO_3
+set_io TP1 SFBIO_4
+set_io TP2 SFBIO_5

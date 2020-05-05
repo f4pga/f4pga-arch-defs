@@ -1,0 +1,34 @@
+set_io clk_i FBIO_0
+set_io rst_i FBIO_1
+set_io cmd_w_i FBIO_2
+
+set_io text_i(0) FBIO_5
+set_io text_i(1) FBIO_6
+set_io text_i(2) FBIO_7
+set_io text_i(3) FBIO_8
+set_io text_i(4) FBIO_9
+set_io text_i(5) FBIO_10
+set_io text_i(6) FBIO_11
+set_io text_i(7) FBIO_12
+set_io text_i(8) FBIO_13
+set_io text_i(9) FBIO_14
+
+set_io cmd_i(0) FBIO_17
+set_io cmd_i(1) FBIO_18
+set_io cmd_i(2) FBIO_19
+set_io cmd_o(0) FBIO_20
+set_io cmd_o(1) FBIO_21
+set_io cmd_o(2) FBIO_22
+set_io cmd_o(3) FBIO_22
+
+
+set_io text_o(0) SFBIO_0
+set_io text_o(1) SFBIO_1
+set_io text_o(2) SFBIO_2
+set_io text_o(3) SFBIO_3
+set_io text_o(4) SFBIO_4
+set_io text_o(5) SFBIO_5
+set_io text_o(6) SFBIO_6
+set_io text_o(7) SFBIO_7
+set_io text_o(8) SFBIO_8
+set_io text_o(9) SFBIO_9

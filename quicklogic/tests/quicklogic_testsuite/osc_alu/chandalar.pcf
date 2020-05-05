@@ -1,0 +1,47 @@
+set_io srcCy FBIO_0
+set_io srcAc FBIO_1
+
+set_io bit_in FBIO_2
+set_io desCy FBIO_3
+
+set_io desAc FBIO_4
+set_io src1(0) FBIO_5
+set_io src1(1) FBIO_6
+set_io src1(2) FBIO_7
+set_io src1(3) FBIO_8
+set_io src1(4) FBIO_9
+set_io src1(5) FBIO_10
+set_io src1(6) FBIO_11
+set_io src1(7) FBIO_12
+set_io desOv SFBIO_10
+set_io op_code(0) FBIO_14
+set_io op_code(1) FBIO_15
+set_io op_code(2) FBIO_16
+set_io op_code(3) FBIO_13
+
+set_io src2(0) FBIO_17
+set_io src2(1) FBIO_18
+set_io src2(2) FBIO_19
+set_io src2(3) FBIO_20
+set_io src2(4) FBIO_21
+set_io src2(5) FBIO_22
+set_io src2(6) FBIO_23
+set_io src2(7) FBIO_24
+
+set_io des2(0) FBIO_25
+set_io des2(1) FBIO_26
+set_io des2(2) FBIO_27
+set_io des2(3) FBIO_28
+set_io des2(4) FBIO_29
+set_io des2(5) FBIO_30
+set_io des2(6) SFBIO_8
+set_io des2(7) SFBIO_9
+
+set_io des1(0) SFBIO_0
+set_io des1(1) SFBIO_1
+set_io des1(2) SFBIO_2
+set_io des1(3) SFBIO_3
+set_io des1(4) SFBIO_4
+set_io des1(5) SFBIO_5
+set_io des1(6) SFBIO_6
+set_io des1(7) SFBIO_7
