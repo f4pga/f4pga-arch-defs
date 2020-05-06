@@ -17,26 +17,28 @@
  *
  */
 
-module nexys_video_demo (
+module basys3_demo (
 	input clk,
 
 	output tx,
 	input rx,
 
-    input [7:0] sw,
-	output [7:0] led
+    input [15:0] sw,
+	output [15:0] led
 );
 
-	wire clk_bufg;
-	BUFG bufg (.I(clk), .O(clk_bufg));
+    // Input 100MHz clock through a BUFG
+    wire clk100;
+    BUFG bufg100 (.I(clk), .O(clk100));
 
 	reg [5:0] reset_cnt = 0;
 	wire resetn = &reset_cnt;
 
-	always @(posedge clk_bufg) begin
+	always @(posedge clk100) begin
 		reset_cnt <= reset_cnt + !resetn;
 	end
 
+    // A simple GPIO peripheral connected to LEDs
 	wire        iomem_valid;
 	reg         iomem_ready;
 	wire [3:0]  iomem_wstrb;
@@ -46,16 +48,16 @@ module nexys_video_demo (
 
 	reg [31:0] gpio;
 
-	assign led = gpio[7:0];
+	assign led = gpio[15:0];
 
-	always @(posedge clk_bufg) begin
+	always @(posedge clk100) begin
 		if (!resetn) begin
 			gpio <= 0;
 		end else begin
 			iomem_ready <= 0;
 			if (iomem_valid && !iomem_ready && iomem_addr[31:24] == 8'h 03) begin
 				iomem_ready <= 1;
-				iomem_rdata <= {gpio[31:24], sw, gpio[15:0]};
+				iomem_rdata <= {sw, gpio[15:0]};
 				if (iomem_wstrb[0]) gpio[ 7: 0] <= iomem_wdata[ 7: 0];
 				if (iomem_wstrb[1]) gpio[15: 8] <= iomem_wdata[15: 8];
 				if (iomem_wstrb[2]) gpio[23:16] <= iomem_wdata[23:16];
@@ -64,8 +66,9 @@ module nexys_video_demo (
 		end
 	end
 
+    // The picosoc
 	picosoc_noflash soc (
-		.clk          (clk_bufg),
+		.clk          (clk100),
 		.resetn       (resetn      ),
 
 		.ser_tx       (tx),
@@ -84,4 +87,3 @@ module nexys_video_demo (
 	);
 
 endmodule
-

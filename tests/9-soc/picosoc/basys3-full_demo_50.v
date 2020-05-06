@@ -27,13 +27,20 @@ module basys3_demo (
 	output [15:0] led
 );
 
-	wire clk_bufg;
-	BUFG bufg (.I(clk), .O(clk_bufg));
+    // Input 100MHz clock through a BUFG
+    wire clk100;
+    BUFG bufg100 (.I(clk), .O(clk100));
 
+    // Clock divider using logic to get 50MHz
+    reg clk50 = 1'b0;
+    always @(posedge clk100)
+        clk50 <= !clk50;
+
+    // Reset generator
 	reg [5:0] reset_cnt = 0;
 	wire resetn = &reset_cnt;
 
-	always @(posedge clk_bufg) begin
+	always @(posedge clk50) begin
 		reset_cnt <= reset_cnt + !resetn;
 	end
 
@@ -48,7 +55,8 @@ module basys3_demo (
 
 	assign led = gpio[15:0];
 
-	always @(posedge clk_bufg) begin
+    // A simple GPIO peripheral connected to LEDs
+	always @(posedge clk50) begin
 		if (!resetn) begin
 			gpio <= 0;
 		end else begin
@@ -64,8 +72,9 @@ module basys3_demo (
 		end
 	end
 
+    // The picosoc
 	picosoc_noflash soc (
-		.clk          (clk_bufg),
+		.clk          (clk50),
 		.resetn       (resetn      ),
 
 		.ser_tx       (tx),
