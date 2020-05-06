@@ -203,7 +203,7 @@ class VModule(object):
             if isinstance(inp, dict):
                 arr = []
                 maxindex = max([val for val in inp.keys()])
-                for i in range(maxindex + 1):
+                for i in reversed(range(maxindex + 1)):
                     if i not in inp:
                         arr.append("1'b0")
                     else:
