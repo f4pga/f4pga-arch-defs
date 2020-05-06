@@ -22,5 +22,5 @@ set_io led[6] W15
 set_io led[7] Y13
 
 # UART bridge
-set_io tx V18
-set_io rx AA19
+set_io tx AA19
+set_io rx V18
