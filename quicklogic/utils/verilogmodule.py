@@ -432,8 +432,8 @@ class VModule(object):
         # decode direction
         # direction is configured by routing 1 or 0 to certain inputs
 
-        output_en = ios['IE'] == "1'b1"
-        input_en = ios['INEN'] == "1'b1"
+        output_en = ios['IE'] != "1'b0"
+        input_en = ios['INEN'] != "1'b0"
 
         if input_en and output_en:
             direction = 'inout'
