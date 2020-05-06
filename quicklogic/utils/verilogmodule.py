@@ -157,6 +157,21 @@ class VModule(object):
                 newparameters[dst] = src
         return newparameters
 
+    def form_simple_assign(self, loc, parameters):
+        bloc = loc2str(loc)
+        ioname = self.get_io_name(loc)
+
+        assign = ""
+        direction = self.get_io_config(parameters)
+        if direction == 'input':
+            assign = "    assign {} = {};".format(parameters["IZ"], ioname)
+        elif direction == 'output':
+            assign = "    assign {} = {};".format(ioname, parameters["OQI"])
+        else:
+            assert False, "Unknown IO configuration"
+
+        return assign
+
     def form_verilog_element(self, loc, typ: str, name: str, parameters: dict):
         '''Creates an entry representing single Verilog submodule.
 
@@ -175,6 +190,11 @@ class VModule(object):
         -------
         str: Verilog entry
         '''
+        if typ == 'BIDIR':
+            # We do not emit the BIDIR cell for non inout IOs
+            if self.get_io_config(parameters) != 'inout':
+                return self.form_simple_assign(loc, parameters)
+
         params = []
         moduletype = self.qlal4s3bmapping[typ]
         result = f'    {moduletype} {name} ('
@@ -408,6 +428,23 @@ class VModule(object):
 
         return name
 
+    def get_io_config(self, ios):
+        # decode direction
+        # direction is configured by routing 1 or 0 to certain inputs
+
+        output_en = ios['IE'] == "1'b1"
+        input_en = ios['INEN'] == "1'b1"
+
+        if input_en and output_en:
+            direction = 'inout'
+        elif input_en:
+            direction = 'input'
+        elif output_en:
+            direction = 'output'
+        else:
+            assert False, "Unknown IO configuration"
+
+        return direction
 
     def generate_ios(self):
         '''Generates IOs and their wires
@@ -419,11 +456,12 @@ class VModule(object):
         for eloc, locelements in self.elements.items():
             for element in locelements.values():
                 if element.type == 'BIDIR' or element.type == 'SDIOMUX':
+                    direction = self.get_io_config(element.ios)
 
                     name = self.get_io_name(eloc)
                     self.ios[eloc] = VerilogIO(
                         name=name,
-                        direction='inout',
+                        direction=direction,
                         ioloc=eloc
                     )
                     # keep the original wire name for generating the wireid
