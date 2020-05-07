@@ -4,7 +4,7 @@
     <direct name="I" input="inpad.inpad" output="IOB33_MODES.I">
       <metadata>
         <meta name="fasm_mux">
-          inpad.inpad : LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SSTL135.IN_ONLY,LVCMOS25_LVCMOS33_LVTTL.IN,PULLTYPE.NONE
+          inpad.inpad : LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SSTL135_SSTL15.IN_ONLY,LVCMOS25_LVCMOS33_LVTTL.IN,PULLTYPE.NONE
         </meta>
       </metadata>
     </direct>
