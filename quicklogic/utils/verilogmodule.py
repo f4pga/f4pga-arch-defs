@@ -233,24 +233,42 @@ class VModule(object):
         '''Forms element name from its type and FASM feature name.'''
         return f'{type}_X{loc.x}_Y{loc.y}'
 
-    def get_bel_type(self, loc, connections, direction):
-        '''Returns bel type for a given connection list'''
+    def get_bel_type_and_connections(self, loc, connections, direction):
+        '''For a given connection list returns a dictionary
+        with bel types and connections to them
+        '''
 
         tile_type = self.vpr_tile_grid[loc].type
         cells = self.vpr_tile_types[tile_type].cells
 
-        # check which BEL from the tile has a required pin
         if type(connections) == str:
-            inputname = connections
+            inputnames = [connections]
+            # convert connections to dict
+            connections = dict()
+            connections[inputnames[0]] = inputnames[0]
         else:
-            inputname = list(connections.keys())[0]
-        for cell in cells:
-            cellpins = [pin for pin in self.cells_library[cell].pins if pin.direction == direction]
-            for pin in cellpins:
-                if inputname == pin.name:
-                    return cell
+            inputnames = [name for name in connections.keys()]
 
-        raise Exception('No feasible cell found')
+        used_cells = []
+        for cell in cells:
+            cellpins = [pin.name for pin in self.cells_library[cell].pins if pin.direction == direction]
+            # check every connection pin if it has
+            cell_fit = True
+            for pin in cellpins:
+                if pin in inputnames:
+                    used_cells.append(cell)
+                    break
+
+        # assing connection to a cell
+        cell_connections = {}
+        for cell in used_cells:
+            cell_connections[cell] = dict()
+            cellpins = [pin.name for pin in self.cells_library[cell].pins if pin.direction == direction]
+            for pin in connections.keys():
+                if pin in cellpins:
+                    cell_connections[cell][pin] = connections[pin]
+
+        return cell_connections
 
     def new_io_name(self, direction):
         '''Creates a new IO name for a given direction.
@@ -310,7 +328,9 @@ class VModule(object):
             wirename = self.wires[uninvertedwireid]
         else:
             srcname = self.vpr_tile_grid[wire[0]].name
-            srctype = self.get_bel_type(wire[0], wire[1], PinDirection.OUTPUT)
+            type_connections = self.get_bel_type_and_connections(wire[0], wire[1], PinDirection.OUTPUT)
+            # there should be only one type here
+            srctype = [type for type in type_connections.keys()][0]
             srconame = wire[1]
             if srctype == 'SYN_IO':
                 # if source is input, use its name
@@ -382,35 +402,40 @@ class VModule(object):
         # process of BELs
         for currloc, connections in self.designconnections.items():
             # Extract type and form name for the BEL
-            # currtype = self.vpr_tile_grid[currloc].type
-            currtype = self.get_bel_type(currloc, connections, PinDirection.INPUT)
-            currname = self.get_element_name(currtype, currloc)
-            inputs = {}
-            # form all inputs for the BEL
-            for inputname, wire in connections.items():
-                if wire[1] == 'VCC':
-                    inputs[inputname] = "1'b1"
-                    continue
-                elif wire[1] == 'GND':
-                    inputs[inputname] = "1'b0"
-                    continue
-                srctype = self.vpr_tile_grid[wire[0]].type
-                srctype_cells = self.vpr_tile_types[srctype].cells
-                if len(set(srctype_cells).intersection(set(['BIDIR', 'LOGIC', 'ASSP', 'RAM', 'MULT']))) > 0:
-                    # FIXME handle already inverted pins
-                    # TODO handle inouts
-                    wirename = self.get_wire(currloc, wire, inputname)
-                    inputs[inputname] = wirename
+            # Current location may be a multi cell location.
+            # Split the connection list into a to a set of connections
+            # for each used cell type
+            type_connections = self.get_bel_type_and_connections(currloc, connections, PinDirection.INPUT)
+
+            for currtype in type_connections:
+                currname = self.get_element_name(currtype, currloc)
+                connections = type_connections[currtype]
+                inputs = {}
+                # form all inputs for the BEL
+                for inputname, wire in connections.items():
+                    if wire[1] == 'VCC':
+                        inputs[inputname] = "1'b1"
+                        continue
+                    elif wire[1] == 'GND':
+                        inputs[inputname] = "1'b0"
+                        continue
+                    srctype = self.vpr_tile_grid[wire[0]].type
+                    srctype_cells = self.vpr_tile_types[srctype].cells
+                    if len(set(srctype_cells).intersection(set(['BIDIR', 'LOGIC', 'ASSP', 'RAM', 'MULT']))) > 0:
+                        # FIXME handle already inverted pins
+                        # TODO handle inouts
+                        wirename = self.get_wire(currloc, wire, inputname)
+                        inputs[inputname] = wirename
+                    else:
+                        raise Exception('Not supported cell type {}'.format(srctype))
+                if currtype not in self.elements[currloc]:
+                    # If Element does not exist, create it
+                    self.elements[currloc][currtype] = Element(
+                        currloc, currtype, currname, inputs
+                    )
                 else:
-                    raise Exception('Not supported cell type {}'.format(srctype))
-            if currtype not in self.elements[currloc]:
-                # If Element does not exist, create it
-                self.elements[currloc][currtype] = Element(
-                    currloc, currtype, currname, inputs
-                )
-            else:
-                # else update IOs
-                self.elements[currloc][currtype].ios.update(inputs)
+                    # else update IOs
+                    self.elements[currloc][currtype].ios.update(inputs)
 
 
     def get_io_name(self, loc):
@@ -432,8 +457,16 @@ class VModule(object):
         # decode direction
         # direction is configured by routing 1 or 0 to certain inputs
 
-        output_en = ios['IE'] != "1'b0"
-        input_en = ios['INEN'] != "1'b0"
+        if 'IE' in ios:
+            output_en = ios['IE'] != "1'b0"
+        else:
+            # outputs is enabled by default
+            output_en = True
+        if 'INEN' in ios:
+            input_en = ios['INEN'] != "1'b0"
+        else:
+            # inputs are disabled by default
+            input_en = False
 
         if input_en and output_en:
             direction = 'inout'
