@@ -17,3 +17,20 @@ add_jlink_output(
 add_dependencies(all_ql_tests soc_litex_pwm-ql-chandalar_bit)
 add_dependencies(all_ql_tests soc_litex_pwm-ql-chandalar_jlink)
 
+add_file_target(FILE quickfeather.pcf)
+
+add_fpga_target(
+  NAME soc_litex_pwm-ql-quickfeather
+  BOARD quickfeather
+  SOURCES litex_core.v AL4S3B_FPGA_Top.v
+  INPUT_IO_FILE quickfeather.pcf
+  EXPLICIT_ADD_FILE_TARGET
+)
+
+add_jlink_output(
+  PARENT soc_litex_pwm-ql-quickfeather
+)
+
+add_dependencies(all_ql_tests soc_litex_pwm-ql-quickfeather_bit)
+add_dependencies(all_ql_tests soc_litex_pwm-ql-quickfeather_jlink)
+

@@ -1,5 +1,6 @@
 add_file_target(FILE btn_counter.v SCANNER_TYPE verilog)
 add_file_target(FILE chandalar.pcf)
+add_file_target(FILE quickfeather.pcf)
 add_file_target(FILE jimbob4.pcf)
 
 add_fpga_target(
@@ -16,6 +17,21 @@ add_jlink_output(
 
 add_dependencies(all_ql_tests btn_counter-ql-chandalar_bit)
 add_dependencies(all_ql_tests btn_counter-ql-chandalar_jlink)
+
+add_fpga_target(
+  NAME btn_counter-ql-quickfeather
+  BOARD quickfeather
+  SOURCES btn_counter.v
+  INPUT_IO_FILE quickfeather.pcf
+  EXPLICIT_ADD_FILE_TARGET
+  )
+
+add_jlink_output(
+  PARENT btn_counter-ql-quickfeather
+)
+
+add_dependencies(all_ql_tests btn_counter-ql-quickfeather_bit)
+add_dependencies(all_ql_tests btn_counter-ql-quickfeather_jlink)
 
 add_fpga_target(
   NAME btn_counter-ql-jimbob4

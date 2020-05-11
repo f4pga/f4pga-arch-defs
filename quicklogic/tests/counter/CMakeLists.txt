@@ -1,5 +1,6 @@
 add_file_target(FILE counter.v SCANNER_TYPE verilog)
 add_file_target(FILE chandalar.pcf)
+add_file_target(FILE quickfeather.pcf)
 
 add_fpga_target(
   NAME counter-ql-chandalar
@@ -15,4 +16,20 @@ add_jlink_output(
 
 add_dependencies(all_ql_tests counter-ql-chandalar_bit)
 add_dependencies(all_ql_tests counter-ql-chandalar_jlink)
+
+
+add_fpga_target(
+  NAME counter-ql-quickfeather
+  BOARD quickfeather
+  SOURCES counter.v
+  INPUT_IO_FILE quickfeather.pcf
+  EXPLICIT_ADD_FILE_TARGET
+)
+
+add_jlink_output(
+  PARENT counter-ql-quickfeather
+)
+
+add_dependencies(all_ql_tests counter-ql-quickfeather_bit)
+add_dependencies(all_ql_tests counter-ql-quickfeather_jlink)
 
