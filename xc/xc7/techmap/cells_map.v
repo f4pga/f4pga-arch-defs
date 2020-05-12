@@ -2360,6 +2360,114 @@ module OBUFDS (
 
 endmodule
 
+
+module IOBUFDS (
+  input  I,
+  input  T,
+  output O,
+  inout  IO,
+  inout  IOB
+);
+
+  parameter IOSTANDARD = "DIFF_SSTL135";  // TODO: Is this the default ?
+  parameter SLEW = "SLOW";
+  parameter IN_TERM = "NONE";  // Not supported by Vivado ?
+  parameter PULLTYPE = "NONE"; // Not supported by Vivado ?
+
+  wire complementary_o;
+  wire complementary_i;
+
+  IOBUFDS_M_VPR # (
+    .LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SSTL135_SSTL15_SLEW_SLOW(
+      (IOSTANDARD == "DIFF_SSTL135" && SLEW == "SLOW") || 
+      (IOSTANDARD == "DIFF_SSTL15" && SLEW == "SLOW")
+    ),
+    .LVCMOS12_LVCMOS15_LVCMOS18_SSTL135_SSTL15_STEPDOWN(
+      (IOSTANDARD == "DIFF_SSTL135") || 
+      (IOSTANDARD == "DIFF_SSTL15")
+    ),
+    .LVCMOS15_SSTL15_DRIVE_I16_I_FIXED(
+      (IOSTANDARD == "DIFF_SSTL15")
+    ),
+    .SSTL135_DRIVE_I_FIXED(
+      (IOSTANDARD == "DIFF_SSTL135")
+    ),
+    .SSTL135_SSTL15_IN_DIFF(
+      (IOSTANDARD == "DIFF_SSTL135") || 
+      (IOSTANDARD == "DIFF_SSTL15")
+    ),
+    .SSTL135_SSTL15_SLEW_FAST(
+      (IOSTANDARD == "DIFF_SSTL135" && SLEW == "FAST") || 
+      (IOSTANDARD == "DIFF_SSTL15" && SLEW == "FAST")
+    ),
+
+    .IN_TERM_UNTUNED_SPLIT_40 (IN_TERM == "UNTUNED_SPLIT_40"),
+    .IN_TERM_UNTUNED_SPLIT_50 (IN_TERM == "UNTUNED_SPLIT_50"),
+    .IN_TERM_UNTUNED_SPLIT_60 (IN_TERM == "UNTUNED_SPLIT_60"),
+
+    .PULLTYPE_PULLUP(PULLTYPE == "PULLUP"),
+    .PULLTYPE_PULLDOWN(PULLTYPE == "PULLDOWN"),
+    .PULLTYPE_NONE(PULLTYPE == "NONE"),
+    .PULLTYPE_KEEPER(PULLTYPE == "KEEPER"),
+
+    .PULLTYPE(PULLTYPE),
+    .IOSTANDARD(IOSTANDARD),
+    .SLEW(SLEW)
+  ) iobufds_m (
+    .I(I),
+    .T(T),
+    .O(O),
+    .IOPAD_$inp(IO),
+    .IOPAD_$out(IO),
+    .IB(complementary_i),
+    .OB(complementary_o)
+  );
+
+  IOBUFDS_S_VPR # (
+    .LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SSTL135_SSTL15_SLEW_SLOW(
+      (IOSTANDARD == "DIFF_SSTL135" && SLEW == "SLOW") || 
+      (IOSTANDARD == "DIFF_SSTL15" && SLEW == "SLOW")
+    ),
+    .LVCMOS12_LVCMOS15_LVCMOS18_SSTL135_SSTL15_STEPDOWN(
+      (IOSTANDARD == "DIFF_SSTL135") || 
+      (IOSTANDARD == "DIFF_SSTL15")
+    ),
+    .LVCMOS15_SSTL15_DRIVE_I16_I_FIXED(
+      (IOSTANDARD == "DIFF_SSTL15")
+    ),
+    .SSTL135_DRIVE_I_FIXED(
+      (IOSTANDARD == "DIFF_SSTL135")
+    ),
+    .SSTL135_SSTL15_IN_DIFF(
+      (IOSTANDARD == "DIFF_SSTL135") || 
+      (IOSTANDARD == "DIFF_SSTL15")
+    ),
+    .SSTL135_SSTL15_SLEW_FAST(
+      (IOSTANDARD == "DIFF_SSTL135" && SLEW == "FAST") || 
+      (IOSTANDARD == "DIFF_SSTL15" && SLEW == "FAST")
+    ),
+
+    .IN_TERM_UNTUNED_SPLIT_40 (IN_TERM == "UNTUNED_SPLIT_40"),
+    .IN_TERM_UNTUNED_SPLIT_50 (IN_TERM == "UNTUNED_SPLIT_50"),
+    .IN_TERM_UNTUNED_SPLIT_60 (IN_TERM == "UNTUNED_SPLIT_60"),
+
+    .PULLTYPE_PULLUP(PULLTYPE == "PULLUP"),
+    .PULLTYPE_PULLDOWN(PULLTYPE == "PULLDOWN"),
+    .PULLTYPE_NONE(PULLTYPE == "NONE"),
+    .PULLTYPE_KEEPER(PULLTYPE == "KEEPER"),
+
+    .PULLTYPE(PULLTYPE),
+    .IOSTANDARD(IOSTANDARD),
+    .SLEW(SLEW)
+  ) iobufds_s (
+    .IB(complementary_o),
+    .OB(complementary_i),
+    .IOPAD_$inp(IOB),
+    .IOPAD_$out(IOB)
+  );
+
+endmodule
+
 // ============================================================================
 // I/OSERDES
 
