@@ -72,6 +72,52 @@
 
     </mode>
 
+    <mode name="IOBUFDS_S">
+      <xi:include href="../iob33/inpad.pb_type.xml"/>
+      <xi:include href="../iob33/outpad.pb_type.xml"/>
+
+      <pb_type name="IOBUFDS_S_VPR" blif_model=".subckt IOBUFDS_S_VPR" num_pb="1">
+        <input  name="IB" num_pins="1"/>
+        <output name="OB" num_pins="1"/>
+        <input  name="IOPAD_$inp" num_pins="1"/>
+        <output name="IOPAD_$out" num_pins="1"/>
+
+        <delay_constant max="10e-12" in_port="IB" out_port="IOPAD_$out"/>
+        <delay_constant max="10e-12" in_port="IOPAD_$inp" out_port="OB"/>
+
+        <metadata>
+          <meta name="fasm_params">
+            LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SSTL135_SSTL15.SLEW.SLOW = LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SSTL135_SSTL15_SLEW_SLOW
+            LVCMOS12_LVCMOS15_LVCMOS18_SSTL135_SSTL15.STEPDOWN = LVCMOS12_LVCMOS15_LVCMOS18_SSTL135_SSTL15_STEPDOWN
+            LVCMOS15_SSTL15.DRIVE.I16_I_FIXED = LVCMOS15_SSTL15_DRIVE_I16_I_FIXED
+            SSTL135.DRIVE.I_FIXED = SSTL135_DRIVE_I_FIXED
+            SSTL135_SSTL15.IN_DIFF = SSTL135_SSTL15_IN_DIFF
+            SSTL135_SSTL15.SLEW.FAST = SSTL135_SSTL15_SLEW_FAST
+            IN_TERM.UNTUNED_SPLIT_40 = IN_TERM_UNTUNED_SPLIT_40
+            IN_TERM.UNTUNED_SPLIT_50 = IN_TERM_UNTUNED_SPLIT_50
+            IN_TERM.UNTUNED_SPLIT_60 = IN_TERM_UNTUNED_SPLIT_60
+            PULLTYPE.PULLUP = PULLTYPE_PULLUP
+            PULLTYPE.PULLDOWN = PULLTYPE_PULLDOWN
+            PULLTYPE.NONE = PULLTYPE_NONE
+            PULLTYPE.KEEPER = PULLTYPE_KEEPER
+          </meta>
+        </metadata>
+      </pb_type>
+
+      <interconnect>
+        <direct name="IB" input="IOB33_MODES.DIFFO_IN" output="IOBUFDS_S_VPR.IB"/>
+        <direct name="OB" input="IOBUFDS_S_VPR.OB"     output="IOB33_MODES.PADOUT"/>
+
+        <direct name="IOPAD_$out" input="IOBUFDS_S_VPR.IOPAD_$out" output="outpad.outpad">
+          <pack_pattern name="IOBUFDS_S_VPR_to_PAD"/>
+        </direct>
+        <direct name="IOPAD_$inp" input="inpad.inpad" output="IOBUFDS_S_VPR.IOPAD_$inp">
+          <pack_pattern name="IOBUFDS_S_VPR_to_PAD"/>
+        </direct>
+       </interconnect>
+
+    </mode>
+
   </pb_type>
 
   <interconnect>
