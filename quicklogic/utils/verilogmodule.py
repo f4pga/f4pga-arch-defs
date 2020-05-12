@@ -199,13 +199,17 @@ class VModule(object):
         moduletype = self.qlal4s3bmapping[typ]
         result = f'    {moduletype} {name} ('
         fixedparameters = self.group_array_values(parameters)
+        input_pins = [pin.name for pin in self.cells_library[typ].pins if pin.direction == PinDirection.INPUT]
+
         for inpname, inp in fixedparameters.items():
             if isinstance(inp, dict):
                 arr = []
                 maxindex = max([val for val in inp.keys()])
                 for i in reversed(range(maxindex + 1)):
                     if i not in inp:
-                        arr.append("1'b0")
+                        # do not assign constants to outputs
+                        if inpname in input_pins:
+                            arr.append("1'b0")
                     else:
                         arr.append(inp[i])
                 arrlist = ', '.join(arr)
