@@ -1,6 +1,9 @@
 #!/bin/bash
 
-VPR_OPTIONS="@VPR_ARGS@"
+if [ -z $VPR_OPTIONS ]; then
+     echo "Using default VPR options."
+     VPR_OPTIONS="@VPR_ARGS@"
+fi
 
 function parse_args {
 
