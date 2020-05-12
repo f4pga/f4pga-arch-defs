@@ -1063,7 +1063,24 @@ LIMIT
             other_site_wire_pkey, other_number_pips = result
             assert write_cur.fetchone() is None
 
-            if other_site_wire_pkey is not None and other_number_pips == 1:
+            force_direct = False
+
+            write_cur.execute(
+                """
+            SELECT name
+                FROM pip_in_tile WHERE pkey = ?;
+                """, (pip_pkey, )
+            )
+            pip_name = write_cur.fetchone()[0]
+
+            # A solution for:
+            # https://github.com/SymbiFlow/symbiflow-arch-defs/issues/1033
+            if "PADOUT0" in pip_name and "DIFFI_IN1" in pip_name:
+                force_direct = True
+            if "PADOUT1" in pip_name and "DIFFI_IN0" in pip_name:
+                force_direct = True
+
+            if other_site_wire_pkey is not None and (other_number_pips == 1 or force_direct):
                 if src_wire_in_tile_pkey == wire_in_tile_pkey:
                     src_wire_pkey = site_wire_pkey
                     dest_wire_pkey = other_site_wire_pkey
