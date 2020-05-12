@@ -230,14 +230,16 @@ foreach(MODE input output inout)
 
 endforeach()
 
-# Differential. Currently only differential output (tristated) is supported.
-foreach(IOSTANDARD DIFF_SSTL135 DIFF_SSTL15)
-    xc7_iosettings_design(
-        MODE "diff_output"
-        BOARD ${BOARD}
-        IOSTANDARD ${IOSTANDARD}
-        SLEWS "SLOW FAST"
-        TERMS "NONE"
-    )
+# Differential
+foreach(MODE diff_output diff_inout)
+    foreach(IOSTANDARD DIFF_SSTL135 DIFF_SSTL15)
+        xc7_iosettings_design(
+            MODE ${MODE}
+            BOARD ${BOARD}
+            IOSTANDARD ${IOSTANDARD}
+            SLEWS "SLOW FAST"
+            TERMS "NONE"
+        )
+    endforeach()
 endforeach()
 
