@@ -109,6 +109,11 @@ xc7_iologic_design(${BOARD} IOBUF   1 1 1)
 xc7_iologic_design(${BOARD} IOBUF   0 0 1)
 
 xc7_iologic_design(${BOARD} IOBUFDS 0 0 0)
+xc7_iologic_design(${BOARD} IOBUFDS 0 0 1)
+xc7_iologic_design(${BOARD} IOBUFDS 0 1 0)
+xc7_iologic_design(${BOARD} IOBUFDS 0 1 1)
+xc7_iologic_design(${BOARD} IOBUFDS 1 1 0)
+xc7_iologic_design(${BOARD} IOBUFDS 1 1 1)
 
 xc7_iologic_design(${BOARD} OBUF    0 0 0)
 xc7_iologic_design(${BOARD} OBUF    0 0 1)
