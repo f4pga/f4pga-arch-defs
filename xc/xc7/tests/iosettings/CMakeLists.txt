@@ -4,30 +4,72 @@
 #add_custom_target(all_xc7_iosettings_bit_v)
 #add_custom_target(all_xc7_iosettings_vivado_diff_fasm)
 
-function(xc7_iosettings_design MODE BOARD IOSTANDARD DRIVES SLEWS TERMS VREF)
+function(xc7_iosettings_design)
+
+    # Parse arguments
+    set(OPTION_ARGS
+        DISABLE_DIFF_TEST
+    )
+    set(ONE_VALUE_ARGS
+        BOARD
+        MODE
+        IOSTANDARD
+        VREF
+    )
+    set(MULTI_VALUE_ARGS
+        DRIVES
+        SLEWS
+        TERMS
+    )
 
     cmake_parse_arguments(
         XC7_IOSETTINGS_DESIGN
-        "DISABLE_DIFF_TEST"
-        ""
-        ""
+        "${OPTION_ARGS}"
+        "${ONE_VALUE_ARGS}"
+        "${MULTI_VALUE_ARGS}"
         ${ARGN}
     )
 
+    # Get args
+    set(BOARD ${XC7_IOSETTINGS_DESIGN_BOARD})
+    set(MODE  ${XC7_IOSETTINGS_DESIGN_MODE})
+    set(IOSTANDARD ${XC7_IOSETTINGS_DESIGN_IOSTANDARD})
+    set(VREF  ${XC7_IOSETTINGS_DESIGN_VREF})
+
+    separate_arguments(DRIVE_LIST UNIX_COMMAND ${XC7_IOSETTINGS_DESIGN_DRIVES})
+    separate_arguments(SLEW_LIST  UNIX_COMMAND ${XC7_IOSETTINGS_DESIGN_SLEWS})
+    separate_arguments(TERM_LIST  UNIX_COMMAND ${XC7_IOSETTINGS_DESIGN_TERMS})
+
+    # Disable Vivado diff fasm test
     if(${XC7_IOSETTINGS_DESIGN_DISABLE_DIFF_TEST})
         set(VIVADO_ARGS DISABLE_DIFF_TEST)
     else()
         set(VIVADO_ARGS "")
     endif()
 
+    # Generate options
+    set(GEN_OPTS)
+
+    if(DRIVE_LIST)
+        set(GEN_OPTS ${GEN_OPTS} "--drive" ${DRIVE_LIST})
+    endif()
+
+    if(SLEW_LIST)
+        set(GEN_OPTS ${GEN_OPTS} "--slew" ${SLEW_LIST})
+    endif()
+
+    if(TERM_LIST)
+        set(GEN_OPTS ${GEN_OPTS} "--in_term" ${TERM_LIST})
+    endif()
+
     if(NOT ${VREF} STREQUAL "")
-        set(VREF_OPTS "--vref" ${VREF})
+        set(GEN_OPTS ${GEN_OPTS} "--vref" ${VREF})
         set(DESIGN ${MODE}_${BOARD}_${IOSTANDARD}_${VREF}V)
     else()
-        set(VREF_OPTS "")
         set(DESIGN ${MODE}_${BOARD}_${IOSTANDARD})
     endif()
 
+    # Generate the design
     set(VERILOG_FILE ${DESIGN}.v)
     set(PCF_FILE ${DESIGN}.pcf)
     set(XDC_FILE ${DESIGN}.xdc)
@@ -36,10 +78,6 @@ function(xc7_iosettings_design MODE BOARD IOSTANDARD DRIVES SLEWS TERMS VREF)
     add_file_target(FILE ${PCF_FILE} GENERATED)
     add_file_target(FILE ${XDC_FILE} GENERATED)
 
-    separate_arguments(DRIVE_LIST UNIX_COMMAND ${DRIVES})
-    separate_arguments(SLEW_LIST UNIX_COMMAND ${SLEWS})
-    separate_arguments(TERM_LIST UNIX_COMMAND ${TERMS})
-
     add_custom_command(
         OUTPUT ${VERILOG_FILE} ${PCF_FILE} ${XDC_FILE}
         COMMAND ${PYTHON3} ${CMAKE_CURRENT_SOURCE_DIR}/generate.py
@@ -47,13 +85,11 @@ function(xc7_iosettings_design MODE BOARD IOSTANDARD DRIVES SLEWS TERMS VREF)
             --mode ${MODE}
             -o ${DESIGN}
             --iostandard ${IOSTANDARD}
-            --drive ${DRIVE_LIST}
-            --slew ${SLEW_LIST}
-            --in_term ${TERM_LIST}
-            ${VREF_OPTS}
+            ${GEN_OPTS}
         DEPENDS ${PYTHON3} ${PYTHON3_TARGET} generate.py
         )
 
+    # Add target
     add_fpga_target(
         NAME ${DESIGN}
         BOARD ${BOARD}
@@ -87,35 +123,79 @@ function(xc7_iosettings_design MODE BOARD IOSTANDARD DRIVES SLEWS TERMS VREF)
 
 endfunction()
 
+# =============================================================================
+
 set(BOARD "arty-full")
 
 # Single ended
 foreach(MODE input output inout)
 
+    # Input termination is only relevan for input
     if(MODE STREQUAL "input")
         set(TERMS "NONE UNTUNED_SPLIT_40 UNTUNED_SPLIT_50 UNTUNED_SPLIT_60")
     else()
         set(TERMS "NONE")
     endif()
 
+    # Drive current set #1
     foreach(IOSTANDARD LVCMOS15 LVCMOS25 LVCMOS33)
-        xc7_iosettings_design(${MODE} ${BOARD} ${IOSTANDARD} "4 8 12 16" "SLOW FAST" "NONE" "")
+        xc7_iosettings_design(
+            MODE ${MODE}
+            BOARD ${BOARD}
+            IOSTANDARD ${IOSTANDARD}
+            DRIVES "4 8 12 16"
+            SLEWS "SLOW FAST"
+            TERMS "NONE"
+        )
     endforeach()
 
+    # Drive current set #2
     foreach(IOSTANDARD LVTTL) # Disabled LVCMOS18 due to #1263 (PUDC_B pin issues)
-        xc7_iosettings_design(${MODE} ${BOARD} ${IOSTANDARD} "4 8 12 16 24" "SLOW FAST" "NONE" "")
+        xc7_iosettings_design(
+            MODE ${MODE}
+            BOARD ${BOARD}
+            IOSTANDARD ${IOSTANDARD}
+            DRIVES "4 8 12 16 24"
+            SLEWS "SLOW FAST"
+            TERMS "NONE"
+        )
     endforeach()
 
-    xc7_iosettings_design(${MODE} ${BOARD} LVCMOS12 "4 8 12" "SLOW FAST" "NONE" "")
+    # Drive current set #3
+    xc7_iosettings_design(
+        MODE ${MODE}
+        BOARD ${BOARD}
+        IOSTANDARD LVCMOS12
+        DRIVES "4 8 12"
+        SLEWS "SLOW FAST"
+        TERMS "NONE"
+    )
 
+    # Fixed drive current
     foreach(IOSTANDARD SSTL135 SSTL15)
+
         # VREF is only relevant for input/inout
         if(NOT MODE STREQUAL "output")
             foreach(VREF 0.600 0.675 0.750 0.900)
-                xc7_iosettings_design(${MODE} ${BOARD} ${IOSTANDARD} "0" "SLOW FAST" ${TERMS} ${VREF})
+                xc7_iosettings_design(
+                    MODE ${MODE}
+                    BOARD ${BOARD}
+                    IOSTANDARD ${IOSTANDARD}
+                    SLEWS "SLOW FAST"
+                    TERMS ${TERMS}
+                    VREF ${VREF}
+                )
             endforeach()
+
+        # Output mode, no VREF setting
         else()
-            xc7_iosettings_design(${MODE} ${BOARD} ${IOSTANDARD} "0" "SLOW FAST" ${TERMS} "")
+            xc7_iosettings_design(
+                MODE ${MODE}
+                BOARD ${BOARD}
+                IOSTANDARD ${IOSTANDARD}
+                SLEWS "SLOW FAST"
+                TERMS ${TERMS}
+            )
         endif()
     endforeach()
 
@@ -123,6 +203,12 @@ endforeach()
 
 # Differential. Currently only differential output (tristated) is supported.
 foreach(IOSTANDARD DIFF_SSTL135 DIFF_SSTL15)
-    xc7_iosettings_design("diff_output" ${BOARD} ${IOSTANDARD} "0" "SLOW FAST" "NONE" "")
+    xc7_iosettings_design(
+        MODE "diff_output"
+        BOARD ${BOARD}
+        IOSTANDARD ${IOSTANDARD}
+        SLEWS "SLOW FAST"
+        TERMS "NONE"
+    )
 endforeach()
 

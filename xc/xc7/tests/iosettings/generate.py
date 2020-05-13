@@ -231,7 +231,7 @@ set_io clk {}
 
             params = {"IOSTANDARD": "\"{}\"".format(iostandard)}
 
-            if drive is not None and drive != "0":
+            if drive is not None:
                 params["DRIVE"] = int(drive)
 
             if slew is not None:
@@ -305,8 +305,10 @@ set_io clk {}
 
         params = {
             "IOSTANDARD": "\"{}\"".format(iostandard),
-            "IN_TERM": "\"{}\"".format(in_term)
         }
+
+        if in_term is not None:
+            params["IN_TERM"] = "\"{}\"".format(in_term)
 
         iobank, pin = PINOUT[board]["single-ended"][index]
         used_iobanks.add(iobank)
@@ -424,7 +426,7 @@ set_io clk {}
 
             params = {"IOSTANDARD": "\"{}\"".format(iostandard)}
 
-            if drive is not None and drive != "0":
+            if drive is not None:
                 params["DRIVE"] = int(drive)
 
             if slew is not None:
@@ -529,7 +531,7 @@ set_io clk {}
 
             params = {"IOSTANDARD": "\"{}\"".format(iostandard)}
 
-            if drive is not None and drive != "0":
+            if drive is not None:
                 params["DRIVE"] = int(drive)
 
             if slew is not None:
@@ -608,8 +610,10 @@ set_io clk {}
 
         params = {
             "IOSTANDARD": "\"{}\"".format(iostandard),
-            "IN_TERM": "\"{}\"".format(in_term)
         }
+
+        if in_term is not None:
+            params["IN_TERM"] = "\"{}\"".format(in_term)
 
         iobank, *pins = PINOUT[board]["differential"][index]
         used_iobanks.add(iobank)
@@ -732,7 +736,7 @@ set_io clk {}
 
             params = {"IOSTANDARD": "\"{}\"".format(iostandard)}
 
-            if drive is not None and drive != "0":
+            if drive is not None:
                 params["DRIVE"] = int(drive)
 
             if slew is not None:
@@ -796,11 +800,19 @@ def main():
     parser.add_argument("--board", required=True, help="Board")
     parser.add_argument("--mode", required=True, help="Generation mode")
     parser.add_argument("--iostandard", required=True, help="IOSTANDARD")
-    parser.add_argument("--drive", required=False, nargs="+", help="DRIVE(s)")
-    parser.add_argument("--slew", required=False, nargs="+", help="SLEW(s)")
+    parser.add_argument(
+        "--drive", required=False, nargs="+", default=[None], help="DRIVE(s)"
+    )
+    parser.add_argument(
+        "--slew", required=False, nargs="+", default=[None], help="SLEW(s)"
+    )
     parser.add_argument("--vref", required=False, default=None, help="VREF")
     parser.add_argument(
-        "--in_term", required=False, nargs="+", help="IN_TERM(s)"
+        "--in_term",
+        required=False,
+        nargs="+",
+        default=[None],
+        help="IN_TERM(s)"
     )
     parser.add_argument("-o", required=True, help="Design name")
 
