@@ -251,16 +251,24 @@ PREFIX_REQUIRED = {
     "ILOGIC": ("Y", 2),
     "OLOGIC": ("Y", 2),
     "BUFGCTRL": ("XY", (2, 16)),
+    "SLICEM": ("X", 2),
+    "SLICEL": ("X", 2),
 }
 
 
-def make_prefix(site_name, x, y):
+def make_prefix(site, x, y, from_site_name=False):
     """ Make tile FASM prefix for a given site. """
-    site_type, _ = site_name.split('_')
+    if from_site_name:
+        site_type, _ = site.split('_')
+    else:
+        site_type = site
 
     prefix_required = PREFIX_REQUIRED[site_type]
+
     if prefix_required[0] == 'Y':
         return site_type, '{}_Y{}'.format(site_type, y % prefix_required[1])
+    elif prefix_required[0] == 'X':
+        return site_type, '{}_X{}'.format(site_type, x % prefix_required[1])
     elif prefix_required[0] == 'XY':
         mod_x, mod_y = prefix_required[1]
         return site_type, '{}_X{}Y{}'.format(site_type, x % mod_x, y % mod_y)
@@ -297,7 +305,7 @@ AND
   """, (tile_pkey, tile_pkey, tile_pkey)
     )
     for site_name, x, y in cur:
-        site_type, prefix = make_prefix(site_name, x, y)
+        site_type, prefix = make_prefix(site_name, x, y, from_site_name=True)
         assert site_type not in site_prefixes
         site_prefixes[site_type] = prefix
 
@@ -313,7 +321,7 @@ def create_capacity_prefix(c, tile_prefix, tile_pkey, tile_capacity):
     """
     c.execute(
         """
-SELECT site_instance.name, site_instance.x_coord, site_instance.y_coord
+SELECT site_type.name, site_instance.x_coord, site_instance.y_coord
 FROM site_instance
 INNER JOIN site ON site_instance.site_pkey = site.pkey
 INNER JOIN site_type ON site.site_type_pkey = site_type.pkey
@@ -325,14 +333,18 @@ WHERE site_instance.phy_tile_pkey IN (
   WHERE
     pkey = ?
 )
-ORDER BY site_type.name, site_instance.x_coord, site_instance.y_coord;""",
+ORDER BY site_instance.x_coord, site_instance.y_coord, site_type.name;""",
         (tile_pkey, )
     )
 
     prefixes = []
-    for site_name, x, y in c:
-        site_type, prefix = make_prefix(site_name, x, y)
-        prefixes.append('{}.{}.{}'.format(tile_prefix, site_type, prefix))
+    for site_type, x, y in c:
+        _, prefix = make_prefix(site_type, x, y)
+
+        if "SLICE" in site_type:
+            prefixes.append('{}.{}'.format(tile_prefix, prefix))
+        else:
+            prefixes.append('{}.{}.{}'.format(tile_prefix, site_type, prefix))
 
     assert len(prefixes
                ) == tile_capacity, (tile_pkey, tile_capacity, len(prefixes))

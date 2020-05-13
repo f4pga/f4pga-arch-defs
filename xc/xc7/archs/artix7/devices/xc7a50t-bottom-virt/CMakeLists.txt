@@ -2,8 +2,10 @@ add_xc_device_define_type(
   ARCH artix7
   DEVICE xc7a50t-bottom
   TILE_TYPES
-    SLICEL
-    SLICEM
+    CLBLL_L
+    CLBLL_R
+    CLBLM_L
+    CLBLM_R
     BRAM_L
     LIOPAD_M
     LIOPAD_S

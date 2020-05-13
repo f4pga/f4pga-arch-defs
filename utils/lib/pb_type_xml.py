@@ -100,6 +100,20 @@ def add_switchblock_locations(xml):
     })
 
 
+def get_site_pin_wire(equivalent_site_pin, site_pins):
+    no_prefix_equivalent_site_pin_wire = equivalent_site_pin.wire.split('_'
+                                                                        )[-1]
+
+    for site_pin in site_pins:
+        site_pin_wire = site_pin.wire
+        no_prefix_site_pin_wire = site_pin.wire.split('_')[-1]
+
+        if no_prefix_site_pin_wire == no_prefix_equivalent_site_pin_wire:
+            return site_pin.wire
+
+    assert True, "No equivalent pin found!"
+
+
 def start_sub_tile(sub_tile_name, input_wires, output_wires):
     """This function returns the sub tile definition for a given tile.
 
@@ -165,6 +179,7 @@ def start_heterogeneous_tile(
         tile_name,
         pin_assignments,
         sites,
+        equivalent_sites,
 ):
     """ Returns a new tile xml definition.
 
@@ -233,7 +248,8 @@ def start_heterogeneous_tile(
                 }
             )
 
-            for site_pin in site.site_pins:
+            site_pins = site.site_pins
+            for site_pin in site_pins:
                 add_tile_direct(
                     site_xml,
                     tile=object_ref(
@@ -247,6 +263,36 @@ def start_heterogeneous_tile(
                 )
 
             equivalent_sites_xml.append(site_xml)
+
+            for equivalent_site_type in equivalent_sites[site.type]:
+                eq_site, _, _ = sites[equivalent_site_type][0]
+
+                site_xml = ET.Element(
+                    'site', {
+                        'pb_type': add_vpr_tile_prefix(eq_site.type),
+                        'pin_mapping': 'custom'
+                    }
+                )
+
+                for equivalent_site_pin in eq_site.site_pins:
+                    site_pin_wire = get_site_pin_wire(
+                        equivalent_site_pin, site_pins
+                    )
+
+                    add_tile_direct(
+                        site_xml,
+                        tile=object_ref(
+                            add_vpr_tile_prefix(sub_tile_name),
+                            site_pin_wire,
+                        ),
+                        pb_type=object_ref(
+                            pb_name=add_vpr_tile_prefix(eq_site.type),
+                            pin_name=equivalent_site_pin.name,
+                        ),
+                    )
+
+                equivalent_sites_xml.append(site_xml)
+
             sub_tile_xml.append(equivalent_sites_xml)
 
             tile_xml.append(sub_tile_xml)

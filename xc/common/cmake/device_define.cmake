@@ -359,7 +359,7 @@ function(ADD_XC_DEVICE_DEFINE)
         --disable_errors check_unbuffered_edges:check_route:check_place
         --suppress_warnings sum_pin_class:check_unbuffered_edges:load_rr_indexed_data_T_values:check_rr_node:trans_per_R
         --route_chan_width 500
-        --allowed_tiles_for_delay_model BLK-TL-SLICEL,BLK-TL-SLICEM
+        --allowed_tiles_for_delay_model BLK-TL-CLBLL_L,BLK-TL-CLBLL_R,BLK-TL-CLBLM_L,BLK-TL-CLBLM_R
       )
   endforeach()
 endfunction()
