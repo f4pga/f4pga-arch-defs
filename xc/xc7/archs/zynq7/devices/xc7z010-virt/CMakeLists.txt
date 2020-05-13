@@ -2,8 +2,10 @@ add_xc_device_define_type(
   ARCH zynq7
   DEVICE xc7z010
   TILE_TYPES
-    SLICEL
-    SLICEM
+    CLBLL_L
+    CLBLL_R
+    CLBLM_L
+    CLBLM_R
     BRAM_L
     RIOPAD_M
     RIOPAD_S
