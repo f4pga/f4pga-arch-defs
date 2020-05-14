@@ -36,9 +36,9 @@ def main():
     args = parser.parse_args()
 
     pin_to_iob = {}
-    for l in csv.DictReader(args.package_pins):
-        assert l['pin'] not in pin_to_iob
-        pin_to_iob[l['pin']] = l['site']
+    for line in csv.DictReader(args.package_pins):
+        assert line['pin'] not in pin_to_iob
+        pin_to_iob[line['pin']] = line['site']
 
     synth_tiles = json.load(args.synth_tiles)
 

@@ -59,8 +59,8 @@ def main():
         return match.group(1) + ' ' + lookup_inode(int(match.group(2)))
 
     NODE_RE = re.compile('(node|rt_node:) ([1-9][0-9]*)')
-    for l in sys.stdin:
-        sys.stdout.write(NODE_RE.sub(replace_inode, l))
+    for line in sys.stdin:
+        sys.stdout.write(NODE_RE.sub(replace_inode, line))
 
 
 if __name__ == "__main__":
