@@ -105,7 +105,6 @@ def get_site_pin_wire(equivalent_site_pin, site_pins):
                                                                         )[-1]
 
     for site_pin in site_pins:
-        site_pin_wire = site_pin.wire
         no_prefix_site_pin_wire = site_pin.wire.split('_')[-1]
 
         if no_prefix_site_pin_wire == no_prefix_equivalent_site_pin_wire:

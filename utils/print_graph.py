@@ -37,7 +37,7 @@ def print_grid(g):
     print()
 
     for y in reversed(range(0, grid.height)):
-        print("{: 3d} |".format(y, width=col_widths[0]), end=" ")
+        print("{: 3d} |".format(y), end=" ")
         for x, bt in enumerate(bg.block_types_for(row=y)):
             assert x < len(col_widths), (x, bt)
             print(
