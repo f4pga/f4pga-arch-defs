@@ -1566,9 +1566,9 @@ class Module(object):
         for site in self.sites:
             for bel in sorted(site.bels, key=lambda bel: bel.priority):
                 yield ''
-                for l in bel.output_verilog(
+                for line in bel.output_verilog(
                         top=self, net_map=self.wire_name_net_map, indent='  '):
-                    yield l
+                    yield line
 
         for lhs, rhs in self.wire_name_net_map.items():
             yield '  assign {} = {};'.format(lhs, rhs)
@@ -1592,9 +1592,7 @@ set_property BEL "[get_property SITE_TYPE [get_sites {site}]].{bel}" $cell""".fo
                 )
 
             yield """\
-set_property LOC [get_sites {site}] $cell""".format(
-                cell=bel.get_prefixed_name(), site=bel.site
-            )
+set_property LOC [get_sites {site}] $cell""".format(site=bel.site)
 
     def output_nets(self):
         """ Yields lines of tcl that will assign the exact routing path for nets.
@@ -1778,13 +1776,13 @@ set_property FIXED_ROUTE $route $net"""
             return False
 
         # Remove
-        for l in (self.root_in, self.root_out, self.root_inout):
+        for ports in (self.root_in, self.root_out, self.root_inout):
             to_remove = set()
-            for port in l:
+            for port in ports:
                 if not is_connected_to_bel(port) and not is_used(port):
                     to_remove.add(port)
             for port in to_remove:
-                l.remove(port)
+                ports.remove(port)
 
     def add_to_cname_map(self, parsed_eblif):
         """ Create a map from subckt (pin, index, net) to cnames.
