@@ -11,13 +11,13 @@ def scan_runtime(fname):
     """ Find runtime of VPR log (if any), else returns empty str. """
     try:
         with open(fname, 'r') as f:
-            for l in f:
+            for line in f:
                 pass
 
-            if not l.startswith('The entire flow of VPR took'):
+            if not line.startswith('The entire flow of VPR took'):
                 return ""
 
-            return str(float(l.split()[6]))
+            return str(float(line.split()[6]))
     except FileNotFoundError:
         return ""
 
@@ -35,9 +35,9 @@ def scan_critical(fname):
     """
     try:
         with open(fname, 'r') as f:
-            for l in f:
-                if l.startswith('Final critical path:'):
-                    parts = l.split()
+            for line in f:
+                if line.startswith('Final critical path:'):
+                    parts = line.split()
                     if len(parts) >= 7:
                         # Final critical path: 16.8182 ns, Fmax: 59.4592 MHz
                         critical_path = float(parts[3])

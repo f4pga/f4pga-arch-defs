@@ -100,6 +100,19 @@ def add_switchblock_locations(xml):
     })
 
 
+def get_site_pin_wire(equivalent_site_pin, site_pins):
+    no_prefix_equivalent_site_pin_wire = equivalent_site_pin.wire.split('_'
+                                                                        )[-1]
+
+    for site_pin in site_pins:
+        no_prefix_site_pin_wire = site_pin.wire.split('_')[-1]
+
+        if no_prefix_site_pin_wire == no_prefix_equivalent_site_pin_wire:
+            return site_pin.wire
+
+    assert True, "No equivalent pin found!"
+
+
 def start_sub_tile(sub_tile_name, input_wires, output_wires):
     """This function returns the sub tile definition for a given tile.
 
