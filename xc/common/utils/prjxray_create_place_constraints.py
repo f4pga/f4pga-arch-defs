@@ -26,7 +26,7 @@ CLOCKS = {
     "BUFGCTRL_VPR":
         {
             "sinks": frozenset(("I0", "I1")),
-            "sources": frozenset(("O")),
+            "sources": frozenset(("O", )),
             "type": "BUFGCTRL",
         },
     "PS7_VPR":
@@ -88,10 +88,16 @@ CLOCKS = {
         },
     "IBUF_VPR":
         {
-            "sources": frozenset(("O")),
+            "sources": frozenset(("O", )),
             "sinks": frozenset(),
             "type": "IBUF",
-        }
+        },
+    "IDELAYCTRL":
+        {
+            "sources": frozenset(),
+            "sinks": frozenset(("REFCLK", )),
+            "type": "IDELAYCTRL",
+        },
 }
 
 
@@ -342,8 +348,10 @@ class ClockPlacer(object):
                 if CLOCKS[clock['subckt']]['type'] == 'BUFGCTRL':
                     pass
                 else:
-                    clock_region_pkey = site_dict[loc.replace('"', '')]
-                    assert clock_region_pkey is not None, (block, loc)
+                    site = site_dict[loc.replace('"', '')]
+                    assert site is not None, (block, loc)
+
+                    clock_region_pkey = site["clock_region"]
 
                     if block in self.clock_cmts:
                         assert clock_region_pkey == self.clock_cmts[block], (
