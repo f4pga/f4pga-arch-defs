@@ -1,5 +1,5 @@
-set_io IR_TXD_o FBIO_25
-set_io IR_RXD_i FBIO_26
-set_io I2S_CLK_i FBIO_8
-set_io I2S_WS_CLK_i FBIO_6
-set_io I2S_DIN_i FBIO_10
+set_io IR_TXD_o F7
+set_io IR_RXD_i F6
+set_io I2S_CLK_i C4
+set_io I2S_WS_CLK_i B3
+set_io I2S_DIN_i A4

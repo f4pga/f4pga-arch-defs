@@ -1,19 +1,19 @@
-set_io GPIO_PIN(0) FBIO_18
-set_io GPIO_PIN(1) FBIO_21
-set_io GPIO_PIN(2) FBIO_22
-set_io GPIO_PIN(3) FBIO_26
+set_io GPIO_PIN(0) E8
+set_io GPIO_PIN(1) H7
+set_io GPIO_PIN(2) G7
+set_io GPIO_PIN(3) F6
 
-set_io CSn_o  FBIO_6
-set_io SCLK_o FBIO_5
-set_io SDATA_i FBIO_12
+set_io CSn_o  B3
+set_io SCLK_o C3
+set_io SDATA_i B5
 
-set_io spi_ss_i FBIO_4
-set_io spi_sck_i FBIO_13
-set_io spi_miso_o FBIO_10
+set_io spi_ss_i B2
+set_io spi_sck_i D6
+set_io spi_miso_o A4
 
-set_io dbg_sdma_req  SFBIO_8
-set_io dbg_sdma_active SFBIO_9
-set_io dbg_sdma_done  SFBIO_10
+set_io dbg_sdma_req  D2
+set_io dbg_sdma_active F1
+set_io dbg_sdma_done  H1
 
-set_io SIN_i SFBIO_13
-set_io SOUT_o SFBIO_12
+set_io SIN_i G1
+set_io SOUT_o E1

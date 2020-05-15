@@ -1,4 +1,4 @@
-set_io I2S_CLK_o FBIO_8
-set_io I2S_CLK_i FBIO_9
-set_io I2S_WS_CLK_i FBIO_6
-set_io I2S_DIN_i FBIO_10
+set_io I2S_CLK_o C4
+set_io I2S_CLK_i B4
+set_io I2S_WS_CLK_i B3
+set_io I2S_DIN_i A4

@@ -1,20 +1,20 @@
-set_io x0(0)    FBIO_0
-set_io x0(1)    FBIO_1
+set_io x0(0)    B1
+set_io x0(1)    C1
 
-set_io y0(0)    FBIO_2
-set_io y0(1)    FBIO_3
+set_io y0(0)    A1
+set_io y0(1)    A2
 
-set_io A0(0)    FBIO_4
-set_io A0(1)    FBIO_5
+set_io A0(0)    B2
+set_io A0(1)    C3
 
-set_io valid(0) FBIO_6
-set_io valid(1) FBIO_7
+set_io valid(0) B3
+set_io valid(1) A3
 
-set_io x1(0)    FBIO_8
-set_io x1(1)    FBIO_9
+set_io x1(0)    C4
+set_io x1(1)    B4
 
-set_io y1(0)    FBIO_10
-set_io y1(1)    FBIO_11
+set_io y1(0)    A4
+set_io y1(1)    C5
 
-set_io A1(0)    FBIO_12
-set_io A1(1)    FBIO_13
+set_io C1(0)    B5
+set_io C1(1)    D6

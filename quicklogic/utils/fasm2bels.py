@@ -531,7 +531,8 @@ if __name__ == '__main__':
         "--package-name",
         type=str,
         required=True,
-        choices=['PU90'],
+        choices=['PD64', 'PU64', 'WR42'],
+        default='PD64',
         help="The package name"
     )
 

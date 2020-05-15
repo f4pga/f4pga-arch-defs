@@ -1,5 +1,5 @@
-set_io clk      FBIO_6
-set_io led(0)   FBIO_22
-set_io led(1)   FBIO_21
-set_io led(2)   FBIO_18
-set_io led(3)   FBIO_30
+set_io clk      62
+set_io led(0)   34
+set_io led(1)   39
+set_io led(2)   38
+set_io led(3)   25

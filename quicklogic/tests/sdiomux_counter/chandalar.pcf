@@ -1,4 +1,4 @@
-set_io led(0)   SFBIO_8
-set_io led(1)   SFBIO_9
-set_io led(2)   SFBIO_10
-set_io led(3)   FBIO_18
+set_io led(0)   D2
+set_io led(1)   F1
+set_io led(2)   H1
+set_io led(3)   E8

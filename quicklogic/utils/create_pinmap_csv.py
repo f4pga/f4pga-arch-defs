@@ -43,7 +43,7 @@ def main():
     parser.add_argument(
         "--package",
         type=str,
-        default="PU90",
+        default="PD64",
         help="Package name to generate the pinmap for"
     )
     parser.add_argument(

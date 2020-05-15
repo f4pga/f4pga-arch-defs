@@ -1,5 +1,5 @@
-set_io I(0) FBIO_0
-set_io I(1) FBIO_1
-set_io I(2) FBIO_2
-set_io I(3) FBIO_3
-set_io O    FBIO_4
+set_io I(0) B1
+set_io I(1) C1
+set_io I(2) A1
+set_io I(3) A2
+set_io O    B2
