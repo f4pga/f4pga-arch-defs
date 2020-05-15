@@ -101,13 +101,21 @@ def add_switchblock_locations(xml):
 
 
 def get_site_pin_wire(equivalent_site_pin, site_pins):
-    no_prefix_equivalent_site_pin_wire = equivalent_site_pin.wire.split('_'
-                                                                        )[-1]
+    """Returns the site pin wire name of the original site location, given the site pin
+    from the equivalent site.
+
+    This function requires:
+        - equivalent_site_pin: pin belonging to the equivalent site used to find
+                               the corresponding pin of the original site
+        - site_pins: list of pins belonging to the original site
+
+    We make the assumption that the name of the pin (prior to stripping the tile name prefix)
+    is the same, both for the original and the equivalent sites:
+    """
 
     for site_pin in site_pins:
-        no_prefix_site_pin_wire = site_pin.wire.split('_')[-1]
 
-        if no_prefix_site_pin_wire == no_prefix_equivalent_site_pin_wire:
+        if site_pin.name == equivalent_site_pin.name:
             return site_pin.wire
 
     assert True, "No equivalent pin found!"
