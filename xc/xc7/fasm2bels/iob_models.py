@@ -333,6 +333,9 @@ def process_single_ended_iob(top, iob):
 
     # It seems that this IOB is always configured as an input at least in
     # Artix7. So skip it here.
+    #
+    # FIXME: This will prevent from correctly decoding a design when that one
+    # is used in it.
     if 'PUDC' in pin_functions:
         return
 
@@ -358,6 +361,7 @@ def process_single_ended_iob(top, iob):
 
     # Sanity check. Can be only one or neither of them
     assert (is_input + is_inout + is_output) <= 1, (
+        tile_name,
         is_input,
         is_output,
         is_inout,
@@ -455,7 +459,7 @@ def process_single_ended_iob(top, iob):
     # Neither
     else:
         # Naked pull options are not supported
-        assert site.has_feature('PULLTYPE.PULLDOWN')
+        assert site.has_feature('PULLTYPE.PULLDOWN'), tile_name
 
     # Pull
     if top_wire is not None:
@@ -487,6 +491,9 @@ def process_differential_iob(top, iob, in_diff, out_diff):
     site_m = Site(iob['M'], iob_site_m)
     site = Site(iob['S'] + iob['M'], tile_name, merged_site=True)
 
+    INTERMDISABLE_USED = site.has_feature('INTERMDISABLE.I')
+    IBUFDISABLE_USED = site.has_feature('IBUFDISABLE.I')
+
     top_wire_n = None
     top_wire_p = None
 
@@ -495,19 +502,60 @@ def process_differential_iob(top, iob, in_diff, out_diff):
     in_term = decode_in_term(site)
 
     # Differential input
-    if in_diff:
-        assert False, "Differential inputs/inouts not supported yet!"
+    if in_diff and not out_diff:
+        assert False, (tile_name, "Differential inputs not supported yet!")
 
-    # Differential output
+    # Differential output / inout
     elif out_diff:
 
-        # Since we cannot distinguish between OBUFDS and OBUFTDS we add the
-        # "T" one. If it is the OBUFDS then the T input will be forced to 0.
-        bel = Bel('OBUFTDS')
-        top_wire_n = top.add_top_out_port(tile_name, iob_site_s.name, 'OPAD_N')
-        top_wire_p = top.add_top_out_port(tile_name, iob_site_m.name, 'OPAD_P')
-        bel.connections['OB'] = top_wire_n
-        bel.connections['O'] = top_wire_p
+        if in_diff:
+
+            top_wire_n = top.add_top_inout_port(
+                tile_name, iob_site_s.name, 'IOPAD_N'
+            )
+            top_wire_p = top.add_top_inout_port(
+                tile_name, iob_site_m.name, 'IOPAD_P'
+            )
+
+            # Options are:
+            # IOBUFDS or IOBUFDS_INTERMDISABLE
+            # TODO: There are also IOBUFDS_DIFF_OUT* and variants with DCI
+            if INTERMDISABLE_USED or IBUFDISABLE_USED:
+                bel = Bel('IOBUFDS_INTERMDISABLE')
+
+                if INTERMDISABLE_USED:
+                    site_m.add_sink(bel, 'INTERMDISABLE', 'INTERMDISABLE')
+                else:
+                    bel.connections['INTERMDISABLE'] = 0
+
+                if IBUFDISABLE_USED:
+                    site_m.add_sink(bel, 'IBUFDISABLE', 'IBUFDISABLE')
+                else:
+                    bel.connections['IBUFDISABLE'] = 0
+            else:
+                bel = Bel('IOBUFDS')
+
+            bel.connections['IOB'] = top_wire_n
+            bel.connections['IO'] = top_wire_p
+
+            # For IOBUFDS add the O pin
+            site_m.add_source(bel, bel_pin='O', source='I')
+
+        else:
+
+            top_wire_n = top.add_top_out_port(
+                tile_name, iob_site_s.name, 'OPAD_N'
+            )
+            top_wire_p = top.add_top_out_port(
+                tile_name, iob_site_m.name, 'OPAD_P'
+            )
+
+            # Since we cannot distinguish between OBUFDS and OBUFTDS we add the
+            # "T" one. If it is the OBUFDS then the T input will be forced to 0.
+            bel = Bel('OBUFTDS')
+
+            bel.connections['OB'] = top_wire_n
+            bel.connections['O'] = top_wire_p
 
         # Note this looks weird, but the BEL pin is I, and the site wire
         # is called O, so it is in fact correct.
@@ -550,9 +598,9 @@ def process_iobs(conn, top, tile, features):
         parts = f.feature.split('.')
 
         # Detect differential IO
-        if parts[1] == "OUT_DIFF":
+        if parts[-1] == "OUT_DIFF":
             out_diff = True
-        if len(parts) == 3 and parts[2] == "IN_DIFF":
+        if parts[-1] == "IN_DIFF":
             in_diff = True
 
         if not parts[1].startswith('IOB_Y'):
