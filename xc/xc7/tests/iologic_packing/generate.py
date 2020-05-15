@@ -6,17 +6,48 @@ import argparse
 
 # =============================================================================
 
-# This is a "fake" pinout for the Basys3 when using only the bottom part of
-# the Artix7 FPGA. This is not intended to work on any HW, just for the
+# This is a "fake" pinout. It is not intended to work on any HW, just for the
 # toolchain verification.
 PINOUT = {
+    "arty-full":
+        {
+            "clocks": [
+                "E3",
+                "F4",  # This one is fake
+            ],
+            "generic":
+                [
+                    # All these are fake
+                    "C6",
+                    "C5",
+                    "B7",
+                    "B6",
+                    "A6",
+                    "A5",
+                    "D8",
+                    "C7",
+                ],
+            "single-ended": [
+                # Bank 15
+                "J17",
+                "J18",
+                "K15",
+                "J15",
+            ],
+            "differential": [
+                # Bank 15
+                ("E15", "E16"),
+                ("D15", "C15"),
+            ],
+            "idelayctrl": "IDELAYCTRL_X0Y1"
+        },
     "basys3-bottom":
         {
             "clocks": [
                 "M18",
                 "L17",
             ],
-            "single-ended":
+            "generic":
                 [
                     "N17",
                     "P17",
@@ -27,10 +58,17 @@ PINOUT = {
                     "W18",
                     "W19",
                 ],
+            "single-ended": [
+                "V2",
+                "W2",
+                "V3",
+                "W3",
+            ],
             "differential": [
                 ("V2", "W2"),
                 ("V3", "W3"),
             ],
+            "idelayctrl": "IDELAYCTRL_X0Y0",
         },
 }
 
@@ -72,6 +110,7 @@ VALID_IOBS = INPUT_IOBS | OUTPUT_IOBS | INOUT_IOBS
 def make_header(board, iob_type, use_idelay, use_iserdes, use_oserdes):
 
     ck_pads = iter(PINOUT[board]["clocks"])
+    ge_pads = iter(PINOUT[board]["generic"])
     se_pads = iter(PINOUT[board]["single-ended"])
     df_pads = iter(PINOUT[board]["differential"])
 
@@ -132,7 +171,7 @@ def make_header(board, iob_type, use_idelay, use_iserdes, use_oserdes):
         out_ports.append("out")
 
         # LOC
-        pad = next(se_pads)
+        pad = next(ge_pads)
         pcf += "set_io out {}\n".format(pad)
 
     # Tristate control
@@ -140,7 +179,7 @@ def make_header(board, iob_type, use_idelay, use_iserdes, use_oserdes):
         inp_ports.append("oen")
 
         # LOC
-        pad = next(se_pads)
+        pad = next(ge_pads)
         pcf += "set_io oen {}\n".format(pad)
 
     # In
@@ -148,7 +187,7 @@ def make_header(board, iob_type, use_idelay, use_iserdes, use_oserdes):
         inp_ports.append("inp")
 
         # LOC
-        pad = next(se_pads)
+        pad = next(ge_pads)
         pcf += "set_io inp {}\n".format(pad)
 
     # IDELAYCTRL RDY out
@@ -156,7 +195,7 @@ def make_header(board, iob_type, use_idelay, use_iserdes, use_oserdes):
         out_ports.append("rdy")
 
         # LOC
-        pad = next(se_pads)
+        pad = next(ge_pads)
         pcf += "set_io rdy {}\n".format(pad)
 
     # IOSTANDARD
@@ -287,9 +326,11 @@ def make_iob(iob_type):
     return verilog
 
 
-def make_idelay(use_idelay):
+def make_idelay(board, use_idelay):
 
     if use_idelay:
+        loc = PINOUT[board]["idelayctrl"]
+
         return """
     wire dly_i;
 
@@ -302,11 +343,12 @@ def make_idelay(use_idelay):
         .DATAOUT        (dly_i)
     );
 
+    (* LOC="{}" *)
     IDELAYCTRL idelayctrl (
         .REFCLK         (clk_bufg),
         .RDY            (rdy)
     );
-"""
+        """.format(loc)
 
     else:
         return """
@@ -427,7 +469,7 @@ def main():
     verilog += make_iob(args.iob)
 
     # IDELAY
-    verilog += make_idelay(args.idelay)
+    verilog += make_idelay(args.board, args.idelay)
 
     # ISERDES
     verilog += make_iserdes(args.idelay, args.iserdes)
