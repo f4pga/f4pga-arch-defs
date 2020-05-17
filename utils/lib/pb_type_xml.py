@@ -118,7 +118,7 @@ def get_site_pin_wire(equivalent_site_pin, site_pins):
         if site_pin.name == equivalent_site_pin.name:
             return site_pin.wire
 
-    assert True, "No equivalent pin found!"
+    assert False, "No equivalent pin found!"
 
 
 def start_sub_tile(sub_tile_name, input_wires, output_wires):
