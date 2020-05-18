@@ -1080,7 +1080,8 @@ LIMIT
             if "PADOUT1" in pip_name and "DIFFI_IN0" in pip_name:
                 force_direct = True
 
-            if other_site_wire_pkey is not None and (other_number_pips == 1 or force_direct):
+            if other_site_wire_pkey is not None and (other_number_pips == 1
+                                                     or force_direct):
                 if src_wire_in_tile_pkey == wire_in_tile_pkey:
                     src_wire_pkey = site_wire_pkey
                     dest_wire_pkey = other_site_wire_pkey
