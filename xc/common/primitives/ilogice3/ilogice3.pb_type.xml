@@ -339,6 +339,71 @@
       <direct name="SHIFTOUT2" input="ISERDESE2_IDELAY.SHIFTOUT2" output="ILOGICE3.SHIFTOUT2"/>
     </interconnect>
   </mode>
+
+  <!-- ILOGICE3 hosting an IDDR primitive -->
+  <mode name="IFF">
+    <pb_type name="IFF" blif_model=".subckt IDDR_VPR" num_pb="1">
+      <clock  name="CK"  num_pins="1"/>
+      <clock  name="CKB" num_pins="1"/>
+      <input  name="CE"  num_pins="1"/>
+      <input  name="SR"  num_pins="1"/>
+      <input  name="D"   num_pins="1"/>
+      <output name="Q1"  num_pins="1"/>
+      <output name="Q2"  num_pins="1"/>
+
+      <T_setup port="D" clock="CK" value="1e-10"/>
+      <T_hold  port="D" clock="CK" value="1e-10"/>
+
+      <T_setup port="CE" clock="CK" value="1e-10"/>
+      <T_hold  port="CE" clock="CK" value="1e-10"/>
+
+      <T_clock_to_Q port="Q1" clock="CK" max="1e-10"/>
+      <T_clock_to_Q port="Q2" clock="CK" max="1e-10"/>
+
+      <metadata>
+        <meta name="fasm_features">
+          IDDR_OR_ISERDES.IN_USE
+        </meta>
+        <meta name="fasm_params">
+          ZINV_D = ZINV_D
+          IFF.ZINV_C = ZINV_C
+          IFF.SRTYPE.SYNC = SRTYPE_SYNC
+          IFF.DDR_CLK_EDGE.SAME_EDGE = SAME_EDGE
+          IFF.DDR_CLK_EDGE.OPPOSITE_EDGE = OPPOSITE_EDGE
+          IFF.ZINIT_Q1 = ZINIT_Q1
+          IFF.ZINIT_Q2 = ZINIT_Q2
+          IFF.ZSRVAL_Q1 = ZSRVAL_Q1
+          IFF.ZSRVAL_Q2 = ZSRVAL_Q2          
+        </meta>
+      </metadata>
+    </pb_type>
+
+    <interconnect>
+
+      <!-- Input connections -->
+      <mux name="IFFDELMUX" input="ILOGICE3.DDLY ILOGICE3.D" output="IFF.D">
+        <metadata>
+          <meta name="fasm_mux">
+            ILOGICE3.DDLY = IFFDELMUXE3.P0
+            ILOGICE3.D = NULL
+          </meta>
+        </metadata>
+      </mux>
+      <direct name="" input="ILOGICE3.CLK" output="IFF.CLK"/>
+      <direct name="" input="ILOGICE3.CLKB" output="IFF.CLKB"/>
+      <direct name="" input="ILOGICE3.CE1" output="IFF.CE"/>
+      <direct name="" input="ILOGICE3.SR" output="IFF.SR"/>
+
+      <!-- Output connections -->
+      <direct name="" input="IFF.Q1" output="ILOGICE3.Q1"/>
+      <direct name="" input="IFF.Q2" output="ILOGICE3.Q2"/>
+
+      <!-- NOTE: There is a connection from ILOGICE3.D/ILOGICE3.DDLY bypassing
+           the IDDR but it goes through an inverter controlled by it. Hence it
+           is disabled -->
+
+    </interconnect>
+  </mode>
   <!-- TODO
        - other modes
        - BELs
