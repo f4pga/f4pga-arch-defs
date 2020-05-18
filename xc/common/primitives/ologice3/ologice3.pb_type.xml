@@ -32,24 +32,161 @@
   <output name="TQ" num_pins="1"/>
   <input name="SHIFTIN1" num_pins="1"/>
   <input name="SHIFTIN2" num_pins="1"/>
-  <mode name="PASS_THROUGH">
+
+  <!-- OLOGIC (ODDR/TDDR) or passthrough -->
+  <mode name="OLOGIC">
+
+    <!-- ODDR for T or passthrough -->
+    <pb_type name="OLOGIC_TFF" num_pb="1">
+      <input  name="TCE" num_pins="1"/>
+      <input  name="T1"  num_pins="1"/>
+      <input  name="T2"  num_pins="1"/>
+      <input  name="SR"  num_pins="1"/>
+      <input  name="CLK" num_pins="1"/>
+      <output name="TQ"  num_pins="1"/>
+      <output name="TFB" num_pins="1"/>
+
+      <mode name="PASSTHROUGH">
+        <interconnect>
+          <direct name="T1_to_TQ" input="OLOGIC_TFF.T1" output="OLOGIC_TFF.TQ">
+            <metadata>
+              <meta name="fasm_mux">
+                T1 : ZINV_T1,OSERDES.DATA_RATE_TQ.BUF
+              </meta>
+            </metadata>
+          </direct>
+        </interconnect>
+      </mode>
+
+      <mode name="ODDR">
+        <pb_type name="ODDR" blif_model=".subckt ODDR_VPR" num_pb="1">
+          <clock  name="CK" num_pins="1"/>
+          <input  name="CE" num_pins="1"/>
+          <input  name="SR" num_pins="1"/>
+          <input  name="D1" num_pins="1"/>
+          <input  name="D2" num_pins="1"/>
+          <output name="Q"  num_pins="1"/>
+
+          <T_setup port="CE" clock="CK" value="1e-10"/>
+          <T_hold  port="CE" clock="CK" value="1e-10"/>
+          <T_setup port="D1" clock="CK" value="1e-10"/>
+          <T_hold  port="D1" clock="CK" value="1e-10"/>
+          <T_setup port="D2" clock="CK" value="1e-10"/>
+          <T_hold  port="D2" clock="CK" value="1e-10"/>
+
+          <T_clock_to_Q port="Q" clock="CK" max="1e-10"/>
+
+          <metadata>
+            <meta name="fasm_params">
+              ZINV_CLK = ZINV_CLK
+              ZINV_T1 = ZINV_D1
+              ZINV_T2 = ZINV_D2
+              OSERDES.TSRTYPE.SYNC = SRTYPE_SYNC
+              ODDR.DDR_CLK_EDGE.SAME_EDGE = SAME_EDGE
+              ZINIT_TQ = ZINIT_Q
+              ZSRVAL_TQ = ZSRVAL_Q
+            </meta>
+          </metadata>
+        </pb_type>
+
+        <interconnect>
+          <direct name="OLOGIC_TFF.CLK_to_ODDR.CK" input="OLOGIC_TFF.CLK" output="ODDR.CK"/>
+          <direct name="OLOGIC_TFF.SR_to_ODDR.SR" input="OLOGIC_TFF.SR" output="ODDR.SR"/>
+          <direct name="OLOGIC_TFF.TCE_to_ODDR.CE" input="OLOGIC_TFF.TCE" output="ODDR.CE"/>
+          <direct name="OLOGIC_TFF.T1_to_ODDR.D1" input="OLOGIC_TFF.T1" output="ODDR.D1"/>
+          <direct name="OLOGIC_TFF.T2_to_ODDR.D2" input="OLOGIC_TFF.T2" output="ODDR.D2"/>
+          <direct name="ODDR.Q_to_OLOGIC_TFF.TQ" input="ODDR.Q" output="OLOGIC_TFF.TQ"/>
+        </interconnect>
+      </mode>
+    </pb_type> 
+
+    <!-- ODDR for D or passthrough -->
+    <pb_type name="OLOGIC_OFF" num_pb="1">
+      <input  name="OCE" num_pins="1"/>
+      <input  name="D1"  num_pins="1"/>
+      <input  name="D2"  num_pins="1"/>
+      <input  name="SR"  num_pins="1"/>
+      <input  name="CLK" num_pins="1"/>
+      <output name="OQ"  num_pins="1"/>
+      <output name="OFB" num_pins="1"/>
+
+      <mode name="PASSTHROUGH">
+        <interconnect>
+          <direct name="D1_to_OQ" input="OLOGIC_OFF.D1" output="OLOGIC_OFF.OQ">
+            <metadata>
+              <meta name="fasm_mux">
+                D1 : OMUX.D1,OQUSED
+              </meta>
+            </metadata>
+          </direct>
+        </interconnect>
+      </mode>
+
+      <mode name="ODDR">
+        <pb_type name="ODDR" blif_model=".subckt ODDR_VPR" num_pb="1">
+          <clock  name="CK" num_pins="1"/>
+          <input  name="CE" num_pins="1"/>
+          <input  name="SR" num_pins="1"/>
+          <input  name="D1" num_pins="1"/>
+          <input  name="D2" num_pins="1"/>
+          <output name="Q"  num_pins="1"/>
+
+          <T_setup port="CE" clock="CK" value="1e-10"/>
+          <T_hold  port="CE" clock="CK" value="1e-10"/>
+          <T_setup port="D1" clock="CK" value="1e-10"/>
+          <T_hold  port="D1" clock="CK" value="1e-10"/>
+          <T_setup port="D2" clock="CK" value="1e-10"/>
+          <T_hold  port="D2" clock="CK" value="1e-10"/>
+
+          <T_clock_to_Q port="Q" clock="CK" max="1e-10"/>
+
+          <metadata>
+            <meta name="fasm_features">
+              OQUSED
+            </meta>
+            <meta name="fasm_params">
+              ZINV_CLK = ZINV_CLK
+              IS_D1_INVERTED = INV_D1
+              IS_D2_INVERTED = INV_D2
+              OSERDES.SRTYPE.SYNC = SRTYPE_SYNC
+              ODDR.DDR_CLK_EDGE.SAME_EDGE = SAME_EDGE
+              ZINIT_OQ = ZINIT_Q
+              ZSRVAL_OQ = ZSRVAL_Q
+            </meta>
+          </metadata>
+        </pb_type>
+
+        <interconnect>
+          <direct name="OLOGIC_OFF.CLK_to_ODDR.CK" input="OLOGIC_OFF.CLK" output="ODDR.CK"/>
+          <direct name="OLOGIC_OFF.SR_to_ODDR.SR" input="OLOGIC_OFF.SR"  output="ODDR.SR"/>
+          <direct name="OLOGIC_OFF.OCE_to_ODDR.CE" input="OLOGIC_OFF.OCE" output="ODDR.CE"/>
+          <direct name="OLOGIC_OFF.D1_to_ODDR.D1" input="OLOGIC_OFF.D1" output="ODDR.D1"/>
+          <direct name="OLOGIC_OFF.D2_to_ODDR.D2" input="OLOGIC_OFF.D2" output="ODDR.D2"/>
+          <direct name="ODDR.Q_to_OLOGIC_OFF.OQ" input="ODDR.Q" output="OLOGIC_OFF.OQ"/>
+        </interconnect>
+      </mode>
+    </pb_type>
+
     <interconnect>
-      <direct name="D1_OQ" input="OLOGICE3.D1" output="OLOGICE3.OQ">
-        <metadata>
-          <meta name="fasm_mux">
-            OLOGICE3.D1 : OMUX.D1,OQUSED,OSERDES.DATA_RATE_TQ.BUF
-          </meta>
-        </metadata>
-      </direct>
-      <direct name="D1_TQ" input="OLOGICE3.T1" output="OLOGICE3.TQ">
-        <metadata>
-          <meta name="fasm_mux">
-            OLOGICE3.T1 : ZINV_T1
-          </meta>
-        </metadata>
-      </direct>
+      <direct name="OLOGICE3.TCE_to_OLOGIC_TFF.TCE" input="OLOGICE3.TCE" output="OLOGIC_TFF.TCE"/>
+      <direct name="OLOGICE3.T1_to_OLOGIC_TFF.T1" input="OLOGICE3.T1" output="OLOGIC_TFF.T1"/>
+      <direct name="OLOGICE3.T2_to_OLOGIC_TFF.T2" input="OLOGICE3.T2" output="OLOGIC_TFF.T2"/>
+      <direct name="OLOGICE3.OCE_to_OLOGIC_OFF.OCE" input="OLOGICE3.OCE" output="OLOGIC_OFF.OCE"/>
+      <direct name="OLOGICE3.D1_to_OLOGIC_OFF.D1" input="OLOGICE3.D1" output="OLOGIC_OFF.D1"/>
+      <direct name="OLOGICE3.D2_to_OLOGIC_OFF.D2" input="OLOGICE3.D2" output="OLOGIC_OFF.D2"/>
+
+      <direct name="OLOGICE3.SR_to_OLOGIC_TFF.SR" input="OLOGICE3.SR" output="OLOGIC_TFF.SR"/>
+      <direct name="OLOGICE3.CLK_to_OLOGIC_TFF.CLK" input="OLOGICE3.CLK" output="OLOGIC_TFF.CLK"/>
+      <direct name="OLOGICE3.SR_to_OLOGIC_OFF.SR" input="OLOGICE3.SR" output="OLOGIC_OFF.SR"/>
+      <direct name="OLOGICE3.CLK_to_OLOGIC_OFF.CLK" input="OLOGICE3.CLK" output="OLOGIC_OFF.CLK"/>
+
+      <direct name="OLOGIC_TFF.TQ_to_OLOGICE3.TQ" input="OLOGIC_TFF.TQ" output="OLOGICE3.TQ"/>
+      <direct name="OLOGIC_TFF.TFB_to_OLOGICE3.TFB" input="OLOGIC_TFF.TFB" output="OLOGICE3.TFB"/>
+      <direct name="OLOGIC_OFF.OQ_to_OLOGICE3.OQ" input="OLOGIC_OFF.OQ" output="OLOGICE3.OQ"/>
+      <direct name="OLOGIC_OFF.OFB_to_OLOGICE3.OFB" input="OLOGIC_OFF.OFB" output="OLOGICE3.OFB"/>
     </interconnect>
   </mode>
+
   <mode name="OSERDES">
     <pb_type name="OSERDESE2" blif_model=".subckt OSERDESE2_VPR" num_pb="1">
       <clock name="CLK" num_pins="1"/>
@@ -211,18 +348,6 @@
       <direct name="SHIFTIN2" input="OLOGICE3.SHIFTIN2" output="OSERDESE2.SHIFTIN2" />
     </interconnect>
   </mode>
-  <!--
-  <mode name="ODDR">
-    <pb_type name="ODDR" blif_model=".subckt ODDR" num_pb="1">
-      <output name="Q" num_pins="1"/>
-      <input name="C" num_pins="1"/>
-      <input name="CE" num_pins="1"/>
-      <input name="D1" num_pins="1"/>
-      <input name="D2" num_pins="1"/>
-      <input name="SR" num_pins="1"/>
-    </pb_type>
-  </mode>
-  -->
   <!-- TODO
        - other modes
        - BELs
