@@ -33,4 +33,16 @@
       <port clock="CLK" name="TQ"/>
     </output_ports>
   </model>
+  <model name="ODDR_VPR">
+    <input_ports>
+      <port name="CK" is_clock="1"/>
+      <port name="CE" clock="CK"/>
+      <port name="SR"/>
+      <port name="D1" clock="CK"/>
+      <port name="D2" clock="CK"/>
+    </input_ports>
+    <output_ports>
+      <port name="Q"  clock="CK"/>
+    </output_ports>
+  </model>
 </models>

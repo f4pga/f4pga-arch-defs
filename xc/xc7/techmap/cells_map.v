@@ -3233,6 +3233,77 @@ module IDDR (
 
 endmodule
 
+module ODDR (
+  input  C,
+  input  CE,
+  input  R,
+  input  S,
+  input  D1,
+  input  D2,
+  output Q
+);
+
+  parameter DDR_CLK_EDGE = "OPPOSITE_EDGE";
+  parameter INIT = 1'b0;
+  parameter [0:0] IS_C_INVERTED = 1'b0;
+  parameter [0:0] IS_D1_INVERTED = 1'b0;
+  parameter [0:0] IS_D2_INVERTED = 1'b0;
+  parameter SRTYPE = "SYNC";
+
+  parameter _TECHMAP_CONSTMSK_R_ = 1'b1;
+  parameter _TECHMAP_CONSTVAL_R_ = 1'bx;
+  parameter _TECHMAP_CONSTMSK_S_ = 1'b1;
+  parameter _TECHMAP_CONSTVAL_S_ = 1'bx;
+
+  localparam [0:0] R_USED = (_TECHMAP_CONSTMSK_R_ != 1'b1);
+  localparam [0:0] S_USED = (_TECHMAP_CONSTMSK_S_ != 1'b1);
+
+  wire SR = 1'b0;
+
+  generate if (!R_USED && !S_USED) begin
+    assign SR = 1'b0;
+    localparam SRVAL = 1'b0;
+
+  end else if (R_USED && !S_USED) begin
+    assign SR = R;
+    localparam SRVAL = 1'b0;
+
+  end else if (!R_USED && S_USED) begin
+    assign SR = S;
+    localparam SRVAL = 1'b1;
+
+  end else begin
+    assign SR = 1'b0;
+    localparam SRVAL = 1'b1;
+
+    //wire _TECHMAP_FAIL_ = 1'b1;
+    error Cannot_have_both_S_and_R_connected();
+
+  end endgenerate
+
+  ODDR_VPR # (
+    .ZINV_CLK       (!IS_C_INVERTED),
+    .ZINV_D1        (!IS_D1_INVERTED),
+    .ZINV_D1        (!IS_D2_INVERTED),
+    .INV_D1         ( IS_D1_INVERTED),
+    .INV_D1         ( IS_D2_INVERTED),
+    .SRTYPE_SYNC    ( SRTYPE == "SYNC"),
+    .SAME_EDGE      ( DDR_CLK_EDGE != "OPPOSITE_EDGE"),
+    .ZINIT_Q        (!INIT),
+    .ZSRVAL_Q       (!SRVAL)
+
+  ) _TECHMAP_REPLACE_ (
+    .CK (C),
+    .CE (CE),
+    .SR (SR),
+    .D1 (D1),
+    .D2 (D2),
+    .Q  (Q)
+  );
+
+endmodule
+
+
 // ============================================================================
 // IDELAYE2
 
