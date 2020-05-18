@@ -341,7 +341,7 @@
   </mode>
 
   <!-- ILOGICE3 hosting an IDDR primitive -->
-  <mode name="IFF">
+  <mode name="ILOGIC">
     <pb_type name="IFF" blif_model=".subckt IDDR_VPR" num_pb="1">
       <clock  name="CK"  num_pins="1"/>
       <clock  name="CKB" num_pins="1"/>
@@ -384,19 +384,19 @@
       <mux name="IFFDELMUX" input="ILOGICE3.DDLY ILOGICE3.D" output="IFF.D">
         <metadata>
           <meta name="fasm_mux">
-            ILOGICE3.DDLY = IFFDELMUXE3.P0
-            ILOGICE3.D = NULL
+            ILOGICE3.DDLY : IFFDELMUXE3.P0
+            ILOGICE3.D : NULL
           </meta>
         </metadata>
       </mux>
-      <direct name="" input="ILOGICE3.CLK" output="IFF.CLK"/>
-      <direct name="" input="ILOGICE3.CLKB" output="IFF.CLKB"/>
-      <direct name="" input="ILOGICE3.CE1" output="IFF.CE"/>
-      <direct name="" input="ILOGICE3.SR" output="IFF.SR"/>
+      <direct name="ILOGICE3.CLK_to_IFF.CK" input="ILOGICE3.CLK" output="IFF.CK"/>
+      <direct name="ILOGICE3.CLKB_to_IFF.CKB" input="ILOGICE3.CLKB" output="IFF.CKB"/>
+      <direct name="ILOGICE3.CE1_to_IFF.CE" input="ILOGICE3.CE1" output="IFF.CE"/>
+      <direct name="ILOGICE3.SR_to_IFF.SR" input="ILOGICE3.SR" output="IFF.SR"/>
 
       <!-- Output connections -->
-      <direct name="" input="IFF.Q1" output="ILOGICE3.Q1"/>
-      <direct name="" input="IFF.Q2" output="ILOGICE3.Q2"/>
+      <direct name="IFF.Q1_to_ILOGICE3.Q1" input="IFF.Q1" output="ILOGICE3.Q1"/>
+      <direct name="IFF.Q2_to_ILOGICE3.Q2" input="IFF.Q2" output="ILOGICE3.Q2"/>
 
       <!-- NOTE: There is a connection from ILOGICE3.D/ILOGICE3.DDLY bypassing
            the IDDR but it goes through an inverter controlled by it. Hence it
@@ -404,8 +404,5 @@
 
     </interconnect>
   </mode>
-  <!-- TODO
-       - other modes
-       - BELs
-  -->
+
 </pb_type>
