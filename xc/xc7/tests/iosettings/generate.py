@@ -9,8 +9,7 @@ import argparse
 PINOUT = {
     "basys3-full":
         {
-            "clock":
-                "W5",
+            "clock": "W5",
             "led":
                 [
                     "U16",
@@ -63,7 +62,8 @@ PINOUT = {
                     ("K17", "L17"),
                     ("N17", "P17"),
                     ("P18", "R18"),
-                ]
+                ],
+            "iobanks": [16, 14],
         },
     "arty-full":
         {
@@ -91,36 +91,36 @@ PINOUT = {
             "single-ended":
                 [
                     # Pmod JB
-                    "E15",
-                    "E16",
-                    "D15",
-                    "C15",
-                    "J17",
-                    "J18",
-                    "K15",
-                    "J15",
+                    (15, "E15"),
+                    (15, "E16"),
+                    (15, "D15"),
+                    (15, "C15"),
+                    (15, "J17"),
+                    (15, "J18"),
+                    (15, "K15"),
+                    (15, "J15"),
                     # Pmod JC
-                    "U12",
-                    "V12",
-                    "V10",
-                    "V11",
-                    "U14",
-                    "V14",
-                    "T13",
-                    "U13",
+                    (14, "U12"),
+                    (14, "V12"),
+                    (14, "V10"),
+                    (14, "V11"),
+                    (14, "U14"),
+                    (14, "V14"),
+                    (14, "T13"),
+                    (14, "U13"),
                 ],
             "differential":
                 [
                     # Pmod JB
-                    ("E15", "E16"),
-                    ("D15", "C15"),
-                    ("J17", "J18"),
-                    ("K15", "J15"),
+                    (15, "E15", "E16"),
+                    (15, "D15", "C15"),
+                    (15, "J17", "J18"),
+                    (15, "K15", "J15"),
                     # Pmod JC
-                    ("U12", "V12"),
-                    ("V10", "V11"),
-                    ("U14", "V14"),
-                    ("T13", "U13"),
+                    (15, "U12", "V12"),
+                    (15, "V10", "V11"),
+                    (15, "U14", "V14"),
+                    (15, "T13", "U13"),
                 ]
         },
 
@@ -129,8 +129,7 @@ PINOUT = {
     # on hardware but it will pass all the checks on CI.
     "basys3-bottom":
         {
-            "clock":
-                "W5",  # Bank 34
+            "clock": "W5",  # Bank 34
             "led":
                 [
                     "V3",  # LED9
@@ -167,7 +166,8 @@ PINOUT = {
                     ("L17", "K17"),
                     ("P17", "N17"),
                     ("R18", "P18"),
-                ]
+                ],
+            "iobanks": [14],
         },
 }
 
@@ -231,13 +231,13 @@ set_io clk {}
 
             params = {"IOSTANDARD": "\"{}\"".format(iostandard)}
 
-            if drive is not None and drive != "0":
+            if drive is not None:
                 params["DRIVE"] = int(drive)
 
             if slew is not None:
                 params["SLEW"] = "\"{}\"".format(slew)
 
-            pin = PINOUT[board]["single-ended"][index]
+            pin = PINOUT[board]["single-ended"][index][1]
 
             verilog += """
     OBUF # ({params}) obuf_{index} (
@@ -264,10 +264,10 @@ set_io clk {}
 endmodule
 """
 
-    return verilog, pcf, iosettings
+    return verilog, pcf, "", iosettings
 
 
-def generate_input(board, iostandard, in_terms):
+def generate_input(board, iostandard, in_terms, vref):
     """
     Generates a design with singnals from external pins go through IBUFs and
     registers to LEDs. Each IBUF has differen IN_TERM setting.
@@ -275,6 +275,7 @@ def generate_input(board, iostandard, in_terms):
 
     num_ports = len(in_terms)
     iosettings = {}
+    used_iobanks = set()
 
     # Header
     verilog = """
@@ -304,10 +305,13 @@ set_io clk {}
 
         params = {
             "IOSTANDARD": "\"{}\"".format(iostandard),
-            "IN_TERM": "\"{}\"".format(in_term)
         }
 
-        pin = PINOUT[board]["single-ended"][index]
+        if in_term is not None:
+            params["IN_TERM"] = "\"{}\"".format(in_term)
+
+        iobank, pin = PINOUT[board]["single-ended"][index]
+        used_iobanks.add(iobank)
 
         verilog += """
     wire inp_b[{index}];
@@ -343,10 +347,18 @@ set_io clk {}
 endmodule
 """
 
-    return verilog, pcf, iosettings
+    # VREF
+    tcl = ""
+    if vref is not None:
+        for iobank in used_iobanks:
+            tcl += "set_property INTERNAL_VREF {} [get_iobanks {}]\n".format(
+                vref, iobank
+            )
+
+    return verilog, pcf, tcl, iosettings
 
 
-def generate_inout(board, iostandard, drives, slews):
+def generate_inout(board, iostandard, drives, slews, vref):
     """
     Generates a design with INOUT buffers. Buffers cycle through states:
     L,Z,H,Z with 100Hz frequency. During the Z state, IO pins are latched
@@ -355,6 +367,7 @@ def generate_inout(board, iostandard, drives, slews):
 
     num_ports = len(drives) * len(slews)
     iosettings = {}
+    used_iobanks = set()
 
     # Header
     verilog = """
@@ -413,13 +426,14 @@ set_io clk {}
 
             params = {"IOSTANDARD": "\"{}\"".format(iostandard)}
 
-            if drive is not None and drive != "0":
+            if drive is not None:
                 params["DRIVE"] = int(drive)
 
             if slew is not None:
                 params["SLEW"] = "\"{}\"".format(slew)
 
-            pin = PINOUT[board]["single-ended"][index]
+            iobank, pin = PINOUT[board]["single-ended"][index]
+            used_iobanks.add(iobank)
 
             verilog += """
     IOBUF # ({params}) iobuf_{index} (
@@ -452,7 +466,15 @@ set_io clk {}
 endmodule
 """
 
-    return verilog, pcf, iosettings
+    # VREF
+    tcl = ""
+    if vref is not None:
+        for iobank in used_iobanks:
+            tcl += "set_property INTERNAL_VREF {} [get_iobanks {}]\n".format(
+                vref, iobank
+            )
+
+    return verilog, pcf, tcl, iosettings
 
 
 # =============================================================================
@@ -509,13 +531,13 @@ set_io clk {}
 
             params = {"IOSTANDARD": "\"{}\"".format(iostandard)}
 
-            if drive is not None and drive != "0":
+            if drive is not None:
                 params["DRIVE"] = int(drive)
 
             if slew is not None:
                 params["SLEW"] = "\"{}\"".format(slew)
 
-            pins = PINOUT[board]["differential"][index]
+            iobank, *pins = PINOUT[board]["differential"][index]
 
             verilog += """
     OBUFDS # ({params}) obuf_{index} (
@@ -546,10 +568,10 @@ set_io clk {}
 endmodule
 """
 
-    return verilog, pcf, iosettings
+    return verilog, pcf, "", iosettings
 
 
-def generate_diff_input(board, iostandard, in_terms):
+def generate_diff_input(board, iostandard, in_terms, vref):
     """
     Generates a design with singnals from external pins go through IBUFs and
     registers to LEDs. Each IBUF has differen IN_TERM setting.
@@ -557,6 +579,7 @@ def generate_diff_input(board, iostandard, in_terms):
 
     num_ports = len(in_terms)
     iosettings = {}
+    used_iobanks = set()
 
     # Header
     verilog = """
@@ -587,10 +610,13 @@ set_io clk {}
 
         params = {
             "IOSTANDARD": "\"{}\"".format(iostandard),
-            "IN_TERM": "\"{}\"".format(in_term)
         }
 
-        pins = PINOUT[board]["differential"][index]
+        if in_term is not None:
+            params["IN_TERM"] = "\"{}\"".format(in_term)
+
+        iobank, *pins = PINOUT[board]["differential"][index]
+        used_iobanks.add(iobank)
 
         verilog += """
     wire inp_b[{index}];
@@ -630,10 +656,18 @@ set_io clk {}
 endmodule
 """
 
-    return verilog, pcf, iosettings
+    # VREF
+    tcl = ""
+    if vref is not None:
+        for iobank in used_iobanks:
+            tcl += "set_property INTERNAL_VREF {} [get_iobanks {}]\n".format(
+                vref, iobank
+            )
+
+    return verilog, pcf, tcl, iosettings
 
 
-def generate_diff_inout(board, iostandard, drives, slews):
+def generate_diff_inout(board, iostandard, drives, slews, vref):
     """
     Generates a design with INOUT buffers. Buffers cycle through states:
     L,Z,H,Z with 100Hz frequency. During the Z state, IO pins are latched
@@ -642,6 +676,7 @@ def generate_diff_inout(board, iostandard, drives, slews):
 
     num_ports = len(drives) * len(slews)
     iosettings = {}
+    used_iobanks = set()
 
     # Header
     verilog = """
@@ -701,13 +736,14 @@ set_io clk {}
 
             params = {"IOSTANDARD": "\"{}\"".format(iostandard)}
 
-            if drive is not None and drive != "0":
+            if drive is not None:
                 params["DRIVE"] = int(drive)
 
             if slew is not None:
                 params["SLEW"] = "\"{}\"".format(slew)
 
-            pins = PINOUT[board]["differential"][index]
+            iobank, *pins = PINOUT[board]["differential"][index]
+            used_iobanks.add(iobank)
 
             verilog += """
     IOBUFDS # ({params}) iobuf_{index} (
@@ -744,7 +780,14 @@ set_io clk {}
 endmodule
 """
 
-    return verilog, pcf, iosettings
+    tcl = ""
+    if vref is not None:
+        for iobank in PINOUT[board]["iobanks"]:
+            tcl += "set_property INTERNAL_VREF {} [get_iobanks {}]\n".format(
+                vref, iobank
+            )
+
+    return verilog, pcf, tcl, iosettings
 
 
 # =============================================================================
@@ -757,10 +800,19 @@ def main():
     parser.add_argument("--board", required=True, help="Board")
     parser.add_argument("--mode", required=True, help="Generation mode")
     parser.add_argument("--iostandard", required=True, help="IOSTANDARD")
-    parser.add_argument("--drive", required=False, nargs="+", help="DRIVE(s)")
-    parser.add_argument("--slew", required=False, nargs="+", help="SLEW(s)")
     parser.add_argument(
-        "--in_term", required=False, nargs="+", help="IN_TERM(s)"
+        "--drive", required=False, nargs="+", default=[None], help="DRIVE(s)"
+    )
+    parser.add_argument(
+        "--slew", required=False, nargs="+", default=[None], help="SLEW(s)"
+    )
+    parser.add_argument("--vref", required=False, default=None, help="VREF")
+    parser.add_argument(
+        "--in_term",
+        required=False,
+        nargs="+",
+        default=[None],
+        help="IN_TERM(s)"
     )
     parser.add_argument("-o", required=True, help="Design name")
 
@@ -768,28 +820,28 @@ def main():
 
     # Generate design for output IO settings
     if args.mode == "output":
-        verilog, pcf, iosettings = generate_output(
+        verilog, pcf, tcl, iosettings = generate_output(
             args.board, args.iostandard, args.drive, args.slew
         )
     elif args.mode == "input":
-        verilog, pcf, iosettings = generate_input(
-            args.board, args.iostandard, args.in_term
+        verilog, pcf, tcl, iosettings = generate_input(
+            args.board, args.iostandard, args.in_term, args.vref
         )
     elif args.mode == "inout":
-        verilog, pcf, iosettings = generate_inout(
-            args.board, args.iostandard, args.drive, args.slew
+        verilog, pcf, tcl, iosettings = generate_inout(
+            args.board, args.iostandard, args.drive, args.slew, args.vref
         )
     elif args.mode == "diff_output":
-        verilog, pcf, iosettings = generate_diff_output(
+        verilog, pcf, tcl, iosettings = generate_diff_output(
             args.board, args.iostandard, args.drive, args.slew
         )
     elif args.mode == "diff_input":
-        verilog, pcf, iosettings = generate_diff_input(
-            args.board, args.iostandard, args.in_term
+        verilog, pcf, tcl, iosettings = generate_diff_input(
+            args.board, args.iostandard, args.in_term, args.vref
         )
     elif args.mode == "diff_inout":
-        verilog, pcf, iosettings = generate_diff_inout(
-            args.board, args.iostandard, args.drive, args.slew
+        verilog, pcf, tcl, iosettings = generate_diff_inout(
+            args.board, args.iostandard, args.drive, args.slew, args.vref
         )
     else:
         raise RuntimeError("Unknown generation mode '{}'".format(args.mode))
@@ -801,6 +853,10 @@ def main():
     # Write PCF
     with open(args.o + ".pcf", "w") as fp:
         fp.write(pcf)
+
+    # Write XDC
+    with open(args.o + ".xdc", "w") as fp:
+        fp.write(tcl)
 
 
 if __name__ == "__main__":
