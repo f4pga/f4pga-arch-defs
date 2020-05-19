@@ -48,11 +48,22 @@ def main():
 
     pb_types = args.pb_types.split(',')
 
+    equivalent_sites_dict = dict()
     for pb_type in pb_types:
-        sites[pb_type] = []
+        try:
+            site, equivalent_sites = pb_type.split("/")
+        except ValueError:
+            site = pb_type
+            equivalent_sites = None
+
+        sites[site] = []
+
+        equivalent_sites_dict[site] = equivalent_sites.split(
+            ':'
+        ) if equivalent_sites else []
 
     for site in tile_type.get_sites():
-        if site.type not in pb_types:
+        if site.type not in sites.keys():
             continue
 
         site_type = db.get_site_type(site.type)
@@ -64,6 +75,7 @@ def main():
         args.tile_type,
         pin_assignments,
         sites,
+        equivalent_sites_dict,
     )
 
     add_switchblock_locations(tile_xml)

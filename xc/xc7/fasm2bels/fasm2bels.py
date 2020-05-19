@@ -411,21 +411,21 @@ def main():
         )
 
     with open(args.verilog_file, 'w') as f:
-        for l in top.output_verilog():
-            print(l, file=f)
+        for line in top.output_verilog():
+            print(line, file=f)
 
     with open(args.tcl_file, 'w') as f:
-        for l in top.output_bel_locations():
-            print(l, file=f)
+        for line in top.output_bel_locations():
+            print(line, file=f)
 
-        for l in top.output_nets():
-            print(l, file=f)
+        for line in top.output_nets():
+            print(line, file=f)
 
-        for l in top.output_disabled_drcs():
-            print(l, file=f)
+        for line in top.output_disabled_drcs():
+            print(line, file=f)
 
-        for l in top.output_extra_tcl():
-            print(l, file=f)
+        for line in top.output_extra_tcl():
+            print(line, file=f)
 
 
 if __name__ == "__main__":

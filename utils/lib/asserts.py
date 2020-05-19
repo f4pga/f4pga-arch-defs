@@ -49,13 +49,13 @@ def assert_type_or_none(obj, classes):
         assert_type(obj, classes)
 
 
-def assert_len_eq(l):
+def assert_len_eq(lists):
     """Check all lists in a list are equal length"""
     # Sanity check
-    max_len = max(len(p) for p in l)
-    for i, p in enumerate(l):
+    max_len = max(len(p) for p in lists)
+    for i, p in enumerate(lists):
         assert len(
             p
         ) == max_len, "Length check failed!\nl[{}] has {} elements != {} ({!r})\n{!r}".format(
-            i, len(p), max_len, p, l
+            i, len(p), max_len, p, lists
         )

@@ -64,7 +64,7 @@ function(ADD_XC_ARCH_DEFINE)
       --place_delta_delay_matrix_calculation_method dijkstra \
       --place_delay_model delta_override \
       --router_lookahead connection_box_map \
-      --quick_check_route on \
+      --check_route quick \
       --strict_checks off \
       --allow_dangling_combinational_nodes on \
       --disable_errors check_unbuffered_edges:check_route \
@@ -77,7 +77,7 @@ function(ADD_XC_ARCH_DEFINE)
       --suppress_warnings \${OUT_NOISY_WARNINGS},sum_pin_class:check_unbuffered_edges:load_rr_indexed_data_T_values:check_rr_node:trans_per_R:check_route"
       )
 
-  set(YOSYS_CELLS_SIM ${YOSYS_DATADIR}/xilinx/cells_sim.v) 
+  set(YOSYS_CELLS_SIM ${YOSYS_DATADIR}/xilinx/cells_sim.v)
   set(VPR_CELLS_SIM ${symbiflow-arch-defs_SOURCE_DIR}/xc/${FAMILY}/techmap/cells_sim.v)
 
   get_file_target(YOSYS_CELLS_SIM_TARGET ${YOSYS_CELLS_SIM})

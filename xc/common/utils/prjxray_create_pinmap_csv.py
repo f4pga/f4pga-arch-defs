@@ -60,24 +60,24 @@ def main():
 
     writer.writeheader()
     with sqlite3.connect(args.connection_database) as conn:
-        for l in csv.DictReader(args.package_pins):
+        for line in csv.DictReader(args.package_pins):
 
             # Skip PS7 MIO and DDR pads as they are not routable
-            if l['tile'].startswith('PSS'):
+            if line['tile'].startswith('PSS'):
                 continue
 
-            loc = get_vpr_coords_from_site_name(conn, l['site'])
+            loc = get_vpr_coords_from_site_name(conn, line['site'])
             if loc is not None:
                 writer.writerow(
                     dict(
-                        name=l['pin'],
+                        name=line['pin'],
                         x=loc[0],
                         y=loc[1],
                         z=0,
                         is_clock=1,
                         is_input=1,
                         is_output=1,
-                        iob=l['site'],
+                        iob=line['site'],
                     )
                 )
 
