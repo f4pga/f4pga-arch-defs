@@ -1,5 +1,5 @@
-project_xray_tile(
-  PART zynq7
+project_ray_tile(
+  ARCH artix7
   TILE SLICEL
   SITE_AS_TILE
   SITE_TYPES SLICEL/SLICEL0
