@@ -51,6 +51,7 @@ add_fpga_target(
   INPUT_IO_FILE ${COMMON}/nexys_video.pcf
   INPUT_XDC_FILE ${COMMON}/nexys_video.xdc
   EXPLICIT_ADD_FILE_TARGET
+)
 
 add_vivado_target(
     NAME counter_nexys_video_vivado

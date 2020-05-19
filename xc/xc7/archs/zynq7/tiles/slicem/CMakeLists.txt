@@ -1,5 +1,5 @@
-project_xray_tile(
-  PART zynq7
+project_ray_tile(
+  ARCH zynq7
   TILE SLICEM
   SITE_AS_TILE
   SITE_TYPES SLICEM/SLICEM

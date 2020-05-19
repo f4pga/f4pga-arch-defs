@@ -1,5 +1,5 @@
 project_ray_tile(
-  ARCH artix7
+  ARCH zynq7
   TILE SLICEL
   SITE_AS_TILE
   SITE_TYPES SLICEL/SLICEL0
