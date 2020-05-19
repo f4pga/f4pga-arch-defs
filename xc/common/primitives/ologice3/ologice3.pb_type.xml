@@ -51,7 +51,7 @@
           <direct name="T1_to_TQ" input="OLOGIC_TFF.T1" output="OLOGIC_TFF.TQ">
             <metadata>
               <meta name="fasm_mux">
-                T1 : ZINV_T1,OSERDES.DATA_RATE_TQ.BUF
+                OLOGIC_TFF.T1 : ZINV_T1,OSERDES.DATA_RATE_TQ.BUF
               </meta>
             </metadata>
           </direct>
@@ -115,7 +115,7 @@
           <direct name="D1_to_OQ" input="OLOGIC_OFF.D1" output="OLOGIC_OFF.OQ">
             <metadata>
               <meta name="fasm_mux">
-                D1 : OMUX.D1,OQUSED
+                OLOGIC_OFF.D1 : OMUX.D1,OQUSED
               </meta>
             </metadata>
           </direct>
