@@ -95,8 +95,6 @@ add_vivado_target(
   PARENT_NAME buttons_nexys_video
 )
 
-add_file_target(FILE buttons_zedboard.v SCANNER_TYPE verilog)
-
 add_fpga_target(
   NAME buttons_zedboard
   BOARD zedboard-full
@@ -116,7 +114,7 @@ add_fpga_target(
   SOURCES buttons_pynqz1.v
   INPUT_IO_FILE ../common/pynqz1.pcf
   EXPLICIT_ADD_FILE_TARGET
-  )
+ )
 
 add_vivado_target(
   NAME buttons_pynqz1_vivado

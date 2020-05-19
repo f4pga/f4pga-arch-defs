@@ -3,7 +3,7 @@ project_ray_prepare_database(
   PRJRAY_DIR ${PRJXRAY_DIR}
   PRJRAY_DB_DIR ${PRJXRAY_DB_DIR}
   PROTOTYPE_PART xc7z010clg400-1
-  PARTS xc7z010clg400-1
+  PARTS xc7z010clg400-1 xc7z020clg484-1
 )
 
 add_xc_arch_define(
