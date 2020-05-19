@@ -14,7 +14,7 @@ def parse_usage(pack_log):
 
     """
     with open(pack_log) as f:
-        for l in f:
-            m = re.match(USAGE_PATTERN, l.strip())
+        for line in f:
+            m = re.match(USAGE_PATTERN, line.strip())
             if m:
                 yield (m.group(2), int(m.group(1)))

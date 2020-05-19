@@ -1,6 +1,6 @@
-project_ray_tile(
+project_ray_tile_capacity(
   ARCH artix7
   TILE CLBLL_R
-  SITE_TYPES SLICEL/SLICEL0 SLICEL/SLICEL1
+  SITE_TYPES SLICEL
   )
 

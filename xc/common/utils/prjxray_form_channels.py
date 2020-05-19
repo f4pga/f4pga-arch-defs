@@ -1730,10 +1730,6 @@ def create_vpr_grid(conn, grid_map_output):
         'RIOI3_TBYTESRC': tile_splitter.grid.NORTH,
         'RIOI3_TBYTETERM': tile_splitter.grid.NORTH,
         'RIOI3_SING': tile_splitter.grid.NORTH,
-        'CLBLL_L': tile_splitter.grid.WEST,
-        'CLBLL_R': tile_splitter.grid.EAST,
-        'CLBLM_L': tile_splitter.grid.WEST,
-        'CLBLM_R': tile_splitter.grid.EAST,
     }
 
     liopad_ms_split = {
@@ -1758,10 +1754,6 @@ def create_vpr_grid(conn, grid_map_output):
         'RIOI3_SING': ('y_split', {
             0: slice_types['RIOPAD_SING']
         }),
-        'CLBLL_L': ('site_as_tile', ),
-        'CLBLL_R': ('site_as_tile', ),
-        'CLBLM_L': ('site_as_tile', ),
-        'CLBLM_R': ('site_as_tile', ),
     }
     # Create initial grid using sites and locations from phy_tile's
     # Also build up tile_to_tile_type_pkeys, which is a map from original

@@ -26,13 +26,13 @@ def parse_pcf(f, pin_map, icecube2_hacks=False):
             else:
                 pinloc = (line[2], )
 
-            for l in pinloc:
-                if l not in pin_map:
+            for loc in pinloc:
+                if loc not in pin_map:
                     raise SyntaxError(
                         """\
 Pin name {} doesn't exist!
 Line: {}
-{}""".format(l, i, oline)
+{}""".format(loc, i, oline)
                     )
-                pcf_data[p] = (pin_map[l], oline.strip())
+                pcf_data[p] = (pin_map[loc], oline.strip())
     return pcf_data
