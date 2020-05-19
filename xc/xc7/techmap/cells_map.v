@@ -3137,8 +3137,9 @@ module IDDR_2CLK (
   parameter DDR_CLK_EDGE = "OPPOSITE_EDGE";
   parameter INIT_Q1 = 1'b0;
   parameter INIT_Q2 = 1'b0;
-  parameter [0:0] IS_C_INVERTED = 1'b0;
-  parameter [0:0] IS_D_INVERTED = 1'b0;
+  parameter [0:0] IS_C_INVERTED  = 1'b0;
+  parameter [0:0] IS_CB_INVERTED = 1'b0;
+  parameter [0:0] IS_D_INVERTED  = 1'b0;
   parameter SRTYPE = "SYNC";
 
   parameter _TECHMAP_CONSTMSK_R_ = 1'b1;
@@ -3218,6 +3219,7 @@ module IDDR (
     .INIT_Q1        (INIT_Q1),
     .INIT_Q2        (INIT_Q2),
     .IS_C_INVERTED  (IS_C_INVERTED),
+    .IS_CB_INVERTED (IS_CB_INVERTED),
     .IS_D_INVERTED  (IS_D_INVERTED)
 
   ) _TECHMAP_REPLACE_ (
