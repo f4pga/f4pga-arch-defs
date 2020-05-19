@@ -1,5 +1,6 @@
 module iddr_wrapper (
     input  wire C,
+    input  wire CB,
     input  wire CE,
     input  wire S,
     input  wire R,
@@ -35,7 +36,7 @@ module iddr_wrapper (
 
         end
 
-        IDDR # (
+        IDDR_2CLK # (
             .SRTYPE         (SRTYPE),
             .INIT_Q1        (INIT_Q1),
             .INIT_Q2        (INIT_Q2),
@@ -43,6 +44,7 @@ module iddr_wrapper (
 
         ) the_iddr (
             .C              (C),
+            .CB             (CB),
             .CE             (CE),
             .S              (S),
             .R              (R),
