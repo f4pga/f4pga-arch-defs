@@ -251,6 +251,7 @@ function(ADD_CONDA_PIP)
   # ~~~
   # ADD_CONDA_PIP(
   #   NAME <name>
+  #   [PACKAGE_SPEC <package_spec>]
   #   [NO_EXE]
   #   )
   # ~~~
@@ -259,7 +260,7 @@ function(ADD_CONDA_PIP)
   # <name> is set to the path to the executable. <name>_TARGET is set to the
   # target that will invoke pip if not already installed.
   set(options NO_EXE)
-  set(oneValueArgs NAME)
+  set(oneValueArgs NAME PACKAGE_SPEC)
   set(multiValueArgs)
   cmake_parse_arguments(
     ADD_CONDA_PIP
@@ -270,6 +271,12 @@ function(ADD_CONDA_PIP)
   )
 
   set(NAME ${ADD_CONDA_PIP_NAME})
+  if(NOT ${ADD_CONDA_PIP_PACKAGE_SPEC} STREQUAL "")
+    set(PACKAGE_SPEC "${ADD_CONDA_PIP_NAME}==${ADD_CONDA_PIP_PACKAGE_SPEC}")
+  else()
+    set(PACKAGE_SPEC ${ADD_CONDA_PIP_NAME})
+  endif()
+
   get_target_property_required(USE_CONDA env USE_CONDA)
   string(TOUPPER ${NAME} binary_upper)
   if(${USE_CONDA})
@@ -282,7 +289,7 @@ function(ADD_CONDA_PIP)
       add_custom_command(
         OUTPUT ${NAME}.pip
         COMMAND ${CMAKE_COMMAND} -E echo "Taking ${PIP}.lock"
-        COMMAND flock ${PIP}.lock ${PYTHON3} -m pip install ${NAME}
+        COMMAND flock ${PIP}.lock ${PYTHON3} -m pip install ${PACKAGE_SPEC}
         COMMAND ${CMAKE_COMMAND} -E touch ${NAME}.pip
         DEPENDS ${PYTHON3} ${PIP} ${PIP_TARGET}
         )
@@ -297,7 +304,7 @@ function(ADD_CONDA_PIP)
       add_custom_command(
         OUTPUT ${BIN}
         COMMAND ${CMAKE_COMMAND} -E echo "Taking ${PIP}.lock"
-        COMMAND flock ${PIP}.lock ${PYTHON3} -m pip install ${NAME}
+        COMMAND flock ${PIP}.lock ${PYTHON3} -m pip install ${PACKAGE_SPEC}
         DEPENDS ${PYTHON3} ${PIP} ${PIP_TARGET}
         )
       add_custom_target(
