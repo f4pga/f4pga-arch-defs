@@ -9,6 +9,7 @@ module iddr_wrapper (
 );
 
     parameter USE_PHY_IDDR  = 0;
+    parameter USE_IDELAY    = 0;
     parameter DDR_CLK_EDGE  = "OPPOSITE_EDGE";
     parameter INIT_Q1       = 0;
     parameter INIT_Q2       = 0;
@@ -16,6 +17,23 @@ module iddr_wrapper (
 
     // Use a physical IDDR
     generate if (USE_PHY_IDDR) begin
+        wire d;
+
+        if (USE_IDELAY) begin
+
+            IDELAYE2 # (
+                .IDELAY_TYPE    ("FIXED"),
+                .DELAY_SRC      ("IDATAIN"),
+                .IDELAY_VALUE   (16)
+            ) an_idelay (
+                .IDATAIN        (D),
+                .DATAOUT        (d)
+            );
+
+        end else begin
+            assign d = D;
+
+        end
 
         IDDR # (
             .SRTYPE         (SRTYPE),
@@ -28,7 +46,7 @@ module iddr_wrapper (
             .CE             (CE),
             .S              (S),
             .R              (R),
-            .D              (D),
+            .D              (d),
             .Q1             (Q1),
             .Q2             (Q2)
         );
