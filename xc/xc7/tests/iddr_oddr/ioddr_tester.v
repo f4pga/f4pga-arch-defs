@@ -1,5 +1,6 @@
 module ioddr_tester (
     input  wire CLK,
+    input  wire CLKB,
     output wire ERR,
     output wire Q,
     input  wire D
@@ -53,6 +54,7 @@ module ioddr_tester (
         .DDR_CLK_EDGE   (DDR_CLK_EDGE)
     ) iddr_wrapper (
         .C              (CLK),
+        .CB             (CLKB),
         .CE             (1'b1),
         .S              (0),
         .R              (0),
