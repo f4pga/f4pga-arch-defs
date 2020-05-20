@@ -71,7 +71,7 @@ function parse_args {
      export LOOKAHEAD=${ARCH_DIR}/rr_graph_${DEVICE}.lookahead.bin
      export RR_GRAPH=${ARCH_DIR}/rr_graph_${DEVICE}.rr_graph.real.bin
      export PLACE_DELAY=${ARCH_DIR}/rr_graph_${DEVICE}.place_delay.bin
-     export DEVICE_NAME=`echo $DEVICE | sed -n 's/_/-/p'`
+     export DEVICE_NAME=`echo $DEVICE | cut -d'_' -f1`
 }
 
 function run_vpr {
