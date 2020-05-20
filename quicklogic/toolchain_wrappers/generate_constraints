@@ -16,7 +16,7 @@ PINMAP=`realpath ${MYPATH}/../share/arch/${DEVICE}/pinmap.csv`
 IOGEN=`realpath ${MYPATH}/python/create_ioplace.py`
 #CONSTR_GEN=`realpath ${MYPATH}/python/prjxray_create_place_constraints.py`
 PROJECT=$(basename -- "$EBLIF")
-IOPLACE_FILE="${PROJECT%.*}.ioplace"
+IOPLACE_FILE="${PROJECT%.*}_io.place"
 
 python3 ${IOGEN} --pcf $PCF --blif $EBLIF --map $PINMAP --net $NET > ${IOPLACE_FILE}
 
