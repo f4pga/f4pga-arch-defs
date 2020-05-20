@@ -1,7 +1,7 @@
 yosys -import
 
 # Read VPR cells library
-read_verilog -lib $::env(symbiflow-arch-defs_BINARY_DIR)/quicklogic/techmap/cells_sim.v
+read_verilog -lib $::env(TECHMAP_PATH)/cells_sim.v
 
 # Synthesize
 synth_quicklogic -flatten
@@ -16,7 +16,7 @@ if { $::env(PCF_FILE) != "" && $::env(PINMAP_FILE) != ""} {
 write_verilog $::env(OUT_SYNTH_V).premap.v
 
 # Map to the VPR cell library
-techmap -map  $::env(symbiflow-arch-defs_SOURCE_DIR)/quicklogic/techmap/cells_map.v
+techmap -map  $::env(TECHMAP_PATH)/cells_map.v
 
 # opt_expr -undriven makes sure all nets are driven, if only by the $undef
 # net.

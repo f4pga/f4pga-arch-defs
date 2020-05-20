@@ -1,6 +1,6 @@
 function(DEFINE_QL_TOOLCHAIN_TARGET)
   set(options)
-  set(oneValueArgs ARCH CONV_SCRIPT SYNTH_SCRIPT ROUTE_CHAN_WIDTH)
+  set(oneValueArgs ARCH CONV_SCRIPT SYNTH_SCRIPT ROUTE_CHAN_WIDTH CELLS_SIM)
   set(multiValueArgs VPR_ARCH_ARGS)
 
   cmake_parse_arguments(
@@ -70,10 +70,12 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/lib/parse_pcf.py
           DESTINATION bin/python/lib)
 
-
   # install techmap
   install(DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/techmap
           DESTINATION share/techmaps/quicklogic)
+
+  install(FILES ${DEFINE_QL_TOOLCHAIN_TARGET_CELLS_SIM}
+          DESTINATION share/techmaps/quicklogic/techmap)
 
   # install Yosys scripts
   install(FILES  ${DEFINE_QL_TOOLCHAIN_TARGET_CONV_SCRIPT} ${DEFINE_QL_TOOLCHAIN_TARGET_SYNTH_SCRIPT}

@@ -15,12 +15,14 @@ XDC_FILES=()
 TOP=top
 DEVICE=""
 PART=""
+PCF=""
 
 VERILOGLIST=0
 XDCLIST=0
 TOPNAME=0
 DEVICENAME=0
 PARTNAME=0
+PCFNAME=0
 
 for arg in $@; do
 	echo $arg
@@ -32,6 +34,7 @@ for arg in $@; do
 			TOPNAME=1
 			DEVICENAME=0
 			PARTNAME=0
+			PCFNAME=0
 			;;
 		-x|--xdc)
 			VERILOGLIST=0
@@ -39,6 +42,7 @@ for arg in $@; do
 			TOPNAME=0
 			DEVICENAME=0
 			PARTNAME=0
+			PCFNAME=0
 			;;
 		-v|--verilog)
 			VERILOGLIST=1
@@ -46,6 +50,7 @@ for arg in $@; do
 			TOPNAME=0
 			DEVICENAME=0
 			PARTNAME=0
+			PCFNAME=0
 			;;
 		-d|--device)
 			VERILOGLIST=0
@@ -53,6 +58,7 @@ for arg in $@; do
 			TOPNAME=0
 			DEVICENAME=1
 			PARTNAME=0
+			PCFNAME=0
 			;;
 		-p|--part)
 			VERILOGLIST=0
@@ -60,6 +66,15 @@ for arg in $@; do
 			TOPNAME=0
 			DEVICENAME=0
 			PARTNAME=1
+			PCFNAME=0
+			;;
+		-P|--pcf)
+			VERILOGLIST=0
+			XDCLIST=0
+			TOPNAME=0
+			DEVICENAME=0
+			PARTNAME=0
+			PCFNAME=1
 			;;
 		*)
 			if [ $VERILOGLIST -eq 1 ]; then
@@ -72,6 +87,8 @@ for arg in $@; do
 				DEVICE=$arg
 			elif [ $PARTNAME -eq 1 ]; then
 				PART=$arg
+			elif [ $PCFNAME -eq 1 ]; then
+				PCF=$arg
 			else
 				echo "Usage: synth [-t|--top <top module name> -v|--verilog <Verilog files list> [-x|--xdc <XDC files list>]"
 				echo "             [-d|--device <device type (e.g. artix7)>] [-p|--part <part name>]"
@@ -95,6 +112,8 @@ export OUT_SYNTH_V=${TOP}_synth.v
 export OUT_EBLIF=${TOP}.eblif
 #export PART_JSON=`realpath ${MYPATH}/../share/prjxray/prjxray-db/$DEVICE/$PART/part.json`
 export OUT_FASM_EXTRA=${TOP}_fasm_extra.fasm
+export PCF_FILE=$PCF
+export PINMAP_FILE=`realpath ${MYPATH}/../share/arch/${PART}/pinmap.csv`
 LOG=${TOP}_synth.log
 
 yosys -p "tcl ${SYNTH_TCL_PATH}" -l $LOG ${VERILOG_FILES[*]}
