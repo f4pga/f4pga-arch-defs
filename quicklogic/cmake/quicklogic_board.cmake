@@ -62,5 +62,12 @@ function(ADD_QUICKLOGIC_BOARD)
     PROPERTIES
     PINMAP ${CMAKE_CURRENT_SOURCE_DIR}/${PINMAP_CSV}
   )
+  define_ql_pinmap_csv_install_target(
+    PART ${PART}
+    BOARD ${BOARD}
+    DEVICE_TYPE ${DEVICE_TYPE}
+    DEVICE ${DEVICE}
+    PACKAGE ${PACKAGE}
+    )
 
 endfunction()

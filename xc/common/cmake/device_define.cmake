@@ -199,13 +199,13 @@ function(ADD_XC_BOARD)
     PINMAP
     ${CMAKE_CURRENT_SOURCE_DIR}/${PINMAP_CSV})
 
-  define_xc_pinmap_csv_install_target(
-    PART ${PART}
-    BOARD ${BOARD}
-    DEVICE_TYPE ${DEVICE_TYPE}
-    DEVICE ${ADD_XC_BOARD_DEVICE}
-    PACKAGE ${ADD_XC_BOARD_PACKAGE}
-    )
+  #define_xc_pinmap_csv_install_target(
+  #  PART ${PART}
+  #  BOARD ${BOARD}
+  #  DEVICE_TYPE ${DEVICE_TYPE}
+  #  DEVICE ${ADD_XC_BOARD_DEVICE}
+  #  PACKAGE ${ADD_XC_BOARD_PACKAGE}
+  #  )
 endfunction()
 
 function(ADD_XC_DEVICE_DEFINE_TYPE)

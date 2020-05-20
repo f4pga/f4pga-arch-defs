@@ -11,6 +11,7 @@ add_subdirectory(primitives)
 set(CELLS_SIM_FILE ${symbiflow-arch-defs_BINARY_DIR}/quicklogic/techmap/cells_sim.v)
 add_cells_sim_target(${CELLS_SIM_FILE})
 
+include(cmake/install.cmake)
 include(cmake/quicklogic_device.cmake)
 include(cmake/quicklogic_board.cmake)
 
@@ -24,12 +25,7 @@ get_target_property_required(QLFASM env QLFASM)
 
 get_target_property_required(QLFASM_TARGET env QLFASM_TARGET)
 
-define_arch(
-  ARCH ql-s3
-  YOSYS_SYNTH_SCRIPT ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/yosys/synth.tcl
-  YOSYS_CONV_SCRIPT ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/yosys/conv.tcl
-  DEVICE_FULL_TEMPLATE \${DEVICE}
-  VPR_ARCH_ARGS "\
+set(VPR_ARCH_ARGS "\
     --clock_modeling route \
     --place_delay_model delta_override \
     --router_lookahead map \
@@ -43,9 +39,17 @@ define_arch(
     --bb_factor 10 \
     --initial_pres_fac 4.0 \
     --check_rr_graph off \
-    --suppress_warnings \${OUT_NOISY_WARNINGS},sum_pin_class:check_unbuffered_edges:load_rr_indexed_data_T_values:check_rr_node:trans_per_R:check_route
+    --suppress_warnings \${OUT_NOISY_WARNINGS},sum_pin_class:check_unbuffered_edges:load_rr_indexed_data_T_values:check_rr_node:trans_per_R:check_route \
     --timing_report_detail detailed"
- 
+    )
+
+define_arch(
+  ARCH ql-s3
+  YOSYS_SYNTH_SCRIPT ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/yosys/synth.tcl
+  YOSYS_CONV_SCRIPT ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/yosys/conv.tcl
+  DEVICE_FULL_TEMPLATE \${DEVICE}
+  VPR_ARCH_ARGS ${VPR_ARCH_ARGS}
+
   # FIXME: Once the timing model works check why --router_lookahead connection_box_map does not.
 
   RR_PATCH_TOOL
@@ -100,6 +104,14 @@ define_arch(
   ROUTE_CHAN_WIDTH 100
   USE_FASM
 )
+
+define_ql_toolchain_target(
+  ARCH ql-s3
+  ROUTE_CHAN_WIDTH 100
+  VPR_ARCH_ARGS ${VPR_ARCH_ARGS}
+  CONV_SCRIPT ${YOSYS_CONV_SCRIPT}
+  SYNTH_SCRIPT ${YOSYS_SYNTH_SCRIPT})
+
 unset(PYTHON3)
 
 add_subdirectory(devices)
