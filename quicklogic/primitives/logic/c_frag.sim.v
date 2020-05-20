@@ -1,7 +1,6 @@
 `include "./t_frag.sim.v"
 `include "./b_frag.sim.v"
 
-(* whitebox *)
 module C_FRAG (TBS, TAB, TSL, TA1, TA2, TB1, TB2, BAB, BSL, BA1, BA2, BB1, BB2, TZ, CZ);
 
     // Routing ports
