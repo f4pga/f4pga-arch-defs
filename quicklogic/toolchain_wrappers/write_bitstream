@@ -7,7 +7,6 @@ MYPATH=`dirname ${MYPATH}`
 source ${MYPATH}/env
 echo "Writing bitstream ..."
 
-FASM2FRAMES=`realpath ${VPRPATH}/python/prjxray/utils/fasm2frames.py`
 FRAMES2BIT=`realpath ${VPRPATH}/xc7frames2bit`
 
 OPTS=d:f:b:p:
@@ -19,7 +18,7 @@ eval set -- ${PARSED_OPTS}
 DEVICE=""
 FASM=""
 BIT=""
-PART=xc7a35tcpg236-1
+PART="ql-eos-s3"
 
 while true; do
 	case "$1" in
@@ -60,9 +59,5 @@ if [ -z $BIT ]; then
 	exit 1
 fi
 
-FRAMES="${BIT%.*}.frames"
-DBROOT=`realpath ${VPRPATH}/../share/prjxray/prjxray-db/${DEVICE}`
+qlfasm ${FASM} ${BIT}
 
-python3 ${FASM2FRAMES} --db-root ${DBROOT} --part ${PART} --sparse --emit_pudc_b_pullup ${FASM} ${FRAMES}
-
-$FRAMES2BIT --frm_file ${FRAMES} --output_file ${BIT} --part_name ${PART} --part_file ${DBROOT}/${PART}/part.yaml
