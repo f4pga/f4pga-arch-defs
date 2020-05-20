@@ -68,7 +68,6 @@ function parse_args {
 
      export ARCH_DIR=`realpath ${MYPATH}/../share/arch/$DEVICE`
      export ARCH_DEF=${ARCH_DIR}/arch.timing.xml
-     export LOOKAHEAD=${ARCH_DIR}/rr_graph_${DEVICE}.lookahead.bin
      export RR_GRAPH=${ARCH_DIR}/rr_graph_${DEVICE}.rr_graph.real.bin
      export PLACE_DELAY=${ARCH_DIR}/rr_graph_${DEVICE}.place_delay.bin
      export DEVICE_NAME=`echo $DEVICE | cut -d'_' -f1`
@@ -88,7 +87,6 @@ function run_vpr {
          --device ${DEVICE_NAME} \
          ${VPR_OPTIONS} \
          --read_rr_graph ${RR_GRAPH} \
-         --read_router_lookahead ${LOOKAHEAD} \
          --read_placement_delay_lookup ${PLACE_DELAY} \
          ${SDC_OPTIONS} \
          $@
