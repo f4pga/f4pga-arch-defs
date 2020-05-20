@@ -30,7 +30,7 @@ add_custom_target(all_xc7_tests)
 add_custom_target(all_ice40_tests)
 
 setup_env(
-    MINICONDA3_VERSION 4.7.10
+    MINICONDA3_VERSION py37_4.8.2
     )
 add_conda_package(
   NAME yosys
@@ -93,6 +93,7 @@ add_conda_pip(
 )
 add_conda_pip(
   NAME pycapnp
+  PACKAGE_SPEC "1.0.0b1"
   NO_EXE
 )
 add_conda_pip(
