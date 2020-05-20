@@ -29,7 +29,7 @@ set(VPR_ARCH_ARGS "\
     --clock_modeling route \
     --place_delay_model delta_override \
     --router_lookahead map \
-    --quick_check_route on \
+    --check_route quick \
     --strict_checks off \
     --allow_dangling_combinational_nodes on \
     --disable_errors check_unbuffered_edges:check_route \
