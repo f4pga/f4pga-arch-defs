@@ -24,6 +24,6 @@ OUT_NOISY_WARNINGS=noisy_warnings-${DEVICE}_place.log
 echo "Generating coinstrains ..."
 generate_constraints $PCF $EBLIF $NET $PART $DEVICE $ARCH_DEF
 
-run_vpr --fix_pins constraints.place --place
+run_vpr --place
 
 mv vpr_stdout.log place.log
