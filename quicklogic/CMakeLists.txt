@@ -42,11 +42,13 @@ set(VPR_ARCH_ARGS "\
     --suppress_warnings \${OUT_NOISY_WARNINGS},sum_pin_class:check_unbuffered_edges:load_rr_indexed_data_T_values:check_rr_node:trans_per_R:check_route \
     --timing_report_detail detailed"
     )
+  set(YOSYS_SYNTH_SCRIPT ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/yosys/synth.tcl)
+  set(YOSYS_CONV_SCRIPT ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/yosys/conv.tcl)
 
 define_arch(
   ARCH ql-s3
-  YOSYS_SYNTH_SCRIPT ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/yosys/synth.tcl
-  YOSYS_CONV_SCRIPT ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/yosys/conv.tcl
+  YOSYS_SYNTH_SCRIPT ${YOSYS_SYNTH_SCRIPT}
+  YOSYS_CONV_SCRIPT ${YOSYS_CONV_SCRIPT}
   DEVICE_FULL_TEMPLATE \${DEVICE}
   VPR_ARCH_ARGS ${VPR_ARCH_ARGS}
 
