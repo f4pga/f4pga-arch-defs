@@ -1,4 +1,4 @@
-function(ADD_CELLS_SIM_TARGET output_file)
+FUNCTION(ADD_CELLS_SIM_TARGET OUTPUT_FILE)
   # ~~~
   # ADD_CELLS_SIM_TARGET(<output_file>)
 
@@ -12,14 +12,14 @@ function(ADD_CELLS_SIM_TARGET output_file)
     COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/techmap)
 
   add_custom_command(
-    OUTPUT ${output_file}
+    OUTPUT ${OUTPUT_FILE}
     DEPENDS ${PYTHON3} ${PYTHON3_TARGET} ${CONCATENATE_V_SOURCES_PY} QL_CELLS_SIM_DEPS
             ql_cells_sim_tech_dir
-    COMMAND ${PYTHON3} ${CONCATENATE_V_SOURCES_PY} ${VERILOG_SOURCES} ${output_file}
+    COMMAND ${PYTHON3} ${CONCATENATE_V_SOURCES_PY} ${VERILOG_SOURCES} ${OUTPUT_FILE}
     COMMAND_EXPAND_LISTS
-    COMMENT "Generating ${output_file}"
+    COMMENT "Generating ${OUTPUT_FILE}"
     )
-  add_file_target(FILE ${output_file} GENERATED ABSOLUTE)
+  add_file_target(FILE ${OUTPUT_FILE} GENERATED ABSOLUTE)
 endfunction(ADD_CELLS_SIM_TARGET)
 
 function(ADD_TO_CELLS_SIM file)

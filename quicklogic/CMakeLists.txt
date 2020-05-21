@@ -8,6 +8,11 @@ add_custom_target(QL_CELLS_SIM_DEPS)
 include(cmake/cells_sim_gen.cmake)
 add_subdirectory(primitives)
 
+set(CELLS_MAP_FILE ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/techmap/cells_map.v)
+set(CELLS_MAP_FILE_DEST_DIR ${symbiflow-arch-defs_BINARY_DIR}/quicklogic/techmap/)
+# copy map file to binary dir
+file(COPY ${CELLS_MAP_FILE} DESTINATION ${CELLS_MAP_FILE_DEST_DIR})
+
 set(CELLS_SIM_FILE ${symbiflow-arch-defs_BINARY_DIR}/quicklogic/techmap/cells_sim.v)
 add_cells_sim_target(${CELLS_SIM_FILE})
 
@@ -49,6 +54,7 @@ define_arch(
   ARCH ql-s3
   YOSYS_SYNTH_SCRIPT ${YOSYS_SYNTH_SCRIPT}
   YOSYS_CONV_SCRIPT ${YOSYS_CONV_SCRIPT}
+  YOSYS_TECHMAP ${symbiflow-arch-defs_BINARY_DIR}/quicklogic/techmap
   DEVICE_FULL_TEMPLATE \${DEVICE}
   VPR_ARCH_ARGS ${VPR_ARCH_ARGS}
 
