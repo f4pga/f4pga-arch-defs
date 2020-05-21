@@ -11,9 +11,13 @@ module toplevel(
   wire clk100;
   BUFG bufg(.I(clk), .O(clk100));
 
-  reg clk50;
+  // BUFGCE as divide by 2
+  reg clk50_ce;
   always @(posedge clk100)
-    clk50 <= !clk50;
+      clk50_ce <= !clk50_ce;
+
+  wire clk50;
+  BUFGCE bufg50 (.I(clk), .CE(clk50_ce), .O(clk50));
 
   wire [31:0] io_gpioA_read;
   wire [31:0] io_gpioA_write;

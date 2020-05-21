@@ -31,10 +31,13 @@ module basys3_demo (
     wire clk100;
     BUFG bufg100 (.I(clk), .O(clk100));
 
-    // Clock divider using logic to get 50MHz
-    reg clk50 = 1'b0;
+    // BUFGCE as divide by 2
+    reg clk50_ce;
     always @(posedge clk100)
-        clk50 <= !clk50;
+        clk50_ce <= !clk50_ce;
+
+    wire clk50;
+    BUFGCE bufg50 (.I(clk), .CE(clk50_ce), .O(clk50));
 
     // Reset generator
 	reg [5:0] reset_cnt = 0;
