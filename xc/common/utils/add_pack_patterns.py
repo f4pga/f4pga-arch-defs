@@ -184,18 +184,18 @@ def main():
         # ODDR
         #
 
-        # Adding ODDR via OBUF pack patterns
+        # Adding ODDR via OBUF/OBUFT pack patterns
         if IOPAD_OLOGIC_REGEX.match(dir_name):
-            add_pack_pattern(direct, 'ODDR_OBUF')
+            add_pack_pattern(direct, 'ODDR_OBUFT')
 
-        maybe_add_pack_pattern(direct, 'ODDR_OBUF', [
+        maybe_add_pack_pattern(direct, 'ODDR_OBUFT', [
             ('ODDR.Q',          'OLOGIC_OFF.OQ'),
             ('OLOGIC_OFF.OQ',   'OLOGICE3.OQ'),
             ('IOB33M.O',        'IOB33_MODES.O'),
             ('IOB33S.O',        'IOB33_MODES.O'),
             ('IOB33.O',         'IOB33_MODES.O'),
-            ('IOB33_MODES.O',   'OBUF_VPR.I'),
-            ('OBUF_VPR.O',      'outpad.outpad'),
+            ('IOB33_MODES.O',   'OBUFT_VPR.I'),
+            ('OBUFT_VPR.O',     'outpad.outpad'),
         ])
 
 
@@ -213,16 +213,16 @@ def main():
         ]):
             add_pack_pattern(direct, 'OSERDES_NO_OBUF')
 
-        # Adding OSERDES via OBUF pack patterns
+        # Adding OSERDES via OBUF/OBUFT pack patterns
         if IOPAD_OLOGIC_REGEX.match(dir_name) or check_direct(direct, [
             ('OSERDES', 'OQ'),
             ('IOB33S', 'O'),
             ('IOB33M', 'O'),
             ('IOB33', 'O'),
-            ('OBUF', 'IOB33_MODES.O_to_OBUF_VPR.I'),
-            ('OBUF', 'OBUF_VPR.O_to_outpad.outpad'),
+            ('OBUFT', 'IOB33_MODES.O_to_OBUFT_VPR.I'),
+            ('OBUFT', 'OBUFT_VPR.O_to_outpad.outpad'),
         ]):
-            add_pack_pattern(direct, 'OSERDES_OBUF')
+            add_pack_pattern(direct, 'OSERDES_OBUFT')
 
         # TODO: OSERDES via OBUFT
 

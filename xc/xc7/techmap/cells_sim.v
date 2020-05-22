@@ -664,8 +664,9 @@ module IBUF_VPR (
 
 endmodule
 
-module OBUF_VPR (
-	input I,
+module OBUFT_VPR (
+	input  I,
+    input  T,
 	output O
 );
 
@@ -703,7 +704,7 @@ module OBUF_VPR (
   parameter DRIVE = 0;
   parameter SLEW = "";
 
-  assign O = I;
+  assign O = (T == 1'b0) ? I : 1'bz;
 
 endmodule
 
