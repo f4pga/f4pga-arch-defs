@@ -7,9 +7,10 @@
       <port name="O"/>
     </output_ports>
   </model>
-  <model name="OBUF_VPR">
+  <model name="OBUFT_VPR">
     <input_ports>
       <port name="I" combinational_sink_ports="O"/>
+      <port name="T" combinational_sink_ports="O"/>
     </input_ports>
     <output_ports>
       <port name="O"/>

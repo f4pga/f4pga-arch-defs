@@ -2094,7 +2094,7 @@ module OBUF (
   parameter PULLTYPE = "NONE";  // Not supported by Vivado ?
   parameter IO_LOC_PAIRS = "NONE";
 
-  OBUF_VPR # (
+  OBUFT_VPR # (
     .LVCMOS12_DRIVE_I12(
       (IOSTANDARD == "LVCMOS12" && DRIVE == 12)
     ),
@@ -2200,6 +2200,7 @@ module OBUF (
     .IO_LOC_PAIRS(IO_LOC_PAIRS)
   ) _TECHMAP_REPLACE_ (
     .I(I),
+    .T(1'b0),
     .O(O)
   );
 
@@ -3154,7 +3155,7 @@ module IDDR_2CLK (
 
   generate if (!R_USED && !S_USED) begin
     assign SR = 1'b0;
-    localparam SRVAL = 1'b0;
+    localparam SRVAL = 1'b1;
 
   end else if (R_USED && !S_USED) begin
     assign SR = R;
@@ -3219,7 +3220,7 @@ module IDDR (
     .INIT_Q1        (INIT_Q1),
     .INIT_Q2        (INIT_Q2),
     .IS_C_INVERTED  (IS_C_INVERTED),
-    .IS_CB_INVERTED (IS_CB_INVERTED),
+    .IS_CB_INVERTED (!IS_C_INVERTED),
     .IS_D_INVERTED  (IS_D_INVERTED)
 
   ) _TECHMAP_REPLACE_ (
@@ -3264,7 +3265,7 @@ module ODDR (
 
   generate if (!R_USED && !S_USED) begin
     assign SR = 1'b0;
-    localparam SRVAL = 1'b0;
+    localparam SRVAL = 1'b1;
 
   end else if (R_USED && !S_USED) begin
     assign SR = R;
