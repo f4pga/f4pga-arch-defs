@@ -26,3 +26,20 @@ add_vivado_target(
     PARENT_NAME ddr_uart_arty
     XDC arty_clocks.xdc
 )
+
+add_file_target(FILE ddr_uart_100t.v SCANNER_TYPE verilog)
+add_fpga_target(
+  NAME ddr_uart_arty100t
+  BOARD arty100t-full
+  SOURCES
+    ddr_uart_100t.v
+  INPUT_IO_FILE arty.pcf
+  INPUT_XDC_FILE arty.xdc
+  SDC_FILE arty.sdc
+  EXPLICIT_ADD_FILE_TARGET
+)
+
+add_vivado_target(
+  NAME ddr_uart_arty100t_vivado
+  PARENT_NAME ddr_uart_arty100t
+)

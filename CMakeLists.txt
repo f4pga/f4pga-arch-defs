@@ -290,6 +290,7 @@ add_dependencies(all_xc7_demos
     all_arty-swbut_bin
     all_arty-uart_bin
     all_arty-full_bin
+    all_arty100t-full_bin
     all_basys3_bin
     all_basys3-full_bin
     #all_basys3-bottom_bin
