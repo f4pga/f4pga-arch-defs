@@ -869,7 +869,7 @@ module IOBUFDS_S_VPR (
     input  IB,
     output OB,
     input  IOPAD_$inp,
-    output IOPAD_$out,
+    output IOPAD_$out
 );
 
   parameter [0:0] LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SSTL135_SSTL15_SLEW_SLOW = 1'b0;
