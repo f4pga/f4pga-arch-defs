@@ -58,8 +58,8 @@
         </interconnect>
       </mode>
 
-      <mode name="ODDR">
-        <pb_type name="ODDR" blif_model=".subckt ODDR_VPR" num_pb="1">
+      <mode name="ODDR_TQ">
+        <pb_type name="ODDR_TQ" blif_model=".subckt ODDR_VPR" num_pb="1">
           <clock  name="CK" num_pins="1"/>
           <input  name="CE" num_pins="1"/>
           <input  name="SR" num_pins="1"/>
@@ -77,6 +77,9 @@
           <T_clock_to_Q port="Q" clock="CK" max="1e-10"/>
 
           <metadata>
+            <meta name="fasm_features">
+              OSERDES.DATA_RATE_TQ.DDR
+            </meta>
             <meta name="fasm_params">
               ZINV_CLK = ZINV_CLK
               ZINV_T1 = ZINV_D1
@@ -90,12 +93,12 @@
         </pb_type>
 
         <interconnect>
-          <direct name="OLOGIC_TFF.CLK_to_ODDR.CK" input="OLOGIC_TFF.CLK" output="ODDR.CK"/>
-          <direct name="OLOGIC_TFF.SR_to_ODDR.SR" input="OLOGIC_TFF.SR" output="ODDR.SR"/>
-          <direct name="OLOGIC_TFF.TCE_to_ODDR.CE" input="OLOGIC_TFF.TCE" output="ODDR.CE"/>
-          <direct name="OLOGIC_TFF.T1_to_ODDR.D1" input="OLOGIC_TFF.T1" output="ODDR.D1"/>
-          <direct name="OLOGIC_TFF.T2_to_ODDR.D2" input="OLOGIC_TFF.T2" output="ODDR.D2"/>
-          <direct name="ODDR.Q_to_OLOGIC_TFF.TQ" input="ODDR.Q" output="OLOGIC_TFF.TQ"/>
+          <direct name="OLOGIC_TFF.CLK_to_ODDR.CK" input="OLOGIC_TFF.CLK" output="ODDR_TQ.CK"/>
+          <direct name="OLOGIC_TFF.SR_to_ODDR.SR" input="OLOGIC_TFF.SR" output="ODDR_TQ.SR"/>
+          <direct name="OLOGIC_TFF.TCE_to_ODDR.CE" input="OLOGIC_TFF.TCE" output="ODDR_TQ.CE"/>
+          <direct name="OLOGIC_TFF.T1_to_ODDR.D1" input="OLOGIC_TFF.T1" output="ODDR_TQ.D1"/>
+          <direct name="OLOGIC_TFF.T2_to_ODDR.D2" input="OLOGIC_TFF.T2" output="ODDR_TQ.D2"/>
+          <direct name="ODDR.Q_to_OLOGIC_TFF.TQ" input="ODDR_TQ.Q" output="OLOGIC_TFF.TQ"/>
         </interconnect>
       </mode>
     </pb_type> 
@@ -122,8 +125,8 @@
         </interconnect>
       </mode>
 
-      <mode name="ODDR">
-        <pb_type name="ODDR" blif_model=".subckt ODDR_VPR" num_pb="1">
+      <mode name="ODDR_OQ">
+        <pb_type name="ODDR_OQ" blif_model=".subckt ODDR_VPR" num_pb="1">
           <clock  name="CK" num_pins="1"/>
           <input  name="CE" num_pins="1"/>
           <input  name="SR" num_pins="1"/>
@@ -158,12 +161,12 @@
         </pb_type>
 
         <interconnect>
-          <direct name="OLOGIC_OFF.CLK_to_ODDR.CK" input="OLOGIC_OFF.CLK" output="ODDR.CK"/>
-          <direct name="OLOGIC_OFF.SR_to_ODDR.SR" input="OLOGIC_OFF.SR"  output="ODDR.SR"/>
-          <direct name="OLOGIC_OFF.OCE_to_ODDR.CE" input="OLOGIC_OFF.OCE" output="ODDR.CE"/>
-          <direct name="OLOGIC_OFF.D1_to_ODDR.D1" input="OLOGIC_OFF.D1" output="ODDR.D1"/>
-          <direct name="OLOGIC_OFF.D2_to_ODDR.D2" input="OLOGIC_OFF.D2" output="ODDR.D2"/>
-          <direct name="ODDR.Q_to_OLOGIC_OFF.OQ" input="ODDR.Q" output="OLOGIC_OFF.OQ"/>
+          <direct name="OLOGIC_OFF.CLK_to_ODDR.CK" input="OLOGIC_OFF.CLK" output="ODDR_OQ.CK"/>
+          <direct name="OLOGIC_OFF.SR_to_ODDR.SR" input="OLOGIC_OFF.SR"  output="ODDR_OQ.SR"/>
+          <direct name="OLOGIC_OFF.OCE_to_ODDR.CE" input="OLOGIC_OFF.OCE" output="ODDR_OQ.CE"/>
+          <direct name="OLOGIC_OFF.D1_to_ODDR.D1" input="OLOGIC_OFF.D1" output="ODDR_OQ.D1"/>
+          <direct name="OLOGIC_OFF.D2_to_ODDR.D2" input="OLOGIC_OFF.D2" output="ODDR_OQ.D2"/>
+          <direct name="ODDR.Q_to_OLOGIC_OFF.OQ" input="ODDR_OQ.Q" output="OLOGIC_OFF.OQ"/>
         </interconnect>
       </mode>
     </pb_type>

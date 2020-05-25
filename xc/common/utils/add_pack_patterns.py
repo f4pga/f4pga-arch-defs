@@ -25,6 +25,7 @@ import itertools
 # Being multiple IOB and IOPAD types, the name of the direct changes according
 # to different types, hence a regex is needed.
 IOPAD_OLOGIC_REGEX = re.compile("OLOGICE3.OQ_to_IOB33[MS]?.O")
+IOPAD_OLOGIC_TQ_REGEX = re.compile("OLOGICE3.TQ_to_IOB33[MS]?.T")
 IOPAD_ILOGIC_REGEX = re.compile("IOB33[MS]?.I_to_ILOGICE3.D")
 
 # =============================================================================
@@ -184,12 +185,12 @@ def main():
         # ODDR
         #
 
-        # Adding ODDR via OBUF/OBUFT pack patterns
+        # Adding ODDR.OQ via OBUF/OBUFT pack patterns
         if IOPAD_OLOGIC_REGEX.match(dir_name):
-            add_pack_pattern(direct, 'ODDR_OBUFT')
+            add_pack_pattern(direct, 'ODDR_OQ_OBUFT')
 
-        maybe_add_pack_pattern(direct, 'ODDR_OBUFT', [
-            ('ODDR.Q',          'OLOGIC_OFF.OQ'),
+        maybe_add_pack_pattern(direct, 'ODDR_OQ_OBUFT', [
+            ('ODDR_OQ.Q',       'OLOGIC_OFF.OQ'),
             ('OLOGIC_OFF.OQ',   'OLOGICE3.OQ'),
             ('IOB33M.O',        'IOB33_MODES.O'),
             ('IOB33S.O',        'IOB33_MODES.O'),
@@ -198,6 +199,23 @@ def main():
             ('OBUFT_VPR.O',     'outpad.outpad'),
         ])
 
+        # Adding ODDR.TQ via OBUFT pack patterns
+        if IOPAD_OLOGIC_TQ_REGEX.match(dir_name):
+            add_pack_pattern(direct, 'ODDR_TQ_OBUFT')
+
+        maybe_add_pack_pattern(direct, 'ODDR_TQ_OBUFT', [
+            ('ODDR_TQ.Q',       'OLOGIC_TFF.TQ'),
+            ('OLOGIC_TFF.TQ',   'OLOGICE3.TQ'),
+            ('IOB33M.T',        'IOB33_MODES.T'),
+            ('IOB33S.T',        'IOB33_MODES.T'),
+            ('IOB33.T',         'IOB33_MODES.T'),
+            ('IOB33_MODES.T',   'OBUFT_VPR.T'),
+            ('OBUFT_VPR.O',     'outpad.outpad'),
+        ])
+
+        # TODO: "TDDR" via IOBUF, OBUFTDS, IOBUFDS
+
+        # TODO: ODDR+"TDDR" via OBUFT, IOBUF, OBUFTDS, IOBUFDS
 
         #
         # OSERDES
