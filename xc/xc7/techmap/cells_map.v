@@ -3151,26 +3151,40 @@ module IDDR_2CLK (
   localparam [0:0] R_USED = (_TECHMAP_CONSTMSK_R_ != 1'b1);
   localparam [0:0] S_USED = (_TECHMAP_CONSTMSK_S_ != 1'b1);
 
-  wire SR = 1'b0;
+  wire SR;
 
   generate if (!R_USED && !S_USED) begin
     assign SR = 1'b0;
-    localparam SRVAL = 1'b1;
+    localparam SRVAL  = 1'b1;
+    localparam SRUSED = 1'b1;
 
   end else if (R_USED && !S_USED) begin
     assign SR = R;
-    localparam SRVAL = 1'b0;
+    localparam SRVAL  = 1'b0;
+    localparam SRUSED = 1'b1;
 
   end else if (!R_USED && S_USED) begin
     assign SR = S;
-    localparam SRVAL = 1'b1;
+    localparam SRVAL  = 1'b1;
+    localparam SRUSED = 1'b1;
 
   end else begin
-    assign SR = 1'b0;
-    localparam SRVAL = 1'b1;
+    assign SR = 1'bx;
+    localparam SRVAL  = 1'bx;
+    localparam SRUSED = 1'bx;
 
-    //wire _TECHMAP_FAIL_ = 1'b1;
     error Cannot_have_both_S_and_R_connected();
+  end endgenerate
+
+  generate if (DDR_CLK_EDGE != "OPPOSITE_EDGE") begin
+    localparam INIT_Q3 = INIT_Q1;
+    localparam INIT_Q4 = INIT_Q2;
+    localparam SRVAL34 = SRVAL;
+
+  end else begin
+    localparam INIT_Q3 = 1'b1;
+    localparam INIT_Q4 = 1'b1;
+    localparam SRVAL34 = 1'b1;
 
   end endgenerate
 
@@ -3182,8 +3196,10 @@ module IDDR_2CLK (
     .OPPOSITE_EDGE  (DDR_CLK_EDGE == "OPPOSITE_EDGE"),
     .ZINIT_Q1       (!INIT_Q1),
     .ZINIT_Q2       (!INIT_Q2),
-    .ZSRVAL_Q1      (!SRVAL),
-    .ZSRVAL_Q2      (!SRVAL)
+    .ZINIT_Q3       (!INIT_Q3),
+    .ZINIT_Q4       (!INIT_Q4),
+    .ZSRVAL_Q12     (!SRVAL),
+    .ZSRVAL_Q34     (!SRVAL34)
 
   ) _TECHMAP_REPLACE_ (
     .CK  (C),
@@ -3277,11 +3293,9 @@ module ODDR (
 
   end else begin
     assign SR = 1'b0;
-    localparam SRVAL = 1'b1;
+    localparam SRVAL = 1'b0;
 
-    //wire _TECHMAP_FAIL_ = 1'b1;
     error Cannot_have_both_S_and_R_connected();
-
   end endgenerate
 
   ODDR_VPR # (
@@ -3293,7 +3307,7 @@ module ODDR (
     .SRTYPE_SYNC    ( SRTYPE == "SYNC"),
     .SAME_EDGE      ( DDR_CLK_EDGE != "OPPOSITE_EDGE"),
     .ZINIT_Q        (!INIT),
-    .ZSRVAL_Q       (!SRVAL)
+    .ZSRVAL_Q       (SRVAL)
 
   ) _TECHMAP_REPLACE_ (
     .CK (C),
