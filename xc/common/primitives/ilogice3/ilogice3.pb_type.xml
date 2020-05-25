@@ -363,6 +363,7 @@
       <metadata>
         <meta name="fasm_features">
           IDDR_OR_ISERDES.IN_USE
+          ISERDES.INTERFACE_TYPE.Z_MEMORY
         </meta>
         <meta name="fasm_params">
           ZINV_D = ZINV_D
@@ -372,8 +373,12 @@
           IFF.DDR_CLK_EDGE.OPPOSITE_EDGE = OPPOSITE_EDGE
           IFF.ZINIT_Q1 = ZINIT_Q1
           IFF.ZINIT_Q2 = ZINIT_Q2
-          IFF.ZSRVAL_Q1 = ZSRVAL_Q1
-          IFF.ZSRVAL_Q2 = ZSRVAL_Q2          
+          IFF.ZINIT_Q3 = ZINIT_Q3
+          IFF.ZINIT_Q4 = ZINIT_Q4
+          IFF.ZSRVAL_Q1 = ZSRVAL_Q12
+          IFF.ZSRVAL_Q2 = ZSRVAL_Q12
+          IFF.ZSRVAL_Q3 = ZSRVAL_Q34
+          IFF.ZSRVAL_Q4 = ZSRVAL_Q34
         </meta>
       </metadata>
     </pb_type>
