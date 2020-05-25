@@ -105,6 +105,7 @@ def add_pack_pattern(element, pack_pattern_prefix, for_input=None):
         }
     )
 
+
 # =============================================================================
 
 
@@ -153,8 +154,6 @@ def maybe_add_pack_pattern(element, pack_pattern_prefix, list_to_check):
 
 # =============================================================================
 
-# =============================================================================
-
 
 def main():
     parser = argparse.ArgumentParser(
@@ -167,19 +166,43 @@ def main():
     arch_xml = ET.ElementTree()
     xml_parser = ET.XMLParser(remove_blank_text=True)
     root_element = arch_xml.parse(args.in_arch, xml_parser)
-    
-    gen = itertools.chain(root_element.iter('direct'), root_element.iter('mux'))
+
+    gen = itertools.chain(
+        root_element.iter('direct'), root_element.iter('mux')
+    )
     for direct in gen:
         if 'name' not in direct.attrib:
             continue
 
-        top_parent = get_top_pb_type(direct)
-        if top_parent is not None:
-            top_name = top_parent.attrib["name"]
-        else:
-            top_name = ""
-
         dir_name = direct.attrib['name']
+
+        # Adding IDDR via IBUF pack patterns
+        if IOPAD_ILOGIC_REGEX.match(dir_name):
+            add_pack_pattern(direct, 'IDDR_IBUF')
+
+        maybe_add_pack_pattern(
+            direct, 'IDDR_IBUF', [
+                ('inpad.inpad', 'IBUF_VPR.I'), ('IBUF_VPR.O', 'IOB33_MODES.I'),
+                ('IOB33_MODES.I', 'IOB33.I'), ('IOB33_MODES.I', 'IOB33M.I'),
+                ('IOB33_MODES.I', 'IOB33S.I'), ('ILOGICE3.D', 'IFF.D')
+            ]
+        )
+
+        # TODO: IDDR via IOBUF, IDDR via IOBUFDS
+
+        # Adding IDDR+IDELAY via IBUF pack patterns
+        if 'I_to_IDELAYE2' in dir_name:
+            add_pack_pattern(direct, 'IDDR_IDELAY_IBUF')
+
+        maybe_add_pack_pattern(
+            direct, 'IDDR_IDELAY_IBUF', [
+                ('inpad.inpad', 'IBUF_VPR.I'), ('IBUF_VPR.O', 'IOB33_MODES.I'),
+                ('IOB33_MODES.I', 'IOB33.I'), ('IOB33_MODES.I', 'IOB33M.I'),
+                ('IOB33_MODES.I', 'IOB33S.I'),
+                ('IDELAYE2.DATAOUT', 'ILOGICE3.DDLY'),
+                ('ILOGICE3.DDLY', 'IFF.D')
+            ]
+        )
 
         #
         # ODDR
@@ -189,29 +212,33 @@ def main():
         if IOPAD_OLOGIC_REGEX.match(dir_name):
             add_pack_pattern(direct, 'ODDR_OQ_OBUFT')
 
-        maybe_add_pack_pattern(direct, 'ODDR_OQ_OBUFT', [
-            ('ODDR_OQ.Q',       'OLOGIC_OFF.OQ'),
-            ('OLOGIC_OFF.OQ',   'OLOGICE3.OQ'),
-            ('IOB33M.O',        'IOB33_MODES.O'),
-            ('IOB33S.O',        'IOB33_MODES.O'),
-            ('IOB33.O',         'IOB33_MODES.O'),
-            ('IOB33_MODES.O',   'OBUFT_VPR.I'),
-            ('OBUFT_VPR.O',     'outpad.outpad'),
-        ])
+        maybe_add_pack_pattern(
+            direct, 'ODDR_OQ_OBUFT', [
+                ('ODDR_OQ.Q', 'OLOGIC_OFF.OQ'),
+                ('OLOGIC_OFF.OQ', 'OLOGICE3.OQ'),
+                ('IOB33M.O', 'IOB33_MODES.O'),
+                ('IOB33S.O', 'IOB33_MODES.O'),
+                ('IOB33.O', 'IOB33_MODES.O'),
+                ('IOB33_MODES.O', 'OBUFT_VPR.I'),
+                ('OBUFT_VPR.O', 'outpad.outpad'),
+            ]
+        )
 
         # Adding ODDR.TQ via OBUFT pack patterns
         if IOPAD_OLOGIC_TQ_REGEX.match(dir_name):
             add_pack_pattern(direct, 'ODDR_TQ_OBUFT')
 
-        maybe_add_pack_pattern(direct, 'ODDR_TQ_OBUFT', [
-            ('ODDR_TQ.Q',       'OLOGIC_TFF.TQ'),
-            ('OLOGIC_TFF.TQ',   'OLOGICE3.TQ'),
-            ('IOB33M.T',        'IOB33_MODES.T'),
-            ('IOB33S.T',        'IOB33_MODES.T'),
-            ('IOB33.T',         'IOB33_MODES.T'),
-            ('IOB33_MODES.T',   'OBUFT_VPR.T'),
-            ('OBUFT_VPR.O',     'outpad.outpad'),
-        ])
+        maybe_add_pack_pattern(
+            direct, 'ODDR_TQ_OBUFT', [
+                ('ODDR_TQ.Q', 'OLOGIC_TFF.TQ'),
+                ('OLOGIC_TFF.TQ', 'OLOGICE3.TQ'),
+                ('IOB33M.T', 'IOB33_MODES.T'),
+                ('IOB33S.T', 'IOB33_MODES.T'),
+                ('IOB33.T', 'IOB33_MODES.T'),
+                ('IOB33_MODES.T', 'OBUFT_VPR.T'),
+                ('OBUFT_VPR.O', 'outpad.outpad'),
+            ]
+        )
 
         # TODO: "TDDR" via IOBUF, OBUFTDS, IOBUFDS
 
