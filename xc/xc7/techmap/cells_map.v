@@ -2084,7 +2084,31 @@ module IBUF (
 endmodule
 
 module OBUF (
-  input I,
+  input  I,
+  output O
+  );
+
+  parameter IOSTANDARD = "LVCMOS33";
+  parameter DRIVE = 12;
+  parameter SLEW = "SLOW";
+  parameter PULLTYPE = "NONE";  // Not supported by Vivado ?
+
+  OBUFT # (
+    .PULLTYPE(PULLTYPE),
+    .IOSTANDARD(IOSTANDARD),
+    .DRIVE(DRIVE),
+    .SLEW(SLEW)
+  ) _TECHMAP_REPLACE_ (
+    .I(I),
+    .T(1'b0),
+    .O(O)
+  );
+
+endmodule
+
+module OBUFT (
+  input  I,
+  input  T,
   output O
   );
 
@@ -2200,7 +2224,7 @@ module OBUF (
     .IO_LOC_PAIRS(IO_LOC_PAIRS)
   ) _TECHMAP_REPLACE_ (
     .I(I),
-    .T(1'b0),
+    .T(T),
     .O(O)
   );
 
