@@ -3277,7 +3277,7 @@ module ODDR (
   localparam [0:0] R_USED = (_TECHMAP_CONSTMSK_R_ != 1'b1);
   localparam [0:0] S_USED = (_TECHMAP_CONSTMSK_S_ != 1'b1);
 
-  wire SR = 1'b0;
+  wire SR;
 
   generate if (!R_USED && !S_USED) begin
     assign SR = 1'b0;
@@ -3292,8 +3292,8 @@ module ODDR (
     localparam SRVAL = 1'b1;
 
   end else begin
-    assign SR = 1'b0;
-    localparam SRVAL = 1'b0;
+    assign SR = 1'bx;
+    localparam SRVAL = 1'bx;
 
     error Cannot_have_both_S_and_R_connected();
   end endgenerate
@@ -3307,7 +3307,7 @@ module ODDR (
     .SRTYPE_SYNC    ( SRTYPE == "SYNC"),
     .SAME_EDGE      ( DDR_CLK_EDGE != "OPPOSITE_EDGE"),
     .ZINIT_Q        (!INIT),
-    .ZSRVAL_Q       (SRVAL)
+    .ZSRVAL_Q       (!SRVAL)
 
   ) _TECHMAP_REPLACE_ (
     .CK (C),

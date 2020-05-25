@@ -143,6 +143,7 @@
           <metadata>
             <meta name="fasm_features">
               OQUSED
+              OSERDES.DATA_RATE_OQ.DDR
             </meta>
             <meta name="fasm_params">
               ZINV_CLK = ZINV_CLK
