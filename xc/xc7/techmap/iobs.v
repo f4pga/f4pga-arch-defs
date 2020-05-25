@@ -11,6 +11,19 @@ module IBUF (
 
 endmodule
 
+module OBUFT (
+  input  I,
+  input  T,
+  output O
+);
+
+  parameter IOSTANDARD   = "default";
+  parameter DRIVE        = 12;
+  parameter SLEW         = "SLOW";
+
+  assign O = (T == 1'b0) ? I : 1'bz;
+
+endmodule
 
 module OBUF (
   input  I,
