@@ -7,18 +7,8 @@ MYPATH=`dirname ${MYPATH}`
 source ${MYPATH}/env
 echo "Writing bitstream ..."
 
-if [ -z ${XRAY_FASM2FRAMES} ]; then
-	echo "ERROR: XRAY_FASM2FRAMES variable is unset."
-	return 1
-fi
-
 if [ -z ${XRAY_DATABASE_DIR} ]; then
 	echo "ERROR: XRAY_DATABASE_DIR variable is unset."
-	return 1
-fi
-
-if [ -z ${XRAY_TOOLS_DIR} ]; then
-	echo "ERROR: XRAY_TOOLS_DIR variable is unset."
 	return 1
 fi
 
@@ -81,7 +71,7 @@ fi
 FRAMES="${BIT%.*}.frames"
 DBROOT=`realpath ${XRAY_DATABASE_DIR}/${DEVICE}`
 
-python3 ${XRAY_FASM2FRAMES} --db-root ${DBROOT} --part ${PART} --sparse --emit_pudc_b_pullup ${FASM} ${FRAMES}
+fasm2frames --db-root ${DBROOT} --part ${PART} --sparse --emit_pudc_b_pullup ${FASM} ${FRAMES}
 
-${XRAY_TOOLS_DIR}/xc7frames2bit --frm_file ${FRAMES} --output_file ${BIT} --part_name ${PART} --part_file ${DBROOT}/${PART}/part.yaml
+xc7frames2bit --frm_file ${FRAMES} --output_file ${BIT} --part_name ${PART} --part_file ${DBROOT}/${PART}/part.yaml
 

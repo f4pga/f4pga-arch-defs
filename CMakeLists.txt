@@ -51,6 +51,20 @@ add_env_executable(EXE iverilog REQUIRED)
 
 get_target_property_required(PYTHON3 env PYTHON3)
 
+add_thirdparty_package(
+  NAME prjxray
+  BUILD_INSTALL_COMMAND "cd ${symbiflow-arch-defs_SOURCE_DIR}/third_party/prjxray && ${PYTHON3} setup.py develop"
+  NO_EXE
+  DEPENDS ${PYTHON3_TARGET} ${LIBICONV_TARGET}
+)
+
+add_thirdparty_package(
+  NAME fasm
+  BUILD_INSTALL_COMMAND "cd ${symbiflow-arch-defs_SOURCE_DIR}/third_party/fasm && ${PYTHON3} setup.py develop"
+  NO_EXE
+  DEPENDS ${PYTHON3_TARGET} ${LIBICONV_TARGET}
+)
+
 include(common/cmake/image_gen.cmake)
 include(common/cmake/gen.cmake)
 
