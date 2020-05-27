@@ -341,8 +341,8 @@ def process_single_ended_iob(top, iob):
 
     site = Site(iob, iob_site)
 
-    INTERMDISABLE_USED = site.has_feature('INTERMDISABLE.I')
-    IBUFDISABLE_USED = site.has_feature('IBUFDISABLE.I')
+    intermdisable_used = site.has_feature('INTERMDISABLE.I')
+    ibufdisable_used = site.has_feature('IBUFDISABLE.I')
 
     # Decode IOSTANDARD parameters
     iostd_in, iostd_out = decode_iostandard_params(site)
@@ -374,16 +374,16 @@ def process_single_ended_iob(top, iob):
 
         # Options are:
         # IBUF, IBUF_IBUFDISABLE, IBUF_INTERMDISABLE
-        if INTERMDISABLE_USED:
+        if intermdisable_used:
             bel = Bel('IBUF_INTERMDISABLE')
             site.add_sink(bel, 'INTERMDISABLE', 'INTERMDISABLE')
 
-            if IBUFDISABLE_USED:
+            if ibufdisable_used:
                 site.add_sink(bel, 'IBUFDISABLE', 'IBUFDISABLE')
             else:
                 bel.connections['IBUFDISABLE'] = 0
 
-        elif IBUFDISABLE_USED:
+        elif ibufdisable_used:
             bel = Bel('IBUF_IBUFDISABLE')
             site.add_sink(bel, 'IBUFDISABLE', 'IBUFDISABLE')
 
@@ -406,15 +406,15 @@ def process_single_ended_iob(top, iob):
 
         # Options are:
         # IOBUF or IOBUF_INTERMDISABLE
-        if INTERMDISABLE_USED or IBUFDISABLE_USED:
+        if intermdisable_used or ibufdisable_used:
             bel = Bel('IOBUF_INTERMDISABLE')
 
-            if INTERMDISABLE_USED:
+            if intermdisable_used:
                 site.add_sink(bel, 'INTERMDISABLE', 'INTERMDISABLE')
             else:
                 bel.connections['INTERMDISABLE'] = 0
 
-            if IBUFDISABLE_USED:
+            if ibufdisable_used:
                 site.add_sink(bel, 'IBUFDISABLE', 'IBUFDISABLE')
             else:
                 bel.connections['IBUFDISABLE'] = 0
@@ -491,8 +491,8 @@ def process_differential_iob(top, iob, in_diff, out_diff):
     site_m = Site(iob['M'], iob_site_m)
     site = Site(iob['S'] + iob['M'], tile_name, merged_site=True)
 
-    INTERMDISABLE_USED = site.has_feature('INTERMDISABLE.I')
-    IBUFDISABLE_USED = site.has_feature('IBUFDISABLE.I')
+    intermdisable_used = site.has_feature('INTERMDISABLE.I')
+    ibufdisable_used = site.has_feature('IBUFDISABLE.I')
 
     top_wire_n = None
     top_wire_p = None
@@ -520,15 +520,15 @@ def process_differential_iob(top, iob, in_diff, out_diff):
             # Options are:
             # IOBUFDS or IOBUFDS_INTERMDISABLE
             # TODO: There are also IOBUFDS_DIFF_OUT* and variants with DCI
-            if INTERMDISABLE_USED or IBUFDISABLE_USED:
+            if intermdisable_used or ibufdisable_used:
                 bel = Bel('IOBUFDS_INTERMDISABLE')
 
-                if INTERMDISABLE_USED:
+                if intermdisable_used:
                     site_m.add_sink(bel, 'INTERMDISABLE', 'INTERMDISABLE')
                 else:
                     bel.connections['INTERMDISABLE'] = 0
 
-                if IBUFDISABLE_USED:
+                if ibufdisable_used:
                     site_m.add_sink(bel, 'IBUFDISABLE', 'IBUFDISABLE')
                 else:
                     bel.connections['IBUFDISABLE'] = 0
