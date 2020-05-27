@@ -98,6 +98,7 @@ function run_vpr {
          ${EBLIF} \
          --device ${DEVICE_NAME} \
          ${VPR_OPTIONS} \
+         ${VPR_SEED} \
          --read_rr_graph ${RR_GRAPH} \
          --read_router_lookahead ${LOOKAHEAD} \
          --read_placement_delay_lookup ${PLACE_DELAY} \
