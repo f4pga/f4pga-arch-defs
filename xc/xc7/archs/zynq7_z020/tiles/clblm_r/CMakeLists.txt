@@ -1,0 +1,5 @@
+project_ray_tile(
+  ARCH zynq7_z020
+  TILE CLBLM_R
+  SITE_TYPES SLICEM/SLICEM SLICEL/SLICEL2
+  )

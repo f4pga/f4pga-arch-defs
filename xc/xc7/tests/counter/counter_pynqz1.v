@@ -1,4 +1,4 @@
-module top(
+module top (
     input  wire clk,
     input  wire [1:0] sw,
     input  wire [3:0] btn,
@@ -10,7 +10,15 @@ module top(
     output wire led5_g,
     output wire led5_r
 );
-    assign led = btn;
-    assign {led4_b, led4_g, led4_r} = {3{sw[0]}};
-    assign {led5_b, led5_g, led5_r} = {3{sw[1]}};
+
+	localparam BITS = 4;
+	localparam LOG2DELAY = 18;
+
+	reg [BITS+LOG2DELAY-1:0] counter = 0;
+
+	always @(posedge clk) begin
+		counter <= counter + 1;
+	end
+
+	assign led = counter >> LOG2DELAY;
 endmodule
