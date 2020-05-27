@@ -373,7 +373,7 @@ def make_iserdes(use_idelay, use_iserdes):
         .DDLY(dly_i),
         .Q1(dat_i),
         .CLK(clk_bufg),
-        .CLKB(~clk_bufg),
+        .CLKB(clk_bufg),
         .CLKDIV(clkdiv_bufg)
     );
 """
@@ -390,7 +390,7 @@ def make_iserdes(use_idelay, use_iserdes):
         .D(dly_i),
         .Q1(dat_i),
         .CLK(clk_bufg),
-        .CLKB(~clk_bufg),
+        .CLKB(clk_bufg),
         .CLKDIV(clkdiv_bufg)
     );
 """
