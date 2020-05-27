@@ -107,6 +107,8 @@ add_xc_board(
   DEVICE xc7z020
   PACKAGE test
   PART xc7z020clg400-1
+  PROG_TOOL ${OPENOCD_TARGET}
+  PROG_CMD "${OPENOCD} -f ${PRJXRAY_DIR}/utils/openocd/board-digilent-pynqz1.cfg -c \\\"init $<SEMICOLON> pld load 0 \${OUT_BIN} $<SEMICOLON> exit\\\""
 )
 
 add_xc_board(

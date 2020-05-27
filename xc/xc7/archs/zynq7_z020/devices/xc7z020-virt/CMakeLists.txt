@@ -1,5 +1,5 @@
 add_xc_device_define_type(
-  ARCH zynq7
+  ARCH zynq7_z020
   DEVICE xc7z020
   TILE_TYPES
     CLBLL_L

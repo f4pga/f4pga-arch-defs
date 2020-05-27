@@ -102,3 +102,17 @@ add_vivado_target(
   NAME counter_microzed_vivado
   PARENT_NAME counter_microzed
 )
+
+add_file_target(FILE counter_pynqz1.v SCANNER_TYPE verilog)
+add_fpga_target(
+  NAME counter_pynqz1
+  BOARD pynqz1-full
+  SOURCES counter_pynqz1.v
+  INPUT_IO_FILE ../common/pynqz1.pcf
+  EXPLICIT_ADD_FILE_TARGET
+)
+
+add_vivado_target(
+  NAME counter_pynqz1_vivado
+  PARENT_NAME counter_pynqz1
+)
