@@ -122,10 +122,6 @@ function(xc7_iologic_design)
         INPUT_XDC_FILE ${XDC_FILE}
         SOURCES ${VERILOG_FILE}
         EXPLICIT_ADD_FILE_TARGET
-        # Enable non-dedicated routes for clocks in fasm2bels until the problem
-        # of BUFG placement is solved. Those routes are not of concern for this
-        # test.
-        BIT_TO_V_EXTRA_ARGS --allow-non-dedicated-clk-routes
         )
 
     add_vivado_target(
@@ -188,7 +184,7 @@ xc7_iologic_design(BOARD ${BOARD} IOB_TYPE IOBUF   USE_IDELAY 1 ILOGIC_MODE ISER
 xc7_iologic_design(BOARD ${BOARD} IOB_TYPE IOBUF   USE_IDELAY 0                     OLOGIC_MODE OSERDES)
 
 xc7_iologic_design(BOARD ${BOARD} IOB_TYPE IOBUFDS USE_IDELAY 0)
-#xc7_iologic_design(BOARD ${BOARD} IOB_TYPE IOBUFDS USE_IDELAY 0                     OLOGIC_MODE OSERDES) # This one makes OUT_DIFF not be emitted. Unclear why.
+xc7_iologic_design(BOARD ${BOARD} IOB_TYPE IOBUFDS USE_IDELAY 0                     OLOGIC_MODE OSERDES)
 xc7_iologic_design(BOARD ${BOARD} IOB_TYPE IOBUFDS USE_IDELAY 0 ILOGIC_MODE ISERDES)
 xc7_iologic_design(BOARD ${BOARD} IOB_TYPE IOBUFDS USE_IDELAY 0 ILOGIC_MODE ISERDES OLOGIC_MODE OSERDES)
 xc7_iologic_design(BOARD ${BOARD} IOB_TYPE IOBUFDS USE_IDELAY 1 ILOGIC_MODE ISERDES)
