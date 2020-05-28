@@ -199,21 +199,33 @@ class VModule(object):
         moduletype = self.qlal4s3bmapping[typ]
         result = f'    {moduletype} {name} ('
         fixedparameters = self.group_array_values(parameters)
-        input_pins = [pin.name for pin in self.cells_library[typ].pins if pin.direction == PinDirection.INPUT]
+        # get inputs, strip vector's pin indexes
+        input_pins = [pin.name.split('[')[0] for pin in self.cells_library[typ].pins if pin.direction == PinDirection.INPUT]
+        dummy_wires = []
 
         for inpname, inp in fixedparameters.items():
             if isinstance(inp, dict):
                 arr = []
+                dummy_wire = f'{moduletype}_{name}_{inpname}'
+                max_dummy_index = 0
+                need_dummy = False
                 maxindex = max([val for val in inp.keys()])
                 for i in reversed(range(maxindex + 1)):
                     if i not in inp:
                         # do not assign constants to outputs
                         if inpname in input_pins:
                             arr.append("1'b0")
+                        else:
+                            if i > max_dummy_index:
+                                max_dummy_index = i
+                            arr.append("{}[{}]".format(dummy_wire, i))
+                            need_dummy = True
                     else:
                         arr.append(inp[i])
                 arrlist = ', '.join(arr)
                 params.append(f'.{inpname}({{{arrlist}}})')
+                if need_dummy:
+                    dummy_wires.append(f'    wire [{max_dummy_index}:0] {dummy_wire};')
             else:
                 params.append(f'.{inpname}({inp})')
         if self.useinversionpins:
@@ -230,6 +242,10 @@ class VModule(object):
             params.append(f".IP({ioname})")
 
         result += f',\n{" " * len(result)}'.join(sorted(params)) + ');\n'
+        wires = ''
+        for wire in dummy_wires:
+            wires += f'\n{wire}'
+        result = wires + '\n\n' + result
         return result
 
     @staticmethod
