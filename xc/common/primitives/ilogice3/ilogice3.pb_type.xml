@@ -351,14 +351,14 @@
       <output name="Q1"  num_pins="1"/>
       <output name="Q2"  num_pins="1"/>
 
-      <T_setup port="D" clock="CK" value="1e-10"/>
-      <T_hold  port="D" clock="CK" value="1e-10"/>
+      <T_setup port="D" clock="CK" value="{setup_CK_D}"/>
+      <T_hold  port="D" clock="CK" value="{hold_CK_D}"/>
 
-      <T_setup port="CE" clock="CK" value="1e-10"/>
-      <T_hold  port="CE" clock="CK" value="1e-10"/>
+      <T_setup port="CE" clock="CK" value="{setup_CK_D}"/>
+      <T_hold  port="CE" clock="CK" value="{hold_CK_D}"/>
 
-      <T_clock_to_Q port="Q1" clock="CK" max="1e-10"/>
-      <T_clock_to_Q port="Q2" clock="CK" max="1e-10"/>
+      <T_clock_to_Q port="Q1" clock="CK" max="{iopath_CLK_Q1}"/>
+      <T_clock_to_Q port="Q2" clock="CK" max="{iopath_CLK_Q2}"/>
 
       <metadata>
         <meta name="fasm_features">

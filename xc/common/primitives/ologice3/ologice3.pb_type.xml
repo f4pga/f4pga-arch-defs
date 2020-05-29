@@ -67,14 +67,14 @@
           <input  name="D2" num_pins="1"/>
           <output name="Q"  num_pins="1"/>
 
-          <T_setup port="CE" clock="CK" value="1e-10"/>
-          <T_hold  port="CE" clock="CK" value="1e-10"/>
-          <T_setup port="D1" clock="CK" value="1e-10"/>
-          <T_hold  port="D1" clock="CK" value="1e-10"/>
-          <T_setup port="D2" clock="CK" value="1e-10"/>
-          <T_hold  port="D2" clock="CK" value="1e-10"/>
+          <T_setup port="CE" clock="CK" value="{setup_CK_TCE}"/>
+          <T_hold  port="CE" clock="CK" value="{hold_CK_TCE}"/>
+          <T_setup port="D1" clock="CK" value="{setup_CK_D1}"/>
+          <T_hold  port="D1" clock="CK" value="{hold_CK_D1}"/>
+          <T_setup port="D2" clock="CK" value="{setup_CK_D2}"/>
+          <T_hold  port="D2" clock="CK" value="{hold_CK_D2}"/>
 
-          <T_clock_to_Q port="Q" clock="CK" max="1e-10"/>
+          <T_clock_to_Q port="Q" clock="CK" max="{iopath_CLK_Q}"/>
 
           <metadata>
             <meta name="fasm_features">
@@ -134,14 +134,14 @@
           <input  name="D2" num_pins="1"/>
           <output name="Q"  num_pins="1"/>
 
-          <T_setup port="CE" clock="CK" value="1e-10"/>
-          <T_hold  port="CE" clock="CK" value="1e-10"/>
-          <T_setup port="D1" clock="CK" value="1e-10"/>
-          <T_hold  port="D1" clock="CK" value="1e-10"/>
-          <T_setup port="D2" clock="CK" value="1e-10"/>
-          <T_hold  port="D2" clock="CK" value="1e-10"/>
+          <T_setup port="CE" clock="CK" value="{setup_CK_OCE}"/>
+          <T_hold  port="CE" clock="CK" value="{hold_CK_OCE}"/>
+          <T_setup port="D1" clock="CK" value="{setup_CK_D1}"/>
+          <T_hold  port="D1" clock="CK" value="{hold_CK_D1}"/>
+          <T_setup port="D2" clock="CK" value="{setup_CK_D2}"/>
+          <T_hold  port="D2" clock="CK" value="{hold_CK_D2}"/>
 
-          <T_clock_to_Q port="Q" clock="CK" max="1e-10"/>
+          <T_clock_to_Q port="Q" clock="CK" max="{iopath_CLK_Q}"/>
 
           <metadata>
             <meta name="fasm_features">
