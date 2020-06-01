@@ -1,0 +1,25 @@
+set_io inp[0]   T10 
+set_io inp[1]   T9
+set_io inp[2]   U13
+set_io inp[3]   T13
+set_io inp[4]   V14
+set_io inp[5]   U14
+set_io inp[6]   V11
+set_io inp[7]   V10
+
+set_io hiz[0]   U11
+set_io hiz[1]   T11
+
+set_io out[0]   M14 # LIOB33_X0Y45.Y1
+set_io out[1]   L14 # LIOB33_X0Y45.Y0
+set_io out[2]   K18 # LIOB33_X0Y47.Y1
+set_io out[3]   K17 # LIOB33_X0Y47.Y0
+
+set_io out_n[0] T8  # RIOB33_X43Y1.Y1
+set_io out_p[0] R8  # RIOB33_X43Y1.Y0
+set_io out_n[1] T6  # RIOB33_X43Y3.Y1
+set_io out_p[1] R7  # RIOB33_X43Y3.Y0
+set_io out_n[2] U6  # RIOB33_X43Y5.Y1
+set_io out_p[2] U7  # RIOB33_X43Y5.Y0
+set_io out_n[3] V9  # RIOB33_X43Y7.Y1
+set_io out_p[3] U9  # RIOB33_X43Y7.Y0
