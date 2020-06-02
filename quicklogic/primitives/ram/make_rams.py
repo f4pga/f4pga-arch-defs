@@ -209,9 +209,9 @@ def filter_cells(timings, cond, part=None):
             for b in range(4):
                 nval = str(int((int(val) & b) == 0))
                 # For normalized names
-                #cond_strs.append(sig + part_str + str(b) + "_EQ_" + nval)
+                cond_strs.append(sig + part_str + str(b) + "_EQ_" + nval)
                 # For regular names
-                cond_strs.append(sig + part_str + "[{}]".format(b) + "_EQ_" + nval)
+                #cond_strs.append(sig + part_str + "[{}]".format(b) + "_EQ_" + nval)
 
             # Reject the other part completely
             other_part_str = "_{}".format(int(1 - part))
@@ -222,11 +222,11 @@ def filter_cells(timings, cond, part=None):
             # FIXME: Assuming 2-bit max !!
             for b in range(4):
                 # For normalized names
-                #cond_strs.append(sig + other_part_str + str(b) + "_EQ_0")
-                #cond_strs.append(sig + other_part_str + str(b) + "_EQ_1")
+                cond_strs.append(sig + other_part_str + str(b) + "_EQ_0")
+                cond_strs.append(sig + other_part_str + str(b) + "_EQ_1")
                 # For regular names
-                cond_strs.append(sig + other_part_str + "[{}]".format(b) + "_EQ_0")
-                cond_strs.append(sig + other_part_str + "[{}]".format(b) + "_EQ_1")
+                #cond_strs.append(sig + other_part_str + "[{}]".format(b) + "_EQ_0")
+                #cond_strs.append(sig + other_part_str + "[{}]".format(b) + "_EQ_1")
 
         # For both parts
         else:
@@ -239,11 +239,11 @@ def filter_cells(timings, cond, part=None):
             for b in range(4):
                 nval = str(int((int(val) & b) == 0))
                 # For normalized names
-                #cond_strs.append(sig + "_0" + str(b) + "_EQ_" + nval)
-                #cond_strs.append(sig + "_1" + str(b) + "_EQ_" + nval)
+                cond_strs.append(sig + "_0" + str(b) + "_EQ_" + nval)
+                cond_strs.append(sig + "_1" + str(b) + "_EQ_" + nval)
                 # For regular names
-                cond_strs.append(sig + "_0" + "[{}]".format(b) + "_EQ_" + nval)
-                cond_strs.append(sig + "_1" + "[{}]".format(b) + "_EQ_" + nval)
+                #cond_strs.append(sig + "_0" + "[{}]".format(b) + "_EQ_" + nval)
+                #cond_strs.append(sig + "_1" + "[{}]".format(b) + "_EQ_" + nval)
 
     # DEBUG
 #    for s in cond_strs:
@@ -475,8 +475,10 @@ def make_pb_type(pb_name, ports, model_name, timings=None, timescale=1.0):
 
             # Index suffixes
             if width > 1:
-                # FIXME: For non-normalized names
-                suffixes = ["[{}]".format(w) for w in range(width)]
+                # For normalized names
+                suffixes = ["{}".format(w) for w in range(width)]
+               # For non-normalized names
+                #suffixes = ["[{}]".format(w) for w in range(width)]
             else:
                 suffixes = [""]
 
@@ -559,8 +561,10 @@ def make_pb_type(pb_name, ports, model_name, timings=None, timescale=1.0):
 
             # Index suffixes
             if width > 1:
-                # FIXME: For non-normalized names
-                suffixes = ["[{}]".format(w) for w in range(width)]
+                # For normalized names
+                suffixes = ["{}".format(w) for w in range(width)]
+               # For non-normalized names
+                #suffixes = ["[{}]".format(w) for w in range(width)]
             else:
                 suffixes = [""]
 
@@ -729,6 +733,206 @@ def auto_interconnect(pb_type):
 
     return ic
 
+# =============================================================================
+
+def make_ports(ports, separator=",\n"):
+    verilog = ""
+
+    for key in ["clock", "input", "output"]:
+        if key == "clock":
+            type = "input"
+        else:
+            type = key
+
+        verilog += "\n"
+
+        for name, width, assoc_clock in ports[key]:
+            verilog += "  {:<6} [{:2d}:0] {}{}".format(
+                type,
+                width - 1,
+                name,
+                separator
+            )
+
+    return verilog
+
+
+def make_blackbox(name, ports):
+
+    # Header
+    verilog = """
+(* blackbox *)
+module {} (
+""".format(name)
+
+    # Ports
+    verilog += make_ports(ports)
+    verilog  = verilog[:-2] + "\n"
+
+    # Footer
+    verilog += ");\n"
+    verilog += "endmodule\n"
+
+    return verilog
+
+
+def make_techmap(conditions):
+
+    cell_name = "RAMRAMRAM"
+
+    # Header
+    verilog = "module {} (\n".format(cell_name)
+
+    # Ports
+    verilog += make_ports(RAM_2X1_PORTS)
+    verilog  = verilog[:-2] + "\n"
+    verilog += ");\n"
+
+    verilog += "\n"
+
+    # Gather significant control parameters
+    control_signals = set()
+    for condition in conditions:
+        for cond_str in condition.split(","):
+            sig, val = cond_str.split("=")
+            for part in [0, 1]:
+                part_sig = "{}_{}".format(sig, part)
+                control_signals.add(part_sig)
+
+    # Techmap special parameters
+    for sig in sorted(control_signals):
+        verilog += "  parameter _TECHMAP_CONSTMSK_{}_ = 1'bx;\n".format(sig)
+        verilog += "  parameter _TECHMAP_CONSTVAL_{}_ = 1'bx;\n".format(sig)
+
+    verilog += "\n"
+
+    # Split condition strings for single and dual ram modes
+    sing_conditions = [c for c in conditions if "CONCAT_EN=0" in c]
+    dual_conditions = [c for c in conditions if "CONCAT_EN=1" in c]
+
+    # Split RAM mode
+    verilog_cond = []
+    verilog_cond.append("(_TECHMAP_CONSTVAL_CONCAT_EN_0_ == 1'b0)")
+    verilog_cond.append("(_TECHMAP_CONSTVAL_CONCAT_EN_1_ == 1'b0)")
+    verilog_cond = " && ".join(verilog_cond)
+    verilog += "  // Split RAM\n"
+    verilog += "  generate if({}) begin\n".format(verilog_cond)
+
+    # Each part is independent
+    for part in [0, 1]:
+        verilog += "    // RAM {}\n".format(part)
+        for i, condition in enumerate(sing_conditions):
+
+            # Case condition
+            verilog_cond = []
+            for condition_str in condition.split(","):
+                sig, val = condition_str.split("=")
+
+                if sig == "CONCAT_EN":
+                    continue
+
+                cond_part = "(_TECHMAP_CONSTVAL_{}_{}_ == 1'b{})".format(sig, part, val)
+                verilog_cond.append(cond_part)
+
+            verilog_cond = " && ".join(verilog_cond)
+            if i == 0:
+                verilog += "    if ({}) begin\n".format(verilog_cond)
+            else:
+                verilog += "    end else if ({}) begin\n".format(verilog_cond)
+
+            # Instance
+            mode_name  = make_mode_name(condition)
+            model_name = "RAM_" + mode_name + "_VPR"
+
+            verilog += "        {} RAM_{} (\n".format(model_name, part)
+
+            # Ports mapped to the part
+            for key in ["clock", "input", "output"]:
+                for name, width, assoc_clock in RAM_2X1_PORTS[key]:
+
+                    # Get the correct part port name. Discard port if not
+                    # relevant to this part
+                    if name.endswith("_{}".format(part)):
+                        part_name = name[:-2]
+                    elif name.endswith("_{}".format(1 - part)):
+                        continue
+                    else:
+                        part_name = name
+
+                    verilog += "        .{}({}),\n".format(part_name, name)
+
+            verilog = verilog[:-2] + "\n"
+            verilog += "        );\n"
+
+        # Error catcher
+        verilog += """
+    end else begin
+      wire _TECHMAP_FAIL_;
+    end
+"""
+
+    # Non-split (concatenated) RAM mode
+    verilog_cond = []
+    verilog_cond.append("(_TECHMAP_CONSTVAL_CONCAT_EN_0_ == 1'b1)")
+    verilog_cond.append("(_TECHMAP_CONSTVAL_CONCAT_EN_1_ == 1'b1)")
+    verilog_cond = " && ".join(verilog_cond)
+    verilog += "  // Concatenated RAM\n"
+    verilog += "  end else if({}) begin\n".format(verilog_cond)
+
+    for i, condition in enumerate(dual_conditions):
+
+        # Case condition
+        verilog_cond = []
+        for condition_str in condition.split(","):
+            sig, val = condition_str.split("=")
+
+            if sig == "CONCAT_EN":
+                continue
+
+            cond_part = "(_TECHMAP_CONSTVAL_{}_0_ == 1'b{})".format(sig, val)
+            cond_part = "(_TECHMAP_CONSTVAL_{}_1_ == 1'b{})".format(sig, val)
+            verilog_cond.append(cond_part)
+
+        verilog_cond = " && ".join(verilog_cond)
+        if i == 0:
+            verilog += "    if ({}) begin\n".format(verilog_cond)
+        else:
+            verilog += "    end else if ({}) begin\n".format(verilog_cond)
+
+        # Instance
+        mode_name  = make_mode_name(condition)
+        model_name = "RAM_" + mode_name + "_VPR"
+
+        verilog += "      {} RAM (\n".format(model_name)
+
+        # Ports always mapped 1-to-1
+        for key in ["clock", "input", "output"]:
+            for name, width, assoc_clock in RAM_2X1_PORTS[key]:
+                verilog += "      .{}({}),\n".format(name, name)
+
+        verilog = verilog[:-2] + "\n"
+        verilog += "      );\n"
+
+    # Error catcher
+    verilog += """
+    end else begin
+      wire _TECHMAP_FAIL_;
+    end
+"""
+
+    # Error handler for unexpected configuration
+    verilog += """
+  end else begin
+    wire _TECHMAP_FAIL_;
+
+  end endgenerate
+
+"""
+
+    # Footer
+    verilog += "endmodule\n"
+
+    return verilog
 
 # =============================================================================
 
@@ -774,10 +978,6 @@ def main():
     instances = set()
     for v in ram_timings["cells"].values():
         instances |= set(v.keys())
-
-#    # FIXME: For now use only one instance
-#    instances = ["RAM_A1"]
-#    all_timings = filter_instances(ram_timings["cells"], instances[0])
 
 
     xml_models = {}
@@ -911,6 +1111,34 @@ def main():
     fname = os.path.join(args.xml_path, "ram.model.xml")
     ET.ElementTree(xml_model_root).write(fname, pretty_print=True)
 
+
+    # Make blackboxes
+    blackboxes = {}
+    for cond in yield_ram_modes(ram_tree):
+        mode_name  = make_mode_name(cond)
+        model_name = "RAM_" + mode_name + "_VPR"
+
+        # CONCAT_EN=0 - the 2x1 RAM is split into two
+        if "CONCAT_EN=0" in cond:
+            verilog = make_blackbox(model_name, RAM_2X1_PORTS)
+            blackboxes[model_name] = verilog
+
+        # CONCAT_EN=1 - keep the 2x1 RAM as one
+        elif "CONCAT_EN=1" in cond:
+            verilog = make_blackbox(model_name, ram_ports_sing)
+            blackboxes[model_name] = verilog
+
+    # Write blackbox definitions
+    fname = os.path.join(args.xml_path, "cells_sim.v")
+    with open(fname, "w") as fp:
+        for k, v in blackboxes.items():
+            fp.write(v)
+
+    # Make techmap
+    techmap = make_techmap(list(yield_ram_modes(ram_tree)))
+    fname = os.path.join(args.xml_path, "cells_map.v")
+    with open(fname, "w") as fp:
+        fp.write(techmap)
 
 if __name__ == "__main__":
     main()
