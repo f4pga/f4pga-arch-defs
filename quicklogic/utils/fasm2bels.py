@@ -60,8 +60,7 @@ class Fasm2Bels(object):
 
         self.io_to_fbio = dict()
 
-        for name, package in db['package_pinmaps'][self.package_name
-                                                       ].items():
+        for name, package in db['package_pinmaps'][self.package_name].items():
             self.io_to_fbio[package[0].loc] = name
 
         # Add ASSP to all locations it covers
@@ -144,12 +143,14 @@ class Fasm2Bels(object):
         }
         for ram in ramlocs:
             self.multiloccells[ram] = MultiLocCellMapping(
-                        ram, ramlocs[ram], list(ramlocs[ram])[0], self.pinnames['RAM']
-                    )
+                ram, ramlocs[ram],
+                list(ramlocs[ram])[0], self.pinnames['RAM']
+            )
         for mult in multlocs:
             self.multiloccells[mult] = MultiLocCellMapping(
-                        mult, multlocs[mult], list(multlocs[mult])[1], self.pinnames['MULT']
-                    )
+                mult, multlocs[mult],
+                list(multlocs[mult])[1], self.pinnames['MULT']
+            )
 
         # helper routing data
         self.routingdata = defaultdict(list)
@@ -554,13 +555,13 @@ if __name__ == '__main__':
         "--input-pcf",
         type=Path,
         required=False,
-        help="Pins constraint file. If provided the tool will use the info to keep the original io pins names"
+        help=
+        "Pins constraint file. If provided the tool will use the info to keep the original io pins names"
     )
 
     parser.add_argument("--output-pcf", type=Path, help="Output PCF file")
 
     parser.add_argument("--output-qcf", type=Path, help="Output QCF file")
-
 
     args = parser.parse_args()
 

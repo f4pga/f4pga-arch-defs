@@ -7,8 +7,10 @@ VerilogIO = namedtuple('VerilogIO', 'name direction ioloc')
 
 from data_structs import PinDirection
 
+
 def loc2str(loc):
     return "X" + str(loc.x) + "Y" + str(loc.y)
+
 
 class VModule(object):
     '''Represents a Verilog module for QLAL4S3B FASM'''
@@ -60,12 +62,12 @@ class VModule(object):
             'LOGIC': 'logic_cell_macro',
             'ASSP': 'qlal4s3b_cell_macro',
             'BIDIR': 'gpio_cell_macro',
-            'RAM' : 'ram8k_2x1_cell_macro',
-            'MULT' : 'qlal4s3_mult_cell_macro',
+            'RAM': 'ram8k_2x1_cell_macro',
+            'MULT': 'qlal4s3_mult_cell_macro',
             'inv': 'inv'
         }
 
-    def group_vector_signals(self, signals, io = False):
+    def group_vector_signals(self, signals, io=False):
 
         # IOs beside name, have also direction, convert them to format
         # we can process
@@ -109,9 +111,8 @@ class VModule(object):
         # add vectors to signals dict
         for vec in vectors:
             name = '[{max}:{min}] {name}'.format(
-                    max = vectors[vec]['max'],
-                    min = vectors[vec]['min'],
-                    name = vec)
+                max=vectors[vec]['max'], min=vectors[vec]['min'], name=vec
+            )
             id = Wire(name, 'vector', False)
             new_signals[id] = name
 
@@ -121,7 +122,11 @@ class VModule(object):
             for s in new_signals:
                 signalname = new_signals[s].split()
                 signalname = signalname[-1]
-                io = [x.direction for x in orig_ios if x.name.startswith(signalname)]
+                io = [
+                    x.direction
+                    for x in orig_ios
+                    if x.name.startswith(signalname)
+                ]
                 direction = io[0]
                 new_ios.append((direction, new_signals[s]))
             return new_ios
@@ -200,7 +205,11 @@ class VModule(object):
         result = f'    {moduletype} {name} ('
         fixedparameters = self.group_array_values(parameters)
         # get inputs, strip vector's pin indexes
-        input_pins = [pin.name.split('[')[0] for pin in self.cells_library[typ].pins if pin.direction == PinDirection.INPUT]
+        input_pins = [
+            pin.name.split('[')[0]
+            for pin in self.cells_library[typ].pins
+            if pin.direction == PinDirection.INPUT
+        ]
         dummy_wires = []
 
         for inpname, inp in fixedparameters.items():
@@ -225,7 +234,9 @@ class VModule(object):
                 arrlist = ', '.join(arr)
                 params.append(f'.{inpname}({{{arrlist}}})')
                 if need_dummy:
-                    dummy_wires.append(f'    wire [{max_dummy_index}:0] {dummy_wire};')
+                    dummy_wires.append(
+                        f'    wire [{max_dummy_index}:0] {dummy_wire};'
+                    )
             else:
                 params.append(f'.{inpname}({inp})')
         if self.useinversionpins:
@@ -271,7 +282,11 @@ class VModule(object):
 
         used_cells = []
         for cell in cells:
-            cellpins = [pin.name for pin in self.cells_library[cell].pins if pin.direction == direction]
+            cellpins = [
+                pin.name
+                for pin in self.cells_library[cell].pins
+                if pin.direction == direction
+            ]
             # check every connection pin if it has
             cell_fit = True
             for pin in cellpins:
@@ -283,7 +298,11 @@ class VModule(object):
         cell_connections = {}
         for cell in used_cells:
             cell_connections[cell] = dict()
-            cellpins = [pin.name for pin in self.cells_library[cell].pins if pin.direction == direction]
+            cellpins = [
+                pin.name
+                for pin in self.cells_library[cell].pins
+                if pin.direction == direction
+            ]
             for pin in connections.keys():
                 if pin in cellpins:
                     cell_connections[cell][pin] = connections[pin]
@@ -348,7 +367,9 @@ class VModule(object):
             wirename = self.wires[uninvertedwireid]
         else:
             srcname = self.vpr_tile_grid[wire[0]].name
-            type_connections = self.get_bel_type_and_connections(wire[0], wire[1], PinDirection.OUTPUT)
+            type_connections = self.get_bel_type_and_connections(
+                wire[0], wire[1], PinDirection.OUTPUT
+            )
             # there should be only one type here
             srctype = [type for type in type_connections.keys()][0]
             srconame = wire[1]
@@ -368,8 +389,7 @@ class VModule(object):
             if srctype not in self.elements[wire[0]]:
                 # if the source element does not exist, create it
                 self.elements[wire[0]][srctype] = Element(
-                    wire[0], srctype,
-                    self.get_element_name(srctype, wire[0]),
+                    wire[0], srctype, self.get_element_name(srctype, wire[0]),
                     {srconame: wirename}
                 )
             else:
@@ -418,14 +438,15 @@ class VModule(object):
                     self.get_wire(currloc, connections['OQI'], 'OQI')
                 # TODO parse IE/INEN, check iz
 
-
         # process of BELs
         for currloc, connections in self.designconnections.items():
             # Extract type and form name for the BEL
             # Current location may be a multi cell location.
             # Split the connection list into a to a set of connections
             # for each used cell type
-            type_connections = self.get_bel_type_and_connections(currloc, connections, PinDirection.INPUT)
+            type_connections = self.get_bel_type_and_connections(
+                currloc, connections, PinDirection.INPUT
+            )
 
             for currtype in type_connections:
                 currname = self.get_element_name(currtype, currloc)
@@ -441,13 +462,16 @@ class VModule(object):
                         continue
                     srctype = self.vpr_tile_grid[wire[0]].type
                     srctype_cells = self.vpr_tile_types[srctype].cells
-                    if len(set(srctype_cells).intersection(set(['BIDIR', 'LOGIC', 'ASSP', 'RAM', 'MULT']))) > 0:
+                    if len(set(srctype_cells).intersection(set(
+                        ['BIDIR', 'LOGIC', 'ASSP', 'RAM', 'MULT']))) > 0:
                         # FIXME handle already inverted pins
                         # TODO handle inouts
                         wirename = self.get_wire(currloc, wire, inputname)
                         inputs[inputname] = wirename
                     else:
-                        raise Exception('Not supported cell type {}'.format(srctype))
+                        raise Exception(
+                            'Not supported cell type {}'.format(srctype)
+                        )
                 if currtype not in self.elements[currloc]:
                     # If Element does not exist, create it
                     self.elements[currloc][currtype] = Element(
@@ -456,7 +480,6 @@ class VModule(object):
                 else:
                     # else update IOs
                     self.elements[currloc][currtype].ios.update(inputs)
-
 
     def get_io_name(self, loc):
 
@@ -513,9 +536,7 @@ class VModule(object):
 
                     name = self.get_io_name(eloc)
                     self.ios[eloc] = VerilogIO(
-                        name=name,
-                        direction=direction,
-                        ioloc=eloc
+                        name=name, direction=direction, ioloc=eloc
                     )
                     # keep the original wire name for generating the wireid
                     wireid = Wire(name, "inout_pin", False)
@@ -541,9 +562,7 @@ class VModule(object):
             )
             grouped_ios = self.group_vector_signals(sortedios, True)
             ios = '\n    '
-            ios += ',\n    '.join(
-                [f'{x[0]} {x[1]}' for x in grouped_ios]
-            )
+            ios += ',\n    '.join([f'{x[0]} {x[1]}' for x in grouped_ios])
 
         grouped_wires = self.group_vector_signals(self.wires)
         if len(grouped_wires) > 0:

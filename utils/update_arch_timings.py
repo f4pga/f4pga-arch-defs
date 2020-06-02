@@ -12,8 +12,10 @@ import sys
 # in bels.json
 DEBUG = False
 
+
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
+
 
 def mergedicts(source, destination):
     """This function recursively merges two dictionaries:
