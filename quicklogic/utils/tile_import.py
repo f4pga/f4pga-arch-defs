@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import os
 import re
 import itertools
 from collections import defaultdict
@@ -69,7 +70,13 @@ def make_top_level_model(tile_type, nsmap):
     xi_include = "{{{}}}include".format(nsmap["xi"])
     for cell_type, cell_count in tile_type.cells.items():
         name = cell_type.lower()
-        pb_type_file = "../../primitives/{}/{}.model.xml".format(name, name)
+
+        # Be smart. Check if there is a file for that cell in the current
+        # directory. If not then use the one from "primitives" path
+        pb_type_file = "./{}.model.xml".format(name)
+        if not os.path.isfile(pb_type_file):
+            pb_type_file = "../../primitives/{}/{}.model.xml".format(name, name)
+
         ET.SubElement(
             xml_models, xi_include, {
                 "href": pb_type_file,
@@ -101,7 +108,13 @@ def make_top_level_pb_type(tile_type, nsmap):
         )
 
         name = cell_type.lower()
-        pb_type_file = "../../primitives/{}/{}.pb_type.xml".format(name, name)
+
+        # Be smart. Check if there is a file for that cell in the current
+        # directory. If not then use the one from "primitives" path
+        pb_type_file = "./{}.pb_type.xml".format(name)
+        if not os.path.isfile(pb_type_file):
+            pb_type_file = "../../primitives/{}/{}.pb_type.xml".format(name, name)
+
         ET.SubElement(
             xml_sub, xi_include, {
                 "href": pb_type_file,

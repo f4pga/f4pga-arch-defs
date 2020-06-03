@@ -801,7 +801,8 @@ module {} (
 
 def make_techmap(conditions):
 
-    cell_name = "RAMRAMRAM"
+    # The original cell name
+    cell_name = "ram8k_2x1_cell_macro"
 
     # Header
     verilog = "module {} (\n".format(cell_name)
@@ -981,6 +982,12 @@ def main():
         default="./",
         help="Output path for XML files"
     )
+    parser.add_argument(
+        "--vlog-path",
+        type=str,
+        default="./",
+        help="Output path for Verilog files"
+    )
 
     args = parser.parse_args()
 
@@ -1010,7 +1017,7 @@ def main():
         print(instance)
 
         # Initialize the top-level pb_type XML
-        xml_pb_root = make_pb_type(instance, RAM_2X1_PORTS, None)[0]
+        xml_pb_root = make_pb_type("RAM", RAM_2X1_PORTS, None)[0]
 
         # Wrapper pb_type for split RAM (CONCAT_EN=0)
         xml_mode = ET.SubElement(xml_pb_root, "mode", {"name": "SING"})
@@ -1164,14 +1171,14 @@ def main():
             blackboxes[model_name] = verilog
 
     # Write blackbox definitions
-    fname = os.path.join(args.xml_path, "cells_sim.v")
+    fname = os.path.join(args.vlog_path, "ram_sim.v")
     with open(fname, "w") as fp:
         for k, v in blackboxes.items():
             fp.write(v)
 
     # Make techmap
     techmap = make_techmap(list(yield_ram_modes(ram_tree)))
-    fname = os.path.join(args.xml_path, "cells_map.v")
+    fname = os.path.join(args.vlog_path, "ram_map.v")
     with open(fname, "w") as fp:
         fp.write(techmap)
 
