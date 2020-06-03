@@ -17,8 +17,8 @@ RAM_2X1_PORTS = {
     "input": [
         # RAM part 1, port 1
         ["WIDTH_SELECT1_0", 2, None],
-        ["CLK1EN_0", 1, "CLK1_0"],
-        ["CS1_0", 1, "CLK1_0"],
+        ["CLK1EN_0", 1, None],#"CLK1_0"],
+        ["CS1_0", 1, None],#"CLK1_0"],
         ["A1_0", 11, "CLK1_0"],
         ["WD_0", 18, "CLK1_0"],
         ["WEN1_0", 2, "CLK1_0"],
@@ -26,8 +26,8 @@ RAM_2X1_PORTS = {
 
         # RAM part 1, port 2
         ["WIDTH_SELECT2_0", 2, None],
-        ["CLK2EN_0", 1, "CLK2_0"],
-        ["CS2_0", 1, "CLK2_0"],
+        ["CLK2EN_0", 1, None],#"CLK2_0"],
+        ["CS2_0", 1, None],#"CLK2_0"],
         ["A2_0", 11, "CLK2_0"],
         ["P2_0", 1, "CLK2_0"],
 
@@ -42,8 +42,8 @@ RAM_2X1_PORTS = {
 
         # RAM part 2, port 1
         ["WIDTH_SELECT1_1", 2, None],
-        ["CLK1EN_1", 1, "CLK1_1"],
-        ["CS1_1", 1, "CLK1_1"],
+        ["CLK1EN_1", 1, None],#"CLK1_1"],
+        ["CS1_1", 1, None],#"CLK1_1"],
         ["A1_1", 11, "CLK1_1"],
         ["WD_1", 18, "CLK1_1"],
         ["WEN1_1", 2, "CLK1_1"],
@@ -51,8 +51,8 @@ RAM_2X1_PORTS = {
 
         # RAM part 2, port 2
         ["WIDTH_SELECT2_1", 2, None],
-        ["CLK2EN_1", 1, "CLK2_1"],
-        ["CS2_1", 1, "CLK2_1"],
+        ["CLK2EN_1", 1, None],#"CLK2_1"],
+        ["CS2_1", 1, None],#"CLK2_1"],
         ["A2_1", 11, "CLK2_1"],
         ["P2_1", 1, "CLK2_1"],
 
@@ -177,26 +177,31 @@ def make_mode_name(cond):
 # =============================================================================
 
 
-def filter_cells(timings, cond, part=None):
+def filter_cells(timings, cond, part=None, debug=False):
     """
     Filters SDF timings basing on conditions present in cell type names.
 
     If a negated condition from the condition list is found in a cell type
     then that cell type is rejected.
     """
-    if part is not None:
-        assert part in [0, 1], part
-        part_str = "_{}".format(int(part))
-    else:
-        part_str = ""
 
     # Make false condition strings
     cond_strs = []
     for c in cond.split(","):
         sig, val = [s.strip() for s in c.strip().split("=")]
 
+        # There appears to be a single CONCAT_EN_0 condition for both cells.
+        # Handle it here separately
+        if sig == "CONCAT_EN":
+            nval = str(1 - int(val))
+            cond_strs.append(sig + "_0" + "_EQ_" + nval)
+            continue
+
         # For a single part
         if part is not None:
+
+            assert part in [0, 1], part
+            part_str = "_{}".format(int(part))
 
             # Single bit
             # "<param>_EQ_<!val>"
@@ -207,7 +212,7 @@ def filter_cells(timings, cond, part=None):
             # "<param>_<bit_idx>_EQ_<!bit_val>"
             # FIXME: Assuming 2-bit max !!
             for b in range(4):
-                nval = str(int((int(val) & b) == 0))
+                nval = str(int((int(val) & (1 << b)) == 0))
                 # For normalized names
                 cond_strs.append(sig + part_str + str(b) + "_EQ_" + nval)
                 # For regular names
@@ -237,7 +242,7 @@ def filter_cells(timings, cond, part=None):
             cond_strs.append(sig + "_1" + "_EQ_" + nval)
 
             for b in range(4):
-                nval = str(int((int(val) & b) == 0))
+                nval = str(int((int(val) & (1 << b)) == 0))
                 # For normalized names
                 cond_strs.append(sig + "_0" + str(b) + "_EQ_" + nval)
                 cond_strs.append(sig + "_1" + str(b) + "_EQ_" + nval)
@@ -246,25 +251,31 @@ def filter_cells(timings, cond, part=None):
                 #cond_strs.append(sig + "_1" + "[{}]".format(b) + "_EQ_" + nval)
 
     # DEBUG
-#    for s in cond_strs:
-#        print("", "!" + s)
+    if debug:
+        print(cond)
+        for s in cond_strs:
+            print("", "!" + s)
 
     # Filter
     cells = {}
     for cell_type, cell_data in timings.items():
-#        print("", "check", cell_type)
+
+        if debug:
+            print("", "check", cell_type)
 
         # If any of the false conditions is found in the cell_type then the
         # cell is rejected
         reject = False
         for s in cond_strs:
             if s in cell_type:
-#                print(" ", "reject", s)
+                if debug:
+                    print(" ", "reject", s)
                 reject = True
 
         # The cell is ok
         if not reject:
-#            print(" ", "OK")
+            if debug:
+                print(" ", "OK")
             assert cell_type not in cells
             cells[cell_type] = cell_data
 
@@ -432,6 +443,11 @@ def make_model(model_name, ports):
 
 def make_pb_type(pb_name, ports, model_name, timings=None, timescale=1.0):
 
+    stats = {
+        "total_timings": 0,
+        "missing_timings": 0,
+    }
+
     # The pb_type tag
     if model_name:
         attrs = {"blif_model": ".subckt {}".format(model_name)}
@@ -510,7 +526,9 @@ def make_pb_type(pb_name, ports, model_name, timings=None, timescale=1.0):
                 delay = max([d for d in delays.values()]) * timescale
             else:
                 delay = 1e-10
+                stats["missing_timings"] += 1
                 print("WARNING: No setup timing for '{}'->'{}' for pb_type '{}'".format(name, assoc_clock, pb_name))
+            stats["total_timings"] += 1
 
             ET.SubElement(xml_pb, "T_setup", {
                 "port": name,
@@ -542,7 +560,9 @@ def make_pb_type(pb_name, ports, model_name, timings=None, timescale=1.0):
                 delay = max([d for d in delays.values()])
             else:
                 delay = 1e-10
+                stats["missing_timings"] += 1
                 print("WARNING: No hold timing for '{}'->'{}' for pb_type '{}'".format(name, assoc_clock, pb_name))
+            stats["total_timings"] += 1
 
             ET.SubElement(xml_pb, "T_hold", {
                 "port": name,
@@ -591,7 +611,10 @@ def make_pb_type(pb_name, ports, model_name, timings=None, timescale=1.0):
             else:
                 delay_min = 1e-10
                 delay_max = 1e-10
+                stats["missing_timings"] += 1
                 print("WARNING: No \"clock to Q\" timing for '{}'->'{}' for pb_type '{}'".format(assoc_clock, name, pb_name))
+
+            stats["total_timings"] += 1
 
             ET.SubElement(xml_pb, "T_clock_to_Q", {
                 "port": name,
@@ -600,7 +623,7 @@ def make_pb_type(pb_name, ports, model_name, timings=None, timescale=1.0):
                 "max": "{:+e}".format(delay_max)
             })
 
-    return xml_pb
+    return xml_pb, stats
 
 # =============================================================================
 
@@ -987,14 +1010,14 @@ def main():
         print(instance)
 
         # Initialize the top-level pb_type XML
-        xml_pb_root = make_pb_type(instance, RAM_2X1_PORTS, None)
+        xml_pb_root = make_pb_type(instance, RAM_2X1_PORTS, None)[0]
 
         # Wrapper pb_type for split RAM (CONCAT_EN=0)
         xml_mode = ET.SubElement(xml_pb_root, "mode", {"name": "SING"})
 
         xml_sing = [
-            make_pb_type("RAM_0", ram_ports_sing, None),
-            make_pb_type("RAM_1", ram_ports_sing, None),
+            make_pb_type("RAM_0", ram_ports_sing, None)[0],
+            make_pb_type("RAM_1", ram_ports_sing, None)[0],
         ]
 
         for x in xml_sing:
@@ -1005,7 +1028,7 @@ def main():
 
         # Wrapper pb_type for non-split RAM (CONCAT_EN=1)
         xml_mode = ET.SubElement(xml_pb_root, "mode", {"name": "DUAL"})
-        xml_dual = make_pb_type("RAM_DUAL", RAM_2X1_PORTS, None)
+        xml_dual = make_pb_type("RAM_DUAL", RAM_2X1_PORTS, None)[0]
         xml_mode.append(xml_dual)
 
         ic = auto_interconnect(xml_mode)
@@ -1013,6 +1036,9 @@ def main():
 
         # Get timings for this instance
         all_timings = filter_instances(ram_timings["cells"], instance)
+
+        total_timings   = 0
+        missing_timings = 0
 
         # Generate RAM modes
         for cond in yield_ram_modes(ram_tree):
@@ -1049,8 +1075,11 @@ def main():
 
                     # Make the pb_type XML
                     pb_name = "RAM_{}_{}".format(part, mode_name)
-                    xml_pb = make_pb_type(pb_name, model_ports, model_name, timings, timescale)
+                    xml_pb, stats = make_pb_type(pb_name, model_ports, model_name, timings, timescale)
                     xml_mode.append(xml_pb)
+
+                    total_timings += stats["total_timings"]
+                    missing_timings += stats["missing_timings"]
 
                     # Make the interconnect
                     ic = auto_interconnect(xml_mode)
@@ -1084,8 +1113,11 @@ def main():
 
                 # Make the pb_type XML
                 pb_name = "RAM_" + mode_name
-                xml_pb = make_pb_type(pb_name, model_ports, model_name, timings, timescale)
+                xml_pb, stats = make_pb_type(pb_name, model_ports, model_name, timings, timescale)
                 xml_mode.append(xml_pb)
+
+                total_timings += stats["total_timings"]
+                missing_timings += stats["missing_timings"]
 
                 # Make the interconnect
                 ic = auto_interconnect(xml_mode)
@@ -1102,6 +1134,9 @@ def main():
         # Serialize the pb_type XML
         fname = os.path.join(args.xml_path, instance.lower() + ".pb_type.xml")
         ET.ElementTree(xml_pb_root).write(fname, pretty_print=True)
+
+        print("total timings  : {}".format(total_timings))
+        print("missing timings: {} {:.2f}%".format(missing_timings, 100.0 * missing_timings / total_timings))
 
     # Write models XML
     xml_model_root = ET.Element("models")
