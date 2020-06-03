@@ -854,7 +854,7 @@ def make_techmap(conditions):
                 if sig == "CONCAT_EN":
                     continue
 
-                cond_part = "(_TECHMAP_CONSTVAL_{}_{}_ == 1'b{})".format(sig, part, val)
+                cond_part = "(_TECHMAP_CONSTVAL_{}_{}_ == {})".format(sig, part, val)
                 verilog_cond.append(cond_part)
 
             verilog_cond = " && ".join(verilog_cond)
@@ -912,8 +912,8 @@ def make_techmap(conditions):
             if sig == "CONCAT_EN":
                 continue
 
-            cond_part = "(_TECHMAP_CONSTVAL_{}_0_ == 1'b{})".format(sig, val)
-            cond_part = "(_TECHMAP_CONSTVAL_{}_1_ == 1'b{})".format(sig, val)
+            cond_part = "(_TECHMAP_CONSTVAL_{}_0_ == {})".format(sig, val)
+            cond_part = "(_TECHMAP_CONSTVAL_{}_1_ == {})".format(sig, val)
             verilog_cond.append(cond_part)
 
         verilog_cond = " && ".join(verilog_cond)
