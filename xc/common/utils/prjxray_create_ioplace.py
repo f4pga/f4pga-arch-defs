@@ -6,7 +6,6 @@ import json
 import sys
 import os
 import vpr_io_place
-from lib.parse_pcf import parse_simple_pcf
 
 
 def main():
@@ -18,7 +17,7 @@ def main():
         '-p',
         "-P",
         type=argparse.FileType('r'),
-        required=True,
+        required=False,
         help='PCF input file'
     )
     parser.add_argument(
@@ -96,46 +95,43 @@ def main():
     # to be used in fasm2bels.
     iostandard_constraints = {}
 
-    fname = args.pcf.name.replace(".pcf", ".json")
-    if os.path.isfile(fname):
-        with open(fname, "r") as fp:
-            iostandard_constraints = json.load(fp)
-
+    if args.pcf:
+        fname = args.pcf.name.replace(".pcf", ".json")
+        if os.path.isfile(fname):
+            with open(fname, "r") as fp:
+                iostandard_constraints = json.load(fp)
     # Constrain nets
-    for pcf_constraint in parse_simple_pcf(args.pcf):
-        if not io_place.is_net(pcf_constraint.net):
+    for net, pad in io_place.net_to_pad:
+        if not io_place.is_net(net):
             print(
                 """ERROR:
-PCF constraint "{}" from line {} constraints net {} which is not in available netlist:\n{}"""
+XDC constraints net {} which is not in available netlist:\n{}"""
                 .format(
-                    pcf_constraint.line_str, pcf_constraint.line_num,
-                    pcf_constraint.net, '\n'.join(io_place.get_nets())
+                    net, '\n'.join(io_place.get_nets())
                 ),
                 file=sys.stderr
             )
             sys.exit(1)
 
-        if pcf_constraint.pad not in pad_map:
+        if pad not in pad_map:
             print(
                 """ERROR:
-PCF constraint "{}" from line {} constraints pad {} which is not in available pad map:\n{}"""
+XDC constraints pad {} which is not in available pad map:\n{}"""
                 .format(
-                    pcf_constraint.line_str, pcf_constraint.line_num,
-                    pcf_constraint.pad, '\n'.join(sorted(pad_map.keys()))
+                    pad, '\n'.join(sorted(pad_map.keys()))
                 ),
                 file=sys.stderr
             )
             sys.exit(1)
 
-        loc, is_output, iob = pad_map[pcf_constraint.pad]
+        loc, is_output, iob = pad_map[pad]
         io_place.constrain_net(
-            net_name=pcf_constraint.net,
+            net_name=net,
             loc=loc,
-            comment=pcf_constraint.line_str
+            comment="set_property LOC {} [get_ports {}]".format(pad, net)
         )
-
-        if pcf_constraint.pad in iostandard_constraints:
-            iostandard_defs[iob] = iostandard_constraints[pcf_constraint.pad]
+        if pad in iostandard_constraints:
+            iostandard_defs[iob] = iostandard_constraints[pad]
         else:
             if is_output:
                 iostandard_defs[iob] = {
