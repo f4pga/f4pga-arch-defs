@@ -244,7 +244,7 @@ function(QUICKLOGIC_DEFINE_DEVICE)
 #        --router_lookahead connection_box_map
         --router_lookahead map
         --disable_errors check_unbuffered_edges:check_route:check_place
-        --suppress_warnings sum_pin_class:check_unbuffered_edges:load_rr_indexed_data_T_values:check_rr_node:trans_per_R
+        --suppress_warnings sum_pin_class:check_unbuffered_edges:load_rr_indexed_data_T_values:check_rr_node:trans_per_R:set_rr_graph_tool_comment
         --route_chan_width 500
         --allow_dangling_combinational_nodes on
         --allowed_tiles_for_delay_model TL-LOGIC # TODO: Make this a parameter !
