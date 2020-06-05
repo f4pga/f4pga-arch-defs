@@ -111,6 +111,19 @@ RAM_2X1_PORTS = {
     ],
 }
 
+# A list of non-routable ports
+RAM_2X1_NON_ROUTABLE_PORTS = {
+    "input": [
+        ["CLK1S_0", 1, None],
+        ["CLK2S_0", 1, None],
+        ["CLK1S_1", 1, None],
+        ["CLK2S_1", 1, None],
+
+        ["ASYNC_FLUSH_S0", 1, None],
+        ["ASYNC_FLUSH_S1", 1, None],
+    ]
+}
+
 # A list of ports relevant only in FIFO mode
 FIFO_PORTS = [
     "DIR",
@@ -770,12 +783,19 @@ def make_ports(ports, separator=",\n"):
         verilog += "\n"
 
         for name, width, assoc_clock in ports[key]:
-            verilog += "  {:<6} [{:2d}:0] {}{}".format(
-                type,
-                width - 1,
-                name,
-                separator
-            )
+            if width > 1:
+                verilog += "  {:<6} [{:2d}:0] {}{}".format(
+                    type,
+                    width - 1,
+                    name,
+                    separator
+                )
+            else:
+                verilog += "  {:<6}        {}{}".format(
+                    type,
+                    name,
+                    separator
+                )
 
     return verilog
 
@@ -808,7 +828,13 @@ def make_techmap(conditions):
     verilog = "module {} (\n".format(cell_name)
 
     # Ports
-    verilog += make_ports(RAM_2X1_PORTS)
+    map_ports = {}
+    for key, ports in RAM_2X1_PORTS.items():
+        map_ports[key] = list(ports)
+        if key in RAM_2X1_NON_ROUTABLE_PORTS:
+            map_ports[key] += RAM_2X1_NON_ROUTABLE_PORTS[key]
+
+    verilog += make_ports(map_ports)
     verilog  = verilog[:-2] + "\n"
     verilog += ");\n"
 
@@ -898,7 +924,7 @@ def make_techmap(conditions):
     # Non-split (concatenated) RAM mode
     verilog_cond = []
     verilog_cond.append("(_TECHMAP_CONSTVAL_CONCAT_EN_0_ == 1'b1)")
-    verilog_cond.append("(_TECHMAP_CONSTVAL_CONCAT_EN_1_ == 1'b1)")
+    # verilog_cond.append("(_TECHMAP_CONSTVAL_CONCAT_EN_1_ == 1'b1)") # It appears that only CONCAT_EN_0 needs to be set
     verilog_cond = " && ".join(verilog_cond)
     verilog += "  // Concatenated RAM\n"
     verilog += "  end else if({}) begin\n".format(verilog_cond)
@@ -1162,12 +1188,12 @@ def main():
 
         # CONCAT_EN=0 - the 2x1 RAM is split into two
         if "CONCAT_EN=0" in cond:
-            verilog = make_blackbox(model_name, RAM_2X1_PORTS)
+            verilog = make_blackbox(model_name, ram_ports_sing)
             blackboxes[model_name] = verilog
 
         # CONCAT_EN=1 - keep the 2x1 RAM as one
         elif "CONCAT_EN=1" in cond:
-            verilog = make_blackbox(model_name, ram_ports_sing)
+            verilog = make_blackbox(model_name, RAM_2X1_PORTS)
             blackboxes[model_name] = verilog
 
     # Write blackbox definitions
