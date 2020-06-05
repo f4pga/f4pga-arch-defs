@@ -1210,8 +1210,6 @@ function(ADD_FPGA_TARGET)
 
   get_target_property_required(PYTHON3 env PYTHON3)
 
-  get_target_property_required(PYTHON3 env PYTHON3)
-
   set(TOP "top")
   if(NOT "${ADD_FPGA_TARGET_TOP}" STREQUAL "")
     set(TOP ${ADD_FPGA_TARGET_TOP})
@@ -1367,6 +1365,26 @@ function(ADD_FPGA_TARGET)
     # as targets not defining it should not use TECHMAP_PATH ENV variable
     get_target_property(YOSYS_TECHMAP ${ARCH} YOSYS_TECHMAP)
 
+    # Device type specific cells and techmap
+    get_target_property(YOSYS_DEVICE_CELLS_SIM ${DEVICE_TYPE} CELLS_SIM)
+    get_target_property(YOSYS_DEVICE_CELLS_MAP ${DEVICE_TYPE} CELLS_MAP)
+
+    if (NOT "${YOSYS_DEVICE_CELLS_SIM}" MATCHES ".*NOTFOUND")
+        get_file_target(YOSYS_DEVICE_CELLS_SIM_TARGET ${YOSYS_DEVICE_CELLS_SIM})
+        get_file_location(YOSYS_DEVICE_CELLS_SIM ${YOSYS_DEVICE_CELLS_SIM})
+        list(APPEND CELLS_SIM_DEPS ${YOSYS_DEVICE_CELLS_SIM} ${YOSYS_DEVICE_CELLS_SIM_TARGET})
+    else ()
+        set(YOSYS_DEVICE_CELLS_SIM "")
+    endif()
+
+    if (NOT "${YOSYS_DEVICE_CELLS_MAP}" MATCHES ".*NOTFOUND")
+        get_file_target(YOSYS_DEVICE_CELLS_MAP_TARGET ${YOSYS_DEVICE_CELLS_MAP})
+        get_file_location(YOSYS_DEVICE_CELLS_MAP ${YOSYS_DEVICE_CELLS_MAP})
+        list(APPEND CELLS_SIM_DEPS ${YOSYS_DEVICE_CELLS_MAP} ${YOSYS_DEVICE_CELLS_MAP_TARGET})
+    else ()
+        set(YOSYS_DEVICE_CELLS_MAP "")
+    endif()
+
     add_custom_command(
       OUTPUT ${OUT_JSON_SYNTH} ${OUT_SYNTH_V} ${OUT_FASM_EXTRA} ${OUT_SDC}
       DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS} ${INPUT_XDC_FILE} ${CELLS_SIM_DEPS}
@@ -1378,6 +1396,8 @@ function(ADD_FPGA_TARGET)
         ${CMAKE_COMMAND} -E env
           TECHMAP_PATH=${YOSYS_TECHMAP}
           UTILS_PATH=${symbiflow-arch-defs_SOURCE_DIR}/utils
+          DEVICE_CELLS_SIM=${YOSYS_DEVICE_CELLS_SIM}
+          DEVICE_CELLS_MAP=${YOSYS_DEVICE_CELLS_MAP}
           OUT_JSON=${OUT_JSON_SYNTH}
           OUT_SYNTH_V=${OUT_SYNTH_V}
           OUT_FASM_EXTRA=${OUT_FASM_EXTRA}
