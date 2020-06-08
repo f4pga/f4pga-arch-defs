@@ -1,0 +1,8 @@
+set_io GPIO_PIN[7] FBIO_9
+set_io GPIO_PIN[6] FBIO_13
+set_io GPIO_PIN[5] FBIO_12
+set_io GPIO_PIN[4] FBIO_11
+set_io GPIO_PIN[3] FBIO_7
+set_io GPIO_PIN[1] FBIO_5
+set_io GPIO_PIN[2] FBIO_4
+set_io GPIO_PIN[0] FBIO_2
