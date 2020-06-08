@@ -835,7 +835,10 @@ SELECT
     penalty_cost,
     switch_type
 FROM
-    switch;"""):
+    switch
+WHERE
+    name != "__vpr_delayless_switch__";"""):
+
             attrib = {
                 'type': switch_type,
                 'name': name,
