@@ -28,5 +28,5 @@ add_xc_device_define_type(
     BUFGCTRL
     PLLE2_ADV
     HCLK_IOI3
-  GRAPH_LIMIT 0,103,114,155
+  GRAPH_LIMIT 0,105,114,155
 )
