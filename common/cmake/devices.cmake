@@ -1086,6 +1086,7 @@ function(ADD_FPGA_TARGET)
 
   if(NOT "${ADD_FPGA_TARGET_INPUT_XDC_FILE}" STREQUAL "")
     get_file_location(INPUT_XDC_FILE ${ADD_FPGA_TARGET_INPUT_XDC_FILE})
+    append_file_dependency(YOSYS_IO_DEPS ${ADD_FPGA_TARGET_INPUT_XDC_FILE})
   endif()
 
   #
@@ -1113,15 +1114,15 @@ function(ADD_FPGA_TARGET)
 
   set(YOSYS_IO_DEPS "")
 
-  if(NOT ${ADD_FPGA_TARGET_INPUT_IO_FILE} STREQUAL "")
+  if(NOT ${ADD_FPGA_TARGET_INPUT_IO_FILE} STREQUAL "" OR NOT ${ADD_FPGA_TARGET_INPUT_XDC_FILE} STREQUAL "")
     get_target_property_required(PINMAP_FILE ${BOARD} PINMAP)
-
-    get_file_location(INPUT_IO_FILE ${ADD_FPGA_TARGET_INPUT_IO_FILE})
     get_file_location(PINMAP ${PINMAP_FILE})
-
-    append_file_dependency(YOSYS_IO_DEPS ${ADD_FPGA_TARGET_INPUT_IO_FILE})
     append_file_dependency(YOSYS_IO_DEPS ${PINMAP_FILE})
+  endif()
 
+  if(NOT ${ADD_FPGA_TARGET_INPUT_IO_FILE} STREQUAL "")
+    get_file_location(INPUT_IO_FILE ${ADD_FPGA_TARGET_INPUT_IO_FILE})
+    append_file_dependency(YOSYS_IO_DEPS ${ADD_FPGA_TARGET_INPUT_IO_FILE})
   endif()
 
   if(NOT ${ADD_FPGA_TARGET_NO_SYNTHESIS})
@@ -1342,7 +1343,7 @@ function(ADD_FPGA_TARGET)
   # -------------------------------------------------------------------------
   set(FIX_PINS_ARG "")
 
-  if(NOT ${ADD_FPGA_TARGET_INPUT_IO_FILE} STREQUAL "")
+  if(NOT ${ADD_FPGA_TARGET_INPUT_IO_FILE} STREQUAL "" OR NOT ${ADD_FPGA_TARGET_INPUT_XDC_FILE} STREQUAL "")
     get_target_property_required(NO_PINS ${ARCH} NO_PINS)
     if(${NO_PINS})
       message(FATAL_ERROR "Arch ${ARCH} does not currently support pin constraints.")
@@ -1361,12 +1362,17 @@ function(ADD_FPGA_TARGET)
 
     # Add complete dependency chain
     set(IO_DEPS ${VPR_DEPS})
-    append_file_dependency(IO_DEPS ${ADD_FPGA_TARGET_INPUT_IO_FILE})
+    if(NOT ${ADD_FPGA_TARGET_INPUT_IO_FILE} STREQUAL "")
+      append_file_dependency(IO_DEPS ${ADD_FPGA_TARGET_INPUT_IO_FILE})
+    endif()
     append_file_dependency(IO_DEPS ${PINMAP_FILE})
     append_file_dependency(IO_DEPS ${OUT_NET_REL})
 
-    set_target_properties(${NAME} PROPERTIES
-        INPUT_IO_FILE ${ADD_FPGA_TARGET_INPUT_IO_FILE})
+    if(NOT ${ADD_FPGA_TARGET_INPUT_IO_FILE} STREQUAL "")
+      set_target_properties(${NAME} PROPERTIES
+          INPUT_IO_FILE ${ADD_FPGA_TARGET_INPUT_IO_FILE})
+      set(PCF_INPUT_IO_FILE "--pcf ${INPUT_IO_FILE}")
+    endif()
 
     # Set variables for the string(CONFIGURE) below.
     set(OUT_IO ${OUT_LOCAL}/${TOP}_io.place)
