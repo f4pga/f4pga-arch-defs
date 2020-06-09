@@ -11,7 +11,7 @@ Once the bitstream is generated and loaded to the board, we should see the test 
 
 ## HDL code generation
 
-The following instructions are for generation of the HDL code
+The following instructions are for generation of the HDL code `minilitex_ddr_arty.v`.
 
 ## 1. Install Litex
 
@@ -44,3 +44,27 @@ source litex-env/bin/activate
 Run `./scripts/min_ddr_arty.py --no-compile-software --no-compile-gateware`
 
 The top netlist (top.v) will be placed in the `soc_minsoc_arty/gateware` directory.
+Copy this to `minilitex_ddr_arty.v` in this directory.
+
+
+## 3. Creating the 100T version of gateware
+
+Start by copying the original 35T/50T version:
+```
+cp minilitex_ddr_arty.v minilitex_ddr_arty100t.v
+```
+Then edit the new file:
+1. Change the `LOC` placement constraint for `IDELAYCTRL` from X1Y0 to X1Y1.
+2. Add a `LOC` placement constraint `PLLE2_ADV_X1Y1` to `PLLE2_ADV`.
+
+After this, the diff between the two gateware files should look similar to this:
+```
+$ diff minilitex_ddr_arty.v minilitex_ddr_arty100t.v
+10150c10150
+< (* LOC="IDELAYCTRL_X1Y0" *)
+---
+> (* LOC="IDELAYCTRL_X1Y1" *)
+12197a12198
+> (* LOC="PLLE2_ADV_X1Y1" *)
+
+```
