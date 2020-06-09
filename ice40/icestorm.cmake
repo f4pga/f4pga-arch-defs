@@ -5,8 +5,12 @@ function(icestorm_setup)
   set(ICESTORM_SRC ${symbiflow-arch-defs_SOURCE_DIR}/third_party/icestorm CACHE PATH "Path to icestorm repository")
   set(PYUTILS_PATH ${symbiflow-arch-defs_SOURCE_DIR}/utils:${symbiflow-arch-defs_SOURCE_DIR}/ice40/utils/fasm_icebox)
 
-  get_target_property_required(PYTHON_PREFIX env CONDA_DIR)
-  set(ICESTORM_PREFIX "PREFIX=${PYTHON_PREFIX}")
+  if(${USE_CONDA})
+    get_target_property_required(PYTHON_PREFIX env CONDA_DIR)
+    set(ICESTORM_PREFIX "PREFIX=${PYTHON_PREFIX}")
+  else()
+    set(ICESTORM_PREFIX "" CACHE PATH "PYTHON_PREFIX for icestorm tools")
+  endif()
 
   add_conda_package(
     NAME pkg-config
