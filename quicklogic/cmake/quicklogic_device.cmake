@@ -121,13 +121,10 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
 
     set(SDF_TIMING_FILE ${SDF_TIMING_DIR}/${FILE_TITLE}.sdf)
 
-    set(IMPORTER_DIR ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/quicklogic-timings-importer/quicklogic_timings_importer)
-    set(IMPORTER ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/quicklogic-timings-importer/quicklogic_timings_importer/quicklogic_timings_importer.py)
     add_custom_command(
       OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${SDF_TIMING_FILE}
       COMMAND ${CMAKE_COMMAND} -E make_directory ${SDF_TIMING_DIR}
-      COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${IMPORTER_DIR}:$PYTHONPATH
-        ${PYTHON3} ${IMPORTER}
+      COMMAND ${PYTHON3} -m quicklogic_timings_importer
         ${LIB_TIMING_FILE}
         ${SDF_TIMING_FILE}
         ${IMPORTER_OPTS}
