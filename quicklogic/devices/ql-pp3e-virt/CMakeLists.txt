@@ -1,4 +1,6 @@
 set(LIB_TIMING_FILES "*_BC_120V.lib" "*_WC_120V.lib" "BIDIR_COM_BC_180V.lib")
+set(DONT_NORMALIZE_FILES "RAM_COM_BC_120V.lib" "RAM_COM_WC_120V.lib")
+
 quicklogic_define_device_type(
   DEVICE ql-pp3e
   ARCH ql-s3
@@ -6,6 +8,7 @@ quicklogic_define_device_type(
   ROUTING_TIMING_FILE_NAME qlal3s2_RoutingDelays.csv
   TECHFILE_NAME QLAL3S2.xml
   LIB_TIMING_FILES ${LIB_TIMING_FILES}
+  DONT_NORMALIZE_FILES ${DONT_NORMALIZE_FILES}
   PB_TYPES
     GND VCC
     LOGIC
