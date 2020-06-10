@@ -137,7 +137,7 @@ function(ADD_XC_ARCH_DEFINE)
         \${PLACE_CONSTR_TOOL_EXTRA_ARGS}"
     BITSTREAM_EXTENSION frames
     BIN_EXTENSION bit
-    FASM_TO_BIT ${PRJRAY_DIR}/utils/fasm2frames.py
+    FASM_TO_BIT ${PRJRAY_DIR}/prjxray/fasm2frames.py
     FASM_TO_BIT_CMD "${CMAKE_COMMAND} -E env \
     PYTHONPATH=${symbiflow-arch-defs_BINARY_DIR}/env/conda/lib/python3.7/site-packages:${PRJRAY_DIR}:${PRJRAY_DIR}/third_party/fasm \
     \${PYTHON3} \${FASM_TO_BIT} \
