@@ -30,7 +30,7 @@ module Q_FRAG(QCK, QST, QRT, QEN, QDI, QDS, CZI, QZ);
 	(* HOLD="QCK {hold_QCK_QDI}" *) (* NO_COMB *)
     input  wire CZI;
 
-	(* CLK_TO_Q = "QCK {setuphold_QCK_QZ}" *)
+	(* CLK_TO_Q = "QCK {iopath_QCK_QZ}" *)
     output reg  QZ;
 
     // Parameters
