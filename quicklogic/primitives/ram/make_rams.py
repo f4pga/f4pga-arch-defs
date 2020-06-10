@@ -322,7 +322,7 @@ def find_timings(timings, src_pin, dst_pin):
         if "FALLING" in cell_type:
             continue
 
-        for inst_name, inst_data in cell_data.items(): 
+        for inst_name, inst_data in cell_data.items():
             for tname, tdata in inst_data.items():
 
                 # Got matching pins
@@ -360,7 +360,7 @@ def make_single_ram(ports):
 
             # Make a generic associated clock name
             if assoc_clock is not None:
-                if assoc_clock.endswith("_0"):                    
+                if assoc_clock.endswith("_0"):
                     base_assoc_clock = assoc_clock[:-2]
                 if assoc_clock.endswith("_1"):
                     base_assoc_clock = assoc_clock[:-2]
@@ -753,7 +753,7 @@ def auto_interconnect(pb_type):
         # Check all ports
         for port in inputs:
             other = None
-            
+
             # Got it
             if port in parent_inputs:
                 other = port
