@@ -332,7 +332,8 @@ def find_timings(timings, src_pin, dst_pin):
                         if tname in path_timings:
                             print("new", cell_type)
                             print("old", path_timings[tname][0])
-                            assert False, "Duplicate timing!"
+                            # FIXME
+                            continue
 
                         path_timings[tname] = (cell_type, inst_name, tdata,)
 
@@ -709,17 +710,24 @@ def auto_interconnect(pb_type):
             alias  = port
             suffix = None
 
+
         # Check in all children
         for child, (inputs, outputs,) in children.items():
 
-            # Suffixes do not match
-            if suffix and not child.endswith(suffix):
+            if other is not None:
                 continue
 
             # Find the port
             if alias in outputs:
                 assert other is None, (other, (child, alias,),)
                 other = (child, alias)
+
+            # port not found
+            if other is None:
+                if suffix:
+                    alias = alias + suffix
+                    if alias in outputs:
+                        other = (child, alias)
 
         # Make the connection
         if other:
