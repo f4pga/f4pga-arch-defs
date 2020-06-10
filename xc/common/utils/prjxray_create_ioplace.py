@@ -6,6 +6,7 @@ import json
 import sys
 import os
 import vpr_io_place
+from lib.parse_pcf import parse_simple_pcf
 
 
 def main():
@@ -100,13 +101,17 @@ def main():
         if os.path.isfile(fname):
             with open(fname, "r") as fp:
                 iostandard_constraints = json.load(fp)
+    if args.pcf:
+        pcf_constraints = parse_simple_pcf(args.pcf)
+        net_to_pad = [(constr.net, constr.pad) for constr in pcf_constraints]
+    else:
+        net_to_pad = io_place.net_to_pad
     # Constrain nets
-    for net, pad in io_place.net_to_pad:
+    for net, pad in net_to_pad:
         if not io_place.is_net(net):
             print(
                 """ERROR:
-XDC constraints net {} which is not in available netlist:\n{}"""
-                .format(
+Constrained net {} is not in available netlist:\n{}""".format(
                     net, '\n'.join(io_place.get_nets())
                 ),
                 file=sys.stderr
@@ -116,8 +121,7 @@ XDC constraints net {} which is not in available netlist:\n{}"""
         if pad not in pad_map:
             print(
                 """ERROR:
-XDC constraints pad {} which is not in available pad map:\n{}"""
-                .format(
+Constrained pad {} is not in available pad map:\n{}""".format(
                     pad, '\n'.join(sorted(pad_map.keys()))
                 ),
                 file=sys.stderr
