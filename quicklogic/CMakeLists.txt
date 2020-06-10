@@ -44,7 +44,7 @@ set(VPR_ARCH_ARGS "\
     --bb_factor 10 \
     --initial_pres_fac 4.0 \
     --check_rr_graph off \
-    --suppress_warnings \${OUT_NOISY_WARNINGS},sum_pin_class:check_unbuffered_edges:load_rr_indexed_data_T_values:check_rr_node:trans_per_R:check_route \
+    --suppress_warnings \${OUT_NOISY_WARNINGS},sum_pin_class:check_unbuffered_edges:load_rr_indexed_data_T_values:check_rr_node:trans_per_R:check_route:set_rr_graph_tool_comment \
     --timing_report_detail detailed"
     )
   set(YOSYS_SYNTH_SCRIPT ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/yosys/synth.tcl)

@@ -60,7 +60,7 @@ for arg in $@; do
 			PARTNAME=0
 			PCFNAME=0
 			;;
-		-p|--part)
+		-P|--part)
 			VERILOGLIST=0
 			XDCLIST=0
 			TOPNAME=0
@@ -68,7 +68,7 @@ for arg in $@; do
 			PARTNAME=1
 			PCFNAME=0
 			;;
-		-P|--pcf)
+		-p|--pcf)
 			VERILOGLIST=0
 			XDCLIST=0
 			TOPNAME=0
@@ -91,7 +91,7 @@ for arg in $@; do
 				PCF=$arg
 			else
 				echo "Usage: synth [-t|--top <top module name> -v|--verilog <Verilog files list> [-x|--xdc <XDC files list>]"
-				echo "             [-d|--device <device type (e.g. artix7)>] [-p|--part <part name>]"
+				echo "             [-d|--device <device type (e.g. artix7)>] [-P|--part <part name>]"
 				echo "note: device and part parameters are required if xdc is passed"
 				exit 1
 			fi
@@ -104,6 +104,13 @@ if [ ${#VERILOG_FILES[@]} -eq 0 ]; then
 	exit 1
 fi
 
+if ! [[ "$PART" =~ ^(PU64|WR42|PD64)$ ]]; then 
+	 PINMAPCSV="pinmap.csv"
+else
+         PINMAPCSV="${PART}_pinmap.csv"
+fi
+
+
 export USE_ROI="FALSE"
 export INPUT_XDC_FILE=${XDC_FILES[*]}
 export OUT_JSON=$TOP.json
@@ -113,7 +120,7 @@ export OUT_EBLIF=${TOP}.eblif
 #export PART_JSON=`realpath ${MYPATH}/../share/prjxray/prjxray-db/$DEVICE/$PART/part.json`
 export OUT_FASM_EXTRA=${TOP}_fasm_extra.fasm
 export PCF_FILE=$PCF
-export PINMAP_FILE=`realpath ${MYPATH}/../share/arch/${PART}/pinmap.csv`
+export PINMAP_FILE=`realpath ${MYPATH}/../share/arch/${DEVICE}/${PINMAPCSV}`
 LOG=${TOP}_synth.log
 
 yosys -p "tcl ${SYNTH_TCL_PATH}" -l $LOG ${VERILOG_FILES[*]}

@@ -11,8 +11,16 @@ PART=$4
 DEVICE=$5
 ARCH_DEF=$6
 
+if ! [[ "$PART" =~ ^(PU64|WR42|PD64)$ ]]; then 
+	 PINMAPCSV="pinmap.csv"
+else
+         PINMAPCSV="${PART}_pinmap.csv"
+fi
+
+echo "PINMAP FILE : $PINMAPCSV"
+
 CHANNELS=`realpath ${MYPATH}/../share/arch/${DEVICE}/channels.db`
-PINMAP=`realpath ${MYPATH}/../share/arch/${DEVICE}/pinmap.csv`
+PINMAP=`realpath ${MYPATH}/../share/arch/${DEVICE}/${PINMAPCSV}`
 IOGEN=`realpath ${MYPATH}/python/create_ioplace.py`
 #CONSTR_GEN=`realpath ${MYPATH}/python/prjxray_create_place_constraints.py`
 PROJECT=$(basename -- "$EBLIF")

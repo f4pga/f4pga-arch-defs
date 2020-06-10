@@ -1,0 +1,461 @@
+#!/bin/bash
+#============================================================================
+#                                                                           *
+#--  Copyright Notice  -----------------------------------------------------*
+#                                                                           *
+#    Licensed Materials - Property of QuickLogic Corp.                      *
+#    Copyright (C) 2020 QuickLogic Corporation                              *
+#    All rights reserved                                                    *
+#    Use, duplication, or disclosure restricted                             *
+#                                                                           *
+#    File   :  ql_symbiflow                                                 *
+#    Purpose:  Runs the EDA flow for open core tools: yosys , vpr , fasm    *
+#    Owner  :  QuickLogic Corporation                                       *
+#                                                                           *
+#===========================================================================*
+
+###############################################################################################
+
+set -e
+
+
+MYPATH=$(dirname "$(readlink -f "$BASH_SOURCE")")
+BUILDDIR=build
+
+source ${MYPATH}/env
+source ${VPRPATH}/vpr_common
+
+
+if [ ! -n $1 ]; then
+echo "Please enter a valid command: Refer help ql_symbiflow --help"
+exit 0
+elif [[ $1 == "-synth" || $1 == "-compile" ]]; then
+echo -e "----------------- \n" 
+elif [[ $1 == "-h"  ||  $1 == "--help" ]];then
+echo -e "\nBelow are the supported commands: \n\
+ To synthesize and dump a eblif file:\n\
+\t>ql_symbiflow -synth -src <source_dir path> -d <device> -P <package> -t <top> -v <verilog file/files> -p <pcf file>  \n\
+ To run synthesis, pack, place and route, generate bitstream:\n\
+\t>ql_symbiflow -compile -src <source_dir path> -d <device> -P <package> -t <top> -v <verilog file/files> -p <pcf file>  \n\
+ To dump the jlink/post_verilog/header file: \n\
+\t>ql_symbiflow -compile -src <source_dir path> -d <device> -P <package> -t <top> -v <verilog file/files> -p <pcf file> -dump <jlink/post_verilog/header> \n\
+Device supported:ql-eos-s3\n\
+Packages supported PD64,PU64,WR42 " || exit 1
+else
+echo -e "Please provide a valid command : Refer -h/--help\n"
+exit
+fi
+
+
+VERILOG_FILES=()
+PCF=""
+TOP=""
+SOURCE=""
+HELP=""
+DEVICE=""
+PART=""
+SDC=""
+OUT=()
+ROUTE_FLAG0=""
+MAX_CRITICALITY="0.0"
+
+VERILOGLIST=0
+PCFNAME=0
+TOPNAME=0
+SOURCEDIR=0
+HELPNAME=0
+DEVICENAME=0
+PARTNAME=0
+SDCNAME=0
+OUTNAME=0
+ROUTE_NAME0=0
+
+for arg_v in $@; do
+	echo $arg_v
+	case "$arg_v" in
+                -src|--source)
+			VERILOGLIST=0
+			PCFNAME=0
+			TOPNAME=0
+			SOURCEDIR=1
+			HELPNAME=0
+			DEVICENAME=0
+			PARTNAME=0
+			SDCNAME=0
+			OUTNAME=0
+			ROUTE_NAME0=0
+			;;
+		-t|--top)
+			VERILOGLIST=0
+			PCFNAME=0
+			TOPNAME=1
+			SOURCEDIR=0
+			HELPNAME=0
+			DEVICENAME=0
+			PARTNAME=0
+			SDCNAME=0
+			OUTNAME=0
+			ROUTE_NAME0=0
+			;;
+		-v|--verilog)
+			VERILOGLIST=1
+			PCFNAME=0
+			TOPNAME=0
+			SOURCEDIR=0
+			HELPNAME=0
+			DEVICENAME=0
+			PARTNAME=0
+			SDCNAME=0
+			OUTNAME=0
+			ROUTE_NAME0=0
+			;;
+		-d|--device)
+			VERILOGLIST=0
+			PCFNAME=0
+			TOPNAME=0
+			SOURCEDIR=0
+			HELPNAME=0
+			DEVICENAME=1
+			PARTNAME=0
+			SDCNAME=0
+			OUTNAME=0
+			ROUTE_NAME0=0
+			;;
+		-h|--help)
+			VERILOGLIST=0
+			PCFNAME=0
+			TOPNAME=0
+			SOURCEDIR=0
+			HELPNAME=1
+			DEVICENAME=0
+			PARTNAME=0
+			SDCNAME=0
+			OUTNAME=0
+			ROUTE_NAME0=0
+			;;
+		-p|--pcf)
+			VERILOGLIST=0
+			PCFNAME=1
+			TOPNAME=0
+			SOURCEDIR=0
+			HELPNAME=0
+			DEVICENAME=0
+			PARTNAME=0
+			SDCNAME=0
+			OUTNAME=0
+			ROUTE_NAME0=0
+			;;
+		-P|--part)
+			VERILOGLIST=0
+			PCFNAME=0
+			TOPNAME=0
+			SOURCEDIR=0
+			HELPNAME=0
+			DEVICENAME=0
+			PARTNAME=1
+			SDCNAME=0
+			OUTNAME=0
+			ROUTE_NAME0=0
+			;;
+		-s|--sdc)
+			VERILOGLIST=0
+			PCFNAME=0
+			TOPNAME=0
+			SOURCEDIR=0
+			HELPNAME=0
+			DEVICENAME=0
+			PARTNAME=0
+			SDCNAME=1
+			OUTNAME=0
+			ROUTE_NAME0=0
+			;;
+		-r|--route_type)
+			VERILOGLIST=0
+			PCFNAME=0
+			TOPNAME=0
+			SOURCEDIR=0
+			HELPNAME=0
+			DEVICENAME=0
+			PARTNAME=0
+			SDCNAME=0
+			OUTNAME=0
+			ROUTE_NAME0=1
+			;;
+		-dump)
+			VERILOGLIST=0
+			PCFNAME=0
+			TOPNAME=0
+			SOURCEDIR=0
+			HELPNAME=0
+			DEVICENAME=0
+			PARTNAME=0
+			SDCNAME=0
+			OUTNAME=1
+			ROUTE_NAME0=0
+			;;
+		-synth|-compile)
+			VERILOGLIST=0
+			PCFNAME=0
+			TOPNAME=0
+			SOURCEDIR=0
+			HELPNAME=0
+			DEVICENAME=0
+			PARTNAME=0
+			SDCNAME=0
+			OUTNAME=0
+			ROUTE_NAME0=0
+			;;
+
+		*)
+			if [ $SOURCEDIR -eq 1 ]; then
+				SOURCE=$arg_v
+			elif [ $VERILOGLIST -eq 1 ]; then
+				VERILOG_FILES+="$arg_v "
+			elif [ $HELPNAME -eq 1 ]; then
+				echo "" 
+			elif [ $TOPNAME -eq 1 ]; then
+				TOP=$arg_v
+			elif [ $DEVICENAME -eq 1 ]; then
+				DEVICE="${arg_v}"
+				DEVICE="${DEVICE,,}"
+				DEVICE="${DEVICE}_wlcsp"
+			elif [ $PCFNAME -eq 1 ]; then
+				PCF="$arg_v"
+			elif [ $SDCNAME -eq 1 ]; then
+				SDC="$arg_v"
+			elif [ $ROUTE_NAME0 -eq 1 ]; then
+				ROUTE_FLAG0="$arg_v"
+				ROUTE_FLAG0="${ROUTE_FLAG0,,}"
+			elif [ $OUTNAME -eq 1 ]; then
+				OUT+="$arg_v "
+			elif [ $PARTNAME -eq 1 ]; then
+				PART="${arg_v}"
+ 				PART="${PART^^}"
+			else
+				echo "Refer help for more details: ql_symbiflow -h "
+                                exit 1
+
+			fi
+			;;
+	esac
+done
+
+
+##### Check if the source directory exists #####
+if [[ $1 == "-h" || $1 == "--help" ]];then
+    exit 1
+else
+    if [ -z "$SOURCE" ];then
+    SOURCE=$PWD
+    elif [ $SOURCE == "." ];then
+    SOURCE=$PWD
+    elif [ ! -d "$SOURCE" ];then
+    echo "Directory path $SOURCE DOES NOT exists. Please add absolute path" 
+    exit 1
+    fi
+
+if [[ $1 == "-h"  ||  $1 == "--help" ]];then
+exit 0
+else
+if [ -f $SOURCE/v_list_tmp ];then 
+rm -f $SOURCE/v_list_tmp 
+fi
+echo "$VERILOG_FILES" >${SOURCE}/v_list
+fi
+
+##### Validate the verlog source files #####
+
+if [ ${#VERILOG_FILES[@]} -eq 0 ]; then
+       if [[ $1 != "-h" || $1 != "--help" ]];then
+	echo "Please provide at least one Verilog file"
+	exit 1
+       fi
+else
+	echo "verilog files: $VERILOG_FILES"
+	echo $VERILOG_FILES >${SOURCE}/v_list
+	sed '/^$/d' $SOURCE/v_list > $SOURCE/f_list_temp
+	VERILOG_FILES=`cat $SOURCE/f_list_temp`
+fi
+fi
+
+if [[ $1 == "-compile" || $1 == "-post_verilog" ]]; then
+  if [ -z "$PCF" ]; then
+    echo "PCF file option is missing. Refer -h/--help"
+    exit 1
+  elif ! [ -f "$SOURCE/$PCF" ]; then
+    echo "The pcf file: $PCF is missing at: $SOURCE"
+    exit 1
+  fi
+  if [ -z "$DEVICE" ]; then
+    echo "DEVICE name is missing. Refer -h/--help"
+    exit 1
+  elif ! [[ "$DEVICE" =~ ^(ql-eos-s3_wlcsp)$ ]]; then 
+    echo "Invalid Device name, supported ql-eos-s3"
+    exit 1
+  fi
+  if [ -z "$TOP" ]; then
+    echo "TOP module name is missing. Refer -h/--help"
+    exit 1
+  fi
+    if [ -z "$PART" ]; then
+     echo "PART name is missing. Refer -h/--help"
+     exit 1
+    elif ! [[ "$PART" =~ ^(PU64|WR42|PD64)$ ]]; then 
+     echo "Invalid Package name, supported PU64,WR42,PD64"
+	 PINMAPCSV="pinmap.csv"
+         exit 1
+     else
+	if ! [[ "$PART" =~ ^(WR42|PU64|PD64)$ ]]; then 
+         PINMAPCSV="${PART}_pinmap.csv"
+        fi
+     fi
+    if [ -z "$ROUTE_FLAG0" ]; then
+      MAX_CRITICALITY="0.0"
+    elif ! [[ "$ROUTE_FLAG0" =~ ^(timing|congestion)$ ]]; then 
+     echo "Invalid option name, supported timing/congestion"
+         exit 1
+     else
+	if [ "$ROUTE_FLAG0" == "congestion" ]; then 
+         MAX_CRITICALITY="0.99"
+	else
+	MAX_CRITICALITY="0.0"
+	fi
+     fi
+fi
+
+if [ ! -z "$SOURCE" ];then
+	if [ ! -d $SOURCE/$BUILDDIR ]; then
+	mkdir -p $SOURCE/$BUILDDIR
+	fi
+fi
+
+if [ ! -z "$OUT" ];then
+OUT_ARR=($OUT)
+fi
+
+for item in $VERILOG_FILES;
+do 
+if ! [ -f $SOURCE/$item ]; then
+ echo "$item: verilog file does not exists at : $SOURCE"
+ exit 1
+elif [[ $item =~ ^/ ]]; then 
+	echo "$item \\" >>$SOURCE/v_list_tmp
+else 
+	echo "\${current_dir}/$item \\" >>$SOURCE/v_list_tmp
+fi
+done 
+
+if [ -f "$SOURCE/v_list_tmp" ]; then
+    truncate -s-2 "$SOURCE/v_list_tmp"
+    VERILOG_LIST=`cat ${SOURCE}/v_list_tmp`
+fi
+
+
+export PCF_FILE=$PCF
+export TOP_F=$TOP
+export PART=$PART
+export PINMAP_FILE=$PINMAPCSV
+export MAX_CRITICALITY=$MAX_CRITICALITY
+##### Create Makefile #####
+
+if [[ $SOURCE =~ ^/ ]]; then 
+	CURR_DIR="${SOURCE}"
+else 
+	CURR_DIR="${PWD}/${SOURCE}"
+fi
+
+MAKE_FILE=${CURR_DIR}/Makefile.symbiflow
+LOG_FILE=${CURR_DIR}/${BUILDDIR}/${TOP}.log
+
+if [ -f "$SOURCE"/$PCF_FILE ];then
+	PCF_MAKE="\${current_dir}/$PCF_FILE"
+else
+   PCF_MAKE=""
+fi
+
+if ! [ -z "$SDC" ]; then
+	if ! [ -f "$SOURCE"/$SDC ];then
+            echo "The sdc file: $SDC is missing at: $SOURCE"
+            exit 1
+         else
+	    SDC_MAKE="\${current_dir}/$SDC"
+         fi
+else
+  	 touch ${CURR_DIR}/build/${TOP}_dummy.sdc
+   	 SDC_MAKE="\${current_dir}/build/${TOP}_dummy.sdc"
+fi
+
+echo -e ".PHONY:\${BUILDDIR}\n 
+current_dir := $CURR_DIR\n\
+TOP := $TOP\n\
+VERILOG := $VERILOG_LIST \n\
+PARTNAME := $PART\n\
+DEVICE  := $DEVICE\n\
+PCF := $PCF_MAKE\n\
+SDC := $SDC_MAKE\n\
+BUILDDIR := build\n\n\
+all: \${BUILDDIR}/\${TOP}.bit\n\
+\n\
+\${BUILDDIR}/\${TOP}.eblif: \${VERILOG}\n\
+	cd \${BUILDDIR} && synth -t \${TOP} -v \${VERILOG} -d \${DEVICE} 2>&1 > $LOG_FILE\n\
+\n\
+\${BUILDDIR}/\${TOP}.net: \${BUILDDIR}/\${TOP}.eblif\n\
+	cd \${BUILDDIR} && pack -e \${TOP}.eblif -d \${DEVICE} -s \${SDC} 2>&1 > $LOG_FILE\n\
+\n\
+\${BUILDDIR}/\${TOP}.place: \${BUILDDIR}/\${TOP}.net\n\
+	cd \${BUILDDIR} && place -e \${TOP}.eblif -d \${DEVICE} -p \${PCF} -n \${TOP}.net -P \${PARTNAME} -s \${SDC} 2>&1 > $LOG_FILE\n\
+\n\
+\${BUILDDIR}/\${TOP}.route: \${BUILDDIR}/\${TOP}.place\n\
+	cd \${BUILDDIR} && route -e \${TOP}.eblif -d \${DEVICE} -s \${SDC} 2>&1 > $LOG_FILE\n\
+\n\
+\${BUILDDIR}/\${TOP}.fasm: \${BUILDDIR}/\${TOP}.route\n\
+	cd \${BUILDDIR} && write_fasm -e \${TOP}.eblif -d \${DEVICE}\n\
+\n\
+\${BUILDDIR}/\${TOP}.bit: \${BUILDDIR}/\${TOP}.fasm\n\
+	cd \${BUILDDIR} && write_bitstream -d \${DEVICE} -f \${TOP}.fasm -P \${PARTNAME} -b \${TOP}.bit\n\
+\n\
+\${BUILDDIR}/\${TOP}_bit.h: \${BUILDDIR}/\${TOP}.bit\n\
+	cd \${BUILDDIR} && write_bitheader -b \${TOP}.bit\n\
+\n\
+\${BUILDDIR}/\${TOP}.jlink: \${BUILDDIR}/\${TOP}.bit\n\
+	cd \${BUILDDIR} && write_jlink -f \${TOP}.fasm -P \${PACKAGENAME} -b \${TOP}.bit\n\
+\n\
+\${BUILDDIR}/\${TOP}_jlink.h: \${BUILDDIR}/\${TOP}.jlink\n\
+	cd \${BUILDDIR} && write_jlinkheader\n\
+\n\
+\${BUILDDIR}/\${TOP}.post_v: \${BUILDDIR}/\${TOP}.bit\n\
+	cd \${BUILDDIR} && write_fasm2bels -e \${TOP}.eblif -d \${DEVICE} -p \${PCF} -n \${TOP}.net -P \${PARTNAME}\n\
+\n\
+clean:\n\
+	rm -rf \${BUILDDIR}\n\
+" >$MAKE_FILE
+
+#### Remove temporary files #####
+rm -f $SOURCE/f_list_temp $SOURCE/v_list_tmp $SOURCE/v_list 
+
+##### Make file Targets #####
+if [ $1 == "-synth" ]; then
+echo -e "Performing Synthesis " 
+cd $SOURCE;make -f Makefile.symbiflow ${BUILDDIR}/${TOP}.eblif || exit
+elif [[ ! -z "$OUT" && $1 == "-compile" ]];then 
+   if [[ " ${OUT_ARR[@]} " =~ " jlink " ]]; then
+    cd $SOURCE;make -f Makefile.symbiflow ${BUILDDIR}/${TOP}.jlink || exit
+   fi
+   if [[ " ${OUT_ARR[@]} " =~ " post_verilog " ]]; then
+    cd $SOURCE;make -f Makefile.symbiflow  ${BUILDDIR}/${TOP}.post_v || exit
+   fi
+   if [[ " ${OUT_ARR[@]} " =~ " header " ]]; then
+    cd $SOURCE;make -f Makefile.symbiflow ${BUILDDIR}/${TOP}_bit.h || exit
+   fi
+else
+ if [ $1 == "-compile" ]; then
+   echo -e "Running Synth->Pack->Place->Route " 
+   cd $SOURCE;make -f Makefile.symbiflow ${BUILDDIR}/${TOP}.bit  || exit
+ elif [ $OUT == "" ]; then
+   cd $SOURCE;make -f Makefile.symbiflow ${BUILDDIR}/${TOP}.fasm  || exit
+ fi
+fi
+
+###############################################################################################
+
+

@@ -9,16 +9,16 @@ echo "Writing bitstream ..."
 
 FRAMES2BIT=`realpath ${VPRPATH}/xc7frames2bit`
 
-OPTS=d:f:b:p:
+OPTS=d:f:b:P:
 LONGOPTS=device:,fasm:,bit:,part:
 
 PARSED_OPTS=`getopt --options=${OPTS} --longoptions=${LONGOPTS} --name $0 -- $@`
 eval set -- ${PARSED_OPTS}
 
-DEVICE=""
+DEVICE="ql-eos-s3"
 FASM=""
 BIT=""
-PART="ql-eos-s3"
+PART=""
 
 while true; do
 	case "$1" in
@@ -26,7 +26,7 @@ while true; do
 			DEVICE=$2
 			shift 2
 			;;
-		-p|--part)
+		-P|--part)
 			PART=$2
 			shift 2
 			;;

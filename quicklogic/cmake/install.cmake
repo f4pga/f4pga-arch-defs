@@ -23,7 +23,7 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
   string(JOIN " " VPR_ARGS ${VPR_BASE_ARGS} "--route_chan_width ${ROUTE_CHAN_WIDTH}" ${VPR_ARCH_ARGS})
   get_target_property_required(FASM_TO_BIT ${ARCH} FASM_TO_BIT)
 
-  set(WRAPPERS env generate_constraints pack place route synth write_bitstream write_fasm)
+  set(WRAPPERS env generate_constraints pack place route synth write_bitstream write_fasm ql_symbiflow)
   set(TOOLCHAIN_WRAPPERS)
 
   foreach(WRAPPER ${WRAPPERS})
