@@ -162,14 +162,17 @@ add_thirdparty_package(
 )
 
 # FIXME: This is a workaround until fix for dependencies of arch.xml patching script(s) is in place
-get_target_property(SDF_TIMING_TARGET env SDF_TIMING_TARGET)
-add_dependencies(all_conda ${SDF_TIMING_TARGET})
+if(${USE_CONDA})
+  get_target_property(SDF_TIMING_TARGET env SDF_TIMING_TARGET)
+  add_dependencies(all_conda ${SDF_TIMING_TARGET})
+endif()
 
 add_thirdparty_package(
   NAME vtr_xml_utils
   BUILD_INSTALL_COMMAND "cd ${symbiflow-arch-defs_SOURCE_DIR}/third_party/vtr-xml-utils && ${PYTHON3} setup.py develop"
   PROVIDES vtr_xml_utils
   DEPENDS ${PYTHON3} ${PYTHON3_TARGET}
+  NO_EXE
 )
 
 add_thirdparty_package(
