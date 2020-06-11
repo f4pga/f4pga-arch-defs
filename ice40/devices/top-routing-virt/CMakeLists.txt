@@ -2,7 +2,6 @@ add_subdirectory(tiles)
 
 add_file_target(FILE arch.xml SCANNER_TYPE xml)
 
-get_target_property_required(CONDA_DIR env CONDA_DIR)
 get_target_property_required(PYTHON3 env PYTHON3)
 get_target_property_required(PYTHON3_TARGET env PYTHON3_TARGET)
 get_target_property_required(ICESTORM_TARGET env ICESTORM_TARGET)
