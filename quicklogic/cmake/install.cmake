@@ -101,7 +101,7 @@ endfunction()
 
 function(DEFINE_QL_PINMAP_CSV_INSTALL_TARGET)
   set(options)
-  set(oneValueArgs PART DEVICE_TYPE BOARD DEVICE PACKAGE)
+  set(oneValueArgs PART DEVICE_TYPE BOARD DEVICE PACKAGE FABRIC_PACKAGE)
   set(multiValueArgs)
 
   cmake_parse_arguments(
@@ -129,5 +129,5 @@ function(DEFINE_QL_PINMAP_CSV_INSTALL_TARGET)
     )
   install(FILES ${PINMAP_FILE}
     DESTINATION "share/arch/${DEVICE}_${PACKAGE}/${PART}"
-    RENAME "pinmap_${BOARD}.csv")
+    RENAME "pinmap_${ADD_QUICKLOGIC_BOARD_FABRIC_PACKAGE}.csv")
 endfunction()
