@@ -129,5 +129,5 @@ function(DEFINE_QL_PINMAP_CSV_INSTALL_TARGET)
     )
   install(FILES ${PINMAP_FILE}
     DESTINATION "share/arch/${DEVICE}_${PACKAGE}/${PART}"
-    RENAME "pinmap.csv")
+    RENAME "pinmap_${BOARD}.csv")
 endfunction()
