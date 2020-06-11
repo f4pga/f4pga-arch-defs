@@ -111,6 +111,10 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
 	  DESTINATION bin/python
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/build/quicklogic/devices/ql-eos-s3-virt/db_phy.pickle
+	  DESTINATION share/arch/ql-eos-s3_wlcsp
+          PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ )
+
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_io_place.py
 	  DESTINATION bin/python
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
