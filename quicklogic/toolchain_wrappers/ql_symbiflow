@@ -302,11 +302,11 @@ if [[ $1 == "-compile" || $1 == "-post_verilog" ]]; then
      exit 1
     elif ! [[ "$PART" =~ ^(PU64|WR42|PD64)$ ]]; then 
      echo "Invalid Package name, supported PU64,WR42,PD64"
-	 PINMAPCSV="pinmap.csv"
+	 PINMAPCSV="pinmap_PD64.csv"
          exit 1
      else
 	if ! [[ "$PART" =~ ^(WR42|PU64|PD64)$ ]]; then 
-         PINMAPCSV="${PART}_pinmap.csv"
+         PINMAPCSV="pinmap_${PART}.csv"
         fi
      fi
     if [ -z "$ROUTE_FLAG0" ]; then

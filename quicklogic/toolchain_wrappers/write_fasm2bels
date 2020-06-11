@@ -1,0 +1,23 @@
+#!/bin/bash
+set -e
+
+MYPATH=$(dirname "$(readlink -f "$BASH_SOURCE")")
+
+
+source ${MYPATH}/env
+source ${VPRPATH}/vpr_common
+
+parse_args $@
+
+if [ -z $PCF ]; then
+     echo "Please provide pcf file name"
+     exit 1
+fi
+
+if [ -z $DEVICE ]; then
+     echo "Please provide device name"
+     exit 1
+fi
+
+
+generate_fasm2bels $PCF $EBLIF $NET $PART $DEVICE $ARCH_DEF

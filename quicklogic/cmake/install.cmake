@@ -39,7 +39,7 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
     DEPENDS ${DEFINE_QL_TOOLCHAIN_TARGET_CELLS_SIM}
     )
 
-  set(WRAPPERS env generate_constraints pack place route synth write_bitstream write_fasm ql_symbiflow)
+  set(WRAPPERS env generate_constraints pack place route synth write_bitstream write_fasm write_jlink write_bitheader write_fasm2bels generate_fasm2bels ql_symbiflow)
   set(TOOLCHAIN_WRAPPERS)
 
   foreach(WRAPPER ${WRAPPERS})
@@ -71,8 +71,48 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
           DESTINATION bin/python
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_io_place.py
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/fasm2bels.py
           DESTINATION bin/python
+          PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
+
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/connections.py
+          DESTINATION bin/python
+          PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
+
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/data_structs.py
+          DESTINATION bin/python
+          PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
+
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/timing.py
+          DESTINATION bin/python
+          PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
+
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/tile_import.py
+          DESTINATION bin/python
+          PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
+
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/utils.py
+          DESTINATION bin/python
+          PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
+
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/verilogmodule.py
+          DESTINATION bin/python
+          PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
+
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/eos_s3_iomux_config.py
+          DESTINATION bin/python
+          PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
+
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/quicklogic-fasm/quicklogic_fasm/bitstream_to_jlink.py
+          DESTINATION bin/python
+          PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
+
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/quicklogic-fasm/quicklogic_fasm/bitstream_to_header.py
+	  DESTINATION bin/python
+          PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
+
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_io_place.py
+	  DESTINATION bin/python
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_place_constraints.py

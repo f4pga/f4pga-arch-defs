@@ -105,9 +105,9 @@ if [ ${#VERILOG_FILES[@]} -eq 0 ]; then
 fi
 
 if ! [[ "$PART" =~ ^(PU64|WR42|PD64)$ ]]; then 
-	 PINMAPCSV="pinmap.csv"
+	 PINMAPCSV="pinmap_PD64.csv"
 else
-         PINMAPCSV="${PART}_pinmap.csv"
+         PINMAPCSV="pinmap_${PART}.csv"
 fi
 
 

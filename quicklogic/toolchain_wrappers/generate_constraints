@@ -12,9 +12,9 @@ DEVICE=$5
 ARCH_DEF=$6
 
 if ! [[ "$PART" =~ ^(PU64|WR42|PD64)$ ]]; then 
-	 PINMAPCSV="pinmap.csv"
+	 PINMAPCSV="pinmap_PD64.csv"
 else
-         PINMAPCSV="${PART}_pinmap.csv"
+         PINMAPCSV="pinmap_${PART}.csv"
 fi
 
 echo "PINMAP FILE : $PINMAPCSV"
@@ -22,9 +22,10 @@ echo "PINMAP FILE : $PINMAPCSV"
 CHANNELS=`realpath ${MYPATH}/../share/arch/${DEVICE}/channels.db`
 PINMAP=`realpath ${MYPATH}/../share/arch/${DEVICE}/${PINMAPCSV}`
 IOGEN=`realpath ${MYPATH}/python/create_ioplace.py`
-#CONSTR_GEN=`realpath ${MYPATH}/python/prjxray_create_place_constraints.py`
+CONSTR_GEN=`realpath ${MYPATH}/python/eos_s3_iomux_config.py`
 PROJECT=$(basename -- "$EBLIF")
 IOPLACE_FILE="${PROJECT%.*}_io.place"
+IOMUX_JLINK="${PROJECT%.*}_iomux.jlink"
 
 python3 ${IOGEN} --pcf $PCF --blif $EBLIF --map $PINMAP --net $NET > ${IOPLACE_FILE}
-
+python3 ${CONSTR_GEN} --eblif $EBLIF --pcf $PCF > ${IOMUX_JLINK}
