@@ -143,6 +143,52 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
 
 endfunction()
 
+function(DEFINE_QL_DEVICE_CELLS_INSTALL_TARGET)
+  set(options)
+  set(oneValueArgs DEVICE_TYPE DEVICE PACKAGE)
+  set(multiValueArgs)
+
+  cmake_parse_arguments(
+    DEFINE_QL_DEVICE_CELLS_INSTALL_TARGET
+    "${options}"
+    "${oneValueArgs}"
+    "${multiValueArgs}"
+    "${ARGN}"
+  )
+
+  set(DEVICE_TYPE ${DEFINE_QL_DEVICE_CELLS_INSTALL_TARGET_DEVICE_TYPE})
+  set(DEVICE ${DEFINE_QL_DEVICE_CELLS_INSTALL_TARGET_DEVICE})
+  set(PACKAGE ${DEFINE_QL_DEVICE_CELLS_INSTALL_TARGET_PACKAGE})
+
+  get_target_property(CELLS_SIM ${DEVICE_TYPE} CELLS_SIM)
+  get_target_property(CELLS_MAP ${DEVICE_TYPE} CELLS_MAP)
+
+  if (NOT "${CELLS_SIM}" MATCHES ".*NOTFOUND")
+    get_file_target(CELLS_SIM_TARGET ${CELLS_SIM})
+    get_file_location(CELLS_SIM ${CELLS_SIM})
+    add_custom_target(
+      "CELLS_INSTALL_${DEVICE}_CELLS_SIM"
+      ALL
+      DEPENDS ${CELLS_SIM_TARGET} ${CELLS_SIM}
+      )
+    install(FILES ${CELLS_SIM}
+      DESTINATION "share/arch/${DEVICE}_${PACKAGE}/cells")
+  endif()
+
+  if (NOT "${CELLS_MAP}" MATCHES ".*NOTFOUND")
+    get_file_target(CELLS_MAP_TARGET ${CELLS_MAP})
+    get_file_location(CELLS_MAP ${CELLS_MAP})
+    add_custom_target(
+      "CELLS_INSTALL_${DEVICE}_CELLS_MAP"
+      ALL
+      DEPENDS ${CELLS_MAP_TARGET} ${CELLS_MAP}
+      )
+    install(FILES ${CELLS_MAP}
+      DESTINATION "share/arch/${DEVICE}_${PACKAGE}/cells")
+  endif()
+
+endfunction()
+
 function(DEFINE_QL_PINMAP_CSV_INSTALL_TARGET)
   set(options)
   set(oneValueArgs PART DEVICE_TYPE BOARD DEVICE PACKAGE FABRIC_PACKAGE)
