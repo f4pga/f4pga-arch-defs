@@ -121,6 +121,8 @@ export OUT_EBLIF=${TOP}.eblif
 export OUT_FASM_EXTRA=${TOP}_fasm_extra.fasm
 export PCF_FILE=$PCF
 export PINMAP_FILE=`realpath ${MYPATH}/../share/arch/${DEVICE}/${PINMAPCSV}`
+export DEVICE_CELLS_SIM=`find ${MYPATH}/../share/arch/${DEVICE}/cells -name "*_sim.v"`
+export DEVICE_CELLS_MAP=`find ${MYPATH}/../share/arch/${DEVICE}/cells -name "*_map.v"`
 LOG=${TOP}_synth.log
 
 yosys -p "tcl ${SYNTH_TCL_PATH}" -l $LOG ${VERILOG_FILES[*]}
