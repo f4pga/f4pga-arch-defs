@@ -1,20 +1,4 @@
 #!/bin/bash
-#============================================================================
-#                                                                           *
-#--  Copyright Notice  -----------------------------------------------------*
-#                                                                           *
-#    Licensed Materials - Property of QuickLogic Corp.                      *
-#    Copyright (C) 2020 QuickLogic Corporation                              *
-#    All rights reserved                                                    *
-#    Use, duplication, or disclosure restricted                             *
-#                                                                           *
-#    File   :  ql_symbiflow                                                 *
-#    Purpose:  Runs the EDA flow for open core tools: yosys , vpr , fasm    *
-#    Owner  :  QuickLogic Corporation                                       *
-#                                                                           *
-#===========================================================================*
-
-###############################################################################################
 
 set -e
 
