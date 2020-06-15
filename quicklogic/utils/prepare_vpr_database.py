@@ -185,36 +185,33 @@ def process_tilegrid(
                     type=new_type.type, name=tile.name, cells=cells
                 )
 
-#            # For the CLOCK cell create a synthetic tile
-#            if "CLOCK" in tile_type.cells:
+            # For the CLOCK cell create a synthetic tile
+            if "CLOCK" in tile_type.cells:
+                assert tile_type.cells["CLOCK"] == 1
 
-#                # TODO: FIXME: CLOCK IO/s are WIP. skip them for now
-#                continue
-#
-#                assert tile_type.cells["CLOCK"] == 1
-#
-#                # If the tile has a BIDIR cell then place the CLOCK tile in a
-#                # free location next to the original one.
-#                if "BIDIR" in tile_type.cells:
-#                    for ox, oy in ((-1,0),(+1,0),(0,-1),(0,+1)):
-#                        test_loc = Loc(x=phy_loc.x+ox, y=phy_loc.y+oy)
-#                        if is_loc_free(test_loc, tile_grid):
-#                            new_loc = Loc(x=vpr_loc.x+ox, y=vpr_loc.y+oy)
-#                            break
-#                    else:
-#                        assert False, ("No free location to place CLOCK tile", vpr_loc)
-#
-#                # Don't move
-#                else:
-#                    new_loc = vpr_loc
-#
-#                # Add only the backward location correspondence for CLOCK tile
-#                bwd_loc_map[new_loc] = phy_loc
-#                vpr_tile_grid[new_loc] = Tile(
-#                    type="SYN_CLK",
-#                    name="TILE_X{}Y{}".format(new_loc.x, new_loc.y),
-#                    cells=[c for c in tile.cells if c.type == "CLOCK"]
-#                )
+                cells = [c for c in tile.cells if c.type == "CLOCK"]
+                new_type = make_tile_type(cells, cells_library, tile_types)
+
+                # If the tile has a BIDIR cell then place the CLOCK tile in a
+                # free location next to the original one.
+                if "BIDIR" in tile_type.cells:
+                    for ox, oy in ((-1, 0), (+1, 0), (0, -1), (0, +1)):
+                        test_loc = Loc(x=phy_loc.x + ox, y=phy_loc.y + oy)
+                        if is_loc_free(test_loc, tile_grid):
+                            new_loc = Loc(x=vpr_loc.x + ox, y=vpr_loc.y + oy)
+                            break
+                    else:
+                        assert False, ("No free location to place CLOCK tile", vpr_loc)
+
+                # Don't move
+                else:
+                    new_loc = vpr_loc
+
+                # Add only the backward location correspondence for CLOCK tile
+                bwd_loc_map[new_loc] = phy_loc
+                vpr_tile_grid[new_loc] = Tile(
+                    type=new_type.type, name=tile.name, cells=cells
+                )
 
 # Mults and RAMs occupy multiple cells
 # We'll create a synthetic tile with a single cell for each
@@ -236,7 +233,7 @@ def process_tilegrid(
                 # Find free location in the physical tile grid close to the
                 # original one. Once found, convert it to location in the
                 # VPR tile grid.
-                for ox, oy in ((0, -1), (0, +1), (-1, 0), (+1, 0)):
+                for ox, oy in ((0, 0), (0, -1), (0, +1), (-1, 0), (+1, 0)):
                     test_loc = Loc(x=phy_loc.x + ox, y=phy_loc.y + oy)
                     if is_loc_free(test_loc, tile_grid):
                         new_loc = Loc(x=vpr_loc.x + ox, y=vpr_loc.y + oy)
@@ -299,9 +296,7 @@ def process_tilegrid(
             cell_type = list(tile_type.cells.keys())[0]
 
             # Keep only these types
-            if cell_type in [
-                    "LOGIC",
-            ]:  # TODO: FIXME: GMUX is WIP, skip it.
+            if cell_type in ["LOGIC", "GMUX",]:
                 add_loc_map(phy_loc, vpr_loc)
                 vpr_tile_grid[vpr_loc] = tile
                 continue
@@ -349,22 +344,6 @@ def process_tilegrid(
 
         if loc not in vpr_tile_grid:
             vpr_tile_grid[loc] = None
-
-    # DEBUG
-    print("")
-    xs = [loc.x for loc in vpr_tile_grid.keys()]
-    ys = [loc.y for loc in vpr_tile_grid.keys()]
-    for y in range(min(ys), max(ys)+1):
-        l = ord("A")
-        for x in range(min(xs), max(xs)+1):
-            loc = Loc(x=x, y=y)
-            if loc not in vpr_tile_grid:
-                l += "."
-            elif vpr_tile_grid[loc] is None:
-                l += "O"
-            else:
-                l += "X"
-        print(l)
 
     return vpr_tile_grid, LocMap(fwd=fwd_loc_map, bwd=bwd_loc_map),
 
