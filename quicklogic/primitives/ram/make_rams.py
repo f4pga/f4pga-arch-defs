@@ -190,7 +190,7 @@ def make_mode_name(cond):
 # =============================================================================
 
 
-def filter_cells(timings, cond, part=None, debug=False):
+def filter_cells(timings, cond, part=None, normalized_names=False, debug=False):
     """
     Filters SDF timings basing on conditions present in cell type names.
 
@@ -226,10 +226,10 @@ def filter_cells(timings, cond, part=None, debug=False):
             # FIXME: Assuming 2-bit max !!
             for b in range(4):
                 nval = str(int((int(val) & (1 << b)) == 0))
-                # For normalized names
-                cond_strs.append(sig + part_str + str(b) + "_EQ_" + nval)
-                # For regular names
-                #cond_strs.append(sig + part_str + "[{}]".format(b) + "_EQ_" + nval)
+                if normalized_names:
+                    cond_strs.append(sig + part_str + str(b) + "_EQ_" + nval)
+                else:
+                    cond_strs.append(sig + part_str + "[{}]".format(b) + "_EQ_" + nval)
 
             # Reject the other part completely
             other_part_str = "_{}".format(int(1 - part))
@@ -239,12 +239,12 @@ def filter_cells(timings, cond, part=None, debug=False):
 
             # FIXME: Assuming 2-bit max !!
             for b in range(4):
-                # For normalized names
-                cond_strs.append(sig + other_part_str + str(b) + "_EQ_0")
-                cond_strs.append(sig + other_part_str + str(b) + "_EQ_1")
-                # For regular names
-                #cond_strs.append(sig + other_part_str + "[{}]".format(b) + "_EQ_0")
-                #cond_strs.append(sig + other_part_str + "[{}]".format(b) + "_EQ_1")
+                if normalized_names:
+                    cond_strs.append(sig + other_part_str + str(b) + "_EQ_0")
+                    cond_strs.append(sig + other_part_str + str(b) + "_EQ_1")
+                else:
+                    cond_strs.append(sig + other_part_str + "[{}]".format(b) + "_EQ_0")
+                    cond_strs.append(sig + other_part_str + "[{}]".format(b) + "_EQ_1")
 
         # For both parts
         else:
@@ -256,12 +256,12 @@ def filter_cells(timings, cond, part=None, debug=False):
 
             for b in range(4):
                 nval = str(int((int(val) & (1 << b)) == 0))
-                # For normalized names
-                cond_strs.append(sig + "_0" + str(b) + "_EQ_" + nval)
-                cond_strs.append(sig + "_1" + str(b) + "_EQ_" + nval)
-                # For regular names
-                #cond_strs.append(sig + "_0" + "[{}]".format(b) + "_EQ_" + nval)
-                #cond_strs.append(sig + "_1" + "[{}]".format(b) + "_EQ_" + nval)
+                if normalized_names:
+                    cond_strs.append(sig + "_0" + str(b) + "_EQ_" + nval)
+                    cond_strs.append(sig + "_1" + str(b) + "_EQ_" + nval)
+                else:
+                    cond_strs.append(sig + "_0" + "[{}]".format(b) + "_EQ_" + nval)
+                    cond_strs.append(sig + "_1" + "[{}]".format(b) + "_EQ_" + nval)
 
     # DEBUG
     if debug:
@@ -455,7 +455,7 @@ def make_model(model_name, ports):
     return xml_model
 
 
-def make_pb_type(pb_name, ports, model_name, timings=None, timescale=1.0):
+def make_pb_type(pb_name, ports, model_name, timings=None, timescale=1.0, normalized_names=False):
 
     stats = {
         "total_timings": 0,
@@ -505,10 +505,10 @@ def make_pb_type(pb_name, ports, model_name, timings=None, timescale=1.0):
 
             # Index suffixes
             if width > 1:
-                # For normalized names
-                suffixes = ["{}".format(w) for w in range(width)]
-               # For non-normalized names
-                #suffixes = ["[{}]".format(w) for w in range(width)]
+                if normalized_names:
+                    suffixes = ["{}".format(w) for w in range(width)]
+                else:
+                    suffixes = ["[{}]".format(w) for w in range(width)]
             else:
                 suffixes = [""]
 
@@ -1043,6 +1043,9 @@ def main():
     for v in ram_timings["cells"].values():
         instances |= set(v.keys())
 
+    # Use not normalized names in SDFs (i.e. with brackets)
+    # TODO: Make this an argument
+    normalized_names = False
 
     xml_models = {}
 
@@ -1101,7 +1104,7 @@ def main():
 
                     # Filter timings basing on the generated set of conditions
                     # and RAM part
-                    timings = filter_cells(all_timings, cond, part)
+                    timings = filter_cells(all_timings, cond, part, normalized_names=normalized_names)
 
                     # DEBUG
 #                    print(" RAM_" + str(part))
@@ -1116,7 +1119,7 @@ def main():
 
                     # Make the pb_type XML
                     pb_name = "RAM_{}_{}".format(part, mode_name)
-                    xml_pb, stats = make_pb_type(pb_name, model_ports, model_name, timings, timescale)
+                    xml_pb, stats = make_pb_type(pb_name, model_ports, model_name, timings, timescale, normalized_names=normalized_names)
                     xml_mode.append(xml_pb)
 
                     total_timings += stats["total_timings"]
@@ -1139,7 +1142,7 @@ def main():
                     model_ports = RAM_2X1_PORTS
 
                 # Filter timings
-                timings = filter_cells(all_timings, cond, None)
+                timings = filter_cells(all_timings, cond, None, normalized_names=normalized_names)
 
                 # DEBUG
 #                print(" Dual RAM")
@@ -1154,7 +1157,7 @@ def main():
 
                 # Make the pb_type XML
                 pb_name = "RAM_" + mode_name
-                xml_pb, stats = make_pb_type(pb_name, model_ports, model_name, timings, timescale)
+                xml_pb, stats = make_pb_type(pb_name, model_ports, model_name, timings, timescale, normalized_names=normalized_names)
                 xml_mode.append(xml_pb)
 
                 total_timings += stats["total_timings"]
