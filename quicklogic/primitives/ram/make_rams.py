@@ -124,6 +124,15 @@ RAM_2X1_NON_ROUTABLE_PORTS = {
     ]
 }
 
+# A list of ports relevant only in RAM mode
+RAM_PORTS = [
+    "WEN1",
+    "WEN2",
+
+    "A1",
+    "A2",
+]
+
 # A list of ports relevant only in FIFO mode
 FIFO_PORTS = [
     "DIR",
@@ -497,7 +506,7 @@ def make_pb_type(pb_name, ports, model_name, timings=None, timescale=1.0, normal
 #            print(" ", assoc_clock, "->", name)
 
             # Find all timing paths for that port
-            path_timings = find_timings(timings, assoc_clock, name)
+            path_timings = find_timings(timings, assoc_clock, name.upper())
 
             # DEBUG
 #            for k, v in path_timings.items():
@@ -591,14 +600,14 @@ def make_pb_type(pb_name, ports, model_name, timings=None, timescale=1.0, normal
                 continue
 
             # Find all timing paths for that port
-            path_timings = find_timings(timings, assoc_clock, name)
+            path_timings = find_timings(timings, assoc_clock, name.upper())
 
             # Index suffixes
             if width > 1:
-                # For normalized names
-                suffixes = ["{}".format(w) for w in range(width)]
-               # For non-normalized names
-                #suffixes = ["[{}]".format(w) for w in range(width)]
+                if normalized_names:
+                    suffixes = ["{}".format(w) for w in range(width)]
+                else:
+                    suffixes = ["[{}]".format(w) for w in range(width)]
             else:
                 suffixes = [""]
 
@@ -1097,7 +1106,7 @@ def main():
                 if "FIFO_EN=0" in cond:
                     model_ports = filter_ports(ram_ports_sing, FIFO_PORTS)
                 else:
-                    model_ports = ram_ports_sing
+                    model_ports = filter_ports(ram_ports_sing, RAM_PORTS)
 
                 # For each part
                 for part in [0, 1]:
@@ -1139,7 +1148,7 @@ def main():
                 if "FIFO_EN=0" in cond:
                     model_ports = filter_ports(RAM_2X1_PORTS, FIFO_PORTS)
                 else:
-                    model_ports = RAM_2X1_PORTS
+                    model_ports = filter_ports(RAM_2X1_PORTS, RAM_PORTS)
 
                 # Filter timings
                 timings = filter_cells(all_timings, cond, None, normalized_names=normalized_names)
