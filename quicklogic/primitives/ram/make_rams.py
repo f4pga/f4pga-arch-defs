@@ -148,6 +148,17 @@ FIFO_PORTS = [
     "POP_FLAG",
 ]
 
+# A clock map for FIFO operating in DIR=1 mode
+FIFO_CLOCK_MAP = {
+    "CLK1_0": "CLK2_0",
+    "CLK2_0": "CLK1_0",
+    "CLK1_1": "CLK2_1",
+    "CLK2_1": "CLK1_1",
+
+    "CLK1": "CLK2",
+    "CLK2": "CLK1",
+}
+
 # =============================================================================
 
 
@@ -391,6 +402,33 @@ def make_single_ram(ports):
             else:
                 assert key == "input", (key, name, width, assoc_clock,)
                 new_ports[key].add((name, width, assoc_clock,))
+
+    return new_ports
+
+
+def remap_clocks(ports, clock_map):
+    """
+    Remaps clock dependencies of all ports and returns a new port map.
+    Does not remap clocks for "P1" and "P2" ports.
+    """
+
+    new_ports = {
+        "input":  set(),
+        "clock":  set(),
+        "output": set(),
+    }
+
+    for key in ["input", "clock", "output"]:
+        for name, width, assoc_clock in ports[key]:
+
+            # P1 and P2 are not subject to the remap
+            if "P1" not in name and "P2" not in name:                
+
+                # Remap the associated clock
+                if assoc_clock in clock_map:
+                    assoc_clock = clock_map[assoc_clock]
+
+            new_ports[key].add((name, width, assoc_clock,))
 
     return new_ports
 
@@ -1104,9 +1142,11 @@ def main():
             if "CONCAT_EN=0" in cond:
 
                 if "FIFO_EN=0" in cond:
-                    model_ports = filter_ports(ram_ports_sing, FIFO_PORTS)
+                    model_ports = filter_ports(ram_ports_sing, FIFO_PORTS)                
                 else:
                     model_ports = filter_ports(ram_ports_sing, RAM_PORTS)
+                    if "DIR=1" in cond:
+                        model_ports = remap_clocks(model_ports, FIFO_CLOCK_MAP)
 
                 # For each part
                 for part in [0, 1]:
@@ -1149,6 +1189,8 @@ def main():
                     model_ports = filter_ports(RAM_2X1_PORTS, FIFO_PORTS)
                 else:
                     model_ports = filter_ports(RAM_2X1_PORTS, RAM_PORTS)
+                    if "DIR=1" in cond:
+                        model_ports = remap_clocks(model_ports, FIFO_CLOCK_MAP)
 
                 # Filter timings
                 timings = filter_cells(all_timings, cond, None, normalized_names=normalized_names)
@@ -1208,12 +1250,20 @@ def main():
 
         # CONCAT_EN=0 - the 2x1 RAM is split into two
         if "CONCAT_EN=0" in cond:
-            verilog = make_blackbox(model_name, ram_ports_sing)
+            if "DIR=1" in cond:
+                ports = remap_clocks(ram_ports_sing, FIFO_CLOCK_MAP)
+            else:
+                ports = ram_ports_sing
+            verilog = make_blackbox(model_name, ports)
             blackboxes[model_name] = verilog
 
         # CONCAT_EN=1 - keep the 2x1 RAM as one
         elif "CONCAT_EN=1" in cond:
-            verilog = make_blackbox(model_name, RAM_2X1_PORTS)
+            if "DIR=1" in cond:
+                ports = remap_clocks(RAM_2X1_PORTS, FIFO_CLOCK_MAP)
+            else:
+                ports = RAM_2X1_PORTS
+            verilog = make_blackbox(model_name, ports)
             blackboxes[model_name] = verilog
 
     # Write blackbox definitions
