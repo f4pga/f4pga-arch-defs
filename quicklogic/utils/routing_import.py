@@ -2,6 +2,7 @@
 import argparse
 import pickle
 import itertools
+import re
 from collections import defaultdict
 
 import lxml.etree as ET
@@ -16,6 +17,12 @@ from utils import yield_muxes, fixup_pin_name
 
 # =============================================================================
 
+CLOCK_CELLS = [
+    "CLOCK",
+    "GMUX",
+    "QMUX",
+    "CAND"
+]
 
 def is_hop(connection):
     """
@@ -57,6 +64,28 @@ def is_direct(connection):
 
     return False
 
+def is_clock(connection):
+    """
+    Returns True if the connection spans two clock cells
+    """
+
+    if not is_direct(connection):
+        return False
+
+    src_ok = False
+    dst_ok = False
+
+    for cell in CLOCK_CELLS:
+        if connection.src.pin.startswith(cell):
+            src_ok = True
+            break
+
+    for cell in CLOCK_CELLS:
+        if connection.dst.pin.startswith(cell):
+            dst_ok = True
+            break
+
+    return src_ok and dst_ok
 
 def is_local(connection):
     """
@@ -641,6 +670,65 @@ class SwitchboxModel(object):
 # =============================================================================
 
 
+class QmuxModel(object):
+    """
+    A model of a QMUX cell implemented in the "route through" manner using
+    RR nodes and edges.
+
+    A QMUX has the following clock inputs
+     - 0: QCLKIN0
+     - 1: QCLKIN1
+     - 2: QCLKIN2
+     - 3: HSCKIN (from routing)
+
+    The selection is controlled by a binary value of {IS1, IS0}. Both of the
+    pins are connected to the switchbox.
+    """
+
+    def __init__(self, graph, cell):
+        self.graph = graph
+        self.loc   = cell.loc
+        self.cell  = cell
+
+        self.out_node = None
+        self.edges = {}
+
+        self._build()
+
+    def _build(self):
+
+        # Get segment and switch id
+        segment_id = self.graph.get_segment_id_from_name("clock")
+        switch_id = self.graph.get_delayless_switch_id()
+
+        # Add the output node
+        self.out_node = add_node(self.graph, self.loc, "Y", segment_id)
+
+    def connect_to(self, pin, node):
+        pass
+
+
+class CandModel(object):
+    """
+    A model of a CAND cell implemented in the "route through" manner using
+    RR nodes and edges.
+    """
+
+    def __init__(self, graph, cell):
+        self.graph = graph
+        self.cell  = cell
+
+        self._build()
+
+    def _build(self):
+        pass
+
+    def get_node_map(self):
+        pass
+
+# =============================================================================
+
+
 def tile_pin_to_rr_pin(tile_type, pin_name):
     """
     Converts the tile pin name as in the database to its counterpart in the
@@ -1002,6 +1090,7 @@ def create_track_for_hop_connection(graph, connection):
     return node
 
 
+
 # =============================================================================
 
 
@@ -1153,12 +1242,11 @@ def populate_tile_connections(
 
                         connect(graph, sbox_node, src_node)
 
-
 def populate_direct_connections(
-        graph, switchbox_models, connections, connection_loc_to_node
+        graph, connections, connection_loc_to_node
 ):
     """
-    Populates direct tile-to-tile connections.
+    Populates all direct tile-to-tile connections.
     """
 
     # Process connections
@@ -1166,9 +1254,14 @@ def populate_direct_connections(
     conns = [c for c in connections if is_direct(c)]
     for connection in bar(conns):
 
-        # Must be a direct connections have to be tile <-> tile
-        assert connection.src.type == ConnectionType.TILE and \
-               connection.dst.type == ConnectionType.TILE, connection
+        # Get segment id and switch id
+        if is_clock(connection):
+            segment_id = graph.get_segment_id_from_name("clock")
+            switch_id = graph.get_delayless_switch_id()
+
+        else:
+            segment_id = graph.get_segment_id_from_name("special")
+            switch_id = graph.get_delayless_switch_id()
 
         # Get tile nodes
         src_tile_node = connection_loc_to_node.get(connection.src, None)
@@ -1189,10 +1282,6 @@ def populate_direct_connections(
                 )
 
             continue
-
-        # Get segment id and switch id
-        segment_id = graph.get_segment_id_from_name("clock")
-        switch_id = graph.get_delayless_switch_id()
 
         # Add a track connecting the two locations
         src_track_node, dst_track_node = add_l_track(
@@ -1231,6 +1320,154 @@ def populate_const_connections(graph, switchbox_models, const_node_map):
                     sbox_node,
                 )
 
+def populate_cand_connections(graph, switchbox_models, cand_node_map):
+    """
+    Populates global clock network to switchbox connections. These all the
+    CANDn inputs of a switchbox.
+    """
+
+    bar = progressbar_utils.progressbar
+    for loc, switchbox_model in bar(switchbox_models.items()):
+
+        # Look for input connected to a CAND
+        for pin in switchbox_model.switchbox.inputs.values():
+
+            # Got a CAND input
+            if pin.name in cand_node_map:
+                cand_node = cand_node_map[pin.name][loc]
+                sbox_node = switchbox_model.get_input_node(pin.name)
+
+                connect(
+                    graph,
+                    cand_node,
+                    sbox_node,
+                )
+
+# =============================================================================
+
+
+def create_quadrant_clock_tracks(graph, connections, connection_loc_to_node):
+    """
+    Creates tracks representing global clock network routes namely all
+    connections between GMUXes and QMUXes as well as QMUXes to CANDs.
+    """
+
+    # Get segment id and switch id
+    segment_id = graph.get_segment_id_from_name("clock")
+    switch_id = graph.get_delayless_switch_id()
+
+    # Process connections
+    bar = progressbar_utils.progressbar
+    conns = [c for c in connections if is_clock(c)]
+    for connection in bar(conns):
+
+        # GMUX to QMUX connection
+        if connection.src.pin.startswith("GMUX") and \
+           connection.dst.pin.startswith("QMUX"):
+
+            # Get the QMUX tile
+            src_tile_node = connection_loc_to_node.get(connection.src, None)
+            if src_tile_node is None:
+                print(
+                    "WARNING: No OPIN node for direct connection {}".
+                    format(connection)
+                )
+                continue
+
+            # Add a track connecting the two locations
+            src_track_node, dst_track_node = add_l_track(
+                graph, 
+                src_tile_node.loc.x_low, src_tile_node.loc.y_low,
+                connection.dst.loc.x, connection.dst.loc.y,
+                segment_id,
+                switch_id
+            )
+
+            # Connect the OPIN
+            connect(graph, src_tile_node, src_track_node)
+
+        # QMUX to CAND connection
+        if connection.src.pin.startswith("QMUX") and \
+           connection.dst.pin.startswith("CAND"):
+
+            # Add a track connecting the two locations
+            # Some CAND cells share the same physical location as QMUX cells.
+            # In that case add a single "jump" node
+            if connection.src.loc == connection.dst.loc:
+                src_track_node = add_node(
+                    graph,
+                    connection.src.loc,
+                    "X",
+                    segment_id
+                )
+                dst_track_node = src_track_node
+
+            else:
+                src_track_node, dst_track_node = add_l_track(
+                    graph, 
+                    connection.src.loc.x, connection.src.loc.y,
+                    connection.dst.loc.x, connection.dst.loc.y,
+                    segment_id,
+                    switch_id
+                )
+
+
+def create_column_clock_tracks(graph, clock_cells, quadrants):
+    """
+    This function adds tracks for clock column routes. It returns a map of
+    "assess points" to that tracks to be used by switchbox connections.
+    """
+
+    CAND_RE = re.compile(r"^(?P<name>CAND[0-4])_(?P<quad>[A-Z]+)_(?P<col>[0-9]+)$")
+
+    # Get segment id and switch id
+    segment_id = graph.get_segment_id_from_name("clock")
+    switch_id = graph.get_delayless_switch_id()
+
+    # Process CAND cells
+    cand_node_map = {}
+
+    for cell in clock_cells.values():
+
+        # A clock column is defined by a CAND cell
+        if cell.type != "CAND":
+            continue
+
+        # Get index and quadrant
+        match = CAND_RE.match(cell.name)
+        if not match:
+            continue
+
+        cand_name = match.group("name")
+        cand_quad = match.group("quad")
+
+        quadrant = quadrants[cand_quad]
+
+        # Add track chains going upwards and downwards from the CAND cell
+        up_entry_node, _, up_node_map = add_track_chain(
+            graph, "Y", cell.loc.x, cell.loc.y,     quadrant.y0, segment_id, switch_id
+        )
+        dn_entry_node, _, dn_node_map = add_track_chain(
+            graph, "Y", cell.loc.x, cell.loc.y + 1, quadrant.y1, segment_id, switch_id
+        )
+
+        # Connect entry nodes
+        cand_entry_node = up_entry_node
+        add_edge(graph, cand_entry_node.id, dn_entry_node.id, switch_id)
+
+        # Join node maps
+        node_map = {**up_node_map, **dn_node_map}
+
+        # Populate the global clock network to switchbox access map
+        for y, node in node_map.items():
+            loc = Loc(x=cell.loc.x, y=y)
+
+            if cand_name not in cand_node_map:
+                cand_node_map[cand_name] = {}
+
+            cand_node_map[cand_name][loc] = node
+
+    return cand_node_map
 
 # =============================================================================
 
@@ -1298,6 +1535,8 @@ def main():
     with open(args.vpr_db, "rb") as fp:
         db = pickle.load(fp)
 
+        vpr_quadrants = db["vpr_quadrants"]
+        vpr_clock_cells = db["vpr_clock_cells"]
         cells_library = db["cells_library"]
         loc_map = db["loc_map"]
         vpr_tile_types = db["vpr_tile_types"]
@@ -1378,6 +1617,15 @@ def main():
     )
     connection_loc_to_node.update(node_map)
 
+    # Build the global clock network
+    print("Building the global clock network...")
+    create_quadrant_clock_tracks(
+        xml_graph.graph, connections, connection_loc_to_node
+    )
+    cand_node_map = create_column_clock_tracks(
+        xml_graph.graph, vpr_clock_cells, vpr_quadrants
+    )
+
     # Add switchbox models.
     print("Building switchbox models...")
     switchbox_models = {}
@@ -1399,7 +1647,10 @@ def main():
         xml_graph.graph, switchbox_models, connections, connection_loc_to_node
     )
     populate_direct_connections(
-        xml_graph.graph, switchbox_models, connections, connection_loc_to_node
+        xml_graph.graph, connections, connection_loc_to_node
+    )
+    populate_cand_connections(
+        xml_graph.graph, switchbox_models, cand_node_map
     )
     populate_const_connections(
         xml_graph.graph, switchbox_models, const_node_map
