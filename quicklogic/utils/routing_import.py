@@ -1165,7 +1165,47 @@ def populate_direct_connections(
     bar = progressbar_utils.progressbar
     conns = [c for c in connections if is_direct(c)]
     for connection in bar(conns):
-        print("Direct:", connection)
+
+        # Must be a direct connections have to be tile <-> tile
+        assert connection.src.type == ConnectionType.TILE and \
+               connection.dst.type == ConnectionType.TILE, connection
+
+        # Get tile nodes
+        src_tile_node = connection_loc_to_node.get(connection.src, None)
+        dst_tile_node = connection_loc_to_node.get(connection.dst, None)
+
+        # Couldn't find at least one endpoint node
+        if src_tile_node is None or dst_tile_node is None:
+            if src_tile_node is None:
+                print(
+                    "WARNING: No OPIN node for direct connection {}".
+                    format(connection)
+                )
+
+            if dst_tile_node is None:
+                print(
+                    "WARNING: No IPIN node for direct connection {}".
+                    format(connection)
+                )
+
+            continue
+
+        # Get segment id and switch id
+        segment_id = graph.get_segment_id_from_name("clock")
+        switch_id = graph.get_delayless_switch_id()
+
+        # Add a track connecting the two locations
+        src_track_node, dst_track_node = add_l_track(
+            graph, 
+            src_tile_node.loc.x_low, src_tile_node.loc.y_low,
+            dst_tile_node.loc.x_low, dst_tile_node.loc.y_low,
+            segment_id,
+            switch_id
+        )
+
+        # Connect the track endpoints to the IPIN and OPIN
+        connect(graph, src_tile_node, src_track_node)
+        connect(graph, dst_track_node, dst_tile_node)
 
 
 def populate_const_connections(graph, switchbox_models, const_node_map):
@@ -1408,7 +1448,7 @@ def main():
 
     unconnected_locs = non_empty_locs - connected_locs
     for loc in unconnected_locs:
-        block_type = xml_graph.graph.block_type_ad_loc(loc)
+        block_type = xml_graph.graph.block_type_at_loc(loc)
         print(
             " ERROR: Tile '{}' at ({}, {}) is not connected!".format(
                 block_type, loc[0], loc[1]

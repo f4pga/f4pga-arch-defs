@@ -456,6 +456,36 @@ def process_connections(
         )
         vpr_connections.append(new_connection)
 
+    # Remap locations of connections that go to CLOCK pads. A physical
+    # BIDIR+CLOCK tile is split into separate BIDIR and CLOCK tiles.
+    for i, connection in enumerate(vpr_connections):      
+
+        eps = [connection.src, connection.dst]
+        for j, ep in enumerate(eps):
+
+            # This endpoint is not relevant to a CLOCK cell
+            if not ep.pin.startswith("CLOCK"):
+                continue
+
+            # The endpoint location points to a BIDIR tile. Find the assocated
+            # CLOCK tile
+            org_loc = loc_map.bwd[ep.loc]
+            for vpr_loc, phy_loc in loc_map.bwd.items():
+                if phy_loc == org_loc and vpr_loc != ep.loc:
+                    clock_loc = vpr_loc
+                    break
+            else:
+                assert False, ("Couldn't find a CLOCK cell in the VPR grid!", connection)
+    
+            eps[j] = ConnectionLoc(
+                loc=clock_loc,
+                pin=ep.pin,
+                type=ep.type,
+            )
+
+        # Modify the connection
+        vpr_connections[i] = Connection(src=eps[0], dst=eps[1])
+
     # Find SFBIO connections, map their endpoints to SDIOMUX tiles
     # FIXME: This should be read from the techfine. Definition of the SDIOMUX
     # cell has  "realPortName" fields.
@@ -724,6 +754,15 @@ def build_segment_list():
             c_metal=0.0,
         )
         segments[segment.name] = segment
+
+    # Global clock network segment
+    segment = VprSegment(
+        name="clock",
+        length=1,
+        r_metal=0.0,
+        c_metal=0.0,
+    )
+    segments[segment.name] = segment
 
     # A segment for "hop" connections to "special" tiles.
     segment = VprSegment(
