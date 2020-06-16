@@ -28,7 +28,7 @@ OPPOSITE_DIRECTION = {
 """
 A generic pin
 """
-Pin = namedtuple("Pin", "name direction is_clock")
+Pin = namedtuple("Pin", "name direction attrib")
 """
 Pin direction in therms where is it "standing out" of a tile.
 """
@@ -101,7 +101,7 @@ class TileType(object):
                         Pin(
                             name=name,
                             direction=pin.direction,
-                            is_clock=pin.is_clock
+                            attrib=pin.attrib
                         )
                     )
 

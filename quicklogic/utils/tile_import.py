@@ -28,7 +28,7 @@ def add_ports(xml_parent, pins, buses=True):
 
     for pin in pins:
         if pin.direction == PinDirection.INPUT:
-            if pin.is_clock:
+            if pin.attrib.get("clock", None) == "true":
                 pinlist = pinlists["clock"]
             else:
                 pinlist = pinlists["input"]

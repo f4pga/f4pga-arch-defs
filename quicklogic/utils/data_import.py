@@ -49,6 +49,15 @@ def parse_library(xml_library):
     Loads cell definitions from the XML
     """
 
+    KNOWN_PORT_ATTRIB = [
+        "hardWired",
+        "isInvertible",
+        "isAsynchronous",
+        "realPortName",
+        "isblank",
+        "unet",
+    ]
+
     cells = []
 
     for xml_node in xml_library:
@@ -82,6 +91,12 @@ def parse_library(xml_library):
                 if not is_routable:
                     continue
 
+                # Gather attributes
+                port_attrib = {}
+                for key, val in xml_mport.attrib.items():
+                    if key in KNOWN_PORT_ATTRIB:
+                        port_attrib[key] = str(val)
+
                 # A bus
                 if xml_bus is not None:
                     lsb = int(xml_bus.attrib["lsb"])
@@ -95,21 +110,37 @@ def parse_library(xml_library):
                                     xml_bus.attrib["name"], i
                                 ),
                                 direction=direction,
-                                is_clock=False,
+                                attrib=port_attrib,
                             )
                         )
 
                 # A single pin
                 else:
                     name = xml_mport.attrib["name"]
+
+                    if cell_type in CLOCK_PINS and \
+                       name in CLOCK_PINS[cell_type]:
+                        port_attrib["clock"] = "true"
+
                     cell_pins.append(
                         Pin(
                             name=name,
                             direction=direction,
-                            is_clock=cell_type in CLOCK_PINS
-                            and name in CLOCK_PINS[cell_type],
+                            attrib=port_attrib,
                         )
                     )
+
+        # FIXME: If the cell is a QMUX add the missing QCLKIN1 and QCLKIN2
+        # input pins
+        if cell_type == "QMUX":
+            for i in [1, 2]:
+                cell_pins.append(
+                    Pin(
+                        name = "QCLKIN{}".format(i),
+                        direction = PinDirection.INPUT,
+                        attrib = {"hardWired": "true"}
+                    )
+                )
 
         # Add the cell
         cells.append(CellType(type=cell_type, pins=cell_pins))
@@ -814,9 +845,25 @@ def parse_clock_network(xml_clock_network):
             y=int(xml_cell.attrib["row"]),
         )
 
+        # Get the cell's pinmap
         pin_map = {k: v for k, v in xml_cell.attrib.items() \
             if k not in NON_PIN_TAGS}
 
+        # FIXME: A QMUX should have 3 QCLKIN inputs but accorting to the
+        # techfile it has only one. Should it be assumed that eg. when
+        # "QCLKIN0=GMUX_1" then "QCLKIN1=GMUX_2" etc ?!?!
+
+        # For now let's assume that yes and add the missing pins
+        if xml_cell.attrib["type"] == "QMUX":
+            gmux_base = int(pin_map["QCLKIN0"].rsplit("_")[1])
+            for i in [1, 2]:
+                key = "QCLKIN{}".format(i)
+                val = "GMUX_{}".format((gmux_base + i) % 5)
+                pin_map[key] = val
+
+        print(pin_map)
+
+        # Return the cell
         return ClockCell(
             type=xml_cell.attrib["type"],
             name=xml_cell.attrib["name"],
@@ -853,6 +900,25 @@ def parse_clock_network(xml_clock_network):
             clock_cell = parse_cell(xml_cell, xml_quad.tag)
             clock_cells[clock_cell.name] = clock_cell
 
+    # Since we are not going to use dynamic enables on CAND we remove the EN 
+    # pin connection from the pinmap. This way the connections between 
+    # switchboxes which drive them can be used for generic routing.
+    for cell_name in clock_cells.keys():
+
+        cell = clock_cells[cell_name]
+        pin_map = cell.pin_map
+
+        if cell.type == "CAND" and "EN" in pin_map:
+            del pin_map["EN"]
+
+        clock_cells[cell_name] = ClockCell(
+            name = cell.name,
+            type = cell.type,
+            loc = cell.loc,
+            quadrant = cell.quadrant,
+            pin_map = pin_map
+        )
+
     return clock_cells
 
 
@@ -887,6 +953,10 @@ def populate_clk_mux_port_maps(
             cell_pin = [p for p in cell_pins if p.name == mux_pin_name]
             assert len(cell_pin) == 1, (clock_cell, mux_pin_name)
             cell_pin = cell_pin[0]
+
+            # Skip hard-wired pins
+            if cell_pin.attrib.get("hardWired", None) == "true":
+                continue
 
             # Add entry to the map
             key = (sbox_pin_name, OPPOSITE_DIRECTION[cell_pin.direction])
