@@ -284,15 +284,17 @@ class Switchbox(object):
 
 
 # =============================================================================
+
 """
-A global clock network mux data.
+A global clock network cell
 
 type        - Cell type.
 name        - Cell name.
 loc         - Location in the grid.
+quadrant    - Clock quadrant
 pin_map     - A dict with mapping of cell pins to switchbox pins.
 """
-ClockMux = namedtuple("ClockMux", "type name loc pin_map")
+ClockCell = namedtuple("ClockCell", "type name loc quadrant pin_map")
 
 # =============================================================================
 

@@ -118,11 +118,13 @@ def strip_cells(tile, cell_types, tile_types, cells_library):
     if not len(set(cell_types) & set(tile_type.cells.keys())):
         return tile
 
-    # Filter cells, create a new tile type
+    # Filter cells
     new_cells = [c for c in tile.cells if c.type not in cell_types]
-    new_tile_type = make_tile_type(new_cells, cells_library, tile_types)
+    if not new_cells:
+        return None
 
-    # Create the new tile
+    # Create the new tile type and tile
+    new_tile_type = make_tile_type(new_cells, cells_library, tile_types)
     new_tile = Tile(type=new_tile_type.type, name=tile.name, cells=new_cells)
 
     return new_tile
@@ -131,6 +133,7 @@ def strip_cells(tile, cell_types, tile_types, cells_library):
 def process_tilegrid(
         tile_types,
         tile_grid,
+        clock_cells,
         cells_library,
         grid_size,
         grid_offset,
@@ -145,6 +148,7 @@ def process_tilegrid(
     bwd_loc_map = {}
     ram_blocks = []
     mult_blocks = []
+    vpr_clock_cells = {}
 
     def add_loc_map(phy_loc, vpr_loc):
         fwd_loc_map[phy_loc] = vpr_loc
@@ -161,16 +165,38 @@ def process_tilegrid(
             x=phy_loc.x + grid_offset[0], y=phy_loc.y + grid_offset[1]
         )
 
-        # If the tile contains CAND then strip it. Possibly create a new tile
-        # type.
+        # If the tile contains QMUX or CAND then strip it. Possibly create a 
+        # new tile type.
         tile_type = tile_types[tile.type]
-        if "CAND" in tile_type.cells:
-            tile = strip_cells(tile, ["CAND"], tile_types, cells_library)
-            tile_type = tile_types[tile.type]
+        if "QMUX" in tile_type.cells or "CAND" in tile_type.cells:
 
-            # TODO: Store where the CAND was
+            # Store the stripped cells
+            for cell in tile.cells:
+                if cell.type in ["QMUX", "CAND"]:
+
+                    # Find it in the physical clock cell list
+                    if cell.name not in clock_cells:
+                        print("WARNING: Clock cell '{}' not on the clock cell list!".format(cell.name))
+                        continue
+
+                    clock_cell = clock_cells[cell.name]
+                    clock_cell = ClockCell(
+                        type = clock_cell.type,
+                        name = clock_cell.name,
+                        loc = vpr_loc,
+                        quadrant = clock_cell.quadrant,
+                        pin_map = clock_cell.pin_map
+                    )
+
+                    vpr_clock_cells[clock_cell.name] = clock_cell
+
+            # Strip the cells
+            tile = strip_cells(tile, ["QMUX", "CAND"], tile_types, cells_library)
+            if tile is None:
+                continue
 
         # The tile contains a BIDIR or CLOCK cell. it is an IO tile
+        tile_type = tile_types[tile.type]
         if "BIDIR" in tile_type.cells or "CLOCK" in tile_type.cells:
 
             # For the BIDIR cell create a synthetic tile
@@ -345,7 +371,7 @@ def process_tilegrid(
         if loc not in vpr_tile_grid:
             vpr_tile_grid[loc] = None
 
-    return vpr_tile_grid, LocMap(fwd=fwd_loc_map, bwd=bwd_loc_map),
+    return vpr_tile_grid, vpr_clock_cells, LocMap(fwd=fwd_loc_map, bwd=bwd_loc_map),
 
 
 # =============================================================================
@@ -818,9 +844,11 @@ def main():
     with open(args.phy_db, "rb") as fp:
         db = pickle.load(fp)
 
+        phy_quadrants = db["phy_quadrants"]
         cells_library = db["cells_library"]
         tile_types = db["tile_types"]
         phy_tile_grid = db["phy_tile_grid"]
+        phy_clock_cells = db["phy_clock_cells"]
         switchbox_types = db["switchbox_types"]
         phy_switchbox_grid = db["switchbox_grid"]
         switchbox_timing = db["switchbox_timing"]
@@ -853,10 +881,21 @@ def main():
                 GRID_MARGIN[1] + GRID_MARGIN[3] + \
                 (grid_max[1] - grid_min[1] + 1)
 
+    # Remap quadrant locations
+    vpr_quadrants = {}
+    for quadrant in phy_quadrants.values():
+        vpr_quadrants[quadrant.name] = Quadrant(
+            name = quadrant.name,
+            x0 = quadrant.x0 + grid_offset[0],
+            x1 = quadrant.x1 + grid_offset[0],
+            y0 = quadrant.y0 + grid_offset[1],
+            y1 = quadrant.y1 + grid_offset[1]
+        )
+
     # Process the tilegrid
-    vpr_tile_grid, loc_map = process_tilegrid(
-        tile_types, phy_tile_grid, cells_library, grid_size, grid_offset,
-        grid_limit
+    vpr_tile_grid, vpr_clock_cells, loc_map = process_tilegrid(
+        tile_types, phy_tile_grid, phy_clock_cells,
+        cells_library, grid_size, grid_offset, grid_limit
     )
 
     # Process the switchbox grid
@@ -963,6 +1002,23 @@ def main():
                 l += "."
         print(l)
 
+    # DBEUG
+    print("Route-through global clock cells:")
+    xmax = max([loc.x for loc in vpr_tile_grid])
+    ymax = max([loc.y for loc in vpr_tile_grid])
+    for y in range(ymax + 1):
+        l = " {:>2}: ".format(y)
+        for x in range(xmax + 1):
+            loc = Loc(x=x, y=y)
+
+            for cell in vpr_clock_cells.values():
+                if cell.loc == loc:
+                    l += cell.name[0].upper()
+                    break
+            else:
+                l += "."
+        print(l)
+
     # DEBUG
     print("VPR Segments:")
     for s in vpr_segments.values():
@@ -977,8 +1033,10 @@ def main():
     db_root = {
         "cells_library": cells_library,
         "loc_map": loc_map,
+        "vpr_quadrants": vpr_quadrants,
         "vpr_tile_types": vpr_tile_types,
         "vpr_tile_grid": vpr_tile_grid,
+        "vpr_clock_cells": vpr_clock_cells,
         "vpr_equivalent_sites": vpr_equivalent_sites,
         "vpr_switchbox_types": vpr_switchbox_types,
         "vpr_switchbox_grid": vpr_switchbox_grid,

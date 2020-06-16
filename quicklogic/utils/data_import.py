@@ -348,7 +348,7 @@ def parse_placement(xml_placement, cells_library):
             cells=tile_cells
         )
 
-    return tile_types, tilegrid
+    return quadrants, tile_types, tilegrid
 
 
 def populate_switchboxes(xml_sbox, switchbox_grid):
@@ -803,7 +803,7 @@ def parse_clock_network(xml_clock_network):
     Parses the "CLOCK_NETWORK" section of the techfile
     """
 
-    def parse_cell(xml_cell):
+    def parse_cell(xml_cell, quadrant=None):
         """
         Parses a "Cell" tag inside "CLOCK_NETWORK"
         """
@@ -817,10 +817,11 @@ def parse_clock_network(xml_clock_network):
         pin_map = {k: v for k, v in xml_cell.attrib.items() \
             if k not in NON_PIN_TAGS}
 
-        return ClockMux(
+        return ClockCell(
             type=xml_cell.attrib["type"],
             name=xml_cell.attrib["name"],
             loc=cell_loc,
+            quadrant=quadrant,
             pin_map=pin_map
         )
 
@@ -840,10 +841,17 @@ def parse_clock_network(xml_clock_network):
 
     for xml_quad in xml_qmux:
         for xml_cell in xml_quad.findall("Cell"):
-            clock_cell = parse_cell(xml_cell)
+            clock_cell = parse_cell(xml_cell, xml_quad.tag)
             clock_cells[clock_cell.name] = clock_cell
 
-    # TODO: Intepret CAND cell data
+    # Parse CAND cells
+    xml_cand = xml_clock_network.find("COL_CLKEN")
+    assert xml_cand is not None
+
+    for xml_quad in xml_cand:
+        for xml_cell in xml_quad.findall("Cell"):
+            clock_cell = parse_cell(xml_cell, xml_quad.tag)
+            clock_cells[clock_cell.name] = clock_cell
 
     return clock_cells
 
@@ -910,7 +918,11 @@ def specialize_switchboxes_with_port_maps(
         switchbox = switchbox_types[switchbox_type]
 
         # Make a copy of the switchbox
-        new_type = "{}_X{}Y{}".format(switchbox.type, loc.x, loc.y)
+        suffix = "X{}Y{}".format(loc.x, loc.y)
+        if not switchbox.type.endswith(suffix):
+            new_type = "{}_{}".format(switchbox.type, suffix)
+        else:
+            new_type = switchbox_type
         new_switchbox = Switchbox(new_type)
         new_switchbox.stages = deepcopy(switchbox.stages)
         new_switchbox.connections = deepcopy(switchbox.connections)
@@ -976,7 +988,11 @@ def specialize_switchboxes_with_wire_maps(
         switchbox = switchbox_types[switchbox_type]
 
         # Make a copy of the switchbox
-        new_type = "{}_X{}Y{}".format(switchbox.type, loc.x, loc.y)
+        suffix = "X{}Y{}".format(loc.x, loc.y)
+        if not switchbox.type.endswith(suffix):
+            new_type = "{}_{}".format(switchbox.type, suffix)
+        else:
+            new_type = switchbox_type
         new_switchbox = Switchbox(new_type)
         new_switchbox.stages = deepcopy(switchbox.stages)
         new_switchbox.connections = deepcopy(switchbox.connections)
@@ -1152,7 +1168,7 @@ def import_data(xml_root):
     assert xml_placement is not None
 
     cells_library = {cell.type: cell for cell in cells}
-    tile_types, tile_grid = parse_placement(xml_placement, cells_library)
+    quadrants, tile_types, tile_grid = parse_placement(xml_placement, cells_library)
 
     # Import global clock network definition
     xml_clock_network = xml_placement.find("CLOCK_NETWORK")
@@ -1234,6 +1250,7 @@ def import_data(xml_root):
     package_pinmaps = parse_pinmap(xml_packages, tile_grid)
 
     return {
+        "quadrants": quadrants,
         "cells_library": cells_library,
         "tile_types": tile_types,
         "tile_grid": tile_grid,
@@ -1383,9 +1400,11 @@ def main():
 
     # Prepare the database
     db_root = {
+        "phy_quadrants": data["quadrants"],
         "cells_library": data["cells_library"],
         "tile_types": data["tile_types"],
         "phy_tile_grid": data["tile_grid"],
+        "phy_clock_cells": data["clock_cells"],
         "switchbox_types": data["switchbox_types"],
         "switchbox_grid": data["switchbox_grid"],
         "connections": connections,
