@@ -1,5 +1,5 @@
 `include "../vpr_pad/vpr_ipad.sim.v"
-`include "./clock_iobuf.sim.v"
+`include "./clock_cell.sim.v"
 
 module CLOCK(
     output wire IC,
@@ -15,7 +15,7 @@ module CLOCK(
 
     // IO buffer (the actual CLOCK cell counterpart)
     (* keep *)
-    CLOCK_IOBUF clock_buf(
+    CLOCK_CELL clock_buf(
         .I_PAD(i_pad),
         .O_CLK(IC),
     );

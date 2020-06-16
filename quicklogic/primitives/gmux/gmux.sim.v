@@ -1,12 +1,12 @@
 (* whitebox *)
 module GMUX(IP, IC, IS0, IZ);
 
-    (* CLOCK *)
-    (* COMB_SINKS="IZ" *)
+//    (* CLOCK *)
+//    (* COMB_SINKS="IZ" *)
     input  wire IP;
 
-    (* CLOCK *)
-    (* COMB_SINKS="IZ" *)
+//    (* CLOCK *)
+//    (* COMB_SINKS="IZ" *)
     input  wire IC;
 
     input  wire IS0;
