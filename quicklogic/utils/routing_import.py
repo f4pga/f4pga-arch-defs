@@ -671,15 +671,23 @@ class QmuxModel(object):
 
     The selection is controlled by a binary value of {IS1, IS0}. Both of the
     pins are connected to the switchbox.
+
+    Since the QMUX is to be modelled using routing resources only, the part
+    of the switchbox (of the whole switchbox) controlling the IS0 and IS1 pins
+    will be removed. Appropriate fasm features will be attached to the edges
+    that will model the QMUX. This will mimic the switchbox operation.
+
+    The HSCKIN input is not modelled so the global clock network cannot be
+    entered at a QMUX.
     """
 
-    def __init__(self, graph, cell):
+    def __init__(self, graph, cell, phy_loc, connections, node_map):
         self.graph = graph
-        self.loc   = cell.loc
-        self.cell  = cell
+        self.cell = cell
+        self.phy_loc = phy_loc
 
-        self.out_node = None
-        self.edges = {}
+        self.connections = [c for c in connections if is_clock(c)]
+        self.connection_loc_to_node = node_map
 
         self._build()
 
@@ -689,11 +697,68 @@ class QmuxModel(object):
         segment_id = self.graph.get_segment_id_from_name("clock")
         switch_id = self.graph.get_delayless_switch_id()
 
-        # Add the output node
-        self.out_node = add_node(self.graph, self.loc, "Y", segment_id)
+        # Get the GMUX to QMUX connections
+        eps = {}
+        for connection in self.connections:
+            if connection.dst.type == ConnectionType.CLOCK:
+                dst_cell, dst_pin = connection.dst.pin.split(".")
 
-    def connect_to(self, pin, node):
-        pass
+                if dst_cell == self.cell.name and dst_pin.startswith("QCLKIN"):
+                    eps[dst_pin] = connection.dst
+
+        # Get the QMUX to CAND connection
+        for connection in self.connections:
+            if connection.src.type == ConnectionType.CLOCK:
+                src_cell, src_pin = connection.src.pin.split(".")
+
+                if src_cell == self.cell.name and src_pin == "IZ":
+                    eps["IZ"] = connection.src
+
+        # Validate
+        for pin in ["IZ", "QCLKIN0", "QCLKIN1", "QCLKIN2"]:
+            if pin not in eps:
+                print("ERROR: Coulnd't find rr node for {}.{}".format(self.cell.name, pin))
+                return
+
+        # Add edges modelling the QMUX
+        for i in [0, 1, 2]:
+            pin = "QCLKIN{}".format(i)
+
+            src_node = self.connection_loc_to_node[eps[pin]]
+            dst_node = self.connection_loc_to_node[eps["IZ"]]
+
+            # Make edge metadata
+            metadata = self._get_metadata(i)
+
+            if len(metadata):
+                meta_name = "fasm_features"
+                meta_value = "\n".join(metadata)
+            else:
+                meta_name = None
+                meta_value = ""
+
+            # Mux switch with appropriate timing and fasm metadata
+            connect(
+                self.graph,
+                src_node,
+                dst_node,
+                switch_id=switch_id,
+                segment_id=segment_id,
+                meta_name=meta_name,
+                meta_value=meta_value,
+            )
+
+    def _get_metadata(self, selection):
+        """
+        """
+        metadata = []
+
+        # Format prefix
+        prefix = "X{}Y{}".format(self.phy_loc.x, self.phy_loc.y)
+
+        # TODO
+
+        return metadata
 
 
 class CandModel(object):
@@ -772,7 +837,7 @@ class CandModel(object):
 
     def _get_metadata(self):
         """
-        Formats a list of fasm features to be appended to the CAND modellin
+        Formats a list of fasm features to be appended to the CAND modelling
         edge.
         """
         metadata = []
@@ -1713,6 +1778,15 @@ def main():
     # Add QMUX and CAND models
     for cell in progressbar_utils.progressbar(vpr_clock_cells.values()):
         phy_loc = loc_map.bwd[cell.loc]
+
+        if cell.type == "QMUX":
+            model = QmuxModel(
+                graph=xml_graph.graph,
+                cell=cell,
+                phy_loc=phy_loc,
+                connections=connections,
+                node_map=connection_loc_to_node
+            )
 
         if cell.type == "CAND":
             model = CandModel(
