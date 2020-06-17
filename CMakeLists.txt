@@ -304,6 +304,7 @@ add_custom_target(all_xc7_diff_fasm)
 if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
 add_dependencies(all_xc7_diff_fasm
     all_artix7_diff_fasm
+    all_artix7_100t_diff_fasm
     all_zynq7_diff_fasm
     )
 endif()
