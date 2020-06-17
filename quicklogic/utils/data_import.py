@@ -55,6 +55,7 @@ def parse_library(xml_library):
         "isAsynchronous",
         "realPortName",
         "isblank",
+        "io",
         "unet",
     ]
 
@@ -1155,7 +1156,7 @@ def parse_pinmap(xml_root, tile_grid):
 
         # Initialize map
         pkg_name = xml_package.attrib["name"]
-        pkg_pin_map = defaultdict(lambda: [])
+        pkg_pin_map = defaultdict(lambda: set())
 
         xml_pins = xml_package.find("Pins")
         assert xml_pins is not None
@@ -1205,9 +1206,22 @@ def parse_pinmap(xml_root, tile_grid):
                     continue
 
                 # Store the mapping
-                pkg_pin_map[pin_name].append(
+                pkg_pin_map[pin_name].add(
                     PackagePin(name=pin_name, loc=cell_loc, cell=cell)
                 )
+
+                # Check if there is a CLOCK cell at the same location
+                cells = [c for c in tile.cells if c.type == "CLOCK"]
+                if len(cells):
+                    assert len(cells) == 1, cells
+
+                    # Store the mapping for the CLOCK cell
+                    pkg_pin_map[pin_name].add(
+                        PackagePin(name=pin_name, loc=cell_loc, cell=cells[0])
+                    )
+
+            # Convert to list
+            pkg_pin_map[pin_name] = list(pkg_pin_map[pin_name])
 
         # Convert to a regular dict
         pin_map[pkg_name] = dict(**pkg_pin_map)
