@@ -368,13 +368,20 @@ def build_gmux_qmux_connections(
 
         for pin_name, pin_conn in clock_cell.pin_map.items():
 
-            # Destination pin name
-            dst_tile = tile_grid[clock_cell.loc]
-            dst_cell = find_cell_in_tile(clock_cell.name, dst_tile)
+            # Destination pin name. Treat CAND and QMUX destinations
+            # differently as there are going to be no tiles for them.
+            if clock_cell.type in ["CAND", "QMUX"]:
+                dst_type = ConnectionType.CLOCK
+                dst_pin_name = "{}.{}".format(clock_cell.name, pin_name)
 
-            dst_pin_name = "{}{}_{}".format(
-                dst_cell.type, dst_cell.index, pin_name
-            )
+            else:
+                dst_tile = tile_grid[clock_cell.loc]
+                dst_cell = find_cell_in_tile(clock_cell.name, dst_tile)
+                dst_type = ConnectionType.TILE
+
+                dst_pin_name = "{}{}_{}".format(
+                    dst_cell.type, dst_cell.index, pin_name
+                )
 
             # This pin connects to a global clock wire
             if pin_conn in clock_wires:
@@ -398,6 +405,7 @@ def build_gmux_qmux_connections(
                         continue
 
                     # Connect to the cell
+                    src_type = ConnectionType.TILE
                     src_pin_name = "{}{}_{}".format(
                         src_cell.type, src_cell.index, "IC"
                     )
@@ -405,12 +413,21 @@ def build_gmux_qmux_connections(
                 # Connect to the other cell
                 else:
                     src_loc = other_cell.loc
-                    src_tile = tile_grid[other_cell.loc]
-                    src_cell = find_cell_in_tile(other_cell.name, src_tile)
 
-                    src_pin_name = "{}{}_{}".format(
-                        src_cell.type, src_cell.index, "IZ"
-                    )
+                    # Source pin name. Tread CAND and QMUX differently as there
+                    # are going to be no tiles for them.
+                    if other_cell.type in ["CAND", "QMUX"]:
+                        src_type = ConnectionType.CLOCK
+                        src_pin_name = "{}.{}".format(other_cell.name, "IZ")
+
+                    else:
+                        src_tile = tile_grid[other_cell.loc]
+                        src_cell = find_cell_in_tile(other_cell.name, src_tile)
+                        src_type = ConnectionType.TILE
+
+                        src_pin_name = "{}{}_{}".format(
+                            src_cell.type, src_cell.index, "IZ"
+                        )
 
                 # Make the connection
                 connections.append(
@@ -418,12 +435,12 @@ def build_gmux_qmux_connections(
                         src=ConnectionLoc(
                             loc=src_loc,
                             pin=src_pin_name,
-                            type=ConnectionType.TILE
+                            type=src_type
                         ),
                         dst=ConnectionLoc(
                             loc=clock_cell.loc,
                             pin=dst_pin_name,
-                            type=ConnectionType.TILE
+                            type=dst_type
                         ),
                     )
                 )

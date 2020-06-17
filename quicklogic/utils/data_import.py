@@ -861,8 +861,6 @@ def parse_clock_network(xml_clock_network):
                 val = "GMUX_{}".format((gmux_base + i) % 5)
                 pin_map[key] = val
 
-        print(pin_map)
-
         # Return the cell
         return ClockCell(
             type=xml_cell.attrib["type"],

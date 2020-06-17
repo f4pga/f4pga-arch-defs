@@ -69,23 +69,11 @@ def is_clock(connection):
     Returns True if the connection spans two clock cells
     """
 
-    if not is_direct(connection):
-        return False
+    if connection.src.type == ConnectionType.CLOCK or \
+       connection.dst.type == ConnectionType.CLOCK:
+        return True
 
-    src_ok = False
-    dst_ok = False
-
-    for cell in CLOCK_CELLS:
-        if connection.src.pin.startswith(cell):
-            src_ok = True
-            break
-
-    for cell in CLOCK_CELLS:
-        if connection.dst.pin.startswith(cell):
-            dst_ok = True
-            break
-
-    return src_ok and dst_ok
+    return False
 
 def is_local(connection):
     """
@@ -1255,7 +1243,7 @@ def populate_direct_connections(
     for connection in bar(conns):
 
         # Get segment id and switch id
-        if is_clock(connection):
+        if connection.src.pin.startswith("CLOCK"):
             segment_id = graph.get_segment_id_from_name("clock")
             switch_id = graph.get_delayless_switch_id()
 
@@ -1361,55 +1349,65 @@ def create_quadrant_clock_tracks(graph, connections, connection_loc_to_node):
     conns = [c for c in connections if is_clock(c)]
     for connection in bar(conns):
 
-        # GMUX to QMUX connection
-        if connection.src.pin.startswith("GMUX") and \
-           connection.dst.pin.startswith("QMUX"):
-
-            # Get the QMUX tile
-            src_tile_node = connection_loc_to_node.get(connection.src, None)
-            if src_tile_node is None:
+        # Source
+        if connection.src.type == ConnectionType.TILE:
+            src_node = connection_loc_to_node.get(connection.src, None)
+            if src_node is None:
                 print(
-                    "WARNING: No OPIN node for direct connection {}".
+                    "WARNING: No OPIN node for clock connection {}".
                     format(connection)
                 )
                 continue
 
-            # Add a track connecting the two locations
+        elif connection.src.type == ConnectionType.CLOCK:
+            src_node = None
+
+        else:
+            assert False, connection
+
+        # Destination
+        if connection.dst.type == ConnectionType.TILE:
+            dst_node = connection_loc_to_node.get(connection.dst, None)
+            if dst_node is None:
+                print(
+                    "WARNING: No IPIN node for clock connection {}".
+                    format(connection)
+                )
+                continue
+
+        elif connection.dst.type == ConnectionType.CLOCK:
+            dst_node = None
+
+        else:
+            assert False, connection
+
+        # Add a track connecting the two locations
+        # Some CAND cells share the same physical location as QMUX cells.
+        # In that case add a single "jump" node
+        if connection.src.loc == connection.dst.loc:
+            src_track_node = add_node(
+                graph,
+                connection.src.loc,
+                "X",
+                segment_id
+            )
+            dst_track_node = src_track_node
+
+        else:
             src_track_node, dst_track_node = add_l_track(
                 graph, 
-                src_tile_node.loc.x_low, src_tile_node.loc.y_low,
+                connection.src.loc.x, connection.src.loc.y,
                 connection.dst.loc.x, connection.dst.loc.y,
                 segment_id,
                 switch_id
             )
 
-            # Connect the OPIN
-            connect(graph, src_tile_node, src_track_node)
-
-        # QMUX to CAND connection
-        if connection.src.pin.startswith("QMUX") and \
-           connection.dst.pin.startswith("CAND"):
-
-            # Add a track connecting the two locations
-            # Some CAND cells share the same physical location as QMUX cells.
-            # In that case add a single "jump" node
-            if connection.src.loc == connection.dst.loc:
-                src_track_node = add_node(
-                    graph,
-                    connection.src.loc,
-                    "X",
-                    segment_id
-                )
-                dst_track_node = src_track_node
-
-            else:
-                src_track_node, dst_track_node = add_l_track(
-                    graph, 
-                    connection.src.loc.x, connection.src.loc.y,
-                    connection.dst.loc.x, connection.dst.loc.y,
-                    segment_id,
-                    switch_id
-                )
+        # Connect the OPIN
+        if src_node is not None:
+            connect(graph, src_node, src_track_node)
+        # Connect the IPIN
+        if dst_node is not None:
+            connect(graph, dst_track_node, dst_node)
 
 
 def create_column_clock_tracks(graph, clock_cells, quadrants):
