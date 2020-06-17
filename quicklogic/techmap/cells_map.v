@@ -142,21 +142,9 @@ module ckpad(output Q, input P);
   parameter IO_LOC  = "";
   parameter IO_TYPE = "";
 
-  // TODO: Map this to a cell that would have two modes: one for BIDIR and
-  // one for CLOCK. For now just make it a BIDIR input.
-  BIDIR_CELL # (
-  .ESEL     (1'b1),
-  .OSEL     (1'b1),
-  .FIXHOLD  (1'b0),
-  .WPD      (1'b0),
-  .DS       (1'b0)
-  ) _TECHMAP_REPLACE_ (
-  .I_PAD_$inp(P),
-  .I_DAT(Q),
-  .I_EN (1'b1),
-  .O_PAD_$out(),
-  .O_DAT(),
-  .O_EN (1'b0)
+  CLOCK_CELL  _TECHMAP_REPLACE_ (
+  .I_PAD(P),
+  .O_CLK(Q)
   );
 
 endmodule
