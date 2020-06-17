@@ -2,9 +2,22 @@
 import argparse
 import csv
 import sys
+import re
+from collections import defaultdict
 
 import vpr_io_place
 from lib.parse_pcf import parse_simple_pcf
+
+# =============================================================================
+
+# Known IOB types and VPR cells that can be placed at their sites
+IOB_TYPES = {
+    "CLOCK": ["PB-CLOCK",],
+    "BIDIR": ["PB-BIDIR",],
+    "SDIOMUX": ["PB-SDIOMUX",],
+}
+
+BLOCK_INSTANCE_RE = re.compile(r"^(?P<name>\S+)\[(?P<index>[0-9]+)\]$")
 
 # =============================================================================
 
@@ -59,19 +72,20 @@ def main():
     io_place.load_block_names_from_net_file(args.net)
 
     # Map of pad names to VPR locations.
-    pad_map = {}
+    pad_map = defaultdict(lambda: dict())
 
     for pin_map_entry in csv.DictReader(args.map):
 
-        # FIXME: TODO: For now only CLOCK, BIDIR, SDIOMUX
-        if pin_map_entry['type'] not in ["CLOCK", "BIDIR", "SDIOMUX"]:
+        if pin_map_entry['type'] not in IOB_TYPES:
             continue
 
-        pad_map[pin_map_entry['name']] = (
-            int(pin_map_entry['x']),
-            int(pin_map_entry['y']),
-            int(pin_map_entry['z']),
-        )
+        name = pin_map_entry['name']
+        for type in IOB_TYPES[pin_map_entry['type']]:
+            pad_map[name][type] = (
+                int(pin_map_entry['x']),
+                int(pin_map_entry['y']),
+                int(pin_map_entry['z']),
+            )
 
     for pcf_constraint in parse_simple_pcf(args.pcf):
         if not io_place.is_net(pcf_constraint.net):
@@ -96,7 +110,32 @@ def main():
             )
             sys.exit(1)
 
-        loc = pad_map[pcf_constraint.pad]
+        # Get the top-level block instance, strip its index
+        inst = io_place.get_top_level_block_instance_for_net(
+            pcf_constraint.net
+        )
+
+        match = BLOCK_INSTANCE_RE.match(inst)
+        assert match is not None, inst
+
+        inst = match.group("name")
+
+        # Pick correct loc for that pb_type
+        locs = pad_map[pcf_constraint.pad]
+        if inst not in locs:
+            print(
+                'PCF constraint "{}" from line {} constraints net {} of a block type {} to a location for block types:\n{}'
+                .format(
+                    pcf_constraint.line_str, pcf_constraint.line_num,
+                    pcf_constraint.net, inst,
+                    '\n'.join(sorted(list(locs.keys())))
+                ),
+                file=sys.stderr
+            )
+            sys.exit(1)
+
+        # Constraint the net (block)
+        loc = locs[inst]
         io_place.constrain_net(
             net_name=pcf_constraint.net,
             loc=loc,
