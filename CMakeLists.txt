@@ -33,9 +33,9 @@ setup_env(
     MINICONDA3_VERSION py37_4.8.2
     )
 add_conda_package(
-  NAME yosys
+  NAME symbiflow-yosys
   PROVIDES yosys
-  PACKAGE_SPEC "yosys 0.8_3923_g8fe9c84e 20191206_160120"
+  PACKAGE_SPEC "symbiflow-yosys 0.8_3925_g6bccd35a 20200616_235629"
   )
 add_conda_package(
   NAME openocd
@@ -43,9 +43,9 @@ add_conda_package(
   )
 
 add_conda_package(
-  NAME vtr
+  NAME symbiflow-vtr
   PROVIDES vpr genfasm
-  PACKAGE_SPEC "vtr 8.0.0.rc2_4003_g8980e4621 20200527_075234"
+  PACKAGE_SPEC "symbiflow-vtr 8.0.0.rc2_3575_g253f75b6d 20200616_235629"
   )
 add_conda_package(
   NAME libxslt
@@ -78,8 +78,8 @@ add_conda_package(
   PROVIDES iverilog vvp
   )
 add_conda_package(
-  NAME yosys-plugins
-  PACKAGE_SPEC "yosys-plugins 1.0.0.7_0025_ge04ea5b 20200308_024213"
+  NAME symbiflow-yosys-plugins
+  PACKAGE_SPEC "symbiflow-yosys-plugins 1.0.0.7_0041_g1c495df 20200616_235629"
   NO_EXE
   )
 
