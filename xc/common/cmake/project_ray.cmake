@@ -33,7 +33,6 @@ function(PROJECT_RAY_ARCH)
 
   set(PART ${PROJECT_RAY_ARCH_PART})
   set(DEVICE ${PROJECT_RAY_ARCH_DEVICE})
-
   set(ARCH_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/prjxray_arch_import.py)
   set(CREATE_SYNTH_TILES ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/prjxray_create_synth_tiles.py)
   set(CREATE_EDGES ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/prjxray_create_edges.py)

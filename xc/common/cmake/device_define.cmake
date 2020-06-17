@@ -189,7 +189,6 @@ function(ADD_XC_DEVICE_DEFINE_TYPE)
   set(DEVICE ${ADD_XC_DEVICE_DEFINE_TYPE_DEVICE})
   set(ROI_DIR ${ADD_XC_DEVICE_DEFINE_TYPE_ROI_DIR})
   set(TILE_TYPES ${ADD_XC_DEVICE_DEFINE_TYPE_TILE_TYPES})
-
   get_target_property_required(FAMILY ${ARCH} FAMILY)
   get_target_property_required(DOC_PRJ ${ARCH} DOC_PRJ)
   get_target_property_required(DOC_PRJ_DB ${ARCH} DOC_PRJ_DB)
@@ -287,6 +286,7 @@ function(ADD_XC_DEVICE_DEFINE_TYPE)
       LIMIT_GRAPH_TO_DEVICE FALSE
       )
   endif()
+
 endfunction()
 
 function(ADD_XC_DEVICE_DEFINE)
