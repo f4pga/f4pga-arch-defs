@@ -1,0 +1,109 @@
+{
+    "info": {
+        "GRID_X_MAX": 57,
+        "GRID_X_MIN": 17,
+        "GRID_Y_MAX": 52,
+        "GRID_Y_MIN": 1
+    },
+    "ports": [
+        {
+            "name": "din[0]",
+	    "type": "in",
+	    "pin": "A0",
+            "node": "INT_L_X4Y120/SE6BEG0"
+        },
+        {
+            "name": "din[1]",
+	    "type": "in",
+	    "pin": "A1",
+            "node": "INT_L_X4Y129/SE6BEG0"
+        },
+        {
+            "name": "din[2]",
+	    "type": "in",
+	    "pin": "A2",
+            "node": "INT_L_X4Y119/SE6BEG1"
+        },
+        {
+            "name": "din[3]",
+	    "type": "in",
+	    "pin": "A3",
+            "node": "INT_L_X4Y118/SE6BEG0"
+            
+        },
+        {
+            "name": "din[4]",
+	    "type": "in",
+	    "pin": "A4",
+            "node": "INT_L_X4Y117/SE6BEG0"
+        },
+        {
+            "name": "din[5]",
+	    "type": "in",
+	    "pin": "A5",
+            "node": "INT_L_X4Y116/SE6BEG0"
+        },
+        {
+            "name": "din[6]",
+	    "type": "in",
+	    "pin": "A6",
+            "node": "INT_L_X4Y128/SE6BEG0"
+        },
+        {
+            "name": "din[7]",
+	    "type": "in",
+	    "pin": "A7",
+            "node": "INT_L_X4Y127/SE6BEG0"
+        },
+        {
+            "name": "dout[0]",
+	    "type": "out",
+	    "pin": "A8",
+            "node": "INT_L_X18Y101/SE6BEG0"
+        },
+        {
+            "name": "dout[1]",
+	    "type": "out",
+	    "pin": "A9",
+            "node": "INT_L_X20Y103/SE6BEG3"
+        },
+        {
+            "name": "dout[2]",
+	    "type": "out",
+	    "pin": "A10",
+            "node": "INT_R_X15Y105/LH12"
+        },
+        {
+            "name": "dout[3]",
+	    "type": "out",
+	    "pin": "A11",
+            "node": "INT_L_X20Y101/SE6BEG0"
+        },
+        {
+            "name": "dout[4]",
+	    "type": "out",
+	    "pin": "A12",
+            "node": "INT_L_X20Y100/SE6BEG0"
+        },
+        {
+            "name": "dout[5]",
+	    "type": "out",
+	    "pin": "A13",
+            "node": "INT_L_X14Y100/LH12"
+            
+        },
+        {
+            "name": "dout[6]",
+	    "type": "out",
+	    "pin": "A14",
+            "node": "INT_R_X15Y104/LH12"
+            
+        },
+        {
+            "name": "dout[7]",
+	    "type": "out",
+	    "pin": "A15",
+            "node": "INT_R_X15Y105/LH12"
+        }
+    ]
+}

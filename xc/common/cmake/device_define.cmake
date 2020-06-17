@@ -173,7 +173,7 @@ endfunction()
 
 function(ADD_XC_DEVICE_DEFINE_TYPE)
   set(options)
-  set(oneValueArgs ARCH PART DEVICE ROI_DIR GRAPH_LIMIT)
+  set(oneValueArgs ARCH PART DEVICE ROI_DIR GRAPH_LIMIT PARTITION_DIR GRAPH_EXCLUDE)
   set(multiValueArgs TILE_TYPES PB_TYPES)
   cmake_parse_arguments(
     ADD_XC_DEVICE_DEFINE_TYPE
@@ -187,7 +187,8 @@ function(ADD_XC_DEVICE_DEFINE_TYPE)
   set(DEVICE ${ADD_XC_DEVICE_DEFINE_TYPE_DEVICE})
   set(ROI_DIR ${ADD_XC_DEVICE_DEFINE_TYPE_ROI_DIR})
   set(TILE_TYPES ${ADD_XC_DEVICE_DEFINE_TYPE_TILE_TYPES})
-
+  set(PARTITION_DIR ${ADD_XC_DEVICE_DEFINE_TYPE_PARTITION_DIR})
+  message("Device define type partition dir: ${PARTITION_DIR}")
   get_target_property_required(FAMILY ${ARCH} FAMILY)
   get_target_property_required(DOC_PRJ ${ARCH} DOC_PRJ)
   get_target_property_required(DOC_PRJ_DB ${ARCH} DOC_PRJ_DB)
@@ -203,6 +204,9 @@ function(ADD_XC_DEVICE_DEFINE_TYPE)
   elseif(NOT "${ADD_XC_DEVICE_DEFINE_TYPE_GRAPH_LIMIT}" STREQUAL "")
     set(DEVICE_TYPE ${DEVICE}-virt)
     set(ROI_ARGS GRAPH_LIMIT ${ADD_XC_DEVICE_DEFINE_TYPE_GRAPH_LIMIT})
+  elseif(NOT "${PARTITION_DIR}" STREQUAL "")
+    set(DEVICE_TYPE ${DEVICE}-virt)
+    set(ROI_ARGS PARTITION_DIR ${PARTITION_DIR})
   else()
     set(DEVICE_TYPE ${DEVICE}-virt)
     set(ROI_ARGS "")
@@ -283,6 +287,21 @@ function(ADD_XC_DEVICE_DEFINE_TYPE)
       ${DEVICE_TYPE}
       PROPERTIES
       LIMIT_GRAPH_TO_DEVICE FALSE
+      )
+  endif()
+
+  if(NOT "${PARTITION_DIR}" STREQUAL "")
+    set_target_properties(
+      ${DEVICE_TYPE}
+      PROPERTIES
+      PARTITION_REGION TRUE
+      PARTITION_DIR "${PARTITION_DIR}"
+      )
+  else()
+    set_target_properties(
+      ${DEVICE_TYPE}
+      PROPERTIES
+      PARTITION_REGION FALSE
       )
   endif()
 endfunction()

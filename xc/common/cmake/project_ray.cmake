@@ -10,7 +10,7 @@ endfunction()
 
 function(PROJECT_RAY_ARCH)
   set(options)
-  set(oneValueArgs ARCH PART USE_ROI DEVICE GRAPH_LIMIT)
+  set(oneValueArgs ARCH PART USE_ROI DEVICE GRAPH_LIMIT PARTITION_DIR)
   set(multiValueArgs TILE_TYPES PB_TYPES)
   cmake_parse_arguments(
     PROJECT_RAY_ARCH
@@ -34,7 +34,8 @@ function(PROJECT_RAY_ARCH)
 
   set(PART ${PROJECT_RAY_ARCH_PART})
   set(DEVICE ${PROJECT_RAY_ARCH_DEVICE})
-
+  set(PARTITION_DIR ${PROJECT_RAY_ARCH_PARTITION_DIR})
+  message("Partition dir: ${PARTITION_DIR}")
   set(ARCH_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/prjxray_arch_import.py)
   set(CREATE_SYNTH_TILES ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/prjxray_create_synth_tiles.py)
   set(CREATE_EDGES ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/prjxray_create_edges.py)
@@ -108,6 +109,38 @@ function(PROJECT_RAY_ARCH)
     set(ROI_ARG --use_roi ${PROJECT_RAY_ARCH_USE_ROI} --synth_tiles ${CMAKE_CURRENT_BINARY_DIR}/synth_tiles.json)
     append_file_dependency(DEPS synth_tiles.json)
     list(APPEND DEPS ${PROJECT_RAY_ARCH_USE_ROI})
+
+    set(ROI_ARG_FOR_CREATE_EDGES --synth_tiles ${CMAKE_CURRENT_BINARY_DIR}/synth_tiles.json)
+    append_file_dependency(CHANNELS_DEPS synth_tiles.json)
+  endif()
+
+  if(NOT "${PARTITION_DIR}" STREQUAL "")
+    message("Inside partition dir block")
+    set(SYNTH_DEPS "")
+    append_file_dependency(SYNTH_DEPS ${GENERIC_CHANNELS})
+    add_custom_command(
+      OUTPUT synth_tiles.json
+      COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
+      ${PYTHON3} ${CREATE_SYNTH_TILES}
+        --db_root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/
+        --part ${PART}
+        --connection_database ${GENERIC_CHANNELS_LOCATION}
+        --partition_region ${PARTITION_DIR}/design.json
+        --synth_tiles ${CMAKE_CURRENT_BINARY_DIR}/synth_tiles.json
+      DEPENDS
+        ${CREATE_SYNTH_TILES}
+        ${PARTITION_DIR} ${SYNTH_DEPS}
+        ${PYTHON3} ${PYTHON3_TARGET} simplejson intervaltree
+        )
+
+    add_file_target(FILE synth_tiles.json GENERATED)
+    set_target_properties(${ARCH_TARGET} PROPERTIES PARTITION_REGION TRUE)
+    set_target_properties(${ARCH_TARGET} PROPERTIES
+        SYNTH_TILES ${CMAKE_CURRENT_SOURCE_DIR}/synth_tiles.json)
+
+    set(ROI_ARG --partition_region ${PARTITION_DIR}/design.json --synth_tiles ${CMAKE_CURRENT_BINARY_DIR}/synth_tiles.json)
+    append_file_dependency(DEPS synth_tiles.json)
+    list(APPEND DEPS ${PARTITION_DIR})
 
     set(ROI_ARG_FOR_CREATE_EDGES --synth_tiles ${CMAKE_CURRENT_BINARY_DIR}/synth_tiles.json)
     append_file_dependency(CHANNELS_DEPS synth_tiles.json)
