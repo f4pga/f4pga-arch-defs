@@ -700,19 +700,89 @@ class CandModel(object):
     """
     A model of a CAND cell implemented in the "route through" manner using
     RR nodes and edges.
+
+    A CAND cell has aninput IC connected to QMUX via a dedicated route, an
+    output connected to its clock column and a dynamic enable input EN
+    connected to the routing network.
+
+    We won't use the enable input EN so its not modelled in any way. The
+    CAND cell is statically enabled or disabled via the bitstream. There is
+    a single edge that models the cell with appropriate fasm features attached.
     """
 
-    def __init__(self, graph, cell):
+    def __init__(self, graph, cell, phy_loc, connections, node_map, cand_node_map):
         self.graph = graph
-        self.cell  = cell
+        self.cell = cell
+        self.phy_loc = phy_loc
+
+        self.connections = [c for c in connections if is_clock(c)]
+        self.connection_loc_to_node = node_map
+
+        self.cand_node_map = cand_node_map
 
         self._build()
 
     def _build(self):
-        pass
 
-    def get_node_map(self):
-        pass
+        # Get segment and switch id
+        segment_id = self.graph.get_segment_id_from_name("clock")
+        switch_id = self.graph.get_delayless_switch_id()
+
+        # Get the CAND name
+        cand_name = self.cell.name.split("_", maxsplit=1)[0]
+        # Get the column clock entry node
+        col_node = self.cand_node_map[cand_name][self.cell.loc]
+
+        # Get the QMUX to CAND connection
+        for connection in self.connections:
+            if connection.dst.type == ConnectionType.CLOCK:
+                dst_cell, dst_pin = connection.dst.pin.split(".")
+
+                if dst_cell == self.cell.name and dst_pin == "IC":
+                    ep = connection.dst
+                    break
+        else:
+            print("ERROR: Coulnd't find rr node for {}.{}".format(self.cell.name, "IC"))
+            return
+
+        # Get the node for the connection destination
+        row_node = self.connection_loc_to_node[ep]
+
+        # Edge metadata that when used switches the CAND cell from the
+        # "Static Disable" to "Static Enable" mode.
+        metadata = self._get_metadata()
+
+        if len(metadata):
+            meta_name = "fasm_features"
+            meta_value = "\n".join(metadata)
+        else:
+            meta_name = None
+            meta_value = ""
+
+        # Mux switch with appropriate timing and fasm metadata
+        connect(
+            self.graph,
+            row_node,
+            col_node,
+            switch_id=switch_id,
+            segment_id=segment_id,
+            meta_name=meta_name,
+            meta_value=meta_value,
+        )
+
+    def _get_metadata(self):
+        """
+        Formats a list of fasm features to be appended to the CAND modellin
+        edge.
+        """
+        metadata = []
+
+        # Format prefix
+        prefix = "X{}Y{}".format(self.phy_loc.x, self.phy_loc.y)
+
+        # TODO
+
+        return metadata
 
 # =============================================================================
 
@@ -1340,6 +1410,8 @@ def create_quadrant_clock_tracks(graph, connections, connection_loc_to_node):
     connections between GMUXes and QMUXes as well as QMUXes to CANDs.
     """
 
+    node_map = {}
+
     # Get segment id and switch id
     segment_id = graph.get_segment_id_from_name("clock")
     switch_id = graph.get_delayless_switch_id()
@@ -1402,12 +1474,21 @@ def create_quadrant_clock_tracks(graph, connections, connection_loc_to_node):
                 switch_id
             )
 
-        # Connect the OPIN
+        # Connect the OPIN or add to the node map
         if src_node is not None:
             connect(graph, src_node, src_track_node)
-        # Connect the IPIN
+        else:
+            ep = connection.src
+            node_map[ep] = src_track_node
+
+        # Connect the IPIN or add to the node map
         if dst_node is not None:
             connect(graph, dst_track_node, dst_node)
+        else:
+            ep = connection.dst
+            node_map[ep] = dst_track_node
+
+    return node_map
 
 
 def create_column_clock_tracks(graph, clock_cells, quadrants):
@@ -1617,18 +1698,36 @@ def main():
 
     # Build the global clock network
     print("Building the global clock network...")
-    create_quadrant_clock_tracks(
+
+    # GMUX to QMUX and QMUX to CAND tracks
+    node_map = create_quadrant_clock_tracks(
         xml_graph.graph, connections, connection_loc_to_node
     )
+    connection_loc_to_node.update(node_map)
+
+    # Clock column tracks
     cand_node_map = create_column_clock_tracks(
         xml_graph.graph, vpr_clock_cells, vpr_quadrants
     )
+
+    # Add QMUX and CAND models
+    for cell in progressbar_utils.progressbar(vpr_clock_cells.values()):
+        phy_loc = loc_map.bwd[cell.loc]
+
+        if cell.type == "CAND":
+            model = CandModel(
+                graph=xml_graph.graph,
+                cell=cell,
+                phy_loc=phy_loc,
+                connections=connections,
+                node_map=connection_loc_to_node,
+                cand_node_map=cand_node_map
+            )
 
     # Add switchbox models.
     print("Building switchbox models...")
     switchbox_models = {}
     for loc, type in progressbar_utils.progressbar(vpr_switchbox_grid.items()):
-
         phy_loc = loc_map.bwd[loc]
 
         switchbox_models[loc] = SwitchboxModel(
