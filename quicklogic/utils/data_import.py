@@ -119,6 +119,10 @@ def parse_library(xml_library):
                 else:
                     name = xml_mport.attrib["name"]
 
+                    # HACK: Do not import the CLOCK.OP pin
+                    if cell_type == "CLOCK" and name == "OP":
+                        continue
+
                     if cell_type in CLOCK_PINS and \
                        name in CLOCK_PINS[cell_type]:
                         port_attrib["clock"] = "true"

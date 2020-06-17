@@ -1376,6 +1376,7 @@ def populate_direct_connections(
     bar = progressbar_utils.progressbar
     conns = [c for c in connections if is_direct(c)]
     for connection in bar(conns):
+        print("Direct:", connection)
 
         # Get segment id and switch id
         if connection.src.pin.startswith("CLOCK"):
@@ -1539,18 +1540,31 @@ def create_quadrant_clock_tracks(graph, connections, connection_loc_to_node):
                 switch_id
             )
 
-        # Connect the OPIN or add to the node map
+        # Connect the OPIN
         if src_node is not None:
             connect(graph, src_node, src_track_node)
+
+        # Add to the node map.
         else:
             ep = connection.src
-            node_map[ep] = src_track_node
 
-        # Connect the IPIN or add to the node map
+            # If not already there, add it
+            if ep not in node_map:
+                node_map[ep] = src_track_node
+
+            # Add a connection to model the fan-out
+            else:
+                connect(graph, node_map[ep], src_track_node)
+
+        # Connect the IPIN
         if dst_node is not None:
             connect(graph, dst_track_node, dst_node)
+
+        # Add to the node map. Since this is a destination there cannot be any
+        # fan-in.
         else:
             ep = connection.dst
+            assert ep not in node_map, ep
             node_map[ep] = dst_track_node
 
     return node_map
