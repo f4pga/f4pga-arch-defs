@@ -15,13 +15,13 @@ CONSTRAINT_TEMPLATE = '{name:<{nl}} {x: 3} {y: 3} {z: 2}  # {comment}'
 INOUT_REGEX = re.compile(r"^(.+)(_\$inp|_\$out)(.*)$")
 NETNAME_REGEX = re.compile(r"(.+?)(\[[0-9]+\]$|$)")
 
-
 class IoPlace(object):
     def __init__(self):
         self.constraints = OrderedDict()
         self.inputs = set()
         self.outputs = set()
         self.net_to_block = None
+        self.block_to_inst = {}
         self.net_map = {}
         self.inout_nets = set()
         self.net_to_pad = set()
@@ -90,6 +90,44 @@ class IoPlace(object):
                 assert top_block is not None
                 top_block = top_block.getparent()
             self.net_to_block[block.get("name")] = top_block.get("name")
+
+        # Loop over all top-level blocks. Store block name to its instance
+        # correspondences.
+        for block_xml in net_root.findall("block"):
+            name = block_xml.attrib["name"]
+            inst = block_xml.attrib["instance"]
+
+            assert name not in self.block_to_inst, block_xml.attrib
+            self.block_to_inst[name] = inst
+
+    def get_top_level_block_instance_for_net(self, net_name):
+        """
+        Returns a name of the top-level block instance for the given net
+        name.
+        """
+        assert self.is_net(net_name)
+
+        # VPR prefixes output constraints with "out:"
+        if net_name in self.outputs:
+            net_name = 'out:' + net_name
+
+        # This is an inout net
+        if net_name in self.inout_nets:
+            block_names = set()
+
+            for prefix, suffix in zip(["", "out:"], ["_$inp", "_$out"]):
+                match = NETNAME_REGEX.match(net_name)
+                name = prefix + match.group(1) + suffix + match.group(2)
+                block_names.add(self.net_to_block[name])
+
+            # Both parts of the net should point to the same block
+            assert len(block_names) == 1, (net_name, block_names)
+            return self.block_to_inst[list(block_name)[0]]
+
+        # A regular net
+        else:
+            block_name = self.net_to_block[net_name]
+            return self.block_to_inst[block_name]
 
     def load_net_file_ios(self, net_file):
         """
