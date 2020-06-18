@@ -10,7 +10,7 @@ module SDIOMUX_CELL(
     input  wire O_EN;
 
     (* DELAY_CONST_I_PAD_$inp="{iopath_IP_IZ}" *)
-    (* DELAY_CONST_I_EN="1e-10" *)  // No timing for IE/INEN -> IZ in LIB/SDF.
+    (* DELAY_CONST_I_EN="{iopath_FBIO_In_En0_FBIO_In0}" *)
     output wire I_DAT;
 
     (* DELAY_CONST_O_DAT="{iopath_OQI_IP}" *)

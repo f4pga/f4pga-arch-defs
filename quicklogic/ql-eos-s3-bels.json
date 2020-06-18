@@ -37,17 +37,20 @@
             "INPUT": [
                 "SDIOMUX.SFB_0_IO",
                 "SDIOMUX_IE_EQ_0_OE_EQ_0.SFB_0_IO",
-                "SDIOMUX_IE_EQ_1_OE_EQ_1.SFB_0_IO"
+                "SDIOMUX_IE_EQ_1_OE_EQ_1.SFB_0_IO",
+                "ASSPTMR.ASSPTMR"
             ],
             "OUTPUT": [
                 "SDIOMUX.SFB_0_IO",
                 "SDIOMUX_IE_EQ_0_OE_EQ_0.SFB_0_IO",
-                "SDIOMUX_IE_EQ_1_OE_EQ_1.SFB_0_IO"
+                "SDIOMUX_IE_EQ_1_OE_EQ_1.SFB_0_IO",
+                "ASSPTMR.ASSPTMR"
             ],
             "INOUT": [
                 "SDIOMUX.SFB_0_IO",
                 "SDIOMUX_IE_EQ_0_OE_EQ_0.SFB_0_IO",
-                "SDIOMUX_IE_EQ_1_OE_EQ_1.SFB_0_IO"
+                "SDIOMUX_IE_EQ_1_OE_EQ_1.SFB_0_IO",
+                "ASSPTMR.ASSPTMR"
             ]
         }
     },
