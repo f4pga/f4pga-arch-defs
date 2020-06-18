@@ -646,6 +646,46 @@ def process_connections(
         # Modify the connection
         vpr_connections[i] = Connection(src=eps[0], dst=eps[1])
 
+    # Handle QMUX connections. Instead of making them SWITCHBOX -> TILE convert
+    # to SWITCHBOX -> CLOCK
+    for i, connection in enumerate(vpr_connections):
+
+        # Process connection endpoints
+        eps = [connection.src, connection.dst]
+        for j, ep in enumerate(eps):
+
+            if ep.type != ConnectionType.TILE:
+                continue
+
+            cell_name, pin = ep.pin.split("_", maxsplit=1)
+
+            cell_index = int(cell_name[-1])
+            cell_type  = cell_name[:-1]
+            # FIXME: The above will fail on cell with index >= 10
+
+            # Only QMUX
+            if cell_type != "QMUX":
+                continue
+
+            # Get the physical tile
+            loc  = bwd_loc_map[ep.loc]
+            tile = phy_tile_grid[loc]
+
+            # Find the cell in the tile
+            cells = [c for c in tile.cells if c.type == "QMUX" and c.index == cell_index]
+            assert len(cells) == 1
+            cell  = cells[0]
+
+            # Modify the endpoint
+            eps[j] = ConnectionLoc(
+                loc=ep.loc,
+                pin="{}.{}".format(cell.name, pin),
+                type=ConnectionType.CLOCK,
+            )
+
+        # Modify the connection
+        vpr_connections[i] = Connection(src=eps[0], dst=eps[1])
+
     return vpr_connections
 
 
