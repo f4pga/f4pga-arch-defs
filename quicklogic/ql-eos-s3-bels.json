@@ -1,4 +1,11 @@
 {
+    "ASSP": {
+        "ASSP": {
+            "PB-ASSP": [
+                "ASSPTMR.ASSPTMR"
+            ]
+        }
+    },
     "MULT": {
         "MULT": {
             "PB-MULT": [
