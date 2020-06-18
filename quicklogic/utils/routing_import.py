@@ -737,6 +737,9 @@ class QmuxModel(object):
                 meta_name = None
                 meta_value = ""
 
+            # Get switch
+            switch_id = self.graph.get_switch_id("generic")
+
             # Mux switch with appropriate timing and fasm metadata
             connect(
                 self.graph,
@@ -823,6 +826,9 @@ class CandModel(object):
         else:
             meta_name = None
             meta_value = ""
+
+        # Get switch
+        switch_id = self.graph.get_switch_id("generic")
 
         # Mux switch with appropriate timing and fasm metadata
         connect(
@@ -1417,8 +1423,10 @@ def populate_direct_connections(
         )
 
         # Connect the track endpoints to the IPIN and OPIN
-        connect(graph, src_tile_node, src_track_node)
-        connect(graph, dst_track_node, dst_tile_node)
+        switch_id = graph.get_switch_id("generic")
+
+        connect(graph, src_tile_node, src_track_node, switch_id=switch_id)
+        connect(graph, dst_track_node, dst_tile_node, switch_id=switch_id)
 
 
 def populate_const_connections(graph, switchbox_models, const_node_map):

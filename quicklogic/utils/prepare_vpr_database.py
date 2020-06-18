@@ -705,7 +705,7 @@ def build_switch_list():
     switch = VprSwitch(
         name="generic",
         type="mux",
-        t_del=0.0,
+        t_del=1e-15, # A deliberate dummy small delay
         r=0.0,
         c_in=0.0,
         c_out=0.0,
