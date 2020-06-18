@@ -6,6 +6,7 @@ from rr_utils import add_node, connect
 
 # =============================================================================
 
+
 class SwitchboxModel(object):
     """
     Represents a model of connectivity of a concrete instance of a switchbox.
@@ -17,12 +18,40 @@ class SwitchboxModel(object):
         self.phy_loc = phy_loc
         self.switchbox = switchbox
 
+        self.fixed_muxsels = set()
+        self.fixed_muxes = None
+
         self.mux_input_to_node = {}
         self.mux_output_to_node = {}
 
         self.input_to_node = {}
 
-        self._build()
+    @staticmethod
+    def get_metadata_for_mux(loc, stage, switch_id, mux_id, pin_id):
+        """
+        Formats fasm features for the given edge representin a switchbox mux.
+        Returns a list of fasm features.
+        """
+        metadata = []
+
+        # Format prefix
+        prefix = "X{}Y{}.ROUTING".format(loc.x, loc.y)
+
+        # A mux in the HIGHWAY stage
+        if stage.type == "HIGHWAY":
+            feature = "I_highway.IM{}.I_pg{}".format(switch_id, pin_id)
+
+        # A mux in the STREET stage
+        elif stage.type == "STREET":
+            feature = "I_street.Isb{}{}.I_M{}.I_pg{}".format(
+                stage.id + 1, switch_id + 1, mux_id, pin_id
+            )
+
+        else:
+            assert False, stage
+
+        metadata.append(".".join([prefix, feature]))
+        return metadata
 
     @staticmethod
     def get_chan_dirs_for_stage(stage):
@@ -40,6 +69,128 @@ class SwitchboxModel(object):
 
         else:
             assert False, stage.type
+
+    @staticmethod
+    def get_connection(switchbox, src, dst):
+        """
+        Returns the SwitchboxConnection object that spans two muxes given their
+        locations. Parameters src and dst should be tuples containing:
+        (stage_id, switch_id, mux_id)        
+        """
+
+        for connection in switchbox.connections:
+            c_src = (
+                connection.src.stage_id,
+                connection.src.switch_id,
+                connection.src.mux_id
+            )
+            c_dst = (
+                connection.dst.stage_id,
+                connection.dst.switch_id,
+                connection.dst.mux_id
+            )
+
+            if c_src == src and c_dst == dst:
+                return connection
+
+        return None
+
+    @staticmethod
+    def get_switchbox_routes(switchbox, out_name, inp_name):
+        """
+        Returns a list of routes inside the switchbox that connect the given
+        output pin with the given input pin.
+        
+        Returns a list of lists. Each inner list contain tuples with
+        (stage_id, switch_id, mux_id, pin_id)
+        """
+
+        # Route list
+        routes = []
+
+        def walk(ctx, target_name, route=None):
+            """
+            An inner recursive walk function. Walks from a location within
+            the switchbox until the target input pin is reached.
+            """
+
+            # Copy/create the route list
+            if route is None:
+                route = []
+            else:
+                route = list(route)
+
+            # Add this mux
+            route.append(ctx)
+
+            # Get the mux object
+            stage_id, switch_id, mux_id = ctx
+
+            stage  = switchbox.stages[stage_id]
+            switch = stage.switches[switch_id]
+            mux    = switch.muxes[mux_id]
+
+            # Get its input connections
+            connections = {}
+            for connection in switchbox.connections:
+                if connection.dst.stage_id  == stage_id and \
+                   connection.dst.switch_id == switch_id and \
+                   connection.dst.mux_id    == mux_id:
+                    connections[connection.dst.pin_id] = connection
+
+            # Expand all its inputs
+            for pin_id, pin in mux.inputs.items():
+
+                # An input goes to another mux, expand it
+                if pin.name is None and pin_id in connections:
+                    connection = connections[pin_id]
+
+                    next_ctx = (
+                        connection.src.stage_id,
+                        connection.src.switch_id,
+                        connection.src.mux_id,
+                    )
+                    walk(next_ctx, target_name, route)
+
+                # This is a switchbox input
+                elif pin.name is not None:
+
+                    # We've hit the target
+                    if pin.name == target_name:
+
+                        # Append the current mux and its selection
+                        final_route = list(route)
+                        final_route[-1] = tuple(list(final_route[-1]) + [pin_id])
+
+                        # Trace the route back, append mux selections
+                        for i in range(len(final_route)-1):
+                            dst = final_route[i  ][:3]
+                            src = final_route[i+1][:3]
+
+                            connection = SwitchboxModel.get_connection(
+                                switchbox,
+                                src, dst
+                            )
+
+                            sel = connection.dst.pin_id
+                            final_route[i] = tuple(list(final_route[i]) + [sel])
+
+                        routes.append(final_route)
+
+                # Should not happen
+                else:
+                    assert False, pin
+
+        # Get the output pin
+        pin = switchbox.outputs[out_name]
+        assert len(pin.locs) == 1
+        loc = pin.locs[0]
+
+        # Walk from the output, collect routes
+        ctx = (loc.stage_id, loc.switch_id, loc.mux_id,)
+        walk(ctx, inp_name)
+
+        return routes
 
     def _create_muxes(self):
         """
@@ -119,7 +270,7 @@ class SwitchboxModel(object):
 
                 # Get mux metadata
                 metadata = self.get_metadata_for_mux(
-                    self.phy_loc, stage, switch, mux, pin.id
+                    self.phy_loc, stage, switch.id, mux.id, pin.id
                 )
 
                 if len(metadata):
@@ -263,10 +414,23 @@ class SwitchboxModel(object):
                     segment_id=segment_id
                 )
 
-    def _build(self):
+    def build(self):
         """
-        Build the switchbox model
+        Build the switchbox model by creating and adding its nodes and edges
+        to the RR graph.
         """
+
+        # TODO: FIXME: When a switchbox model contains fixed muxes only they
+        # should be removed and the rest of the switchbox should be added
+        # to the rr graph. For now if there is any fixed mux, remove the
+        # whole switchbox.
+        if len(self.fixed_muxsels):
+
+            # A list of muxes to avoid
+            self.fixed_muxes = set([f[:3] for f in self.fixed_muxsels])
+
+            print("Switchbox model '{}' at '{}' contains '{}' fixed muxes.".format(self.switchbox.type, self.loc, len(self.fixed_muxes)))
+            return
 
         # Create and connect muxes
         self._create_muxes()
@@ -275,32 +439,6 @@ class SwitchboxModel(object):
         # Create and connect input drivers models
         self._create_input_drivers()
 
-    @staticmethod
-    def get_metadata_for_mux(loc, stage, switch, mux, pin_id):
-        """
-        Formats fasm features for the given edge representin a switchbox mux.
-        Returns a list of fasm features.
-        """
-        metadata = []
-
-        # Format prefix
-        prefix = "X{}Y{}.ROUTING".format(loc.x, loc.y)
-
-        # A mux in the HIGHWAY stage
-        if stage.type == "HIGHWAY":
-            feature = "I_highway.IM{}.I_pg{}".format(switch.id, pin_id)
-
-        # A mux in the STREET stage
-        elif stage.type == "STREET":
-            feature = "I_street.Isb{}{}.I_M{}.I_pg{}".format(
-                stage.id + 1, switch.id + 1, mux.id, pin_id
-            )
-
-        else:
-            assert False, stage
-
-        metadata.append(".".join([prefix, feature]))
-        return metadata
 
     def get_input_node(self, pin_name):
         """
@@ -323,4 +461,111 @@ class SwitchboxModel(object):
         key = (loc.stage_id, loc.switch_id, loc.mux_id)
         return self.mux_output_to_node[key]
 
+
+# =============================================================================
+
+
+class QmuxSwitchboxModel(SwitchboxModel):
+    """
+    Represents a model of connectivity of a concrete instance of a switchbox
+    located at a QMUX tile
+    """
+
+    def __init__(self, graph, loc, phy_loc, switchbox, qmux_cells, connections):
+        super().__init__(graph, loc, phy_loc, switchbox)
+
+        self.qmux_cells  = qmux_cells
+        self.connections = connections
+
+        self.ctrl_routes = {}
+
+    def _find_control_routes(self):
+        """
+        """
+        PINS = ("IS0", "IS1",)
+
+        for cell in self.qmux_cells.values(): 
+
+            # Get IS0 and IS1 connection endpoints
+            eps = {}
+            for connection in self.connections:
+                if connection.dst.type == ConnectionType.CLOCK:
+                    dst_cell, dst_pin = connection.dst.pin.split(".")
+
+                    if dst_cell == cell.name and dst_pin in PINS:
+                        eps[dst_pin] = connection.src                        
+
+            # Find all routes for IS0 and IS1 pins that go to GND and VCC
+            routes = {}
+            for pin in PINS:
+#                print("{}.{}".format(cell.name, pin))
+
+                # Find the routes
+                vcc_routes = self.get_switchbox_routes(
+                    self.switchbox,
+                    eps[pin].pin,
+                    "VCC"
+                )
+                gnd_routes = self.get_switchbox_routes(
+                    self.switchbox,
+                    eps[pin].pin,
+                    "GND"
+                )
+
+#                print(" VCC")
+#                for r in vcc_routes:
+#                    print(" ", r)
+#                print(" GND")
+#                for r in gnd_routes:
+#                    print(" ", r)
+
+                routes[pin] = {
+                    "VCC": vcc_routes,
+                    "GND": gnd_routes
+                }
+
+            # Store
+            self.ctrl_routes[cell.name] = routes
+
+    def build(self):
+        """
+        Builds the QMUX switchbox model
+        """
+
+        # Find routes inside the switchbox for GMUX control pins
+        self._find_control_routes()
+
+        # Filter routes so GND routes go through stage 2, switch 0 and VCC
+        # routes go through stage 2, switch 1.
+        for cell_name, cell_routes in self.ctrl_routes.items():
+            for pin, pin_routes in cell_routes.items():
+                for net, net_routes in pin_routes.items():
+
+                    routes = []
+                    for route in net_routes:
+
+                        # Assume 3-stage switchbox
+                        assert len(route) == 3, "FIXME: Assuming 3-stage switchbox!"
+
+                        if route[1][1] == 0 and net == "GND":
+                            routes.append(route)
+                        if route[1][1] == 1 and net == "VCC":
+                            routes.append(route)
+
+                    pin_routes[net] = routes
+
+#               print(cell_name, pin)
+#               for r in pin_routes["GND"]:
+#                   print(r)
+#               for r in pin_routes["VCC"]:
+#                   print(r)
+
+        # TODO: Possibly build the HIGHWAY stage routing in the same way as
+        # in all switchboxes but skip the STREET stage completely.
+
+    def get_input_node(self, pin_name):
+        return None
+
+    def get_output_node(self, pin_name):
+        return None
 

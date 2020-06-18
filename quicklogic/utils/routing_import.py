@@ -15,7 +15,7 @@ from data_structs import *
 from utils import fixup_pin_name
 
 from rr_utils import add_node, add_track, add_edge, connect
-from switchbox_model import SwitchboxModel
+from switchbox_model import SwitchboxModel, QmuxSwitchboxModel
 
 # =============================================================================
 
@@ -103,17 +103,32 @@ class QmuxModel(object):
     entered at a QMUX.
     """
 
-    def __init__(self, graph, cell, phy_loc, connections, node_map):
+    def __init__(self, graph, cell, phy_loc, switchbox_model, connections, node_map):
         self.graph = graph
         self.cell = cell
         self.phy_loc = phy_loc
+        self.switchbox_model = switchbox_model
 
         self.connections = [c for c in connections if is_clock(c)]
         self.connection_loc_to_node = node_map
 
+        self.ctrl_routes = {}
+
         self._build()
 
     def _build(self):
+        """
+        Builds the QMUX cell model
+        """
+
+        # Get routes for control pins
+        self.ctrl_routes = self.switchbox_model.ctrl_routes[self.cell.name]
+
+        # Check the routes, there has to be only one per const source
+        for pin, pin_routes in self.ctrl_routes.items():
+            for net in pin_routes.keys():
+                assert len(pin_routes[net]) == 1, (cell.name, pin, net, pin_routes[net])
+                pin_routes[net] = pin_routes[net][0]
 
         # Get segment and switch id
         segment_id = self.graph.get_segment_id_from_name("clock")
@@ -175,13 +190,53 @@ class QmuxModel(object):
 
     def _get_metadata(self, selection):
         """
+        Formats fams metadata for the QMUX cell that enables the given QMUX
+        input selection.
         """
         metadata = []
 
-        # Format prefix
-        prefix = "X{}Y{}".format(self.phy_loc.x, self.phy_loc.y)
+        # Map selection to {IS1, IS0}.
+        # FIXME: Seems suspicious... Need to swap IS0 and IS1 ?
+        SEL_TO_PINS = {
+            0: {"IS1": "GND", "IS0": "GND"},
+            1: {"IS1": "VCC", "IS0": "GND"},
+            2: {"IS1": "GND", "IS0": "VCC"},
+        }
 
-        # TODO
+        assert selection in SEL_TO_PINS, selection
+        pins = SEL_TO_PINS[selection]
+
+        # Format prefix
+        prefix = "X{}Y{}.QMUX.QMUX".format(self.phy_loc.x, self.phy_loc.y)
+
+        # Get cell index
+        index = int(self.cell.name[-1])
+
+        # Collect features
+        for pin, net in pins.items():
+
+            # Get switchbox routing features (already prefixed)
+            for muxsel in self.ctrl_routes[pin][net]:
+
+                stage_id, switch_id, mux_id, pin_id = muxsel
+                stage = self.switchbox_model.switchbox.stages[stage_id]
+
+                metadata += SwitchboxModel.get_metadata_for_mux(
+                    self.phy_loc, stage, switch_id, mux_id, pin_id
+                )
+
+            # ISn ZINV feature
+            feature = "{}.I_invblock.I_J{}.ZINV.{}".format(
+                prefix,
+                index,
+                pin
+            )
+            metadata.append(feature)
+
+        # DEBUG
+        print(self.cell.name, selection, pins)
+        for m in metadata:
+            print("", m)
 
         return metadata
 
@@ -663,6 +718,10 @@ def populate_hop_connections(graph, switchbox_models, connections):
         src_node = src_switchbox_model.get_output_node(connection.src.pin)
         dst_node = dst_switchbox_model.get_input_node(connection.dst.pin)
 
+        # Do not add the connection if one of the nodes is missing
+        if src_node is None or dst_node is None:
+            continue
+
         # Create the hop wire, use it as output node of the switchbox
         hop_node = create_track_for_hop_connection(graph, connection)
 
@@ -708,7 +767,10 @@ def populate_tile_connections(
                     continue
 
                 tile_node = connection_loc_to_node[connection.dst]
+
                 sbox_node = switchbox_model.get_output_node(connection.src.pin)
+                if sbox_node is None:
+                    continue
 
                 connect(graph, sbox_node, tile_node)
 
@@ -722,7 +784,10 @@ def populate_tile_connections(
                     continue
 
                 tile_node = connection_loc_to_node[connection.src]
+
                 sbox_node = switchbox_model.get_input_node(connection.dst.pin)
+                if sbox_node is None:
+                    continue
 
                 connect(graph, tile_node, sbox_node)
 
@@ -784,12 +849,16 @@ def populate_tile_connections(
                     # To switchbox
                     if ep == connection.dst:
                         sbox_node = switchbox_model.get_input_node(ep.pin)
+                        if sbox_node is None:
+                            continue
 
                         connect(graph, dst_node, sbox_node)
 
                     # From switchbox
                     elif ep == connection.src:
                         sbox_node = switchbox_model.get_output_node(ep.pin)
+                        if sbox_node is None:
+                            continue
 
                         connect(graph, sbox_node, src_node)
 
@@ -804,7 +873,6 @@ def populate_direct_connections(
     bar = progressbar_utils.progressbar
     conns = [c for c in connections if is_direct(c)]
     for connection in bar(conns):
-        print("Direct:", connection)
 
         # Get segment id and switch id
         if connection.src.pin.startswith("CLOCK"):
@@ -866,7 +934,10 @@ def populate_const_connections(graph, switchbox_models, const_node_map):
             # Got a const input
             if pin.name in const_node_map:
                 const_node = const_node_map[pin.name][loc]
+
                 sbox_node = switchbox_model.get_input_node(pin.name)
+                if sbox_node is None:
+                    continue
 
                 connect(
                     graph,
@@ -889,7 +960,10 @@ def populate_cand_connections(graph, switchbox_models, cand_node_map):
             # Got a CAND input
             if pin.name in cand_node_map:
                 cand_node = cand_node_map[pin.name][loc]
+
                 sbox_node = switchbox_model.get_input_node(pin.name)
+                if sbox_node is None:
+                    continue
 
                 connect(
                     graph,
@@ -917,7 +991,7 @@ def create_quadrant_clock_tracks(graph, connections, connection_loc_to_node):
     conns = [c for c in connections if is_clock(c)]
     for connection in bar(conns):
 
-        # Source
+        # Source is a tile
         if connection.src.type == ConnectionType.TILE:
             src_node = connection_loc_to_node.get(connection.src, None)
             if src_node is None:
@@ -927,13 +1001,19 @@ def create_quadrant_clock_tracks(graph, connections, connection_loc_to_node):
                 )
                 continue
 
+        # Source is a switchbox. Skip as control inputs of CAND and QMUX are
+        # not to be routed to a switchbox.
+        elif connection.src.type == ConnectionType.SWITCHBOX:
+            continue
+
+        # Source is another global clock cell, do not connect it anywhere now.
         elif connection.src.type == ConnectionType.CLOCK:
             src_node = None
 
         else:
             assert False, connection
 
-        # Destination
+        # Destination is a tile
         if connection.dst.type == ConnectionType.TILE:
             dst_node = connection_loc_to_node.get(connection.dst, None)
             if dst_node is None:
@@ -943,6 +1023,8 @@ def create_quadrant_clock_tracks(graph, connections, connection_loc_to_node):
                 )
                 continue
 
+        # Destination is another global clock cell, do not connect it anywhere
+        # now.
         elif connection.dst.type == ConnectionType.CLOCK:
             dst_node = None
 
@@ -1219,6 +1301,52 @@ def main():
         xml_graph.graph, vpr_clock_cells, vpr_quadrants
     )
 
+    # Add switchbox models.
+    print("Building switchbox models...")
+    switchbox_models = {}
+
+    # Gather QMUX cells
+    qmux_cells = {}
+    for cell in vpr_clock_cells.values():
+        if cell.type == "QMUX":
+            loc = cell.loc
+
+            if loc not in qmux_cells:
+                qmux_cells[loc] = {}
+
+            qmux_cells[loc][cell.name] = cell
+
+    # Create the models
+    for loc, type in vpr_switchbox_grid.items():
+        phy_loc = loc_map.bwd[loc]
+
+        # QMUX switchbox model
+        if loc in qmux_cells:
+            switchbox_models[loc] = QmuxSwitchboxModel(
+                graph=xml_graph.graph,
+                loc=loc,
+                phy_loc=phy_loc,
+                switchbox=vpr_switchbox_types[type],
+                qmux_cells=qmux_cells[loc],
+                connections=[c for c in connections if is_clock(c)]
+            )
+
+        # Regular switchbox model
+        else:
+            switchbox_models[loc] = SwitchboxModel(
+                graph=xml_graph.graph,
+                loc=loc,
+                phy_loc=phy_loc,
+                switchbox=vpr_switchbox_types[type],
+            )
+
+    # Build switchbox models
+    for switchbox_model in progressbar_utils.progressbar(switchbox_models.values()):
+        switchbox_model.build()
+
+    # Build the global clock network cell models
+    print("Building QMUX and CAND models...")
+
     # Add QMUX and CAND models
     for cell in progressbar_utils.progressbar(vpr_clock_cells.values()):
         phy_loc = loc_map.bwd[cell.loc]
@@ -1228,6 +1356,7 @@ def main():
                 graph=xml_graph.graph,
                 cell=cell,
                 phy_loc=phy_loc,
+                switchbox_model=switchbox_models[cell.loc],
                 connections=connections,
                 node_map=connection_loc_to_node
             )
@@ -1241,19 +1370,6 @@ def main():
                 node_map=connection_loc_to_node,
                 cand_node_map=cand_node_map
             )
-
-    # Add switchbox models.
-    print("Building switchbox models...")
-    switchbox_models = {}
-    for loc, type in progressbar_utils.progressbar(vpr_switchbox_grid.items()):
-        phy_loc = loc_map.bwd[loc]
-
-        switchbox_models[loc] = SwitchboxModel(
-            graph=xml_graph.graph,
-            loc=loc,
-            phy_loc=phy_loc,
-            switchbox=vpr_switchbox_types[type],
-        )
 
     # Populate connections to the switchbox models
     print("Populating connections...")
