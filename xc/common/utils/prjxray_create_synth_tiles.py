@@ -2,7 +2,8 @@ import argparse
 import prjxray.db
 from lib.connection_database import (
     NodeClassification, yield_logical_wire_info_from_node, get_track_model,
-    node_to_site_pins, get_pin_name_of_wire, yield_wire_info_from_node, get_wire_pkey
+    node_to_site_pins, get_pin_name_of_wire, yield_wire_info_from_node,
+    get_wire_pkey
 )
 from prjxray.roi import Roi
 import simplejson as json
@@ -38,14 +39,17 @@ def map_tile_to_vpr_coord(conn, tile):
 
     return grid_x, grid_y
 
+
 def graph_node_borders_region(conn, roi, graph_node_pkey):
     if graph_node_pkey is None:
         return False
     c = conn.cursor()
     print(graph_node_pkey)
-    c.execute("""
+    c.execute(
+        """
 SELECT x_low, x_high, y_low, y_high FROM graph_node WHERE pkey = ?
-""" , (graph_node_pkey, ))
+""", (graph_node_pkey, )
+    )
     x_low, x_high, y_low, y_high = c.fetchone()
     x1 = roi.x1
     x2 = roi.x2
@@ -57,19 +61,26 @@ SELECT x_low, x_high, y_low, y_high FROM graph_node WHERE pkey = ?
            (y_high == y1 and y_low <= y1) or \
            (y_low == y2 and y_high >= y2)
 
+
 def in_roi(roi, x, y):
     return x >= roi.x1 and x <= roi.x2 and y >= roi.y1 and y <= roi.y2
 
+
 def tile_in_roi(conn, g, roi, tile_pkey):
     c = conn.cursor()
-    c.execute("""
+    c.execute(
+        """
 SELECT name FROM phy_tile WHERE pkey = 
 (SELECT phy_tile_pkey FROM tile WHERE pkey = ?)
-""", (tile_pkey, ))
+""", (tile_pkey, )
+    )
     tile, = c.fetchone()
     loc = g.loc_of_tilename(tile)
     return roi.tile_in_roi(loc)
+
+
 #    return in_roi(roi, x, y)
+
 
 def wire_in_roi(conn, g, roi, wire_pkey):
     c = conn.cursor()
@@ -79,25 +90,32 @@ SELECT tile_pkey FROM wire WHERE pkey = ?
     tile_pkey, = c.fetchone()
     return tile_in_roi(conn, g, roi, tile_pkey)
 
+
 def wires_colinear(conn, wire_pkey1, wire_pkey2):
     c1 = conn.cursor()
     c2 = conn.cursor()
-    c1.execute("""
+    c1.execute(
+        """
 SELECT pkey FROM graph_node 
 WHERE pkey = (SELECT node_pkey FROM wire WHERE pkey = ?)
-""", (wire_pkey1, ))
-    c2.execute("""
+""", (wire_pkey1, )
+    )
+    c2.execute(
+        """
 SELECT pkey FROM graph_node 
 WHERE pkey = (SELECT node_pkey FROM wire WHERE pkey = ?)
-""", (wire_pkey2, ))
+""", (wire_pkey2, )
+    )
     pkey1 = c1.fetchone()[0]
     pkey2 = c2.fetchone()[0]
     c3 = conn.cursor()
-    c3.execute("""
+    c3.execute(
+        """
 SELECT COUNT (*) FROM graph_edge 
 WHERE (src_graph_node_pkey = ? AND dest_graph_node_pkey = ?) OR
 (src_graph_node_pkey = ? AND dest_graph_node_pkey = ?)
-""", (pkey1, pkey2, pkey2, pkey1))
+""", (pkey1, pkey2, pkey2, pkey1)
+    )
     print(pkey1 == pkey2)
     if pkey1 == pkey2:
         return True
@@ -106,23 +124,30 @@ WHERE (src_graph_node_pkey = ? AND dest_graph_node_pkey = ?) OR
     print(pkey1 == pkey2)
     return pkey1 == pkey2 or num_graph_edges
 
+
 def wire_manhattan_distance(conn, wire_pkey1, wire_pkey2):
     c = conn.cursor()
-    c.execute("""
+    c.execute(
+        """
 SELECT grid_x, grid_y FROM tile WHERE pkey = (SELECT tile_pkey FROM wire WHERE pkey = ?)
-""", (wire_pkey1, ))
+""", (wire_pkey1, )
+    )
     x1, y1 = c.fetchone()
-    c.execute("""
+    c.execute(
+        """
 SELECT grid_x, grid_y FROM tile WHERE pkey = (SELECT tile_pkey FROM wire WHERE pkey = ?)
-""", (wire_pkey2, ))
+""", (wire_pkey2, )
+    )
     x2, y2 = c.fetchone()
-    return abs(x1-x2) + abs(y1-y2)    
+    return abs(x1 - x2) + abs(y1 - y2)
+
 
 def find_wire_from_node(conn, g, roi, node_name):
     tile, node = node_name.split('/')
 
     cur = conn.cursor()
-    cur.execute("""
+    cur.execute(
+        """
 SELECT pkey, node_pkey FROM wire WHERE
 wire_in_tile_pkey IN (SELECT pkey FROM wire_in_tile WHERE name = ?)
 AND
@@ -133,13 +158,15 @@ phy_tile_pkey = (SELECT pkey FROM phy_tile WHERE name = ?)
     assert len(results) == 1
     wire_pkey, node_pkey = results[0]
     graph_node_pkeys = set()
-    cur.execute("""
+    cur.execute(
+        """
 SELECT pkey FROM wire WHERE node_pkey = ?
-""", (node_pkey, ))
+""", (node_pkey, )
+    )
     wire_pkeys = cur.fetchall()
-    in_outs = { w:wire_in_roi(conn, g, roi, w) for w, in wire_pkeys}
-    ins = { i for i,v in in_outs.items() if v }
-    outs = { i for i,v in in_outs.items() if not v }
+    in_outs = {w: wire_in_roi(conn, g, roi, w) for w, in wire_pkeys}
+    ins = {i for i, v in in_outs.items() if v}
+    outs = {i for i, v in in_outs.items() if not v}
     min_manhattan_dist = 1000000
     for i in ins:
         for j in outs:
@@ -148,25 +175,34 @@ SELECT pkey FROM wire WHERE node_pkey = ?
                 if d < min_manhattan_dist:
                     min_manhattan_dist = d
                     correct_wire = j
-        
-    cur.execute("""
+
+    cur.execute(
+        """
 SELECT node_pkey, phy_tile_pkey, wire_in_tile_pkey FROM wire WHERE pkey = ?
-""", (correct_wire, ))
+""", (correct_wire, )
+    )
     node_pkey_correct_wire, phy_tile_pkey, wire_in_tile_pkey = cur.fetchone()
-    cur.execute("""
+    cur.execute(
+        """
 SELECT name, tile_type_pkey FROM wire_in_tile WHERE pkey = ?
-""", (wire_in_tile_pkey, ))
+""", (wire_in_tile_pkey, )
+    )
     wire, tile_type_pkey = cur.fetchone()
-    cur.execute("""
+    cur.execute(
+        """
 SELECT name FROM tile_type WHERE pkey = ?
-""", (tile_type_pkey, ))
+""", (tile_type_pkey, )
+    )
     tile_type, = cur.fetchone()
-    cur.execute("""
+    cur.execute(
+        """
 SELECT name FROM phy_tile WHERE pkey = ?
-""", (phy_tile_pkey, ))
+""", (phy_tile_pkey, )
+    )
     tile, = cur.fetchone()
     return tile, wire
-    
+
+
 def main():
     parser = argparse.ArgumentParser(description="Generate synth_tiles.json")
     parser.add_argument('--db_root', required=True)
@@ -185,7 +221,7 @@ def main():
 
     synth_tiles = {}
     synth_tiles['tiles'] = {}
-    
+
     if args.roi:
         with open(args.roi) as f:
             j = json.load(f)
@@ -231,25 +267,23 @@ def main():
                     is_clock = True
                 else:
                     assert False, port
-            
+
             if args.partition_region:
                 tile, wire = find_wire_from_node(conn, g, roi, port['node'])
-                
+
             if not args.partition_region:
                 tile, wire = port['wire'].split('/')
 
             tile_in_use.add(tile)
-            
-            
+
             # Make sure connecting wire is not in ROI!
             loc = g.loc_of_tilename(tile)
             print(loc)
             if roi.tile_in_roi(loc):
                 # Or if in the ROI, make sure it has no sites.
                 gridinfo = g.gridinfo_at_tilename(tile)
-                assert len(
-                    db.get_tile_type(gridinfo.tile_type).get_sites()
-                ) == 0, "{}/{}".format(tile, wire)
+                assert len(db.get_tile_type(gridinfo.tile_type).get_sites()
+                           ) == 0, "{}/{}".format(tile, wire)
 
             print(tile)
             vpr_loc = map_tile_to_vpr_coord(conn, tile)
@@ -272,7 +306,8 @@ def main():
                             port_type,
                         'is_clock':
                             is_clock,
-                    })
+                    }
+                )
             else:
                 synth_tiles['tiles'][tile]['pins'].append(
                     {
@@ -280,12 +315,14 @@ def main():
                             port['name'].replace('[', '_').replace(']', '_'),
                         'wire':
                             wire,
-                        'pad': '',
+                        'pad':
+                            '',
                         'port_type':
                             port_type,
                         'is_clock':
                             is_clock,
-                    })
+                    }
+                )
 
         # Find two VBRK's in the corner of the fabric to use as the synthetic VCC/
         # GND source.
