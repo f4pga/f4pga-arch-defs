@@ -317,3 +317,46 @@ def copy_switchbox_timing(src_switchbox, dst_switchbox):
         src_mux = src_switch.muxes[dst_mux.id]
 
         dst_mux.timing = deepcopy(src_mux.timing)
+
+# =============================================================================
+
+
+def add_vpr_switches_for_cell(cell_type, cell_timings):
+    """
+    Creates VPR switches for IOPATH delays read from SDF file(s) for the given
+    cell type.
+    """
+
+    # Filter timings for the cell
+    timings = {k:v for k, v in cell_timings.items() if k.startswith(cell_type)}
+
+    # Add VPR switches
+    vpr_switches = {}
+    for celltype, cell_data in timings.items():
+        for instance, inst_data in cell_data.items():
+
+            # Add IOPATHs
+            for timing, timing_data in inst_data.items():
+                if timing_data["type"].lower() != "iopath":
+                    continue
+
+                # Get data
+                name = "{}.{}.{}.{}".format(
+                    cell_type, instance,
+                    timing_data["from_pin"], timing_data["to_pin"]
+                )
+                tdel = timing_data["delay_paths"]["slow"]["avg"]
+
+                # Add the switch
+                sw = VprSwitch(
+                    name=name,
+                    type="mux",
+                    t_del=tdel,
+                    r=0.0,
+                    c_in=0.0,
+                    c_out=0.0,
+                    c_int=0.0,
+                )
+                vpr_switches[sw.name] = sw
+
+    return vpr_switches

@@ -3,7 +3,11 @@ import argparse
 import pickle
 import itertools
 import re
+import os
 from collections import defaultdict
+
+from sdf_timing import sdfparse
+from sdf_timing.utils import get_scale_seconds
 
 from data_structs import *
 from utils import yield_muxes, get_loc_of_cell, find_cell_in_tile
@@ -11,6 +15,7 @@ from utils import get_pin_name
 
 from timing import compute_switchbox_timing_model
 from timing import populate_switchbox_timing, copy_switchbox_timing
+from timing import add_vpr_switches_for_cell 
 
 # =============================================================================
 
@@ -845,6 +850,34 @@ def build_segment_list():
 # =============================================================================
 
 
+def load_sdf_timings(sdf_dir):
+    """
+    Loads and merges SDF timing data from all *.sdf files in the given
+    directory.
+    """
+
+    # List SDF files
+    files = [f for f in os.listdir(sdf_dir) if f.lower().endswith(".sdf")]
+
+    # Read and parse
+    cell_timings = {}
+
+    for f in files:
+        print("Loading SDF: '{}'".format(f))
+
+        # Read
+        fname = os.path.join(sdf_dir, f)
+        with open(fname, "r") as fp:
+            sdf = sdfparse.parse(fp.read())
+
+            # TODO: SCALE!
+            cell_timings.update(sdf["cells"])
+
+    return cell_timings
+
+# =============================================================================
+
+
 def main():
 
     # Parse arguments
@@ -858,6 +891,12 @@ def main():
         type=str,
         required=True,
         help="Input physical device database file"
+    )
+    parser.add_argument(
+        "--sdf-dir",
+        type=str,
+        default=None,
+        help="A directory with SDF timing files"
     )
     parser.add_argument(
         "--vpr-db",
@@ -894,6 +933,12 @@ def main():
         switchbox_timing = db["switchbox_timing"]
         connections = db["connections"]
         package_pinmaps = db["package_pinmaps"]
+
+    # Load and parse SDF files
+    if args.sdf_dir is not None:
+        cell_timings = load_sdf_timings(args.sdf_dir)
+    else:
+        cell_timings = None
 
     # Add synthetic stuff
     add_synthetic_cell_and_tile_types(tile_types, cells_library)
@@ -981,11 +1026,13 @@ def main():
     # Make switch list
     vpr_switches = build_switch_list()
     # Make segment list
-    vpr_segments = build_segment_list()
+    vpr_segments = build_segment_list()    
 
     # Process timing data
-    if switchbox_timing is not None:
+    if switchbox_timing is not None or cell_timings is not None:
         print("Processing timing data...")
+
+    if switchbox_timing is not None:
 
         # The timing data seems to be the same for each switchbox type and is
         # stored under the SB_LC name.
@@ -1007,6 +1054,14 @@ def main():
         for dst_switchbox in vpr_switchbox_types.values():
             if dst_switchbox.type != "SB_LC":
                 copy_switchbox_timing(switchbox, dst_switchbox)
+
+    if cell_timings is not None:
+
+        sw = add_vpr_switches_for_cell("QMUX", cell_timings)
+        vpr_switches.update(sw)
+
+        sw = add_vpr_switches_for_cell("CAND", cell_timings)
+        vpr_switches.update(sw)
 
     # DBEUG
     print("Tile grid:")

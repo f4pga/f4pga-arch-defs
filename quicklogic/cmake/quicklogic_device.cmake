@@ -56,35 +56,6 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   )
   add_file_target(FILE ${PHY_DB_FILE} GENERATED)
 
-  # Process the database, create the VPR database
-  set(PREPARE_VPR_DATABASE ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/prepare_vpr_database.py)
-
-  if(NOT "${GRID_LIMIT}" STREQUAL "")
-    separate_arguments(GRID_LIMIT_ARGS UNIX_COMMAND "--grid-limit ${GRID_LIMIT}")
-  else()
-    set(GRID_LIMIT_ARGS "")
-  endif()
-
-  add_custom_command(
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${VPR_DB_FILE}
-    COMMAND ${PYTHON3} ${PREPARE_VPR_DATABASE}
-      --phy-db ${PHY_DB_FILE}
-      --vpr-db ${VPR_DB_FILE}
-      ${GRID_LIMIT_ARGS}
-    DEPENDS ${PHY_DB_FILE} ${PREPARE_VPR_DATABASE} ${PYTHON3_TARGET}
-  )
-  add_file_target(FILE ${VPR_DB_FILE} GENERATED)
-
-  # Get dependencies for arch.xml
-  set(XML_DEPS "")
-  foreach(PB_TYPE ${PB_TYPES})
-    string(TOLOWER ${PB_TYPE} PB_TYPE_LOWER)
-    set(PB_TYPE_XML ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/primitives/${PB_TYPE_LOWER}/${PB_TYPE_LOWER}.pb_type.xml)
-    set(MODEL_XML   ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/primitives/${PB_TYPE_LOWER}/${PB_TYPE_LOWER}.model.xml)
-    append_file_dependency(XML_DEPS ${PB_TYPE_XML})
-    append_file_dependency(XML_DEPS ${MODEL_XML})
-  endforeach()
-
   # Generate SDF files with timing data
   set(LIB_TIMING_DIR "${symbiflow-arch-defs_SOURCE_DIR}/third_party/${DEVICE}/Timing Data Files/")
   set(SDF_TIMING_DIR "sdf")
@@ -134,6 +105,37 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
     add_file_target(FILE ${SDF_TIMING_FILE} GENERATED)
     append_file_dependency(SDF_FILE_TARGETS ${SDF_TIMING_FILE})
 
+  endforeach()
+
+
+  # Process the database, create the VPR database
+  set(PREPARE_VPR_DATABASE ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/prepare_vpr_database.py)
+
+  if(NOT "${GRID_LIMIT}" STREQUAL "")
+    separate_arguments(GRID_LIMIT_ARGS UNIX_COMMAND "--grid-limit ${GRID_LIMIT}")
+  else()
+    set(GRID_LIMIT_ARGS "")
+  endif()
+
+  add_custom_command(
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${VPR_DB_FILE}
+    COMMAND ${PYTHON3} ${PREPARE_VPR_DATABASE}
+      --phy-db ${PHY_DB_FILE}
+      --vpr-db ${VPR_DB_FILE}
+      --sdf-dir ${SDF_TIMING_DIR} 
+      ${GRID_LIMIT_ARGS}
+    DEPENDS ${PHY_DB_FILE} sdf_timing ${SDF_FILE_TARGETS} ${PREPARE_VPR_DATABASE} ${PYTHON3_TARGET}
+  )
+  add_file_target(FILE ${VPR_DB_FILE} GENERATED)
+
+  # Get dependencies for arch.xml
+  set(XML_DEPS "")
+  foreach(PB_TYPE ${PB_TYPES})
+    string(TOLOWER ${PB_TYPE} PB_TYPE_LOWER)
+    set(PB_TYPE_XML ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/primitives/${PB_TYPE_LOWER}/${PB_TYPE_LOWER}.pb_type.xml)
+    set(MODEL_XML   ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/primitives/${PB_TYPE_LOWER}/${PB_TYPE_LOWER}.model.xml)
+    append_file_dependency(XML_DEPS ${PB_TYPE_XML})
+    append_file_dependency(XML_DEPS ${MODEL_XML})
   endforeach()
 
   # Generate model and pb_type XML for RAM

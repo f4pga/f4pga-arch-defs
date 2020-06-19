@@ -79,6 +79,31 @@ def is_local(connection):
 
 # =============================================================================
 
+def get_vpr_switch_for_clock_cell(graph, cell, src, dst):
+
+    # Get a switch to model the mux delay properly. First try using
+    # the cell name
+    try:
+        switch_name = "{}.{}.{}.{}".format(cell.type, cell.name, src, dst)
+        switch_id = graph.get_switch_id(switch_name)
+    except KeyError:
+
+        # Not found, try using the cell type
+        try:
+            switch_name = "{}.{}.{}.{}".format(cell.type, cell.type, src, dst)
+            switch_id = graph.get_switch_id(switch_name)
+        except KeyError:
+
+            # Still not found, use the generic one
+            switch_id = graph.get_switch_id("generic")
+
+            print("WARNING: No VPR switch found for '{}.{}' to '{}.{}'".format(
+                cell.name, src,
+                cell.name, dst
+            ))
+
+    return switch_id
+
 
 class QmuxModel(object):
     """
@@ -130,9 +155,8 @@ class QmuxModel(object):
                 assert len(pin_routes[net]) == 1, (cell.name, pin, net, pin_routes[net])
                 pin_routes[net] = pin_routes[net][0]
 
-        # Get segment and switch id
+        # Get segment id
         segment_id = self.graph.get_segment_id_from_name("clock")
-        switch_id = self.graph.get_delayless_switch_id()
 
         # Get the GMUX to QMUX connections
         eps = {}
@@ -174,8 +198,13 @@ class QmuxModel(object):
                 meta_name = None
                 meta_value = ""
 
-            # Get switch
-            switch_id = self.graph.get_switch_id("generic")
+            switch_id = get_vpr_switch_for_clock_cell(
+                self.graph,
+                self.cell,
+                #pin,
+                "QCLKIN0", # FIXME: Always use the QCLKIN0->IZ timing here
+                "IZ"
+            )
 
             # Mux switch with appropriate timing and fasm metadata
             connect(
@@ -269,9 +298,8 @@ class CandModel(object):
 
     def _build(self):
 
-        # Get segment and switch id
+        # Get segment id
         segment_id = self.graph.get_segment_id_from_name("clock")
-        switch_id = self.graph.get_delayless_switch_id()
 
         # Get the CAND name
         cand_name = self.cell.name.split("_", maxsplit=1)[0]
@@ -305,7 +333,12 @@ class CandModel(object):
             meta_value = ""
 
         # Get switch
-        switch_id = self.graph.get_switch_id("generic")
+        switch_id = get_vpr_switch_for_clock_cell(
+            self.graph,
+            self.cell,
+            "IC",
+            "IZ"
+        )
 
         # Mux switch with appropriate timing and fasm metadata
         connect(
