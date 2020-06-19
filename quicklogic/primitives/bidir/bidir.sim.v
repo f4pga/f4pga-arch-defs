@@ -5,6 +5,8 @@
 (* MODES="INPUT;OUTPUT;INOUT" *)
 module BIDIR(
     input  wire IE,
+    (* CLOCK *)
+    (* clkbuf_sink *)
     input  wire IQC,
     input  wire OQI,
     input  wire OQE,

@@ -2,6 +2,7 @@
 (* whitebox *)
 module Q_FRAG(QCK, QST, QRT, QEN, QDI, QDS, CZI, QZ);
     (* CLOCK *)
+    (* clkbuf_sink *)
     input  wire QCK;
 
     // Cannot model timing, VPR currently does not support async SET/RESET

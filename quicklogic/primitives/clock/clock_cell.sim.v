@@ -1,7 +1,7 @@
 (* whitebox *)
 module CLOCK_CELL(I_PAD, O_CLK);
 
-//    (* CLOCK *)
+    (* iopad_external_pin *)
     input  wire I_PAD;
 
     (* CLOCK=0 *)

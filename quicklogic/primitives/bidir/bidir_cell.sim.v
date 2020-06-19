@@ -4,6 +4,7 @@ module BIDIR_CELL(
     I_PAD_$inp, I_DAT, I_EN,
     O_PAD_$out, O_DAT, O_EN
 );
+    (* iopad_external_pin *)
     input  wire I_PAD_$inp;
     input  wire I_EN;
 
@@ -16,6 +17,7 @@ module BIDIR_CELL(
 
     (* DELAY_CONST_O_DAT="{iopath_OQI_IP}" *)
     (* DELAY_CONST_O_EN="{iopath_IE_IP}" *)
+    (* iopad_external_pin *)
     output wire O_PAD_$out;
 
     // Parameters
