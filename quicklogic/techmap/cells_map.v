@@ -153,9 +153,13 @@ endmodule
 
 module gclkbuff(input A, output Z);
 
-  // TODO: Map this to a VPR global clock buffer once the global clocn network
-  // is supported.
-  assign Z = A;
+  // The gclkbuff is used to reach the global clock network from the regular
+  // routing network.
+  GMUX_IC _TECHMAP_REPLACE_ (
+  .IC  (A),
+  .IZ  (Z),
+  .IS0 (1'b1)
+  );
 
 endmodule
 

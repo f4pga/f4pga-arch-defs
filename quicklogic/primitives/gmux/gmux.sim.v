@@ -1,22 +1,35 @@
-(* whitebox *)
-module GMUX(IP, IC, IS0, IZ);
+`include "./gmux_ip.sim.v"
+`include "./gmux_ic.sim.v"
 
-//    (* CLOCK *)
-//    (* COMB_SINKS="IZ" *)
+(* MODES="IP;IC" *)
+module GMUX (IP, IC, IS0, IZ);
+
     input  wire IP;
-
-//    (* CLOCK *)
-//    (* COMB_SINKS="IZ" *)
     input  wire IC;
-
     input  wire IS0;
-
-    (* DELAY_CONST_IP="{iopath_IP_IZ}" *)
-    (* DELAY_CONST_IC="{iopath_IC_IZ}" *)
-    (* DELAY_CONST_IS0="1e-10" *)  // No timing for the select pin
     output wire IZ;
 
-    // TODO: To be verified!
-    assign IZ = IS0 ? IC : IP;
+    parameter MODE = "IP";
+
+    // Mode for the IP input connected
+    generate if (MODE == "IP") begin
+
+        GMUX_IP gmux (
+            .IP  (IP),
+            .IC  (IC),
+            .IS0 (IS0),
+            .IZ  (IZ) 
+        );
+
+    // Mode for the IP input disconnected
+    end else if (MODE == "IC") begin
+
+        GMUX_IC gmux (
+            .IC  (IC),
+            .IS0 (IS0),
+            .IZ  (IZ) 
+        );
+
+    end endgenerate
 
 endmodule

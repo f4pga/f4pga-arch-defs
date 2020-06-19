@@ -109,8 +109,12 @@
         }
     },
     "GMUX": {
-        "GMUX": {
-            "PB-5XGMUX": [
+        "gmux": {
+            "IP": [
+                "GMUX_IS0_EQ_0.GMUX",
+                "GMUX_IS0_EQ_1.GMUX"
+            ],
+            "IC": [
                 "GMUX_IS0_EQ_0.GMUX",
                 "GMUX_IS0_EQ_1.GMUX"
             ]
