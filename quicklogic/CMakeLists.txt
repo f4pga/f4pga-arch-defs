@@ -10,8 +10,10 @@ add_subdirectory(primitives)
 
 set(CELLS_MAP_FILE ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/techmap/cells_map.v)
 set(CELLS_MAP_FILE_DEST_DIR ${symbiflow-arch-defs_BINARY_DIR}/quicklogic/techmap/)
-# copy map file to binary dir
-file(COPY ${CELLS_MAP_FILE} DESTINATION ${CELLS_MAP_FILE_DEST_DIR})
+
+# Link cells_map. to the binary dir.
+file(MAKE_DIRECTORY ${CELLS_MAP_FILE_DEST_DIR})
+file(CREATE_LINK ${CELLS_MAP_FILE} ${CELLS_MAP_FILE_DEST_DIR}/cells_map.v SYMBOLIC)
 
 set(CELLS_SIM_FILE ${symbiflow-arch-defs_BINARY_DIR}/quicklogic/techmap/cells_sim.v)
 add_cells_sim_target(${CELLS_SIM_FILE})
