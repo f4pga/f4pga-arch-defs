@@ -88,6 +88,7 @@
         "q_frag": {
             "LOGIC":[
                 "LOGIC3_QCKS_EQ_1.LOGIC3",
+                "LOGIC3_QRT_EQ_0_QST_EQ_0_QCKS_EQ_1.LOGIC3",
                 "LOGIC3_QDS_EQ_1_QEN_EQ_1_QRT_EQ_0_QST_EQ_0_QCKS_EQ_1.LOGIC3",
                 "LOGIC3_QEN_EQ_1_QRT_EQ_0_QST_EQ_0_QCKS_EQ_1.LOGIC3"
             ]

@@ -13,7 +13,8 @@ module Q_FRAG(QCK, QST, QRT, QEN, QDI, QDS, CZI, QZ);
     input  wire QRT;
 
     // No timing for QEN -> QZ in LIB/SDF
-	(* SETUP="QCK 1e-10" *) (* NO_COMB *)
+	(* SETUP="QCK {setup_QCK_QEN}" *) (* NO_COMB *)
+	(* HOLD="QCK {hold_QCK_QEN}" *) (* NO_COMB *)
     input  wire QEN;
 
 	(* SETUP="QCK {setup_QCK_QDI}" *) (* NO_COMB *)
