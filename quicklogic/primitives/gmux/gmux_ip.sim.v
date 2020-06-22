@@ -1,4 +1,5 @@
 (* whitebox *)
+(* FASM_FEATURES="I_invblock.I_J0.ZINV.IS0;I_invblock.I_J1.ZINV.IS1;I_invblock.I_J2.ZINV.IS0;I_invblock.I_J3.ZINV.IS0;I_invblock.I_J4.ZINV.IS1" *)
 module GMUX_IP (IP, IC, IS0, IZ);
 
     input  wire IP;

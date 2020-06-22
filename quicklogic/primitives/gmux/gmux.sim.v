@@ -14,6 +14,7 @@ module GMUX (IP, IC, IS0, IZ);
     // Mode for the IP input connected
     generate if (MODE == "IP") begin
 
+        (* FASM_PREFIX="GMUX.GMUX" *)
         GMUX_IP gmux (
             .IP  (IP),
             .IC  (IC),
@@ -24,6 +25,7 @@ module GMUX (IP, IC, IS0, IZ);
     // Mode for the IP input disconnected
     end else if (MODE == "IC") begin
 
+        (* FASM_PREFIX="GMUX.GMUX" *)
         GMUX_IC gmux (
             .IC  (IC),
             .IS0 (IS0),
