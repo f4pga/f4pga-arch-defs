@@ -56,20 +56,20 @@ add_file_target(FILE buttons_zedboard.v SCANNER_TYPE verilog)
 add_file_target(FILE buttons_pynqz1.v SCANNER_TYPE verilog)
 add_file_target(FILE buttons_marszx3.v SCANNER_TYPE verilog)
 
-add_fpga_target(
-  NAME buttons_zybo
-  BOARD zybo-full
-  SOURCES buttons_zybo.v
-  INPUT_IO_FILE ${COMMON}/zybo.pcf
-  EXPLICIT_ADD_FILE_TARGET
-  )
+#add_fpga_target(
+#  NAME buttons_zybo
+#  BOARD zybo-full
+#  SOURCES buttons_zybo.v
+#  INPUT_IO_FILE ${COMMON}/zybo.pcf
+#  EXPLICIT_ADD_FILE_TARGET
+#  )
 
-add_vivado_target(
-  NAME buttons_zybo_vivado
-  PARENT_NAME buttons_zybo
-  # TODO: https://github.com/SymbiFlow/symbiflow-arch-defs/issues/1018
-  DISABLE_DIFF_TEST
-  )
+#add_vivado_target(
+#  NAME buttons_zybo_vivado
+#  PARENT_NAME buttons_zybo
+#  # TODO: https://github.com/SymbiFlow/symbiflow-arch-defs/issues/1018
+#  DISABLE_DIFF_TEST
+#  )
 
 #add_fpga_target(
 #  NAME buttons_zyboz7
@@ -95,18 +95,18 @@ add_vivado_target(
   PARENT_NAME buttons_nexys_video
 )
 
-add_fpga_target(
-  NAME buttons_zedboard
-  BOARD zedboard-full
-  SOURCES buttons_zedboard.v
-  INPUT_IO_FILE ${COMMON}/zedboard.pcf
-  EXPLICIT_ADD_FILE_TARGET
-  )
+#add_fpga_target(
+#  NAME buttons_zedboard
+#  BOARD zedboard-full
+#  SOURCES buttons_zedboard.v
+#  INPUT_IO_FILE ${COMMON}/zedboard.pcf
+#  EXPLICIT_ADD_FILE_TARGET
+#  )
 
-add_vivado_target(
-  NAME buttons_zedboard_vivado
-  PARENT_NAME buttons_zedboard
-  )
+#add_vivado_target(
+#  NAME buttons_zedboard_vivado
+#  PARENT_NAME buttons_zedboard
+#  )
 
 add_fpga_target(
   NAME buttons_pynqz1
@@ -121,15 +121,15 @@ add_vivado_target(
   PARENT_NAME buttons_pynqz1
   )
 
-add_fpga_target(
-  NAME buttons_marszx3
-  BOARD marszx3-full
-  SOURCES buttons_marszx3.v
-  INPUT_IO_FILE ../common/marszx3.pcf
-  EXPLICIT_ADD_FILE_TARGET
-  )
+#add_fpga_target(
+#  NAME buttons_marszx3
+#  BOARD marszx3-full
+#  SOURCES buttons_marszx3.v
+#  INPUT_IO_FILE ../common/marszx3.pcf
+#  EXPLICIT_ADD_FILE_TARGET
+#  )
 
-add_vivado_target(
-  NAME buttons_marszx3_vivado
-  PARENT_NAME buttons_marszx3
-  )
+#add_vivado_target(
+#  NAME buttons_marszx3_vivado
+#  PARENT_NAME buttons_marszx3
+#  )
