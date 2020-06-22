@@ -65,6 +65,20 @@ def is_loc_free(loc, tile_grid):
 # =============================================================================
 
 
+def fixup_cand_loc(vpr_loc, phy_loc):
+    """
+    Fixes up location of a CAND cell so that all of them occupy the same row.
+    Returns the cell location in VPR coordinates
+    """
+
+    # Even, don't modify
+    if not (phy_loc.y % 2):
+        return vpr_loc
+
+    # Odd, shift down by 1
+    return Loc(vpr_loc.x, vpr_loc.y + 1)
+
+
 def add_synthetic_cell_and_tile_types(tile_types, cells_library):
 
     # Add a synthetic tile types for the VCC and GND const sources.
@@ -184,16 +198,24 @@ def process_tilegrid(
                         print("WARNING: Clock cell '{}' not on the clock cell list!".format(cell.name))
                         continue
 
+                    # Relocate CAND cells so that they occupy only even rows
+                    if cell.type == "CAND":
+                        cell_loc = fixup_cand_loc(vpr_loc, phy_loc)
+                    else:
+                        cell_loc = vpr_loc
+
+                    # Add the cell
                     clock_cell = clock_cells[cell.name]
                     clock_cell = ClockCell(
                         type = clock_cell.type,
                         name = clock_cell.name,
-                        loc = vpr_loc,
+                        loc = cell_loc,
                         quadrant = clock_cell.quadrant,
                         pin_map = clock_cell.pin_map
                     )
 
                     vpr_clock_cells[clock_cell.name] = clock_cell
+                    print(clock_cell.name, clock_cell.type, clock_cell.loc)
 
             # Strip the cells
             tile = strip_cells(tile, ["QMUX", "CAND"], tile_types, cells_library)
@@ -435,12 +457,8 @@ def process_connections(
     """
     Process the connection list.
     """
-    # Pin map
-    pin_map = {}
-    fwd_loc_map = loc_map.fwd
-    bwd_loc_map = loc_map.bwd
 
-    # Remap locations, remap pins
+    # Remap locations, create the VPR connection list
     vpr_connections = []
     for connection in phy_connections:
 
@@ -451,41 +469,24 @@ def process_connections(
             continue
 
         # Remap source and destination coordinates
-        src_loc = connection.src.loc
-        dst_loc = connection.dst.loc
+        eps = [connection.src, connection.dst]
+        for j, ep in enumerate(eps):
+            phy_loc = ep.loc
+            vpr_loc = loc_map.fwd[phy_loc]
 
-        if src_loc not in loc_map.fwd:
-            continue
-        if dst_loc not in loc_map.fwd:
-            continue
+            # If the connection mentions a CAND cell, fixup its location
+            if "CAND" in ep.pin and ep.type == ConnectionType.CLOCK:
+                vpr_loc = fixup_cand_loc(vpr_loc, phy_loc)
 
-        # Remap pins or discard the connection
-        src_pin = connection.src.pin
-        dst_pin = connection.dst.pin
+            # Update the endpoint
+            eps[j] = ConnectionLoc(
+                loc=vpr_loc,
+                pin=ep.pin,
+                type=ep.type
+            )
 
-        if src_pin in pin_map:
-            src_pin = pin_map[src_pin]
-
-        if dst_pin in pin_map:
-            dst_pin = pin_map[dst_pin]
-
-        if src_pin is None or dst_pin is None:
-            continue
-
-        # Add the new connection
-        new_connection = Connection(
-            src=ConnectionLoc(
-                loc=loc_map.fwd[src_loc],
-                pin=src_pin,
-                type=connection.src.type,
-            ),
-            dst=ConnectionLoc(
-                loc=loc_map.fwd[dst_loc],
-                pin=dst_pin,
-                type=connection.dst.type,
-            ),
-        )
-        vpr_connections.append(new_connection)
+        # Add the connection
+        vpr_connections.append(Connection(src=eps[0], dst=eps[1]))
 
     # Remap locations of connections that go to CLOCK pads. A physical
     # BIDIR+CLOCK tile is split into separate BIDIR and CLOCK tiles.
@@ -631,7 +632,7 @@ def process_connections(
             if cell_type != "MULT" and cell_type != "RAM":
                 continue
 
-            loc = bwd_loc_map[ep.loc]
+            loc = loc_map.bwd[ep.loc]
             tile = phy_tile_grid[loc]
             cell = [cell for cell in tile.cells if cell.type == cell_type]
 
@@ -673,7 +674,7 @@ def process_connections(
                 continue
 
             # Get the physical tile
-            loc  = bwd_loc_map[ep.loc]
+            loc  = loc_map.bwd[ep.loc]
             tile = phy_tile_grid[loc]
 
             # Find the cell in the tile
