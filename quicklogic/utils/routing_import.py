@@ -254,12 +254,18 @@ class QmuxModel(object):
                     self.phy_loc, stage, switch_id, mux_id, pin_id
                 )
 
-            # ISn ZINV feature
-            feature = "{}.I_invblock.I_J{}.ZINV.{}".format(
-                prefix,
-                index,
-                pin
-            )
+        # These features control inverters on IS0 and IS1. The inverters
+        # are not used hence they are always disabled.
+        zinv_features = [
+            "I_invblock.I_J0.ZINV.IS0",
+            "I_invblock.I_J1.ZINV.IS1",
+            "I_invblock.I_J2.ZINV.IS0",
+            "I_invblock.I_J3.ZINV.IS0",
+            "I_invblock.I_J4.ZINV.IS1",
+        ]
+
+        for f in zinv_features:
+            feature = "{}.{}".format(prefix, f)
             metadata.append(feature)
 
         # DEBUG
@@ -360,9 +366,11 @@ class CandModel(object):
 
         # Format prefix
         prefix = "X{}Y{}".format(self.phy_loc.x, self.phy_loc.y)
+        # Get the CAND name
+        cand_name = self.cell.name.split("_", maxsplit=1)[0]
 
-        # TODO
-
+        # Format the final fasm line
+        metadata.append("{}.{}.I_hilojoint".format(prefix, cand_name))
         return metadata
 
 # =============================================================================
