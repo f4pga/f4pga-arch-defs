@@ -165,7 +165,7 @@ function(ADD_XC_ARCH_DEFINE)
         --fasm_file \${OUT_BIN}.fasm \
         --iostandard ${DEFAULT_IOSTANDARD} \
         --drive ${DEFAULT_DRIVE} \
-        --pcf \${INPUT_IO_FILE} \
+        \${PCF_INPUT_IO_FILE} \
         --eblif \${OUT_EBLIF} \
         --top \${TOP} \
         \${OUT_BIT_VERILOG} \${OUT_BIT_VERILOG}.tcl"

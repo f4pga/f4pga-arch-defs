@@ -1677,6 +1677,9 @@ function(ADD_FPGA_TARGET)
         set(OUT_BIT_VERILOG ${OUT_LOCAL}/${TOP}_bit.v)
         get_target_property_required(BIT_TO_V ${ARCH} BIT_TO_V)
         get_target_property_required(BIT_TO_V_CMD ${ARCH} BIT_TO_V_CMD)
+        if(NOT ${ADD_FPGA_TARGET_INPUT_IO_FILE} STREQUAL "")
+            set(PCF_INPUT_IO_FILE "--pcf ${INPUT_IO_FILE}")
+        endif()
         string(CONFIGURE ${BIT_TO_V_CMD} BIT_TO_V_CMD_FOR_TARGET)
         separate_arguments(
           BIT_TO_V_CMD_FOR_TARGET_LIST UNIX_COMMAND ${BIT_TO_V_CMD_FOR_TARGET}
