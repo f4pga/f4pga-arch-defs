@@ -857,6 +857,20 @@ def load_sdf_timings(sdf_dir):
     directory.
     """
 
+    def apply_scale(cells, scale=1.0):
+        """
+        Scales all timings represented by the given SDF structure.
+        """
+        for cell_type, cell_data in cells.items():
+            for instance, instance_data in cell_data.items():
+                for timing, timing_data in instance_data.items():
+                    paths = timing_data["delay_paths"]
+                    for path_name, path_data in paths.items():
+
+                        for k in path_data.keys():
+                            if path_data[k] is not None:
+                                path_data[k] *= scale
+
     # List SDF files
     files = [f for f in os.listdir(sdf_dir) if f.lower().endswith(".sdf")]
 
@@ -871,8 +885,19 @@ def load_sdf_timings(sdf_dir):
         with open(fname, "r") as fp:
             sdf = sdfparse.parse(fp.read())
 
-            # TODO: SCALE!
-            cell_timings.update(sdf["cells"])
+            # Get the timing scale
+            header = sdf["header"]
+            if "timescale" in header:
+                timescale = get_scale_seconds(header["timescale"])
+            else:
+                print("WARNING: the SDF has no timescale, assuming 1.0")
+                timescale = 1.0
+
+            # Apply the scale and update cells
+            cells = sdf["cells"]
+            apply_scale(cells, timescale)
+
+            cell_timings.update(cells)
 
     return cell_timings
 
