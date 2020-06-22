@@ -88,19 +88,19 @@ add_xc_board(
   PROG_CMD "${OPENOCD} -f board/digilent_nexys_video.cfg -c \\\"init $<SEMICOLON> pld load 0 \${OUT_BIN} $<SEMICOLON> exit\\\""
 )
 
-add_xc_board(
-  BOARD zedboard-full
-  DEVICE xc7z020
-  PACKAGE test
-  PART xc7z020clg484-1
-)
+#add_xc_board(
+#  BOARD zedboard-full
+#  DEVICE xc7z020
+#  PACKAGE test
+#  PART xc7z020clg484-1
+#)
 
-add_xc_board(
-  BOARD microzed-full
-  DEVICE xc7z020
-  PACKAGE test
-  PART xc7z020clg484-1
-)
+#add_xc_board(
+#  BOARD microzed-full
+#  DEVICE xc7z020
+#  PACKAGE test
+#  PART xc7z020clg484-1
+#)
 
 add_xc_board(
   BOARD pynqz1-full
@@ -111,9 +111,9 @@ add_xc_board(
   PROG_CMD "${OPENOCD} -f ${PRJXRAY_DIR}/utils/openocd/board-digilent-pynqz1.cfg -c \\\"init $<SEMICOLON> pld load 0 \${OUT_BIN} $<SEMICOLON> exit\\\""
 )
 
-add_xc_board(
-  BOARD marszx3-full
-  DEVICE xc7z020
-  PACKAGE test
-  PART xc7z020clg484-1
-)
+#add_xc_board(
+#  BOARD marszx3-full
+#  DEVICE xc7z020
+#  PACKAGE test
+#  PART xc7z020clg484-1
+#)

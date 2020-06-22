@@ -293,6 +293,7 @@ add_dependencies(all_xc7_demos
     all_arty100t-full_bin
     all_basys3_bin
     all_basys3-full_bin
+    all_pynqz1-full_bin
     #all_basys3-bottom_bin
     # TODO(#548) Zybo targets not currently working, so removed from all target.
     #all_zybo_bin
@@ -306,6 +307,7 @@ add_dependencies(all_xc7_diff_fasm
     all_artix7_diff_fasm
     all_artix7_100t_diff_fasm
     all_zynq7_diff_fasm
+    all_zynq7_z020_diff_fasm
     )
 endif()
 
