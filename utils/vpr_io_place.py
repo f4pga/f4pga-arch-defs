@@ -26,6 +26,20 @@ class IoPlace(object):
         self.inout_nets = set()
         self.net_to_pad = set()
 
+    def read_io_loc_pairs(self, blif):
+        if 'subckt' not in blif:
+            return
+        for attr in blif['subckt']:
+            if 'param' not in attr:
+                continue
+            if 'IO_LOC_PAIRS' in attr['param']:
+                locs = attr['param']['IO_LOC_PAIRS'][1:-1].split(',')
+                if 'NONE' in locs:
+                    continue
+                for loc in locs:
+                    net, pad = loc.split(':')
+                    self.net_to_pad.add((net, pad))
+
     def read_io_list_from_eblif(self, eblif_file):
         blif = eblif.parse_blif(eblif_file)
 
@@ -47,18 +61,7 @@ class IoPlace(object):
                 self.net_map[net] = alias
             else:
                 self.net_map[net] = net
-        if 'subckt' not in blif:
-            return
-        for attr in blif['subckt']:
-            if 'param' not in attr:
-                continue
-            if 'IO_LOC_PAIRS' in attr['param']:
-                locs = attr['param']['IO_LOC_PAIRS'][1:-1].split(',')
-                if 'NONE' in locs:
-                    continue
-                for loc in locs:
-                    net, pad = loc.split(':')
-                    self.net_to_pad.add((net, pad))
+        self.read_io_loc_pairs(blif)
 
     def load_block_names_from_net_file(self, net_file):
         """
