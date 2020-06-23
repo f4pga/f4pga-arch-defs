@@ -23,8 +23,24 @@ def map_tile_to_vpr_coord(conn, tile):
         (phy_tile_pkey, )
     )
     mapped_tiles = c.fetchall()
-    assert len(mapped_tiles) == 1, tile
-    tile_pkey = mapped_tiles[0][0]
+    assert len(mapped_tiles) > 0, tile
+    if len(mapped_tiles) > 1:
+        c.execute(
+            """
+        SELECT COUNT(pkey) FROM wire WHERE tile_pkey = ?""", mapped_tiles[0]
+        )
+        num_wires_first_tile, = c.fetchall()
+        c.execute(
+            """
+        SELECT COUNT(pkey) FROM wire WHERE tile_pkey = ?""", mapped_tiles[1]
+        )
+        num_wires_second_tile, = c.fetchall()
+        if num_wires_first_tile[0] > 0:
+            tile_pkey = mapped_tiles[0][0]
+        else:
+            tile_pkey = mapped_tiles[1][0]
+    else:
+        tile_pkey = mapped_tiles[0][0]
 
     c.execute("SELECT grid_x, grid_y FROM tile WHERE pkey = ?", (tile_pkey, ))
     grid_x, grid_y = c.fetchone()
