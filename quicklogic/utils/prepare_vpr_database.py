@@ -215,7 +215,6 @@ def process_tilegrid(
                     )
 
                     vpr_clock_cells[clock_cell.name] = clock_cell
-                    print(clock_cell.name, clock_cell.type, clock_cell.loc)
 
             # Strip the cells
             tile = strip_cells(tile, ["QMUX", "CAND"], tile_types, cells_library)

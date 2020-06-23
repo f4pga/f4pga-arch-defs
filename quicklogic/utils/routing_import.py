@@ -268,11 +268,6 @@ class QmuxModel(object):
             feature = "{}.{}".format(prefix, f)
             metadata.append(feature)
 
-        # DEBUG
-        print(self.cell.name, selection, pins)
-        for m in metadata:
-            print("", m)
-
         return metadata
 
 
@@ -649,8 +644,6 @@ def add_tracks_for_const_network(graph, const, tile_grid):
     ]
     assert len(src_loc) == 1, const
     src_loc = src_loc[0]
-
-    print(const, src_loc)
 
     # Go down from the source to the edge of the tilegrid
     entry_node, col_node, _ = add_track_chain(
