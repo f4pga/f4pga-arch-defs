@@ -170,11 +170,10 @@ SELECT pkey FROM wire WHERE node_pkey = ?
     min_manhattan_dist = 1000000
     for i in ins:
         for j in outs:
-            if wires_colinear(conn, i, j):
-                d = wire_manhattan_distance(conn, i, j)
-                if d < min_manhattan_dist:
-                    min_manhattan_dist = d
-                    correct_wire = j
+            d = wire_manhattan_distance(conn, i, j)
+            if d < min_manhattan_dist:
+                min_manhattan_dist = d
+                correct_wire = j
 
     cur.execute(
         """

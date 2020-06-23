@@ -1,9 +1,9 @@
 {
     "info": {
-        "GRID_X_MAX": 57,
+        "GRID_X_MAX": 58,
         "GRID_X_MIN": 17,
-        "GRID_Y_MAX": 52,
-        "GRID_Y_MIN": 1
+        "GRID_Y_MAX": 51,
+        "GRID_Y_MIN": 0
     },
     "ports": [
         {
@@ -74,18 +74,6 @@
             "node": "INT_R_X15Y105/LH12"
         },
         {
-            "name": "dout[3]",
-	    "type": "out",
-	    "pin": "A11",
-            "node": "INT_L_X20Y101/SE6BEG0"
-        },
-        {
-            "name": "dout[4]",
-	    "type": "out",
-	    "pin": "A12",
-            "node": "INT_L_X20Y100/SE6BEG0"
-        },
-        {
             "name": "dout[5]",
 	    "type": "out",
 	    "pin": "A13",
@@ -98,12 +86,6 @@
 	    "pin": "A14",
             "node": "INT_R_X15Y104/LH12"
             
-        },
-        {
-            "name": "dout[7]",
-	    "type": "out",
-	    "pin": "A15",
-            "node": "INT_R_X15Y105/LH12"
         }
     ]
 }

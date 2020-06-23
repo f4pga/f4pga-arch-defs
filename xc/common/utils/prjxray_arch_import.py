@@ -666,6 +666,7 @@ def main():
         '--pin_assignments', required=True, type=argparse.FileType('r')
     )
     parser.add_argument('--use_roi', required=False)
+    parser.add_argument('--partition_region', required=False)
     parser.add_argument('--device', required=True)
     parser.add_argument('--synth_tiles', required=False)
     parser.add_argument('--connection_database', required=True)
@@ -779,6 +780,33 @@ def main():
             x2=x_max,
             y2=y_max,
         )
+    elif args.partition_region:
+        with open(args.partition_region) as f:
+            j = json.load(f)
+
+        with open(args.synth_tiles) as f:
+            synth_tiles = json.load(f)
+
+        roi = Roi(
+            db=db,
+            x1=j['info']['GRID_X_MIN'],
+            y1=j['info']['GRID_Y_MIN'],
+            x2=j['info']['GRID_X_MAX'],
+            y2=j['info']['GRID_Y_MAX'],
+        )
+
+        synth_tile_map = add_synthetic_tiles(
+            model_xml, complexblocklist_xml, tiles_xml, need_io=True
+        )
+
+        for _, tile_info in synth_tiles['tiles'].items():
+            assert tuple(tile_info['loc']) not in synth_loc_map
+
+            assert len(tile_info['pins']) == 1
+
+            vpr_tile_type = synth_tile_map[tile_info['pins'][0]['port_type']]
+
+            synth_loc_map[tuple(tile_info['loc'])] = vpr_tile_type
 
     with DatabaseCache(args.connection_database, read_only=True) as conn:
         c = conn.cursor()
