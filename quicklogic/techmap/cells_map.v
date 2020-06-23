@@ -171,6 +171,128 @@ module gclkbuff(input A, output Z);
 
 endmodule
 
+module C_FRAG (TBS, TAB, TSL, TA1, TA2, TB1, TB2, BAB, BSL, BA1, BA2, BB1, BB2, TZ, CZ);
+    input  wire TBS;
+
+    input  wire TAB;
+    input  wire TSL;
+    input  wire TA1;
+    input  wire TA2;
+    input  wire TB1;
+    input  wire TB2;
+
+    input  wire BAB;
+    input  wire BSL;
+    input  wire BA1;
+    input  wire BA2;
+    input  wire BB1;
+    input  wire BB2;
+
+    output wire TZ;
+    output wire CZ;
+    T_FRAG t_frag (
+        .TBS(TBS),
+        .XAB(TAB),
+        .XSL(TSL),
+        .XA1(TA1),
+        .XA2(TA2),
+        .XB1(TB1),
+        .XB2(TB2),
+        .XZ (TZ)
+    );
+    T_FRAG b_frag (
+        .TBS(TBS),
+        .XAB(BAB),
+        .XSL(BSL),
+        .XA1(BA1),
+        .XA2(BA2),
+        .XB1(BB1),
+        .XB2(BB2),
+        .XZ (CZ)
+    );
+
+endmodule
+// ============================================================================
+// logic_cell_macro
+
+module logic_cell_macro(
+    input BA1,
+    input BA2,
+    input BAB,
+    input BAS1,
+    input BAS2,
+    input BB1,
+    input BB2,
+    input BBS1,
+    input BBS2,
+    input BSL,
+    input F1,
+    input F2,
+    input FS,
+    input QCK,
+    input QCKS,
+    input QDI,
+    input QDS,
+    input QEN,
+    input QRT,
+    input QST,
+    input TA1,
+    input TA2,
+    input TAB,
+    input TAS1,
+    input TAS2,
+    input TB1,
+    input TB2,
+    input TBS,
+    input TBS1,
+    input TBS2,
+    input TSL,
+    output CZ,
+    output FZ,
+    output QZ,
+    output TZ
+
+);
+
+	C_FRAG c_frag (
+    .TBS(TBS),
+    .TAB(TAB),
+    .TSL(TSL),
+    .TA1(TA1),
+    .TA2(TA2),
+    .TB1(TB1),
+    .TB2(TB2),
+    .BAB(BAB),
+    .BSL(BSL),
+    .BA1(BA1),
+    .BA2(BA2),
+    .BB1(BB1),
+    .BB2(BB2),
+    .TZ (TZ),
+    .CZ (CZ)
+    );
+
+	Q_FRAG q_frag (
+    .QCK(QCK),
+    .QST(QST),
+    .QRT(QRT),
+    .QEN(QEN),
+    .QDI(QDI),
+    .QDS(QDS),
+    .CZI(),
+    .QZ (QZ)
+    );
+
+	F_FRAG f_frag (
+    .F1 (F1),
+    .F2 (F2),
+    .FS (FS),
+    .FZ (FZ)
+    );
+
+
+endmodule
+
 // ============================================================================
 // basic logic elements
 
