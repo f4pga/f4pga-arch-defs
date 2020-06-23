@@ -18,6 +18,9 @@ add_subdirectory(sdiomux_xor)
 add_subdirectory(ext_counter)
 add_subdirectory(ext_mult)
 
+# Global clock network tests
+add_subdirectory(gclk_counter)
+
 # Test designs that use clock
 add_subdirectory(counter)
 add_subdirectory(soc_clocks)
