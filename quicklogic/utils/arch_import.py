@@ -1,19 +1,16 @@
 #!/usr/bin/env python3
+import os
 import argparse
 import pickle
 from collections import namedtuple
+from collections import OrderedDict
 
 import lxml.etree as ET
 
 from data_structs import *
 
-from tile_import import make_top_level_model
 from tile_import import make_top_level_pb_type
 from tile_import import make_top_level_tile
-
-# =============================================================================
-
-ArchTileType = namedtuple("ArchTileType", "type is_tile is_pb_type")
 
 # =============================================================================
 
@@ -136,75 +133,75 @@ def initialize_arch(xml_arch, switches, segments):
         add_segment(xml_seglist, segment)
 
 
-def write_pb_types(xml_arch, pb_types, nsmap):
+def write_tiles(xml_arch, arch_tile_types, tile_types, equivalent_sites):
     """
-    Generates "models" and "complexblocklist" sections.
-    """
-
-    xi_include = "{{{}}}include".format(nsmap["xi"])
-
-
-def write_tiles(xml_arch, arch_tile_types, nsmap):
-    """
-    Generates "models", "complexblocklist" and "tiles" sections.
+    Generates the "tiles" section of the architecture file
     """
 
-    xi_include = "{{{}}}include".format(nsmap["xi"])
+    # The "tiles" section
+    xml_tiles = xml_arch.find("tiles")
+    if xml_tiles is None:
+        xml_tiles = ET.SubElement(xml_arch, "tiles")
 
-    # Tiles
-    xml_cplx = xml_arch.find("tiles")
-    if xml_cplx is None:
-        xml_cplx = ET.SubElement(xml_arch, "tiles")
+    # Add tiles
+    for tile_type, sub_tiles in arch_tile_types.items():
 
-    for tile_type in arch_tile_types:
-        if not tile_type.is_tile:
-            continue
-
-        tile_file = "{}.tile.xml".format(tile_type.type.lower())
-
-        ET.SubElement(
-            xml_cplx, xi_include, {
-                "href": "tl-{}".format(tile_file),
-            }
+        xml = make_top_level_tile(
+            tile_type, sub_tiles,
+            tile_types,
+            equivalent_sites
         )
 
-    # Models
-    xml_models = xml_arch.find("models")
-    if xml_models is None:
-        xml_models = ET.SubElement(xml_arch, "models")
+        xml_tiles.append(xml)
 
-    for tile_type in arch_tile_types:
-        if not tile_type.is_pb_type:
-            continue
 
-        model_file = "{}.model.xml".format(tile_type.type.lower())
-
-        ET.SubElement(
-            xml_models, xi_include, {
-                "href": "tl-{}".format(model_file),
-                "xpointer": "xpointer(models/child::node())",
-            }
-        )
+def write_pb_types(xml_arch, arch_pb_types, tile_types, nsmap):
+    """
+    Generates the "complexblocklist" section.
+    """
 
     # Complexblocklist
     xml_cplx = xml_arch.find("complexblocklist")
     if xml_cplx is None:
         xml_cplx = ET.SubElement(xml_arch, "complexblocklist")
 
-    for tile_type in arch_tile_types:
-        if not tile_type.is_pb_type:
-            continue
+    # Add pb_types
+    for pb_type in arch_pb_types:
 
-        pb_type_file = "{}.pb_type.xml".format(tile_type.type.lower())
+        xml = make_top_level_pb_type(tile_types[pb_type], nsmap)
+        xml_cplx.append(xml)
+
+
+def write_models(xml_arch, arch_models, nsmap):
+    """
+    Generates the "models" section.
+    """
+
+    # Models
+    xml_models = xml_arch.find("models")
+    if xml_models is None:
+        xml_models = ET.SubElement(xml_arch, "models")
+
+    # Include cell models
+    xi_include = "{{{}}}include".format(nsmap["xi"])
+    for model in arch_models:
+        name = model.lower()
+
+        # Be smart. Check if there is a file for that cell in the current
+        # directory. If not then use the one from "primitives" path
+        model_file = "./{}.model.xml".format(name)
+        if not os.path.isfile(model_file):
+            model_file = "../../primitives/{}/{}.model.xml".format(name, name)
 
         ET.SubElement(
-            xml_cplx, xi_include, {
-                "href": "tl-{}".format(pb_type_file),
+            xml_models, xi_include, {
+                "href": model_file,
+                "xpointer": "xpointer(models/child::node())",
             }
         )
 
 
-def write_tilegrid(xml_arch, tile_grid, loc_map, layout_name):
+def write_tilegrid(xml_arch, arch_tile_grid, loc_map, layout_name):
     """
     Generates the "layout" section of the arch XML and appends it to the
     root given.
@@ -216,8 +213,8 @@ def write_tilegrid(xml_arch, tile_grid, loc_map, layout_name):
         xml_arch.remove(xml_layout)
 
     # Grid size
-    xs = [loc.x for loc in tile_grid]
-    ys = [loc.y for loc in tile_grid]
+    xs = [flat_loc[0] for flat_loc in arch_tile_grid]
+    ys = [flat_loc[1] for flat_loc in arch_tile_grid]
     w = max(xs) + 1
     h = max(ys) + 1
 
@@ -232,32 +229,38 @@ def write_tilegrid(xml_arch, tile_grid, loc_map, layout_name):
     )
 
     # Individual tiles
-    for loc, tile in tile_grid.items():
+    for flat_loc, (tile_type, capacity) in arch_tile_grid.items():
 
-        if tile is None:
-            continue
-
+        # Single tile
         xml_sing = ET.SubElement(
             xml_fixed,
             "single",
             {
-                "type": "TL-{}".format(tile.type.upper()),
-                "x": str(loc.x),
-                "y": str(loc.y),
+                "type": "TL-{}".format(tile_type.upper()),
+                "x": str(flat_loc[0]),
+                "y": str(flat_loc[1]),
                 "priority": str(10),  # Not sure if we need this
             }
         )
 
-        if loc in loc_map.bwd:
-            phy_loc = loc_map.bwd[loc]
+        # Gather metadata
+        metadata = []
+        for i in range(capacity):
+            loc = Loc(x=flat_loc[0], y=flat_loc[1], z=i)
 
+            if loc in loc_map.bwd:
+                phy_loc = loc_map.bwd[loc]
+                metadata.append("X{}Y{}".format(phy_loc.x, phy_loc.y))
+
+        # Emit metadata if any
+        if len(metadata):
             xml_metadata = ET.SubElement(xml_sing, "metadata")
             xml_meta = ET.SubElement(
                 xml_metadata, "meta", {
                     "name": "fasm_prefix",
                 }
             )
-            xml_meta.text = "X{}Y{}".format(phy_loc.x, phy_loc.y)
+            xml_meta.text = " ".join(metadata)
 
 
 # =============================================================================
@@ -305,36 +308,68 @@ def main():
         segments = db["segments"]
         switches = db["switches"]
 
+    # TODO: Do not support equivalent sites for tiles now
+    assert len(vpr_equivalent_sites) == 0, "Equivalent sites not supported yet!"
+
+    # Flatten the VPR tilegrid
+    flat_tile_grid = dict()
+    for vpr_loc, tile in vpr_tile_grid.items():
+
+        if tile is None:
+            continue
+
+        flat_loc = (vpr_loc.x, vpr_loc.y)
+        if flat_loc not in flat_tile_grid:
+            flat_tile_grid[flat_loc] = {}
+
+        flat_tile_grid[flat_loc][vpr_loc.z] = tile.type
+
+    # Create the arch tile grid and arch tile types
+    arch_tile_grid  = dict()
+    arch_tile_types = dict()
+    arch_pb_types   = set()
+    arch_models     = set()
+
+    for flat_loc, tiles in flat_tile_grid.items():
+
+        # Group identical sub-tiles together, maintain their order
+        sub_tiles = OrderedDict()
+        for z, tile in tiles.items():
+            if tile not in sub_tiles:
+                sub_tiles[tile] = 0
+            sub_tiles[tile] += 1
+        
+        # TODO: Make arch tile type name
+        tile_type = tiles[0]
+
+        # Create the tile type with sub tile types for the arch
+        arch_tile_types[tile_type] = sub_tiles
+
+        # Add each sub-tile to top-level pb_type list
+        for tile in sub_tiles:
+            arch_pb_types.add(tile)
+
+        # Add each cell of a sub-tile to the model list
+        for tile in sub_tiles:
+            for cell_type in vpr_tile_types[tile].cells.keys():
+                arch_models.add(cell_type)
+
+        # Add the arch tile type to the arch tile grid
+        arch_tile_grid[flat_loc] = (tile_type, len(tiles),)
+
     # Initialize the arch XML if file not given
     xml_arch = ET.Element("architecture", nsmap=nsmap)
     initialize_arch(xml_arch, switches, segments)
 
-    # Make a list of pb_type names which are pb_type only, not tile.
-    pb_names = set()
-    for tile, sites in vpr_equivalent_sites.items():
-        pb_names |= set(sites.keys())
+    # Add tiles
+    write_tiles(xml_arch, arch_tile_types, vpr_tile_types, vpr_equivalent_sites)
+    # Add pb_types
+    write_pb_types(xml_arch, arch_pb_types, vpr_tile_types, nsmap)
+    # Add models
+    write_models(xml_arch, arch_models, nsmap)
 
-        # DEBUG
-        print(tile, list(sites.keys()))
-
-    # Make list of arch tile types
-    arch_tile_types = []
-    for tile_type in vpr_tile_types.keys():
-        arch_tile_types.append(
-            ArchTileType(
-                type = tile_type,
-                is_tile = \
-                    tile_type not in pb_names,
-                is_pb_type = \
-                    tile_type not in vpr_equivalent_sites or \
-                    tile_type in pb_names
-            )
-        )
-
-    # Write tiles
-    write_tiles(xml_arch, arch_tile_types, nsmap)
     # Write the tilegrid to arch
-    write_tilegrid(xml_arch, vpr_tile_grid, loc_map, args.device)
+    write_tilegrid(xml_arch, arch_tile_grid, loc_map, args.device)
 
     # Save the arch
     ET.ElementTree(xml_arch).write(
@@ -343,33 +378,6 @@ def main():
         xml_declaration=True,
         encoding="utf-8"
     )
-
-    # Generate tile, model and pb_type XMLs
-    for arch_tile in arch_tile_types:
-
-        # The top-level tile tag
-        if arch_tile.is_tile:
-
-            xml = make_top_level_tile(
-                arch_tile.type, vpr_tile_types,
-                vpr_equivalent_sites.get(arch_tile.type, None)
-            )
-
-            fname = "tl-{}.tile.xml".format(arch_tile.type.lower())
-            ET.ElementTree(xml).write(fname, pretty_print=True)
-
-        # The top-level pb_type and model
-        if arch_tile.is_pb_type:
-
-            tile_type = vpr_tile_types[arch_tile.type]
-
-            fname = "tl-{}.pb_type.xml".format(arch_tile.type.lower())
-            xml = make_top_level_pb_type(tile_type, nsmap)
-            ET.ElementTree(xml).write(fname, pretty_print=True)
-
-            fname = "tl-{}.model.xml".format(arch_tile.type.lower())
-            xml = make_top_level_model(tile_type, nsmap)
-            ET.ElementTree(xml).write(fname, pretty_print=True)
 
 
 # =============================================================================
