@@ -74,7 +74,8 @@ def is_local(connection):
     """
     Returns true if a connection is local.
     """
-    return connection.src.loc == connection.dst.loc
+    return (connection.src.loc.x, connection.src.loc.y) == \
+           (connection.dst.loc.x, connection.dst.loc.y)
 
 
 # =============================================================================
@@ -159,13 +160,17 @@ class QmuxModel(object):
         segment_id = self.graph.get_segment_id_from_name("clock")
 
         # Get the GMUX to QMUX connections
-        eps = {}
+        nodes = {}
         for connection in self.connections:
             if connection.dst.type == ConnectionType.CLOCK:
                 dst_cell, dst_pin = connection.dst.pin.split(".")
 
                 if dst_cell == self.cell.name and dst_pin.startswith("QCLKIN"):
-                    eps[dst_pin] = connection.dst
+                    ep = connection.dst
+                    try:
+                        nodes[dst_pin] = self.connection_loc_to_node[ep]
+                    except KeyError:
+                        print("ERROR: Coulnd't find rr node for {}.{}".format(self.cell.name, pin))
 
         # Get the QMUX to CAND connection
         for connection in self.connections:
@@ -173,20 +178,22 @@ class QmuxModel(object):
                 src_cell, src_pin = connection.src.pin.split(".")
 
                 if src_cell == self.cell.name and src_pin == "IZ":
-                    eps["IZ"] = connection.src
-
+                    ep = connection.src
+                    try:
+                        nodes["IZ"] = self.connection_loc_to_node[ep]
+                    except KeyError:
+                        print("ERROR: Coulnd't find rr node for {}.{}".format(self.cell.name, pin))
         # Validate
         for pin in ["IZ", "QCLKIN0", "QCLKIN1", "QCLKIN2"]:
-            if pin not in eps:
-                print("ERROR: Coulnd't find rr node for {}.{}".format(self.cell.name, pin))
+            if pin not in nodes:
                 return
 
         # Add edges modelling the QMUX
         for i in [0, 1, 2]:
             pin = "QCLKIN{}".format(i)
 
-            src_node = self.connection_loc_to_node[eps[pin]]
-            dst_node = self.connection_loc_to_node[eps["IZ"]]
+            src_node = nodes[pin]
+            dst_node = nodes["IZ"]
 
             # Make edge metadata
             metadata = self._get_metadata(i)
@@ -371,14 +378,46 @@ class CandModel(object):
 # =============================================================================
 
 
-def tile_pin_to_rr_pin(tile_type, pin_name):
+def get_node_id_for_tile_pin(graph, loc, tile_type, pin_name):
     """
-    Converts the tile pin name as in the database to its counterpart in the
-    rr graph.
+    Returns a rr node associated with the given pin of the given tile type
+    at the given location.
     """
 
-    # FIXME: I guess the last '[0]' will differ for tiles with capacity > 1
-    return "TL-{}.{}[0]".format(tile_type, fixup_pin_name(pin_name))
+    nodes = None
+
+    # First try without the capacity prefix
+    if loc.z == 0:
+        rr_pin_name = "TL-{}.{}[0]".format(
+            tile_type,
+            fixup_pin_name(pin_name)
+        )
+
+        try:
+            nodes = graph.get_nodes_for_pin((loc.x, loc.y), rr_pin_name)
+        except KeyError:
+            pass
+
+    # Didn't find, try with the capacity prefix
+    if nodes is None:
+        rr_pin_name = "TL-{}[{}].{}[0]".format(
+            tile_type,
+            loc.z,
+            fixup_pin_name(pin_name)
+        )
+
+        try:
+            nodes = graph.get_nodes_for_pin((loc.x, loc.y), rr_pin_name)
+        except KeyError:
+            pass
+
+    # Still not found.
+    if nodes is None:
+        return None
+
+    # Got it
+    assert len(nodes) == 1, (rr_pin_name, loc)
+    return nodes[0][0]
 
 
 def build_tile_pin_to_node_map(graph, tile_types, tile_grid):
@@ -399,25 +438,17 @@ def build_tile_pin_to_node_map(graph, tile_types, tile_grid):
         # For each pin of the tile
         for pin in tile_types[tile.type].pins:
 
-            # Get the VPR pin name and its node
-            rr_pin_name = tile_pin_to_rr_pin(tile.type, pin.name)
-
-            try:
-                nodes = graph.get_nodes_for_pin((
-                    loc.x,
-                    loc.y,
-                ), rr_pin_name)
-                assert len(nodes) == 1, (rr_pin_name, loc.x, loc.y)
-            except KeyError as ex:
+            node_id = get_node_id_for_tile_pin(graph, loc, tile.type, pin.name)
+            if node_id is None:
                 print(
-                    "WARNING: No node for pin '{}' at ({},{})".format(
-                        rr_pin_name, loc.x, loc.y
+                    "WARNING: No node for pin '{}' at {}".format(
+                        pin.name, loc
                     )
                 )
                 continue
 
             # Add to the map
-            node_map[loc][pin.name] = nodes[0][0]
+            node_map[loc][pin.name] = node_id
 
     return node_map
 
@@ -434,35 +465,24 @@ def build_tile_connection_map(graph, nodes_by_id, tile_grid, connections):
         tile = tile_grid.get(conn_loc.loc, None)
         if tile is None:
             print(
-                "WARNING: No tile for pin '{} at '{}'".format(
+                "WARNING: No tile for pin '{} at {}".format(
                     conn_loc.pin, conn_loc.loc
                 )
             )
             return
 
-        rr_pin_name = tile_pin_to_rr_pin(tile.type, conn_loc.pin)
-
         # Get the VPR rr node for the pin
-        try:
-            nodes = graph.get_nodes_for_pin(
-                (
-                    conn_loc.loc.x,
-                    conn_loc.loc.y,
-                ), rr_pin_name
-            )
-            assert len(nodes
-                       ) == 1, (rr_pin_name, conn_loc.loc.x, conn_loc.loc.y)
-        except KeyError as ex:
+        node_id = get_node_id_for_tile_pin(graph, conn_loc.loc, tile.type, conn_loc.pin)
+        if node_id is None:
             print(
                 "WARNING: No node for pin '{}' at ({},{})".format(
-                    rr_pin_name, conn_loc.loc.x, conn_loc.loc.y
+                    conn_loc.pin, conn_loc.loc.x, conn_loc.loc.y
                 )
             )
             return
 
         # Convert to Node objects
-        node = nodes_by_id[nodes[0][0]]
-
+        node = nodes_by_id[node_id]
         # Add to the map
         node_map[conn_loc] = node
 
@@ -779,9 +799,6 @@ def populate_tile_connections(
 
         # Connection to/from the local tile
         if is_local(connection):
-
-            # Must be the same switchbox and tile
-            assert connection.src.loc == connection.dst.loc, connection
             loc = connection.src.loc
 
             # No switchbox model at the loc, skip.
