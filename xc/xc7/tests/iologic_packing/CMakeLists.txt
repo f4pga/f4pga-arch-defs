@@ -128,7 +128,6 @@ function(xc7_iologic_design)
         NAME ${DESIGN}_vivado
         PARENT_NAME ${DESIGN}
         XDC ${XDC_FILE}
-        ${VIVADO_ARGS}
         )
 
 #    add_dependencies(all_xc7_iologic_vivado_diff_fasm ${DESIGN}_vivado_diff_fasm)
