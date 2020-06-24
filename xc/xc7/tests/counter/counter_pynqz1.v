@@ -16,7 +16,10 @@ module top (
 
 	reg [BITS+LOG2DELAY-1:0] counter = 0;
 
-	always @(posedge clk) begin
+    IBUF clk_ibuf(.I(clk),      .O(clk_ibuf));
+    BUFG clk_bufg(.I(clk_ibuf), .O(clk_b));
+
+	always @(posedge clk_b) begin
 		counter <= counter + 1;
 	end
 
