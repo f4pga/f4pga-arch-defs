@@ -12,13 +12,19 @@ add_file_target(FILE picosoc_noflash.v SCANNER_TYPE verilog)
 get_target_property_required(PYTHON3 env PYTHON3)
 get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
 
-file(GLOB HEX_FILES *.hex)
+set(HEX_FILES
+    firmware.hex
+    firmware_noflash_100.hex
+    firmware_noflash_50.hex
+    firmware_noflash_25.hex
+)
+
 foreach(HEX_FILE ${HEX_FILES})
     get_filename_component(HEX_TITLE ${HEX_FILE} NAME_WE)
 
     add_custom_command(
         OUTPUT ${HEX_TITLE}.v
-        COMMAND ${PYTHON3} ${CMAKE_CURRENT_SOURCE_DIR}/hex2progmem.py ${HEX_FILE} --rom-style initial >${HEX_TITLE}.v
+        COMMAND ${PYTHON3} ${CMAKE_CURRENT_SOURCE_DIR}/hex2progmem.py ${CMAKE_CURRENT_SOURCE_DIR}/${HEX_FILE} --rom-style initial >${HEX_TITLE}.v
         DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/hex2progmem.py ${PYTHON3} ${PYTHON3_TARGET}
     )
     add_file_target(FILE ${HEX_TITLE}.v GENERATED)
