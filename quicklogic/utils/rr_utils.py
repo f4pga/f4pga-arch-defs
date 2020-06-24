@@ -74,11 +74,11 @@ def node_joint_location(node_a, node_b):
     other.
     """
 
-    loc_a1 = Loc(node_a.loc.x_low, node_a.loc.y_low)
-    loc_a2 = Loc(node_a.loc.x_high, node_a.loc.y_high)
+    loc_a1 = Loc(node_a.loc.x_low, node_a.loc.y_low,   0)
+    loc_a2 = Loc(node_a.loc.x_high, node_a.loc.y_high, 0)
 
-    loc_b1 = Loc(node_b.loc.x_low, node_b.loc.y_low)
-    loc_b2 = Loc(node_b.loc.x_high, node_b.loc.y_high)
+    loc_b1 = Loc(node_b.loc.x_low, node_b.loc.y_low,   0)
+    loc_b2 = Loc(node_b.loc.x_high, node_b.loc.y_high, 0)
 
     if loc_a1 == loc_b1:
         return loc_a1

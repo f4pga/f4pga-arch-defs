@@ -686,7 +686,7 @@ def add_tracks_for_const_network(graph, const, tile_grid):
 
         # Populate the const node map
         for y, node in col_node_map.items():
-            const_node_map[Loc(x=x, y=y)] = node
+            const_node_map[Loc(x=x, y=y, z=0)] = node
 
     return const_node_map
 
@@ -1164,7 +1164,7 @@ def create_column_clock_tracks(graph, clock_cells, quadrants):
 
         # Populate the global clock network to switchbox access map
         for y, node in node_map.items():
-            loc = Loc(x=cell.loc.x, y=y)
+            loc = Loc(x=cell.loc.x, y=y, z=0)
 
             if cand_name not in cand_node_map:
                 cand_node_map[cand_name] = {}

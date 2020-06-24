@@ -177,6 +177,7 @@ def build_tile_connections(
                 tile_loc = Loc(
                     x=loc.x + hop[0],
                     y=loc.y + hop[1],
+                    z=loc.z
                 )
 
             # Get the tile
@@ -251,8 +252,8 @@ def build_hop_connections(switchbox_types, switchbox_grid):
     # Determine the switchbox grid limits
     xs = set([loc.x for loc in switchbox_grid.keys()])
     ys = set([loc.y for loc in switchbox_grid.keys()])
-    loc_min = Loc(min(xs), min(ys))
-    loc_max = Loc(max(xs), max(ys))
+    loc_min = Loc(min(xs), min(ys), 0)
+    loc_max = Loc(max(xs), max(ys), 0)
 
     # Identify all connections that go out of switchboxes
     for dst_loc, dst_switchbox_type in switchbox_grid.items():
@@ -272,7 +273,7 @@ def build_hop_connections(switchbox_types, switchbox_grid):
                 continue
 
             # Check if we don't hop outside the FPGA grid.
-            src_loc = Loc(dst_loc.x + hop_ofs[0], dst_loc.y + hop_ofs[1])
+            src_loc = Loc(dst_loc.x + hop_ofs[0], dst_loc.y + hop_ofs[1], 0)
             if src_loc.x < loc_min.x or src_loc.x > loc_max.x:
                 continue
             if src_loc.y < loc_min.y or src_loc.y > loc_max.y:

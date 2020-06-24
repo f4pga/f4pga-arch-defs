@@ -185,7 +185,7 @@ def load_logic_cells(xml_placement, cellgrid, cells_library):
             x = 1 + ord(tag[0]) - ord("A")
             y = 1 + int(tag[1:])
 
-            exceptions.add(Loc(x=x, y=y))
+            exceptions.add(Loc(x=x, y=y, z=0))
 
     xml_logicmatrix = xml_logic.find("LOGICMATRIX")
     assert xml_logicmatrix is not None
@@ -197,7 +197,7 @@ def load_logic_cells(xml_placement, cellgrid, cells_library):
 
     for j in range(ny):
         for i in range(nx):
-            loc = Loc(x0 + i, y0 + j)
+            loc = Loc(x0 + i, y0 + j, 0)
 
             if loc in exceptions:
                 continue
@@ -235,7 +235,7 @@ def load_other_cells(xml_placement, cellgrid, cells_library):
 
                 for j in range(ny):
                     for i in range(nx):
-                        loc = Loc(x0 + i, y0 + j)
+                        loc = Loc(x0 + i, y0 + j, 0)
 
                         cellgrid[loc].append(
                             Cell(
@@ -251,7 +251,7 @@ def load_other_cells(xml_placement, cellgrid, cells_library):
                 x = int(xml.get("column"))
                 y = int(xml.get("row"))
 
-                loc = Loc(x, y)
+                loc = Loc(x, y, 0)
                 alias = xml.get("Alias", None)
 
                 cellgrid[loc].append(
@@ -398,7 +398,7 @@ def populate_switchboxes(xml_sbox, switchbox_grid):
 
     for y, x in itertools.product(range(ymin, ymax + 1), range(xmin,
                                                                xmax + 1)):
-        loc = Loc(x, y)
+        loc = Loc(x, y, 0)
 
         assert loc not in switchbox_grid, loc
         switchbox_grid[loc] = xml_sbox.tag
@@ -671,7 +671,7 @@ def parse_wire_mapping_table(xml_root, switchbox_grid, switchbox_types):
                 # Yield wire maps for each location
                 for y in range(row_beg, row_end + 1):
                     for x in range(col_beg, col_end + 1):
-                        yield (Loc(x=x, y=y), xml_maps)
+                        yield (Loc(x=x, y=y, z=0), xml_maps)
 
     # Process wire maps
     wire_maps = defaultdict(lambda: {})
@@ -724,13 +724,13 @@ def parse_wire_mapping_table(xml_root, switchbox_grid, switchbox_types):
 
                 # Compute location of the tile that the wire is connected to
                 if wire_hop_dir == "Top":
-                    tile_loc = Loc(x=loc.x, y=loc.y - wire_hop_len)
+                    tile_loc = Loc(x=loc.x, y=loc.y - wire_hop_len, z=0)
                 elif wire_hop_dir == "Bottom":
-                    tile_loc = Loc(x=loc.x, y=loc.y + wire_hop_len)
+                    tile_loc = Loc(x=loc.x, y=loc.y + wire_hop_len, z=0)
                 elif wire_hop_dir == "Left":
-                    tile_loc = Loc(x=loc.x - wire_hop_len, y=loc.y)
+                    tile_loc = Loc(x=loc.x - wire_hop_len, y=loc.y, z=0)
                 elif wire_hop_dir == "Right":
-                    tile_loc = Loc(x=loc.x + wire_hop_len, y=loc.y)
+                    tile_loc = Loc(x=loc.x + wire_hop_len, y=loc.y, z=0)
                 else:
                     assert False, wire_hop_dir
 
@@ -817,6 +817,7 @@ def parse_port_mapping_table(xml_root, switchbox_grid):
                     loc = Loc(
                         x=base_loc.x + dx * offset,
                         y=base_loc.y + dy * offset,
+                        z=0
                     )
 
                     # Append mapping
@@ -848,6 +849,7 @@ def parse_clock_network(xml_clock_network):
         cell_loc = Loc(
             x=int(xml_cell.attrib["column"]),
             y=int(xml_cell.attrib["row"]),
+            z=0
         )
 
         # Get the cell's pinmap

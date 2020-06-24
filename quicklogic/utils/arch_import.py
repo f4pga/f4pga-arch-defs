@@ -314,6 +314,9 @@ def main():
     for tile, sites in vpr_equivalent_sites.items():
         pb_names |= set(sites.keys())
 
+        # DEBUG
+        print(tile, list(sites.keys()))
+
     # Make list of arch tile types
     arch_tile_types = []
     for tile_type in vpr_tile_types.keys():

@@ -43,9 +43,10 @@ class PinSide(Enum):
 
 
 """
-This is a generic location in the tilegrid
+This is a generic location in the tilegrid. Note that it also encounters for
+the sub-tile index z.
 """
-Loc = namedtuple("Loc", "x y")
+Loc = namedtuple("Loc", "x y z")
 """
 FPGA grid quadrant.
 """
