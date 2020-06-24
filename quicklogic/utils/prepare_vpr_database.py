@@ -372,9 +372,14 @@ def process_tilegrid(
                     else:
                         bwd_loc_map[new_loc] = phy_loc
 
+                    # Change index of the cell
+                    new_cell = Cell(
+                        type=cell.type, index=0, name=cell.name, alias=cell.alias
+                    )
+
                     # Add the tile instance
                     vpr_tile_grid[new_loc] = Tile(
-                        type=new_type.type, name=tile.name, cells=[cell]
+                        type=new_type.type, name=tile.name, cells=[new_cell]
                     )
 
                 continue
@@ -501,6 +506,8 @@ def process_connections(
             phy_loc = ep.loc
             vpr_loc = loc_map.fwd[phy_loc]
 
+            vpr_pin = ep.pin
+
             # If the connection mentions a CAND cell, fixup its location
             if "CAND" in ep.pin and ep.type == ConnectionType.CLOCK:
                 vpr_loc = fixup_cand_loc(vpr_loc, phy_loc)
@@ -509,32 +516,18 @@ def process_connections(
             # it points to the correct sub-tile
             if "GMUX" in ep.pin and ep.type == ConnectionType.TILE:
 
-                # List tiles at the location
-                tiles = {l: t for l, t in vpr_tile_grid.items() if \
-                         l.x == vpr_loc.x and l.y == vpr_loc.y}
+                # Modify the cell name, use always "GMUX0"
+                cell, pin = ep.pin.split("_", maxsplit=1)
+                vpr_pin = "GMUX0_{}".format(pin)
 
-                # Get the connection cell
-                conn_cell, pin = ep.pin.split("_")
-
-                # Find the right tile
-                for loc, tile in tiles.items():
-                    assert len(tile.cells) == 1
-                    assert tile.cells[0].type == "GMUX"
-
-                    cell = tile.cells[0]
-                    tile_cell = "{}{}".format(cell.type, cell.index)
-
-                    if conn_cell == tile_cell:
-                        vpr_loc = loc
-                        break
-                else:
-                    print("WARNING: No tile for connection endpoint", ep)
-                    continue
+                # Modify the location according to the cell index
+                z = int(cell[-1]) # FIXME: Assuming indices 0-9
+                vpr_loc = Loc(vpr_loc.x, vpr_loc.y, z)
 
             # Update the endpoint
             eps[j] = ConnectionLoc(
                 loc=vpr_loc,
-                pin=ep.pin,
+                pin=vpr_pin,
                 type=ep.type
             )
 
