@@ -229,7 +229,13 @@ def write_tilegrid(xml_arch, arch_tile_grid, loc_map, layout_name):
     )
 
     # Individual tiles
-    for flat_loc, (tile_type, capacity) in arch_tile_grid.items():
+    for flat_loc, tile in arch_tile_grid.items():
+
+        if tile is None:
+            continue
+
+        # Unpack
+        tile_type, capacity = tile
 
         # Single tile
         xml_sing = ET.SubElement(
@@ -315,14 +321,12 @@ def main():
     flat_tile_grid = dict()
     for vpr_loc, tile in vpr_tile_grid.items():
 
-        if tile is None:
-            continue
-
         flat_loc = (vpr_loc.x, vpr_loc.y)
         if flat_loc not in flat_tile_grid:
             flat_tile_grid[flat_loc] = {}
 
-        flat_tile_grid[flat_loc][vpr_loc.z] = tile.type
+        if tile is not None:
+            flat_tile_grid[flat_loc][vpr_loc.z] = tile.type
 
     # Create the arch tile grid and arch tile types
     arch_tile_grid  = dict()
@@ -332,30 +336,37 @@ def main():
 
     for flat_loc, tiles in flat_tile_grid.items():
 
-        # Group identical sub-tiles together, maintain their order
-        sub_tiles = OrderedDict()
-        for z, tile in tiles.items():
-            if tile not in sub_tiles:
-                sub_tiles[tile] = 0
-            sub_tiles[tile] += 1
-        
-        # TODO: Make arch tile type name
-        tile_type = tiles[0]
+        if len(tiles):
 
-        # Create the tile type with sub tile types for the arch
-        arch_tile_types[tile_type] = sub_tiles
+            # Group identical sub-tiles together, maintain their order
+            sub_tiles = OrderedDict()
+            for z, tile in tiles.items():
+                if tile not in sub_tiles:
+                    sub_tiles[tile] = 0
+                sub_tiles[tile] += 1
+            
+            # TODO: Make arch tile type name
+            tile_type = tiles[0]
 
-        # Add each sub-tile to top-level pb_type list
-        for tile in sub_tiles:
-            arch_pb_types.add(tile)
+            # Create the tile type with sub tile types for the arch
+            arch_tile_types[tile_type] = sub_tiles
 
-        # Add each cell of a sub-tile to the model list
-        for tile in sub_tiles:
-            for cell_type in vpr_tile_types[tile].cells.keys():
-                arch_models.add(cell_type)
+            # Add each sub-tile to top-level pb_type list
+            for tile in sub_tiles:
+                arch_pb_types.add(tile)
 
-        # Add the arch tile type to the arch tile grid
-        arch_tile_grid[flat_loc] = (tile_type, len(tiles),)
+            # Add each cell of a sub-tile to the model list
+            for tile in sub_tiles:
+                for cell_type in vpr_tile_types[tile].cells.keys():
+                    arch_models.add(cell_type)
+
+            # Add the arch tile type to the arch tile grid
+            arch_tile_grid[flat_loc] = (tile_type, len(tiles),)
+
+        else:
+
+            # Add an empty location
+            arch_tile_grid[flat_loc] = None
 
     # Initialize the arch XML if file not given
     xml_arch = ET.Element("architecture", nsmap=nsmap)
