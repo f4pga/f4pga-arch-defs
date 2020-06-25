@@ -71,6 +71,10 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
           DESTINATION bin/python
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/create_place_constraints.py
+          DESTINATION bin/python
+          PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
+
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/fasm2bels.py
           DESTINATION bin/python
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
@@ -220,4 +224,17 @@ function(DEFINE_QL_PINMAP_CSV_INSTALL_TARGET)
   install(FILES ${PINMAP_FILE}
     DESTINATION "share/arch/${DEVICE}_${PACKAGE}/${PART}"
     RENAME "pinmap_${ADD_QUICKLOGIC_BOARD_FABRIC_PACKAGE}.csv")
+
+  get_target_property_required(CLKMAP ${BOARD} CLKMAP)
+  get_file_location(CLKMAP_FILE ${CLKMAP})
+  get_filename_component(CLKMAP_FILE_NAME ${CLKMAP_FILE} NAME)
+  append_file_dependency(DEPS ${CLKMAP})
+  add_custom_target(
+    "CLKMAP_INSTALL_${BOARD}_${DEVICE}_${PACKAGE}_${CLKMAP_FILE_NAME}"
+    ALL
+    DEPENDS ${DEPS}
+    )
+  install(FILES ${CLKMAP_FILE}
+    DESTINATION "share/arch/${DEVICE}_${PACKAGE}/${PART}"
+    RENAME "clkmap_${ADD_QUICKLOGIC_BOARD_FABRIC_PACKAGE}.csv")
 endfunction()

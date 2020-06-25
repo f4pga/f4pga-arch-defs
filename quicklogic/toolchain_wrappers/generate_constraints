@@ -13,19 +13,26 @@ ARCH_DEF=$6
 
 if ! [[ "$PART" =~ ^(PU64|WR42|PD64)$ ]]; then 
 	 PINMAPCSV="pinmap_PD64.csv"
+	 CLKMAPCSV="clkmap_PD64.csv"
 else
-         PINMAPCSV="pinmap_${PART}.csv"
+     PINMAPCSV="pinmap_${PART}.csv"
+     CLKMAPCSV="pinmap_${PART}.csv"
 fi
 
 echo "PINMAP FILE : $PINMAPCSV"
+echo "CLKMAP FILE : $CLKMAPCSV"
 
 CHANNELS=`realpath ${MYPATH}/../share/arch/${DEVICE}/channels.db`
 PINMAP=`realpath ${MYPATH}/../share/arch/${DEVICE}/${PINMAPCSV}`
+CLKMAP=`realpath ${MYPATH}/../share/arch/${DEVICE}/${CLKMAPCSV}`
 IOGEN=`realpath ${MYPATH}/python/create_ioplace.py`
+PLACEGEN=`realpath ${MYPATH}/python/create_place_constraints.py`
 CONSTR_GEN=`realpath ${MYPATH}/python/eos_s3_iomux_config.py`
 PROJECT=$(basename -- "$EBLIF")
 IOPLACE_FILE="${PROJECT%.*}_io.place"
+PLACE_FILE="${PROJECT%.*}_constraints.place"
 IOMUX_JLINK="${PROJECT%.*}_iomux.jlink"
 
 python3 ${IOGEN} --pcf $PCF --blif $EBLIF --map $PINMAP --net $NET > ${IOPLACE_FILE}
+python3 ${PLACEGEN} --blif $EBLIF --map $CLKMAP -i ${IOPLACE_FILE} > ${PLACE_FILE}
 python3 ${CONSTR_GEN} --eblif $EBLIF --pcf $PCF > ${IOMUX_JLINK}

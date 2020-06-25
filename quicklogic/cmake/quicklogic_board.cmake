@@ -31,11 +31,31 @@ function(ADD_QUICKLOGIC_BOARD)
   get_target_property_required(VPR_DB_FILE ${DEVICE_TYPE} VPR_DB_FILE)
   get_file_location(VPR_DB_FILE_LOC ${VPR_DB_FILE})
 
+  # Generate clock pad map CSV file
+  set(CREATE_CLKMAP_CSV ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/create_clkmap_csv.py)
+  set(CLKMAP_CSV ${BOARD}_clkmap.csv)
+  set(CLKMAP_CSV_DEPS ${PYTHON3} ${PYTHON3_TARGET} ${CREATE_CLKMAP_CSV})
+  append_file_dependency(CLKMAP_CSV_DEPS ${VPR_DB_FILE})
+
+  add_custom_command(
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${CLKMAP_CSV}
+    COMMAND ${PYTHON3} ${CREATE_CLKMAP_CSV}
+      -o ${CMAKE_CURRENT_BINARY_DIR}/${CLKMAP_CSV}
+      --db ${VPR_DB_FILE_LOC}
+    DEPENDS ${CLKMAP_CSV_DEPS}
+  )
+
+  add_file_target(FILE ${CLKMAP_CSV} GENERATED)
+
   # Generate pinmap CSV file
   set(CREATE_PINMAP_CSV ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/create_pinmap_csv.py)
   set(PINMAP_CSV ${BOARD}_pinmap.csv)
   set(PINMAP_CSV_DEPS ${PYTHON3} ${PYTHON3_TARGET} ${CREATE_PINMAP_CSV})
   append_file_dependency(PINMAP_CSV_DEPS ${VPR_DB_FILE})
+
+  # Make the pinmap depend on clkmap. This way it is build without the need for
+  # adding the dependency elsewhere.
+  append_file_dependency(PINMAP_CSV_DEPS ${CLKMAP_CSV})
 
   # TODO: Use the PACKAGE in the pinmap CSV generation.
   add_custom_command(
@@ -55,12 +75,15 @@ function(ADD_QUICKLOGIC_BOARD)
     PROPERTIES
       PINMAP
       ${CMAKE_CURRENT_SOURCE_DIR}/${PINMAP_CSV}
+      CLKMAP
+      ${CMAKE_CURRENT_SOURCE_DIR}/${CLKMAP_CSV}
   )
 
   set_target_properties(
     dummy_${ARCH}_${DEVICE}_${PACKAGE}
     PROPERTIES
     PINMAP ${CMAKE_CURRENT_SOURCE_DIR}/${PINMAP_CSV}
+    CLKMAP ${CMAKE_CURRENT_SOURCE_DIR}/${CLKMAP_CSV}
   )
   define_ql_pinmap_csv_install_target(
     PART ${PART}

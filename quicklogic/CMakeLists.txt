@@ -83,6 +83,17 @@ define_arch(
         --pcf \${INPUT_IO_FILE} \
         --net \${OUT_NET}"
 
+  PLACE_CONSTR_TOOL
+    ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/create_place_constraints.py
+  PLACE_CONSTR_TOOL_CMD "${CMAKE_COMMAND} -E env \
+    PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils \
+    \${PYTHON3} \${PLACE_CONSTR_TOOL} \
+        --map ${symbiflow-arch-defs_BINARY_DIR}/quicklogic/\${BOARD}_clkmap.csv \
+        --blif \${OUT_EBLIF} \
+        --i /dev/stdin \
+        --o /dev/stdout \
+        \${PLACE_CONSTR_TOOL_EXTRA_ARGS}"
+
   FASM_TO_BIT
     ${QLFASM}
   FASM_TO_BIT_CMD "\${PYTHON3} \
@@ -112,7 +123,6 @@ define_arch(
     ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/verilogmodule.py
     ${CMAKE_CURRENT_BINARY_DIR}/devices/\${DEVICE_TYPE}/db_vpr.pickle
   NO_BIT_TIME
-  NO_PLACE_CONSTR
   ROUTE_CHAN_WIDTH 100
   USE_FASM
 )
