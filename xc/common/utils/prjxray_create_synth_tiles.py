@@ -30,7 +30,6 @@ def map_tile_to_vpr_coord(conn, tile):
         "SELECT tile_pkey FROM tile_map WHERE phy_tile_pkey = ? AND tile_type_pkey != ?",
         (phy_tile_pkey, null_tile_type_pkey)
     )
-
     mapped_tiles = c.fetchall()
     assert len(mapped_tiles) == 1, tile
     tile_pkey = mapped_tiles[0][0]

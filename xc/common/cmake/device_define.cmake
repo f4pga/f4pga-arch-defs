@@ -188,7 +188,6 @@ function(ADD_XC_DEVICE_DEFINE_TYPE)
   set(ROI_DIR ${ADD_XC_DEVICE_DEFINE_TYPE_ROI_DIR})
   set(TILE_TYPES ${ADD_XC_DEVICE_DEFINE_TYPE_TILE_TYPES})
   set(PARTITION_DIR ${ADD_XC_DEVICE_DEFINE_TYPE_PARTITION_DIR})
-  message("Device define type partition dir: ${PARTITION_DIR}")
   get_target_property_required(FAMILY ${ARCH} FAMILY)
   get_target_property_required(DOC_PRJ ${ARCH} DOC_PRJ)
   get_target_property_required(DOC_PRJ_DB ${ARCH} DOC_PRJ_DB)
@@ -296,6 +295,9 @@ function(ADD_XC_DEVICE_DEFINE_TYPE)
       PROPERTIES
       PARTITION_REGION TRUE
       PARTITION_DIR "${PARTITION_DIR}"
+      CHANNELS_DB ${CMAKE_CURRENT_SOURCE_DIR}/channels.db
+      SYNTH_TILES ${CMAKE_CURRENT_SOURCE_DIR}/synth_tiles.json
+      VPR_GRID_MAP ${CMAKE_CURRENT_SOURCE_DIR}/vpr_grid_map.csv
       )
   else()
     set_target_properties(
@@ -358,6 +360,15 @@ function(ADD_XC_DEVICE_DEFINE)
     if(${LIMIT_GRAPH_TO_DEVICE})
         get_target_property_required(GRAPH_LIMIT ${DEVICE_TYPE} GRAPH_LIMIT)
         set(RR_PATCH_EXTRA_ARGS --graph_limit ${GRAPH_LIMIT} ${RR_PATCH_EXTRA_ARGS})
+    endif()
+
+    get_target_property_required(PARTITION_REGION ${DEVICE_TYPE} PARTITION_REGION)
+
+    if(${PARTITION_REGION})
+        get_target_property_required(SYNTH_TILES ${DEVICE_TYPE} SYNTH_TILES)
+        get_file_location(SYNTH_TILES_LOCATION ${SYNTH_TILES})
+        append_file_dependency(DEVICE_RR_PATCH_DEPS ${SYNTH_TILES})
+        set(RR_PATCH_EXTRA_ARGS --synth_tiles ${SYNTH_TILES_LOCATION} ${RR_PATCH_EXTRA_ARGS})
     endif()
 
     define_device(
