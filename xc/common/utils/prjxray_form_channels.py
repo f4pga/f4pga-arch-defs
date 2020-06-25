@@ -1925,6 +1925,9 @@ SELECT site_pkey FROM wire_in_tile WHERE tile_type_pkey = ? AND site_pkey IS NOT
     csv_writer = csv.DictWriter(grid_map_output, fieldnames=fieldnames)
     csv_writer.writeheader()
 
+    write_cur.execute("SELECT pkey FROM tile_type WHERE name = 'NULL'")
+    null_tile_type_pkey, = write_cur.fetchone()
+
     write_cur.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
 
     # Create tile rows for each tile in the VPR grid.  As provide map entries
@@ -1966,7 +1969,8 @@ INSERT INTO tile(phy_tile_pkey, tile_type_pkey, site_as_tile_pkey, grid_x, grid_
             )
         else:
             phy_tile_pkey = None
-            if len(tile.phy_tile_pkeys) > 0:
+            if len(tile.phy_tile_pkeys
+                   ) > 0 and tile.tile_type_pkey != null_tile_type_pkey:
                 phy_tile_pkey = tile.phy_tile_pkeys[0]
 
             write_cur.execute(
@@ -1979,11 +1983,12 @@ INSERT INTO tile(phy_tile_pkey, tile_type_pkey, grid_x, grid_y) VALUES (
 
         # Build the phy_tile <-> tile map.
         for phy_tile_pkey in tile.phy_tile_pkeys:
-            write_cur.execute(
-                """
+            if tile.tile_type_pkey != null_tile_type_pkey:
+                write_cur.execute(
+                    """
 INSERT INTO tile_map(tile_pkey, phy_tile_pkey) VALUES (?, ?)
-                """, (tile_pkey, phy_tile_pkey)
-            )
+                    """, (tile_pkey, phy_tile_pkey)
+                )
 
         for site in tile.sites:
             cur.execute(
