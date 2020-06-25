@@ -23,8 +23,9 @@ def map_tile_to_vpr_coord(conn, tile):
     # because why split a tile with no sites?
     c.execute(
         """
-SELECT tile_pkey FROM tile_map INNER JOIN phy_tile ON tile_map.phy_tile_pkey = phy_tile.pkey
-WHERE phy_tile_pkey = ? AND tile_type_pkey != ?
+SELECT tile_map.tile_pkey FROM tile_map INNER JOIN phy_tile
+ON tile_map.phy_tile_pkey = phy_tile.pkey
+WHERE tile_map.phy_tile_pkey = ? AND phy_tile.tile_type_pkey != ?
         """, (phy_tile_pkey, null_tile_type_pkey)
     )
     mapped_tiles = c.fetchall()
