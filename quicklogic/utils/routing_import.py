@@ -54,10 +54,12 @@ def is_direct(connection):
     """
 
     if connection.src.type == ConnectionType.TILE and \
-       connection.dst.type == ConnectionType.TILE:
+       connection.dst.type == ConnectionType.TILE and \
+       connection.is_direct is True:
         return True
 
     return False
+
 
 def is_clock(connection):
     """
@@ -69,6 +71,7 @@ def is_clock(connection):
         return True
 
     return False
+
 
 def is_local(connection):
     """
@@ -913,6 +916,7 @@ def populate_tile_connections(
 
                         connect(graph, sbox_node, src_node)
 
+
 def populate_direct_connections(
         graph, connections, connection_loc_to_node
 ):
@@ -927,11 +931,9 @@ def populate_direct_connections(
 
         # Get segment id and switch id
         if connection.src.pin.startswith("CLOCK"):
-            segment_id = graph.get_segment_id_from_name("clock")
             switch_id = graph.get_delayless_switch_id()
 
         else:
-            segment_id = graph.get_segment_id_from_name("special")
             switch_id = graph.get_delayless_switch_id()
 
         # Get tile nodes
@@ -954,20 +956,13 @@ def populate_direct_connections(
 
             continue
 
-        # Add a track connecting the two locations
-        src_track_node, dst_track_node = add_l_track(
+        # Add the edge
+        add_edge(
             graph, 
-            src_tile_node.loc.x_low, src_tile_node.loc.y_low,
-            dst_tile_node.loc.x_low, dst_tile_node.loc.y_low,
-            segment_id,
+            src_tile_node.id,
+            dst_tile_node.id,
             switch_id
         )
-
-        # Connect the track endpoints to the IPIN and OPIN
-        switch_id = graph.get_switch_id("generic")
-
-        connect(graph, src_tile_node, src_track_node, switch_id=switch_id)
-        connect(graph, dst_track_node, dst_tile_node, switch_id=switch_id)
 
 
 def populate_const_connections(graph, switchbox_models, const_node_map):

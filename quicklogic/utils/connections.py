@@ -231,9 +231,9 @@ def build_tile_connections(
             )
 
             if sbox_pin.direction == PinDirection.OUTPUT:
-                connection = Connection(src=src, dst=dst)
+                connection = Connection(src=src, dst=dst, is_direct=False)
             if sbox_pin.direction == PinDirection.INPUT:
-                connection = Connection(src=dst, dst=src)
+                connection = Connection(src=dst, dst=src, is_direct=False)
 
             connections.append(connection)
 
@@ -322,6 +322,7 @@ def build_hop_connections(switchbox_types, switchbox_grid):
                     pin=dst_pin.name,
                     type=ConnectionType.SWITCHBOX,
                 ),
+                is_direct=False
             )
 
             connections.append(connection)
@@ -411,6 +412,8 @@ def build_gmux_qmux_connections(
                         src_cell.type, src_cell.index, "IC"
                     )
 
+                    is_direct = True
+
                 # Connect to the other cell
                 else:
                     src_loc = other_cell.loc
@@ -430,6 +433,8 @@ def build_gmux_qmux_connections(
                             src_cell.type, src_cell.index, "IZ"
                         )
 
+                    is_direct = False
+
                 # Make the connection
                 connections.append(
                     Connection(
@@ -443,6 +448,7 @@ def build_gmux_qmux_connections(
                             pin=dst_pin_name,
                             type=dst_type
                         ),
+                        is_direct=is_direct
                     )
                 )
 

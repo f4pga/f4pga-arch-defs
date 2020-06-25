@@ -316,7 +316,7 @@ class ConnectionType(Enum):
 ConnectionLoc = namedtuple("ConnectionLoc", "loc pin type")
 
 # A connection within the tilegrid
-Connection = namedtuple("Connection", "src dst")
+Connection = namedtuple("Connection", "src dst is_direct")
 
 # =============================================================================
 """

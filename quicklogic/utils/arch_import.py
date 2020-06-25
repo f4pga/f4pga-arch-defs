@@ -15,6 +15,22 @@ from tile_import import make_top_level_tile
 # =============================================================================
 
 
+def is_direct(connection):
+    """
+    Returns True if the connections spans two tiles directly. Not necessarly
+    at the same location
+    """
+
+    if connection.src.type == ConnectionType.TILE and \
+       connection.dst.type == ConnectionType.TILE and \
+       connection.is_direct is True:
+        return True
+
+    return False
+
+# =============================================================================
+
+
 def add_segment(xml_parent, segment):
     """
     Adds a segment
@@ -269,6 +285,74 @@ def write_tilegrid(xml_arch, arch_tile_grid, loc_map, layout_name):
             xml_meta.text = " ".join(metadata)
 
 
+def write_direct_connections(xml_arch, tile_grid, connections):
+    """
+    """
+
+    def get_tile(ep):
+        """
+        Retireves tile for the given connection endpoint
+        """
+
+        if ep.loc in tile_grid and tile_grid[ep.loc] is not None:
+            return tile_grid[ep.loc]
+
+        else:
+            print("ERROR: No tile found for the connection endpoint", ep)
+            return None
+
+    # Remove the "directlist" tag if any
+    xml_directlist = xml_arch.find("directlist")
+    if xml_directlist is not None:
+        xml_arch.remove(xml_directlist)
+
+    # Make a new one
+    xml_directlist = ET.SubElement(xml_arch, "directlist")
+
+    # Populate connections
+    conns = [c for c in connections if is_direct(c)]
+    for connection in conns:
+
+        src_tile = get_tile(connection.src)
+        dst_tile = get_tile(connection.dst)
+
+        if not src_tile or not dst_tile:
+            continue
+
+        src_name = "TL-{}.{}".format(src_tile.type, connection.src.pin)
+        dst_name = "TL-{}.{}".format(dst_tile.type, connection.dst.pin)
+
+        name = "{}_at_X{}Y{}Z{}_to_{}_at_X{}Y{}Z{}".format(
+            src_name,
+            connection.src.loc.x,
+            connection.src.loc.y,
+            connection.src.loc.z,
+            dst_name,
+            connection.dst.loc.x,
+            connection.dst.loc.y,
+            connection.dst.loc.z,
+        )
+
+        delta_loc = Loc(
+            x = connection.dst.loc.x - connection.src.loc.x,
+            y = connection.dst.loc.y - connection.src.loc.y,
+            z = connection.dst.loc.z - connection.src.loc.z,
+        )
+
+        # Format the direct connection tag
+        ET.SubElement(
+            xml_directlist,
+            "direct",
+            {
+                "name": name,
+                "from_pin": src_name,
+                "to_pin": dst_name,
+                "x_offset": str(delta_loc.x),
+                "y_offset": str(delta_loc.y),
+                "z_offset": str(delta_loc.z),
+            }
+        )
+
 # =============================================================================
 
 
@@ -313,6 +397,7 @@ def main():
         vpr_equivalent_sites = db["vpr_equivalent_sites"]
         segments = db["segments"]
         switches = db["switches"]
+        connections = db["connections"]
 
     # TODO: Do not support equivalent sites for tiles now
     assert len(vpr_equivalent_sites) == 0, "Equivalent sites not supported yet!"
@@ -381,6 +466,9 @@ def main():
 
     # Write the tilegrid to arch
     write_tilegrid(xml_arch, arch_tile_grid, loc_map, args.device)
+
+    # Write direct connections
+    write_direct_connections(xml_arch, vpr_tile_grid, connections)
 
     # Save the arch
     ET.ElementTree(xml_arch).write(

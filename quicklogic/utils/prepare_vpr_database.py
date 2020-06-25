@@ -532,7 +532,7 @@ def process_connections(
             )
 
         # Add the connection
-        vpr_connections.append(Connection(src=eps[0], dst=eps[1]))
+        vpr_connections.append(Connection(src=eps[0], dst=eps[1], is_direct=connection.is_direct))
 
     # Remap locations of connections that go to CLOCK pads. A physical
     # BIDIR+CLOCK tile is split into separate BIDIR and CLOCK tiles.
@@ -562,7 +562,7 @@ def process_connections(
             )
 
         # Modify the connection
-        vpr_connections[i] = Connection(src=eps[0], dst=eps[1])
+        vpr_connections[i] = Connection(src=eps[0], dst=eps[1], is_direct=connection.is_direct)
 
     # Find SFBIO connections, map their endpoints to SDIOMUX tiles
     # FIXME: This should be read from the techfine. Definition of the SDIOMUX
@@ -612,7 +612,7 @@ def process_connections(
             )
 
         # Modify the connection
-        vpr_connections[i] = Connection(src=eps[0], dst=eps[1])
+        vpr_connections[i] = Connection(src=eps[0], dst=eps[1], is_direct=connection.is_direct)
 
     # Find locations of "special" tiles
     special_tile_loc = {"ASSP": None}
@@ -646,7 +646,7 @@ def process_connections(
                 )
 
         # Modify the connection
-        vpr_connections[i] = Connection(src=eps[0], dst=eps[1])
+        vpr_connections[i] = Connection(src=eps[0], dst=eps[1], is_direct=connection.is_direct)
 
     # handle RAM and MULT locations
     ram_locations = {}
@@ -696,7 +696,7 @@ def process_connections(
             )
 
         # Modify the connection
-        vpr_connections[i] = Connection(src=eps[0], dst=eps[1])
+        vpr_connections[i] = Connection(src=eps[0], dst=eps[1], is_direct=connection.is_direct)
 
     # Handle QMUX connections. Instead of making them SWITCHBOX -> TILE convert
     # to SWITCHBOX -> CLOCK
@@ -736,7 +736,7 @@ def process_connections(
             )
 
         # Modify the connection
-        vpr_connections[i] = Connection(src=eps[0], dst=eps[1])
+        vpr_connections[i] = Connection(src=eps[0], dst=eps[1], is_direct=connection.is_direct)
 
     return vpr_connections
 
