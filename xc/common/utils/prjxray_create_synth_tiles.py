@@ -22,8 +22,10 @@ def map_tile_to_vpr_coord(conn, tile):
     # It is expected that this tile has only one logical location,
     # because why split a tile with no sites?
     c.execute(
-        "SELECT tile_pkey FROM tile_map WHERE phy_tile_pkey = ? AND tile_type_pkey != ?",
-        (phy_tile_pkey, null_tile_type_pkey)
+        """
+SELECT tile_pkey FROM tile_map INNER JOIN phy_tile ON tile_map.phy_tile_pkey = phy_tile.pkey
+WHERE phy_tile_pkey = ? AND tile_type_pkey != ?
+        """, (phy_tile_pkey, null_tile_type_pkey)
     )
     mapped_tiles = c.fetchall()
     assert len(mapped_tiles) == 1, tile
