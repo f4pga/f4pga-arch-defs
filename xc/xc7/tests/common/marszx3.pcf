@@ -1,0 +1,9 @@
+# Mars-ZX3 33 MHz CLK
+set_io clk Y6
+
+# Outputs: led[3:0]
+set_io led[0] H18
+set_io led[1] AA14
+set_io led[2] AA13
+set_io led[3] AB15
+

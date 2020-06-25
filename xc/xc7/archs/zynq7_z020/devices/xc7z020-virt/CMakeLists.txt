@@ -1,5 +1,5 @@
 add_xc_device_define_type(
-  ARCH zynq7
+  ARCH zynq7_z020
   DEVICE xc7z020
   TILE_TYPES
     CLBLL_L
@@ -18,6 +18,7 @@ add_xc_device_define_type(
     CMT_TOP_L_UPPER_T
     CMT_TOP_R_UPPER_T
     HCLK_IOI3
+    PSS2
   PB_TYPES
     SLICEL
     SLICEM
@@ -25,8 +26,8 @@ add_xc_device_define_type(
     IOPAD
     IOPAD_M
     IOPAD_S
-    CLK_BUFG_BOT_R
-    CLK_BUFG_TOP_R
+    BUFGCTRL
     PLLE2_ADV
     HCLK_IOI3
+    PSS2
 )

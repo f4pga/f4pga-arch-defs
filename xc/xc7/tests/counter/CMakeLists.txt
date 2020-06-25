@@ -73,4 +73,46 @@ add_vivado_target(
     PARENT_NAME counter_nexys_video
     CLOCK_PINS clk
     CLOCK_PERIODS 10.0
-    )
+)
+
+#add_file_target(FILE counter_zedboard.v SCANNER_TYPE verilog)
+#add_fpga_target(
+#  NAME counter_zedboard
+#  BOARD zedboard-full
+#  SOURCES counter_zedboard.v
+#  INPUT_IO_FILE ../common/zedboard.pcf
+#  EXPLICIT_ADD_FILE_TARGET
+#)
+
+#add_vivado_target(
+#  NAME counter_zedboard_vivado
+#  PARENT_NAME counter_zedboard
+#)
+
+#add_file_target(FILE counter_microzed.v SCANNER_TYPE verilog)
+
+#add_fpga_target(
+#  NAME counter_microzed
+#  BOARD microzed-full
+#  SOURCES counter_microzed.v
+#  EXPLICIT_ADD_FILE_TARGET
+#)
+
+#add_vivado_target(
+#  NAME counter_microzed_vivado
+#  PARENT_NAME counter_microzed
+#)
+
+add_file_target(FILE counter_pynqz1.v SCANNER_TYPE verilog)
+add_fpga_target(
+  NAME counter_pynqz1
+  BOARD pynqz1-full
+  SOURCES counter_pynqz1.v
+  INPUT_IO_FILE ../common/pynqz1.pcf
+  EXPLICIT_ADD_FILE_TARGET
+)
+
+add_vivado_target(
+  NAME counter_pynqz1_vivado
+  PARENT_NAME counter_pynqz1
+)

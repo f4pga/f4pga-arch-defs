@@ -1,0 +1,22 @@
+# Zedboard 125 MHz CLK
+set_io clk Y9
+
+# Outputs: led[7:0]
+set_io led[0] T22
+set_io led[1] T21
+set_io led[2] U22
+set_io led[3] U21
+set_io led[4] V22
+set_io led[5] W22
+set_io led[6] U19
+set_io led[7] U14
+
+# Inputs: sw[7:0]
+set_io sw[0] F22
+set_io sw[1] G22
+set_io sw[2] H22
+set_io sw[3] F21
+set_io sw[4] H19
+set_io sw[5] H18
+set_io sw[6] H17
+set_io sw[7] M15
