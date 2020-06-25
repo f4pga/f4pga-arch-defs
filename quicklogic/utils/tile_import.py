@@ -188,7 +188,7 @@ def make_top_level_tile(tile_type, sub_tiles, tile_types, equivalent_tiles=None)
             )
 
             # Same type, map one-to-one
-            if tile_type.upper() == site_type.upper():
+            if tile_type.upper() == site_type.upper() or site_pinmap is None:
 
                 all_pins = {
                     **tile_pinlists["clock"],

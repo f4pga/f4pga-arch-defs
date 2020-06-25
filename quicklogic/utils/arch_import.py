@@ -399,9 +399,6 @@ def main():
         switches = db["switches"]
         connections = db["connections"]
 
-    # TODO: Do not support equivalent sites for tiles now
-    assert len(vpr_equivalent_sites) == 0, "Equivalent sites not supported yet!"
-
     # Flatten the VPR tilegrid
     flat_tile_grid = dict()
     for vpr_loc, tile in vpr_tile_grid.items():
