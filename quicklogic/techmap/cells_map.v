@@ -142,14 +142,60 @@ module ckpad(output Q, input P);
   parameter IO_LOC  = "";
   parameter IO_TYPE = "";
 
-  CLOCK_CELL  _TECHMAP_REPLACE_ (
-  .I_PAD(P),
-  .O_CLK(Q)
-  );
+  // If the IO_TYPE is not set or it is set to CLOCK map the ckpad to a CLOCK
+  // cell.
+  generate if (IO_TYPE == "" || IO_TYPE == "CLOCK") begin
+
+      CLOCK_CELL  _TECHMAP_REPLACE_ (
+      .I_PAD(P),
+      .O_CLK(Q)
+      );
+
+  // Otherwise make it an inpad cell that gets mapped to BIDIR or SDIOMUX
+  end else begin
+
+      inpad #(
+      .IO_PAD(IO_PAD),
+      .IO_LOC(IO_LOC),
+      .IO_TYPE(IO_TYPE)
+      ) _TECHMAP_REPLACE_ (
+      .Q(Q),
+      .P(P)
+      );
+
+  end endgenerate
 
 endmodule
 
 // ============================================================================
+
+module qhsckibuff(input A, output Z);
+
+  // The qhsckibuff is used to reach the global clock network from the regular
+  // routing network. The clock gets inverted.
+
+  wire AI;
+  inv inv (.A(A), .Q(AI));
+
+  GMUX_IC gmux (
+  .IC  (AI),
+  .IZ  (Z),
+  .IS0 (1'b1)
+  );
+
+endmodule
+
+module qhsckbuff(input A, output Z);
+
+  // The qhsckbuff is used to reach the global clock network from the regular
+  // routing network.
+  GMUX_IC _TECHMAP_REPLACE_ (
+  .IC  (A),
+  .IZ  (Z),
+  .IS0 (1'b1)
+  );
+
+endmodule
 
 module gclkbuff(input A, output Z);
 
@@ -162,6 +208,8 @@ module gclkbuff(input A, output Z);
   );
 
 endmodule
+
+// ============================================================================
 
 module C_FRAG (TBS, TAB, TSL, TA1, TA2, TB1, TB2, BAB, BSL, BA1, BA2, BB1, BB2, TZ, CZ);
     input  wire TBS;
@@ -182,6 +230,9 @@ module C_FRAG (TBS, TAB, TSL, TA1, TA2, TB1, TB2, BAB, BSL, BA1, BA2, BB1, BB2, 
 
     output wire TZ;
     output wire CZ;
+
+    // FIXME: There is no guarantee that VPR will pack these together into one
+    // LOGIC
     T_FRAG t_frag (
         .TBS(TBS),
         .XAB(TAB),
@@ -204,6 +255,7 @@ module C_FRAG (TBS, TAB, TSL, TA1, TA2, TB1, TB2, BAB, BSL, BA1, BA2, BB1, BB2, 
     );
 
 endmodule
+
 // ============================================================================
 // logic_cell_macro
 
