@@ -209,6 +209,18 @@ module gclkbuff(input A, output Z);
 
 endmodule
 
+module GMUX_PROXY(input IP, output IZ);
+
+  // Map to the GMUX variant for the CLOCK -> GMUX connection. Connect the
+  // select input to VCC.
+  GMUX_IP _TECHMAP_REPLACE_ (
+  .IP  (IP),
+  .IZ  (IZ),
+  .IS0 (1'b1)
+  );
+
+endmodule
+
 // ============================================================================
 
 module C_FRAG (TBS, TAB, TSL, TA1, TA2, TB1, TB2, BAB, BSL, BA1, BA2, BB1, BB2, TZ, CZ);
