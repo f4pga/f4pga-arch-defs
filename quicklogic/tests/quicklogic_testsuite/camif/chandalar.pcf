@@ -1,12 +1,12 @@
-set_io sys_rst_n   B1
-set_io pixelclk    C1
+set_io sys_rst_n   A3
+set_io pixelclk    C4
 set_io frame_valid A1
 set_io line_valid  A2
-set_io gpmc_clk    B2
+set_io gpmc_clk    G7
 set_io gpmc_csn    C3
 set_io gpmc_oen    B3
-set_io gpmc_wen    A3
-set_io gpmc_advn   C4
+set_io gpmc_wen    B1
+set_io gpmc_advn   C1
 set_io gpmc_intr   B4
 
 set_io apt_din(0)  A4
@@ -22,7 +22,7 @@ set_io apt_din(9)  H8
 
 set_io gpmc_ad(0)   G8
 set_io gpmc_ad(1)   H7
-set_io gpmc_ad(2)   G7
+set_io gpmc_ad(2)   B2
 set_io gpmc_ad(3)   H6
 set_io gpmc_ad(4)   G6
 set_io gpmc_ad(5)   F7

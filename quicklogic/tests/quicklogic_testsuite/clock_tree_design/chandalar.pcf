@@ -1,13 +1,13 @@
-set_io clk(0) B1
-set_io clk(1) C1
-set_io clk(2) A1
-set_io clk(3) A2
+set_io clk(0) A3
+set_io clk(1) C4
+set_io clk(2) G7
+set_io clk(3) H6
 
-set_io clr_n  B2
+set_io clr_n  G6
 set_io t  C3
 
-set_io sel(0) B3
-set_io sel(1) A3
+set_io sel(0) B1
+set_io sel(1) F5
 
 set_io mux_out(0) B4
 set_io mux_out(1) A4
@@ -22,9 +22,9 @@ set_io mux_out(9) E8
 set_io mux_out(10) H8
 set_io mux_out(11) G8
 set_io mux_out(12) H7
-set_io mux_out(13) G7
-set_io mux_out(14) H6
-set_io mux_out(15) G6
+set_io mux_out(13) A1
+set_io mux_out(14) A2
+set_io mux_out(15) B2
 set_io mux_out(16) F7
 set_io mux_out(17) F6
 set_io mux_out(18) H5
