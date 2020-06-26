@@ -367,6 +367,87 @@ module inv (
 endmodule
 
 // ============================================================================
+// Multiplexers
+
+module mux4x0 (
+    output Q,
+    input  S0,
+    input  S1,
+    input  A,
+    input  B,
+    input  C,
+    input  D
+);
+
+  // T_FRAG to be packed either into T_FRAG or B_FRAG.
+  T_FRAG # (
+  .XAS1(1'b0),
+  .XAS2(1'b0),
+  .XBS1(1'b0),
+  .XBS2(1'b0)
+  )
+  t_frag (
+  .TBS(1'b1), // Always route to const1
+  .XAB(S1),
+  .XSL(S0),
+  .XA1(A),
+  .XA2(B),
+  .XB1(C),
+  .XB2(D),
+  .XZ (O)
+  );
+
+endmodule
+
+module mux8x0 (
+    output Q,
+    input  S0,
+    input  S1,
+    input  S2,
+    input  A,
+    input  B,
+    input  C,
+    input  D,
+    input  E,
+    input  F,
+    input  G,
+    input  H
+);
+
+  // Split into 2x mux4x0 plus a F_FRAG
+
+  wire q0, q1;
+
+  mux4x0 mux_0 (
+  .A (A),
+  .B (B),
+  .C (C),
+  .D (D),
+  .S0(S0),
+  .S1(S1),
+  .Q (q0)
+  );
+
+  mux4x0 mux_1 (
+  .A (E),
+  .B (F),
+  .C (G),
+  .D (H),
+  .S0(S0),
+  .S1(S1),
+  .Q (q1)
+  );
+
+  F_FRAG f_frag (
+  .F1(q0),
+  .F2(q1),
+  .FS(S2),
+  .FZ(Q)
+  );
+
+endmodule
+
+// ============================================================================
 // LUTs
 
 module LUT1 (
@@ -528,64 +609,6 @@ module LUT4 (
     .FS(I3),
     .FZ(O)
   );
-
-endmodule
-
-module mux8x0 (
-  output Q,
-  input S0,
-  input S1,
-  input S2,
-  input A,
-  input B,
-  input C,
-  input D,
-  input E,
-  input F,
-  input G,
-  input H
-);
-
-  C_FRAG c_frag (
-    .TBS(S2),
-    .TAB(S1),
-    .TSL(S0),
-    .TA1(A),
-    .TA2(B),
-    .TB1(C),
-    .TB2(D),
-    .BAB(S1),
-    .BSL(S0),
-    .BA1(E),
-    .BA2(F),
-    .BB1(G),
-    .BB2(H),
-    .TZ(),
-    .CZ(Q)
-);
-
-endmodule
-
-module mux4x0 (
-  output Q,
-  input S0,
-  input S1,
-  input A,
-  input B,
-  input C,
-  input D
-);
- // T_FRAG can be mapped to T or B frag
- T_FRAG t_frag (
-  .TBS(1'b1),
-  .XAB(S1),
-  .XSL(S0),
-  .XA1(A),
-  .XA2(B),
-  .XB1(C),
-  .XB2(D),
-  .XZ(Q)
-);
 
 endmodule
 
