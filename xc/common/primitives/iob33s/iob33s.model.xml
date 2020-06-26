@@ -7,4 +7,14 @@
       <port name="OB"/>
     </output_ports>
   </model>
+  <model name="IOBUFDS_S_VPR">
+    <input_ports>
+      <port name="IB" combinational_sink_ports="IOPAD_$out"/>
+      <port name="IOPAD_$inp" combinational_sink_ports="OB"/>
+    </input_ports>
+    <output_ports>
+      <port name="OB"/>
+      <port name="IOPAD_$out"/>
+    </output_ports>
+  </model>
 </models>
