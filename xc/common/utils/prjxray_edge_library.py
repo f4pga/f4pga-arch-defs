@@ -2108,7 +2108,9 @@ def create_and_insert_edges(
             #
             # Issue tracking fix:
             # https://github.com/SymbiFlow/symbiflow-arch-defs/issues/1033
-            if 'PADOUT0' in pip.name or 'PADOUT1' in pip.name:
+            if 'PADOUT0' in pip.name and 'DIFFI_IN1' not in pip.name:
+                continue
+            if 'PADOUT1' in pip.name and 'DIFFI_IN0' not in pip.name:
                 continue
 
             # These edges are used for bringing general interconnect to the

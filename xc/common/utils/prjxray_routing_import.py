@@ -360,6 +360,21 @@ def check_feature(feature):
        feature_path[1] == "IOB_DIFFO_IN1":
         return '{}.OUT_DIFF'.format(feature_path[0])
 
+    # IOB_PADOUT0->IOB_DIFFI_IN1
+    # IOB_PADOUT1->IOB_DIFFI_IN0
+    #
+    # These connections are hard wires that connect IOB33M and IOB33S sites.
+    # They are used in differential input mode.
+    #
+    # Vivado does not report this connection as a PIP but in the prjxray db it
+    # is a pip. Instead of making it a pseudo-pip we simply reject fasm
+    # features here.
+    if feature_path[2] == "IOB_PADOUT0" and feature_path[1] == "IOB_DIFFI_IN1":
+        return ''
+    if feature_path[2] == "IOB_PADOUT1" and feature_path[1] == "IOB_DIFFI_IN0":
+        return ''
+
+    # REBUF stuff
     rebuf_key = (feature_path[0], feature_path[1])
     if rebuf_key in REBUF_SOURCES:
         return ' '.join([feature] + REBUF_NODES[REBUF_SOURCES[rebuf_key]])
@@ -1032,10 +1047,14 @@ FROM
             sink_node = node_mapping[dest_graph_node]
 
             if pip_name is not None:
-                yield (
-                    src_node, sink_node, switch_id,
-                    (('fasm_features', check_feature(pip_name)), )
-                )
+                feature = check_feature(pip_name)
+                if feature:
+                    yield (
+                        src_node, sink_node, switch_id,
+                        (('fasm_features', feature), )
+                    )
+                else:
+                    yield (src_node, sink_node, switch_id, ())
             else:
                 yield (src_node, sink_node, switch_id, ())
 
