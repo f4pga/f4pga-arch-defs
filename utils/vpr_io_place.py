@@ -122,7 +122,7 @@ class IoPlace(object):
 
             # Both parts of the net should point to the same block
             assert len(block_names) == 1, (net_name, block_names)
-            return self.block_to_inst[list(block_name)[0]]
+            return self.block_to_inst[list(block_names)[0]]
 
         # A regular net
         else:
