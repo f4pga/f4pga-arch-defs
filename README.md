@@ -6,7 +6,7 @@ This repo contains documentation of various FPGA architectures, it is currently
 concentrating on;
 
  * [Lattice iCE40](ice40)
- * [Xilinx Series 7 (Artix 7 and Zynq 7)](xc7)
+ * [Xilinx Series 7 (Artix 7 and Zynq 7)](xc/xc7)
 
 The aim is to include useful documentation (both human and machine readable) on
 the primitives and routing infrastructure for these architectures. We hope this
