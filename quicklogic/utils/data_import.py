@@ -20,18 +20,22 @@ from connections import hop_to_str, get_name_and_hop, is_regular_hop_wire
 
 # =============================================================================
 
-# A List of cells and their pins which are clocks
+# A List of cells and their pins which are clocks. These are relevant only for
+# cells modeled as pb_types in VPR and are used to determine whether an input
+# pin should be of type "input"/"output" or "clock".
 CLOCK_PINS = {
     "LOGIC": ("QCK", ),
-    "CLOCK": ("OP", ),
+    "CLOCK": ("IC", ),
     "GMUX": (
         "IP",
+        "IC",
         "IZ",
     ),
-    "QMUX": (
-        "QCLKIN0",
-        "HSCKIN",
-        "IZ",
+    "RAM": (
+        "CLK1_0",
+        "CLK1_1",
+        "CLK2_0",
+        "CLK2_1",
     ),
 }
 
