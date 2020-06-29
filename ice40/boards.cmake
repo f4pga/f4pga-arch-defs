@@ -66,6 +66,8 @@ define_ice40_board(
   PACKAGE sg48
 )
 
+get_target_property_required(TINYFPGAB env TINYFPGAB)
+
 # TinyFPGA B2
 # iCE40-LP8K-CM81
 # ---------------------------------------------
@@ -73,7 +75,6 @@ define_ice40_board(
   BOARD tinyfpga-b2
   DEVICE lp8k
   PACKAGE cm81
-  PROG_TOOL ${TINYFPGAB_TARGET}
   PROG_CMD "${TINYFPGAB} --program \${OUT_BIN}"
 )
 
@@ -86,7 +87,6 @@ define_ice40_board(
   BOARD tinyfpga-bx
   DEVICE lp8k
   PACKAGE cm81
-  PROG_TOOL ${TINYPROG_TARGET}
   PROG_CMD "${TINYPROG} -p \${OUT_BIN}"
 )
 

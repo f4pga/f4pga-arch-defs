@@ -75,7 +75,7 @@ function(XML_CANONICALIZE_MERGE)
     OUTPUT ${XML_CANONICALIZE_MERGE_OUTPUT}
     DEPENDS
       ${DEPS}
-      ${PYTHON3} ${PYTHON3_TARGET}
+      ${PYTHON3}
     COMMAND
       PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/third_party/vtr-xml-utils/:${PYTHONPATH}
       ${PYTHON3} -m vtr_xml_utils
