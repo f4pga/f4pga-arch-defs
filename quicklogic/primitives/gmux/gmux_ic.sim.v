@@ -9,6 +9,10 @@ module GMUX_IC (IC, IS0, IZ);
     (* DELAY_CONST_IS0="1e-10" *)  // No timing for the select pin
     (* clkbuf_driver *)
     output wire IZ;
+	
+    specify
+        (IC => IZ) = "";
+    endspecify
 
     assign IZ = IS0 ? IC : 1'bx;
 

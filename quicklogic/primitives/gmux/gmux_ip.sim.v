@@ -12,6 +12,11 @@ module GMUX_IP (IP, IC, IS0, IZ);
     (* clkbuf_driver *)
     output wire IZ;
 
+    specify
+        (IP => IZ) = "";
+		(IC => IZ) = "";
+    endspecify
+
     assign IZ = IS0 ? IC : IP;
 
 endmodule
