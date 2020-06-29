@@ -124,6 +124,22 @@ RAM_2X1_NON_ROUTABLE_PORTS = {
     ]
 }
 
+# A list of non-routable ports
+RAM_2X1_COMMON_PORTS = [
+    "DS",
+    "DS_RB1",
+    "LS",
+    "LS_RB1",
+    "SD",
+    "SD_RB1",
+    "RMA",
+    "RMB",
+    "RMEA",
+    "RMEB",
+    "TEST1A",
+    "TEST1B",
+]
+
 # A list of ports relevant only in RAM mode
 RAM_PORTS = [
     "WEN1",
@@ -854,8 +870,59 @@ def make_ports(ports, separator=",\n"):
 
     return verilog
 
+def make_ram2x1_instance(ports, separator=",\n"):
+    verilog = ""
 
-def make_blackbox(name, ports):
+    verilog += "\n   ram8k_2x1_cell I1 ( \n"
+    
+    for key in ["clock", "input", "output"]:
+        for name, width, assoc_clock in ports[key]:
+            if name not in RAM_2X1_COMMON_PORTS:
+                if name.endswith("_0") or name.endswith("_1"):
+                    verilog += "      .{}({}){}".format(name, name, separator)
+                else: 
+                    verilog += "      .{}_0({}){}".format(name, name, separator)       
+      
+    verilog  = verilog[:-2] + ");\n\n"
+    
+    return verilog
+
+def make_specify(ports, separator=";\n"):
+    verilog = ""
+
+    verilog += "\n  specify\n"
+    for key in ["clock", "input", "output"]:
+        if key == "clock":
+            type = "input"
+        else:
+            type = key
+
+        for name, width, assoc_clock in ports[key]:
+            if key == "input":
+                if assoc_clock != None:
+                    verilog += "      $setup({}, posedge {}, \"\"){}".format(
+                        name,
+                        assoc_clock,
+                        separator
+                    )
+                    verilog += "      $hold(posedge {}, {}, \"\"){}".format(
+                        assoc_clock,
+                        name,
+                        separator
+                    )
+            elif key == "output":
+                if assoc_clock != None:
+                    verilog += "      ({}*>{})=\"\"{}".format(
+                        assoc_clock,
+                        name,
+                        separator
+                    )
+    
+    verilog += "  endspecify\n\n"
+
+    return verilog
+
+def make_blackbox(name, ports, specify_ports):
 
     # Header
     verilog = """
@@ -866,9 +933,15 @@ module {} (
     # Ports
     verilog += make_ports(ports)
     verilog  = verilog[:-2] + "\n"
-
-    # Footer
     verilog += ");\n"
+    
+    #Specify
+    verilog += make_specify(specify_ports)
+    
+    #RAM2x1 cell instance
+    verilog += make_ram2x1_instance(ports)
+
+    # Footer    
     verilog += "endmodule\n"
 
     return verilog
@@ -1254,7 +1327,15 @@ def main():
                 ports = remap_clocks(ram_ports_sing, FIFO_CLOCK_MAP)
             else:
                 ports = ram_ports_sing
-            verilog = make_blackbox(model_name, ports)
+                
+            if "FIFO_EN=0" in cond:
+                    model_ports = filter_ports(ram_ports_sing, FIFO_PORTS)                
+            else:
+                    model_ports = filter_ports(ram_ports_sing, RAM_PORTS)
+                    if "DIR=1" in cond:
+                        model_ports = remap_clocks(model_ports, FIFO_CLOCK_MAP)
+                        
+            verilog = make_blackbox(model_name, ports, model_ports)
             blackboxes[model_name] = verilog
 
         # CONCAT_EN=1 - keep the 2x1 RAM as one
@@ -1263,7 +1344,15 @@ def main():
                 ports = remap_clocks(RAM_2X1_PORTS, FIFO_CLOCK_MAP)
             else:
                 ports = RAM_2X1_PORTS
-            verilog = make_blackbox(model_name, ports)
+            
+            if "FIFO_EN=0" in cond:
+                    model_ports = filter_ports(RAM_2X1_PORTS, FIFO_PORTS)
+            else:
+                    model_ports = filter_ports(RAM_2X1_PORTS, RAM_PORTS)
+                    if "DIR=1" in cond:
+                        model_ports = remap_clocks(model_ports, FIFO_CLOCK_MAP)
+
+            verilog = make_blackbox(model_name, ports, model_ports)
             blackboxes[model_name] = verilog
 
     # Write blackbox definitions
