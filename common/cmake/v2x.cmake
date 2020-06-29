@@ -34,15 +34,10 @@ function(V2X)
   set(MODEL_INCLUDE_FILES "")
   set(PB_TYPE_INCLUDE_FILES "")
   get_target_property_required(PYTHON3 env PYTHON3)
-  get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
-  list(APPEND DEPENDS_LIST ${PYTHON3} ${PYTHON3_TARGET})
+  list(APPEND DEPENDS_LIST ${PYTHON3})
 
   get_target_property_required(YOSYS env YOSYS)
-  get_target_property(YOSYS_TARGET env YOSYS_TARGET)
-  list(APPEND DEPENDS_LIST ${YOSYS} ${YOSYS_TARGET})
-
-  get_target_property(V2X_TARGET env V2X_TARGET)
-  list(APPEND DEPENDS_LIST ${V2X_TARGET})
+  list(APPEND DEPENDS_LIST ${YOSYS})
 
   set(V2X_DIR ${symbiflow-arch-defs_SOURCE_DIR}/third_party/python-symbiflow-v2x)
 
@@ -156,10 +151,7 @@ function(VPR_TEST_PB_TYPE)
   )
 
   get_target_property_required(PYTHON3 env PYTHON3)
-  get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
-
   get_target_property_required(XMLLINT env XMLLINT)
-  get_target_property(XMLLINT_TARGET env XMLLINT_TARGET)
 
   set(DEPENDS_ARCH "")
   append_file_dependency(DEPENDS_ARCH "${symbiflow-arch-defs_SOURCE_DIR}/utils/template.arch.xml")
@@ -168,8 +160,8 @@ function(VPR_TEST_PB_TYPE)
   add_custom_command(
     OUTPUT "${VPR_TEST_PB_TYPE_NAME}.arch.xml"
     DEPENDS
-      ${PYTHON3} ${PYTHON3_TARGET}
-      ${XMLLINT} ${XMLLINT_TARGET}
+      ${PYTHON3}
+      ${XMLLINT}
       ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_pbtype_arch_wrapper.py
       ${DEPENDS_ARCH}
     COMMAND
@@ -191,11 +183,10 @@ function(VPR_TEST_PB_TYPE)
   set(YOSYS_OUTPUT_BLIF "${VPR_TEST_PB_TYPE_NAME}.test.eblif")
 
   get_target_property_required(YOSYS env YOSYS)
-  get_target_property(YOSYS_TARGET env YOSYS_TARGET)
   add_custom_command(
     OUTPUT "${YOSYS_OUTPUT_BLIF}"
     DEPENDS
-      ${YOSYS} ${YOSYS_TARGET}
+      ${YOSYS}
       ${DEPENDS_EBLIF} ${TECHMAP_DEP}
     COMMAND
     ${YOSYS} -p "read_verilog ${PB_TYPE_VERILOG}\; hierarchy -top ${VPR_TEST_PB_TYPE_TOP_MODULE}\; techmap -map ${PB_TYPE_TECHMAP}\; flatten\; proc\; opt\; write_blif ${YOSYS_OUTPUT_BLIF}"
@@ -220,7 +211,7 @@ function(VPR_TEST_PB_TYPE)
   add_custom_command(
     OUTPUT "${ARCH_TILES_XML}"
     DEPENDS
-      ${PYTHON3} ${PYTHON3_TARGET}
+      ${PYTHON3}
       ${ARCH_MERGED_XML}
       ${update_arch_tiles_py}
     COMMAND
@@ -232,9 +223,7 @@ function(VPR_TEST_PB_TYPE)
   update_arch_timings(INPUT ${ARCH_TILES_XML} OUTPUT ${ARCH_TIMINGS_XML})
 
   get_target_property_required(VPR env VPR)
-  get_target_property(VPR_TARGET env VPR_TARGET)
   get_target_property_required(QUIET_CMD env QUIET_CMD)
-  get_target_property(QUIET_CMD_TARGET env QUIET_CMD_TARGET)
   set(OUT_LOCAL_REL test_${VPR_TEST_PB_TYPE_NAME})
   set(OUT_LOCAL ${CMAKE_CURRENT_BINARY_DIR}/${OUT_LOCAL_REL})
 
@@ -245,8 +234,8 @@ function(VPR_TEST_PB_TYPE)
     OUTPUT
       ${OUT_LOCAL_REL}/vpr.stdout
     DEPENDS
-      ${QUIET_CMD} ${QUIET_CMD_TARGET}
-      ${VPR} ${VPR_TARGET}
+      ${QUIET_CMD}
+      ${VPR}
       ${DEPENDS_TEST}
     COMMAND
       ${CMAKE_COMMAND} -E make_directory ${OUT_LOCAL}

@@ -7,7 +7,7 @@ function(icestorm_setup)
   set(FASM2ASC ${symbiflow-arch-defs_SOURCE_DIR}/ice40/utils/fasm_icebox/fasm2asc.py)
   add_custom_target(
     fasm2asc_deps
-    DEPENDS ${FASM2ASC_DEPS} ${FASM_TARGET} ${FASM2ASC} ${PYTHON3}
+    DEPENDS ${FASM2ASC_DEPS} ${FASM2ASC} ${PYTHON3}
     )
 
   add_custom_target(
@@ -24,11 +24,6 @@ function(icestorm_setup)
   get_target_property_required(ICEPACK env ICEPACK)
   get_target_property_required(ICETIME env ICETIME)
   get_target_property_required(ICEBOX_HLC2ASC env ICEBOX_HLC2ASC)
-
-  get_target_property(ICEBOX_VLOG_TARGET env ICEBOX_VLOG_TARGET)
-  get_target_property(ICEPACK_TARGET env ICEPACK_TARGET)
-  get_target_property(ICETIME_TARGET env ICETIME_TARGET)
-  get_target_property(ICEBOX_HLC2ASC_TARGET env ICEBOX_HLC2ASC_TARGET)
 
   get_filename_component(ICEBOX_PATH ${ICEBOX_VLOG} DIRECTORY)
   set(ICEBOX_SHARE ${ICEBOX_PATH}/../share/icebox CACHE PATH "")
@@ -64,12 +59,12 @@ function(icestorm_setup)
     --blif \${OUT_EBLIF} \
     --pcf \${INPUT_IO_FILE}"
     CELLS_SIM ${CELLS_SIM}
-    BIT_TO_V ${ICEBOX_VLOG_TARGET}
+    BIT_TO_V ${ICEBOX_VLOG}
     BIT_TO_V_CMD "${ICEBOX_VLOG} -D -c -n \${TOP} -p \${INPUT_IO_FILE} -d \${PACKAGE} \${OUT_BITSTREAM} > \${OUT_BIT_VERILOG}"
     BITSTREAM_EXTENSION asc
-    BIT_TO_BIN ${ICEPACK_TARGET}
+    BIT_TO_BIN ${ICEPACK}
     BIT_TO_BIN_CMD "${ICEPACK} \${OUT_BITSTREAM} > \${OUT_BIN}"
-    BIT_TIME ${ICETIME_TARGET}
+    BIT_TIME ${ICETIME}
     BIN_EXTENSION bin
     BIT_TIME_CMD "${ICETIME} -v -t -p \${INPUT_IO_FILE} -d \${DEVICE} \${OUT_BITSTREAM} -o \${OUT_TIME_VERILOG}"
     FASM_TO_BIT fasm2asc_deps

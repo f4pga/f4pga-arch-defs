@@ -5,7 +5,6 @@ add_file_target(FILE basys3.pcf)
 add_file_target(FILE basys3.sdc)
 
 get_target_property_required(PYTHON3 env PYTHON3)
-get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
 
 # Generate ROM veilog modules with different styles of implementation
 set(ROM_FILE_BRAM rom_bram.v)
@@ -19,19 +18,19 @@ add_file_target(FILE ${ROM_FILE_DRAM} GENERATED)
 add_custom_command(
     OUTPUT ${ROM_FILE_BRAM}
     COMMAND ${PYTHON3} ${CMAKE_CURRENT_SOURCE_DIR}/utils/rom_generator.py --rom-style bram >${ROM_FILE_BRAM}
-    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/utils/rom_generator.py ${PYTHON3} ${PYTHON3_TARGET}
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/utils/rom_generator.py ${PYTHON3}
 )
 
 add_custom_command(
     OUTPUT ${ROM_FILE_BRAM36}
     COMMAND ${PYTHON3} ${CMAKE_CURRENT_SOURCE_DIR}/utils/rom_generator.py --rom-style bram36 >${ROM_FILE_BRAM36}
-    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/utils/rom_generator.py ${PYTHON3} ${PYTHON3_TARGET}
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/utils/rom_generator.py ${PYTHON3}
 )
 
 add_custom_command(
     OUTPUT ${ROM_FILE_DRAM}
     COMMAND ${PYTHON3} ${CMAKE_CURRENT_SOURCE_DIR}/utils/rom_generator.py --rom-style dram64 >${ROM_FILE_DRAM}
-    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/utils/rom_generator.py ${PYTHON3} ${PYTHON3_TARGET}
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/utils/rom_generator.py ${PYTHON3}
 )
 
 if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
@@ -73,7 +72,7 @@ function(SCALABLE_PROC)
       DEPENDS
         ${CMAKE_CURRENT_SOURCE_DIR}/parametrize.py
         ${CMAKE_CURRENT_SOURCE_DIR}/${SCALABLE_PROC_TOP_FILE}
-        ${PYTHON3} ${PYTHON3_TARGET}
+        ${PYTHON3}
       )
 
    add_file_target(

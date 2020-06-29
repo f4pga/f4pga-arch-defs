@@ -2,7 +2,6 @@ add_file_target(FILE led.vmem)
 add_file_target(FILE pins_artya7.sdc)
 
 get_target_property_required(PYTHON3 env PYTHON3)
-get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
 
 add_fpga_target(
   NAME ibex_arty

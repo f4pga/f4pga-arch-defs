@@ -79,7 +79,6 @@ function(ADD_XC_BOARD)
   ")
 
   get_target_property_required(PYTHON3 env PYTHON3)
-  get_target_property_required(PYTHON3_TARGET env PYTHON3_TARGET)
 
   if(${USE_ROI})
     get_target_property_required(ROI_DIR ${DEVICE_TYPE} ROI_DIR)
@@ -101,7 +100,7 @@ function(ADD_XC_BOARD)
     set(SYNTH_TILES_TO_PINMAP_CSV ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/prjxray_synth_tiles_to_pinmap_csv.py)
     set(PINMAP_CSV ${BOARD}_synth_tiles_pinmap.csv)
 
-    set(PINMAP_CSV_DEPS ${PYTHON3} ${PYTHON3_TARGET} ${SYNTH_TILES_TO_PINMAP_CSV})
+    set(PINMAP_CSV_DEPS ${PYTHON3} ${SYNTH_TILES_TO_PINMAP_CSV})
     append_file_dependency(PINMAP_CSV_DEPS ${SYNTH_TILES})
     add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
@@ -125,7 +124,7 @@ function(ADD_XC_BOARD)
 
     set(CREATE_PINMAP_CSV ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/prjxray_create_pinmap_csv.py)
     set(PINMAP_CSV ${BOARD}_pinmap.csv)
-    set(PINMAP_CSV_DEPS ${PYTHON3} ${PYTHON3_TARGET} ${CREATE_PINMAP_CSV})
+    set(PINMAP_CSV_DEPS ${PYTHON3} ${CREATE_PINMAP_CSV})
     append_file_dependency(PINMAP_CSV_DEPS ${CHANNELS_DB})
 
     add_custom_command(

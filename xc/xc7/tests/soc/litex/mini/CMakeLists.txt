@@ -2,9 +2,6 @@ add_file_target(FILE mem.init)
 add_file_target(FILE mem_1.init)
 add_file_target(FILE mem_2.init)
 
-get_target_property_required(PYTHON3 env PYTHON3)
-get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
-
 add_fpga_target(
   NAME minilitex_arty
   BOARD arty-full
