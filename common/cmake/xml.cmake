@@ -18,13 +18,12 @@ function(XML_LINT)
     )
 
   get_target_property_required(XMLLINT env XMLLINT)
-  get_target_property(XMLLINT_TARGET env XMLLINT_TARGET)
 
   # For xmllint we use head to shortcircuit failure as it can take a
   # very long time to output all of the errors
   add_custom_command(
     OUTPUT ${XML_LINT_LINT_OUTPUT}
-    DEPENDS ${XML_LINT_FILE} ${XML_LINT_SCHEMA} ${XMLLINT} ${XMLLINT_TARGET}
+    DEPENDS ${XML_LINT_FILE} ${XML_LINT_SCHEMA} ${XMLLINT}
     COMMAND bash -c
     '${XMLLINT}
     --output ${XML_LINT_LINT_OUTPUT}

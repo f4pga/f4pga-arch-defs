@@ -386,7 +386,6 @@ function(DEFINE_DEVICE_TYPE)
     OUTPUT ${DEVICE_MERGED_FILE}
   )
   get_target_property_required(PYTHON3 env PYTHON3)
-  get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
 
   append_file_dependency(SPECIALIZE_CARRYCHAINS_DEPS ${DEVICE_MERGED_FILE})
 
@@ -396,7 +395,7 @@ function(DEFINE_DEVICE_TYPE)
       COMMAND ${PYTHON3} ${SPECIALIZE_CARRYCHAINS}
       --input_arch_xml ${MERGE_XML_OUTPUT} > ${DEVICE_UNIQUE_PACK_FILE}
       DEPENDS
-        ${PYTHON3} ${PYTHON3_TARGET}
+        ${PYTHON3}
         ${SPECIALIZE_CARRYCHAINS}
         ${SPECIALIZE_CARRYCHAINS_DEPS}
   )
@@ -421,7 +420,7 @@ function(DEFINE_DEVICE_TYPE)
       separate_arguments(CMD_W_ARGS UNIX_COMMAND ${SCRIPT})
       list(GET CMD_W_ARGS 0 CMD)
       set(TEMP_TARGET arch.${OUTPUT_NAME}.xml)
-      set(DEFINE_DEVICE_DEPS ${PYTHON3} ${PYTHON3_TARGET} ${CMD} ${DEFINE_DEVICE_TYPE_SCRIPT_DEP_VAR})
+      set(DEFINE_DEVICE_DEPS ${PYTHON3} ${CMD} ${DEFINE_DEVICE_TYPE_SCRIPT_DEP_VAR})
       append_file_dependency(DEFINE_DEVICE_DEPS ${FINAL_OUTPUT})
 
       add_custom_command(
@@ -557,10 +556,8 @@ function(DEFINE_DEVICE)
   get_file_target(DEVICE_MERGED_FILE_TARGET ${VIRT_DEVICE_MERGED_FILE})
   get_file_location(DEVICE_MERGED_FILE ${VIRT_DEVICE_MERGED_FILE})
   get_target_property_required(VPR env VPR)
-  get_target_property(VPR_TARGET env VPR_TARGET)
   get_target_property_required(QUIET_CMD env QUIET_CMD)
   get_target_property_required(RR_GRAPH_EXT ${DEFINE_DEVICE_ARCH} RR_GRAPH_EXT)
-  get_target_property(QUIET_CMD_TARGET env QUIET_CMD_TARGET)
 
   set(ROUTING_SCHEMA ${symbiflow-arch-defs_SOURCE_DIR}/common/xml/routing_resource.xsd)
 
@@ -595,8 +592,8 @@ function(DEFINE_DEVICE)
       DEPENDS
         ${WIRE_EBLIF}
         ${DEVICE_MERGED_FILE} ${DEVICE_MERGED_FILE_TARGET}
-        ${QUIET_CMD} ${QUIET_CMD_TARGET}
-        ${VPR} ${VPR_TARGET} ${DEFINE_DEVICE_DEVICE_TYPE}
+        ${QUIET_CMD}
+        ${VPR} ${DEFINE_DEVICE_DEVICE_TYPE}
       COMMAND
         ${QUIET_CMD} ${VPR} ${DEVICE_MERGED_FILE}
         --device ${DEVICE_FULL}
@@ -693,10 +690,10 @@ function(DEFINE_DEVICE)
       OUTPUT ${OUT_RRXML_REAL}.cache ${OUTPUTS}
       DEPENDS
           ${WIRE_EBLIF}
-          ${VPR} ${VPR_TARGET}
-          ${QUIET_CMD} ${QUIET_CMD_TARGET}
+          ${VPR}
+          ${QUIET_CMD}
           ${DEFINE_DEVICE_DEVICE_TYPE}
-          ${DEPS} ${PYTHON3} ${PYTHON3_TARGET}
+          ${DEPS} ${PYTHON3}
       COMMAND
           ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/check_cache.py ${OUT_RRXML_REAL} ${OUT_RRXML_REAL}.cache ${OUTPUTS} || (
           ${QUIET_CMD} ${VPR} ${DEVICE_MERGED_FILE}
@@ -1018,9 +1015,7 @@ function(ADD_FPGA_TARGET)
   get_target_property_required(DEVICE_TYPE ${DEVICE} DEVICE_TYPE)
 
   get_target_property_required(YOSYS env YOSYS)
-  get_target_property(YOSYS_TARGET env YOSYS_TARGET)
   get_target_property_required(QUIET_CMD env QUIET_CMD)
-  get_target_property(QUIET_CMD_TARGET env QUIET_CMD_TARGET)
   get_target_property_required(YOSYS_SYNTH_SCRIPT ${ARCH} YOSYS_SYNTH_SCRIPT)
   get_target_property_required(YOSYS_CONV_SCRIPT ${ARCH} YOSYS_CONV_SCRIPT)
 
@@ -1148,7 +1143,7 @@ function(ADD_FPGA_TARGET)
     add_custom_command(
       OUTPUT ${OUT_JSON_SYNTH} ${OUT_SYNTH_V} ${OUT_FASM_EXTRA}
       DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS} ${INPUT_XDC_FILE} ${CELLS_SIM_DEPS}
-              ${YOSYS} ${YOSYS_TARGET} ${QUIET_CMD} ${QUIET_CMD_TARGET} ${YOSYS_IO_DEPS}
+              ${YOSYS} ${QUIET_CMD} ${YOSYS_IO_DEPS}
               ${YOSYS_SYNTH_SCRIPT}
       COMMAND
         ${CMAKE_COMMAND} -E make_directory ${OUT_LOCAL}
@@ -1177,7 +1172,7 @@ function(ADD_FPGA_TARGET)
 
     add_custom_command(
       OUTPUT ${OUT_JSON}
-      DEPENDS ${OUT_JSON_SYNTH} ${QUIET_CMD} ${QUIET_CMD_TARGET} ${SPLIT_INOUTS} ${PYTHON3} ${PYTHON3_TARGET} simplejson
+      DEPENDS ${OUT_JSON_SYNTH} ${QUIET_CMD} ${SPLIT_INOUTS} ${PYTHON3}
       COMMAND
         ${PYTHON3} ${SPLIT_INOUTS} -i ${OUT_JSON_SYNTH} -o ${OUT_JSON}
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
@@ -1187,7 +1182,7 @@ function(ADD_FPGA_TARGET)
     add_custom_command(
       OUTPUT ${OUT_EBLIF}
       DEPENDS ${OUT_JSON}
-              ${YOSYS} ${YOSYS_TARGET} ${QUIET_CMD} ${QUIET_CMD_TARGET}
+              ${YOSYS} ${QUIET_CMD}
               ${YOSYS_CONV_SCRIPT}
       COMMAND
         ${CMAKE_COMMAND} -E env
@@ -1234,7 +1229,6 @@ function(ADD_FPGA_TARGET)
   endforeach()
 
   get_target_property_required(VPR env VPR)
-  get_target_property(VPR_TARGET env VPR_TARGET)
 
   get_target_property_required(ROUTE_CHAN_WIDTH ${ARCH} ROUTE_CHAN_WIDTH)
 
@@ -1304,7 +1298,7 @@ function(ADD_FPGA_TARGET)
     list(APPEND VPR_CMD --read_placement_delay_lookup ${PLACE_DELAY_LOCATION})
   endif()
 
-  list(APPEND VPR_DEPS ${VPR} ${VPR_TARGET} ${QUIET_CMD} ${QUIET_CMD_TARGET})
+  list(APPEND VPR_DEPS ${VPR} ${QUIET_CMD})
   append_file_dependency(VPR_DEPS ${OUT_EBLIF_REL})
 
   # Generate packing.
@@ -1330,7 +1324,7 @@ function(ADD_FPGA_TARGET)
           COMMAND ${PYTHON3} ${USAGE_UTIL}
             --assert_usage ${ADD_FPGA_TARGET_ASSERT_USAGE}
             ${OUT_LOCAL}/pack.log
-          DEPENDS ${PYTHON3} ${PYTHON3_TARGET} ${USAGE_UTIL} ${OUT_LOCAL}/pack.log
+          DEPENDS ${PYTHON3} ${USAGE_UTIL} ${OUT_LOCAL}/pack.log
           )
   endif()
 
@@ -1489,7 +1483,6 @@ function(ADD_FPGA_TARGET)
 
   if(${USE_FASM})
     get_target_property_required(GENFASM env GENFASM)
-    get_target_property(GENFASM_TARGET env GENFASM_TARGET)
     set(
       GENFASM_CMD
       ${QUIET_CMD} ${GENFASM}
@@ -1503,7 +1496,6 @@ function(ADD_FPGA_TARGET)
     )
   else()
     get_target_property_required(GENHLC env GENHLC)
-    get_target_property(GENHLC_TARGET env GENHLC_TARGET)
     set(
       GENHLC_CMD
       ${QUIET_CMD} ${GENHLC}
@@ -1525,7 +1517,7 @@ function(ADD_FPGA_TARGET)
     set(OUT_FASM_GENFASM ${OUT_LOCAL}/${TOP}.genfasm.fasm)
     add_custom_command(
       OUTPUT ${OUT_FASM}
-      DEPENDS ${OUT_ROUTE} ${OUT_PLACE} ${VPR_DEPS} ${GENFASM_TARGET}
+      DEPENDS ${OUT_ROUTE} ${OUT_PLACE} ${VPR_DEPS}
       COMMAND ${GENFASM_CMD}
       COMMAND
         ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log
@@ -1546,7 +1538,7 @@ function(ADD_FPGA_TARGET)
     set(OUT_HLC ${OUT_LOCAL}/${TOP}.hlc)
     add_custom_command(
       OUTPUT ${OUT_HLC}
-      DEPENDS ${OUT_ROUTE} ${OUT_PLACE} ${VPR_DEPS} ${GENHLC_TARGET}
+      DEPENDS ${OUT_ROUTE} ${OUT_PLACE} ${VPR_DEPS}
       COMMAND ${GENHLC_CMD}
       COMMAND
         ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log
@@ -1885,9 +1877,7 @@ function(add_check_test)
   )
 
   get_target_property_required(YOSYS env YOSYS)
-  get_target_property(YOSYS_TARGET env YOSYS_TARGET)
   get_target_property_required(QUIET_CMD env QUIET_CMD)
-  get_target_property(QUIET_CMD_TARGET env QUIET_CMD_TARGET)
   set(EQUIV_CHECK_SCRIPT ${ADD_CHECK_TEST_EQUIV_CHECK_SCRIPT})
   if("${EQUIV_CHECK_SCRIPT}" STREQUAL "")
     message(FATAL_ERROR "EQUIV_CHECK_SCRIPT is not optional to add_check_test.")
@@ -1908,7 +1898,6 @@ function(add_check_test)
       ${EQUIV_CHECK_SCRIPT_TARGET}
       ${EQUIV_CHECK_SCRIPT_LOCATION}
       ${YOSYS}
-      ${YOSYS_TARGET}
     )
   add_test(
     NAME _test_${ADD_CHECK_TEST_NAME}_build
@@ -1932,11 +1921,10 @@ function(add_check_test)
     ${ADD_CHECK_TEST_NAME}
     COMMAND ${QUIET_CMD} ${YOSYS} -p "${ADD_CHECK_TEST_READ_GOLD} $<SEMICOLON> ${ADD_CHECK_TEST_READ_GATE} $<SEMICOLON> script ${EQUIV_CHECK_SCRIPT_LOCATION}" ${PATH_TO_CELLS_SIM}
     DEPENDS
-      ${QUIET_CMD} ${QUIET_CMD_TARGET}
+      ${QUIET_CMD}
       ${ADD_CHECK_TEST_DEPENDS} ${PATH_TO_CELLS_SIM}
       ${EQUIV_CHECK_SCRIPT_TARGET} ${EQUIV_CHECK_SCRIPT_LOCATION}
       ${YOSYS}
-      ${YOSYS_TARGET}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     VERBATIM
     )
@@ -1973,9 +1961,7 @@ function(add_testbench)
   )
 
   get_target_property(IVERILOG env IVERILOG)
-  get_target_property(IVERILOG_TARGET env IVERILOG_TARGET)
   get_target_property(VVP env VVP)
-  get_target_property(VVP_TARGET env VVP_TARGET)
   set(SOURCE_LOCATIONS "")
   set(FILE_DEPENDS "")
   foreach(SRC ${ADD_TESTBENCH_SOURCES})
@@ -1994,7 +1980,7 @@ function(add_testbench)
       -DCLK_MHZ=0.001 -o ${CMAKE_CURRENT_BINARY_DIR}/${NAME}.vpp
       ${PATH_TO_CELLS_SIM}
       ${SOURCE_LOCATIONS}
-      DEPENDS ${IVERILOG} ${IVERILOG_TARGET} ${FILE_DEPENDS}
+      DEPENDS ${IVERILOG} ${FILE_DEPENDS}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     VERBATIM
     )
@@ -2005,13 +1991,13 @@ function(add_testbench)
   add_custom_target(
     ${NAME}
     COMMAND ${VVP} -v -N ${NAME}.vpp
-    DEPENDS ${VVP} ${VVP_TARGET} ${NAME}.vpp
+    DEPENDS ${VVP} ${NAME}.vpp
     )
 
   add_custom_command(
     OUTPUT ${NAME}.vcd
     COMMAND ${VVP} -v -N ${NAME}.vpp
-    DEPENDS ${VVP} ${VVP_TARGET} ${NAME}.vpp
+    DEPENDS ${VVP} ${NAME}.vpp
     )
   add_custom_target(
     ${NAME}_view
@@ -2051,11 +2037,8 @@ function(generate_pinmap)
   )
 
   get_target_property_required(YOSYS env YOSYS)
-  get_target_property(YOSYS_TARGET env YOSYS_TARGET)
   get_target_property_required(PYTHON3 env PYTHON3)
-  get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
   get_target_property_required(QUIET_CMD env QUIET_CMD)
-  get_target_property(QUIET_CMD_TARGET env QUIET_CMD_TARGET)
 
   set(BOARD ${GENERATE_PINMAP_BOARD})
   get_target_property_required(DEVICE ${BOARD} DEVICE)
@@ -2077,8 +2060,8 @@ function(generate_pinmap)
     OUTPUT ${GENERATE_PINMAP_NAME}.json
     COMMAND ${QUIET_CMD} ${YOSYS} -p "write_json ${CMAKE_CURRENT_BINARY_DIR}/${GENERATE_PINMAP_NAME}.json" ${SOURCE_FILES}
     DEPENDS
-      ${QUIET_CMD} ${QUIET_CMD_TARGET}
-      ${YOSYS} ${YOSYS_TARGET}
+      ${QUIET_CMD}
+      ${YOSYS}
       ${SOURCE_FILES} ${SOURCE_FILES_DEPS}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     )
@@ -2090,7 +2073,7 @@ function(generate_pinmap)
       --pinmap_csv ${PINMAP}
       --module ${GENERATE_PINMAP_TOP} > ${CMAKE_CURRENT_BINARY_DIR}/${GENERATE_PINMAP_NAME}
     DEPENDS
-      ${PYTHON3_TARGET} ${PYTHON3}
+      ${PYTHON3}
       ${CREATE_PINMAP}
       ${PINMAP} ${PINMAP_TARGET}
       ${GENERATE_PINMAP_NAME}.json
@@ -2129,14 +2112,13 @@ function(add_autosim)
   endforeach()
 
   get_target_property_required(YOSYS env YOSYS)
-  get_target_property(YOSYS_TARGET env YOSYS_TARGET)
 
   set(AUTOSIM_VCD ${ADD_AUTOSIM_NAME}.vcd)
   get_cells_sim_path(CELLS_SIM_LOCATION ${ADD_AUTOSIM_ARCH})
   add_custom_command(
     OUTPUT ${AUTOSIM_VCD}
     COMMAND ${YOSYS} -p "prep -top ${ADD_AUTOSIM_TOP}; $<SEMICOLON> sim -clock clk -n ${ADD_AUTOSIM_CYCLES} -vcd ${AUTOSIM_VCD} -zinit ${ADD_AUTOSIM_TOP}" ${SOURCE_FILES} ${CELLS_SIM_LOCATION}
-    DEPENDS ${YOSYS} ${YOSYS_TARGET} ${SOURCE_FILES_DEPS} ${CELLS_SIM_LOCATION}
+    DEPENDS ${YOSYS} ${SOURCE_FILES_DEPS} ${CELLS_SIM_LOCATION}
     VERBATIM
     )
 
