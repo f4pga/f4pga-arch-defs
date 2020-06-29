@@ -1,4 +1,5 @@
 (* whitebox *)
+(* FASM_FEATURES="INTERFACE.ASSP.INV.ASSPInvPortAlias" *)
 module CLOCK_CELL(I_PAD, O_CLK);
 
     (* iopad_external_pin *)
