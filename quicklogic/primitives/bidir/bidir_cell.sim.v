@@ -1,3 +1,4 @@
+`timescale 1ns/10ps
 (* whitebox *)
 (* FASM_PARAMS="INV.ESEL=ESEL;INV.OSEL=OSEL;INV.FIXHOLD=FIXHOLD;INV.WPD=WPD;INV.DS=DS" *)
 module BIDIR_CELL(
@@ -17,8 +18,15 @@ module BIDIR_CELL(
 
     (* DELAY_CONST_O_DAT="{iopath_OQI_IP}" *)
     (* DELAY_CONST_O_EN="{iopath_IE_IP}" *)
-    (* iopad_external_pin *)
+	(* iopad_external_pin *)
     output wire O_PAD_$out;
+	
+    specify
+        (O_DAT => O_PAD_$out) = "";
+        (O_EN => O_PAD_$out) = "";
+        (I_PAD_$inp => I_DAT) = "";
+        (I_EN => I_DAT) = "";
+    endspecify
 
     // Parameters
     parameter [0:0] ESEL    = 0;
