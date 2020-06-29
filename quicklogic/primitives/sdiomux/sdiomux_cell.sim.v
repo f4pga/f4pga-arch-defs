@@ -1,3 +1,4 @@
+`timescale 1ns/10ps
 (* whitebox *)
 module SDIOMUX_CELL(
     I_PAD_$inp, I_DAT, I_EN,
@@ -18,6 +19,13 @@ module SDIOMUX_CELL(
     (* DELAY_CONST_O_EN="{iopath_OE_IP}" *)
     (* iopad_external_pin *)
     output wire O_PAD_$out;
+	
+    specify
+        (O_DAT => O_PAD_$out) = "";
+        (O_EN => O_PAD_$out) = "";
+        (I_PAD_$inp => I_DAT) = "";
+        (I_EN => I_DAT) = "";
+    endspecify
 
     // Behavioral model
     assign I_DAT = (I_EN == 1'b0) ? I_PAD_$inp : 1'b0;
