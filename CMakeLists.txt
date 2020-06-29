@@ -25,9 +25,9 @@ add_custom_target(clean_locks)
 add_custom_target(all_xc7_tests)
 add_custom_target(all_ice40_tests)
 
-set(ENV_DIR ${symbiflow-arch-defs_SOURCE_DIR}/env/conda/envs/symbiflow_arch_def_base CACHE PATH "Path to environment")
-set(YOSYS_DATADIR ${ENV_DIR}share/yosys CACHE PATH "Path to yosys data directory")
-set(VPR_CAPNP_SCHEMA_DIR ${ENV_DIR}capnp CACHE PATH "Path to VPR schema directory")
+set(ENV_DIR ${symbiflow-arch-defs_SOURCE_DIR}/env/conda/envs/symbiflow_arch_def_base/ CACHE PATH "Path to environment")
+set(YOSYS_DATADIR ${ENV_DIR}/share/yosys CACHE PATH "Path to yosys data directory")
+set(VPR_CAPNP_SCHEMA_DIR ${ENV_DIR}/capnp CACHE PATH "Path to VPR schema directory")
 
 setup_env()
 add_env_executable(EXE yosys REQUIRED)
