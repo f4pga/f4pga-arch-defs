@@ -56,9 +56,6 @@ function(SETUP_ENV)
         )
   endforeach()
 
-  set(YOSYS_DATADIR ${ENV_DIR}/conda/share/yosys CACHE PATH "Path to yosys data directory")
-  set(VPR_CAPNP_SCHEMA_DIR ${ENV_DIR}/conda/capnp CACHE PATH "Path to VPR schema directory")
-
   set_target_properties(env PROPERTIES
     QUIET_CMD ${symbiflow-arch-defs_SOURCE_DIR}/utils/quiet_cmd.sh
     QUIET_CMD_TARGET ""
