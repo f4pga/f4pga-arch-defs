@@ -2,8 +2,9 @@ set_io clk(0) A3
 set_io clk(1) C4
 set_io clk(2) G7
 set_io clk(3) H6
+set_io clk(4) G6
 
-set_io clr_n  G6
+set_io clr_n  G4
 set_io t  C3
 
 set_io sel(0) B1

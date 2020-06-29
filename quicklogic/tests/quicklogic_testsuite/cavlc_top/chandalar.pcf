@@ -12,7 +12,6 @@ set_io rbsp(5) B4
 set_io rbsp(6) A4
 set_io rbsp(7) C5
 set_io rbsp(8) B5
-set_io rbsp(8) D6
 
 set_io nC(0) A5
 set_io nC(1) C6

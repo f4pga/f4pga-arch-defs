@@ -1,13 +1,13 @@
-set_io clk        B1
-set_io rst        C1
+set_io clk        A3
+set_io rst        C4
 set_io ena        A1
 set_io dstrb      A2
 
 set_io din(0)     B2
 set_io din(1)     C3
 set_io din(2)     B3
-set_io din(3)     A3
-set_io din(4)     C4
+set_io din(3)     B1
+set_io din(4)     C1
 set_io din(5)     B4
 set_io din(6)     A4
 set_io din(7)     C5
@@ -32,7 +32,7 @@ set_io qnt_cnt(3)     H5
 set_io qnt_cnt(4)     G5
 set_io qnt_cnt(5)     F5
 
-set_io dout_en        F4
+set_io douten        F4
 
 set_io dout(0)     H4
 set_io dout(1)     E3
