@@ -1,8 +1,9 @@
+`timescale 1ns/10ps
 (* FASM_PARAMS="ZINV.QCK=Z_QCKS" *)
 (* whitebox *)
 module Q_FRAG(QCK, QST, QRT, QEN, QDI, QDS, CZI, QZ);
     (* CLOCK *)
-    (* clkbuf_sink *)
+	(* clkbuf_sink *)
     input  wire QCK;
 
     // Cannot model timing, VPR currently does not support async SET/RESET
@@ -34,6 +35,22 @@ module Q_FRAG(QCK, QST, QRT, QEN, QDI, QDS, CZI, QZ);
 
 	(* CLK_TO_Q = "QCK {iopath_QCK_QZ}" *)
     output reg  QZ;
+    
+    specify
+        (QCK => QZ) = "";
+		$setup(CZI, posedge QCK, "");
+        $hold(posedge QCK, CZI, "");
+        $setup(QDI, posedge QCK, "");
+        $hold(posedge QCK, QDI, "");
+        $setup(QST, posedge QCK, "");
+        $hold(posedge QCK, QST, "");
+        $setup(QRT, posedge QCK, "");
+        $hold(posedge QCK, QRT, "");
+        $setup(QEN, posedge QCK, "");
+        $hold(posedge QCK, QEN, "");
+        $setup(QDS, posedge QCK, "");
+        $hold(posedge QCK, QDS, "");
+    endspecify
 
     // Parameters
     parameter [0:0] Z_QCKS = 1'b1; // FIXME: Make this parameter used by the FF behavioarl model below.

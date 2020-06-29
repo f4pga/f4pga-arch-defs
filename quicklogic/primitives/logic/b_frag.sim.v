@@ -1,3 +1,4 @@
+`timescale 1ns/10ps
 (* FASM_PARAMS="INV.BA1=XAS1;INV.BA2=XAS2;INV.BB1=XBS1;INV.BB2=XBS2" *)
 (* MODEL_NAME="T_FRAG" *) // This is intentional!
 (* whitebox *)
@@ -25,6 +26,16 @@ module B_FRAG (TBS, XAB, XSL, XA1, XA2, XB1, XB2, XZ);
     (* DELAY_CONST_XB1="{iopath_BB1_CZ}" *)
     (* DELAY_CONST_XB2="{iopath_BB2_CZ}" *)
     output wire XZ;
+   
+    specify
+        (TBS => XZ) = "";
+        (XAB => XZ) = "";
+        (XSL => XZ) = "";
+        (XA1 => XZ) = "";
+        (XA2 => XZ) = "";
+        (XB1 => XZ) = "";
+        (XB2 => XZ) = "";
+    endspecify
 
     // Control parameters
     parameter [0:0] XAS1 = 1'b0;

@@ -1,3 +1,4 @@
+`timescale 1ns/10ps
 (* whitebox *)
 module F_FRAG (F1, F2, FS, FZ);
     input  wire F1;
@@ -8,7 +9,11 @@ module F_FRAG (F1, F2, FS, FZ);
     (* DELAY_CONST_F2="{iopath_F2_FZ}" *)
     (* DELAY_CONST_FS="{iopath_FS_FZ}" *)
     output wire FZ;
-
+    specify
+        (F1 => FZ) = "";
+        (F2 => FZ) = "";
+        (FS => FZ) = "";
+    endspecify
     // The F-mux
     assign FZ = FS ? F2 : F1;
 
