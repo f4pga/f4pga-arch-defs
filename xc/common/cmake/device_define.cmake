@@ -317,7 +317,6 @@ function(ADD_XC_DEVICE_DEFINE)
 
     # Clear variable before adding deps for next device
     set(DEVICE_RR_PATCH_DEPS "")
-    list(APPEND DEVICE_RR_PATCH_DEPS intervaltree textx)
     append_file_dependency(DEVICE_RR_PATCH_DEPS ${CHANNELS_DB})
 
     if(${USE_ROI})
