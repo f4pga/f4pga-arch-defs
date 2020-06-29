@@ -96,7 +96,7 @@ function(PROJECT_RAY_ARCH)
       DEPENDS
         ${CREATE_SYNTH_TILES}
         ${PROJECT_RAY_ARCH_USE_ROI} ${SYNTH_DEPS}
-        ${PYTHON3} simplejson intervaltree
+        ${PYTHON3}
         )
 
     add_file_target(FILE synth_tiles.json GENERATED)
