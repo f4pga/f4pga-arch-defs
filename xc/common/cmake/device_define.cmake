@@ -1,8 +1,3 @@
-add_conda_pip(
-  NAME textx
-  NO_EXE
-)
-
 function(ADD_XC_BOARD)
   # ~~~
   # ADD_XC_BOARD(

@@ -1,65 +1,23 @@
 function(icestorm_setup)
   get_target_property_required(PYTHON3 env PYTHON3)
-  get_target_property_required(PYTHON3_TARGET env PYTHON3_TARGET)
 
   set(ICESTORM_SRC ${symbiflow-arch-defs_SOURCE_DIR}/third_party/icestorm CACHE PATH "Path to icestorm repository")
   set(PYUTILS_PATH ${symbiflow-arch-defs_SOURCE_DIR}/utils:${symbiflow-arch-defs_SOURCE_DIR}/ice40/utils/fasm_icebox)
 
-  if(${USE_CONDA})
-    get_target_property_required(PYTHON_PREFIX env CONDA_DIR)
-    set(ICESTORM_PREFIX "PREFIX=${PYTHON_PREFIX}")
-  else()
-    set(ICESTORM_PREFIX "" CACHE PATH "PYTHON_PREFIX for icestorm tools")
-  endif()
-
-  add_conda_package(
-    NAME pkg-config
-    PROVIDES pkg-config
-    )
-  add_conda_package(
-    NAME libftdi
-    NO_EXE
-    )
-  get_target_property(LIBFTDI_TARGET env LIBFTDI_TARGET)
-
-  add_thirdparty_package(
-    NAME fasm
-    BUILD_INSTALL_COMMAND "cd ${symbiflow-arch-defs_SOURCE_DIR}/third_party/fasm && ${PYTHON3} setup.py develop"
-    PROVIDES fasm
-    DEPENDS ${PYTHON3} ${PYTHON3_TARGET}
-    )
-
-  get_target_property_required(FASM_TARGET env FASM_TARGET)
-
-  get_target_property(NUMPY_TARGET env NUMPY_TARGET)
-  set(FASM2ASC_DEPS ${NUMPY_TARGET})
-
   set(FASM2ASC ${symbiflow-arch-defs_SOURCE_DIR}/ice40/utils/fasm_icebox/fasm2asc.py)
   add_custom_target(
     fasm2asc_deps
-    DEPENDS ${FASM2ASC_DEPS} ${FASM_TARGET} ${FASM2ASC} ${PYTHON3} ${PYTHON3_TARGET}
+    DEPENDS ${FASM2ASC_DEPS} ${FASM_TARGET} ${FASM2ASC} ${PYTHON3}
     )
 
-  get_target_property_required(SDF_TIMING_TARGET env SDF_TIMING_TARGET)
   add_custom_target(
     ice40_import_timing_deps
-    DEPENDS ${ICE40_IMPORT_TIMING} ${SDF_TIMING_TARGET} ${PYTHON3} ${PYTHON3_TARGET}
+    DEPENDS ${ICE40_IMPORT_TIMING} ${PYTHON3}
     )
 
   set_target_properties(
     ice40_import_timing_deps
     PROPERTIES ICE40_IMPORT_TIMING ${symbiflow-arch-defs_SOURCE_DIR}/ice40/utils/ice40_import_bel_timing.py
-    )
-
-  get_target_property_required(PKG-CONFIG env PKG-CONFIG)
-  get_target_property(PKG-CONFIG_TARGET env PKG-CONFIG_TARGET)
-
-  add_thirdparty_package(
-    NAME icestorm
-    PROVIDES iceprog icebox_hlc2asc icebox_vlog icepack icetime
-    FILES share/icebox/timings_hx1k.txt
-    BUILD_INSTALL_COMMAND "make -j1 -C ${ICESTORM_SRC} clean && make -j1 -C ${ICESTORM_SRC} ${ICESTORM_PREFIX} PKG_CONFIG=${PKG-CONFIG} install"
-    DEPENDS ${LIBFTDI_TARGET} ${PKG-CONFIG} ${PKG-CONFIG_TARGET}
     )
 
   get_target_property_required(ICEBOX_VLOG env ICEBOX_VLOG)
