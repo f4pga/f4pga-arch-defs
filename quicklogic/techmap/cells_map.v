@@ -146,9 +146,19 @@ module ckpad(output Q, input P);
   // cell.
   generate if (IO_TYPE == "" || IO_TYPE == "CLOCK") begin
 
-      CLOCK_CELL  _TECHMAP_REPLACE_ (
+      // In VPR GMUX has to be explicityl present in the netlist. Add it here.
+
+      wire C;
+
+      CLOCK_CELL clock (
       .I_PAD(P),
-      .O_CLK(Q)
+      .O_CLK(C)
+      );
+
+      GMUX_IP gmux (
+      .IP  (C),
+      .IZ  (Q),
+      .IS0 (1'b0)
       );
 
   // Otherwise make it an inpad cell that gets mapped to BIDIR or SDIOMUX
@@ -204,18 +214,6 @@ module gclkbuff(input A, output Z);
   GMUX_IC _TECHMAP_REPLACE_ (
   .IC  (A),
   .IZ  (Z),
-  .IS0 (1'b1)
-  );
-
-endmodule
-
-module GMUX_PROXY(input IP, output IZ);
-
-  // Map to the GMUX variant for the CLOCK -> GMUX connection. Connect the
-  // select input to VCC.
-  GMUX_IP _TECHMAP_REPLACE_ (
-  .IP  (IP),
-  .IZ  (IZ),
   .IS0 (1'b1)
   );
 

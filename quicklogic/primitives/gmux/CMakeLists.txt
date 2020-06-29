@@ -8,6 +8,3 @@ v2x(NAME gmux SRCS gmux.sim.v)
 
 add_to_cells_sim(gmux_ip.sim.v)
 add_to_cells_sim(gmux_ic.sim.v)
-
-add_file_target(FILE gmux_proxy.v SCANNER_TYPE verilog)
-add_to_cells_sim(gmux_proxy.v)
