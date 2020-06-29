@@ -79,8 +79,6 @@ echo "----------------------------------------"
 	echo
 	echo " Configuring CMake"
 	echo "----------------------------------------"
-	git submodule init
-	git submodule update --init --recursive
 	make env
 	source env/conda/bin/activate symbiflow_arch_def_base
 	echo "----------------------------------------"

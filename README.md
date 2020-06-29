@@ -27,8 +27,6 @@ To initialize submodule and setup the CMake build system, from the root of the
 `symbiflow-arch-defs` directory run:
 
 ```
-git submodule init
-git submodule update --init --recursive
 make env
 ```
 
