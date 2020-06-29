@@ -47,6 +47,8 @@ add_env_executable(EXE icetime REQUIRED)
 add_env_executable(EXE tinyfpgab REQUIRED)
 add_env_executable(EXE tinyprog REQUIRED)
 add_env_executable(EXE flake8 REQUIRED)
+add_env_executable(EXE vvp REQUIRED)
+add_env_executable(EXE iverilog REQUIRED)
 
 get_target_property_required(PYTHON3 env PYTHON3)
 
