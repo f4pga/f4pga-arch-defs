@@ -16,9 +16,8 @@ find_package(PythonInterp 3 REQUIRED)
 
 add_custom_target(test_python)
 
-# Some commands use file locks to prevent incorrect parallel access.
-# All file locks are required to register a clean command with the clean_locks
-# targets to prevent stale locks.
+# Dummy old targets, left in for backwards compability.
+add_custom_target(all_conda)
 add_custom_target(clean_locks)
 
 # Add dummy targets for attaching test targets too.
