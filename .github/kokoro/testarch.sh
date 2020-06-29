@@ -10,6 +10,7 @@ echo "========================================"
 echo "Running testarch tests (make all_testarch)"
 echo "----------------------------------------"
 (
+	source env/conda/bin/activate symbiflow_arch_def_base
 	cd build
 	export VPR_NUM_WORKERS=${CORES}
 	export MAKE_ARGS="-j${MAX_CORES} --output-sync=target"

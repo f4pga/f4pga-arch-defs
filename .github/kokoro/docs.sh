@@ -13,6 +13,7 @@ echo "========================================"
 echo "Doing document generation"
 echo "----------------------------------------"
 (
+	source env/conda/bin/activate symbiflow_arch_def_base
 	cd build
 	make -j ${CORES} --output-sync=target \
 		docs
