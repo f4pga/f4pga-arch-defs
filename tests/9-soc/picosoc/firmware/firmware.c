@@ -20,8 +20,14 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#if !defined(NOSPIFLASH)
 #if !defined(ICEBREAKER) && !defined(HX8KDEMO)
 #  error "Set -DICEBREAKER or -DHX8KDEMO when compiling firmware.c"
+#endif
+#endif
+
+#if !defined(CLK_FREQ)
+#error "Set -DCLK_FREQ=<clock frequency>"
 #endif
 
 // a pointer to this is a null pointer, but the compiler does not
@@ -564,7 +570,7 @@ void cmd_benchmark_all()
 void main()
 {
 	reg_leds = 31;
-	reg_uart_clkdiv = 868; // 115200 @ 100MHz
+	reg_uart_clkdiv = CLK_FREQ / 115200L;
 
 	print("Booting..\n");
 

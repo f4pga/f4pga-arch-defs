@@ -101,6 +101,10 @@ CLOCKS = {
 }
 
 
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
+
+
 def get_cmt(cmt_dict, loc):
     """Returns the clock region of an input location."""
     for k, v in cmt_dict.items():
@@ -189,7 +193,14 @@ class VprGrid(object):
 
 
 class ClockPlacer(object):
-    def __init__(self, vpr_grid, io_locs, blif_data, roi):
+    def __init__(
+            self,
+            vpr_grid,
+            io_locs,
+            blif_data,
+            roi,
+            allow_bufg_logic_sources=False
+    ):
 
         self.roi = roi
         self.cmt_to_bufg_tile = {}
@@ -322,9 +333,19 @@ class ClockPlacer(object):
 
                     clock['sink_nets'].append(sink_net)
 
-                    assert sink_net in self.input_pins or sink_net in self.clock_sources, (
-                        sink_net, self.input_pins, self.clock_sources.keys()
-                    )
+                    if sink_net not in self.input_pins and sink_net not in self.clock_sources:
+
+                        # Allow BUFGs to be driven by generic sources but only
+                        # when enabled.
+                        if bel == "BUFGCTRL_VPR" and allow_bufg_logic_sources:
+                            continue
+
+                        # The clock source comes from logic, disallow that
+                        eprint(
+                            "The clock net '{}' driving '{}' sources at logic which is not allowed!"
+                            .format(sink_net, bel)
+                        )
+                        exit(-1)
 
                     if sink_net in self.input_pins:
                         if sink_net not in self.clock_sources:
@@ -633,6 +654,11 @@ def main():
         help='BLIF / eBLIF file'
     )
     parser.add_argument('--roi', action='store_true', help='Using ROI')
+    parser.add_argument(
+        "--allow-bufg-logic-sources",
+        action="store_true",
+        help="When set allows BUFGs to be driven by logic"
+    )
 
     args = parser.parse_args()
 
@@ -675,7 +701,10 @@ def main():
             block, vpr_loc, "Constraining block {}".format(block)
         )
 
-    clock_placer = ClockPlacer(vpr_grid, io_blocks, eblif_data, args.roi)
+    clock_placer = ClockPlacer(
+        vpr_grid, io_blocks, eblif_data, args.roi,
+        args.allow_bufg_logic_sources
+    )
     if clock_placer.has_clock_nets():
         for block, loc in clock_placer.place_clocks(
                 vpr_grid, loc_in_use, block_locs, blocks, grid_capacities):
