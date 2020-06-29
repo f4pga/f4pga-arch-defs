@@ -1,12 +1,22 @@
-pip
-virtualenv
-lxml
-hdlparse
 progressbar2
+pycapnp==1.0.0b1
 simplejson
+intervaltree
+pdfminer.six
 pyjson5
+ply
 svgwrite
 cairosvg
 gitpython
-matplotlib
+hilbertcurve
 scipy
+matplotlib
+python-constraint
+numpy
+textx
+tinyfpgab
+tinyprog
+-e third_party/python-sdf-timing
+-e third_party/fasm
+-e third_party/vtr-xml-utils
+-e third_party/python-symbiflow-v2x

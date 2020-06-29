@@ -69,8 +69,6 @@ function(XML_CANONICALIZE_MERGE)
     ${ARGN}
     )
 
-  get_target_property_required(VTR_XML_UTILS_TARGET env VTR_XML_UTILS_TARGET)
-
   set(DEPS "")
   append_file_dependency(DEPS ${XML_CANONICALIZE_MERGE_FILE})
 
@@ -78,7 +76,7 @@ function(XML_CANONICALIZE_MERGE)
     OUTPUT ${XML_CANONICALIZE_MERGE_OUTPUT}
     DEPENDS
       ${DEPS}
-      ${PYTHON3} ${VTR_XML_UTILS_TARGET} ${PYTHON3_TARGET}
+      ${PYTHON3} ${PYTHON3_TARGET}
     COMMAND
       PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/third_party/vtr-xml-utils/:${PYTHONPATH}
       ${PYTHON3} -m vtr_xml_utils

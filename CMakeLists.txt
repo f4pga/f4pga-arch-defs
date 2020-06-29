@@ -14,11 +14,7 @@ include(common/cmake/tools.cmake)
 
 find_package(PythonInterp 3 REQUIRED)
 
-add_custom_target(
-   test_python
-   DEPENDS
-      conda_pytest all_pip
-   )
+add_custom_target(test_python)
 
 # Some commands use file locks to prevent incorrect parallel access.
 # All file locks are required to register a clean command with the clean_locks
@@ -29,158 +25,26 @@ add_custom_target(clean_locks)
 add_custom_target(all_xc7_tests)
 add_custom_target(all_ice40_tests)
 
-setup_env(
-    MINICONDA3_VERSION py37_4.8.2
-    )
-add_conda_package(
-  NAME yosys
-  PROVIDES yosys
-  PACKAGE_SPEC "yosys 0.8_3923_g8fe9c84e 20191206_160120"
-  )
-add_conda_package(
-  NAME openocd
-  PROVIDES openocd
-  )
-
-add_conda_package(
-  NAME vtr
-  PROVIDES vpr genfasm
-  PACKAGE_SPEC "vtr 8.0.0.rc2_4003_g8980e4621 20200527_075234"
-  )
-add_conda_package(
-  NAME libxslt
-  PROVIDES xsltproc
-  )
-add_conda_package(
-  NAME libxml2
-  PROVIDES xmllint
-  PACKAGE_SPEC "libxml2 2.9.9 h14c3975_5"
-  )
-add_conda_package(
-  NAME pytest
-  PROVIDES pytest
-  )
-add_conda_package(
-  NAME flake8
-  PROVIDES flake8
-  )
-add_conda_package(
-  NAME yapf
-  PROVIDES yapf
-  PACKAGE_SPEC "yapf 0.26.0 py_0"
-  )
-add_conda_package(
-  NAME nodejs
-  PROVIDES node npm
-  )
-add_conda_package(
-  NAME iverilog
-  PROVIDES iverilog vvp
-  )
-add_conda_package(
-  NAME yosys-plugins
-  PACKAGE_SPEC "yosys-plugins 1.0.0.7_0025_ge04ea5b 20200308_024213"
-  NO_EXE
-  )
-
-add_conda_package(
-  NAME libiconv
-  NO_EXE
-)
-add_conda_pip(
-  NAME progressbar2
-  NO_EXE
-)
-add_conda_pip(
-  NAME pycapnp
-  PACKAGE_SPEC "1.0.0b1"
-  NO_EXE
-)
-add_conda_pip(
-  NAME simplejson
-  NO_EXE
-)
-add_conda_pip(
-  NAME intervaltree
-  NO_EXE
-)
-add_conda_pip(
-  NAME pdfminer.six
-  NO_EXE
-)
-add_conda_pip(
-  NAME pyjson5
-  NO_EXE
-)
-add_conda_pip(
-  NAME ply
-  NO_EXE
-)
-add_conda_pip(
-  NAME svgwrite
-  NO_EXE
-)
-add_conda_pip(
-  NAME cairosvg
-  NO_EXE
-)
-add_conda_pip(
-  NAME gitpython
-  NO_EXE
-)
-add_conda_pip(
-  NAME hilbertcurve
-  NO_EXE
-)
-add_conda_pip(
-  NAME scipy
-  NO_EXE
-)
-add_conda_pip(
-  NAME matplotlib
-  NO_EXE
-)
-add_conda_pip(
-  NAME python-constraint
-  NO_EXE
-)
-
-add_conda_pip(
-  NAME numpy
-  NO_EXE
-)
+setup_env()
+add_env_executable(EXE yosys REQUIRED)
+add_env_executable(EXE vpr REQUIRED)
+add_env_executable(EXE genfasm REQUIRED)
+add_env_executable(EXE node REQUIRED)
+add_env_executable(EXE npm REQUIRED)
+add_env_executable(EXE pytest REQUIRED)
+add_env_executable(EXE xmllint REQUIRED)
+add_env_executable(EXE openocd REQUIRED)
+add_env_executable(EXE yapf REQUIRED)
+add_env_executable(EXE icebox.py REQUIRED)
+add_env_executable(EXE icebox_hlc2asc REQUIRED)
+add_env_executable(EXE icebox_vlog REQUIRED)
+add_env_executable(EXE icepack REQUIRED)
+add_env_executable(EXE icetime REQUIRED)
+add_env_executable(EXE tinyfpgab REQUIRED)
+add_env_executable(EXE tinyprog REQUIRED)
+add_env_executable(EXE flake8 REQUIRED)
 
 get_target_property_required(PYTHON3 env PYTHON3)
-get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
-get_target_property(LIBICONV_TARGET env LIBICONV_TARGET)
-
-add_thirdparty_package(
-  NAME sdf_timing
-  BUILD_INSTALL_COMMAND "cd ${symbiflow-arch-defs_SOURCE_DIR}/third_party/python-sdf-timing && ${PYTHON3} setup.py develop"
-  NO_EXE
-  DEPENDS ${PYTHON3_TARGET}
-)
-
-# FIXME: This is a workaround until fix for dependencies of arch.xml patching script(s) is in place
-if(${USE_CONDA})
-  get_target_property(SDF_TIMING_TARGET env SDF_TIMING_TARGET)
-  add_dependencies(all_conda ${SDF_TIMING_TARGET})
-endif()
-
-add_thirdparty_package(
-  NAME vtr_xml_utils
-  BUILD_INSTALL_COMMAND "cd ${symbiflow-arch-defs_SOURCE_DIR}/third_party/vtr-xml-utils && ${PYTHON3} setup.py develop"
-  PROVIDES vtr_xml_utils
-  DEPENDS ${PYTHON3} ${PYTHON3_TARGET}
-  NO_EXE
-)
-
-add_thirdparty_package(
-  NAME v2x
-  BUILD_INSTALL_COMMAND "cd ${symbiflow-arch-defs_SOURCE_DIR}/third_party/python-symbiflow-v2x && ${PYTHON3} setup.py develop"
-  NO_EXE
-  DEPENDS ${PYTHON3_TARGET} ${LIBICONV_TARGET}
-)
 
 include(common/cmake/image_gen.cmake)
 include(common/cmake/gen.cmake)
@@ -218,23 +82,18 @@ add_subdirectory(testarch)
 add_subdirectory(tests)
 
 get_target_property_required(YAPF env YAPF)
-get_target_property_required(YAPF_TARGET env YAPF_TARGET)
 add_custom_target(
   check_python
-  DEPENDS ${YAPF_TARGET}
   COMMAND ${symbiflow-arch-defs_SOURCE_DIR}/common/python_health_helper.sh -c -y ${YAPF}
   )
 add_custom_target(
   format_python
-  DEPENDS ${YAPF_TARGET}
   COMMAND ${symbiflow-arch-defs_SOURCE_DIR}/common/python_health_helper.sh -f -y ${YAPF}
   )
 
 get_target_property_required(FLAKE8 env FLAKE8)
-get_target_property_required(FLAKE8_TARGET env FLAKE8_TARGET)
 add_custom_target(
   lint_python
-  DEPENDS ${FLAKE8_TARGET}
   COMMAND ${symbiflow-arch-defs_SOURCE_DIR}/common/python_health_helper.sh -l -p "${FLAKE8}"
   )
 
@@ -353,5 +212,4 @@ add_custom_target(docs)
 
 add_custom_target(print_qor
     COMMAND ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/print_qor.py ${symbiflow-arch-defs_BINARY_DIR}
-    DEPENDS ${PYTHON3_TARGET}
     )
