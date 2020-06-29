@@ -1,4 +1,5 @@
 (* whitebox *)
+(* keep *)
 module ASSP (
   input         WB_CLK,
   input         WBs_ACK,
