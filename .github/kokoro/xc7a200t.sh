@@ -12,6 +12,7 @@ echo "========================================"
 echo "Running xc7 tests (make all_xc7_200t)"
 echo "----------------------------------------"
 (
+	source env/conda/bin/activate symbiflow_arch_def_base
 	cd build
 	export VPR_NUM_WORKERS=${CORES}
 	ninja -j${MAX_CORES} all_xc7_200t
