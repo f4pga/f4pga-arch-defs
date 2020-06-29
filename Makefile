@@ -3,6 +3,10 @@ TOP_DIR := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 REQUIREMENTS_FILE := requirements.txt
 ENVIRONMENT_FILE := environment.yml
 
+third_party/make-env/conda.mk:
+	git submodule init
+	git submodule update --init --recursive
+
 include third_party/make-env/conda.mk
 
 ifeq ($(origin CMAKE_COMMAND),undefined)
