@@ -53,6 +53,13 @@ function parse_args {
           esac
      done
 
+     if [ -z $DEVICE ] && [ -n $PART ]; then
+          # Try to find device name. Accept only when exactly one is found
+          PART_DIRS=(${MYPATH}/../share/symbiflow/arch/*/${PART})
+          if [ ${#PART_DIRS[@]} -eq 1 ]; then
+               DEVICE=$(basename $(dirname "${PART_DIRS[0]}"))
+          fi
+     fi
      if [ -z $DEVICE ]; then
           echo "Please provide device name"
           exit 1
