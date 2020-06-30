@@ -1,4 +1,4 @@
-`include "./c_frag.sim.v"
+`include "./c_frag_modes.sim.v"
 `include "./f_frag.sim.v"
 `include "./q_frag.sim.v"
 
@@ -32,9 +32,9 @@ module LOGIC (QST, QDS, TBS, TAB, TSL, TA1, TA2, TB1, TB2, BAB, BSL, BA1, BA2, B
     output wire QZ;
     output wire FZ;
 
-    // The C-Frag
+    // The C-Frag (with modes)
     (* FASM_PREFIX="LOGIC.LOGIC" *)
-    C_FRAG c_frag (
+    C_FRAG_MODES c_frag_modes (
     .TBS(TBS),
     .TAB(TAB),
     .TSL(TSL),

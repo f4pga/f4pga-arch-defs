@@ -219,52 +219,6 @@ module gclkbuff(input A, output Z);
 
 endmodule
 
-// ============================================================================
-
-module C_FRAG (TBS, TAB, TSL, TA1, TA2, TB1, TB2, BAB, BSL, BA1, BA2, BB1, BB2, TZ, CZ);
-    input  wire TBS;
-
-    input  wire TAB;
-    input  wire TSL;
-    input  wire TA1;
-    input  wire TA2;
-    input  wire TB1;
-    input  wire TB2;
-
-    input  wire BAB;
-    input  wire BSL;
-    input  wire BA1;
-    input  wire BA2;
-    input  wire BB1;
-    input  wire BB2;
-
-    output wire TZ;
-    output wire CZ;
-
-    // FIXME: There is no guarantee that VPR will pack these together into one
-    // LOGIC
-    T_FRAG t_frag (
-        .TBS(TBS),
-        .XAB(TAB),
-        .XSL(TSL),
-        .XA1(TA1),
-        .XA2(TA2),
-        .XB1(TB1),
-        .XB2(TB2),
-        .XZ (TZ)
-    );
-    T_FRAG b_frag (
-        .TBS(TBS),
-        .XAB(BAB),
-        .XSL(BSL),
-        .XA1(BA1),
-        .XA2(BA2),
-        .XB1(BB1),
-        .XB2(BB2),
-        .XZ (CZ)
-    );
-
-endmodule
 
 // ============================================================================
 // logic_cell_macro
@@ -307,6 +261,9 @@ module logic_cell_macro(
     output TZ
 
 );
+
+    // TODO: This techmap is missing detection of constant values connected to
+    // non-routable ports (eg. BAS1, BAS2 etc).
 
 	C_FRAG c_frag (
     .TBS(TBS),
@@ -412,35 +369,31 @@ module mux8x0 (
     input  H
 );
 
-  // Split into 2x mux4x0 plus a F_FRAG
-
-  wire q0, q1;
-
-  mux4x0 mux_0 (
-  .A (A),
-  .B (B),
-  .C (C),
-  .D (D),
-  .S0(S0),
-  .S1(S1),
-  .Q (q0)
-  );
-
-  mux4x0 mux_1 (
-  .A (E),
-  .B (F),
-  .C (G),
-  .D (H),
-  .S0(S0),
-  .S1(S1),
-  .Q (q1)
-  );
-
-  F_FRAG f_frag (
-  .F1(q0),
-  .F2(q1),
-  .FS(S2),
-  .FZ(Q)
+  C_FRAG # (
+  .TAS1(1'b0),
+  .TAS2(1'b0),
+  .TBS1(1'b0),
+  .TBS2(1'b0),
+  .BAS1(1'b0),
+  .BAS2(1'b0),
+  .BBS1(1'b0),
+  .BBS2(1'b0),
+  )
+  c_frag (
+  .TBS(S2),
+  .TAB(S1),
+  .TSL(S0),
+  .TA1(A),
+  .TA2(B),
+  .TB1(C),
+  .TB2(D),
+  .BAB(S1),
+  .BSL(S0),
+  .BA1(E),
+  .BA2(F),
+  .BB1(G),
+  .BB2(H),
+  .CZ (O)
   );
 
 endmodule

@@ -62,8 +62,27 @@
         }
     },
     "LOGIC": {
+        "c_frag": {
+            "SINGLE":[
+                "LOGIC3.LOGIC3",
+                "LOGIC3_TAB_EQ_0_TSL_EQ_0_TAS1_EQ_0.LOGIC3",
+                "LOGIC3_TAB_EQ_0_TSL_EQ_1_TAS2_EQ_0.LOGIC3",
+                "LOGIC3_TAB_EQ_1_TSL_EQ_0_TBS1_EQ_0.LOGIC3",
+                "LOGIC3_TAB_EQ_1_TSL_EQ_1_TBS2_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_1.LOGIC3",
+                "LOGIC3_TBS_EQ_0_TAB_EQ_0_TSL_EQ_0_TAS1_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_0_TAB_EQ_0_TSL_EQ_1_TAS2_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_0_TAB_EQ_1_TSL_EQ_0_TBS1_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_0_TAB_EQ_1_TSL_EQ_1_TBS2_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_1_BAB_EQ_0_BSL_EQ_0_BAS1_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_1_BAB_EQ_0_BSL_EQ_1_BAS2_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_1_BAB_EQ_1_BSL_EQ_0_BBS1_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_1_BAB_EQ_1_BSL_EQ_1_BBS2_EQ_0.LOGIC3"
+            ]
+        },
         "t_frag": {
-            "c_frag":[
+            "SPLIT":[
                 "LOGIC3.LOGIC3",
                 "LOGIC3_TAB_EQ_0_TSL_EQ_0_TAS1_EQ_0.LOGIC3",
                 "LOGIC3_TAB_EQ_0_TSL_EQ_1_TAS2_EQ_0.LOGIC3",
@@ -78,7 +97,7 @@
             ]
         },
         "b_frag": {
-            "c_frag":[
+            "SPLIT":[
                 "LOGIC3.LOGIC3",
                 "LOGIC3_TAB_EQ_0_TSL_EQ_0_TAS1_EQ_0.LOGIC3",
                 "LOGIC3_TAB_EQ_0_TSL_EQ_1_TAS2_EQ_0.LOGIC3",
