@@ -1,6 +1,6 @@
 // To ensure that all DRAMs are co-located within a SLICE, this block is
 // a simple passthrough black box to allow a pack pattern for dual port DRAMs.
-(* whitebox *)
+(* lib_whitebox *)
 module DRAM_2_OUTPUT_STUB(
     input SPO, DPO,
     output SPO_OUT, DPO_OUT
