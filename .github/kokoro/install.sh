@@ -13,6 +13,7 @@ echo "========================================"
 echo "Running install tests (make install)"
 echo "----------------------------------------"
 (
+	source env/conda/bin/activate symbiflow_arch_def_base
 	pushd build
 	export VPR_NUM_WORKERS=${CORES}
 	ninja -j${MAX_CORES} install
@@ -36,7 +37,7 @@ echo "========================================"
 echo "Running installed toolchain tests"
 echo "----------------------------------------"
 (
-
+	source env/conda/bin/activate symbiflow_arch_def_base
 	pushd build
 	export VPR_NUM_WORKERS=${CORES}
 	export CTEST_OUTPUT_ON_FAILURE=1

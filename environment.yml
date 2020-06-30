@@ -7,7 +7,6 @@ dependencies:
   - symbiflow-yosys-plugins=1.0.0.7_0041_g1c495fd=20200627_023447
   - symbiflow-vtr=8.0.0.rc2_4003_g8980e4621=20200627_023447
   - cmake
-  - ninja
   - make
   - openocd
   - yapf=0.26.0=py37_0
