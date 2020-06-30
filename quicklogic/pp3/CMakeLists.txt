@@ -12,9 +12,8 @@ set(CELLS_MAP_FILE ${CMAKE_CURRENT_SOURCE_DIR}/techmap/cells_map.v)
 get_filename_component(FAMILY_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 set(CELLS_MAP_FILE_DEST_DIR ${symbiflow-arch-defs_BINARY_DIR}/quicklogic/${FAMILY_NAME}/techmap/)
 
-# Link cells_map. to the binary dir.
-file(MAKE_DIRECTORY ${CELLS_MAP_FILE_DEST_DIR})
-file(CREATE_LINK ${CELLS_MAP_FILE} ${CELLS_MAP_FILE_DEST_DIR}/cells_map.v SYMBOLIC)
+# Copy map files to binary dir.
+file(COPY ${CELLS_MAP_FILE} DESTINATION ${CELLS_MAP_FILE_DEST_DIR})
 
 set(CELLS_SIM_FILE ${symbiflow-arch-defs_BINARY_DIR}/quicklogic/${FAMILY_NAME}/techmap/cells_sim.v)
 add_cells_sim_target(${CELLS_SIM_FILE})
