@@ -17,6 +17,11 @@ if { $::env(PCF_FILE) != "" && $::env(PINMAP_FILE) != ""} {
 # Write a pre-mapped design
 write_verilog $::env(OUT_SYNTH_V).premap.v
 
+# Select all logic_0 and logic_1 and apply the techmap to them first. This is
+# necessary for constant connection detection in the subsequent techmaps.
+select -set consts t:logic_0 t:logic_1
+techmap -map  $::env(TECHMAP_PATH)/cells_map.v @consts
+
 # Map to the VPR cell library
 techmap -map  $::env(TECHMAP_PATH)/cells_map.v
 # Map to the device specific VPR cell library

@@ -62,6 +62,32 @@
         }
     },
     "LOGIC": {
+        "logic_macro": {
+            "MACRO":[
+                "LOGIC3.LOGIC3",
+                "LOGIC3_TAB_EQ_0_TSL_EQ_0_TAS1_EQ_0.LOGIC3",
+                "LOGIC3_TAB_EQ_0_TSL_EQ_1_TAS2_EQ_0.LOGIC3",
+                "LOGIC3_TAB_EQ_1_TSL_EQ_0_TBS1_EQ_0.LOGIC3",
+                "LOGIC3_TAB_EQ_1_TSL_EQ_1_TBS2_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_1.LOGIC3",
+                "LOGIC3_TBS_EQ_0_TAB_EQ_0_TSL_EQ_0_TAS1_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_0_TAB_EQ_0_TSL_EQ_1_TAS2_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_0_TAB_EQ_1_TSL_EQ_0_TBS1_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_0_TAB_EQ_1_TSL_EQ_1_TBS2_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_1_BAB_EQ_0_BSL_EQ_0_BAS1_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_1_BAB_EQ_0_BSL_EQ_1_BAS2_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_1_BAB_EQ_1_BSL_EQ_0_BBS1_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_1_BAB_EQ_1_BSL_EQ_1_BBS2_EQ_0.LOGIC3",
+                "LOGIC3_QCKS_EQ_1.LOGIC3",
+                "LOGIC3_QRT_EQ_0_QST_EQ_0_QCKS_EQ_1.LOGIC3",
+                "LOGIC3_QDS_EQ_1_QEN_EQ_1_QRT_EQ_0_QST_EQ_0_QCKS_EQ_1.LOGIC3",
+                "LOGIC3_QEN_EQ_1_QRT_EQ_0_QST_EQ_0_QCKS_EQ_1.LOGIC3",
+                "LOGIC3.LOGIC3",
+                "LOGIC3_FS_EQ_0.LOGIC3", 
+                "LOGIC3_FS_EQ_1.LOGIC3"
+            ]
+        },
         "c_frag": {
             "SINGLE":[
                 "LOGIC3.LOGIC3",
@@ -112,7 +138,7 @@
             ]
         },
         "q_frag": {
-            "LOGIC":[
+            "FRAGS":[
                 "LOGIC3_QCKS_EQ_1.LOGIC3",
                 "LOGIC3_QRT_EQ_0_QST_EQ_0_QCKS_EQ_1.LOGIC3",
                 "LOGIC3_QDS_EQ_1_QEN_EQ_1_QRT_EQ_0_QST_EQ_0_QCKS_EQ_1.LOGIC3",
@@ -120,7 +146,7 @@
             ]
         },
         "f_frag": {
-            "LOGIC":[
+            "FRAGS":[
                 "LOGIC3.LOGIC3",
                 "LOGIC3_FS_EQ_0.LOGIC3", 
                 "LOGIC3_FS_EQ_1.LOGIC3"

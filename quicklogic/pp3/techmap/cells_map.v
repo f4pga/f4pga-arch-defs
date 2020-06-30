@@ -262,45 +262,101 @@ module logic_cell_macro(
 
 );
 
-    // TODO: This techmap is missing detection of constant values connected to
-    // non-routable ports (eg. BAS1, BAS2 etc).
+    wire [1023:0] _TECHMAP_DO_ = "proc; clean";
 
-	C_FRAG c_frag (
-    .TBS(TBS),
-    .TAB(TAB),
-    .TSL(TSL),
-    .TA1(TA1),
-    .TA2(TA2),
-    .TB1(TB1),
-    .TB2(TB2),
-    .BAB(BAB),
-    .BSL(BSL),
-    .BA1(BA1),
-    .BA2(BA2),
-    .BB1(BB1),
-    .BB2(BB2),
-    .TZ (TZ),
-    .CZ (CZ)
+    parameter _TECHMAP_CONSTMSK_TAS1_ = 1'bx;
+    parameter _TECHMAP_CONSTVAL_TAS1_ = 1'bx;
+    parameter _TECHMAP_CONSTMSK_TAS2_ = 1'bx;
+    parameter _TECHMAP_CONSTVAL_TAS2_ = 1'bx;
+    parameter _TECHMAP_CONSTMSK_TBS1_ = 1'bx;
+    parameter _TECHMAP_CONSTVAL_TBS1_ = 1'bx;
+    parameter _TECHMAP_CONSTMSK_TBS2_ = 1'bx;
+    parameter _TECHMAP_CONSTVAL_TBS2_ = 1'bx;
+
+    parameter _TECHMAP_CONSTMSK_BAS1_ = 1'bx;
+    parameter _TECHMAP_CONSTVAL_BAS1_ = 1'bx;
+    parameter _TECHMAP_CONSTMSK_BAS2_ = 1'bx;
+    parameter _TECHMAP_CONSTVAL_BAS2_ = 1'bx;
+    parameter _TECHMAP_CONSTMSK_BBS1_ = 1'bx;
+    parameter _TECHMAP_CONSTVAL_BBS1_ = 1'bx;
+    parameter _TECHMAP_CONSTMSK_BBS2_ = 1'bx;
+    parameter _TECHMAP_CONSTVAL_BBS2_ = 1'bx;
+    
+    parameter _TECHMAP_CONSTMSK_QCKS_ = 1'bx;
+    parameter _TECHMAP_CONSTVAL_QCKS_ = 1'bx;
+
+    localparam [0:0] P_TAS1 = (_TECHMAP_CONSTMSK_TAS1_ == 1'b1) && (_TECHMAP_CONSTVAL_TAS1_ == 1'b1);
+    localparam [0:0] P_TAS2 = (_TECHMAP_CONSTMSK_TAS2_ == 1'b1) && (_TECHMAP_CONSTVAL_TAS2_ == 1'b1);
+    localparam [0:0] P_TBS1 = (_TECHMAP_CONSTMSK_TBS1_ == 1'b1) && (_TECHMAP_CONSTVAL_TBS1_ == 1'b1);
+    localparam [0:0] P_TBS2 = (_TECHMAP_CONSTMSK_TBS2_ == 1'b1) && (_TECHMAP_CONSTVAL_TBS2_ == 1'b1);
+
+    localparam [0:0] P_BAS1 = (_TECHMAP_CONSTMSK_BAS1_ == 1'b1) && (_TECHMAP_CONSTVAL_BAS1_ == 1'b1);
+    localparam [0:0] P_BAS2 = (_TECHMAP_CONSTMSK_BAS2_ == 1'b1) && (_TECHMAP_CONSTVAL_BAS2_ == 1'b1);
+    localparam [0:0] P_BBS1 = (_TECHMAP_CONSTMSK_BBS1_ == 1'b1) && (_TECHMAP_CONSTVAL_BBS1_ == 1'b1);
+    localparam [0:0] P_BBS2 = (_TECHMAP_CONSTMSK_BBS2_ == 1'b1) && (_TECHMAP_CONSTVAL_BBS2_ == 1'b1);
+    
+    localparam [0:0] P_QCKS = (_TECHMAP_CONSTMSK_QCKS_ == 1'b1) && (_TECHMAP_CONSTVAL_QCKS_ == 1'b1);
+
+    // Make Yosys fail in case when any of the non-routable ports is connected
+    // to anything but const.
+    generate if (_TECHMAP_CONSTMSK_TAS1_ != 1'b1 ||
+                 _TECHMAP_CONSTMSK_TAS2_ != 1'b1 ||
+                 _TECHMAP_CONSTMSK_TBS1_ != 1'b1 ||
+                 _TECHMAP_CONSTMSK_TBS2_ != 1'b1 ||
+
+                 _TECHMAP_CONSTMSK_BAS1_ != 1'b1 ||
+                 _TECHMAP_CONSTMSK_BAS2_ != 1'b1 ||
+                 _TECHMAP_CONSTMSK_BBS1_ != 1'b1 ||
+                 _TECHMAP_CONSTMSK_BBS2_ != 1'b1 ||
+
+                 _TECHMAP_CONSTMSK_QCKS_ != 1'b1)
+    begin
+        wire _TECHMAP_FAIL_;
+
+    end endgenerate
+
+    LOGIC_MACRO #
+    (
+    .TAS1   (P_TAS1),
+    .TAS2   (P_TAS2),
+    .TBS1   (P_TBS1),
+    .TBS2   (P_TBS2),
+    .BAS1   (P_BAS1),
+    .BAS2   (P_BAS2),
+    .BBS1   (P_BBS1),
+    .BBS2   (P_BBS2),
+    .Z_QCKS (!P_QCKS)
+
+    ) _TECHMAP_REPLACE_ (
+    .TBS    (TBS),
+    .TAB    (TAB),
+    .TSL    (TSL),
+    .TA1    (TA1),
+    .TA2    (TA2),
+    .TB1    (TB1),
+    .TB2    (TB2),
+    .BAB    (BAB),
+    .BSL    (BSL),
+    .BA1    (BA1),
+    .BA2    (BA2),
+    .BB1    (BB1),
+    .BB2    (BB2),
+    .TZ     (TZ),
+    .CZ     (CZ),
+
+    .QCK    (QCK),
+    .QST    (QST),
+    .QRT    (QRT),
+    .QEN    (QEN),
+    .QDI    (QDI),
+    .QDS    (QDS),
+    .QZ     (QZ),
+
+    .F1     (F1),
+    .F2     (F2),
+    .FS     (FS),
+    .FZ     (FZ)
     );
-
-	Q_FRAG q_frag (
-    .QCK(QCK),
-    .QST(QST),
-    .QRT(QRT),
-    .QEN(QEN),
-    .QDI(QDI),
-    .QDS(QDS),
-    .CZI(),
-    .QZ (QZ)
-    );
-
-	F_FRAG f_frag (
-    .F1 (F1),
-    .F2 (F2),
-    .FS (FS),
-    .FZ (FZ)
-    );
-
 
 endmodule
 
