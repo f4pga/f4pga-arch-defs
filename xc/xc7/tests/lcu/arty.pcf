@@ -1,0 +1,18 @@
+# CLK
+set_io count E3
+
+# SWITCHs
+set_io count_sw A8
+set_io thresh_sw C11
+
+# LEDs
+set_io gtu H5
+set_io geu J5
+set_io leu T9
+set_io ltu T10
+
+# RGBs (only red)
+set_io gts G6
+set_io ges G3
+set_io les J3
+set_io lts K1
