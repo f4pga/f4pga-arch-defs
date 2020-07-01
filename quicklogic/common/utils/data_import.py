@@ -14,7 +14,7 @@ import csv
 import lxml.etree as ET
 
 from data_structs import *
-from utils import yield_muxes, get_loc_of_cell, find_cell_in_tile, natural_keys
+from utils import yield_muxes, get_loc_of_cell, find_cell_in_tile, natural_keys, get_quadrant_for_loc
 from connections import build_connections, check_connections
 from connections import hop_to_str, get_name_and_hop, is_regular_hop_wire
 
@@ -158,19 +158,6 @@ def parse_library(xml_library):
 
 
 # =============================================================================
-
-
-def get_quadrant_for_loc(loc, quadrants):
-    """
-    Assigns a quadrant to the given location. Returns None if no one matches.
-    """
-
-    for quadrant in quadrants.values():
-        if loc.x >= quadrant.x0 and loc.x <= quadrant.x1:
-            if loc.y >= quadrant.y0 and loc.y <= quadrant.y1:
-                return quadrant
-
-    return None
 
 
 def load_logic_cells(xml_placement, cellgrid, cells_library):

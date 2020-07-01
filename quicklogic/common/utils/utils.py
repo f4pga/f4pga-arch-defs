@@ -68,6 +68,19 @@ def yield_muxes(switchbox):
 # =============================================================================
 
 
+def get_quadrant_for_loc(loc, quadrants):
+    """
+    Assigns a quadrant to the given location. Returns None if no one matches.
+    """
+
+    for quadrant in quadrants.values():
+        if loc.x >= quadrant.x0 and loc.x <= quadrant.x1:
+            if loc.y >= quadrant.y0 and loc.y <= quadrant.y1:
+                return quadrant
+
+    return None
+
+
 def get_loc_of_cell(cell_name, tile_grid):
     """
     Returns loc of a cell with the given name in the tilegrid.
