@@ -285,7 +285,6 @@ class Switchbox(object):
 
 
 # =============================================================================
-
 """
 A global clock network cell
 
@@ -307,8 +306,8 @@ class ConnectionType(Enum):
     UNSPEC = 0  # Unspecified
     SWITCHBOX = 1  # Connection to a pin of a switchbox
     TILE = 2  # Connection to a pin of a tile
-    CLOCK = 3  # Connection to a global clock network cell modelled using 
-               # routing resources only.
+    CLOCK = 3  # Connection to a global clock network cell modelled using
+    # routing resources only.
 
 
 # A connection endpoint location. Specifies location, pin name and connection

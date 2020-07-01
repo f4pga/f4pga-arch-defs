@@ -19,6 +19,7 @@ from switchbox_model import SwitchboxModel, QmuxSwitchboxModel
 
 # =============================================================================
 
+
 def is_hop(connection):
     """
     Returns True if a connection represents a HOP wire.
@@ -83,6 +84,7 @@ def is_local(connection):
 
 # =============================================================================
 
+
 def get_vpr_switch_for_clock_cell(graph, cell, src, dst):
 
     # Get a switch to model the mux delay properly. First try using
@@ -101,10 +103,11 @@ def get_vpr_switch_for_clock_cell(graph, cell, src, dst):
             # Still not found, use the generic one
             switch_id = graph.get_switch_id("generic")
 
-            print("WARNING: No VPR switch found for '{}.{}' to '{}.{}'".format(
-                cell.name, src,
-                cell.name, dst
-            ))
+            print(
+                "WARNING: No VPR switch found for '{}.{}' to '{}.{}'".format(
+                    cell.name, src, cell.name, dst
+                )
+            )
 
     return switch_id
 
@@ -132,7 +135,9 @@ class QmuxModel(object):
     entered at a QMUX.
     """
 
-    def __init__(self, graph, cell, phy_loc, switchbox_model, connections, node_map):
+    def __init__(
+            self, graph, cell, phy_loc, switchbox_model, connections, node_map
+    ):
         self.graph = graph
         self.cell = cell
         self.phy_loc = phy_loc
@@ -156,7 +161,8 @@ class QmuxModel(object):
         # Check the routes, there has to be only one per const source
         for pin, pin_routes in self.ctrl_routes.items():
             for net in pin_routes.keys():
-                assert len(pin_routes[net]) == 1, (cell.name, pin, net, pin_routes[net])
+                assert len(pin_routes[net]
+                           ) == 1, (cell.name, pin, net, pin_routes[net])
                 pin_routes[net] = pin_routes[net][0]
 
         # Get segment id
@@ -173,7 +179,11 @@ class QmuxModel(object):
                     try:
                         nodes[dst_pin] = self.connection_loc_to_node[ep]
                     except KeyError:
-                        print("ERROR: Coulnd't find rr node for {}.{}".format(self.cell.name, pin))
+                        print(
+                            "ERROR: Coulnd't find rr node for {}.{}".format(
+                                self.cell.name, pin
+                            )
+                        )
 
         # Get the QMUX to CAND connection
         for connection in self.connections:
@@ -185,7 +195,11 @@ class QmuxModel(object):
                     try:
                         nodes["IZ"] = self.connection_loc_to_node[ep]
                     except KeyError:
-                        print("ERROR: Coulnd't find rr node for {}.{}".format(self.cell.name, pin))
+                        print(
+                            "ERROR: Coulnd't find rr node for {}.{}".format(
+                                self.cell.name, pin
+                            )
+                        )
         # Validate
         for pin in ["IZ", "QCLKIN0", "QCLKIN1", "QCLKIN2"]:
             if pin not in nodes:
@@ -212,7 +226,7 @@ class QmuxModel(object):
                 self.graph,
                 self.cell,
                 #pin,
-                "QCLKIN0", # FIXME: Always use the QCLKIN0->IZ timing here
+                "QCLKIN0",  # FIXME: Always use the QCLKIN0->IZ timing here
                 "IZ"
             )
 
@@ -237,9 +251,18 @@ class QmuxModel(object):
         # Map selection to {IS1, IS0}.
         # FIXME: Seems suspicious... Need to swap IS0 and IS1 ?
         SEL_TO_PINS = {
-            0: {"IS1": "GND", "IS0": "GND"},
-            1: {"IS1": "VCC", "IS0": "GND"},
-            2: {"IS1": "GND", "IS0": "VCC"},
+            0: {
+                "IS1": "GND",
+                "IS0": "GND"
+            },
+            1: {
+                "IS1": "VCC",
+                "IS0": "GND"
+            },
+            2: {
+                "IS1": "GND",
+                "IS0": "VCC"
+            },
         }
 
         assert selection in SEL_TO_PINS, selection
@@ -295,7 +318,9 @@ class CandModel(object):
     a single edge that models the cell with appropriate fasm features attached.
     """
 
-    def __init__(self, graph, cell, phy_loc, connections, node_map, cand_node_map):
+    def __init__(
+            self, graph, cell, phy_loc, connections, node_map, cand_node_map
+    ):
         self.graph = graph
         self.cell = cell
         self.phy_loc = phy_loc
@@ -326,7 +351,11 @@ class CandModel(object):
                     ep = connection.dst
                     break
         else:
-            print("ERROR: Coulnd't find rr node for {}.{}".format(self.cell.name, "IC"))
+            print(
+                "ERROR: Coulnd't find rr node for {}.{}".format(
+                    self.cell.name, "IC"
+                )
+            )
             return
 
         # Get the node for the connection destination
@@ -345,10 +374,7 @@ class CandModel(object):
 
         # Get switch
         switch_id = get_vpr_switch_for_clock_cell(
-            self.graph,
-            self.cell,
-            "IC",
-            "IZ"
+            self.graph, self.cell, "IC", "IZ"
         )
 
         # Mux switch with appropriate timing and fasm metadata
@@ -378,6 +404,7 @@ class CandModel(object):
         metadata.append("{}.{}.I_hilojoint".format(prefix, cand_name))
         return metadata
 
+
 # =============================================================================
 
 
@@ -391,10 +418,7 @@ def get_node_id_for_tile_pin(graph, loc, tile_type, pin_name):
 
     # First try without the capacity prefix
     if loc.z == 0:
-        rr_pin_name = "TL-{}.{}[0]".format(
-            tile_type,
-            fixup_pin_name(pin_name)
-        )
+        rr_pin_name = "TL-{}.{}[0]".format(tile_type, fixup_pin_name(pin_name))
 
         try:
             nodes = graph.get_nodes_for_pin((loc.x, loc.y), rr_pin_name)
@@ -404,9 +428,7 @@ def get_node_id_for_tile_pin(graph, loc, tile_type, pin_name):
     # Didn't find, try with the capacity prefix
     if nodes is None:
         rr_pin_name = "TL-{}[{}].{}[0]".format(
-            tile_type,
-            loc.z,
-            fixup_pin_name(pin_name)
+            tile_type, loc.z, fixup_pin_name(pin_name)
         )
 
         try:
@@ -475,7 +497,9 @@ def build_tile_connection_map(graph, nodes_by_id, tile_grid, connections):
             return
 
         # Get the VPR rr node for the pin
-        node_id = get_node_id_for_tile_pin(graph, conn_loc.loc, tile.type, conn_loc.pin)
+        node_id = get_node_id_for_tile_pin(
+            graph, conn_loc.loc, tile.type, conn_loc.pin
+        )
         if node_id is None:
             print(
                 "WARNING: No node for pin '{}' at ({},{})".format(
@@ -753,7 +777,6 @@ def create_track_for_hop_connection(graph, connection):
     return node
 
 
-
 # =============================================================================
 
 
@@ -917,9 +940,7 @@ def populate_tile_connections(
                         connect(graph, sbox_node, src_node)
 
 
-def populate_direct_connections(
-        graph, connections, connection_loc_to_node
-):
+def populate_direct_connections(graph, connections, connection_loc_to_node):
     """
     Populates all direct tile-to-tile connections.
     """
@@ -957,12 +978,7 @@ def populate_direct_connections(
             continue
 
         # Add the edge
-        add_edge(
-            graph, 
-            src_tile_node.id,
-            dst_tile_node.id,
-            switch_id
-        )
+        add_edge(graph, src_tile_node.id, dst_tile_node.id, switch_id)
 
 
 def populate_const_connections(graph, switchbox_models, const_node_map):
@@ -991,6 +1007,7 @@ def populate_const_connections(graph, switchbox_models, const_node_map):
                     sbox_node,
                 )
 
+
 def populate_cand_connections(graph, switchbox_models, cand_node_map):
     """
     Populates global clock network to switchbox connections. These all the
@@ -1016,6 +1033,7 @@ def populate_cand_connections(graph, switchbox_models, cand_node_map):
                     cand_node,
                     sbox_node,
                 )
+
 
 # =============================================================================
 
@@ -1082,19 +1100,14 @@ def create_quadrant_clock_tracks(graph, connections, connection_loc_to_node):
         # In that case add a single "jump" node
         if connection.src.loc == connection.dst.loc:
             src_track_node = add_node(
-                graph,
-                connection.src.loc,
-                "X",
-                segment_id
+                graph, connection.src.loc, "X", segment_id
             )
             dst_track_node = src_track_node
 
         else:
             src_track_node, dst_track_node = add_l_track(
-                graph, 
-                connection.src.loc.x, connection.src.loc.y,
-                connection.dst.loc.x, connection.dst.loc.y,
-                segment_id,
+                graph, connection.src.loc.x, connection.src.loc.y,
+                connection.dst.loc.x, connection.dst.loc.y, segment_id,
                 switch_id
             )
 
@@ -1134,7 +1147,9 @@ def create_column_clock_tracks(graph, clock_cells, quadrants):
     "assess points" to that tracks to be used by switchbox connections.
     """
 
-    CAND_RE = re.compile(r"^(?P<name>CAND[0-4])_(?P<quad>[A-Z]+)_(?P<col>[0-9]+)$")
+    CAND_RE = re.compile(
+        r"^(?P<name>CAND[0-4])_(?P<quad>[A-Z]+)_(?P<col>[0-9]+)$"
+    )
 
     # Get segment id and switch id
     segment_id = graph.get_segment_id_from_name("clock")
@@ -1161,10 +1176,12 @@ def create_column_clock_tracks(graph, clock_cells, quadrants):
 
         # Add track chains going upwards and downwards from the CAND cell
         up_entry_node, _, up_node_map = add_track_chain(
-            graph, "Y", cell.loc.x, cell.loc.y,     quadrant.y0, segment_id, switch_id
+            graph, "Y", cell.loc.x, cell.loc.y, quadrant.y0, segment_id,
+            switch_id
         )
         dn_entry_node, _, dn_node_map = add_track_chain(
-            graph, "Y", cell.loc.x, cell.loc.y + 1, quadrant.y1, segment_id, switch_id
+            graph, "Y", cell.loc.x, cell.loc.y + 1, quadrant.y1, segment_id,
+            switch_id
         )
 
         # Connect entry nodes
@@ -1184,6 +1201,7 @@ def create_column_clock_tracks(graph, clock_cells, quadrants):
             cand_node_map[cand_name][loc] = node
 
     return cand_node_map
+
 
 # =============================================================================
 
@@ -1387,7 +1405,8 @@ def main():
             )
 
     # Build switchbox models
-    for switchbox_model in progressbar_utils.progressbar(switchbox_models.values()):
+    for switchbox_model in progressbar_utils.progressbar(
+            switchbox_models.values()):
         switchbox_model.build()
 
     # Build the global clock network cell models
@@ -1426,9 +1445,7 @@ def main():
     populate_direct_connections(
         xml_graph.graph, connections, connection_loc_to_node
     )
-    populate_cand_connections(
-        xml_graph.graph, switchbox_models, cand_node_map
-    )
+    populate_cand_connections(xml_graph.graph, switchbox_models, cand_node_map)
     populate_const_connections(
         xml_graph.graph, switchbox_models, const_node_map
     )

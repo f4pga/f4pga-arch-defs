@@ -89,7 +89,9 @@ def make_top_level_pb_type(tile_type, nsmap):
         # directory. If not then use the one from "primitives" path
         pb_type_file = "./{}.pb_type.xml".format(name)
         if not os.path.isfile(pb_type_file):
-            pb_type_file = "../../primitives/{}/{}.pb_type.xml".format(name, name)
+            pb_type_file = "../../primitives/{}/{}.pb_type.xml".format(
+                name, name
+            )
 
         ET.SubElement(
             xml_sub, xi_include, {
@@ -142,7 +144,9 @@ def make_top_level_pb_type(tile_type, nsmap):
     return xml_pb
 
 
-def make_top_level_tile(tile_type, sub_tiles, tile_types, equivalent_tiles=None):
+def make_top_level_tile(
+        tile_type, sub_tiles, tile_types, equivalent_tiles=None
+):
     """
     Makes a tile definition for the given tile
     """
@@ -172,7 +176,9 @@ def make_top_level_tile(tile_type, sub_tiles, tile_types, equivalent_tiles=None)
             equivalent_sub_tiles = equivalent_tiles[sub_tile]
 
         # Top-level ports
-        tile_pinlists = add_ports(xml_sub_tile, tile_types[sub_tile].pins, False)
+        tile_pinlists = add_ports(
+            xml_sub_tile, tile_types[sub_tile].pins, False
+        )
 
         # Equivalent sites
         xml_equiv = ET.SubElement(xml_sub_tile, "equivalent_sites")

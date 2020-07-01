@@ -38,7 +38,11 @@ def generate_clkmap_csv(connections, tile_grid):
                 cell = c
                 break
         else:
-            print("ERROR: No CLOCK cell in tile at {}".format(connection.src.loc))
+            print(
+                "ERROR: No CLOCK cell in tile at {}".format(
+                    connection.src.loc
+                )
+            )
             continue
 
         # Format the CSV line
@@ -55,6 +59,7 @@ def generate_clkmap_csv(connections, tile_grid):
         csv_lines.append(",".join(line))
 
     return csv_lines
+
 
 # =============================================================================
 

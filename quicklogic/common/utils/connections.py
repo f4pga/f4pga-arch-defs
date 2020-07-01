@@ -174,11 +174,7 @@ def build_tile_connections(
                 pin_name, hop = get_name_and_hop(sbox_pin.name)
                 assert hop is not None, sbox_pin
 
-                tile_loc = Loc(
-                    x=loc.x + hop[0],
-                    y=loc.y + hop[1],
-                    z=loc.z
-                )
+                tile_loc = Loc(x=loc.x + hop[0], y=loc.y + hop[1], z=loc.z)
 
             # Get the tile
             if tile_loc not in tile_grid:
@@ -439,9 +435,7 @@ def build_gmux_qmux_connections(
                 connections.append(
                     Connection(
                         src=ConnectionLoc(
-                            loc=src_loc,
-                            pin=src_pin_name,
-                            type=src_type
+                            loc=src_loc, pin=src_pin_name, type=src_type
                         ),
                         dst=ConnectionLoc(
                             loc=clock_cell.loc,

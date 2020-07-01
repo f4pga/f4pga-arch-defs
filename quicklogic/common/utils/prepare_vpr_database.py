@@ -15,7 +15,7 @@ from utils import get_pin_name
 
 from timing import compute_switchbox_timing_model
 from timing import populate_switchbox_timing, copy_switchbox_timing
-from timing import add_vpr_switches_for_cell 
+from timing import add_vpr_switches_for_cell
 
 # =============================================================================
 
@@ -160,7 +160,7 @@ def process_tilegrid(
 ):
     """
     Processes the tilegrid. May add/remove tiles. Returns a new one.
-    """    
+    """
 
     vpr_tile_grid = {}
     fwd_loc_map = {}
@@ -181,12 +181,10 @@ def process_tilegrid(
             continue
 
         vpr_loc = Loc(
-            x=phy_loc.x + grid_offset[0],
-            y=phy_loc.y + grid_offset[1],
-            z=0
+            x=phy_loc.x + grid_offset[0], y=phy_loc.y + grid_offset[1], z=0
         )
 
-        # If the tile contains QMUX or CAND then strip it. Possibly create a 
+        # If the tile contains QMUX or CAND then strip it. Possibly create a
         # new tile type.
         tile_type = tile_types[tile.type]
         if "QMUX" in tile_type.cells or "CAND" in tile_type.cells:
@@ -197,7 +195,10 @@ def process_tilegrid(
 
                     # Find it in the physical clock cell list
                     if cell.name not in clock_cells:
-                        print("WARNING: Clock cell '{}' not on the clock cell list!".format(cell.name))
+                        print(
+                            "WARNING: Clock cell '{}' not on the clock cell list!"
+                            .format(cell.name)
+                        )
                         continue
 
                     # Relocate CAND cells so that they occupy only even rows
@@ -209,17 +210,19 @@ def process_tilegrid(
                     # Add the cell
                     clock_cell = clock_cells[cell.name]
                     clock_cell = ClockCell(
-                        type = clock_cell.type,
-                        name = clock_cell.name,
-                        loc = cell_loc,
-                        quadrant = clock_cell.quadrant,
-                        pin_map = clock_cell.pin_map
+                        type=clock_cell.type,
+                        name=clock_cell.name,
+                        loc=cell_loc,
+                        quadrant=clock_cell.quadrant,
+                        pin_map=clock_cell.pin_map
                     )
 
                     vpr_clock_cells[clock_cell.name] = clock_cell
 
             # Strip the cells
-            tile = strip_cells(tile, ["QMUX", "CAND"], tile_types, cells_library)
+            tile = strip_cells(
+                tile, ["QMUX", "CAND"], tile_types, cells_library
+            )
             if tile is None:
                 continue
 
@@ -252,10 +255,16 @@ def process_tilegrid(
                     for ox, oy in ((-1, 0), (+1, 0), (0, -1), (0, +1)):
                         test_loc = Loc(x=phy_loc.x + ox, y=phy_loc.y + oy, z=0)
                         if is_loc_free(test_loc, tile_grid):
-                            new_loc = Loc(x=vpr_loc.x + ox, y=vpr_loc.y + oy, z=vpr_loc.z)
+                            new_loc = Loc(
+                                x=vpr_loc.x + ox,
+                                y=vpr_loc.y + oy,
+                                z=vpr_loc.z
+                            )
                             break
                     else:
-                        assert False, ("No free location to place CLOCK tile", vpr_loc)
+                        assert False, (
+                            "No free location to place CLOCK tile", vpr_loc
+                        )
 
                 # Don't move
                 else:
@@ -290,7 +299,9 @@ def process_tilegrid(
                 for ox, oy in ((0, 0), (0, -1), (0, +1), (-1, 0), (+1, 0)):
                     test_loc = Loc(x=phy_loc.x + ox, y=phy_loc.y + oy, z=0)
                     if is_loc_free(test_loc, tile_grid):
-                        new_loc = Loc(x=vpr_loc.x + ox, y=vpr_loc.y + oy, z=vpr_loc.z)
+                        new_loc = Loc(
+                            x=vpr_loc.x + ox, y=vpr_loc.y + oy, z=vpr_loc.z
+                        )
                         break
                 else:
                     assert False, "No free location to place {} tile".format(
@@ -361,7 +372,9 @@ def process_tilegrid(
                 for i, cell in enumerate(tile.cells):
 
                     # Create a tile type for a single GMUX cell
-                    new_type = make_tile_type([cell], cells_library, tile_types)
+                    new_type = make_tile_type(
+                        [cell], cells_library, tile_types
+                    )
                     # New location
                     new_loc = Loc(vpr_loc.x, vpr_loc.y, cell.index)
 
@@ -374,7 +387,10 @@ def process_tilegrid(
 
                     # Change index of the cell
                     new_cell = Cell(
-                        type=cell.type, index=0, name=cell.name, alias=cell.alias
+                        type=cell.type,
+                        index=0,
+                        name=cell.name,
+                        alias=cell.alias
                     )
 
                     # Add the tile instance
@@ -387,7 +403,7 @@ def process_tilegrid(
     # Find the ASSP tile. There are multiple tiles that contain the ASSP cell
     # but in fact there is only one ASSP cell for the whole FPGA which is
     # "distributed" along top and left edge of the grid.
-    if "ASSP" in tile_types:        
+    if "ASSP" in tile_types:
 
         # Verify that the location is empty
         assp_loc = Loc(x=1, y=1, z=0)
@@ -407,7 +423,8 @@ def process_tilegrid(
 
     # Insert synthetic VCC and GND source tiles.
     # FIXME: This assumes that the locations specified are empty!
-    for const, loc in [("VCC", Loc(x=2, y=1, z=0)), ("GND", Loc(x=3, y=1, z=0))]:
+    for const, loc in [("VCC", Loc(x=2, y=1, z=0)), ("GND", Loc(x=3, y=1,
+                                                                z=0))]:
 
         # Verify that the location is empty
         assert is_loc_free(vpr_tile_grid, loc), (const, loc)
@@ -428,7 +445,9 @@ def process_tilegrid(
         if loc not in vpr_tile_grid:
             vpr_tile_grid[loc] = None
 
-    return vpr_tile_grid, vpr_clock_cells, LocMap(fwd=fwd_loc_map, bwd=bwd_loc_map),
+    return vpr_tile_grid, vpr_clock_cells, LocMap(
+        fwd=fwd_loc_map, bwd=bwd_loc_map
+    ),
 
 
 # =============================================================================
@@ -466,9 +485,7 @@ def process_switchbox_grid(
 
         # compute VPR grid location
         vpr_loc = Loc(
-            x=phy_loc.x + grid_offset[0], 
-            y=phy_loc.y + grid_offset[1],
-            z=0
+            x=phy_loc.x + grid_offset[0], y=phy_loc.y + grid_offset[1], z=0
         )
 
         # Place the switchbox
@@ -521,22 +538,20 @@ def process_connections(
                 vpr_pin = "GMUX0_{}".format(pin)
 
                 # Modify the location according to the cell index
-                z = int(cell[-1]) # FIXME: Assuming indices 0-9
+                z = int(cell[-1])  # FIXME: Assuming indices 0-9
                 vpr_loc = Loc(vpr_loc.x, vpr_loc.y, z)
 
             # Update the endpoint
-            eps[j] = ConnectionLoc(
-                loc=vpr_loc,
-                pin=vpr_pin,
-                type=ep.type
-            )
+            eps[j] = ConnectionLoc(loc=vpr_loc, pin=vpr_pin, type=ep.type)
 
         # Add the connection
-        vpr_connections.append(Connection(src=eps[0], dst=eps[1], is_direct=connection.is_direct))
+        vpr_connections.append(
+            Connection(src=eps[0], dst=eps[1], is_direct=connection.is_direct)
+        )
 
     # Remap locations of connections that go to CLOCK pads. A physical
     # BIDIR+CLOCK tile is split into separate BIDIR and CLOCK tiles.
-    for i, connection in enumerate(vpr_connections):      
+    for i, connection in enumerate(vpr_connections):
 
         eps = [connection.src, connection.dst]
         for j, ep in enumerate(eps):
@@ -553,8 +568,10 @@ def process_connections(
                     clock_loc = vpr_loc
                     break
             else:
-                assert False, ("Couldn't find a CLOCK cell in the VPR grid!", connection)
-    
+                assert False, (
+                    "Couldn't find a CLOCK cell in the VPR grid!", connection
+                )
+
             eps[j] = ConnectionLoc(
                 loc=clock_loc,
                 pin=ep.pin,
@@ -562,7 +579,9 @@ def process_connections(
             )
 
         # Modify the connection
-        vpr_connections[i] = Connection(src=eps[0], dst=eps[1], is_direct=connection.is_direct)
+        vpr_connections[i] = Connection(
+            src=eps[0], dst=eps[1], is_direct=connection.is_direct
+        )
 
     # Find SFBIO connections, map their endpoints to SDIOMUX tiles
     # FIXME: This should be read from the techfine. Definition of the SDIOMUX
@@ -612,7 +631,9 @@ def process_connections(
             )
 
         # Modify the connection
-        vpr_connections[i] = Connection(src=eps[0], dst=eps[1], is_direct=connection.is_direct)
+        vpr_connections[i] = Connection(
+            src=eps[0], dst=eps[1], is_direct=connection.is_direct
+        )
 
     # Find locations of "special" tiles
     special_tile_loc = {"ASSP": None}
@@ -646,7 +667,9 @@ def process_connections(
                 )
 
         # Modify the connection
-        vpr_connections[i] = Connection(src=eps[0], dst=eps[1], is_direct=connection.is_direct)
+        vpr_connections[i] = Connection(
+            src=eps[0], dst=eps[1], is_direct=connection.is_direct
+        )
 
     # handle RAM and MULT locations
     ram_locations = {}
@@ -696,7 +719,9 @@ def process_connections(
             )
 
         # Modify the connection
-        vpr_connections[i] = Connection(src=eps[0], dst=eps[1], is_direct=connection.is_direct)
+        vpr_connections[i] = Connection(
+            src=eps[0], dst=eps[1], is_direct=connection.is_direct
+        )
 
     # Handle QMUX connections. Instead of making them SWITCHBOX -> TILE convert
     # to SWITCHBOX -> CLOCK
@@ -712,7 +737,7 @@ def process_connections(
             cell_name, pin = ep.pin.split("_", maxsplit=1)
 
             cell_index = int(cell_name[-1])
-            cell_type  = cell_name[:-1]
+            cell_type = cell_name[:-1]
             # FIXME: The above will fail on cell with index >= 10
 
             # Only QMUX
@@ -720,13 +745,16 @@ def process_connections(
                 continue
 
             # Get the physical tile
-            loc  = loc_map.bwd[ep.loc]
+            loc = loc_map.bwd[ep.loc]
             tile = phy_tile_grid[loc]
 
             # Find the cell in the tile
-            cells = [c for c in tile.cells if c.type == "QMUX" and c.index == cell_index]
+            cells = [
+                c for c in tile.cells
+                if c.type == "QMUX" and c.index == cell_index
+            ]
             assert len(cells) == 1
-            cell  = cells[0]
+            cell = cells[0]
 
             # Modify the endpoint
             eps[j] = ConnectionLoc(
@@ -736,7 +764,9 @@ def process_connections(
             )
 
         # Modify the connection
-        vpr_connections[i] = Connection(src=eps[0], dst=eps[1], is_direct=connection.is_direct)
+        vpr_connections[i] = Connection(
+            src=eps[0], dst=eps[1], is_direct=connection.is_direct
+        )
 
     return vpr_connections
 
@@ -797,7 +827,7 @@ def build_switch_list():
     switch = VprSwitch(
         name="generic",
         type="mux",
-        t_del=1e-15, # A deliberate dummy small delay
+        t_del=1e-15,  # A deliberate dummy small delay
         r=0.0,
         c_in=0.0,
         c_out=0.0,
@@ -947,6 +977,7 @@ def load_sdf_timings(sdf_dir):
 
     return cell_timings
 
+
 # =============================================================================
 
 
@@ -1042,17 +1073,17 @@ def main():
     vpr_quadrants = {}
     for quadrant in phy_quadrants.values():
         vpr_quadrants[quadrant.name] = Quadrant(
-            name = quadrant.name,
-            x0 = quadrant.x0 + grid_offset[0],
-            x1 = quadrant.x1 + grid_offset[0],
-            y0 = quadrant.y0 + grid_offset[1],
-            y1 = quadrant.y1 + grid_offset[1]
+            name=quadrant.name,
+            x0=quadrant.x0 + grid_offset[0],
+            x1=quadrant.x1 + grid_offset[0],
+            y0=quadrant.y0 + grid_offset[1],
+            y1=quadrant.y1 + grid_offset[1]
         )
 
     # Process the tilegrid
     vpr_tile_grid, vpr_clock_cells, loc_map = process_tilegrid(
-        tile_types, phy_tile_grid, phy_clock_cells,
-        cells_library, grid_size, grid_offset, grid_limit
+        tile_types, phy_tile_grid, phy_clock_cells, cells_library, grid_size,
+        grid_offset, grid_limit
     )
 
     # Process the switchbox grid
@@ -1098,7 +1129,7 @@ def main():
     # Make switch list
     vpr_switches = build_switch_list()
     # Make segment list
-    vpr_segments = build_segment_list()    
+    vpr_segments = build_segment_list()
 
     # Process timing data
     if switchbox_timing is not None or cell_timings is not None:

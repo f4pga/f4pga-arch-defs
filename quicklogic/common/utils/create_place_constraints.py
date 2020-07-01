@@ -48,9 +48,17 @@ def main():
     # Load clock map
     clock_to_gmux = {}
     for row in csv.DictReader(args.map):
-        name    = row["name"]
-        src_loc = (int(row["src.x"]), int(row["src.y"]), int(row["src.z"]),)
-        dst_loc = (int(row["dst.x"]), int(row["dst.y"]), int(row["dst.z"]),)
+        name = row["name"]
+        src_loc = (
+            int(row["src.x"]),
+            int(row["src.y"]),
+            int(row["src.z"]),
+        )
+        dst_loc = (
+            int(row["dst.x"]),
+            int(row["dst.y"]),
+            int(row["dst.z"]),
+        )
 
         clock_to_gmux[src_loc] = (dst_loc, name)
 
@@ -72,14 +80,18 @@ def main():
 
         # Get block and its location
         block, x, y, z = line.split()[0:4]
-        io_constraints[block] = (int(x), int(y), int(z),)
+        io_constraints[block] = (
+            int(x),
+            int(y),
+            int(z),
+        )
 
     # Analyze the BLIF netlist. Find clock inputs that go through CLOCK IOB to
     # GMUXes.
     clock_connections = []
 
     IOB_CELL = ("CLOCK_CELL", "I_PAD", "O_CLK")
-    BUF_CELL = ("GMUX_IP",    "IP",    "IZ")
+    BUF_CELL = ("GMUX_IP", "IP", "IZ")
 
     for inp_net in eblif_data["inputs"]["args"]:
 
@@ -139,15 +151,19 @@ def main():
             continue
 
         # Store data
-        clock_connections.append((inp_net, iob_cell, con_net, buf_cell, clk_net))
-
+        clock_connections.append(
+            (inp_net, iob_cell, con_net, buf_cell, clk_net)
+        )
 
     # Emit constraints for GCLK cells
     for inp_net, iob_cell, con_net, buf_cell, clk_net in clock_connections:
 
         src_loc = io_constraints[inp_net]
         if src_loc not in clock_to_gmux:
-            print("ERROR: No GMUX location fro input CLOCK pad for net '{}' at {}".format(inp_net, src_loc))
+            print(
+                "ERROR: No GMUX location fro input CLOCK pad for net '{}' at {}"
+                .format(inp_net, src_loc)
+            )
             continue
 
         dst_loc, name = clock_to_gmux[src_loc]
@@ -155,12 +171,11 @@ def main():
         # FIXME: Silently assuming here that VPR will name the GMUX block as
         # the GMUX cell in EBLIF. In order to fix that there will be a need
         # to read & parse the packed netlist file.
-        line ="{} {} {} {} # {}\n".format(
-            buf_cell["cname"][0],
-            *dst_loc,
-            name
+        line = "{} {} {} {} # {}\n".format(
+            buf_cell["cname"][0], *dst_loc, name
         )
         args.output.write(line)
+
 
 # =============================================================================
 

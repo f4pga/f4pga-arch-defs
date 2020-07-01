@@ -12,9 +12,9 @@ from lib.parse_pcf import parse_simple_pcf
 
 # Known IOB types and VPR cells that can be placed at their sites
 IOB_TYPES = {
-    "CLOCK": ["PB-CLOCK",],
-    "BIDIR": ["PB-BIDIR",],
-    "SDIOMUX": ["PB-SDIOMUX",],
+    "CLOCK": ["PB-CLOCK", ],
+    "BIDIR": ["PB-BIDIR", ],
+    "SDIOMUX": ["PB-SDIOMUX", ],
 }
 
 BLOCK_INSTANCE_RE = re.compile(r"^(?P<name>\S+)\[(?P<index>[0-9]+)\]$")

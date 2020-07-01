@@ -318,6 +318,7 @@ def copy_switchbox_timing(src_switchbox, dst_switchbox):
 
         dst_mux.timing = deepcopy(src_mux.timing)
 
+
 # =============================================================================
 
 
@@ -328,7 +329,11 @@ def add_vpr_switches_for_cell(cell_type, cell_timings):
     """
 
     # Filter timings for the cell
-    timings = {k:v for k, v in cell_timings.items() if k.startswith(cell_type)}
+    timings = {
+        k: v
+        for k, v in cell_timings.items()
+        if k.startswith(cell_type)
+    }
 
     # Add VPR switches
     vpr_switches = {}
@@ -342,8 +347,8 @@ def add_vpr_switches_for_cell(cell_type, cell_timings):
 
                 # Get data
                 name = "{}.{}.{}.{}".format(
-                    cell_type, instance,
-                    timing_data["from_pin"], timing_data["to_pin"]
+                    cell_type, instance, timing_data["from_pin"],
+                    timing_data["to_pin"]
                 )
                 tdel = timing_data["delay_paths"]["slow"]["avg"]
 

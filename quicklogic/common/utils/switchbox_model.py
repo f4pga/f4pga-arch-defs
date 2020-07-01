@@ -80,13 +80,11 @@ class SwitchboxModel(object):
 
         for connection in switchbox.connections:
             c_src = (
-                connection.src.stage_id,
-                connection.src.switch_id,
+                connection.src.stage_id, connection.src.switch_id,
                 connection.src.mux_id
             )
             c_dst = (
-                connection.dst.stage_id,
-                connection.dst.switch_id,
+                connection.dst.stage_id, connection.dst.switch_id,
                 connection.dst.mux_id
             )
 
@@ -126,9 +124,9 @@ class SwitchboxModel(object):
             # Get the mux object
             stage_id, switch_id, mux_id = ctx
 
-            stage  = switchbox.stages[stage_id]
+            stage = switchbox.stages[stage_id]
             switch = stage.switches[switch_id]
-            mux    = switch.muxes[mux_id]
+            mux = switch.muxes[mux_id]
 
             # Get its input connections
             connections = {}
@@ -160,20 +158,23 @@ class SwitchboxModel(object):
 
                         # Append the current mux and its selection
                         final_route = list(route)
-                        final_route[-1] = tuple(list(final_route[-1]) + [pin_id])
+                        final_route[-1] = tuple(
+                            list(final_route[-1]) + [pin_id]
+                        )
 
                         # Trace the route back, append mux selections
-                        for i in range(len(final_route)-1):
-                            dst = final_route[i  ][:3]
-                            src = final_route[i+1][:3]
+                        for i in range(len(final_route) - 1):
+                            dst = final_route[i][:3]
+                            src = final_route[i + 1][:3]
 
                             connection = SwitchboxModel.get_connection(
-                                switchbox,
-                                src, dst
+                                switchbox, src, dst
                             )
 
                             sel = connection.dst.pin_id
-                            final_route[i] = tuple(list(final_route[i]) + [sel])
+                            final_route[i] = tuple(
+                                list(final_route[i]) + [sel]
+                            )
 
                         routes.append(final_route)
 
@@ -187,7 +188,11 @@ class SwitchboxModel(object):
         loc = pin.locs[0]
 
         # Walk from the output, collect routes
-        ctx = (loc.stage_id, loc.switch_id, loc.mux_id,)
+        ctx = (
+            loc.stage_id,
+            loc.switch_id,
+            loc.mux_id,
+        )
         walk(ctx, inp_name)
 
         return routes
@@ -429,7 +434,10 @@ class SwitchboxModel(object):
             # A list of muxes to avoid
             self.fixed_muxes = set([f[:3] for f in self.fixed_muxsels])
 
-            print("Switchbox model '{}' at '{}' contains '{}' fixed muxes.".format(self.switchbox.type, self.loc, len(self.fixed_muxes)))
+            print(
+                "Switchbox model '{}' at '{}' contains '{}' fixed muxes.".
+                format(self.switchbox.type, self.loc, len(self.fixed_muxes))
+            )
             return
 
         # Create and connect muxes
@@ -438,7 +446,6 @@ class SwitchboxModel(object):
 
         # Create and connect input drivers models
         self._create_input_drivers()
-
 
     def get_input_node(self, pin_name):
         """
@@ -471,10 +478,12 @@ class QmuxSwitchboxModel(SwitchboxModel):
     located at a QMUX tile
     """
 
-    def __init__(self, graph, loc, phy_loc, switchbox, qmux_cells, connections):
+    def __init__(
+            self, graph, loc, phy_loc, switchbox, qmux_cells, connections
+    ):
         super().__init__(graph, loc, phy_loc, switchbox)
 
-        self.qmux_cells  = qmux_cells
+        self.qmux_cells = qmux_cells
         self.connections = connections
 
         self.ctrl_routes = {}
@@ -482,9 +491,12 @@ class QmuxSwitchboxModel(SwitchboxModel):
     def _find_control_routes(self):
         """
         """
-        PINS = ("IS0", "IS1",)
+        PINS = (
+            "IS0",
+            "IS1",
+        )
 
-        for cell in self.qmux_cells.values(): 
+        for cell in self.qmux_cells.values():
 
             # Get IS0 and IS1 connection endpoints
             eps = {}
@@ -493,36 +505,29 @@ class QmuxSwitchboxModel(SwitchboxModel):
                     dst_cell, dst_pin = connection.dst.pin.split(".")
 
                     if dst_cell == cell.name and dst_pin in PINS:
-                        eps[dst_pin] = connection.src                        
+                        eps[dst_pin] = connection.src
 
             # Find all routes for IS0 and IS1 pins that go to GND and VCC
             routes = {}
             for pin in PINS:
-#                print("{}.{}".format(cell.name, pin))
+                #                print("{}.{}".format(cell.name, pin))
 
                 # Find the routes
                 vcc_routes = self.get_switchbox_routes(
-                    self.switchbox,
-                    eps[pin].pin,
-                    "VCC"
+                    self.switchbox, eps[pin].pin, "VCC"
                 )
                 gnd_routes = self.get_switchbox_routes(
-                    self.switchbox,
-                    eps[pin].pin,
-                    "GND"
+                    self.switchbox, eps[pin].pin, "GND"
                 )
 
-#                print(" VCC")
-#                for r in vcc_routes:
-#                    print(" ", r)
-#                print(" GND")
-#                for r in gnd_routes:
-#                    print(" ", r)
+                #                print(" VCC")
+                #                for r in vcc_routes:
+                #                    print(" ", r)
+                #                print(" GND")
+                #                for r in gnd_routes:
+                #                    print(" ", r)
 
-                routes[pin] = {
-                    "VCC": vcc_routes,
-                    "GND": gnd_routes
-                }
+                routes[pin] = {"VCC": vcc_routes, "GND": gnd_routes}
 
             # Store
             self.ctrl_routes[cell.name] = routes
@@ -545,7 +550,9 @@ class QmuxSwitchboxModel(SwitchboxModel):
                     for route in net_routes:
 
                         # Assume 3-stage switchbox
-                        assert len(route) == 3, "FIXME: Assuming 3-stage switchbox!"
+                        assert len(
+                            route
+                        ) == 3, "FIXME: Assuming 3-stage switchbox!"
 
                         if route[1][1] == 0 and net == "GND":
                             routes.append(route)
@@ -554,18 +561,18 @@ class QmuxSwitchboxModel(SwitchboxModel):
 
                     pin_routes[net] = routes
 
+
 #               print(cell_name, pin)
 #               for r in pin_routes["GND"]:
 #                   print(r)
 #               for r in pin_routes["VCC"]:
 #                   print(r)
 
-        # TODO: Possibly build the HIGHWAY stage routing in the same way as
-        # in all switchboxes but skip the STREET stage completely.
+# TODO: Possibly build the HIGHWAY stage routing in the same way as
+# in all switchboxes but skip the STREET stage completely.
 
     def get_input_node(self, pin_name):
         return None
 
     def get_output_node(self, pin_name):
         return None
-

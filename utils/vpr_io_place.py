@@ -15,6 +15,7 @@ CONSTRAINT_TEMPLATE = '{name:<{nl}} {x: 3} {y: 3} {z: 2}  # {comment}'
 INOUT_REGEX = re.compile(r"^(.+)(_\$inp|_\$out)(.*)$")
 NETNAME_REGEX = re.compile(r"(.+?)(\[[0-9]+\]$|$)")
 
+
 class IoPlace(object):
     def __init__(self):
         self.constraints = OrderedDict()

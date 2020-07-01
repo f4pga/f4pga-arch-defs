@@ -13,115 +13,113 @@ from sdf_timing.utils import get_scale_seconds
 # RAM 2x1 ports, their widths and associated clocks.
 # FIXME: Read that from the techfile or phy_db.pickle
 RAM_2X1_PORTS = {
+    "input":
+        [
+            # RAM part 1, port 1
+            ["WIDTH_SELECT1_0", 2, None],
+            ["CLK1EN_0", 1, None],  #"CLK1_0"],
+            ["CS1_0", 1, None],  #"CLK1_0"],
+            ["A1_0", 11, "CLK1_0"],
+            ["WD_0", 18, "CLK1_0"],
+            ["WEN1_0", 2, "CLK1_0"],
+            ["P1_0", 1, "CLK1_0"],
 
-    "input": [
-        # RAM part 1, port 1
-        ["WIDTH_SELECT1_0", 2, None],
-        ["CLK1EN_0", 1, None],#"CLK1_0"],
-        ["CS1_0", 1, None],#"CLK1_0"],
-        ["A1_0", 11, "CLK1_0"],
-        ["WD_0", 18, "CLK1_0"],
-        ["WEN1_0", 2, "CLK1_0"],
-        ["P1_0", 1, "CLK1_0"],
+            # RAM part 1, port 2
+            ["WIDTH_SELECT2_0", 2, None],
+            ["CLK2EN_0", 1, None],  #"CLK2_0"],
+            ["CS2_0", 1, None],  #"CLK2_0"],
+            ["A2_0", 11, "CLK2_0"],
+            ["P2_0", 1, "CLK2_0"],
 
-        # RAM part 1, port 2
-        ["WIDTH_SELECT2_0", 2, None],
-        ["CLK2EN_0", 1, None],#"CLK2_0"],
-        ["CS2_0", 1, None],#"CLK2_0"],
-        ["A2_0", 11, "CLK2_0"],
-        ["P2_0", 1, "CLK2_0"],
+            # RAM part 1, common
+            ["CONCAT_EN_0", 1, None],
+            ["PIPELINE_RD_0", 1, None],
+            ["FIFO_EN_0", 1, None],
+            ["DIR_0", 1, None],
+            ["SYNC_FIFO_0", 1, None],
+            ["ASYNC_FLUSH_0", 1, None],
 
-        # RAM part 1, common
-        ["CONCAT_EN_0", 1, None],
-        ["PIPELINE_RD_0", 1, None],
-        ["FIFO_EN_0", 1, None],
-        ["DIR_0", 1, None],
-        ["SYNC_FIFO_0", 1, None],
-        ["ASYNC_FLUSH_0", 1, None],
+            # RAM part 2, port 1
+            ["WIDTH_SELECT1_1", 2, None],
+            ["CLK1EN_1", 1, None],  #"CLK1_1"],
+            ["CS1_1", 1, None],  #"CLK1_1"],
+            ["A1_1", 11, "CLK1_1"],
+            ["WD_1", 18, "CLK1_1"],
+            ["WEN1_1", 2, "CLK1_1"],
+            ["P1_1", 1, "CLK1_1"],
 
+            # RAM part 2, port 2
+            ["WIDTH_SELECT2_1", 2, None],
+            ["CLK2EN_1", 1, None],  #"CLK2_1"],
+            ["CS2_1", 1, None],  #"CLK2_1"],
+            ["A2_1", 11, "CLK2_1"],
+            ["P2_1", 1, "CLK2_1"],
 
-        # RAM part 2, port 1
-        ["WIDTH_SELECT1_1", 2, None],
-        ["CLK1EN_1", 1, None],#"CLK1_1"],
-        ["CS1_1", 1, None],#"CLK1_1"],
-        ["A1_1", 11, "CLK1_1"],
-        ["WD_1", 18, "CLK1_1"],
-        ["WEN1_1", 2, "CLK1_1"],
-        ["P1_1", 1, "CLK1_1"],
+            # RAM part 2, common
+            ["CONCAT_EN_1", 1, None],
+            ["PIPELINE_RD_1", 1, None],
+            ["FIFO_EN_1", 1, None],
+            ["DIR_1", 1, None],
+            ["SYNC_FIFO_1", 1, None],
+            ["ASYNC_FLUSH_1", 1, None],
 
-        # RAM part 2, port 2
-        ["WIDTH_SELECT2_1", 2, None],
-        ["CLK2EN_1", 1, None],#"CLK2_1"],
-        ["CS2_1", 1, None],#"CLK2_1"],
-        ["A2_1", 11, "CLK2_1"],
-        ["P2_1", 1, "CLK2_1"],
+            # Common, unknown
+            ["DS", 1, None],
+            ["DS_RB1", 1, None],
+            ["LS", 1, None],
+            ["LS_RB1", 1, None],
+            ["SD", 1, None],
+            ["SD_RB1", 1, None],
+            ["RMA", 4, None],
+            ["RMB", 4, None],
+            ["RMEA", 1, None],
+            ["RMEB", 1, None],
+            ["TEST1A", 1, None],
+            ["TEST1B", 1, None],
+        ],
+    "clock":
+        [
+            # RAM part 1
+            ["CLK1_0", 1, None],
+            ["CLK2_0", 1, None],
 
-        # RAM part 2, common
-        ["CONCAT_EN_1", 1, None],
-        ["PIPELINE_RD_1", 1, None],
-        ["FIFO_EN_1", 1, None],
-        ["DIR_1", 1, None],
-        ["SYNC_FIFO_1", 1, None],
-        ["ASYNC_FLUSH_1", 1, None],
+            # RAM part 2
+            ["CLK1_1", 1, None],
+            ["CLK2_1", 1, None],
+        ],
+    "output":
+        [
+            # RAM part 1, port 1
+            ["Almost_Full_0", 1, "CLK1_0"],
+            ["PUSH_FLAG_0", 4, "CLK1_0"],
 
+            # RAM part 1, port 2
+            ["Almost_Empty_0", 1, "CLK2_0"],
+            ["POP_FLAG_0", 4, "CLK2_0"],
+            ["RD_0", 18, "CLK2_0"],
 
-        # Common, unknown
-        ["DS", 1, None],
-        ["DS_RB1", 1, None],
-        ["LS", 1, None],
-        ["LS_RB1", 1, None],
-        ["SD", 1, None],
-        ["SD_RB1", 1, None],
-        ["RMA", 4, None],
-        ["RMB", 4, None],
-        ["RMEA", 1, None],
-        ["RMEB", 1, None],
-        ["TEST1A", 1, None],
-        ["TEST1B", 1, None],
-    ],
+            # RAM part 2, port 1
+            ["Almost_Full_1", 1, "CLK1_1"],
+            ["PUSH_FLAG_1", 4, "CLK1_1"],
 
-    "clock": [
-        # RAM part 1
-        ["CLK1_0", 1, None],
-        ["CLK2_0", 1, None],
-
-        # RAM part 2
-        ["CLK1_1", 1, None],
-        ["CLK2_1", 1, None],
-    ],
-
-    "output": [
-        # RAM part 1, port 1
-        ["Almost_Full_0", 1, "CLK1_0"],
-        ["PUSH_FLAG_0", 4, "CLK1_0"],
-
-        # RAM part 1, port 2
-        ["Almost_Empty_0", 1, "CLK2_0"],
-        ["POP_FLAG_0", 4, "CLK2_0"],
-        ["RD_0", 18, "CLK2_0"],
-
-        # RAM part 2, port 1
-        ["Almost_Full_1", 1, "CLK1_1"],
-        ["PUSH_FLAG_1", 4, "CLK1_1"],
-
-        # RAM part 2, port 2
-        ["Almost_Empty_1", 1, "CLK2_1"],
-        ["POP_FLAG_1", 4, "CLK2_1"],
-        ["RD_1", 18, "CLK2_1"],
-    ],
+            # RAM part 2, port 2
+            ["Almost_Empty_1", 1, "CLK2_1"],
+            ["POP_FLAG_1", 4, "CLK2_1"],
+            ["RD_1", 18, "CLK2_1"],
+        ],
 }
 
 # A list of non-routable ports
 RAM_2X1_NON_ROUTABLE_PORTS = {
-    "input": [
-        ["CLK1S_0", 1, None],
-        ["CLK2S_0", 1, None],
-        ["CLK1S_1", 1, None],
-        ["CLK2S_1", 1, None],
-
-        ["ASYNC_FLUSH_S0", 1, None],
-        ["ASYNC_FLUSH_S1", 1, None],
-    ]
+    "input":
+        [
+            ["CLK1S_0", 1, None],
+            ["CLK2S_0", 1, None],
+            ["CLK1S_1", 1, None],
+            ["CLK2S_1", 1, None],
+            ["ASYNC_FLUSH_S0", 1, None],
+            ["ASYNC_FLUSH_S1", 1, None],
+        ]
 }
 
 # A list of non-routable ports
@@ -144,7 +142,6 @@ RAM_2X1_COMMON_PORTS = [
 RAM_PORTS = [
     "WEN1",
     "WEN2",
-
     "A1",
     "A2",
 ]
@@ -154,10 +151,8 @@ FIFO_PORTS = [
     "DIR",
     "SYNC_FIFO",
     "ASYNC_FLUSH",
-
     "P1",
     "P2",
-
     "Almost_Full",
     "Almost_Empty",
     "PUSH_FLAG",
@@ -170,7 +165,6 @@ FIFO_CLOCK_MAP = {
     "CLK2_0": "CLK1_0",
     "CLK1_1": "CLK2_1",
     "CLK2_1": "CLK1_1",
-
     "CLK1": "CLK2",
     "CLK2": "CLK1",
 }
@@ -183,12 +177,13 @@ def yield_ram_modes(ram_tree):
     Yields all possible combinations of ram modes. Generated strings contain
     comma separated control signal conditions.
     """
-    def inner(d, cond_prefix = None):
+
+    def inner(d, cond_prefix=None):
         for k, v in d.items():
             if not cond_prefix:
                 cond = k
             else:
-                cond = cond_prefix + "," +  k
+                cond = cond_prefix + "," + k
 
             if v is None:
                 yield cond
@@ -223,10 +218,13 @@ def make_mode_name(cond):
 
     return "_".join(name)
 
+
 # =============================================================================
 
 
-def filter_cells(timings, cond, part=None, normalized_names=False, debug=False):
+def filter_cells(
+        timings, cond, part=None, normalized_names=False, debug=False
+):
     """
     Filters SDF timings basing on conditions present in cell type names.
 
@@ -265,7 +263,9 @@ def filter_cells(timings, cond, part=None, normalized_names=False, debug=False):
                 if normalized_names:
                     cond_strs.append(sig + part_str + str(b) + "_EQ_" + nval)
                 else:
-                    cond_strs.append(sig + part_str + "[{}]".format(b) + "_EQ_" + nval)
+                    cond_strs.append(
+                        sig + part_str + "[{}]".format(b) + "_EQ_" + nval
+                    )
 
             # Reject the other part completely
             other_part_str = "_{}".format(int(1 - part))
@@ -279,8 +279,12 @@ def filter_cells(timings, cond, part=None, normalized_names=False, debug=False):
                     cond_strs.append(sig + other_part_str + str(b) + "_EQ_0")
                     cond_strs.append(sig + other_part_str + str(b) + "_EQ_1")
                 else:
-                    cond_strs.append(sig + other_part_str + "[{}]".format(b) + "_EQ_0")
-                    cond_strs.append(sig + other_part_str + "[{}]".format(b) + "_EQ_1")
+                    cond_strs.append(
+                        sig + other_part_str + "[{}]".format(b) + "_EQ_0"
+                    )
+                    cond_strs.append(
+                        sig + other_part_str + "[{}]".format(b) + "_EQ_1"
+                    )
 
         # For both parts
         else:
@@ -296,8 +300,12 @@ def filter_cells(timings, cond, part=None, normalized_names=False, debug=False):
                     cond_strs.append(sig + "_0" + str(b) + "_EQ_" + nval)
                     cond_strs.append(sig + "_1" + str(b) + "_EQ_" + nval)
                 else:
-                    cond_strs.append(sig + "_0" + "[{}]".format(b) + "_EQ_" + nval)
-                    cond_strs.append(sig + "_1" + "[{}]".format(b) + "_EQ_" + nval)
+                    cond_strs.append(
+                        sig + "_0" + "[{}]".format(b) + "_EQ_" + nval
+                    )
+                    cond_strs.append(
+                        sig + "_1" + "[{}]".format(b) + "_EQ_" + nval
+                    )
 
     # DEBUG
     if debug:
@@ -371,9 +379,14 @@ def find_timings(timings, src_pin, dst_pin):
                             # FIXME
                             continue
 
-                        path_timings[tname] = (cell_type, inst_name, tdata,)
+                        path_timings[tname] = (
+                            cell_type,
+                            inst_name,
+                            tdata,
+                        )
 
     return path_timings
+
 
 # =============================================================================
 
@@ -384,8 +397,8 @@ def make_single_ram(ports):
     """
 
     new_ports = {
-        "input":  set(),
-        "clock":  set(),
+        "input": set(),
+        "clock": set(),
         "output": set(),
     }
 
@@ -416,8 +429,17 @@ def make_single_ram(ports):
 
             # This is a common port for both RAMs, add it unchanged
             else:
-                assert key == "input", (key, name, width, assoc_clock,)
-                new_ports[key].add((name, width, assoc_clock,))
+                assert key == "input", (
+                    key,
+                    name,
+                    width,
+                    assoc_clock,
+                )
+                new_ports[key].add((
+                    name,
+                    width,
+                    assoc_clock,
+                ))
 
     return new_ports
 
@@ -429,8 +451,8 @@ def remap_clocks(ports, clock_map):
     """
 
     new_ports = {
-        "input":  set(),
-        "clock":  set(),
+        "input": set(),
+        "clock": set(),
         "output": set(),
     }
 
@@ -438,13 +460,17 @@ def remap_clocks(ports, clock_map):
         for name, width, assoc_clock in ports[key]:
 
             # P1 and P2 are not subject to the remap
-            if "P1" not in name and "P2" not in name:                
+            if "P1" not in name and "P2" not in name:
 
                 # Remap the associated clock
                 if assoc_clock in clock_map:
                     assoc_clock = clock_map[assoc_clock]
 
-            new_ports[key].add((name, width, assoc_clock,))
+            new_ports[key].add((
+                name,
+                width,
+                assoc_clock,
+            ))
 
     return new_ports
 
@@ -470,10 +496,14 @@ def filter_ports(ports, ports_to_filter):
                 if name in ports_to_filter:
                     assoc_clock = None
 
-
-            new_ports[key].append((name, width, assoc_clock,))
+            new_ports[key].append((
+                name,
+                width,
+                assoc_clock,
+            ))
 
     return new_ports
+
 
 # =============================================================================
 
@@ -484,7 +514,9 @@ def make_model(model_name, ports):
     """
 
     # The model root
-    xml_model = ET.Element("model", {"name": model_name,})
+    xml_model = ET.Element("model", {
+        "name": model_name,
+    })
 
     # Port lists
     xml_ports = {
@@ -509,16 +541,19 @@ def make_model(model_name, ports):
                 else:
                     attrs = dict()
 
-            ET.SubElement(xml_ports[key], "port", {
-                    "name": name,
-                    **attrs
-                }
-            )
+            ET.SubElement(xml_ports[key], "port", {"name": name, **attrs})
 
     return xml_model
 
 
-def make_pb_type(pb_name, ports, model_name, timings=None, timescale=1.0, normalized_names=False):
+def make_pb_type(
+        pb_name,
+        ports,
+        model_name,
+        timings=None,
+        timescale=1.0,
+        normalized_names=False
+):
 
     stats = {
         "total_timings": 0,
@@ -531,22 +566,17 @@ def make_pb_type(pb_name, ports, model_name, timings=None, timescale=1.0, normal
     else:
         attrs = dict()
 
-    xml_pb = ET.Element("pb_type", {
-        "name": pb_name,
-        "num_pb": "1",
-        **attrs
-        }
-    )
+    xml_pb = ET.Element("pb_type", {"name": pb_name, "num_pb": "1", **attrs})
 
     # Ports
     for key in ["clock", "input", "output"]:
         for name, width, *data in ports[key]:
-            ET.SubElement(xml_pb, key, {
+            ET.SubElement(
+                xml_pb, key, {
                     "name": name,
                     "num_pins": str(width),
                 }
             )
-
 
     # Timings
     if timings is not None:
@@ -559,12 +589,12 @@ def make_pb_type(pb_name, ports, model_name, timings=None, timescale=1.0, normal
             # DEBUG
 #            print(" ", assoc_clock, "->", name)
 
-            # Find all timing paths for that port
+# Find all timing paths for that port
             path_timings = find_timings(timings, assoc_clock, name.upper())
 
             # DEBUG
-#            for k, v in path_timings.items():
-#                print("  ", k, v[:1])
+            #            for k, v in path_timings.items():
+            #                print("  ", k, v[:1])
 
             # Index suffixes
             if width > 1:
@@ -604,14 +634,19 @@ def make_pb_type(pb_name, ports, model_name, timings=None, timescale=1.0, normal
             else:
                 delay = 1e-10
                 stats["missing_timings"] += 1
-                print("WARNING: No setup timing for '{}'->'{}' for pb_type '{}'".format(name, assoc_clock, pb_name))
+                print(
+                    "WARNING: No setup timing for '{}'->'{}' for pb_type '{}'".
+                    format(name, assoc_clock, pb_name)
+                )
             stats["total_timings"] += 1
 
-            ET.SubElement(xml_pb, "T_setup", {
-                "port": name,
-                "clock": assoc_clock,
-                "value": "{:+e}".format(delay)
-            })
+            ET.SubElement(
+                xml_pb, "T_setup", {
+                    "port": name,
+                    "clock": assoc_clock,
+                    "value": "{:+e}".format(delay)
+                }
+            )
 
             # Hold
             delays = {}
@@ -638,15 +673,19 @@ def make_pb_type(pb_name, ports, model_name, timings=None, timescale=1.0, normal
             else:
                 delay = 1e-10
                 stats["missing_timings"] += 1
-                print("WARNING: No hold timing for '{}'->'{}' for pb_type '{}'".format(name, assoc_clock, pb_name))
+                print(
+                    "WARNING: No hold timing for '{}'->'{}' for pb_type '{}'".
+                    format(name, assoc_clock, pb_name)
+                )
             stats["total_timings"] += 1
 
-            ET.SubElement(xml_pb, "T_hold", {
-                "port": name,
-                "clock": assoc_clock,
-                "value": "{:+e}".format(delay)
-            })
-
+            ET.SubElement(
+                xml_pb, "T_hold", {
+                    "port": name,
+                    "clock": assoc_clock,
+                    "value": "{:+e}".format(delay)
+                }
+            )
 
         # Clock to Q
         for name, width, assoc_clock in ports["output"]:
@@ -689,18 +728,24 @@ def make_pb_type(pb_name, ports, model_name, timings=None, timescale=1.0, normal
                 delay_min = 1e-10
                 delay_max = 1e-10
                 stats["missing_timings"] += 1
-                print("WARNING: No \"clock to Q\" timing for '{}'->'{}' for pb_type '{}'".format(assoc_clock, name, pb_name))
+                print(
+                    "WARNING: No \"clock to Q\" timing for '{}'->'{}' for pb_type '{}'"
+                    .format(assoc_clock, name, pb_name)
+                )
 
             stats["total_timings"] += 1
 
-            ET.SubElement(xml_pb, "T_clock_to_Q", {
-                "port": name,
-                "clock": assoc_clock,
-                "min": "{:+e}".format(delay_min),
-                "max": "{:+e}".format(delay_max)
-            })
+            ET.SubElement(
+                xml_pb, "T_clock_to_Q", {
+                    "port": name,
+                    "clock": assoc_clock,
+                    "min": "{:+e}".format(delay_min),
+                    "max": "{:+e}".format(delay_max)
+                }
+            )
 
     return xml_pb, stats
+
 
 # =============================================================================
 
@@ -739,18 +784,18 @@ def auto_interconnect(pb_type):
         pb_children = [pb_type]
 
     # Upstream ports
-    parent_name     = pb_parent.attrib["name"]
-    parent_inputs   = set(get_ports(pb_parent, "input"))
-    parent_inputs  |= set(get_ports(pb_parent, "clock"))
-    parent_outputs  = set(get_ports(pb_parent, "output"))
+    parent_name = pb_parent.attrib["name"]
+    parent_inputs = set(get_ports(pb_parent, "input"))
+    parent_inputs |= set(get_ports(pb_parent, "clock"))
+    parent_outputs = set(get_ports(pb_parent, "output"))
 
     # Downstream ports
     children = {}
     for child in pb_children:
-        name     = child.attrib["name"]
-        inputs   = set(get_ports(child, "input"))
-        inputs  |= set(get_ports(child, "clock"))
-        outputs  = set(get_ports(child, "output"))
+        name = child.attrib["name"]
+        inputs = set(get_ports(child, "input"))
+        inputs |= set(get_ports(child, "clock"))
+        outputs = set(get_ports(child, "output"))
 
         children[name] = (
             inputs,
@@ -767,22 +812,30 @@ def auto_interconnect(pb_type):
         # Get the suffix
         m = re.match(r"(.*)(_[0-9]+)$", port)
         if m is not None:
-            alias  = m.group(1)
+            alias = m.group(1)
             suffix = m.group(2)
         else:
-            alias  = port
+            alias = port
             suffix = None
 
-
         # Check in all children
-        for child, (inputs, outputs,) in children.items():
+        for child, (
+                inputs,
+                outputs,
+        ) in children.items():
 
             if other is not None:
                 continue
 
             # Find the port
             if alias in outputs:
-                assert other is None, (other, (child, alias,),)
+                assert other is None, (
+                    other,
+                    (
+                        child,
+                        alias,
+                    ),
+                )
                 other = (child, alias)
 
             # port not found
@@ -797,14 +850,19 @@ def auto_interconnect(pb_type):
             iname = "{}.{}".format(*other)
             oname = "{}.{}".format(parent_name, port)
 
-            ET.SubElement(ic, "direct", {
-                "name": "{}_to_{}".format(iname, oname),
-                "input": iname,
-                "output": oname
-            })
+            ET.SubElement(
+                ic, "direct", {
+                    "name": "{}_to_{}".format(iname, oname),
+                    "input": iname,
+                    "output": oname
+                }
+            )
 
     # Add connections for child inputs (these are sinks)
-    for child, (inputs, outputs,) in children.items():
+    for child, (
+            inputs,
+            outputs,
+    ) in children.items():
 
         # Get the child name suffix
         m = re.match(r"(.*)(_[0-9]+)$", child)
@@ -832,15 +890,19 @@ def auto_interconnect(pb_type):
                 iname = "{}.{}".format(parent_name, other)
                 oname = "{}.{}".format(child, port)
 
-                ET.SubElement(ic, "direct", {
-                    "name": "{}_to_{}".format(iname, oname),
-                    "input": iname,
-                    "output": oname
-                })
+                ET.SubElement(
+                    ic, "direct", {
+                        "name": "{}_to_{}".format(iname, oname),
+                        "input": iname,
+                        "output": oname
+                    }
+                )
 
     return ic
 
+
 # =============================================================================
+
 
 def make_ports(ports, separator=",\n"):
     verilog = ""
@@ -856,36 +918,33 @@ def make_ports(ports, separator=",\n"):
         for name, width, assoc_clock in ports[key]:
             if width > 1:
                 verilog += "  {:<6} [{:2d}:0] {}{}".format(
-                    type,
-                    width - 1,
-                    name,
-                    separator
+                    type, width - 1, name, separator
                 )
             else:
-                verilog += "  {:<6}        {}{}".format(
-                    type,
-                    name,
-                    separator
-                )
+                verilog += "  {:<6}        {}{}".format(type, name, separator)
 
     return verilog
+
 
 def make_ram2x1_instance(ports, separator=",\n"):
     verilog = ""
 
     verilog += "\n   ram8k_2x1_cell I1 ( \n"
-    
+
     for key in ["clock", "input", "output"]:
         for name, width, assoc_clock in ports[key]:
             if name not in RAM_2X1_COMMON_PORTS:
                 if name.endswith("_0") or name.endswith("_1"):
                     verilog += "      .{}({}){}".format(name, name, separator)
-                else: 
-                    verilog += "      .{}_0({}){}".format(name, name, separator)       
-      
-    verilog  = verilog[:-2] + ");\n\n"
-    
+                else:
+                    verilog += "      .{}_0({}){}".format(
+                        name, name, separator
+                    )
+
+    verilog = verilog[:-2] + ");\n\n"
+
     return verilog
+
 
 def make_specify(ports, separator=";\n"):
     verilog = ""
@@ -901,26 +960,21 @@ def make_specify(ports, separator=";\n"):
             if key == "input":
                 if assoc_clock != None:
                     verilog += "      $setup({}, posedge {}, \"\"){}".format(
-                        name,
-                        assoc_clock,
-                        separator
+                        name, assoc_clock, separator
                     )
                     verilog += "      $hold(posedge {}, {}, \"\"){}".format(
-                        assoc_clock,
-                        name,
-                        separator
+                        assoc_clock, name, separator
                     )
             elif key == "output":
                 if assoc_clock != None:
                     verilog += "      ({}*>{})=\"\"{}".format(
-                        assoc_clock,
-                        name,
-                        separator
+                        assoc_clock, name, separator
                     )
-    
+
     verilog += "  endspecify\n\n"
 
     return verilog
+
 
 def make_blackbox(name, ports, specify_ports):
 
@@ -932,16 +986,16 @@ module {} (
 
     # Ports
     verilog += make_ports(ports)
-    verilog  = verilog[:-2] + "\n"
+    verilog = verilog[:-2] + "\n"
     verilog += ");\n"
-    
+
     #Specify
     verilog += make_specify(specify_ports)
-    
+
     #RAM2x1 cell instance
     verilog += make_ram2x1_instance(ports)
 
-    # Footer    
+    # Footer
     verilog += "endmodule\n"
 
     return verilog
@@ -963,7 +1017,7 @@ def make_techmap(conditions):
             map_ports[key] += RAM_2X1_NON_ROUTABLE_PORTS[key]
 
     verilog += make_ports(map_ports)
-    verilog  = verilog[:-2] + "\n"
+    verilog = verilog[:-2] + "\n"
     verilog += ");\n"
 
     verilog += "\n"
@@ -1009,7 +1063,9 @@ def make_techmap(conditions):
                 if sig == "CONCAT_EN":
                     continue
 
-                cond_part = "(_TECHMAP_CONSTVAL_{}_{}_ == {})".format(sig, part, val)
+                cond_part = "(_TECHMAP_CONSTVAL_{}_{}_ == {})".format(
+                    sig, part, val
+                )
                 verilog_cond.append(cond_part)
 
             verilog_cond = " && ".join(verilog_cond)
@@ -1019,7 +1075,7 @@ def make_techmap(conditions):
                 verilog += "    end else if ({}) begin\n".format(verilog_cond)
 
             # Instance
-            mode_name  = make_mode_name(condition)
+            mode_name = make_mode_name(condition)
             model_name = "RAM_" + mode_name + "_VPR"
 
             verilog += "        {} RAM_{} (\n".format(model_name, part)
@@ -1078,7 +1134,7 @@ def make_techmap(conditions):
             verilog += "    end else if ({}) begin\n".format(verilog_cond)
 
         # Instance
-        mode_name  = make_mode_name(condition)
+        mode_name = make_mode_name(condition)
         model_name = "RAM_" + mode_name + "_VPR"
 
         verilog += "      {} RAM (\n".format(model_name)
@@ -1112,7 +1168,9 @@ def make_techmap(conditions):
 
     return verilog
 
+
 # =============================================================================
+
 
 def main():
 
@@ -1125,16 +1183,10 @@ def main():
         help="A JSON file defining RAM modes"
     )
     parser.add_argument(
-        "--sdf",
-        type=str,
-        required=True,
-        help="An SDF file with timing data"
+        "--sdf", type=str, required=True, help="An SDF file with timing data"
     )
     parser.add_argument(
-        "--xml-path",
-        type=str,
-        default="./",
-        help="Output path for XML files"
+        "--xml-path", type=str, default="./", help="Output path for XML files"
     )
     parser.add_argument(
         "--vlog-path",
@@ -1156,7 +1208,6 @@ def main():
 
     # Make port definition for a single ram
     ram_ports_sing = make_single_ram(RAM_2X1_PORTS)
-
 
     # Gather all RAM instances
     instances = set()
@@ -1201,21 +1252,21 @@ def main():
         # Get timings for this instance
         all_timings = filter_instances(ram_timings["cells"], instance)
 
-        total_timings   = 0
+        total_timings = 0
         missing_timings = 0
 
         # Generate RAM modes
         for cond in yield_ram_modes(ram_tree):
             print("", cond)
 
-            mode_name  = make_mode_name(cond)
+            mode_name = make_mode_name(cond)
             model_name = "RAM_" + mode_name + "_VPR"
 
             # CONCAT_EN=0 - the 2x1 RAM is split into two
             if "CONCAT_EN=0" in cond:
 
                 if "FIFO_EN=0" in cond:
-                    model_ports = filter_ports(ram_ports_sing, FIFO_PORTS)                
+                    model_ports = filter_ports(ram_ports_sing, FIFO_PORTS)
                 else:
                     model_ports = filter_ports(ram_ports_sing, RAM_PORTS)
                     if "DIR=1" in cond:
@@ -1226,22 +1277,36 @@ def main():
 
                     # Filter timings basing on the generated set of conditions
                     # and RAM part
-                    timings = filter_cells(all_timings, cond, part, normalized_names=normalized_names)
+                    timings = filter_cells(
+                        all_timings,
+                        cond,
+                        part,
+                        normalized_names=normalized_names
+                    )
 
                     # DEBUG
-#                    print(" RAM_" + str(part))
-#                    for cname, cdata in timings.items():
-#                        print(" ", cname)
-#                        for iname, idata in cdata.items():
-#                            for tname, tdata in idata.items():
-#                                print("  ", tname, "src={}, dst={}".format(tdata["from_pin"], tdata["to_pin"]))
+                    #                    print(" RAM_" + str(part))
+                    #                    for cname, cdata in timings.items():
+                    #                        print(" ", cname)
+                    #                        for iname, idata in cdata.items():
+                    #                            for tname, tdata in idata.items():
+                    #                                print("  ", tname, "src={}, dst={}".format(tdata["from_pin"], tdata["to_pin"]))
 
                     # Make the mode XML
-                    xml_mode = ET.SubElement(xml_sing[part], "mode", {"name": mode_name})
+                    xml_mode = ET.SubElement(
+                        xml_sing[part], "mode", {"name": mode_name}
+                    )
 
                     # Make the pb_type XML
                     pb_name = "RAM_{}_{}".format(part, mode_name)
-                    xml_pb, stats = make_pb_type(pb_name, model_ports, model_name, timings, timescale, normalized_names=normalized_names)
+                    xml_pb, stats = make_pb_type(
+                        pb_name,
+                        model_ports,
+                        model_name,
+                        timings,
+                        timescale,
+                        normalized_names=normalized_names
+                    )
                     xml_mode.append(xml_pb)
 
                     total_timings += stats["total_timings"]
@@ -1266,22 +1331,31 @@ def main():
                         model_ports = remap_clocks(model_ports, FIFO_CLOCK_MAP)
 
                 # Filter timings
-                timings = filter_cells(all_timings, cond, None, normalized_names=normalized_names)
+                timings = filter_cells(
+                    all_timings, cond, None, normalized_names=normalized_names
+                )
 
                 # DEBUG
-#                print(" Dual RAM")
-#                for cname, cdata in timings.items():
-#                    print(" ", cname)
-#                    for iname, idata in cdata.items():
-#                        for tname, tdata in idata.items():
-#                            print("  ", tname, "src={}, dst={}".format(tdata["from_pin"], tdata["to_pin"]))
+                #                print(" Dual RAM")
+                #                for cname, cdata in timings.items():
+                #                    print(" ", cname)
+                #                    for iname, idata in cdata.items():
+                #                        for tname, tdata in idata.items():
+                #                            print("  ", tname, "src={}, dst={}".format(tdata["from_pin"], tdata["to_pin"]))
 
                 # Make the mode XML
                 xml_mode = ET.SubElement(xml_dual, "mode", {"name": mode_name})
 
                 # Make the pb_type XML
                 pb_name = "RAM_" + mode_name
-                xml_pb, stats = make_pb_type(pb_name, model_ports, model_name, timings, timescale, normalized_names=normalized_names)
+                xml_pb, stats = make_pb_type(
+                    pb_name,
+                    model_ports,
+                    model_name,
+                    timings,
+                    timescale,
+                    normalized_names=normalized_names
+                )
                 xml_mode.append(xml_pb)
 
                 total_timings += stats["total_timings"]
@@ -1304,7 +1378,11 @@ def main():
         ET.ElementTree(xml_pb_root).write(fname, pretty_print=True)
 
         print("total timings  : {}".format(total_timings))
-        print("missing timings: {} {:.2f}%".format(missing_timings, 100.0 * missing_timings / total_timings))
+        print(
+            "missing timings: {} {:.2f}%".format(
+                missing_timings, 100.0 * missing_timings / total_timings
+            )
+        )
 
     # Write models XML
     xml_model_root = ET.Element("models")
@@ -1314,11 +1392,10 @@ def main():
     fname = os.path.join(args.xml_path, "ram.model.xml")
     ET.ElementTree(xml_model_root).write(fname, pretty_print=True)
 
-
     # Make blackboxes
     blackboxes = {}
     for cond in yield_ram_modes(ram_tree):
-        mode_name  = make_mode_name(cond)
+        mode_name = make_mode_name(cond)
         model_name = "RAM_" + mode_name + "_VPR"
 
         # CONCAT_EN=0 - the 2x1 RAM is split into two
@@ -1327,14 +1404,14 @@ def main():
                 ports = remap_clocks(ram_ports_sing, FIFO_CLOCK_MAP)
             else:
                 ports = ram_ports_sing
-                
+
             if "FIFO_EN=0" in cond:
-                    model_ports = filter_ports(ram_ports_sing, FIFO_PORTS)                
+                model_ports = filter_ports(ram_ports_sing, FIFO_PORTS)
             else:
-                    model_ports = filter_ports(ram_ports_sing, RAM_PORTS)
-                    if "DIR=1" in cond:
-                        model_ports = remap_clocks(model_ports, FIFO_CLOCK_MAP)
-                        
+                model_ports = filter_ports(ram_ports_sing, RAM_PORTS)
+                if "DIR=1" in cond:
+                    model_ports = remap_clocks(model_ports, FIFO_CLOCK_MAP)
+
             verilog = make_blackbox(model_name, ports, model_ports)
             blackboxes[model_name] = verilog
 
@@ -1344,13 +1421,13 @@ def main():
                 ports = remap_clocks(RAM_2X1_PORTS, FIFO_CLOCK_MAP)
             else:
                 ports = RAM_2X1_PORTS
-            
+
             if "FIFO_EN=0" in cond:
-                    model_ports = filter_ports(RAM_2X1_PORTS, FIFO_PORTS)
+                model_ports = filter_ports(RAM_2X1_PORTS, FIFO_PORTS)
             else:
-                    model_ports = filter_ports(RAM_2X1_PORTS, RAM_PORTS)
-                    if "DIR=1" in cond:
-                        model_ports = remap_clocks(model_ports, FIFO_CLOCK_MAP)
+                model_ports = filter_ports(RAM_2X1_PORTS, RAM_PORTS)
+                if "DIR=1" in cond:
+                    model_ports = remap_clocks(model_ports, FIFO_CLOCK_MAP)
 
             verilog = make_blackbox(model_name, ports, model_ports)
             blackboxes[model_name] = verilog
@@ -1366,6 +1443,7 @@ def main():
     fname = os.path.join(args.vlog_path, "ram_map.v")
     with open(fname, "w") as fp:
         fp.write(techmap)
+
 
 if __name__ == "__main__":
     main()

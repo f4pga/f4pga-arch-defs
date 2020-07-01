@@ -145,9 +145,9 @@ def parse_library(xml_library):
             for i in [1, 2]:
                 cell_pins.append(
                     Pin(
-                        name = "QCLKIN{}".format(i),
-                        direction = PinDirection.INPUT,
-                        attrib = {"hardWired": "true"}
+                        name="QCLKIN{}".format(i),
+                        direction=PinDirection.INPUT,
+                        attrib={"hardWired": "true"}
                     )
                 )
 
@@ -909,8 +909,8 @@ def parse_clock_network(xml_clock_network):
             clock_cell = parse_cell(xml_cell, xml_quad.tag)
             clock_cells[clock_cell.name] = clock_cell
 
-    # Since we are not going to use dynamic enables on CAND we remove the EN 
-    # pin connection from the pinmap. This way the connections between 
+    # Since we are not going to use dynamic enables on CAND we remove the EN
+    # pin connection from the pinmap. This way the connections between
     # switchboxes which drive them can be used for generic routing.
     for cell_name in clock_cells.keys():
 
@@ -921,11 +921,11 @@ def parse_clock_network(xml_clock_network):
             del pin_map["EN"]
 
         clock_cells[cell_name] = ClockCell(
-            name = cell.name,
-            type = cell.type,
-            loc = cell.loc,
-            quadrant = cell.quadrant,
-            pin_map = pin_map
+            name=cell.name,
+            type=cell.type,
+            loc=cell.loc,
+            quadrant=cell.quadrant,
+            pin_map=pin_map
         )
 
     return clock_cells
@@ -1260,7 +1260,9 @@ def import_data(xml_root):
     assert xml_placement is not None
 
     cells_library = {cell.type: cell for cell in cells}
-    quadrants, tile_types, tile_grid = parse_placement(xml_placement, cells_library)
+    quadrants, tile_types, tile_grid = parse_placement(
+        xml_placement, cells_library
+    )
 
     # Import global clock network definition
     xml_clock_network = xml_placement.find("CLOCK_NETWORK")
