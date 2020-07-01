@@ -9,8 +9,6 @@ dependencies:
   - cmake
   - make
   - openocd
-  - yapf=0.26.0=py37_0
-  - pytest
   - flake8
   - nodejs
   - libiconv
