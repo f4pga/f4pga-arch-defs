@@ -19,6 +19,7 @@
 #
 import os
 import sys
+import shutil
 sys.path.insert(0, os.path.abspath('.'))
 
 from collectors import ArchsCollector, ModelsCollector  # Noqa: E402
@@ -213,3 +214,32 @@ texinfo_documents = [
         'Miscellaneous'
     ),
 ]
+
+hdl_diagram_yosys = "system"
+
+# --- Generated Sources ------------------------------------------------------
+
+repo_root = os.path.realpath("../../")
+shutil.rmtree("generated", ignore_errors=True)
+
+mc = ModelsCollector(repo_root)
+ac = ArchsCollector(repo_root)
+
+prjxray_generatedir = os.path.realpath("generated/prjxray/models")
+prjxray_search = ["xc/common/primitives"]
+mc.generate_docs(prjxray_generatedir, prjxray_search)
+
+icestorm_model_generatedir = os.path.realpath("generated/ice40/models")
+icestorm_arch_generatedir = os.path.realpath("generated/ice40/arch")
+icestorm_search = ["ice40"]
+icestorm_skip_diagrams = ["sb_pio"]
+mc.generate_docs(icestorm_model_generatedir, icestorm_search, icestorm_skip_diagrams)
+ac.generate_docs(icestorm_arch_generatedir, icestorm_search)
+
+ecp5_generatedir = os.path.realpath("generated/ecp5/models")
+ecp5_search = ["ecp5/primitives"]
+ecp5_skip_diagrams = ["BB", "CCU2C", "OBZ", "TRELLIS_IO", "sb_pio"]
+mc.generate_docs(ecp5_generatedir, ecp5_search, ecp5_skip_diagrams)
+
+
+

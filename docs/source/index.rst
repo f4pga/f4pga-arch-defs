@@ -25,5 +25,7 @@ Contents
    :maxdepth: 2
 
    getting-started
-   prjxray/index
    development/development
+   prjxray/index
+   ecp5/index
+   ice40/index

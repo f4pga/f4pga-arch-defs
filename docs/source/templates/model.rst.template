@@ -1,0 +1,48 @@
+{{ model_name }}
+===============================================================================
+
+{% if sim_path is not none %}
+
+Component Diagram
+-----------------
+
+.. symbolator:: {{ sim_path }}
+
+   {% if generate_diagrams is true %}
+
+Internal Diagram
+----------------
+
+.. verilog-diagram:: {{ sim_path }}
+   :type: netlistsvg
+   :module: {{ module_name }}
+
+   {% endif %}
+
+Verilog File
+------------
+
+.. literalinclude:: {{ sim_path }}
+   :language: verilog
+
+{% endif %}
+
+{% if pb_type_path is not none %}
+
+Physical Block XML
+------------------
+
+.. literalinclude:: {{ pb_type_path }}
+  :language: xml
+
+{% endif %}
+
+{% if model_path is not none %}
+
+Model XML
+---------
+
+.. literalinclude:: {{ model_path }}
+  :language: xml
+
+{% endif %}

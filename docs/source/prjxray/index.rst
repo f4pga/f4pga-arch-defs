@@ -2,7 +2,7 @@
 Project X-Ray
 =============
 
-This section contains the information about the methods and tools used for
+This section contains information about methods and tools used for
 managing Project-XRay data inside the Architecture Definitions Project.
 
 .. toctree::
@@ -11,3 +11,4 @@ managing Project-XRay data inside the Architecture Definitions Project.
    flow-diagram
    vtr-rrgraph
    partial-reconfig
+   primitive_index.rst
