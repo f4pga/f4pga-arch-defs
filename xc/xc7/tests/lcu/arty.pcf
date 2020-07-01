@@ -16,3 +16,21 @@ set_io gts G6
 set_io ges G3
 set_io les J3
 set_io lts K1
+
+# RGBs (only green)
+set_io gtu_n F6
+set_io geu_n J4
+set_io leu_n J2
+set_io ltu_n H6
+
+# RGBs (only blue)
+set_io gts_n E1
+set_io ges_n G4
+set_io les_n H4
+set_io lts_n K2
+
+# Pmod Header JA
+set_io zero G13
+set_io max B11
+set_io zero_n A11
+set_io max_n D12
