@@ -484,6 +484,13 @@ class Graph(object):
     ):
         return '{}.{}[{}]'.format(tile_type, port_name, pin_idx)
 
+    def create_pin_name_from_tile_type_sub_tile_num_and_pin(
+            self, tile_type, sub_tile_num, port_name, pin_idx=0
+    ):
+        return '{}[{}].{}[{}]'.format(
+            tile_type, sub_tile_num, port_name, pin_idx
+        )
+
     def get_nodes_for_pin(self, loc, pin_name):
         block_type_id, pin_class_idx, pin_idx = self.pin_name_map[pin_name]
         grid_loc = self.loc_map[loc]
