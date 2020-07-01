@@ -72,7 +72,7 @@ class Fasm2Bels(object):
         ramlocs = dict()
         multlocs = dict()
 
-        assp_tile = self.vpr_tile_grid[Loc(1, 1)]
+        assp_tile = self.vpr_tile_grid[Loc(1, 1, 0)]
         assp_cell = assp_tile.cells[0]
         for phy_loc, tile in self.vpr_tile_grid.items():
             tile_type = self.vpr_tile_types[tile.type]
@@ -138,7 +138,7 @@ class Fasm2Bels(object):
         self.multiloccells = {
             'ASSP':
                 MultiLocCellMapping(
-                    'ASSP', assplocs, Loc(1, 1), self.pinnames['ASSP']
+                    'ASSP', assplocs, Loc(1, 1, 0), self.pinnames['ASSP']
                 )
         }
         for ram in ramlocs:
@@ -253,7 +253,7 @@ class Fasm2Bels(object):
                 raise self.Fasm2BelsException(
                     f'FASM features have unsupported format:  {line.set_feature}'
                 )  # noqa: E501
-            loc = Loc(x=int(match.group('x')), y=int(match.group('y')))
+            loc = Loc(x=int(match.group('x')), y=int(match.group('y')), z=0)
             typ = match.group('type')
             feature = Feature(
                 loc=loc,
@@ -374,7 +374,7 @@ class Fasm2Bels(object):
         for k, v in routes.items():
             if v is not None:
                 if re.match('[VH][0-9][LRBT][0-9]', k):
-                    self.designhops[(loc.x, loc.y)][k] = v
+                    self.designhops[Loc(loc.x, loc.y, 0)][k] = v
                 else:
                     self.designconnections[loc][k] = v
 
@@ -389,7 +389,7 @@ class Fasm2Bels(object):
                 hop = get_name_and_hop(source)
                 tloc = loc
                 while hop[1] is not None:
-                    tloc = Loc(tloc[0] + hop[1][0], tloc[1] + hop[1][1])
+                    tloc = Loc(tloc[0] + hop[1][0], tloc[1] + hop[1][1], 0)
                     # in some cases BEL is distanced from a switchbox, in those
                     # cases the hop will not point to another hop. We should
                     # simply return the pin here in the correct location
