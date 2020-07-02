@@ -45,4 +45,12 @@
       <port name="Q"  clock="CK"/>
     </output_ports>
   </model>
+  <model name="T_INV">
+    <input_ports>
+      <port name="TI"/>
+    </input_ports>
+    <output_ports>
+      <port name="TO"/>
+    </output_ports>
+  </model>
 </models>

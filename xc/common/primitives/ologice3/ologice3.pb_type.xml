@@ -58,6 +58,24 @@
         </interconnect>
       </mode>
 
+      <mode name="T_INV">
+        <pb_type name="T_INV" blif_model=".subckt T_INV" num_pb="1">
+          <input  name="TI" num_pins="1"/>
+          <output name="TO" num_pins="1"/>
+
+          <metadata>
+            <meta name="fasm_features">
+              OSERDES.DATA_RATE_TQ.BUF
+            </meta>
+          </metadata>
+        </pb_type>
+
+        <interconnect>
+          <direct name="TI" input="OLOGIC_TFF.T1" output="T_INV.TI"/>
+          <direct name="TO" input="T_INV.TO" output="OLOGIC_TFF.TQ"/>
+        </interconnect>
+      </mode>
+
       <mode name="ODDR_TQ">
         <pb_type name="ODDR_TQ" blif_model=".subckt ODDR_VPR" num_pb="1">
           <clock  name="CK" num_pins="1"/>

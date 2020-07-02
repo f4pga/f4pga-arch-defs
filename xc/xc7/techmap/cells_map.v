@@ -2092,12 +2092,14 @@ module OBUF (
   parameter DRIVE = 12;
   parameter SLEW = "SLOW";
   parameter PULLTYPE = "NONE";  // Not supported by Vivado ?
+  parameter IO_LOC_PAIRS = "NONE";
 
   OBUFT # (
     .PULLTYPE(PULLTYPE),
     .IOSTANDARD(IOSTANDARD),
     .DRIVE(DRIVE),
-    .SLEW(SLEW)
+    .SLEW(SLEW),
+    .IO_LOC_PAIRS(IO_LOC_PAIRS)
   ) _TECHMAP_REPLACE_ (
     .I(I),
     .T(1'b0),
@@ -2117,6 +2119,25 @@ module OBUFT (
   parameter SLEW = "SLOW";
   parameter PULLTYPE = "NONE";  // Not supported by Vivado ?
   parameter IO_LOC_PAIRS = "NONE";
+
+  parameter _TECHMAP_CONSTMSK_T_ = 1'bx;
+  parameter _TECHMAP_CONSTVAL_T_ = 1'bx;
+
+  wire t;
+
+  // When T=1'b0 Vivado routes it to const1 and enables an inverter in OLOGIC.
+  // To mimic this behavior insert a specialized inverter that will go to the
+  // OLOGIC site.
+  generate if (_TECHMAP_CONSTMSK_T_ == 1'b1 && _TECHMAP_CONSTVAL_T_ == 1'b0) begin
+    T_INV t_inv (
+    .TI (1'b1),
+    .TO (t)
+    );
+
+  end else begin
+    assign t = T;
+
+  end endgenerate
 
   OBUFT_VPR # (
     .LVCMOS12_DRIVE_I12(
@@ -2222,9 +2243,9 @@ module OBUFT (
     .DRIVE(DRIVE),
     .SLEW(SLEW),
     .IO_LOC_PAIRS(IO_LOC_PAIRS)
-  ) _TECHMAP_REPLACE_ (
+  ) obuft (
     .I(I),
-    .T(T),
+    .T(t),
     .O(O)
   );
 
@@ -2513,6 +2534,7 @@ module IOBUFDS (
   parameter SLEW = "SLOW";
   parameter IN_TERM = "NONE";  // Not supported by Vivado ?
   parameter PULLTYPE = "NONE"; // Not supported by Vivado ?
+  parameter IO_LOC_PAIRS = "NONE";
 
   wire complementary_o;
   wire complementary_i;
@@ -2552,7 +2574,8 @@ module IOBUFDS (
 
     .PULLTYPE(PULLTYPE),
     .IOSTANDARD(IOSTANDARD),
-    .SLEW(SLEW)
+    .SLEW(SLEW),
+    .IO_LOC_PAIRS(IO_LOC_PAIRS)
   ) iobufds_m (
     .I(I),
     .T(T),
@@ -2598,7 +2621,8 @@ module IOBUFDS (
 
     .PULLTYPE(PULLTYPE),
     .IOSTANDARD(IOSTANDARD),
-    .SLEW(SLEW)
+    .SLEW(SLEW),
+    .IO_LOC_PAIRS(IO_LOC_PAIRS)
   ) iobufds_s (
     .IB(complementary_o),
     .OB(complementary_i),
