@@ -82,9 +82,3 @@
 [submodule "quicklogic/common/utils/fasm-utils"]
 	path = quicklogic/common/utils/fasm-utils
 	url = ../quicklogic-fasm-utils.git
-[submodule "quicklogic/common/utils/quicklogic-fasm"]
-	path = quicklogic/common/utils/quicklogic-fasm
-	url = https://github.com/QuickLogic-Corp/quicklogic-fasm.git
-[submodule "quicklogic/common/utils/quicklogic-timings-importer"]
-	path = quicklogic/common/utils/quicklogic-timings-importer
-	url = https://github.com/QuickLogic-Corp/quicklogic-timings-importer.git
