@@ -179,7 +179,8 @@ assign I2S_CLK_o = I2S_CLK_i;//for bootstrap issue fix
 //
 // Note: Reset the FPGA IP on either the AHB or clock domain reset signals.
 //
-gclkbuff u_gclkbuff_reset ( .A(Sys_Clk0_Rst | WB_RST) , .Z(WB_RST_FPGA) );
+//gclkbuff u_gclkbuff_reset ( .A(Sys_Clk0_Rst | WB_RST) , .Z(WB_RST_FPGA) );
+assign WB_RST_FPGA = Sys_Clk0_Rst | WB_RST ;
 gclkbuff u_gclkbuff_clock ( .A(Sys_Clk0             ) , .Z(WB_CLK       ) );
 
 //gclkbuff u_gclkbuff_clock4M ( .A(CLK_4MHZ_IN             ) , .Z(clk_4mhz       ) );
