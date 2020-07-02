@@ -804,7 +804,9 @@ def parse_pcf(pcf):
     with open(pcf, 'r') as fp:
         for l in fp:
             line = l.strip().split()
-            if len(line) != 3:
+            if len(line) < 3:
+                continue
+            if len(line) > 3 and not line[3].startswith("#"):
                 continue
             if line[0] != 'set_io':
                 continue
