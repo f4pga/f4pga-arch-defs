@@ -481,6 +481,20 @@ class Fasm2Bels(object):
         self.designconnections = newdesignconnections
 
     def get_clock_for_gmux(self, gmux, loc):
+        '''Returns location of a CLOCK cell associated with the given GMUX
+        cell. Returns None if not found
+
+        Parameters
+        ----------
+        gmux: str
+            The GMUX cell name
+        loc: Loc
+            The GMUX location
+
+        Returns
+        -------
+        Loc: the new location of the cell or None
+        '''
 
         connections = [c for c in self.connections if c.src.type == ConnectionType.TILE and c.dst.type == ConnectionType.TILE]
         for connection in connections:
@@ -515,8 +529,21 @@ class Fasm2Bels(object):
         # Not found
         return None
 
-
     def get_gmux_for_qmux(self, qmux, loc):
+        '''Returns a map of the given QMUX selection to driving GMUX cells.
+
+        Parameters
+        ----------
+        qmux: str
+            The QMUX cell name
+        loc: Loc
+            The QMUX location
+
+        Returns
+        -------
+        Dict: A dict indexed by the selection index holding tuples with format:
+            (loc, cell, pin)
+        '''
 
         sel_map = {}
 
@@ -552,8 +579,21 @@ class Fasm2Bels(object):
 
         return sel_map
 
-
     def get_qmux_for_cand(self, cand, loc):
+        ''' Returns a QMUX cell and its location that drives the given CAND
+        cell.
+
+        Parameters
+        ----------
+        cand: str
+            The CAND cell name
+        loc: Loc
+            The CAND location
+
+        Returns
+        -------
+        Tuple: A tuple holding (loc, cell)
+        '''
 
         connections = [c for c in self.connections if c.dst.type == ConnectionType.CLOCK]
         for connection in connections:
@@ -588,7 +628,14 @@ class Fasm2Bels(object):
         # None found
         return None, None
 
-    def resolve_global_clock_network(self):
+    def resolve_gmux(self):
+        '''Resolves GMUX cells, updates the designconnections map. Also creates
+        connections to CLOCK cells whenever necessary.
+
+        Returns
+        -------
+        Dict: A map of GMUX names to their output wires
+        '''
 
         # Process GMUX
         gmux_map  = dict()
@@ -657,6 +704,21 @@ class Fasm2Bels(object):
                 # Store the wire
                 gmux_map[gmux] = wire
 
+        return gmux_map
+
+    def resolve_qmux(self, gmux_map):
+        '''Resolves QMUX cells, updates the designconnections map.
+
+        Parameters
+        ----------
+        gmux_map: Dict
+            A map of QMUX cells to their GMUX driving wires.
+
+        Returns
+        -------
+        Dict: A map of locations and QMUX names to their driving wires
+        '''
+
         # Process QMUX
         qmux_map  = defaultdict(lambda: dict())
         qmux_locs = [l for l, t in self.vpr_tile_grid.items() if "QMUX" in t.type]
@@ -718,7 +780,21 @@ class Fasm2Bels(object):
                 # Store the wire
                 qmux_map[loc][qmux] = wire
 
-        qmux_map = dict(qmux_map)
+        return dict(qmux_map)
+
+    
+    def resolve_cand(self, qmux_map):
+        '''Resolves CAND cells, creates the cand_map map.
+
+        Parameters
+        ----------
+        qmux_map: Dict
+            A map of locations and CAND names to their driving QMUXes.
+
+        Returns
+        -------
+        None
+        '''
 
         # Process CAND
         for loc, all_features in self.colclk_data.items():
@@ -753,6 +829,23 @@ class Fasm2Bels(object):
                     sb_loc = Loc(loc.x, y, 0)
                     self.cand_map[sb_loc][cand] = wire
 
+    def resolve_global_clock_network(self):
+        '''Resolves the global clock network. Creates the cand_map, updates
+        the designconnections.
+
+        Returns
+        -------
+        None
+        '''
+
+        # Resolve GMUXes
+        gmux_map = self.resolve_gmux()
+        # Resolve QMUXes
+        qmux_map = self.resolve_qmux(gmux_map)
+        # Resolve CANDs
+        self.resolve_cand(qmux_map)
+
+
     def produce_verilog(self, pcf_data):
         '''Produces string containing Verilog module representing FASM.
 
@@ -760,14 +853,6 @@ class Fasm2Bels(object):
         -------
         str, str: a Verilog module and PCF
         '''
-
-#        # DEBUG #
-#        print("self.designconnections:")
-#        for loc, conns in self.designconnections.items():
-#            print(loc)
-#            for pin, conn in conns.items():
-#                print("", pin, conn)
-#        # DEBUG #
 
         module = VModule(
             self.vpr_tile_grid, self.vpr_tile_types, self.cells_library,
