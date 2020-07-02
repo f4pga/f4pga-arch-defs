@@ -905,6 +905,16 @@ module IOBUFDS_S_VPR (
 
 endmodule
 
+(* whitebox *)
+module T_INV (
+    input  TI,
+    output TO
+);
+
+  assign TO = ~TI;
+
+endmodule
+
 // ============================================================================
 // I/OSERDES
 
