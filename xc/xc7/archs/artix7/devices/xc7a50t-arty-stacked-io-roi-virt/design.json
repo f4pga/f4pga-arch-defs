@@ -1,0 +1,118 @@
+{
+    "info": {
+        "GRID_X_MAX": 58,
+        "GRID_X_MIN": 10,
+        "GRID_Y_MAX": 51,
+        "GRID_Y_MIN": 0
+    },
+    "ports": [
+        {
+            "name": "clk",
+            "node": "CLK_HROW_TOP_R_X60Y130/CLK_HROW_CK_BUFHCLK_L0",
+            "pin": "E3",
+            "wire": "HCLK_VBRK_X34Y130/HCLK_VBRK_CK_BUFHCLK0"
+        },
+        {
+            "name": "din[0]",
+            "node": "INT_L_X0Y104/EE2BEG2",
+            "pin": "A8",
+            "wire": "VBRK_X9Y109/VBRK_EE2A2"
+        },
+        {
+            "name": "din[1]",
+            "node": "INT_L_X0Y108/EE2BEG2",
+            "pin": "C11",
+            "wire": "VBRK_X9Y113/VBRK_EE2A2"
+        },
+        {
+            "name": "din[2]",
+            "node": "INT_L_X0Y112/EE2BEG2",
+            "pin": "C10",
+            "wire": "VBRK_X9Y117/VBRK_EE2A2"
+        },
+        {
+            "name": "din[3]",
+            "node": "INT_L_X0Y116/EE2BEG2",
+            "pin": "A10",
+            "wire": "VBRK_X9Y121/VBRK_EE2A2"
+        },
+        {
+            "name": "din[4]",
+            "node": "INT_L_X0Y120/EE2BEG2",
+            "pin": "C9",
+            "wire": "VBRK_X9Y125/VBRK_EE2A2"
+        },
+        {
+            "name": "din[5]",
+            "node": "INT_L_X0Y124/EE2BEG2",
+            "pin": "B9",
+            "wire": "VBRK_X9Y129/VBRK_EE2A2"
+        },
+        {
+            "name": "din[6]",
+            "node": "INT_L_X0Y128/EE2BEG2",
+            "pin": "B8",
+            "wire": "VBRK_X9Y134/VBRK_EE2A2"
+        },
+        {
+            "name": "din[7]",
+            "node": "INT_L_X0Y132/EE2BEG2",
+            "pin": "D9",
+            "wire": "VBRK_X9Y138/VBRK_EE2A2"
+        },
+        {
+            "name": "din[8]",
+            "node": "INT_L_X2Y103/NW2BEG3",
+            "pin": "SYN0",
+            "wire": "VBRK_X9Y109/VBRK_NW2A3"
+        },
+        {
+            "name": "dout[0]",
+            "node": "INT_R_X23Y117/LH12",
+            "pin": "H5",
+            "wire": "VBRK_X61Y122/VBRK_LH12"
+        },
+        {
+            "name": "dout[1]",
+            "node": "INT_R_X23Y121/LH12",
+            "pin": "J5",
+            "wire": "VBRK_X61Y126/VBRK_LH12"
+        },
+        {
+            "name": "dout[2]",
+            "node": "INT_L_X2Y117/SW6BEG0",
+            "pin": "T9",
+            "wire": "VBRK_X9Y122/VBRK_SW4A0"
+        },
+        {
+            "name": "dout[3]",
+            "node": "INT_L_X2Y121/SW6BEG0",
+            "pin": "T10",
+            "wire": "VBRK_X9Y126/VBRK_SW4A0"
+        },
+        {
+            "name": "dout[4]",
+            "node": "INT_R_X23Y125/LH12",
+            "pin": "F6",
+            "wire": "VBRK_X61Y131/VBRK_LH12"
+        },
+        {
+            "name": "dout[5]",
+            "node": "INT_R_X23Y129/LH12",
+            "pin": "J4",
+            "wire": "VBRK_X61Y135/VBRK_LH12"
+        },
+        {
+            "name": "dout[6]",
+            "node": "INT_R_X23Y133/LH12",
+            "pin": "J2",
+            "wire": "VBRK_X61Y139/VBRK_LH12"
+        },
+        {
+            "name": "dout[7]",
+            "node": "INT_R_X23Y137/LH12",
+            "pin": "H6",
+            "wire": "VBRK_X61Y143/VBRK_LH12"
+        }
+    ]
+}
