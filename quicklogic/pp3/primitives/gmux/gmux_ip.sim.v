@@ -15,6 +15,7 @@ module GMUX_IP (IP, IC, IS0, IZ);
     specify
         (IP => IZ) = "";
 		(IC => IZ) = "";
+		(IS0 => IZ) = "";
     endspecify
 
     assign IZ = IS0 ? IC : IP;

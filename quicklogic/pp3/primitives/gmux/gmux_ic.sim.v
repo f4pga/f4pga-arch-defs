@@ -12,6 +12,7 @@ module GMUX_IC (IC, IS0, IZ);
 	
     specify
         (IC => IZ) = "";
+		(IS0 => IZ) = "";
     endspecify
 
     assign IZ = IS0 ? IC : 1'bx;
