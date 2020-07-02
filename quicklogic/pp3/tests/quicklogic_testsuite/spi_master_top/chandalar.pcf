@@ -1,47 +1,11 @@
-set_io wb_clk_i B1
-set_io wb_rst_i C1
-
-set_io arst_i A1
-set_io wb_stb_i A2
-
-set_io wb_cyc_i B2
-set_io wb_dat_i(0) C3
-set_io wb_dat_i(1) B3
-set_io wb_dat_i(2) A3
-set_io wb_dat_i(3) C4
-set_io wb_dat_i(4) B4
-set_io wb_dat_i(5) A4
-set_io wb_dat_i(6) C5
-set_io wb_dat_i(7) B5
-set_io wb_adr_i(0) D6
-set_io wb_adr_i(1) A5
-set_io wb_adr_i(2) C6
-set_io wb_we_i E7
-
-set_io wb_dat_o(0) D7
-set_io wb_dat_o(1) E8
-set_io wb_dat_o(2) H8
-set_io wb_dat_o(3) G8
-set_io wb_dat_o(4) H7
-set_io wb_dat_o(5) G7
-set_io wb_dat_o(6) H6
-set_io wb_dat_o(7) G6
-
-set_io wb_ack_o F7
-set_io wb_inta_o F6
-set_io TIP_o H5
-set_io test_mode_en G5
-
-set_io MISO_i H4
-set_io MOSI_i E3
-set_io MOSI_o F3
-set_io MOSI_OEn_o F2
-set_io SCLK_o H3
-set_io SSn0_o G2
-set_io SSn1_o E2
-set_io SSn2_o H2
-set_io SSn3_o D2
-set_io SSn4_o F1
-set_io SSn5_o H1
-set_io SSn6_o D1
-set_io SSn7_o E1
+set_io MISO_i A2
+set_io MOSI_o B2
+set_io SCLK_o B3
+set_io SSn0_o C3
+set_io SSn1_o A3
+set_io SSn2_o C4
+set_io SSn3_o B4
+set_io SSn4_o A4
+set_io SSn5_o C5
+set_io SSn6_o B5
+set_io SSn7_o D6
