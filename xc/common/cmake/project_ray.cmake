@@ -10,7 +10,7 @@ endfunction()
 
 function(PROJECT_RAY_ARCH)
   set(options)
-  set(oneValueArgs ARCH PART USE_ROI DEVICE GRAPH_LIMIT)
+  set(oneValueArgs ARCH PART USE_ROI DEVICE GRAPH_LIMIT USE_OVERLAY)
   set(multiValueArgs TILE_TYPES PB_TYPES)
   cmake_parse_arguments(
     PROJECT_RAY_ARCH
@@ -114,6 +114,37 @@ function(PROJECT_RAY_ARCH)
   if(NOT "${PROJECT_RAY_ARCH_GRAPH_LIMIT}" STREQUAL "")
     set(ROI_ARG_FOR_CREATE_EDGES --graph_limit ${PROJECT_RAY_ARCH_GRAPH_LIMIT})
     set(ROI_ARG --graph_limit ${PROJECT_RAY_ARCH_GRAPH_LIMIT})
+  endif()
+
+  if(NOT "${PROJECT_RAY_ARCH_USE_OVERLAY}" STREQUAL "")
+    set(SYNTH_DEPS "")
+    append_file_dependency(SYNTH_DEPS ${GENERIC_CHANNELS})
+    add_custom_command(
+      OUTPUT synth_tiles.json
+      COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
+      ${PYTHON3} ${CREATE_SYNTH_TILES}
+        --db_root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/
+        --part ${PART}
+        --connection_database ${GENERIC_CHANNELS_LOCATION}
+        --overlay ${PROJECT_RAY_ARCH_USE_OVERLAY}
+        --synth_tiles ${CMAKE_CURRENT_BINARY_DIR}/synth_tiles.json
+      DEPENDS
+        ${CREATE_SYNTH_TILES}
+        ${PROJECT_RAY_ARCH_USE_OVERLAY} ${SYNTH_DEPS}
+        ${PYTHON3} ${PYTHON3_TARGET} simplejson intervaltree
+        )
+
+    add_file_target(FILE synth_tiles.json GENERATED)
+    set_target_properties(${ARCH_TARGET} PROPERTIES USE_OVERLAY TRUE)
+    set_target_properties(${ARCH_TARGET} PROPERTIES
+        SYNTH_TILES ${CMAKE_CURRENT_SOURCE_DIR}/synth_tiles.json)
+
+    set(ROI_ARG --use_overlay ${PROJECT_RAY_ARCH_USE_OVERLAY} --synth_tiles ${CMAKE_CURRENT_BINARY_DIR}/synth_tiles.json)
+    append_file_dependency(DEPS synth_tiles.json)
+    list(APPEND DEPS ${PROJECT_RAY_ARCH_USE_OVERLAY})
+
+    set(ROI_ARG_FOR_CREATE_EDGES --synth_tiles ${CMAKE_CURRENT_BINARY_DIR}/synth_tiles.json)
+    append_file_dependency(CHANNELS_DEPS synth_tiles.json)
   endif()
 
   append_file_dependency(CHANNELS_DEPS ${GENERIC_CHANNELS})

@@ -1,0 +1,98 @@
+{
+    "info": [
+        {
+        "name": "pr1",
+        "GRID_X_MAX": 58,
+        "GRID_X_MIN": 10,
+        "GRID_Y_MAX": 51,
+        "GRID_Y_MIN": 0
+        }
+    ],
+    "ports": [
+        {
+            "name": "clk",
+            "node": "CLK_HROW_TOP_R_X60Y130/CLK_HROW_CK_BUFHCLK_L0",
+            "pin": "SYN0"
+        },
+        {
+            "name": "din[0]",
+            "node": "INT_L_X0Y104/EE2BEG2",
+            "pin": "SYN1"
+        },
+        {
+            "name": "din[1]",
+            "node": "INT_L_X0Y108/EE2BEG2",
+            "pin": "SYN2"
+        },
+        {
+            "name": "din[2]",
+            "node": "INT_L_X0Y112/EE2BEG2",
+            "pin": "SYN3"
+        },
+        {
+            "name": "din[3]",
+            "node": "INT_L_X0Y116/EE2BEG2",
+            "pin": "SYN4"
+        },
+        {
+            "name": "din[4]",
+            "node": "INT_L_X0Y120/EE2BEG2",
+            "pin": "SYN5"
+        },
+        {
+            "name": "din[5]",
+            "node": "INT_L_X0Y124/EE2BEG2",
+            "pin": "SYN6"
+        },
+        {
+            "name": "din[6]",
+            "node": "INT_L_X0Y128/EE2BEG2",
+            "pin": "SYN7"
+        },
+        {
+            "name": "din[7]",
+            "node": "INT_L_X0Y132/EE2BEG2",
+            "pin": "SYN8"
+        },
+        {
+            "name": "dout[0]",
+            "node": "INT_R_X23Y117/LH12",
+            "pin": "SYN9"
+        },
+        {
+            "name": "dout[1]",
+            "node": "INT_R_X23Y121/LH12",
+            "pin": "SYN10"
+        },
+        {
+            "name": "dout[2]",
+            "node": "INT_L_X2Y117/SW6BEG0",
+            "pin": "SYN11"
+        },
+        {
+            "name": "dout[3]",
+            "node": "INT_L_X2Y121/SW6BEG0",
+            "pin": "SYN12"
+        },
+        {
+            "name": "dout[4]",
+            "node": "INT_R_X23Y125/LH12",
+            "pin": "SYN13"
+        },
+        {
+            "name": "dout[5]",
+            "node": "INT_R_X23Y129/LH12",
+            "pin": "SYN14"
+        },
+        {
+            "name": "dout[6]",
+            "node": "INT_R_X23Y133/LH12",
+            "pin": "SYN15"
+        },
+        {
+            "name": "dout[7]",
+            "node": "INT_R_X23Y137/LH12",
+            "pin": "SYN16"
+        }
+    ]
+}
