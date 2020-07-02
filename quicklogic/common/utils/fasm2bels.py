@@ -50,7 +50,6 @@ class Fasm2Bels(object):
         '''
 
         # load vpr_db data
-        print(vpr_db.keys())
         self.quadrants = vpr_db["phy_quadrants"]
         self.cells_library = vpr_db["cells_library"]
         #self.loc_map = db["loc_map"]
@@ -617,18 +616,18 @@ class Fasm2Bels(object):
                     print("WARNING: Non-static GMUX selection (at '{}') not supported yet!".format(loc))
                     continue
 
-                # Create new wire for the GMUX output
-                match = re.match(r"GMUX(?P<idx>[0-9]+)", gmux)
-                assert match is not None, gmux
-
-                idx = int(match.group("idx"))
-                wire = "CLK{}".format(idx)
-
                 # Static selection
                 sel = int(connections["IS0"][1] == "VCC")
 
                 # IP selected
                 if sel == 0:
+
+                    # Create a global clock wire for the CLOCK pad
+                    match = re.match(r"GMUX(?P<idx>[0-9]+)", gmux)
+                    assert match is not None, gmux                
+
+                    idx = int(match.group("idx"))
+                    wire = "CLK{}".format(idx)
 
                     # Get the clock pad location
                     clock_loc = self.get_clock_for_gmux(gmux, loc)
@@ -645,6 +644,9 @@ class Fasm2Bels(object):
 
                 # IC selected
                 else:
+
+                    # Create a wire for the GMUX output
+                    wire = "{}_X{}Y{}".format(gmux, loc.x, loc.y)
 
                     # Remove the IS0 connection
                     del self.designconnections[loc]["{}_IS0".format(gmux)]

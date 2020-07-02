@@ -67,8 +67,24 @@ class VModule(object):
             'RAM': 'ram8k_2x1_cell_macro',
             'MULT': 'qlal4s3_mult_cell_macro',
             'GMUX': 'gclkbuff',
+            'QMUX': 'qhsckbuff',
             'CLOCK': 'ckpad',
             'inv': 'inv'
+        }
+
+        self.qlal4s3_pinmap = {
+            "ckpad": {
+                "IP": "P",
+                "IC": "Q",
+            },
+            "gclkbuff": {
+                "IC": "A",
+                "IZ": "Z",
+            },
+            "qhsckbuff": {
+                "HSCKIN": "A",
+                "IZ": "Z"
+            },
         }
 
     def group_vector_signals(self, signals, io=False):
@@ -206,6 +222,7 @@ class VModule(object):
 
         params = []
         moduletype = self.qlal4s3bmapping[typ]
+        pin_map = self.qlal4s3_pinmap.get(moduletype, dict())
         result = f'    {moduletype} {name} ('
         fixedparameters = self.group_array_values(parameters)
         # get inputs, strip vector's pin indexes
@@ -217,6 +234,7 @@ class VModule(object):
         dummy_wires = []
 
         for inpname, inp in fixedparameters.items():
+            mapped_inpname = pin_map.get(inpname, inpname)
             if isinstance(inp, dict):
                 arr = []
                 dummy_wire = f'{moduletype}_{name}_{inpname}'
@@ -236,13 +254,13 @@ class VModule(object):
                     else:
                         arr.append(inp[i])
                 arrlist = ', '.join(arr)
-                params.append(f'.{inpname}({{{arrlist}}})')
+                params.append(f'.{mapped_inpname}({{{arrlist}}})')
                 if need_dummy:
                     dummy_wires.append(
                         f'    wire [{max_dummy_index}:0] {dummy_wire};'
                     )
             else:
-                params.append(f'.{inpname}({inp})')
+                params.append(f'.{mapped_inpname}({inp})')
         if self.useinversionpins:
             if typ in self.inversionpins:
                 for toinvert, inversionpin in self.inversionpins[typ].items():
@@ -250,11 +268,16 @@ class VModule(object):
                         params.append(f".{inversionpin}(1'b1)")
                     else:
                         params.append(f".{inversionpin}(1'b0)")
-        # handle BIDIRs
-        if typ == 'BIDIR':
+
+        # handle BIDIRs and CLOCKs
+        if typ in ['CLOCK', 'BIDIR']:
             bloc = loc2str(loc)
             ioname = self.get_io_name(loc)
-            params.append(f".IP({ioname})")
+
+            moduletype = self.qlal4s3bmapping[typ]
+            pin_map = self.qlal4s3_pinmap.get(moduletype, dict())
+
+            params.append(".{}({})".format(pin_map.get("IP", "IP"), ioname))
 
         result += f',\n{" " * len(result)}'.join(sorted(params)) + ');\n'
         wires = ''
@@ -488,11 +511,6 @@ class VModule(object):
                     # Connect the global wire
                     outputs[output_name] = wire
 
-#                    # Add the global wire
-#                    wireid = Wire(None, wire, inverted)
-#                    if wireid not in self.wires:
-#                        self.wires[wireid] = wireid
-
                 # No outputs connected, don't add.
                 if not len(outputs):
                     continue
@@ -568,7 +586,6 @@ class VModule(object):
         # check if we have the original name for this io
         if self.pcf_data is not None:
             pin = self.io_to_fbio[loc]
-#            print("PCF:", pin, list(self.pcf_data.keys()))
             if pin in self.pcf_data:
                 name = self.pcf_data[pin]
                 name = name.replace('(', '[')
@@ -626,10 +643,6 @@ class VModule(object):
                     # keep the original wire name for generating the wireid
                     wireid = Wire(name, "inout_pin", False)
                     self.wires[wireid] = name
-
-                    # Connecte the pad to the IOB
-                    if element.type == "CLOCK":
-                        element.ios["IP"] = name
 
     def generate_verilog(self):
         '''Creates Verilog module
