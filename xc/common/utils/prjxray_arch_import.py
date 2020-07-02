@@ -13,6 +13,7 @@ from __future__ import print_function
 import argparse
 import prjxray.db
 from prjxray.roi import Roi
+from prjxray.overlay import Overlay
 from prjxray import grid_types
 import simplejson as json
 import sys
@@ -778,6 +779,7 @@ def main():
         '--pin_assignments', required=True, type=argparse.FileType('r')
     )
     parser.add_argument('--use_roi', required=False)
+    parser.add_argument('--use_overlay', required=False)
     parser.add_argument('--device', required=True)
     parser.add_argument('--synth_tiles', required=False)
     parser.add_argument('--connection_database', required=True)
@@ -921,6 +923,37 @@ def main():
             x2=x_max,
             y2=y_max,
         )
+    elif args.use_overlay:
+        with open(args.use_overlay) as f:
+            j = json.load(f)
+
+        with open(args.synth_tiles) as f:
+            synth_tiles = json.load(f)
+        
+        region_dict = dict()
+        for r in j['info']:
+            bounds = (r['GRID_X_MIN'], r['GRID_X_MAX'], \
+                    r['GRID_Y_MIN'], r['GRID_Y_MAX'])
+            region_dict[r['name']] = bounds
+
+        roi = Overlay(
+            db=db,
+            region_dict=region_dict
+        )
+
+        synth_tile_map = add_synthetic_tiles(
+            model_xml, complexblocklist_xml, tiles_xml, need_io=True
+        )
+
+        for _, tile_info in synth_tiles['tiles'].items():
+            assert tuple(tile_info['loc']) not in synth_loc_map
+
+            assert len(tile_info['pins']) == 1
+
+            vpr_tile_type = synth_tile_map[tile_info['pins'][0]['port_type']]
+
+            synth_loc_map[tuple(tile_info['loc'])] = vpr_tile_type
+
 
     with DatabaseCache(args.connection_database, read_only=True) as conn:
         c = conn.cursor()
