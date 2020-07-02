@@ -885,9 +885,14 @@ WHERE
             track_node = track_nodes[option[0]]
             assert track_node in node_mapping, (track_node, track_pkey)
             if pin['port_type'] in ['input', 'output']:
-                pin_name = graph.create_pin_name_from_tile_type_sub_tile_num_and_pin(
-                    tile_type, sub_tile_num, wire
-                )
+                if len(synth_tile['pins']) != 1:
+                    pin_name = graph.create_pin_name_from_tile_type_sub_tile_num_and_pin(
+                        tile_type, sub_tile_num, wire
+                    )
+                else:
+                    pin_name = graph.create_pin_name_from_tile_type_and_pin(
+                        tile_type, wire
+                    )
             else:
                 pin_name = graph.create_pin_name_from_tile_type_and_pin(
                     tile_type, wire

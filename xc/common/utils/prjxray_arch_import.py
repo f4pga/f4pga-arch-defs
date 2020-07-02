@@ -138,13 +138,13 @@ def create_hetero_synth_io_tiles(complexblocklist_xml, tiles_xml):
     sub_tile_xml_in = ET.SubElement(
         tile_xml, 'sub_tile', {
             'name': 'SYN_IN_SUB_TILE',
-            'capacity': '50'
+            'capacity': '1'
         }
     )
     sub_tile_xml_out = ET.SubElement(
         tile_xml, 'sub_tile', {
             'name': 'SYN_OUT_SUB_TILE',
-            'capacity': '50'
+            'capacity': '1'
         }
     )
 
@@ -215,15 +215,23 @@ def create_hetero_synth_io_tiles(complexblocklist_xml, tiles_xml):
     )
 
     port_pin_in = '{}.{}'.format('SYN-INPAD', pad_name_in)
+    sub_port_pin_in = '{}.{}'.format('SYN_IN_SUB_TILE', pad_name_in)
     pad_pin_in = '{}.{}'.format(pad_name_in, pad_name_in)
 
     port_pin_out = '{}.{}'.format('SYN-OUTPAD', pad_name_out)
+    sub_port_pin_out = '{}.{}'.format('SYN_OUT_SUB_TILE', pad_name_out)
     pad_pin_out = '{}.{}'.format(pad_name_out, pad_name_out)
 
-    ET.SubElement(site_in, 'direct', {'from': port_pin_in, 'to': port_pin_in})
+    ET.SubElement(
+        site_in, 'direct', {
+            'from': sub_port_pin_in, 
+            'to': port_pin_in
+        }
+    )
+
     ET.SubElement(
         site_out, 'direct', {
-            'from': port_pin_out,
+            'from': sub_port_pin_out,
             'to': port_pin_out
         }
     )
