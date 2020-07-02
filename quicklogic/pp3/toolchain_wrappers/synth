@@ -4,7 +4,7 @@ set -e
 MYPATH=`realpath $0`
 MYPATH=`dirname ${MYPATH}`
 
-export TECHMAP_PATH=`realpath ${MYPATH}/../share/techmaps/quicklogic/techmap`
+export TECHMAP_PATH=`realpath ${MYPATH}/../share/techmaps/quicklogic/pp3/techmap`
 
 SYNTH_TCL_PATH=`realpath ${MYPATH}/../share/quicklogic/synth.tcl`
 CONV_TCL_PATH=`realpath ${MYPATH}/../share/quicklogic/conv.tcl`
