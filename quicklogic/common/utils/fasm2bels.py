@@ -686,7 +686,7 @@ class Fasm2Bels(object):
                     # The GMUX is implicit. Remove all connections to it
                     self.designconnections[loc] = {
                         k: v for k, v in self.designconnections[loc].items() \
-                        if not pin.startswith(gmux)
+                        if not k.startswith(gmux)
                     }
 
                 # IC selected
@@ -752,30 +752,38 @@ class Fasm2Bels(object):
                     print("WARNING: Non-static QMUX selection (at '{}') not supported yet!".format(loc))
                     continue
 
+                # Get associated GMUXes
+                sel_map = self.get_gmux_for_qmux(qmux, loc)
+
                 # Static selection
                 sel = int(connections["IS0"][1] == "VCC") * 2 + \
                       int(connections["IS1"][1] == "VCC")
 
                 # Input from the routing network selected, create a new wire
                 if sel == 3:
-                    # FIXME:
-                    assert False, "QMUX.HSCKIN input not supported yet"
-                    #wire = "{}_X{}Y{}".format(qmux, loc.x, loc.y)
+
+                    # Create a wire for the QMUX output
+                    wire = "{}_X{}Y{}".format(qmux, loc.x, loc.y)
+
+                    # Remove IS0 and IS1 from the connection map.
+                    del self.designconnections[loc]["{}_IS0".format(qmux)]
+                    del self.designconnections[loc]["{}_IS1".format(qmux)]
+
+                    # Connect the output
+                    self.designconnections[loc]["{}_IZ".format(qmux)] = (None, wire)
 
                 # Input from a GMUX is selected, assign its wire here
                 else:
 
-                    # Get associated GMUXes
-                    sel_map = self.get_gmux_for_qmux(qmux, loc)
-                    gmux_loc, gmux_cell, gmux_pin = sel_map[sel]
-
                     # Use the wire of that GMUX
+                    gmux_loc, gmux_cell, gmux_pin = sel_map[sel]
                     wire = gmux_map[gmux_cell]
 
-                    # The QMUX is implicit. Remove IS0 and IS1 from the
-                    # connection map.
-                    del self.designconnections[loc]["{}_IS0".format(qmux)]
-                    del self.designconnections[loc]["{}_IS1".format(qmux)]
+                    # The QMUX is implicit. Remove all connections to it
+                    self.designconnections[loc] = {
+                        k: v for k, v in self.designconnections[loc].items() \
+                        if not k.startswith(qmux)
+                    }
 
                 # Store the wire
                 qmux_map[loc][qmux] = wire

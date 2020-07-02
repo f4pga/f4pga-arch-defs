@@ -570,14 +570,6 @@ class VModule(object):
                     # else update IOs
                     self.elements[currloc][currtype].ios.update(inputs)
 
-#        # DEBUG #
-#        print("self.elements")
-#        for loc, types in self.elements.items():
-#            print(loc)
-#            for type, elem in types.items():
-#                print("", type, elem)
-#        # DEBUG #
-
     def get_io_name(self, loc):
 
         # default pin name
