@@ -138,13 +138,13 @@ def create_hetero_synth_io_tiles(complexblocklist_xml, tiles_xml):
     sub_tile_xml_in = ET.SubElement(
         tile_xml, 'sub_tile', {
             'name': 'SYN_IN_SUB_TILE',
-            'capacity': '1'
+            'capacity': '50'
         }
     )
     sub_tile_xml_out = ET.SubElement(
         tile_xml, 'sub_tile', {
             'name': 'SYN_OUT_SUB_TILE',
-            'capacity': '1'
+            'capacity': '50'
         }
     )
 
@@ -224,7 +224,7 @@ def create_hetero_synth_io_tiles(complexblocklist_xml, tiles_xml):
 
     ET.SubElement(
         site_in, 'direct', {
-            'from': sub_port_pin_in, 
+            'from': sub_port_pin_in,
             'to': port_pin_in
         }
     )
@@ -972,7 +972,6 @@ def main():
                 synth_loc_map[tuple(tile_info['loc'])] = 'SYN-IOPAD'
             else:
                 synth_loc_map[tuple(tile_info['loc'])] = vpr_tile_type
-
 
     elif args.graph_limit:
         x_min, y_min, x_max, y_max = map(int, args.graph_limit.split(','))
