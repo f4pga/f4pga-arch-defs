@@ -174,6 +174,12 @@ def main():
         if 'name' not in direct.attrib:
             continue
 
+        top_parent = get_top_pb_type(direct)
+        if top_parent is not None:
+            top_name = top_parent.attrib["name"]
+        else:
+            top_name = ""
+
         dir_name = direct.attrib['name']
 
         # Adding IDDR via IBUF pack patterns
