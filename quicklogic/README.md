@@ -65,11 +65,11 @@ cd build && make all_conda
 
 Once the SymbiFlow environment is set up, you can perform the implementation (synthesis, placement and routing) of an example FPGA designs.
 
-Go to the `quicklogic/tests` directory and choose a design you want to implement e.g:
+Go to the `quicklogic/pp3/tests` directory and choose a design you want to implement e.g:
 
 ```bash
-cd quicklogic/tests/btn_counter
-make counter-ql-chandalar_bit
+cd quicklogic/pp3/tests/btn_counter
+make counter-ql-chandalar_bit 
 ```
 
 This will generate a binary bitstream file for the design. The resulting bitstream will be written to the `top.bit` file in the working directory of the design.
@@ -135,9 +135,9 @@ Executing a particular stage implies that all stages before it will be executed 
 
 To to add a new design to the flow, and use it as a test follow the guide:
 
-1. Create a subfolder for your design under the `quicklogic/tests` folder.
+1. Create a subfolder for your design under the `quicklogic/pp3/tests` folder.
 
-1. Add inclusion of the folder in the `quicklogic/tests/CMakeLists.txt` by adding the following line to it:
+1. Add inclusion of the folder in the `quicklogic/pp3/tests/CMakeLists.txt` by adding the following line to it:
 
     ```plaintext
     add_subdirectory(<your_directory_name>)
@@ -155,7 +155,7 @@ To to add a new design to the flow, and use it as a test follow the guide:
       )
     ```
 
-    The design name can be anything. For available board names please refer to the `quicklogic/boards.cmake` file. Input IO constraints have to be given in the *PCF* format. The *SDC* file argument is optional. 
+    The design name can be anything. For available board names please refer to the `quicklogic/pp3/boards.cmake` file. Input IO constraints have to be given in the *PCF* format. The *SDC* file argument is optional. 
     Please also refer to CMake files for existing designs.
     All the files passed to `add_fpga_target` have to be added to the flow with `add_file_target` e.g:
     
@@ -175,7 +175,7 @@ To to add a new design to the flow, and use it as a test follow the guide:
 1. Now enter the build directory of your project and run the appropriate target as described:
 
    ```bash
-   cd build/quicklogic/tests/<your_directory_name>
+   cd build/quicklogic/pp3/tests/<your_directory_name>
    make <your_design_name>-<target_board_name>_bit
    ```
 
