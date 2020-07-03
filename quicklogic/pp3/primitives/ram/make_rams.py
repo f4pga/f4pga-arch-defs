@@ -169,6 +169,16 @@ FIFO_CLOCK_MAP = {
     "CLK2": "CLK1",
 }
 
+# A list of non-splitable ports
+NON_SPLITABLE_PORTS = [
+    "WIDTH_SELECT1_0",
+    "WIDTH_SELECT2_0",
+    "WIDTH_SELECT1_1",
+    "WIDTH_SELECT2_1",
+    "WIDTH_SELECT1",
+    "WIDTH_SELECT2",
+]
+
 # =============================================================================
 
 
@@ -508,6 +518,82 @@ def filter_ports(ports, ports_to_filter):
 # =============================================================================
 
 
+def make_pin_name(port, index):
+    """
+    Formats a pin name of a multi-bit port
+    """
+    return "{}_b{}".format(port, index)
+
+
+def split_port_bit_index(name):
+    """
+    Extracts bit index from the port
+    """
+
+    m = re.match(r"(?P<name>.*)(_b(?P<bit>[0-9]+))$", name)
+    if m is not None:
+        return m.group("name"), int(m.group("bit")),
+
+    return name, None
+
+
+def parse_port_name(name):
+    """
+    Parses a port name. Returns the base name, cell index and bit index.
+
+    >>> parse_port_name("A_PORT")
+    ('A_PORT', None, None)
+    >>> parse_port_name("A_PORT_0")
+    ('A_PORT', 0, None)
+    >>> parse_port_name("A_PORT_b31")
+    ('A_PORT', None, 31)
+    >>> parse_port_name("A_PORT_0_b15")
+    ('A_PORT', 0, 15)
+    """
+
+    # A multi-bit port
+    m = re.match(r"(?P<name>.*)(_b(?P<bit>[0-9]+))$", name)
+    if m is not None:
+        port = m.group("name")
+        bit = int(m.group("bit"))
+    else:
+        port = name
+        bit = None
+
+    # A port of a sub-cell
+    m = re.match(r"(?P<name>.*)(_(?P<cell>[0-9]+))$", port)
+    if m is not None:
+        return m.group("name"), int(m.group("cell")), bit
+
+    return port, None, bit
+
+
+def split_ports(ports):
+    """
+    Splits multi-bit ports into single-bit
+    """
+
+    split_ports = dict()
+    for key in ports.keys():
+
+        split_ports[key] = list()
+
+        for name, width, assoc_clock in ports[key]:
+            if width == 1 or name in NON_SPLITABLE_PORTS:
+                split_ports[key].append((
+                    name,
+                    width,
+                    assoc_clock,
+                ))
+            else:
+                for i in range(width):
+                    split_ports[key].append(
+                        (make_pin_name(name, i), 1, assoc_clock)
+                    )
+
+    return split_ports
+
+
 def make_model(model_name, ports):
     """
     Makex a model XML given the port definition
@@ -525,23 +611,27 @@ def make_model(model_name, ports):
     }
     xml_ports["clock"] = xml_ports["input"]
 
-    # Ports
+    # Emits a XML tag for a port
+    def add_port(xml_parent, name, width, assoc_clock):
+
+        # A clock
+        if key == "clock":
+            assert assoc_clock is None, (name, width, assoc_clock)
+            attrs = {"is_clock": "1"}
+
+        # An input / output
+        else:
+            if assoc_clock is not None:
+                attrs = {"clock": assoc_clock}
+            else:
+                attrs = dict()
+
+        ET.SubElement(xml_parent, "port", {"name": name, **attrs})
+
+    # Add ports
     for key in ["clock", "input", "output"]:
         for name, width, assoc_clock in ports[key]:
-
-            # A clock
-            if key == "clock":
-                assert assoc_clock is None, (name, width, assoc_clock)
-                attrs = {"is_clock": "1"}
-
-            # An input / output
-            else:
-                if assoc_clock is not None:
-                    attrs = {"clock": assoc_clock}
-                else:
-                    attrs = dict()
-
-            ET.SubElement(xml_ports[key], "port", {"name": name, **attrs})
+            add_port(xml_ports[key], name, width, assoc_clock)
 
     return xml_model
 
@@ -586,58 +676,44 @@ def make_pb_type(
             if assoc_clock is None:
                 continue
 
-            # DEBUG
-#            print(" ", assoc_clock, "->", name)
+            # Split the port and its bit index (if any)
+            alias, bit = split_port_bit_index(name)
 
-# Find all timing paths for that port
-            path_timings = find_timings(timings, assoc_clock, name.upper())
+            # Find all timing paths for that port
+            path_timings = find_timings(timings, assoc_clock, alias.upper())
 
-            # DEBUG
-            #            for k, v in path_timings.items():
-            #                print("  ", k, v[:1])
-
-            # Index suffixes
-            if width > 1:
+            # Bit index suffix
+            if bit is not None:
                 if normalized_names:
-                    suffixes = ["{}".format(w) for w in range(width)]
+                    suffix = "{}".format(bit)
                 else:
-                    suffixes = ["[{}]".format(w) for w in range(width)]
+                    suffix = "[{}]".format(bit)
             else:
-                suffixes = [""]
-
-            # TODO: VPR currently does not support different setup/hold timing
-            # for port pins, the whole port must have the same value. Collect
-            # values for all the pins and take max.
+                suffix = ""
 
             # Setup
-            delays = {}
             for key in path_timings:
 
-                if key.startswith("setup"):
-                    for i, sfx in enumerate(suffixes):
-                        if key.endswith(sfx):
-                            tim = path_timings[key][2]
-                            delays[i] = tim["delay_paths"]["nominal"]["avg"]
-                            break
+                if key.startswith("setup") and key.endswith(suffix):
+                    tim = path_timings[key][2]
+                    delay = tim["delay_paths"]["nominal"]["avg"] * timescale
+                    break
 
-                if key.startswith("setuphold"):
-                    for i, sfx in enumerate(suffixes):
-                        if key.endswith(sfx):
-                            tim = path_timings[key][2]
-                            print("SETUPHOLD", tim)
-                            exit(-1)
-                            delays[i] = tim["delay_paths"]["nominal"]["avg"]
-                            break
+                if key.startswith("setuphold") and key.endswith(suffix):
+                    tim = path_timings[key][2]
+                    print("SETUPHOLD", tim)
+                    exit(-1)
+                    delay = tim["delay_paths"]["nominal"]["avg"] * timescale
+                    break
 
-            if len(delays):
-                delay = max([d for d in delays.values()]) * timescale
             else:
                 delay = 1e-10
                 stats["missing_timings"] += 1
                 print(
                     "WARNING: No setup timing for '{}'->'{}' for pb_type '{}'".
-                    format(name, assoc_clock, pb_name)
+                    format(alias + suffix, assoc_clock, pb_name)
                 )
+
             stats["total_timings"] += 1
 
             ET.SubElement(
@@ -649,34 +725,28 @@ def make_pb_type(
             )
 
             # Hold
-            delays = {}
             for key in path_timings:
 
-                if key.startswith("hold"):
-                    for i, sfx in enumerate(suffixes):
-                        if key.endswith(sfx):
-                            tim = path_timings[key][2]
-                            delays[i] = tim["delay_paths"]["nominal"]["avg"]
-                            break
+                if key.startswith("hold") and key.endswith(suffix):
+                    tim = path_timings[key][2]
+                    delay = tim["delay_paths"]["nominal"]["avg"] * timescale
+                    break
 
-                if key.startswith("setuphold"):
-                    for i, sfx in enumerate(suffixes):
-                        if key.endswith(sfx):
-                            tim = path_timings[key][2]
-                            print("SETUPHOLD", tim)
-                            exit(-1)
-                            delays[i] = tim["delay_paths"]["nominal"]["avg"]
-                            break
+                if key.startswith("setuphold") and key.endswith(suffix):
+                    tim = path_timings[key][2]
+                    print("SETUPHOLD", tim)
+                    exit(-1)
+                    delay = tim["delay_paths"]["nominal"]["avg"] * timescale
+                    break
 
-            if len(delays):
-                delay = max([d for d in delays.values()])
             else:
                 delay = 1e-10
                 stats["missing_timings"] += 1
                 print(
                     "WARNING: No hold timing for '{}'->'{}' for pb_type '{}'".
-                    format(name, assoc_clock, pb_name)
+                    format(alias + suffix, assoc_clock, pb_name)
                 )
+
             stats["total_timings"] += 1
 
             ET.SubElement(
@@ -692,45 +762,38 @@ def make_pb_type(
             if assoc_clock is None:
                 continue
 
+            # Split the port and its bit index (if any)
+            alias, bit = split_port_bit_index(name)
+
             # Find all timing paths for that port
-            path_timings = find_timings(timings, assoc_clock, name.upper())
+            path_timings = find_timings(timings, assoc_clock, alias.upper())
 
             # Index suffixes
-            if width > 1:
+            # Bit index suffix
+            if bit is not None:
                 if normalized_names:
-                    suffixes = ["{}".format(w) for w in range(width)]
+                    suffix = "{}".format(bit)
                 else:
-                    suffixes = ["[{}]".format(w) for w in range(width)]
+                    suffix = "[{}]".format(bit)
             else:
-                suffixes = [""]
+                suffix = ""
 
-            # TODO: VPR currently does not support different clock to Q timing
-            # for port pins, the whole port must have the same value. Collect
-            # values for all the pins and take max.
-
-            delays = {}
+            # "Clock to Q"
             for key in path_timings:
 
-                if key.startswith("iopath"):
-                    for i, sfx in enumerate(suffixes):
-                        if key.endswith(sfx):
-                            tim = path_timings[key][2]
-                            delays[i] = (
-                                tim["delay_paths"]["slow"]["min"],
-                                tim["delay_paths"]["slow"]["max"]
-                            )
-                            break
+                if key.startswith("iopath") and key.endswith(suffix):
+                    tim = path_timings[key][2]
+                    delay_min = tim["delay_paths"]["slow"]["min"] * timescale
+                    delay_max = tim["delay_paths"]["slow"]["max"] * timescale
+                    break
 
-            if len(delays):
-                delay_min = max([d[0] for d in delays.values()]) * timescale
-                delay_max = max([d[1] for d in delays.values()]) * timescale
             else:
                 delay_min = 1e-10
                 delay_max = 1e-10
                 stats["missing_timings"] += 1
                 print(
                     "WARNING: No \"clock to Q\" timing for '{}'->'{}' for pb_type '{}'"
-                    .format(assoc_clock, name, pb_name)
+                    .format(assoc_clock, alias + suffix, pb_name)
                 )
 
             stats["total_timings"] += 1
@@ -762,7 +825,7 @@ def auto_interconnect(pb_type):
         Yields pb_type ports of the given type
         """
         for port in pb.findall(type):
-            yield port.attrib["name"]
+            yield port.attrib["name"], int(port.attrib["num_pins"]),
 
     # Get parent for the interconnect (can be either "mode" or "pb_type")
     if pb_type.tag == "mode":
@@ -785,118 +848,104 @@ def auto_interconnect(pb_type):
 
     # Upstream ports
     parent_name = pb_parent.attrib["name"]
-    parent_inputs = set(get_ports(pb_parent, "input"))
-    parent_inputs |= set(get_ports(pb_parent, "clock"))
-    parent_outputs = set(get_ports(pb_parent, "output"))
+    parent_ports = set([(*p, "I") for p in get_ports(pb_parent, "input")])
+    parent_ports |= set([(*p, "I") for p in get_ports(pb_parent, "clock")])
+    parent_ports |= set([(*p, "O") for p in get_ports(pb_parent, "output")])
 
     # Downstream ports
     children = {}
     for child in pb_children:
         name = child.attrib["name"]
-        inputs = set(get_ports(child, "input"))
-        inputs |= set(get_ports(child, "clock"))
-        outputs = set(get_ports(child, "output"))
+        ports = set([(*p, "I") for p in get_ports(child, "input")])
+        ports |= set([(*p, "I") for p in get_ports(child, "clock")])
+        ports |= set([(*p, "O") for p in get_ports(child, "output")])
 
-        children[name] = (
-            inputs,
-            outputs,
-        )
+        children[name] = ports
 
-    # Create the interconnect
-    ic = ET.SubElement(ic_parent, "interconnect")
-
-    # Add connections for parent outputs (these are sinks)
-    for port in parent_outputs:
-        other = None
-
-        # Get the suffix
-        m = re.match(r"(.*)(_[0-9]+)$", port)
-        if m is not None:
-            alias = m.group(1)
-            suffix = m.group(2)
-        else:
-            alias = port
-            suffix = None
-
-        # Check in all children
-        for child, (
-                inputs,
-                outputs,
-        ) in children.items():
-
-            if other is not None:
-                continue
-
-            # Find the port
-            if alias in outputs:
-                assert other is None, (
-                    other,
-                    (
-                        child,
-                        alias,
-                    ),
-                )
-                other = (child, alias)
-
-            # port not found
-            if other is None:
-                if suffix:
-                    alias = alias + suffix
-                    if alias in outputs:
-                        other = (child, alias)
-
-        # Make the connection
-        if other:
-            iname = "{}.{}".format(*other)
-            oname = "{}.{}".format(parent_name, port)
-
+    # Adds a connection
+    def add_connection(xml, iname, oname, reverse=False):
+        if reverse:
             ET.SubElement(
-                ic, "direct", {
+                xml, "direct", {
+                    "name": "{}_to_{}".format(oname, iname),
+                    "input": oname,
+                    "output": iname
+                }
+            )
+        else:
+            ET.SubElement(
+                xml, "direct", {
                     "name": "{}_to_{}".format(iname, oname),
                     "input": iname,
                     "output": oname
                 }
             )
 
-    # Add connections for child inputs (these are sinks)
-    for child, (
-            inputs,
-            outputs,
-    ) in children.items():
+    # Create the interconnect
+    ic = ET.SubElement(ic_parent, "interconnect")
 
-        # Get the child name suffix
-        m = re.match(r"(.*)(_[0-9]+)$", child)
+    for child in sorted(children.keys()):
+        child_ports = sorted(list(children[child]), key=lambda x: x[0])
+
+        # Get the child cell index
+        m = re.match(r"(.*)(_(?P<idx>[0-9]+))$", child)
         if m is not None:
-            suffix = m.group(2)
+            child_index = int(m.group("idx"))
         else:
-            suffix = None
+            child_index = None
 
-        # Check all ports
-        for port in inputs:
-            other = None
+        # Loop over all child ports
+        for dn_port, dn_width, dn_type in child_ports:
 
-            # Got it
-            if port in parent_inputs:
-                other = port
+            # Got a 1-to-1 match
+            if (dn_port, dn_width, dn_type) in parent_ports:
+                iname = "{}.{}".format(parent_name, dn_port)
+                oname = "{}.{}".format(child, dn_port)
+                add_connection(ic, iname, oname, dn_type == "O")
+                continue
 
-            # Nothing, try with the suffix
-            if suffix:
-                alias = port + suffix
-                if alias in parent_inputs:
-                    other = alias
+            # Parse the child port name
+            dn_alias, dn_index, dn_bit = parse_port_name(dn_port)
 
-            # Make the connection
-            if other:
-                iname = "{}.{}".format(parent_name, other)
-                oname = "{}.{}".format(child, port)
+            # Got a match with the child cell index
+            up_port = "{}_{}".format(dn_alias, child_index)
+            if (up_port, dn_width, dn_type) in parent_ports:
+                iname = "{}.{}".format(parent_name, up_port)
+                oname = "{}.{}".format(child, dn_port)
+                add_connection(ic, iname, oname, dn_type == "O")
+                continue
 
-                ET.SubElement(
-                    ic, "direct", {
-                        "name": "{}_to_{}".format(iname, oname),
-                        "input": iname,
-                        "output": oname
-                    }
+            # The downstream port is split into bits
+            if dn_bit is not None:
+
+                # Try without the cell index
+                ports = [(*p, ) for p in parent_ports if p[0] == dn_alias]
+                assert len(ports) < 2, ports
+
+                if ports:
+                    up_port, up_width, up_type = ports[0]
+                    iname = "{}.{}[{}]".format(parent_name, up_port, dn_bit)
+                    oname = "{}.{}".format(child, dn_port)
+                    add_connection(ic, iname, oname, dn_type == "O")
+                    continue
+
+                up_alias = "{}_{}".format(dn_alias, dn_index)
+                ports = [(*p, ) for p in parent_ports if p[0] == up_alias]
+                assert len(ports) < 2, ports
+
+                if ports:
+                    up_port, up_width, up_type = ports[0]
+                    iname = "{}.{}[{}]".format(parent_name, up_port, dn_bit)
+                    oname = "{}.{}".format(child, dn_port)
+                    add_connection(ic, iname, oname, dn_type == "O")
+                    continue
+
+            # Couldn't find a matching port
+            print(
+                "ERROR: No matching parent port in '{}' for '{}.{}'".format(
+                    parent_name, child, dn_port
                 )
+            )
 
     return ic
 
@@ -1052,6 +1101,8 @@ def make_techmap(conditions):
     verilog += "  generate if({}) begin\n".format(verilog_cond)
 
     # Each part is independent
+    model_ports = split_ports(RAM_2X1_PORTS)
+
     for part in [0, 1]:
         verilog += "    // RAM {}\n".format(part)
         for i, condition in enumerate(sing_conditions):
@@ -1083,18 +1134,28 @@ def make_techmap(conditions):
 
             # Ports mapped to the part
             for key in ["clock", "input", "output"]:
-                for name, width, assoc_clock in RAM_2X1_PORTS[key]:
+                for name, width, assoc_clock in model_ports[key]:
 
-                    # Get the correct part port name. Discard port if not
-                    # relevant to this part
-                    if name.endswith("_{}".format(part)):
-                        part_name = name[:-2]
-                    elif name.endswith("_{}".format(1 - part)):
+                    # Parse the port name
+                    alias, index, bit = parse_port_name(name)
+
+                    # Not for that part
+                    if index is not None and part != index:
                         continue
-                    else:
-                        part_name = name
 
-                    verilog += "        .{}({}),\n".format(part_name, name)
+                    if index is None:
+                        pname = alias
+                    else:
+                        pname = "{}_{}".format(alias, index)
+
+                    if bit is not None:
+                        portspec = "{}_b{}".format(alias, bit)
+                        sigspec = "{}[{}]".format(pname, bit)
+                    else:
+                        portspec = alias
+                        sigspec = pname
+
+                    verilog += "        .{}({}),\n".format(portspec, sigspec)
 
             verilog = verilog[:-2] + "\n"
             verilog += "        );\n"
@@ -1142,8 +1203,24 @@ def make_techmap(conditions):
 
         # Ports always mapped 1-to-1
         for key in ["clock", "input", "output"]:
-            for name, width, assoc_clock in RAM_2X1_PORTS[key]:
-                verilog += "      .{}({}),\n".format(name, name)
+            for name, width, assoc_clock in model_ports[key]:
+
+                # Parse the port name
+                alias, index, bit = parse_port_name(name)
+
+                if index is None:
+                    pname = alias
+                else:
+                    pname = "{}_{}".format(alias, index)
+
+                if bit is not None:
+                    portspec = "{}_b{}".format(pname, bit)
+                    sigspec = "{}[{}]".format(pname, bit)
+                else:
+                    portspec = pname
+                    sigspec = pname
+
+                verilog += "        .{}({}),\n".format(portspec, sigspec)
 
         verilog = verilog[:-2] + "\n"
         verilog += "      );\n"
@@ -1302,11 +1379,11 @@ def main():
                     pb_name = "RAM_{}_{}".format(part, mode_name)
                     xml_pb, stats = make_pb_type(
                         pb_name,
-                        model_ports,
+                        split_ports(model_ports),
                         model_name,
                         timings,
                         timescale,
-                        normalized_names=normalized_names
+                        normalized_names=normalized_names,
                     )
                     xml_mode.append(xml_pb)
 
@@ -1318,7 +1395,7 @@ def main():
                     xml_mode.append(ic)
 
                 # Make the model XML
-                xml_model = make_model(model_name, model_ports)
+                xml_model = make_model(model_name, split_ports(model_ports))
                 xml_models[model_name] = xml_model
 
             # CONCAT_EN=1 - keep the 2x1 RAM as one
@@ -1351,11 +1428,11 @@ def main():
                 pb_name = "RAM_" + mode_name
                 xml_pb, stats = make_pb_type(
                     pb_name,
-                    model_ports,
+                    split_ports(model_ports),
                     model_name,
                     timings,
                     timescale,
-                    normalized_names=normalized_names
+                    normalized_names=normalized_names,
                 )
                 xml_mode.append(xml_pb)
 
@@ -1367,7 +1444,7 @@ def main():
                 xml_mode.append(ic)
 
                 # Make the model XML
-                xml_model = make_model(model_name, model_ports)
+                xml_model = make_model(model_name, split_ports(model_ports))
                 xml_models[model_name] = xml_model
 
             # Should not happen
@@ -1413,7 +1490,9 @@ def main():
                 if "DIR=1" in cond:
                     model_ports = remap_clocks(model_ports, FIFO_CLOCK_MAP)
 
-            verilog = make_blackbox(model_name, ports, model_ports)
+            verilog = make_blackbox(
+                model_name, split_ports(ports), split_ports(model_ports)
+            )
             blackboxes[model_name] = verilog
 
         # CONCAT_EN=1 - keep the 2x1 RAM as one
@@ -1430,7 +1509,9 @@ def main():
                 if "DIR=1" in cond:
                     model_ports = remap_clocks(model_ports, FIFO_CLOCK_MAP)
 
-            verilog = make_blackbox(model_name, ports, model_ports)
+            verilog = make_blackbox(
+                model_name, split_ports(ports), split_ports(model_ports)
+            )
             blackboxes[model_name] = verilog
 
     # Write blackbox definitions
