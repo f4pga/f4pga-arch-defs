@@ -58,8 +58,14 @@ while true; do
 done
 
 if [ -z $DEVICE ]; then
-	echo "Please provide device name"
-	exit 1
+	# Try to find device name. Accept only when exactly one is found
+	PART_DIRS=(${XRAY_DATABASE_DIR}/*/${PART})
+	if [ ${#PART_DIRS[@]} -eq 1 ]; then
+		DEVICE=$(basename $(dirname "${PART_DIRS[0]}"))
+	else
+		echo "Please provide device name"
+		exit 1
+	fi
 fi
 
 if [ -z $FASM ]; then
