@@ -409,6 +409,7 @@ all: \${BUILDDIR}/\${TOP}.bit\n\
 \n\
 \${BUILDDIR}/\${TOP}.post_v: \${BUILDDIR}/\${TOP}.bit\n\
 	cd \${BUILDDIR} && write_fasm2bels -e \${TOP}.eblif -d \${DEVICE} -p \${PCF} -n \${TOP}.net -P \${PARTNAME}\n\
+	cd \${BUILDDIR} && analysis -e \${TOP}.eblif -d \${DEVICE} -s \${SDC} 2>&1 > $LOG_FILE\n\
 \n\
 clean:\n\
 	rm -rf \${BUILDDIR}\n\
