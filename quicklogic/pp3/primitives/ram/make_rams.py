@@ -980,6 +980,7 @@ def make_blackbox(name, ports, specify_ports):
 
     # Header
     verilog = """
+`timescale 1ns/10ps
 (* blackbox *)
 module {} (
 """.format(name)
