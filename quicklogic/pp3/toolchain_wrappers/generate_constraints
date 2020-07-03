@@ -16,7 +16,7 @@ if ! [[ "$PART" =~ ^(PU64|WR42|PD64)$ ]]; then
 	 CLKMAPCSV="clkmap_PD64.csv"
 else
      PINMAPCSV="pinmap_${PART}.csv"
-     CLKMAPCSV="pinmap_${PART}.csv"
+     CLKMAPCSV="clkmap_${PART}.csv"
 fi
 
 echo "PINMAP FILE : $PINMAPCSV"
