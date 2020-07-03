@@ -95,6 +95,11 @@ def add_pack_pattern(element, pack_pattern_prefix, for_input=None):
 
     pack_pattern_out_port = element.attrib['output']
 
+    # Check if not already there
+    for child in element.findall("pack_pattern"):
+        if child.attrib.get("name", None) == pack_pattern_name:
+            assert False, (element.attrib["name"], pack_pattern_name,)
+
     ET.SubElement(
         element,
         'pack_pattern',
@@ -182,31 +187,23 @@ def main():
 
         dir_name = direct.attrib['name']
 
-        # Adding IDDR via IBUF pack patterns
-        if IOPAD_ILOGIC_REGEX.match(dir_name):
-            add_pack_pattern(direct, 'IDDR_IBUF')
+        #
+        # OBUFT
+        #
+
+        # Adding OBUFT.TQ via T_INV helper primitive
+        if IOPAD_OLOGIC_TQ_REGEX.match(dir_name):
+            add_pack_pattern(direct, 'T_INV_OBUFT')
 
         maybe_add_pack_pattern(
-            direct, 'IDDR_IBUF', [
-                ('inpad.inpad', 'IBUF_VPR.I'), ('IBUF_VPR.O', 'IOB33_MODES.I'),
-                ('IOB33_MODES.I', 'IOB33.I'), ('IOB33_MODES.I', 'IOB33M.I'),
-                ('IOB33_MODES.I', 'IOB33S.I'), ('ILOGICE3.D', 'IFF.D')
-            ]
-        )
-
-        # TODO: IDDR via IOBUF, IDDR via IOBUFDS
-
-        # Adding IDDR+IDELAY via IBUF pack patterns
-        if 'I_to_IDELAYE2' in dir_name:
-            add_pack_pattern(direct, 'IDDR_IDELAY_IBUF')
-
-        maybe_add_pack_pattern(
-            direct, 'IDDR_IDELAY_IBUF', [
-                ('inpad.inpad', 'IBUF_VPR.I'), ('IBUF_VPR.O', 'IOB33_MODES.I'),
-                ('IOB33_MODES.I', 'IOB33.I'), ('IOB33_MODES.I', 'IOB33M.I'),
-                ('IOB33_MODES.I', 'IOB33S.I'),
-                ('IDELAYE2.DATAOUT', 'ILOGICE3.DDLY'),
-                ('ILOGICE3.DDLY', 'IFF.D')
+            direct, 'T_INV_OBUFT', [
+                ('T_INV.TO', 'OLOGIC_TFF.TQ'),
+                ('OLOGIC_TFF.TQ', 'OLOGICE3.TQ'),
+                ('IOB33M.T', 'IOB33_MODES.T'),
+                ('IOB33S.T', 'IOB33_MODES.T'),
+                ('IOB33.T', 'IOB33_MODES.T'),
+                ('IOB33_MODES.T', 'OBUFT_VPR.T'),
+                ('OBUFT_VPR.O', 'outpad.outpad'),
             ]
         )
 
@@ -348,7 +345,6 @@ def main():
         ])
 
         # TODO: IDDR+IDELAY via IOBUF, IDDR+IDELAY via IOBUFDS
-
 
         #
         # ISERDES, no IDELAY
