@@ -1,4 +1,5 @@
 module IBUF (
+  (* iopad_external_pin *)
   input  I,
   output O
 );
@@ -14,6 +15,7 @@ endmodule
 module OBUFT (
   input  I,
   input  T,
+  (* iopad_external_pin *)
   output O
 );
 
@@ -27,6 +29,7 @@ endmodule
 
 module OBUF (
   input  I,
+  (* iopad_external_pin *)
   output O
 );
 
