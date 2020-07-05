@@ -85,7 +85,7 @@ wire                     WBs_RST_i     ;  // Wishbone FPGA Reset
 
 // Wishbone Bus Signals
 //
-wire    [ADDRWIDTH-1:0]  WBs_ADR_i     ;  // Wishbone Address Bus
+wire    [10:0]  WBs_ADR_i     ;  // Wishbone Address Bus
 wire                     WBs_RAM1_CYC_i;  
 wire                     WBs_RAM2_CYC_i;
 wire                     WBs_RAM3_CYC_i;
