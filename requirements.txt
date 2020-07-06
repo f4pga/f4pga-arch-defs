@@ -1,12 +1,24 @@
-pip
-virtualenv
-lxml
-hdlparse
-progressbar2
-simplejson
-pyjson5
-svgwrite
 cairosvg
 gitpython
+hilbertcurve
+intervaltree
 matplotlib
+numpy
+pdfminer.six
+ply
+progressbar2
+pycapnp==1.0.0b1
+pyjson5
+pytest
+python-constraint
 scipy
+simplejson
+svgwrite
+textx
+tinyfpgab
+tinyprog
+yapf==0.26.0
+-e third_party/fasm
+-e third_party/python-sdf-timing
+-e third_party/python-symbiflow-v2x
+-e third_party/vtr-xml-utils

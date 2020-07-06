@@ -18,13 +18,12 @@ function(XML_LINT)
     )
 
   get_target_property_required(XMLLINT env XMLLINT)
-  get_target_property(XMLLINT_TARGET env XMLLINT_TARGET)
 
   # For xmllint we use head to shortcircuit failure as it can take a
   # very long time to output all of the errors
   add_custom_command(
     OUTPUT ${XML_LINT_LINT_OUTPUT}
-    DEPENDS ${XML_LINT_FILE} ${XML_LINT_SCHEMA} ${XMLLINT} ${XMLLINT_TARGET}
+    DEPENDS ${XML_LINT_FILE} ${XML_LINT_SCHEMA} ${XMLLINT}
     COMMAND bash -c
     '${XMLLINT}
     --output ${XML_LINT_LINT_OUTPUT}
@@ -69,8 +68,6 @@ function(XML_CANONICALIZE_MERGE)
     ${ARGN}
     )
 
-  get_target_property_required(VTR_XML_UTILS_TARGET env VTR_XML_UTILS_TARGET)
-
   set(DEPS "")
   append_file_dependency(DEPS ${XML_CANONICALIZE_MERGE_FILE})
 
@@ -78,7 +75,7 @@ function(XML_CANONICALIZE_MERGE)
     OUTPUT ${XML_CANONICALIZE_MERGE_OUTPUT}
     DEPENDS
       ${DEPS}
-      ${PYTHON3} ${VTR_XML_UTILS_TARGET} ${PYTHON3_TARGET}
+      ${PYTHON3}
     COMMAND
       PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/third_party/vtr-xml-utils/:${PYTHONPATH}
       ${PYTHON3} -m vtr_xml_utils

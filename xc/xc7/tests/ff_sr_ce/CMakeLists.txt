@@ -7,10 +7,7 @@ add_dependencies(all_xc7_tests all_ff_ce_sr_test)
 
 function(ff_ce_sr_test num_ff)
     get_target_property_required(PYTHON3 env PYTHON3)
-    get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
-
     get_target_property_required(YOSYS env YOSYS)
-    get_target_property(YOSYS_TARGET env YOSYS_TARGET)
 
     set(SBY
         ${symbiflow-arch-defs_SOURCE_DIR}/third_party/symbiyosys/sbysrc/sby.py)
@@ -25,7 +22,7 @@ function(ff_ce_sr_test num_ff)
                 --params "'NUM_FF=${num_ff},FF_TYPE=\"${ff_type}\"'"
                 --output
                   ${CMAKE_CURRENT_BINARY_DIR}/ff_ce_sr_${num_ff}_${ff_type_lower}.v
-            DEPENDS ${PYTHON3} ${PYTHON3_TARGET} ff_ce_sr.v generate.py
+            DEPENDS ${PYTHON3} ff_ce_sr.v generate.py
             )
         add_file_target(FILE ff_ce_sr_${num_ff}_${ff_type_lower}.v GENERATED)
 
@@ -38,7 +35,7 @@ function(ff_ce_sr_test num_ff)
                     --template ${CMAKE_CURRENT_SOURCE_DIR}/ff_ce_sr_testbench.v
                     --params "NUM_FF=${num_ff}"
                     --output ${CMAKE_CURRENT_BINARY_DIR}/ff_ce_sr_${num_ff}_tb.v
-                DEPENDS ${PYTHON3} ${PYTHON3_TARGET} ff_ce_sr_testbench.v generate.py
+                DEPENDS ${PYTHON3} ff_ce_sr_testbench.v generate.py
                 )
             add_file_target(FILE ff_ce_sr_${num_ff}_tb.v GENERATED)
             get_file_target(TB_SOURCE_TARGET ff_ce_sr_testbench.v)
@@ -81,7 +78,7 @@ function(ff_ce_sr_test num_ff)
                     ff_ce_sr_${num_ff}_${ff_type_lower}_proof.sby
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
             DEPENDS
-                ${PYTHON3} ${PYTHON3_TARGET}
+                ${PYTHON3}
                 ${CMAKE_CURRENT_SOURCE_DIR}/create_sby.py
             )
 
@@ -95,8 +92,8 @@ function(ff_ce_sr_test num_ff)
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
             DEPENDS
                 ff_ce_sr_${num_ff}_${ff_type_lower}_proof.sby
-                ${PYTHON3} ${PYTHON3_TARGET}
-                ${YOSYS} ${YOSYS_TARGET}
+                ${PYTHON3}
+                ${YOSYS}
                 ff_ce_sr_${num_ff}_${ff_type_lower}_bit_v
             )
 

@@ -46,8 +46,8 @@ def make_tracks(xs, ys, points, grid_width=None, grid_height=None):
      Track(direction='Y', x_low=3, x_high=3, y_low=1, y_high=5),
      Track(direction='X', x_low=1, x_high=3, y_low=2, y_high=2),
      Track(direction='X', x_low=1, x_high=3, y_low=4, y_high=4)]
-    >>> print(connections)
-    [(3, 0), (2, 0), (2, 1)]
+    >>> print(sorted(connections))
+    [(2, 0), (2, 1), (3, 0)]
 
     >>> pos = [
     ... (68,48), (69,48),

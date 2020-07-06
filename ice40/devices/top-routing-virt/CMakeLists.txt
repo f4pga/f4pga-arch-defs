@@ -3,8 +3,6 @@ add_subdirectory(tiles)
 add_file_target(FILE arch.xml SCANNER_TYPE xml)
 
 get_target_property_required(PYTHON3 env PYTHON3)
-get_target_property_required(PYTHON3_TARGET env PYTHON3_TARGET)
-get_target_property_required(ICESTORM_TARGET env ICESTORM_TARGET)
 
 set(ICEBOX_TIMING ${symbiflow-arch-defs_SOURCE_DIR}/third_party/icestorm/icefuzz/timings.py)
 set(CLEAN_ICEBOX_TIMING cleaned_timing.txt)
@@ -18,7 +16,7 @@ add_custom_command(
   COMMAND grep -v \\* ${TIMING_TXT_FILE} > ${CLEAN_ICEBOX_TIMING}
   COMMAND ${PYTHON3} ${ICEBOX_TIMING} -t ${CLEAN_ICEBOX_TIMING} -s > ${SDF_FILE}
   BYPRODUCTS ${CLEAN_ICEBOX_TIMING}
-  DEPENDS ${TIMING_TXT_FILE} ${ICESTORM_TARGET} ${ICEBOX_TIMING} ${PYTHON3} ${PYTHON3_TARGET}
+  DEPENDS ${TIMING_TXT_FILE} ${ICEBOX_TIMING} ${PYTHON3}
   )
 
 add_custom_target(

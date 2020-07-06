@@ -17,14 +17,13 @@ function(UPDATE_ARCH_TIMINGS)
 
   if(IS_DIRECTORY ${SDF_TIMING_DIRECTORY} AND EXISTS ${BELS_MAP})
     get_target_property_required(PYTHON3 env PYTHON3)
-    get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
 
     set(update_arch_timings ${symbiflow-arch-defs_SOURCE_DIR}/utils/update_arch_timings.py)
 
     add_custom_command(
       OUTPUT ${output}
       DEPENDS
-        ${PYTHON3} ${PYTHON3_TARGET}
+        ${PYTHON3}
         ${update_arch_timings}
         ${input}
       COMMAND

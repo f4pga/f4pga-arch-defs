@@ -25,7 +25,7 @@ foreach(HEX_FILE ${HEX_FILES})
     add_custom_command(
         OUTPUT ${HEX_TITLE}.v
         COMMAND ${PYTHON3} ${CMAKE_CURRENT_SOURCE_DIR}/hex2progmem.py ${CMAKE_CURRENT_SOURCE_DIR}/${HEX_FILE} --rom-style initial >${HEX_TITLE}.v
-        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/hex2progmem.py ${PYTHON3} ${PYTHON3_TARGET}
+        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/hex2progmem.py ${PYTHON3}
     )
     add_file_target(FILE ${HEX_TITLE}.v GENERATED)
 

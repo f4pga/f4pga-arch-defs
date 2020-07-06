@@ -140,12 +140,11 @@ function(MUX_GEN)
   endif()
 
   get_target_property_required(PYTHON3 env PYTHON3)
-  get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
 
   add_custom_command(
     OUTPUT ${OUTPUTS}
     DEPENDS
-      ${PYTHON3} ${PYTHON3_TARGET}
+      ${PYTHON3}
       ${symbiflow-arch-defs_SOURCE_DIR}/utils/mux_gen.py
       #${symbiflow-arch-defs_SOURCE_DIR}/vpr/muxes/logic/mux${MUX_GEN_WIDTH}/mux${MUX_GEN_WIDTH}.sim.v
     COMMAND ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/mux_gen.py ${MUX_GEN_ARGS}
@@ -243,7 +242,6 @@ function(N_TEMPLATE)
 
   set(OUTPUTS "")
   get_target_property_required(PYTHON3 env PYTHON3)
-  get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
 
   foreach(PREFIX ${N_TEMPLATE_PREFIXES})
     foreach(SRC ${N_TEMPLATE_SRCS})
@@ -269,7 +267,7 @@ function(N_TEMPLATE)
       add_custom_command(
         OUTPUT ${SRC_WITH_PREFIX}
         DEPENDS
-          ${PYTHON3} ${PYTHON3_TARGET}
+          ${PYTHON3}
           ${symbiflow-arch-defs_SOURCE_DIR}/utils/n.py ${SRC_LOCATION}
           ${DEPS}
         COMMAND

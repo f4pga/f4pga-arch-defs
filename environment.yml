@@ -1,0 +1,20 @@
+name: symbiflow_arch_def_base
+channels:
+  - defaults
+  - symbiflow
+dependencies:
+  - symbiflow-yosys=0.8_3925_g6bccd35a=20200627_023447
+  - symbiflow-yosys-plugins=1.0.0.7_0041_g1c495fd=20200627_023447
+  - symbiflow-vtr=8.0.0.rc2_4003_g8980e4621=20200627_023447
+  - cmake
+  - make
+  - openocd
+  - flake8
+  - nodejs
+  - libiconv
+  - iverilog
+  - libxml2=2.9.10=20200629_180127
+  - icestorm
+  - pip
+  - pip:
+    - -r file:requirements.txt
