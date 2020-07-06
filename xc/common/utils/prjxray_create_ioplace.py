@@ -101,11 +101,26 @@ def main():
         if os.path.isfile(fname):
             with open(fname, "r") as fp:
                 iostandard_constraints = json.load(fp)
+    net_to_pad = io_place.net_to_pad
     if args.pcf:
         pcf_constraints = parse_simple_pcf(args.pcf)
-        net_to_pad = [(constr.net, constr.pad) for constr in pcf_constraints]
-    else:
-        net_to_pad = io_place.net_to_pad
+        net_to_pad |= set(
+            (constr.net, constr.pad) for constr in pcf_constraints
+        )
+    # Check for conflicting pad constraints
+    net_to_pad_map = dict()
+    for (net, pad) in net_to_pad:
+        if net not in net_to_pad_map:
+            net_to_pad_map[net] = pad
+        elif pad != net_to_pad_map[net]:
+            print(
+                """ERROR:
+Conflicting pad constraints for net {}:\n{}\n{}""".format(
+                    net, pad, net_to_pad_map[net]
+                ),
+                file=sys.stderr
+            )
+            sys.exit(1)
     # Constrain nets
     for net, pad in net_to_pad:
         if not io_place.is_net(net):
@@ -132,7 +147,7 @@ Constrained pad {} is not in available pad map:\n{}""".format(
         io_place.constrain_net(
             net_name=net,
             loc=loc,
-            comment="set_property LOC {} [get_ports {}]".format(pad, net)
+            comment="set_property LOC {} [get_ports {{{}}}]".format(pad, net)
         )
         if pad in iostandard_constraints:
             iostandard_defs[iob] = iostandard_constraints[pad]
