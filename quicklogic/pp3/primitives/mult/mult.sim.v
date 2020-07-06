@@ -18,6 +18,7 @@ module MULT (
 	output reg  [63:0] Cmult;
 	input wire         sel_mul_32x32;
 
+`ifdef GSIM
     specify
 		(Amult[0]  => Cmult[0]) = "";
 		(Amult[1]  => Cmult[0]) = "";
@@ -4308,6 +4309,7 @@ module MULT (
 		(Valid_mult[1] => Cmult[63]) = "";
 		(sel_mul_32x32 => Cmult[63]) = "";		
     endspecify
+`endif
 	
 	always @(*) begin
 		if (sel_mul_32x32 == 1'b1) begin
