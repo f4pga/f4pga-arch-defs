@@ -24,7 +24,7 @@ import itertools
 # Regular Expressions to select the directs that need additional pack patterns.
 # Being multiple IOB and IOPAD types, the name of the direct changes according
 # to different types, hence a regex is needed.
-IOPAD_OLOGIC_REGEX = re.compile("OLOGICE3.OQ_to_IOB33[MS]?.O")
+IOPAD_OLOGIC_OQ_REGEX = re.compile("OLOGICE3.OQ_to_IOB33[MS]?.O")
 IOPAD_OLOGIC_TQ_REGEX = re.compile("OLOGICE3.TQ_to_IOB33[MS]?.T")
 IOPAD_ILOGIC_REGEX = re.compile("IOB33[MS]?.I_to_ILOGICE3.D")
 
@@ -52,32 +52,6 @@ def get_top_pb_type(element):
         element = parent
 
 
-def check_direct(element, list_to_check):
-    """ Returns a boolean indicating whether the direct should be update.
-
-        Inputs:
-            - element: direct that needs to be checked;
-            - list_to_check: operational mode or pb_type and port of the direct to select.
-    """
-
-    if element.tag != "direct":
-        return False
-
-    interconnect = element.getparent()
-    mode_or_pb_type = interconnect.getparent()
-
-    if mode_or_pb_type.tag not in ['mode', 'pb_type']:
-        return False
-
-    for mode_or_pb_type_to_check, port_to_check in list_to_check:
-        if mode_or_pb_type.attrib[
-                'name'] == mode_or_pb_type_to_check and element.attrib[
-                    'name'] == port_to_check:
-            return True
-
-    return False
-
-
 def add_pack_pattern(element, pack_pattern_prefix, for_input=None):
     """ Adds the pack pattern to the given direct / mux with a specified
         prefix. """
@@ -98,7 +72,10 @@ def add_pack_pattern(element, pack_pattern_prefix, for_input=None):
     # Check if not already there
     for child in element.findall("pack_pattern"):
         if child.attrib.get("name", None) == pack_pattern_name:
-            assert False, (element.attrib["name"], pack_pattern_name,)
+            assert False, (
+                element.attrib["name"],
+                pack_pattern_name,
+            )
 
     ET.SubElement(
         element,
@@ -193,10 +170,10 @@ def main():
 
         # Adding OBUFT.TQ via T_INV helper primitive
         if IOPAD_OLOGIC_TQ_REGEX.match(dir_name):
-            add_pack_pattern(direct, 'T_INV_OBUFT')
+            add_pack_pattern(direct, 'T_INV_to_OBUFT')
 
         maybe_add_pack_pattern(
-            direct, 'T_INV_OBUFT', [
+            direct, 'T_INV_to_OBUFT', [
                 ('T_INV.TO', 'OLOGIC_TFF.TQ'),
                 ('OLOGIC_TFF.TQ', 'OLOGICE3.TQ'),
                 ('IOB33M.T', 'IOB33_MODES.T'),
@@ -212,11 +189,11 @@ def main():
         #
 
         # Adding ODDR.OQ via OBUF/OBUFT pack patterns
-        if IOPAD_OLOGIC_REGEX.match(dir_name):
-            add_pack_pattern(direct, 'ODDR_OQ_OBUFT')
+        if IOPAD_OLOGIC_OQ_REGEX.match(dir_name):
+            add_pack_pattern(direct, 'ODDR_to_OBUFT')
 
         maybe_add_pack_pattern(
-            direct, 'ODDR_OQ_OBUFT', [
+            direct, 'ODDR_to_OBUFT', [
                 ('ODDR_OQ.Q', 'OLOGIC_OFF.OQ'),
                 ('OLOGIC_OFF.OQ', 'OLOGICE3.OQ'),
                 ('IOB33M.O', 'IOB33_MODES.O'),
@@ -227,12 +204,36 @@ def main():
             ]
         )
 
-        # Adding ODDR.TQ via OBUFT pack patterns
+        # Adding ODDR.OQ via OBUF/OBUFT + TQ via T_INV pack patterns
+        if IOPAD_OLOGIC_OQ_REGEX.match(dir_name):
+            add_pack_pattern(direct, 'ODDR_to_T_INV_to_OBUFT')
         if IOPAD_OLOGIC_TQ_REGEX.match(dir_name):
-            add_pack_pattern(direct, 'ODDR_TQ_OBUFT')
+            add_pack_pattern(direct, 'ODDR_to_T_INV_to_OBUFT')
 
         maybe_add_pack_pattern(
-            direct, 'ODDR_TQ_OBUFT', [
+            direct, 'ODDR_to_T_INV_to_OBUFT', [
+                ('ODDR_OQ.Q', 'OLOGIC_OFF.OQ'),
+                ('OLOGIC_OFF.OQ', 'OLOGICE3.OQ'),
+                ('IOB33M.O', 'IOB33_MODES.O'),
+                ('IOB33S.O', 'IOB33_MODES.O'),
+                ('IOB33.O', 'IOB33_MODES.O'),
+                ('IOB33_MODES.O', 'OBUFT_VPR.I'),
+                ('OBUFT_VPR.O', 'outpad.outpad'),
+                ('T_INV.TO', 'OLOGIC_TFF.TQ'),
+                ('OLOGIC_TFF.TQ', 'OLOGICE3.TQ'),
+                ('IOB33M.T', 'IOB33_MODES.T'),
+                ('IOB33S.T', 'IOB33_MODES.T'),
+                ('IOB33.T', 'IOB33_MODES.T'),
+                ('IOB33_MODES.T', 'OBUFT_VPR.T'),
+            ]
+        )
+
+        # Adding ODDR.TQ via OBUFT pack patterns
+        if IOPAD_OLOGIC_TQ_REGEX.match(dir_name):
+            add_pack_pattern(direct, 'TDDR_to_OBUFT')
+
+        maybe_add_pack_pattern(
+            direct, 'TDDR_to_OBUFT', [
                 ('ODDR_TQ.Q', 'OLOGIC_TFF.TQ'),
                 ('OLOGIC_TFF.TQ', 'OLOGICE3.TQ'),
                 ('IOB33M.T', 'IOB33_MODES.T'),
@@ -244,7 +245,6 @@ def main():
         )
 
         # TODO: "TDDR" via IOBUF, OBUFTDS, IOBUFDS
-
         # TODO: ODDR+"TDDR" via OBUFT, IOBUF, OBUFTDS, IOBUFDS
 
         #
@@ -252,185 +252,219 @@ def main():
         #
 
         # Adding OSERDES via NO_OBUF pack patterns
-        if IOPAD_OLOGIC_REGEX.match(dir_name) or check_direct(direct, [
-            ('OSERDES', 'OQ'),
-            ('IOB33S', 'O'),
-            ('IOB33M', 'O'),
-            ('IOB33', 'O'),
-            ('NO_OBUF', 'O'),
-        ]):
-            add_pack_pattern(direct, 'OSERDES_NO_OBUF')
+        if IOPAD_OLOGIC_OQ_REGEX.match(dir_name):
+            add_pack_pattern(direct, 'OSERDES_to_NO_OBUF')
+
+        maybe_add_pack_pattern(
+            direct, 'OSERDES_to_NO_OBUF', [
+                ('OSERDESE2.OQ', 'OLOGICE3.OQ'),
+                ('IOB33M.O', 'IOB33_MODES.O'),
+                ('IOB33S.O', 'IOB33_MODES.O'),
+                ('IOB33.O', 'IOB33_MODES.O'),
+                ("IOB33_MODES.O", "outpad.outpad"),
+            ]
+        )
 
         # Adding OSERDES via OBUF/OBUFT pack patterns
-        if IOPAD_OLOGIC_REGEX.match(dir_name) or check_direct(direct, [
-            ('OSERDES', 'OQ'),
-            ('IOB33S', 'O'),
-            ('IOB33M', 'O'),
-            ('IOB33', 'O'),
-            ('OBUFT', 'IOB33_MODES.O_to_OBUFT_VPR.I'),
-            ('OBUFT', 'OBUFT_VPR.O_to_outpad.outpad'),
-        ]):
-            add_pack_pattern(direct, 'OSERDES_OBUFT')
+        if IOPAD_OLOGIC_OQ_REGEX.match(dir_name):
+            add_pack_pattern(direct, 'OSERDES_to_OBUF')
 
-        # TODO: OSERDES via OBUFT
+        maybe_add_pack_pattern(
+            direct, 'OSERDES_to_OBUF', [
+                ('OSERDESE2.OQ', 'OLOGICE3.OQ'),
+                ('IOB33M.O', 'IOB33_MODES.O'),
+                ('IOB33S.O', 'IOB33_MODES.O'),
+                ('IOB33.O', 'IOB33_MODES.O'),
+                ('IOB33_MODES.O', 'OBUFT_VPR.I'),
+                ('OBUFT_VPR.O', 'outpad.outpad'),
+            ]
+        )
+
+        # Adding OSERDES via OBUF/OBUFT + TQ via T_INV pack patterns
+        if IOPAD_OLOGIC_OQ_REGEX.match(dir_name):
+            add_pack_pattern(direct, 'OSERDES_to_T_INV_to_OBUF')
+        if IOPAD_OLOGIC_TQ_REGEX.match(dir_name):
+            add_pack_pattern(direct, 'OSERDES_to_T_INV_to_OBUF')
+
+        maybe_add_pack_pattern(
+            direct, 'OSERDES_to_T_INV_to_OBUF', [
+                ('OSERDESE2.OQ', 'OLOGICE3.OQ'),
+                ('IOB33M.O', 'IOB33_MODES.O'),
+                ('IOB33S.O', 'IOB33_MODES.O'),
+                ('IOB33.O', 'IOB33_MODES.O'),
+                ('IOB33_MODES.O', 'OBUFT_VPR.I'),
+                ('OBUFT_VPR.O', 'outpad.outpad'),
+                ('T_INV.TO', 'OLOGIC_TFF.TQ'),
+                ('OLOGIC_TFF.TQ', 'OLOGICE3.TQ'),
+                ('IOB33M.T', 'IOB33_MODES.T'),
+                ('IOB33S.T', 'IOB33_MODES.T'),
+                ('IOB33.T', 'IOB33_MODES.T'),
+                ('IOB33_MODES.T', 'OBUFT_VPR.T'),
+            ]
+        )
 
         # Adding OSERDES via IOBUF pack patterns
-        if IOPAD_OLOGIC_REGEX.match(dir_name) or check_direct(direct, [
-            ('OSERDES', 'OQ'),
-            ('IOB33S', 'O'),
-            ('IOB33M', 'O'),
-            ('IOB33', 'O'),
-            ('IOBUF', 'O_to_IOBUF_VPR.I'),
-            ('IOBUF', 'IOBUF_VPR.IOPAD_$out_to_outpad.outpad'),
-            ('IOBUF', 'inpad.inpad_to_IOBUF_VPR.IOPAD_$inp'),
-        ]):
-            add_pack_pattern(direct, 'OSERDES_IOBUF')
+        if IOPAD_OLOGIC_OQ_REGEX.match(dir_name):
+            add_pack_pattern(direct, 'OSERDES_to_IOBUF')
 
-        # TODO: OSERDES via OBUFDS
+        maybe_add_pack_pattern(
+            direct, 'OSERDES_to_IOBUF', [
+                ('OSERDESE2.OQ', 'OLOGICE3.OQ'),
+                ('IOB33M.O', 'IOB33_MODES.O'),
+                ('IOB33S.O', 'IOB33_MODES.O'),
+                ('IOB33.O', 'IOB33_MODES.O'),
+                ('IOB33_MODES.O', 'IOBUF_VPR.I'),
+                ('IOBUF_VPR.IOPAD_$out', 'outpad.outpad'),
+                ('inpad.inpad', 'IOBUF_VPR.IOPAD_$inp'),
+            ]
+        )
 
-        # Adding OSERDES to differential OBUFTDS pack patterns
+        # Adding OSERDES via differential OBUFDS/OBUFTDS pack patterns
         if "IOPAD_M" in top_name:
-            if "OQ_to_IOB33M" in dir_name or check_direct(direct, [
-                ('OBUFTDS_M', 'I'),
-                ('OBUFTDS_M', 'O'),
-                ('OSERDES', 'OQ'),
-                ('IOB33M', 'I'),
-                ('IOB33M', 'O'),
-            ]):
-                add_pack_pattern(direct, 'OSERDES_OBUFTDS_M')
+            if IOPAD_OLOGIC_OQ_REGEX.match(dir_name):
+                add_pack_pattern(direct, 'OSERDES_to_OBUFDS')
 
-        # Adding OSERDES to differential IOBUFDS pack patterns
+            maybe_add_pack_pattern(
+                direct, 'OSERDES_to_OBUFDS', [
+                    ('OSERDESE2.OQ', 'OLOGICE3.OQ'),
+                    ('IOB33M.O', 'IOB33_MODES.O'),
+                    ('IOB33_MODES.O', 'OBUFTDS_M_VPR.I'),
+                    ('OBUFTDS_M_VPR.O', 'outpad.outpad'),
+                ]
+            )
+
+        # Adding OSERDES via differential IOBUFDS pack patterns
         if "IOPAD_M" in top_name:
-            if "OQ_to_IOB33M" in dir_name or check_direct(direct, [
-                ('IOBUFDS_M', 'I'),
-                ('IOBUFDS_M', 'IOPAD_$inp'),
-                ('IOBUFDS_M', 'IOPAD_$out'),
-                ('OSERDES', 'OQ'),
-                ('IOB33M', 'I'),
-                ('IOB33M', 'O'),
-            ]):
-                add_pack_pattern(direct, 'OSERDES_IOBUFDS_M')
+            if IOPAD_OLOGIC_OQ_REGEX.match(dir_name):
+                add_pack_pattern(direct, 'OSERDES_to_IOBUFDS')
+
+            maybe_add_pack_pattern(
+                direct, 'OSERDES_to_IOBUFDS', [
+                    ('OSERDESE2.OQ', 'OLOGICE3.OQ'),
+                    ('IOB33M.O', 'IOB33_MODES.O'),
+                    ('IOB33_MODES.O', 'IOBUFDS_M_VPR.I'),
+                    ('IOBUFDS_M_VPR.IOPAD_$out', 'outpad.outpad'),
+                    ('inpad.inpad', 'IOBUFDS_M_VPR.IOPAD_$inp'),
+                ]
+            )
 
         #
         # IDDR
         #
+        for use_idelay in [False, True]:
 
-        # Adding IDDR via IBUF pack patterns
-        if IOPAD_ILOGIC_REGEX.match(dir_name):
-            add_pack_pattern(direct, 'IDDR_IBUF')
+            if use_idelay:
+                name = "IDDR_to_IDELAY"
+                connections = [('ILOGICE3.DDLY', 'IFF.D')]
 
-        maybe_add_pack_pattern(direct, 'IDDR_IBUF', [
-            ('inpad.inpad',     'IBUF_VPR.I'),
-            ('IBUF_VPR.O',      'IOB33_MODES.I'),
-            ('IOB33_MODES.I',   'IOB33.I'),
-            ('IOB33_MODES.I',   'IOB33M.I'),
-            ('IOB33_MODES.I',   'IOB33S.I'),
-            ('ILOGICE3.D',      'IFF.D')
-        ])
+            else:
+                name = "IDDR"
+                connections = [('ILOGICE3.D', 'IFF.D')]
 
-        # TODO: IDDR via IOBUF, IDDR via IOBUFDS
+            # Adding IDDR via IBUF pack patterns
+            if not use_idelay and IOPAD_ILOGIC_REGEX.match(dir_name):
+                add_pack_pattern(direct, name + '_to_IBUF')
 
-        # Adding IDDR+IDELAY via IBUF pack patterns
-        if 'I_to_IDELAYE2' in dir_name:
-            add_pack_pattern(direct, 'IDDR_IDELAY_IBUF')
+            if use_idelay and ('I_to_IDELAYE2' in dir_name
+                               or 'DATAOUT_to_ILOGICE3' in dir_name):
+                add_pack_pattern(direct, name + '_to_IBUF')
 
-        maybe_add_pack_pattern(direct, 'IDDR_IDELAY_IBUF', [
-            ('inpad.inpad',     'IBUF_VPR.I'),
-            ('IBUF_VPR.O',      'IOB33_MODES.I'),
-            ('IOB33_MODES.I',   'IOB33.I'),
-            ('IOB33_MODES.I',   'IOB33M.I'),
-            ('IOB33_MODES.I',   'IOB33S.I'),
-            ('IDELAYE2.DATAOUT','ILOGICE3.DDLY'),
-            ('ILOGICE3.DDLY',   'IFF.D')
-        ])
+            maybe_add_pack_pattern(
+                direct, name + '_to_IBUF', [
+                    ('inpad.inpad', 'IBUF_VPR.I'),
+                    ('IBUF_VPR.O', 'IOB33_MODES.I'),
+                    ('IOB33_MODES.I', 'IOB33.I'),
+                    ('IOB33_MODES.I', 'IOB33M.I'),
+                    ('IOB33_MODES.I', 'IOB33S.I'),
+                ] + connections
+            )
 
-        # TODO: IDDR+IDELAY via IOBUF, IDDR+IDELAY via IOBUFDS
+            # TODO: IDDR via IOBUF, IDDR via IOBUFDS
 
         #
-        # ISERDES, no IDELAY
+        # ISERDES
         #
+        for use_idelay in [False, True]:
 
-        # Adding ISERDES via NO_IBUF
-        if IOPAD_ILOGIC_REGEX.match(dir_name) or check_direct(direct, [
-            ('NO_IBUF', 'I'),
-            ('ISERDES_NO_IDELAY', 'D'),
-            ('IOB33S', 'I'),
-            ('IOB33S', 'O'),
-            ('IOB33M', 'I'),
-            ('IOB33M', 'O'),
-            ('IOB33', 'I'),
-            ('IOB33', 'O'),
-        ]):
-            add_pack_pattern(direct, 'ISERDES_NO_IBUF')
+            if use_idelay:
+                name = "ISERDESE2_to_IDELAY"
+                connections = [('ILOGICE3.DDLY', 'ISERDESE2_IDELAY.DDLY')]
 
-        # Adding IOSERDES pack patterns (using IOBUF)
-        if IOPAD_OLOGIC_REGEX.match(dir_name) or IOPAD_ILOGIC_REGEX.match(
-                dir_name) or check_direct(direct, [
-                    ('IOBUF', 'O_to_IOBUF_VPR.I'),
-                    ('IOBUF', 'inpad.inpad_to_IOBUF_VPR.IOPAD_$inp'),
-                    ('IOBUF', 'I_to_IOBUF_VPR.O'),
-                    ('IOBUF', 'IOBUF_VPR.IOPAD_$out_to_outpad.outpad'),
-                    ('IOB33S', 'I'), ('IOB33S', 'O'), ('IOB33M', 'I'),
-                    ('IOB33M', 'O'), ('IOB33', 'I'), ('IOB33', 'O'),
-                    ('ISERDES_NO_IDELAY', 'D'), ('OSERDES', 'OQ')
-                ]):
-            add_pack_pattern(direct, 'IOSERDES')
+            else:
+                name = "ISERDESE2"
+                connections = [('ILOGICE3.D', 'ISERDESE2_NO_IDELAY.D')]
 
-        # Adding ISERDES via differential IOBUFDS pack patterns
-        if "IOPAD_M" in top_name:
-            if "I_to_ILOGICE3" in dir_name or check_direct(direct, [
-                ('IOBUFDS_M', 'O'),
-                ('IOBUFDS_M', 'IOPAD_$inp'),
-                ('IOBUFDS_M', 'IOPAD_$out'),
-                ('ISERDES_NO_IDELAY', 'D'),
-                ('IOB33M', 'I'),
-                ('IOB33M', 'O'),
-            ]):
-                add_pack_pattern(direct, 'ISERDES_IOBUFDS_M')
+            # Adding ISERDES via NO_IBUF pack patterns
+            if not use_idelay and IOPAD_ILOGIC_REGEX.match(dir_name):
+                add_pack_pattern(direct, name + '_to_NO_IBUF')
 
-        #
-        # ISERDES + IDELAY
-        #
+            if use_idelay and ('I_to_IDELAYE2' in dir_name
+                               or 'DATAOUT_to_ILOGICE3' in dir_name):
+                add_pack_pattern(direct, name + '_to_NO_IBUF')
 
-        # Adding ISERDES+IDELAY via NO_IBUF pack patterns
-        if 'DATAOUT_to_ILOGICE3' in dir_name or 'I_to_IDELAYE2' in dir_name or check_direct(
-                direct, [
-                    ('NO_IBUF', 'I'),
-                    ('ISERDES_IDELAY', 'DDLY'),
-                    ('IOB33S', 'I'),
-                    ('IOB33S', 'O'),
-                    ('IOB33M', 'I'),
-                    ('IOB33M', 'O'),
-                    ('IOB33', 'I'),
-                    ('IOB33', 'O'),
-                ]):
-            add_pack_pattern(direct, 'ISERDES_IDELAY_NO_IBUF')
+            maybe_add_pack_pattern(
+                direct, name + '_to_NO_IBUF', [
+                    ("inpad.inpad", "IOB33_MODES.I"),
+                    ('IOB33_MODES.I', 'IOB33.I'),
+                    ('IOB33_MODES.I', 'IOB33M.I'),
+                    ('IOB33_MODES.I', 'IOB33S.I'),
+                ] + connections
+            )
 
-        # Adding IOSERDES with IDELAY pack patterns (using IOBUF)
-        if IOPAD_OLOGIC_REGEX.match(
-                dir_name
-        ) or 'DATAOUT_to_ILOGICE3' in dir_name or 'I_to_IDELAYE2' in dir_name or check_direct(
-                direct, [('IOBUF', 'O_to_IOBUF_VPR.I'),
-                         ('IOBUF', 'inpad.inpad_to_IOBUF_VPR.IOPAD_$inp'),
-                         ('IOBUF', 'I_to_IOBUF_VPR.O'),
-                         ('IOBUF', 'IOBUF_VPR.IOPAD_$out_to_outpad.outpad'),
-                         ('IOB33S', 'I'), ('IOB33S', 'O'), ('IOB33M', 'I'),
-                         ('IOB33M', 'O'), ('IOB33', 'I'), ('IOB33', 'O'),
-                         ('ISERDES_IDELAY', 'DDLY'), ('OSERDES', 'OQ')]):
-            add_pack_pattern(direct, 'ISERDES_IDELAY_IOBUF')
+            # Adding ISERDES via IBUF pack patterns
+            if not use_idelay and IOPAD_ILOGIC_REGEX.match(dir_name):
+                add_pack_pattern(direct, name + '_to_IBUF')
 
-        # Adding ISERDES+IDELAY via differential IOBUFDS pack patterns
-        if "IOPAD_M" in top_name:
-            if 'DATAOUT_to_ILOGICE3' in dir_name or 'I_to_IDELAYE2' in dir_name or check_direct(
-                    direct, [
-                        ('IOBUFDS_M', 'O'),
-                        ('IOBUFDS_M', 'IOPAD_$inp'),
-                        ('IOBUFDS_M', 'IOPAD_$out'),
-                        ('ISERDES_IDELAY', 'DDLY'),
-                        ('IOB33M', 'I'),
-                        ('IOB33M', 'O'),
-                    ]):
-                add_pack_pattern(direct, 'ISERDES_IDELAY_IOBUFDS_M')
+            if use_idelay and ('I_to_IDELAYE2' in dir_name
+                               or 'DATAOUT_to_ILOGICE3' in dir_name):
+                add_pack_pattern(direct, name + '_to_IBUF')
+
+            maybe_add_pack_pattern(
+                direct, name + '_to_IBUF', [
+                    ('inpad.inpad', 'IBUF_VPR.I'),
+                    ('IBUF_VPR.O', 'IOB33_MODES.I'),
+                    ('IOB33_MODES.I', 'IOB33.I'),
+                    ('IOB33_MODES.I', 'IOB33M.I'),
+                    ('IOB33_MODES.I', 'IOB33S.I'),
+                ] + connections
+            )
+
+            # Adding ISERDES via IOBUF pack patterns
+            if not use_idelay and IOPAD_ILOGIC_REGEX.match(dir_name):
+                add_pack_pattern(direct, name + '_to_IOBUF')
+
+            if use_idelay and ('I_to_IDELAYE2' in dir_name
+                               or 'DATAOUT_to_ILOGICE3' in dir_name):
+                add_pack_pattern(direct, name + '_to_IOBUF')
+
+            maybe_add_pack_pattern(
+                direct, name + '_to_IOBUF', [
+                    ('IOBUF_VPR.IOPAD_$out', 'outpad.outpad'),
+                    ('inpad.inpad', 'IOBUF_VPR.IOPAD_$inp'),
+                    ('IOBUF_VPR.O', 'IOB33_MODES.I'),
+                    ('IOB33_MODES.I', 'IOB33.I'),
+                    ('IOB33_MODES.I', 'IOB33M.I'),
+                    ('IOB33_MODES.I', 'IOB33S.I'),
+                ] + connections
+            )
+
+            # Adding ISERDES via differential IOBUFDS pack patterns
+            if "IOPAD_M" in top_name:
+                if not use_idelay and IOPAD_ILOGIC_REGEX.match(dir_name):
+                    add_pack_pattern(direct, name + '_to_IOBUFDS')
+
+                if use_idelay and ('I_to_IDELAYE2' in dir_name
+                                   or 'DATAOUT_to_ILOGICE3' in dir_name):
+                    add_pack_pattern(direct, name + '_to_IOBUFDS')
+
+                maybe_add_pack_pattern(
+                    direct, name + '_to_IOBUFDS', [
+                        ('IOBUFDS_M_VPR.IOPAD_$out', 'outpad.outpad'),
+                        ('inpad.inpad', 'IOBUFDS_M_VPR.IOPAD_$inp'),
+                        ('IOBUFDS_M_VPR.O', 'IOB33_MODES.I'),
+                        ('IOB33_MODES.I', 'IOB33M.I'),
+                    ] + connections
+                )
 
         #
         # IDELAY only
