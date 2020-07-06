@@ -47,15 +47,43 @@ create_clock -period {period} -name {pin} -waveform {{0.000 {half_period}}} [get
 
     print(
         """
+
+write_checkpoint -force design_{name}_pre_route.dcp
+save_project_as -force design_{name}.xpr
+close_project
+
+open_checkpoint design_{name}_pre_route.dcp
+
+set conflict_nets [get_nets -filter {{ ROUTE_STATUS == "CONFLICTS" }}]
+if {{$conflict_nets != ""}} {{
+    puts "There are conflicting nets!"
+
+    foreach net $conflict_nets {{
+        puts $net
+    }}
+    error "Exiting!"
+}}
+
+set unrouted_nets [get_nets -filter {{ ROUTE_STATUS == "UNROUTED" }}]
+
+set antenna_nets [get_nets -filter {{ ROUTE_STATUS == "ANTENNAS" }}]
+
+set partial_nets [get_nets -filter {{ ROUTE_STATUS == "PARTIAL" }}]
+
+set nets_to_route "$unrouted_nets $antenna_nets $partial_nets"
+
+set_property IS_ENABLED 0 [get_drc_checks *]
+
+report_route_status
+foreach net $nets_to_route {{
+    route_design -nets [get_nets $net]
+}}
+
+set_property IS_ENABLED 1 [get_drc_checks *]
 set_property CFGBVS VCCO [current_design]
 set_property CONFIG_VOLTAGE 3.3 [current_design]
 set_property BITSTREAM.GENERAL.PERFRAMECRC YES [current_design]
 set_property IS_ENABLED 0 [get_drc_checks {{LUTLP-1}}]
-
-write_checkpoint -force design_{name}_pre_route.dcp
-
-place_design
-route_design
 
 report_utilization -file design_{name}_utilization.rpt
 report_clock_utilization -file design_{name}_clock_utilization.rpt
@@ -66,8 +94,9 @@ report_route_status -file design_{name}_route_status.rpt
 write_checkpoint -force design_{name}.dcp
 write_bitstream -force design_{name}.bit
 save_project_as -force design_{name}.xpr
+
 report_timing_summary
-""".format(name=args.name, ),
+""".format(name=args.name),
         file=f_out
     )
 
