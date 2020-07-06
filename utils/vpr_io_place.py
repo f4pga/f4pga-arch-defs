@@ -27,6 +27,12 @@ class IoPlace(object):
         self.net_to_pad = set()
 
     def read_io_loc_pairs(self, blif):
+        """
+         Read IO_LOC_PAIRS parameters from eblif carrying the information
+         which package pin a specified top port is constrained, e.g. O_LOC_PAIRS = "portA:D1"
+         In case of differential inputs/outputs there are two pairs of the parameter,
+         i.e. IO_LOC_PAIRS = "portA_p:D2,portA_n:D4"
+        """
         if 'subckt' not in blif:
             return
         for attr in blif['subckt']:
