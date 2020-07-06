@@ -10,10 +10,6 @@ add_file_target(FILE VexRiscv_Lite.v SCANNER_TYPE verilog)
 add_file_target(FILE minilitex_ddr_arty.v SCANNER_TYPE verilog)
 add_file_target(FILE minilitex_ddr_arty100t.v SCANNER_TYPE verilog)
 
-
-get_target_property_required(PYTHON3 env PYTHON3)
-get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
-
 add_fpga_target(
   NAME minilitex_ddr_arty
   BOARD arty-full

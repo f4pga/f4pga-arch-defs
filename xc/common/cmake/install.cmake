@@ -12,9 +12,7 @@ function(DEFINE_XC_TOOLCHAIN_TARGET)
   )
 
   get_target_property_required(VPR env VPR)
-  get_target_property(VPR_TARGET env VPR_TARGET)
   get_target_property_required(GENFASM env GENFASM)
-  get_target_property(GENFASM_TARGET env GENFASM_TARGET)
 
   set(ARCH ${DEFINE_XC_TOOLCHAIN_TARGET_ARCH})
   set(VPR_ARCH_ARGS ${DEFINE_XC_TOOLCHAIN_TARGET_VPR_ARCH_ARGS})

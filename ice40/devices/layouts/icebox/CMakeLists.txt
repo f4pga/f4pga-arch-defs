@@ -43,16 +43,14 @@ function(generate_all_icebox_layouts)
   endforeach()
 
   get_target_property_required(PYTHON3 env PYTHON3)
-  get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
   get_target_property_required(QUIET_CMD env QUIET_CMD)
-  get_target_property(QUIET_CMD_TARGET env QUIET_CMD_TARGET)
   add_custom_command(
     OUTPUT ${OUTPUTS}
     COMMAND ${QUIET_CMD} ${CMAKE_COMMAND} -E env PYTHONPATH=${ICEBOX_PATH}:${PYUTILS_PATH}
     ${PYTHON3} ${ICESTORM_LAYOUT_IMPORT}
     DEPENDS
-      ${QUIET_CMD} ${QUIET_CMD_TARGET}
-      ${PYTHON3} ${PYTHON3_TARGET}
+      ${QUIET_CMD}
+      ${PYTHON3}
       ${ICESTORM_LAYOUT_IMPORT} ${ICESTORM_LAYOUT_LIST} ${ICESTORM_DB}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   )

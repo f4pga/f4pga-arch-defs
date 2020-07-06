@@ -34,7 +34,6 @@ function(COMMON_VIVADO_TARGETS)
   )
 
   get_target_property_required(PYTHON3 env PYTHON3)
-  get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
 
   set(NAME ${COMMON_VIVADO_TARGETS_NAME})
   set(WORK_DIR ${COMMON_VIVADO_TARGETS_WORK_DIR})
@@ -85,7 +84,6 @@ function(COMMON_VIVADO_TARGETS)
       )
 
   set(CLEAN_JSON5 ${symbiflow-arch-defs_SOURCE_DIR}/utils/clean_json5.py)
-  get_target_property(PYJSON5_TARGET env PYJSON5_TARGET)
   add_custom_command(
       OUTPUT ${WORK_DIR}/timing_${NAME}.json
       COMMAND ${PRJRAY_DIR}/utils/vivado.sh
@@ -103,7 +101,7 @@ function(COMMON_VIVADO_TARGETS)
       WORKING_DIRECTORY ${WORK_DIR}
       DEPENDS
         ${WORK_DIR}/design_${NAME}.dcp
-        ${PYTHON3} ${PYTHON3_TARGET} ${PYJSON5_TARGET}
+        ${PYTHON3}
       )
 
   add_custom_command(
@@ -118,7 +116,7 @@ function(COMMON_VIVADO_TARGETS)
           > ${CMAKE_CURRENT_BINARY_DIR}/${WORK_DIR}/design_${NAME}.bit.fasm
       WORKING_DIRECTORY ${WORK_DIR}
       DEPENDS
-        ${PYTHON3} ${PYTHON3_TARGET}
+        ${PYTHON3}
         ${WORK_DIR}/design_${NAME}.bit
       )
 
@@ -233,7 +231,6 @@ function(ADD_VIVADO_TARGET)
   endif()
 
   get_target_property_required(PYTHON3 env PYTHON3)
-  get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
 
   set(CREATE_RUNME ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/vivado_create_runme.py)
   add_custom_command(
@@ -248,7 +245,7 @@ function(ADD_VIVADO_TARGET)
         ${CLOCK_ARGS}
         ${XDC_ARGS}
       DEPENDS
-        ${PYTHON3_TARGET} ${PYTHON3}
+        ${PYTHON3}
         ${CREATE_RUNME}
         )
 
@@ -260,7 +257,7 @@ function(ADD_VIVADO_TARGET)
         --output_tcl ${CMAKE_CURRENT_BINARY_DIR}/${NAME}_sim.tcl
         ${CLOCK_ARGS}
       DEPENDS
-        ${PYTHON3_TARGET} ${PYTHON3}
+        ${PYTHON3}
         ${CREATE_SIM}
         )
 
@@ -340,13 +337,10 @@ function(ADD_VIVADO_PNR_TARGET)
   get_target_property_required(PART ${BOARD} PART)
 
   get_target_property_required(YOSYS env YOSYS)
-  get_target_property(YOSYS_TARGET env YOSYS_TARGET)
 
   get_target_property_required(QUIET_CMD env QUIET_CMD)
-  get_target_property(QUIET_CMD_TARGET env QUIET_CMD_TARGET)
 
   get_target_property_required(PYTHON3 env PYTHON3)
-  get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
 
   get_target_property_required(FAMILY ${ARCH} FAMILY)
   get_target_property_required(DOC_PRJ ${ARCH} DOC_PRJ)
@@ -372,8 +366,8 @@ function(ADD_VIVADO_PNR_TARGET)
         -b verilog -o ${SYNTH_OUT}
         -p "techmap -map ${UNMAP_V}"
         ${SYNTH_V_LOC}.premap.v
-      DEPENDS ${YOSYS_TARGET} ${YOSYS}
-        ${QUIET_CMD} ${QUIET_CMD_TARGET}
+      DEPENDS ${YOSYS}
+        ${QUIET_CMD}
         ${SYNTH_DEPS} ${SYNTH_V_LOC}.premap.v ${UNMAP_V}
         )
 
@@ -410,7 +404,7 @@ function(ADD_VIVADO_PNR_TARGET)
             --pcf ${PCF_FILE}
             --xdc ${XDC_FILE}
             --iostandard ${ADD_VIVADO_PNR_TARGET_IOSTANDARD}
-          DEPENDS ${PYTHON3} ${PYTHON3_TARGET} ${PCF_TO_XDC_TOOL} ${XDC_DEPS}
+          DEPENDS ${PYTHON3} ${PCF_TO_XDC_TOOL} ${XDC_DEPS}
           )
 
       add_file_target(FILE ${NAME}.xdc GENERATED)
@@ -435,7 +429,7 @@ function(ADD_VIVADO_PNR_TARGET)
         --clock_periods "${ADD_VIVADO_PNR_TARGET_CLOCK_PERIODS}"
         --output_tcl ${CMAKE_CURRENT_BINARY_DIR}/${NAME}_runme.tcl
       DEPENDS
-        ${PYTHON3_TARGET} ${PYTHON3}
+        ${PYTHON3}
         ${CREATE_RUNME}
         )
 
@@ -448,7 +442,7 @@ function(ADD_VIVADO_PNR_TARGET)
         --clock_periods "${ADD_VIVADO_PNR_TARGET_CLOCK_PERIODS}"
         --output_tcl ${CMAKE_CURRENT_BINARY_DIR}/${NAME}_sim.tcl
       DEPENDS
-        ${PYTHON3_TARGET} ${PYTHON3}
+        ${PYTHON3}
         ${CREATE_SIM}
         )
 

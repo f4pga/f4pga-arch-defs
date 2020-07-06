@@ -80,17 +80,12 @@ echo "----------------------------------------"
 	echo " Configuring CMake"
 	echo "----------------------------------------"
 	make env
-	cd build
+	source env/conda/bin/activate symbiflow_arch_def_base
 	echo "----------------------------------------"
-
-	echo
-	echo " Setting up basic conda environment"
-	echo "----------------------------------------"
-	${BUILD_TOOL} all_conda
 
 	echo
 	echo " Output information about conda environment"
 	echo "----------------------------------------"
-	env/conda/bin/conda info
-	env/conda/bin/conda config --show
+	conda info
+	conda config --show
 )

@@ -1,13 +1,12 @@
 
 get_target_property_required(PYTHON3 env PYTHON3)
-get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
 foreach(CARRY_DEPTH 1 2 3 4 7 8 9 15 16 17 31 32)
     set(CARRY_TEST carry_test_${CARRY_DEPTH}_init0.v)
     add_custom_command(
         OUTPUT ${CARRY_TEST}
         COMMAND ${PYTHON3} ${CMAKE_CURRENT_SOURCE_DIR}/generate_carry_test.py --init 0 --carry_depth
             ${CARRY_DEPTH} > ${CARRY_TEST}
-        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/generate_carry_test.py ${PYTHON3} ${PYTHON3_TARGET}
+        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/generate_carry_test.py ${PYTHON3}
         )
     add_file_target(
         FILE ${CARRY_TEST}
@@ -27,7 +26,7 @@ foreach(CARRY_DEPTH 1 2 3 4 7 8 9 15 16 17 31 32)
         OUTPUT ${CARRY_TEST}
         COMMAND ${PYTHON3} ${CMAKE_CURRENT_SOURCE_DIR}/generate_carry_test.py --init 1 --carry_depth
             ${CARRY_DEPTH} > ${CARRY_TEST}
-        DEPENDS generate_carry_test.py ${PYTHON3} ${PYTHON3_TARGET}
+        DEPENDS generate_carry_test.py ${PYTHON3}
         )
     add_file_target(
         FILE ${CARRY_TEST}
@@ -47,7 +46,7 @@ foreach(CARRY_DEPTH 1 2 3 4 7 8 9 15 16 17 31 32)
         OUTPUT ${CARRY_TEST}
         COMMAND ${PYTHON3} ${CMAKE_CURRENT_SOURCE_DIR}/generate_carry_test.py --init fabric --carry_depth
             ${CARRY_DEPTH} > ${CARRY_TEST}
-        DEPENDS generate_carry_test.py ${PYTHON3} ${PYTHON3_TARGET}
+        DEPENDS generate_carry_test.py ${PYTHON3}
         )
     add_file_target(
         FILE ${CARRY_TEST}

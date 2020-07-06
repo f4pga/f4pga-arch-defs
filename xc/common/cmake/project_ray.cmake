@@ -21,7 +21,6 @@ function(PROJECT_RAY_ARCH)
   )
 
   get_target_property_required(PYTHON3 env PYTHON3)
-  get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
 
   set(ARCH ${PROJECT_RAY_ARCH_ARCH})
   get_target_property_required(PRJRAY_ARCH ${ARCH} PRJRAY_ARCH)
@@ -97,7 +96,7 @@ function(PROJECT_RAY_ARCH)
       DEPENDS
         ${CREATE_SYNTH_TILES}
         ${PROJECT_RAY_ARCH_USE_ROI} ${SYNTH_DEPS}
-        ${PYTHON3} ${PYTHON3_TARGET} simplejson intervaltree
+        ${PYTHON3}
         )
 
     add_file_target(FILE synth_tiles.json GENERATED)
@@ -124,9 +123,6 @@ function(PROJECT_RAY_ARCH)
   list(APPEND CHANNELS_DEPS ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/${PART}/tilegrid.json)
   list(APPEND CHANNELS_DEPS ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/${PART}/tileconn.json)
 
-  get_target_property(NUMPY_TARGET env NUMPY_TARGET)
-  set(CREATE_EDGES_DEPS ${NUMPY_TARGET})
-
   add_custom_command(
     OUTPUT channels.db vpr_grid_map.csv
     COMMAND ${CMAKE_COMMAND} -E copy ${GENERIC_CHANNELS_LOCATION} ${CMAKE_CURRENT_BINARY_DIR}/channels.db
@@ -139,7 +135,7 @@ function(PROJECT_RAY_ARCH)
       --connection_database ${CMAKE_CURRENT_BINARY_DIR}/channels.db
       ${ROI_ARG_FOR_CREATE_EDGES}
     DEPENDS
-    ${PYTHON3} ${PYTHON3_TARGET} ${CREATE_EDGES} ${CREATE_EDGES_DEPS} ${CHANNELS_DEPS}
+    ${PYTHON3} ${CREATE_EDGES} ${CREATE_EDGES_DEPS} ${CHANNELS_DEPS}
     )
 
   add_file_target(FILE channels.db GENERATED)
@@ -173,7 +169,7 @@ function(PROJECT_RAY_ARCH)
     DEPENDS
     ${ARCH_IMPORT}
     ${DEPS}
-    ${PYTHON3} ${PYTHON3_TARGET} simplejson
+    ${PYTHON3}
     )
 
   add_file_target(FILE arch.xml GENERATED)
@@ -194,7 +190,6 @@ function(PROJECT_RAY_PREPARE_DATABASE)
   )
 
   get_target_property_required(PYTHON3 env PYTHON3)
-  get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
 
   set(FAMILY ${PROJECT_RAY_PREPARE_DATABASE_PRJRAY_FAMILY})
   set(PRJRAY_ARCH ${PROJECT_RAY_PREPARE_DATABASE_PRJRAY_ARCH})
@@ -223,8 +218,8 @@ function(PROJECT_RAY_PREPARE_DATABASE)
       --grid_map_output ${CMAKE_CURRENT_BINARY_DIR}/${VPR_GRID_MAP}
       DEPENDS
       ${FORM_CHANNELS}
-      ${DEPS} ${DEPS2} ${DEPS3} simplejson progressbar2 intervaltree hilbertcurve
-      ${PYTHON3} ${PYTHON3_TARGET}
+      ${DEPS} ${DEPS2} ${DEPS3}
+      ${PYTHON3}
       )
 
     add_file_target(FILE ${CHANNELS} GENERATED)
@@ -252,7 +247,7 @@ function(PROJECT_RAY_PREPARE_DATABASE)
     DEPENDS
     ${ASSIGN_PINS}
     ${DEPS} ${DEPS2} ${DEPS3}
-    ${PYTHON3} ${PYTHON3_TARGET} simplejson progressbar2
+    ${PYTHON3}
     )
 
   add_file_target(FILE ${PIN_ASSIGNMENTS} GENERATED)
@@ -302,7 +297,6 @@ function(PROJECT_RAY_TILE)
   string(TOLOWER ${PROJECT_RAY_TILE_TILE} TILE)
 
   get_target_property_required(PYTHON3 env PYTHON3)
-  get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
 
   set(ARCH ${PROJECT_RAY_TILE_ARCH})
   get_target_property_required(PRJRAY_ARCH ${ARCH} PRJRAY_ARCH)
@@ -382,7 +376,7 @@ function(PROJECT_RAY_TILE)
     DEPENDS
     ${TILE_IMPORT}
       ${DEPS}
-      ${PYTHON3} ${PYTHON3_TARGET} simplejson
+      ${PYTHON3}
     )
 
   add_file_target(FILE ${TILE}.pb_type.xml GENERATED)
@@ -426,7 +420,7 @@ function(PROJECT_RAY_TILE)
     DEPENDS
     ${PHYSICAL_TILE_IMPORT}
       ${TILES_DEPS}
-      ${PYTHON3} ${PYTHON3_TARGET} simplejson
+      ${PYTHON3}
     )
 
   add_file_target(FILE ${TILE}.tile.xml GENERATED)
@@ -524,7 +518,6 @@ function(PROJECT_RAY_EQUIV_TILE)
 
 
   get_target_property_required(PYTHON3 env PYTHON3)
-  get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
 
   get_target_property(PROTOTYPE_PART ${ARCH} PROTOTYPE_PART)
   set(PB_TYPE_INCLUDE_FILES "")
@@ -583,7 +576,7 @@ function(PROJECT_RAY_EQUIV_TILE)
     DEPENDS
       ${TILE_IMPORT}
       ${DEPS}
-      ${PYTHON3} ${PYTHON3_TARGET} simplejson
+      ${PYTHON3}
     )
 
   set(TARGETS "")
@@ -651,7 +644,6 @@ function(PROJECT_RAY_TILE_CAPACITY)
   set(ARCH ${PROJECT_RAY_TILE_CAPACITY_ARCH})
 
   get_target_property_required(PYTHON3 env PYTHON3)
-  get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
   get_target_property_required(PRJRAY_ARCH ${ARCH} PRJRAY_ARCH)
   get_target_property_required(FAMILY ${ARCH} FAMILY)
   get_target_property_required(PROTOTYPE_PART ${ARCH} PROTOTYPE_PART)
@@ -684,7 +676,7 @@ function(PROJECT_RAY_TILE_CAPACITY)
     DEPENDS
       ${TILE_CAPACITY_IMPORT}
       ${DEPS}
-      ${PYTHON3} ${PYTHON3_TARGET} simplejson
+      ${PYTHON3}
     )
   add_file_target(FILE ${TILE_LOWER}.tile.xml GENERATED)
 endfunction()

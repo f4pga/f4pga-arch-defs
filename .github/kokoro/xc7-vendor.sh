@@ -23,6 +23,7 @@ echo "========================================"
 echo "Running xc7 vendor tests (make all_xc7_diff_fasm)"
 echo "----------------------------------------"
 (
+	source env/conda/bin/activate symbiflow_arch_def_base
 	cd build
 	export VPR_NUM_WORKERS=${CORES}
 	# Running with -k0 to attempt all tests, and show which ones failed.
