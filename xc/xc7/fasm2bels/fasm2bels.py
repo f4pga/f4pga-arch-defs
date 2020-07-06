@@ -21,6 +21,7 @@ import csv
 import os.path
 import sqlite3
 import subprocess
+import sys
 import tempfile
 import json
 
@@ -224,12 +225,21 @@ def load_io_sites(db_root, part, pcf, eblif):
             for pcf_constraint in parse_simple_pcf(f):
                 assert pcf_constraint.pad not in pin_to_signal, pcf_constraint.pad
                 pin_to_signal[pcf_constraint.pad] = pcf_constraint.net
-    elif eblif:
+    if eblif:
         io_place = vpr_io_place.IoPlace()
         io_place.read_io_loc_pairs(eblif)
         for net, pad in io_place.net_to_pad:
-            assert pad not in pin_to_signal, pad
-            pin_to_signal[pad] = net
+            if pad not in pin_to_signal:
+                pin_to_signal[pad] = net
+            elif net != pin_to_signal[pad]:
+                print(
+                    """ERROR:
+Conflicting pin constraints for pad {}:\n{}\n{}""".format(
+                        pad, net, pin_to_signal[pad]
+                    ),
+                    file=sys.stderr
+                )
+                sys.exit(1)
 
     site_to_signal = {}
 
