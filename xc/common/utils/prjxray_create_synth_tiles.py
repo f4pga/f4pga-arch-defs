@@ -187,7 +187,9 @@ def main():
     with DatabaseCache(args.connection_database, read_only=True) as conn:
         synth_tiles['info'] = j['info']
         tile_in_use = set()
-        for port in j['ports']:
+        tile_pin_count = dict()
+        num_synth_tiles = 0
+        for port in sorted(j["ports"], key=lambda i: i['name']):
             if port['type'] == 'out':
                 port_type = 'input'
                 is_clock = False
@@ -219,10 +221,14 @@ def main():
             vpr_loc = map_tile_to_vpr_coord(conn, tile)
 
             if tile not in synth_tiles['tiles']:
+                tile_name = 'SYN-IOPAD-{}'.format(num_synth_tiles)
                 synth_tiles['tiles'][tile] = {
                     'pins': [],
                     'loc': vpr_loc,
+                    'tile_name': tile_name,
                 }
+                num_synth_tiles += 1
+                tile_pin_count[tile] = 0
 
             synth_tiles['tiles'][tile]['pins'].append(
                 {
@@ -236,8 +242,12 @@ def main():
                         port_type,
                     'is_clock':
                         is_clock,
+                    'z_loc':
+                        tile_pin_count[tile],
                 }
             )
+
+            tile_pin_count[tile] += 1
 
         # Find two VBRK's in the corner of the fabric to use as the synthetic VCC/
         # GND source.

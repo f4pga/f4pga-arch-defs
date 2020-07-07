@@ -823,8 +823,20 @@ def add_synthetic_edges(conn, graph, node_mapping, grid, synth_tiles):
     delayless_switch = graph.get_switch_id('__vpr_delayless_switch__')
 
     for tile_name, synth_tile in synth_tiles['tiles'].items():
-        input_num = 0
-        output_num = 0
+        num_inpad = len(
+            list(
+                filter(
+                    lambda t: t['port_type'] == 'output', synth_tile['pins']
+                )
+            )
+        )
+        num_outpad = len(
+            list(
+                filter(
+                    lambda t: t['port_type'] == 'input', synth_tile['pins']
+                )
+            )
+        )
         for pin in synth_tile['pins']:
             if pin['port_type'] in ['input', 'output']:
                 wire_pkey = get_wire_pkey(conn, tile_name, pin['wire'])
@@ -866,12 +878,10 @@ WHERE
             assert len(option) > 0, (pin, len(option))
 
             if pin['port_type'] == 'input':
-                tile_type = 'SYN-IOPAD'
-                sub_tile_num = input_num
+                tile_type = synth_tile['tile_name']
                 wire = 'outpad'
             elif pin['port_type'] == 'output':
-                tile_type = 'SYN-IOPAD'
-                sub_tile_num = output_num
+                tile_type = synth_tile['tile_name']
                 wire = 'inpad'
             elif pin['port_type'] == 'VCC':
                 tile_type = 'SYN-VCC'
@@ -884,9 +894,13 @@ WHERE
 
             track_node = track_nodes[option[0]]
             assert track_node in node_mapping, (track_node, track_pkey)
-            if pin['port_type'] in ['input', 'output']:
+            if wire == 'inpad' and num_inpad > 1:
                 pin_name = graph.create_pin_name_from_tile_type_sub_tile_num_and_pin(
-                    tile_type, sub_tile_num, wire
+                    tile_type, pin['z_loc'], wire
+                )
+            elif wire == 'outpad' and num_outpad > 1:
+                pin_name = graph.create_pin_name_from_tile_type_sub_tile_num_and_pin(
+                    tile_type, (pin['z_loc'] - num_inpad), wire
                 )
             else:
                 pin_name = graph.create_pin_name_from_tile_type_and_pin(

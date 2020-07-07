@@ -9,6 +9,16 @@ import vpr_io_place
 from lib.parse_pcf import parse_simple_pcf
 
 
+def get_synth_tile_from_pad(synth_tiles, pad):
+    """ Gets synthetic IO tile containing pad.
+        Will return None if pad is not associated with any synth tile.
+    """
+    for _, tile in synth_tiles['tiles'].items():
+        for pin in tile['pins']:
+            if pin['pad'] == pad:
+                return tile
+
+
 def main():
     parser = argparse.ArgumentParser(
         description='Convert a PCF file into a VPR io.place file.'
@@ -43,6 +53,12 @@ def main():
         type=argparse.FileType('w'),
         default=sys.stdout,
         help='The output io.place file'
+    )
+    parser.add_argument(
+        "--synth_tiles",
+        type=str,
+        required=False,
+        help='Synth tiles json file'
     )
     parser.add_argument(
         "--iostandard_defs", help='(optional) Output IOSTANDARD def file'
@@ -121,6 +137,10 @@ Conflicting pad constraints for net {}:\n{}\n{}""".format(
                 file=sys.stderr
             )
             sys.exit(1)
+    if args.synth_tiles:
+        with open(args.synth_tiles) as f:
+            synth_tiles = json.load(f)
+
     # Constrain nets
     for net, pad in net_to_pad:
         if not io_place.is_net(net):
@@ -144,6 +164,21 @@ Constrained pad {} is not in available pad map:\n{}""".format(
             sys.exit(1)
 
         loc, is_output, iob = pad_map[pad]
+
+        if args.synth_tiles:
+            tile = get_synth_tile_from_pad(synth_tiles, pad)
+            # If tile is None, the pcf_constraint is not associated with a synth tile
+            # Occurs in overlays or other architectures with a mix of synth and real IOs
+            if tile:
+                pin_list = list(
+                    filter(lambda p: p['pad'] == pad, tile['pins'])
+                )
+                assert len(pin_list) == 1
+                pin, = pin_list
+                z_loc = pin['z_loc']
+                x, y, _ = loc
+                loc = (x, y, z_loc)
+
         io_place.constrain_net(
             net_name=net,
             loc=loc,
