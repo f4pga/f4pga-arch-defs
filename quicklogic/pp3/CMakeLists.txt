@@ -1,11 +1,3 @@
-include(../common/cmake/quicklogic_fasm.cmake)
-add_quicklogic_fasm_package()
-
-include(../common/cmake/quicklogic_timings.cmake)
-
-add_custom_target(QL_CELLS_SIM_DEPS)
-
-include(../common/cmake/cells_sim_gen.cmake)
 add_subdirectory(primitives)
 
 set(CELLS_MAP_FILE ${CMAKE_CURRENT_SOURCE_DIR}/techmap/cells_map.v)
@@ -16,7 +8,7 @@ set(CELLS_MAP_FILE_DEST_DIR ${symbiflow-arch-defs_BINARY_DIR}/quicklogic/${FAMIL
 file(COPY ${CELLS_MAP_FILE} DESTINATION ${CELLS_MAP_FILE_DEST_DIR})
 
 set(CELLS_SIM_FILE ${symbiflow-arch-defs_BINARY_DIR}/quicklogic/${FAMILY_NAME}/techmap/cells_sim.v)
-add_cells_sim_target(${CELLS_SIM_FILE})
+add_cells_sim_target(${CELLS_SIM_FILE} ${FAMILY_NAME})
 
 include(../common/cmake/install.cmake)
 include(../common/cmake/quicklogic_device.cmake)
@@ -33,22 +25,6 @@ get_target_property_required(QLFASM env QLFASM)
 
 get_target_property_required(QLFASM_TARGET env QLFASM_TARGET)
 
-set(VPR_ARCH_ARGS "\
-    --clock_modeling route \
-    --place_delay_model delta_override \
-    --router_lookahead map \
-    --check_route quick \
-    --strict_checks off \
-    --allow_dangling_combinational_nodes on \
-    --disable_errors check_unbuffered_edges:check_route \
-    --congested_routing_iteration_threshold 0.8 \
-    --incremental_reroute_delay_ripup off \
-    --base_cost_type delay_normalized_length_bounded \
-    --bb_factor 10 \
-    --initial_pres_fac 4.0 \
-    --check_rr_graph off \
-    --suppress_warnings \${OUT_NOISY_WARNINGS},sum_pin_class:check_unbuffered_edges:load_rr_indexed_data_T_values:check_rr_node:trans_per_R:check_route:set_rr_graph_tool_comment "
-    )
 # Add the below option in the above variable to enable detailed timing report with routing delay information
 #--timing_report_detail detailed
 
@@ -107,7 +83,6 @@ define_arch(
     ${QLFASM_TARGET}
   BITSTREAM_EXTENSION bit
 
-  message(STATUS, "+++++++++++++ CMAKE_CURRENT_BINARY_DIR: ${CMAKE_CURRENT_BINARY_DIR}")
   CELLS_SIM
     ${CELLS_SIM_FILE}
 

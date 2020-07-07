@@ -46,11 +46,11 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
   set(TOOLCHAIN_WRAPPERS)
 
   foreach(WRAPPER ${WRAPPERS})
-    set(WRAPPER_PATH "${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/toolchain_wrappers/${WRAPPER}")
+    set(WRAPPER_PATH "${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/toolchain_wrappers/${WRAPPER}")
     list(APPEND TOOLCHAIN_WRAPPERS ${WRAPPER_PATH})
   endforeach()
 
-  set(VPR_COMMON_TEMPLATE "${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/toolchain_wrappers/vpr_common")
+  set(VPR_COMMON_TEMPLATE "${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/toolchain_wrappers/vpr_common")
   set(VPR_COMMON "${CMAKE_CURRENT_BINARY_DIR}/vpr_common")
   configure_file(${VPR_COMMON_TEMPLATE} "${VPR_COMMON}" @ONLY)
 
