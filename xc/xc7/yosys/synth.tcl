@@ -32,6 +32,11 @@ if { [info exists ::env(INPUT_XDC_FILE)] && $::env(INPUT_XDC_FILE) != "" } {
 
 write_verilog $::env(OUT_SYNTH_V).premap.v
 
+# Look for connections OSERDESE2.OQ -> OBUFDS.I. Annotate OBUFDS with a parameter
+# indicating that it is connected to an OSERDESE2
+select -set obufds t:OSERDESE2 %co2:+\[OQ,I\] t:OBUFDS t:OBUFTDS %u  %i
+setparam -set HAS_OSERDES 1 @obufds
+
 # Map Xilinx tech library to 7-series VPR tech library.
 read_verilog -lib $::env(TECHMAP_PATH)/cells_sim.v
 techmap -map  $::env(TECHMAP_PATH)/cells_map.v

@@ -2414,6 +2414,29 @@ module OBUFTDS (
   parameter PULLTYPE = "NONE"; // Not supported by Vivado ?
   parameter IO_LOC_PAIRS = "NONE";
 
+  parameter HAS_OSERDES = 0; // Set inside yosys/synth.tcl
+
+  parameter _TECHMAP_CONSTMSK_T_ = 1'bx;
+  parameter _TECHMAP_CONSTVAL_T_ = 1'bx;
+
+  wire t;
+
+  // When T=1'b0 Vivado routes it to const1 and enables an inverter in OLOGIC.
+  // BUT, that happens only when there is an OSERDES with "TQ.BUF" mode.
+  //
+  // Presence of an OSERDES is detected in the sytnesis script and the parameter
+  // HAS_OSERDES is set.
+  generate if (_TECHMAP_CONSTMSK_T_ == 1'b1 && _TECHMAP_CONSTVAL_T_ == 1'b0 && HAS_OSERDES == 1) begin
+    T_INV t_inv (
+    .TI (1'b1),
+    .TO (t)
+    );
+
+  end else begin
+    assign t = T;
+
+  end endgenerate
+
   wire complementary;
 
   OBUFTDS_M_VPR # (
@@ -2451,7 +2474,7 @@ module OBUFTDS (
     .IO_LOC_PAIRS(IO_LOC_PAIRS)
   ) obuftds_m (
   .I(I),
-  .T(T),
+  .T(t),
   .O(O),
   .OB(complementary)
   );
@@ -2508,10 +2531,13 @@ module OBUFDS (
   parameter PULLTYPE = "NONE";  // Not supported by Vivado ?
   parameter IO_LOC_PAIRS = "NONE";
 
+  parameter HAS_OSERDES = 0; // Set inside yosys/synth.tcl
+
   OBUFTDS # (
   .PULLTYPE(PULLTYPE),
   .IOSTANDARD(IOSTANDARD),
-  .SLEW(SLEW)
+  .SLEW(SLEW),
+  .HAS_OSERDES(HAS_OSERDES)
   ) _TECHMAP_REPLACE_ (
   .I(I),
   .T(1'b0),
