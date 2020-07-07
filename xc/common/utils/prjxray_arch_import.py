@@ -23,100 +23,107 @@ from prjxray_db_cache import DatabaseCache
 from prjxray_tile_import import add_vpr_tile_prefix
 
 
-def create_synth_io_tiles(complexblocklist_xml, tiles_xml, pb_name, is_input):
+def create_synth_io_tile(
+        complexblocklist_xml, tiles_xml, tile_name, num_input, num_output
+):
     """ Creates synthetic IO pad tiles used to connect ROI inputs and outputs to the routing network.
     """
-    pb_xml = ET.SubElement(
-        complexblocklist_xml, 'pb_type', {
-            'name': pb_name,
-        }
-    )
-
     tile_xml = ET.SubElement(tiles_xml, 'tile', {
-        'name': pb_name,
+        'name': tile_name,
     })
 
-    sub_tile_xml = ET.SubElement(tile_xml, 'sub_tile', {'name': pb_name})
+    pad_name_out = 'outpad'
+    port_type_out = 'input'
 
-    equivalent_sites = ET.SubElement(sub_tile_xml, 'equivalent_sites')
-    site = ET.SubElement(equivalent_sites, 'site', {'pb_type': pb_name})
+    pad_name_in = 'inpad'
+    port_type_in = 'output'
 
-    ET.SubElement(
-        sub_tile_xml, 'fc', {
-            'in_type': 'abs',
-            'in_val': '2',
-            'out_type': 'abs',
-            'out_val': '2',
-        }
-    )
+    port_pin_in = '{}.{}'.format('SYN-INPAD', pad_name_in)
+    sub_port_pin_in = '{}.{}'.format('SYN_IN_SUB_TILE', pad_name_in)
 
-    interconnect_xml = ET.SubElement(pb_xml, 'interconnect')
+    port_pin_out = '{}.{}'.format('SYN-OUTPAD', pad_name_out)
+    sub_port_pin_out = '{}.{}'.format('SYN_OUT_SUB_TILE', pad_name_out)
 
-    if is_input:
-        blif_model = '.input'
-        pad_name = 'inpad'
-        port_type = 'output'
-    else:
-        blif_model = '.output'
-        pad_name = 'outpad'
-        port_type = 'input'
+    if num_input != 0:
+        sub_tile_xml_in = ET.SubElement(
+            tile_xml, 'sub_tile', {
+                'name': 'SYN_IN_SUB_TILE',
+                'capacity': str(num_input)
+            }
+        )
 
-    ET.SubElement(pb_xml, port_type, {
-        'name': pad_name,
-        'num_pins': '1',
-    })
+        ET.SubElement(
+            sub_tile_xml_in, 'fc', {
+                'in_type': 'abs',
+                'in_val': '2',
+                'out_type': 'abs',
+                'out_val': '2',
+            }
+        )
 
-    ET.SubElement(
-        sub_tile_xml, port_type, {
-            'name': pad_name,
-            'num_pins': '1',
-        }
-    )
+        equivalent_sites_in = ET.SubElement(
+            sub_tile_xml_in, 'equivalent_sites'
+        )
 
-    port_pin = '{}.{}'.format(pb_name, pad_name)
-    pad_pin = '{}.{}'.format(pad_name, pad_name)
+        site_in = ET.SubElement(
+            equivalent_sites_in, 'site', {'pb_type': 'SYN-INPAD'}
+        )
 
-    ET.SubElement(site, 'direct', {'from': port_pin, 'to': port_pin})
+        ET.SubElement(
+            sub_tile_xml_in, port_type_in, {
+                'name': pad_name_in,
+                'num_pins': '1',
+            }
+        )
 
-    if not is_input:
-        input_name = port_pin
-        output_name = pad_pin
-    else:
-        input_name = pad_pin
-        output_name = port_pin
+        ET.SubElement(
+            site_in, 'direct', {
+                'from': sub_port_pin_in,
+                'to': port_pin_in
+            }
+        )
 
-    pin_pb_type = ET.SubElement(
-        pb_xml, 'pb_type', {
-            'name': pad_name,
-            'blif_model': blif_model,
-            'num_pb': '1',
-        }
-    )
-    ET.SubElement(
-        pin_pb_type, port_type, {
-            'name': pad_name,
-            'num_pins': '1',
-        }
-    )
+    if num_output != 0:
+        sub_tile_xml_out = ET.SubElement(
+            tile_xml, 'sub_tile', {
+                'name': 'SYN_OUT_SUB_TILE',
+                'capacity': str(num_output)
+            }
+        )
 
-    direct_xml = ET.SubElement(
-        interconnect_xml, 'direct', {
-            'name': '{}_to_{}'.format(input_name, output_name),
-            'input': input_name,
-            'output': output_name,
-        }
-    )
+        ET.SubElement(
+            sub_tile_xml_out, 'fc', {
+                'in_type': 'abs',
+                'in_val': '2',
+                'out_type': 'abs',
+                'out_val': '2',
+            }
+        )
 
-    ET.SubElement(
-        direct_xml, 'delay_constant', {
-            'max': '1e-11',
-            'in_port': input_name,
-            'out_port': output_name,
-        }
-    )
+        equivalent_sites_out = ET.SubElement(
+            sub_tile_xml_out, 'equivalent_sites'
+        )
+
+        site_out = ET.SubElement(
+            equivalent_sites_out, 'site', {'pb_type': 'SYN-OUTPAD'}
+        )
+
+        ET.SubElement(
+            sub_tile_xml_out, port_type_out, {
+                'name': pad_name_out,
+                'num_pins': '1',
+            }
+        )
+
+        ET.SubElement(
+            site_out, 'direct', {
+                'from': sub_port_pin_out,
+                'to': port_pin_out
+            }
+        )
 
 
-def create_hetero_synth_io_tiles(complexblocklist_xml, tiles_xml):
+def create_synth_pb_types(complexblocklist_xml):
     """ Creates synthetic IO pad tiles used to connect ROI inputs and outputs to the routing network.
     """
     pb_xml_in = ET.SubElement(
@@ -131,60 +138,28 @@ def create_hetero_synth_io_tiles(complexblocklist_xml, tiles_xml):
         }
     )
 
-    tile_xml = ET.SubElement(tiles_xml, 'tile', {
-        'name': 'SYN-IOPAD',
-    })
-
-    sub_tile_xml_in = ET.SubElement(
-        tile_xml, 'sub_tile', {
-            'name': 'SYN_IN_SUB_TILE',
-            'capacity': '50'
-        }
-    )
-    sub_tile_xml_out = ET.SubElement(
-        tile_xml, 'sub_tile', {
-            'name': 'SYN_OUT_SUB_TILE',
-            'capacity': '50'
-        }
-    )
-
-    equivalent_sites_in = ET.SubElement(sub_tile_xml_in, 'equivalent_sites')
-    site_in = ET.SubElement(
-        equivalent_sites_in, 'site', {'pb_type': 'SYN-INPAD'}
-    )
-    equivalent_sites_out = ET.SubElement(sub_tile_xml_out, 'equivalent_sites')
-    site_out = ET.SubElement(
-        equivalent_sites_out, 'site', {'pb_type': 'SYN-OUTPAD'}
-    )
-
-    ET.SubElement(
-        sub_tile_xml_in, 'fc', {
-            'in_type': 'abs',
-            'in_val': '2',
-            'out_type': 'abs',
-            'out_val': '2',
-        }
-    )
-
-    ET.SubElement(
-        sub_tile_xml_out, 'fc', {
-            'in_type': 'abs',
-            'in_val': '2',
-            'out_type': 'abs',
-            'out_val': '2',
-        }
-    )
-
-    interconnect_xml_in = ET.SubElement(pb_xml_in, 'interconnect')
-    interconnect_xml_out = ET.SubElement(pb_xml_out, 'interconnect')
+    blif_model_out = '.output'
+    pad_name_out = 'outpad'
+    port_type_out = 'input'
 
     blif_model_in = '.input'
     pad_name_in = 'inpad'
     port_type_in = 'output'
 
-    blif_model_out = '.output'
-    pad_name_out = 'outpad'
-    port_type_out = 'input'
+    port_pin_in = '{}.{}'.format('SYN-INPAD', pad_name_in)
+    pad_pin_in = '{}.{}'.format(pad_name_in, pad_name_in)
+
+    port_pin_out = '{}.{}'.format('SYN-OUTPAD', pad_name_out)
+    pad_pin_out = '{}.{}'.format(pad_name_out, pad_name_out)
+
+    input_name_out = port_pin_out
+    output_name_out = pad_pin_out
+
+    input_name_in = pad_pin_in
+    output_name_in = port_pin_in
+
+    interconnect_xml_in = ET.SubElement(pb_xml_in, 'interconnect')
+    interconnect_xml_out = ET.SubElement(pb_xml_out, 'interconnect')
 
     ET.SubElement(
         pb_xml_in, port_type_in, {
@@ -199,48 +174,6 @@ def create_hetero_synth_io_tiles(complexblocklist_xml, tiles_xml):
             'num_pins': '1',
         }
     )
-
-    ET.SubElement(
-        sub_tile_xml_in, port_type_in, {
-            'name': pad_name_in,
-            'num_pins': '1',
-        }
-    )
-
-    ET.SubElement(
-        sub_tile_xml_out, port_type_out, {
-            'name': pad_name_out,
-            'num_pins': '1',
-        }
-    )
-
-    port_pin_in = '{}.{}'.format('SYN-INPAD', pad_name_in)
-    sub_port_pin_in = '{}.{}'.format('SYN_IN_SUB_TILE', pad_name_in)
-    pad_pin_in = '{}.{}'.format(pad_name_in, pad_name_in)
-
-    port_pin_out = '{}.{}'.format('SYN-OUTPAD', pad_name_out)
-    sub_port_pin_out = '{}.{}'.format('SYN_OUT_SUB_TILE', pad_name_out)
-    pad_pin_out = '{}.{}'.format(pad_name_out, pad_name_out)
-
-    ET.SubElement(
-        site_in, 'direct', {
-            'from': sub_port_pin_in,
-            'to': port_pin_in
-        }
-    )
-
-    ET.SubElement(
-        site_out, 'direct', {
-            'from': sub_port_pin_out,
-            'to': port_pin_out
-        }
-    )
-
-    input_name_out = port_pin_out
-    output_name_out = pad_pin_out
-
-    input_name_in = pad_pin_in
-    output_name_in = port_pin_in
 
     pin_pb_type_in = ET.SubElement(
         pb_xml_in, 'pb_type', {
@@ -272,14 +205,6 @@ def create_hetero_synth_io_tiles(complexblocklist_xml, tiles_xml):
         }
     )
 
-    direct_xml_in = ET.SubElement(
-        interconnect_xml_in, 'direct', {
-            'name': '{}_to_{}'.format(input_name_in, output_name_in),
-            'input': input_name_in,
-            'output': output_name_in,
-        }
-    )
-
     direct_xml_out = ET.SubElement(
         interconnect_xml_out, 'direct', {
             'name': '{}_to_{}'.format(input_name_out, output_name_out),
@@ -289,18 +214,26 @@ def create_hetero_synth_io_tiles(complexblocklist_xml, tiles_xml):
     )
 
     ET.SubElement(
-        direct_xml_in, 'delay_constant', {
-            'max': '1e-11',
-            'in_port': input_name_in,
-            'out_port': output_name_in,
-        }
-    )
-
-    ET.SubElement(
         direct_xml_out, 'delay_constant', {
             'max': '1e-11',
             'in_port': input_name_out,
             'out_port': output_name_out,
+        }
+    )
+
+    direct_xml_in = ET.SubElement(
+        interconnect_xml_in, 'direct', {
+            'name': '{}_to_{}'.format(input_name_in, output_name_in),
+            'input': input_name_in,
+            'output': output_name_in,
+        }
+    )
+
+    ET.SubElement(
+        direct_xml_in, 'delay_constant', {
+            'max': '1e-11',
+            'in_port': input_name_in,
+            'out_port': output_name_in,
         }
     )
 
@@ -739,27 +672,8 @@ def get_tiles(
         yield vpr_tile_type, grid_x, grid_y, meta_fun
 
 
-def add_synthetic_tiles(
-        model_xml, complexblocklist_xml, tiles_xml, need_io,
-        hetero_io_tiles=False
-):
+def add_constant_synthetic_tiles(model_xml, complexblocklist_xml, tiles_xml):
     synth_tile_types = {}
-    if need_io:
-        if hetero_io_tiles:
-            create_hetero_synth_io_tiles(complexblocklist_xml, tiles_xml)
-            synth_tile_types['output'] = 'SYN-INPAD'
-            synth_tile_types['input'] = 'SYN-OUTPAD'
-
-        else:
-            create_synth_io_tiles(
-                complexblocklist_xml, tiles_xml, 'SYN-INPAD', is_input=True
-            )
-            create_synth_io_tiles(
-                complexblocklist_xml, tiles_xml, 'SYN-OUTPAD', is_input=False
-            )
-            synth_tile_types['output'] = 'SYN-INPAD'
-            synth_tile_types['input'] = 'SYN-OUTPAD'
-
     create_synth_constant_tiles(
         model_xml, complexblocklist_xml, tiles_xml, 'SYN-VCC', 'VCC'
     )
@@ -777,8 +691,8 @@ def insert_constant_tiles(conn, model_xml, complexblocklist_xml, tiles_xml):
     c = conn.cursor()
 
     # Always add 'GND' and 'VCC' synth tiles
-    synth_tile_map = add_synthetic_tiles(
-        model_xml, complexblocklist_xml, tiles_xml, need_io=False
+    synth_tile_map = add_constant_synthetic_tiles(
+        model_xml, complexblocklist_xml, tiles_xml
     )
     synth_loc_map = {}
 
@@ -955,23 +869,48 @@ def main():
             y2=j['info']['GRID_Y_MAX'],
         )
 
-        synth_tile_map = add_synthetic_tiles(
-            model_xml,
-            complexblocklist_xml,
-            tiles_xml,
-            need_io=True,
-            hetero_io_tiles=True
+        for _, tile_info in synth_tiles['tiles'].items():
+            if tile_info['pins'][0]['port_type'] in ['GND', 'VCC']:
+                continue
+
+            assert tuple(tile_info['loc']) not in synth_loc_map
+            tile_name = tile_info['tile_name']
+            num_input = len(
+                list(
+                    filter(
+                        lambda t: t['port_type'] == 'output', tile_info['pins']
+                    )
+                )
+            )
+            num_output = len(
+                list(
+                    filter(
+                        lambda t: t['port_type'] == 'input', tile_info['pins']
+                    )
+                )
+            )
+
+            create_synth_io_tile(
+                complexblocklist_xml, tiles_xml, tile_name, num_input,
+                num_output
+            )
+
+            synth_loc_map[tuple(tile_info['loc'])] = tile_name
+
+        create_synth_pb_types(complexblocklist_xml)
+
+        synth_tile_map = add_constant_synthetic_tiles(
+            model_xml, complexblocklist_xml, tiles_xml
         )
 
         for _, tile_info in synth_tiles['tiles'].items():
+            if tile_info['pins'][0]['port_type'] not in ['GND', 'VCC']:
+                continue
+
             assert tuple(tile_info['loc']) not in synth_loc_map
 
             vpr_tile_type = synth_tile_map[tile_info['pins'][0]['port_type']]
-
-            if vpr_tile_type in ['SYN-INPAD', 'SYN-OUTPAD']:
-                synth_loc_map[tuple(tile_info['loc'])] = 'SYN-IOPAD'
-            else:
-                synth_loc_map[tuple(tile_info['loc'])] = vpr_tile_type
+            synth_loc_map[tuple(tile_info['loc'])] = vpr_tile_type
 
     elif args.graph_limit:
         x_min, y_min, x_max, y_max = map(int, args.graph_limit.split(','))
