@@ -61,11 +61,7 @@ function(ADD_XC_BOARD)
   set_target_properties(${BOARD}
     PROPERTIES PART_JSON ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/${PART}/part.json
     )
-  set_target_properties(${BOARD}
-    PROPERTIES BIT_TO_BIN_EXTRA_ARGS " \
-    --part_name ${PART} \
-    --part_file ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/${PART}/part.yaml \
-  ")
+
   get_target_property_required(CHANNELS_DB ${DEVICE_TYPE} CHANNELS_DB)
   get_file_location(CHANNELS_LOCATION ${CHANNELS_DB})
 
@@ -87,6 +83,7 @@ function(ADD_XC_BOARD)
       PROPERTIES FASM_TO_BIT_EXTRA_ARGS " \
       --roi ${ROI_DIR}/design.json \
       --part ${PART} \
+      --part_file ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/${PART}/part.yaml \
     ")
 
     set_target_properties(${BOARD}
@@ -115,6 +112,7 @@ function(ADD_XC_BOARD)
     set_target_properties(${BOARD}
       PROPERTIES FASM_TO_BIT_EXTRA_ARGS " \
       --part ${PART} \
+      --part_file ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/${PART}/part.yaml \
     ")
 
     set_target_properties(${BOARD}
