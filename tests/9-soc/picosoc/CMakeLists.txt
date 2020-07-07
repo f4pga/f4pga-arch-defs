@@ -152,6 +152,8 @@ foreach(FREQ ${NEXYS_VIDEO_FREQS})
     get_file_target(TARGET_NEXYS_VIDEO_DEMO_V nexys_video_demo_${FREQ}.v)
     add_dependencies(${TARGET_NEXYS_VIDEO_DEMO_V} ${TARGET_NEXYS_VIDEO_XDC} ${TARGET_NEXYS_VIDEO_PCF})
 
+    math(EXPR PERIOD "1000 / ${FREQ}" OUTPUT_FORMAT DECIMAL)
+
     add_fpga_target(
       NAME picosoc_nexys_video_${FREQ}
       BOARD nexys_video
@@ -168,11 +170,34 @@ foreach(FREQ ${NEXYS_VIDEO_FREQS})
       EXPLICIT_ADD_FILE_TARGET
     )
 
-    math(EXPR PERIOD "1000 / ${FREQ}" OUTPUT_FORMAT DECIMAL)
-
     add_vivado_target(
         NAME picosoc_nexys_video_${FREQ}_vivado
         PARENT_NAME picosoc_nexys_video_${FREQ}
+        CLOCK_PINS clk
+        CLOCK_PERIODS ${PERIOD}
+    )
+
+    # Nexys Video with a limited grid
+
+    add_fpga_target(
+      NAME picosoc_nexys_video_mid_${FREQ}
+      BOARD nexys_video-mid
+      TOP nexys_video_demo
+      SOURCES
+        nexys_video_demo_${FREQ}.v
+        picosoc_noflash.v
+        picorv32.v
+        simpleuart.v
+        firmware_noflash_${FREQ}.v
+      SDC_FILE nexys_video_${FREQ}.sdc
+      INPUT_IO_FILE  ${NEXYS_VIDEO_PCF}
+      INPUT_XDC_FILE ${NEXYS_VIDEO_XDC}
+      EXPLICIT_ADD_FILE_TARGET
+    )
+
+    add_vivado_target(
+        NAME picosoc_nexys_video_mid_${FREQ}_vivado
+        PARENT_NAME picosoc_nexys_video_mid_${FREQ}
         CLOCK_PINS clk
         CLOCK_PERIODS ${PERIOD}
     )
