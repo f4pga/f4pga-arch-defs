@@ -33,6 +33,33 @@
       <port clock="CLK" name="TQ"/>
     </output_ports>
   </model>
+  <model name="OSERDESE2_NO_TQ_VPR">
+    <input_ports>
+      <port is_clock="1" name="CLK"/>
+      <port is_clock="1" name="CLKDIV"/>
+      <port clock="CLKDIV" name="D1"/>
+      <port clock="CLKDIV" name="D2"/>
+      <port clock="CLKDIV" name="D3"/>
+      <port clock="CLKDIV" name="D4"/>
+      <port clock="CLKDIV" name="D5"/>
+      <port clock="CLKDIV" name="D6"/>
+      <port clock="CLKDIV" name="D7"/>
+      <port clock="CLKDIV" name="D8"/>
+      <port clock="CLK" name="OCE"/>
+      <port clock="CLKDIV" name="RST"/>
+      <port name="TBYTEIN"/>
+      <port name="SHIFTIN1"/>
+      <port name="SHIFTIN2"/>
+    </input_ports>
+    <output_ports>
+      <port clock="CLKDIV" name="IOCLKGLITCH"/>
+      <port clock="CLK" name="OFB"/>
+      <port clock="CLK" name="OQ"/>
+      <port name="SHIFTOUT1"/>
+      <port name="SHIFTOUT2"/>
+      <port name="TBYTEOUT"/>
+    </output_ports>
+  </model>
   <model name="ODDR_VPR">
     <input_ports>
       <port name="CK" is_clock="1"/>

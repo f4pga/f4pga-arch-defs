@@ -401,10 +401,12 @@ def make_iserdes(use_idelay, use_iserdes):
 """
 
 
-def make_oserdes(use_oserdes):
+def make_oserdes(use_oserdes, use_tq):
 
     if use_oserdes:
-        return """
+
+        if use_tq:
+            return """
     wire dat_o;
     wire dat_t;
 
@@ -421,6 +423,23 @@ def make_oserdes(use_oserdes):
         .CLK(clk_bufg),
         .CLKDIV(clkdiv_bufg)
     );
+"""
+        else:
+            return """
+    wire dat_o;
+    wire dat_t;
+
+    OSERDESE2 #(
+        .DATA_RATE_OQ("SDR"),
+        .DATA_WIDTH(2)
+    ) oserdes (
+        .OQ(iob_o),
+        .D1(dat_o),
+        .CLK(clk_bufg),
+        .CLKDIV(clkdiv_bufg)
+    );
+
+    assign iob_t = dat_t;
 """
 
     else:
@@ -475,7 +494,8 @@ def main():
     verilog += make_iserdes(args.idelay, args.iserdes)
 
     # OSERDES
-    verilog += make_oserdes(args.oserdes)
+    use_tq = args.iob in ["OBUFT", "IOBUF", "OBUFTDS", "IOBUFDS"]
+    verilog += make_oserdes(args.oserdes, use_tq)
 
     # Final connections
     if args.iob in INPUT_IOBS or args.iob in INOUT_IOBS:

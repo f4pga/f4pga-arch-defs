@@ -192,8 +192,10 @@ xc7_iologic_design(BOARD ${BOARD} IOB_TYPE IOBUFDS USE_IDELAY 1 ILOGIC_MODE ISER
 # Outputs
 xc7_iologic_design(BOARD ${BOARD} IOB_TYPE OBUF)
 xc7_iologic_design(BOARD ${BOARD} IOB_TYPE OBUF    OLOGIC_MODE OSERDES)
+xc7_iologic_design(BOARD ${BOARD} IOB_TYPE OBUFT)
+xc7_iologic_design(BOARD ${BOARD} IOB_TYPE OBUFT   OLOGIC_MODE OSERDES)
 xc7_iologic_design(BOARD ${BOARD} IOB_TYPE OBUFDS)
-#xc7_iologic_design(BOARD ${BOARD} IOB_TYPE OBUFDS  OLOGIC_MODE OSERDES) # https://github.com/SymbiFlow/symbiflow-arch-defs/issues/1469
+xc7_iologic_design(BOARD ${BOARD} IOB_TYPE OBUFDS  OLOGIC_MODE OSERDES)
 xc7_iologic_design(BOARD ${BOARD} IOB_TYPE OBUFTDS)
 xc7_iologic_design(BOARD ${BOARD} IOB_TYPE OBUFTDS OLOGIC_MODE OSERDES)
 
