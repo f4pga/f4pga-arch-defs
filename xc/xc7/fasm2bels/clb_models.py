@@ -1096,8 +1096,7 @@ def process_slice(top, s):
             co_pin = 'CO[{}]'.format(idx)
             if idx == 3:
                 site.add_source(bel, co_pin, 'COUT')
-            else:
-                site.add_internal_source(bel, co_pin, lut + '_CY')
+            site.add_internal_source(bel, co_pin, lut + '_CY')
 
         if site.has_feature('PRECYINIT.AX'):
             site.add_sink(bel, 'CYINIT', 'AX')
@@ -1178,10 +1177,8 @@ def process_slice(top, s):
 
         elif site.has_feature('{}FFMUX.CY'.format(lut)):
             assert can_have_carry4
-            if lut != 'D':
-                site.connect_internal(ff, 'D', lut + '_CY')
-            else:
-                ff.connections['D'] = 'COUT'
+            site.connect_internal(ff, 'D', lut + '_CY')
+
         elif site.has_feature('{}FFMUX.XOR'.format(lut)):
             assert can_have_carry4
             site.connect_internal(ff, 'D', lut + '_XOR')
@@ -1230,10 +1227,7 @@ def process_slice(top, s):
 
         elif site.has_feature('{}OUTMUX.CY'.format(lut)):
             assert can_have_carry4
-            if lut != 'D':
-                site.add_output_from_internal(output_wire, lut + '_CY')
-            else:
-                site.add_output_from_output(output_wire, 'COUT')
+            site.add_output_from_internal(output_wire, lut + '_CY')
 
         elif site.has_feature('{}OUTMUX.XOR'.format(lut)):
             assert can_have_carry4
