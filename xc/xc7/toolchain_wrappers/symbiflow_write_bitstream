@@ -71,7 +71,5 @@ fi
 FRAMES="${BIT%.*}.frames"
 DBROOT=`realpath ${XRAY_DATABASE_DIR}/${DEVICE}`
 
-fasm2frames --db-root ${DBROOT} --part ${PART} --sparse --emit_pudc_b_pullup ${FASM} ${FRAMES}
-
-xc7frames2bit --frm_file ${FRAMES} --output_file ${BIT} --part_name ${PART} --part_file ${DBROOT}/${PART}/part.yaml
+xcfasm --db-root ${DBROOT} --part ${PART} --part_file ${DBROOT}/${PART}/part.yaml --sparse --emit_pudc_b_pullup --fn_in ${FASM} --bit_out ${BIT}
 

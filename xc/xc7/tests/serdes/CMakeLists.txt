@@ -62,8 +62,8 @@ function(serdes_test data_width data_rate)
     )
 
   add_dependencies(all_serdes_test
-    serdes_basys3_${data_width}_${data_rate_lower}_bin
-    serdes_basys3_idelay_${data_width}_${data_rate_lower}_bin
+    serdes_basys3_${data_width}_${data_rate_lower}_bit
+    serdes_basys3_idelay_${data_width}_${data_rate_lower}_bit
   )
 
 endfunction()
