@@ -2660,34 +2660,34 @@ module OSERDESE2 (
   );
 
   parameter DATA_RATE_OQ = "DDR";
-  parameter DATA_RATE_TQ = "DDR";
+  parameter DATA_RATE_TQ = "BUF";
   parameter DATA_WIDTH = 4;
   parameter SERDES_MODE = "MASTER";
-  parameter TRISTATE_WIDTH = 4;
+  parameter TRISTATE_WIDTH = 1;
   parameter IO_LOC_PAIRS = "NONE";
 
   if (DATA_RATE_OQ == "DDR" &&
       !(DATA_WIDTH == 2 || DATA_WIDTH == 4 ||
         DATA_WIDTH == 6 || DATA_WIDTH == 8)) begin
-    wire _TECHMAP_FAIL_ = 1'b1;
+    wire _TECHMAP_FAIL_;
   end
 
   if (DATA_RATE_OQ == "SDR" &&
       !(DATA_WIDTH >= 2 || DATA_WIDTH <= 8)) begin
-    wire _TECHMAP_FAIL_ = 1'b1;
+    wire _TECHMAP_FAIL_;
   end
 
   if ((DATA_RATE_TQ == "SDR" || DATA_RATE_TQ == "BUF") &&
       TRISTATE_WIDTH != 1) begin
-    wire _TECHMAP_FAIL_ = 1'b1;
+    wire _TECHMAP_FAIL_;
   end
 
   if (DATA_RATE_OQ == "SDR" && DATA_RATE_TQ == "DDR") begin
-    wire _TECHMAP_FAIL_ = 1'b1;
+    wire _TECHMAP_FAIL_;
   end
 
   if (TRISTATE_WIDTH != 1 && TRISTATE_WIDTH != 4) begin
-    wire _TECHMAP_FAIL_ = 1'b1;
+    wire _TECHMAP_FAIL_;
   end
 
   // TODO: the following params behave in a weird way.
@@ -2738,6 +2738,9 @@ module OSERDESE2 (
   parameter _TECHMAP_CONSTVAL_D7_ = 0;
   parameter _TECHMAP_CONSTMSK_D8_ = 0;
   parameter _TECHMAP_CONSTVAL_D8_ = 0;
+
+  parameter _TECHMAP_CONSTMSK_TQ_ = 0;
+  parameter _TECHMAP_CONSTVAL_TQ_ = 0;
 
   generate if (_TECHMAP_CONSTMSK_D1_ == 1) begin
     localparam INV_D1 = !_TECHMAP_CONSTVAL_D1_ ^ IS_D1_INVERTED;
@@ -2880,64 +2883,114 @@ module OSERDESE2 (
     wire t4 = T4;
   end endgenerate
 
-  OSERDESE2_VPR #(
-      .SERDES_MODE_SLAVE            (SERDES_MODE == "SLAVE"),
-      .TRISTATE_WIDTH_W4            (TRISTATE_WIDTH == 4),
-      .DATA_RATE_OQ_DDR             (DATA_RATE_OQ == "DDR"),
-      .DATA_RATE_OQ_SDR             (DATA_RATE_OQ == "SDR"),
-      .DATA_RATE_TQ_BUF             (DATA_RATE_TQ == "BUF"),
-      .DATA_RATE_TQ_DDR             (DATA_RATE_TQ == "DDR"),
-      .DATA_RATE_TQ_SDR             (DATA_RATE_TQ == "SDR"),
-      .DATA_WIDTH_DDR_W6_8          (DATA_WIDTH_DDR_W6_8),
-      .DATA_WIDTH_SDR_W2_4_5_6      (DATA_WIDTH_SDR_W2_4_5_6),
-      .DATA_WIDTH_W2                (DATA_WIDTH == 2),
-      .DATA_WIDTH_W3                (DATA_WIDTH == 3),
-      .DATA_WIDTH_W4                (DATA_WIDTH == 4),
-      .DATA_WIDTH_W5                (DATA_WIDTH == 5),
-      .DATA_WIDTH_W6                (DATA_WIDTH == 6),
-      .DATA_WIDTH_W7                (DATA_WIDTH == 7),
-      .DATA_WIDTH_W8                (DATA_WIDTH == 8),
-      .ZINIT_OQ                     (!INIT_OQ),
-      .ZINIT_TQ                     (!INIT_TQ),
-      .ZSRVAL_OQ                    (!SRVAL_OQ),
-      .ZSRVAL_TQ                    (!SRVAL_TQ),
-      .IS_CLKDIV_INVERTED           (IS_CLKDIV_INVERTED),
-      .IS_D1_INVERTED               (INV_D1),
-      .IS_D2_INVERTED               (INV_D2),
-      .IS_D3_INVERTED               (INV_D3),
-      .IS_D4_INVERTED               (INV_D4),
-      .IS_D5_INVERTED               (INV_D5),
-      .IS_D6_INVERTED               (INV_D6),
-      .IS_D7_INVERTED               (INV_D7),
-      .IS_D8_INVERTED               (INV_D8),
-      .ZINV_CLK                     (!IS_CLK_INVERTED),
-      .ZINV_T1                      (!INV_T1),
-      .ZINV_T2                      (!INV_T2),
-      .ZINV_T3                      (!INV_T3),
-      .ZINV_T4                      (!INV_T4)
-  ) _TECHMAP_REPLACE_ (
-    .CLK    (CLK),
-    .CLKDIV (CLKDIV),
-    .D1     (d1),
-    .D2     (d2),
-    .D3     (d3),
-    .D4     (d4),
-    .D5     (d5),
-    .D6     (d6),
-    .D7     (d7),
-    .D8     (d8),
-    .OCE    (OCE),
-    .RST    (RST),
-    .T1     (t1),
-    .T2     (t2),
-    .T3     (t3),
-    .T4     (t4),
-    .TCE    (TCE),
-    .OFB    (OFB),
-    .OQ     (OQ),
-    .TFB    (TFB),
-    .TQ     (TQ)
-  );
+  // TQ is connected
+  generate if (_TECHMAP_CONSTVAL_TQ_ === 1'bx) begin 
+
+    OSERDESE2_VPR #(
+        .SERDES_MODE_SLAVE            (SERDES_MODE == "SLAVE"),
+        .TRISTATE_WIDTH_W4            (TRISTATE_WIDTH == 4),
+        .DATA_RATE_OQ_DDR             (DATA_RATE_OQ == "DDR"),
+        .DATA_RATE_OQ_SDR             (DATA_RATE_OQ == "SDR"),
+        .DATA_RATE_TQ_BUF             (DATA_RATE_TQ == "BUF"),
+        .DATA_RATE_TQ_DDR             (DATA_RATE_TQ == "DDR"),
+        .DATA_RATE_TQ_SDR             (DATA_RATE_TQ == "SDR"),
+        .DATA_WIDTH_DDR_W6_8          (DATA_WIDTH_DDR_W6_8),
+        .DATA_WIDTH_SDR_W2_4_5_6      (DATA_WIDTH_SDR_W2_4_5_6),
+        .DATA_WIDTH_W2                (DATA_WIDTH == 2),
+        .DATA_WIDTH_W3                (DATA_WIDTH == 3),
+        .DATA_WIDTH_W4                (DATA_WIDTH == 4),
+        .DATA_WIDTH_W5                (DATA_WIDTH == 5),
+        .DATA_WIDTH_W6                (DATA_WIDTH == 6),
+        .DATA_WIDTH_W7                (DATA_WIDTH == 7),
+        .DATA_WIDTH_W8                (DATA_WIDTH == 8),
+        .ZINIT_OQ                     (!INIT_OQ),
+        .ZINIT_TQ                     (!INIT_TQ),
+        .ZSRVAL_OQ                    (!SRVAL_OQ),
+        .ZSRVAL_TQ                    (!SRVAL_TQ),
+        .IS_CLKDIV_INVERTED           (IS_CLKDIV_INVERTED),
+        .IS_D1_INVERTED               (INV_D1),
+        .IS_D2_INVERTED               (INV_D2),
+        .IS_D3_INVERTED               (INV_D3),
+        .IS_D4_INVERTED               (INV_D4),
+        .IS_D5_INVERTED               (INV_D5),
+        .IS_D6_INVERTED               (INV_D6),
+        .IS_D7_INVERTED               (INV_D7),
+        .IS_D8_INVERTED               (INV_D8),
+        .ZINV_CLK                     (!IS_CLK_INVERTED),
+        .ZINV_T1                      (!INV_T1),
+        .ZINV_T2                      (!INV_T2),
+        .ZINV_T3                      (!INV_T3),
+        .ZINV_T4                      (!INV_T4)
+    ) _TECHMAP_REPLACE_ (
+      .CLK    (CLK),
+      .CLKDIV (CLKDIV),
+      .D1     (d1),
+      .D2     (d2),
+      .D3     (d3),
+      .D4     (d4),
+      .D5     (d5),
+      .D6     (d6),
+      .D7     (d7),
+      .D8     (d8),
+      .OCE    (OCE),
+      .RST    (RST),
+      .T1     (t1),
+      .T2     (t2),
+      .T3     (t3),
+      .T4     (t4),
+      .TCE    (TCE),
+      .OFB    (OFB),
+      .OQ     (OQ),
+      .TFB    (TFB),
+      .TQ     (TQ)
+    );
+
+  // TQ is not connected
+  end else begin
+
+    OSERDESE2_NO_TQ_VPR #(
+        .SERDES_MODE_SLAVE            (SERDES_MODE == "SLAVE"),
+        .DATA_RATE_OQ_DDR             (DATA_RATE_OQ == "DDR"),
+        .DATA_RATE_OQ_SDR             (DATA_RATE_OQ == "SDR"),
+        .DATA_WIDTH_DDR_W6_8          (DATA_WIDTH_DDR_W6_8),
+        .DATA_WIDTH_SDR_W2_4_5_6      (DATA_WIDTH_SDR_W2_4_5_6),
+        .DATA_WIDTH_W2                (DATA_WIDTH == 2),
+        .DATA_WIDTH_W3                (DATA_WIDTH == 3),
+        .DATA_WIDTH_W4                (DATA_WIDTH == 4),
+        .DATA_WIDTH_W5                (DATA_WIDTH == 5),
+        .DATA_WIDTH_W6                (DATA_WIDTH == 6),
+        .DATA_WIDTH_W7                (DATA_WIDTH == 7),
+        .DATA_WIDTH_W8                (DATA_WIDTH == 8),
+        .ZINIT_OQ                     (!INIT_OQ),
+        .ZSRVAL_OQ                    (!SRVAL_OQ),
+        .IS_CLKDIV_INVERTED           (IS_CLKDIV_INVERTED),
+        .IS_D1_INVERTED               (INV_D1),
+        .IS_D2_INVERTED               (INV_D2),
+        .IS_D3_INVERTED               (INV_D3),
+        .IS_D4_INVERTED               (INV_D4),
+        .IS_D5_INVERTED               (INV_D5),
+        .IS_D6_INVERTED               (INV_D6),
+        .IS_D7_INVERTED               (INV_D7),
+        .IS_D8_INVERTED               (INV_D8),
+        .ZINV_CLK                     (!IS_CLK_INVERTED)
+    ) _TECHMAP_REPLACE_ (
+      .CLK    (CLK),
+      .CLKDIV (CLKDIV),
+      .D1     (d1),
+      .D2     (d2),
+      .D3     (d3),
+      .D4     (d4),
+      .D5     (d5),
+      .D6     (d6),
+      .D7     (d7),
+      .D8     (d8),
+      .OCE    (OCE),
+      .RST    (RST),
+      .OFB    (OFB),
+      .OQ     (OQ)
+    );
+
+  end endgenerate
 
 endmodule
 
