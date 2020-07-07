@@ -294,7 +294,6 @@ def main():
                 ('IOB33.O', 'IOB33_MODES.O'),
                 ('IOB33_MODES.O', 'OBUFT_VPR.I'),
                 ('OBUFT_VPR.O', 'outpad.outpad'),
-
                 ('T_INV.TO', 'OLOGICE3.TQ'),
                 ('IOB33M.T', 'IOB33_MODES.T'),
                 ('IOB33S.T', 'IOB33_MODES.T'),
