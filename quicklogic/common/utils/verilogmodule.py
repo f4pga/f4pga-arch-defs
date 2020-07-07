@@ -633,8 +633,8 @@ class VModule(object):
                     )
 
                     # keep the original wire name for generating the wireid
-                    wireid = Wire(name, "inout_pin", False)
-                    self.wires[wireid] = name
+                    #wireid = Wire(name, "inout_pin", False)
+                    #self.wires[wireid] = name
 
     def generate_verilog(self):
         '''Creates Verilog module
