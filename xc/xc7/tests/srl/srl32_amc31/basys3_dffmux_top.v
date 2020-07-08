@@ -95,8 +95,11 @@ always @(posedge clk)
 
 // ============================================================================
 
+// Create a non-GND/VCC source for additional LED outputs.
+// This is a side affect of the ROI disallowing GND/VCC connections to synth
+// IO pads.
 wire net_0;
-LUT2 #(.INIT(4'hC)) lut_0 (.I0(1'b0), .I1(1'b0), .O(net_0));
+LUT2 #(.INIT(4'hC)) lut_0 (.I0(|sw), .I1(&sw), .O(net_0));
 
 // LEDs
 genvar j;
