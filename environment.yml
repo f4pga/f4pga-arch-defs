@@ -3,8 +3,8 @@ channels:
   - defaults
   - symbiflow
 dependencies:
-  - symbiflow-yosys=0.8_6021_gd8b2d1a2=20200706_223638
-  - symbiflow-yosys-plugins=1.0.0.7_0043_gbea78c7=20200706_223638
+  - symbiflow-yosys=0.8_6021_gd8b2d1a2=20200708_083630
+  - symbiflow-yosys-plugins=1.0.0.7_0048_gaa1b583=20200708_083630
   - symbiflow-vtr=8.0.0.rc2_4003_g8980e4621=20200627_023447
   - cmake
   - make
