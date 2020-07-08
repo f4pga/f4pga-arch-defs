@@ -208,7 +208,7 @@ function(ADD_VIVADO_TARGET)
   append_file_dependency(DEPS ${BIT_VERILOG})
 
   get_file_location(BIT_VERILOG_LOCATION ${BIT_VERILOG})
-  set(BIT_TCL_LOCATION ${BIT_VERILOG_LOCATION}.tcl)
+  set(BIT_XDC_LOCATION ${BIT_VERILOG_LOCATION}.xdc)
 
   if(NOT "${ADD_VIVADO_TARGET_CLOCK_PINS}" STREQUAL "")
     list(LENGTH ${ADD_VIVADO_TARGET_CLOCK_PINS} NUM_CLOCKS)
@@ -238,7 +238,7 @@ function(ADD_VIVADO_TARGET)
       COMMAND ${PYTHON3} ${CREATE_RUNME}
         --name ${NAME}
         --verilog ${BIT_VERILOG_LOCATION}
-        --routing_tcl ${BIT_TCL_LOCATION}
+        --routing_xdc ${BIT_XDC_LOCATION}
         --top ${TOP}
         --part ${PART}
         --output_tcl ${CMAKE_CURRENT_BINARY_DIR}/${NAME}_runme.tcl
@@ -422,7 +422,7 @@ function(ADD_VIVADO_PNR_TARGET)
       COMMAND ${PYTHON3} ${CREATE_RUNME}
         --name ${NAME}
         --verilog ${SYNTH_OUT}
-        --routing_tcl ${XDC_FILE}
+        --routing_xdc ${XDC_FILE}
         --top ${TOP}
         --part ${PART}
         --clock_pins "${ADD_VIVADO_PNR_TARGET_CLOCK_PINS}"
