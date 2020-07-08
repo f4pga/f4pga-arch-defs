@@ -16,7 +16,6 @@ add_fpga_target(
   SOURCES
     minilitex_ddr_arty.v
     VexRiscv_Lite.v
-  INPUT_IO_FILE arty.pcf
   INPUT_XDC_FILE minilitex_ddr_arty.xdc
   SDC_FILE arty.sdc
   EXPLICIT_ADD_FILE_TARGET

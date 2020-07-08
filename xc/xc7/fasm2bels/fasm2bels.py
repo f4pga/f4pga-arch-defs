@@ -21,6 +21,7 @@ import csv
 import os.path
 import sqlite3
 import subprocess
+import sys
 import tempfile
 import json
 
@@ -46,6 +47,7 @@ from .net_map import create_net_list
 import lib.rr_graph_capnp.graph2 as capnp_graph2
 from lib.parse_pcf import parse_simple_pcf
 import eblif
+import vpr_io_place
 
 
 def null_process(conn, top, tile, tiles):
@@ -204,23 +206,40 @@ def bit2fasm(db_root, db, grid, bit_file, fasm_file, bitread, part):
         )
 
 
-def load_io_sites(db_root, part, pcf):
-    """ Load map of sites to signal names from pcf and part pin definitions.
+def load_io_sites(db_root, part, pcf, eblif):
+    """ Load map of sites to signal names from pcf or eblif and part pin definitions.
 
     Args:
         db_root (str): Path to database root folder
         part (str): Part name being targeted.
         pcf (str): Full path to pcf file for this bitstream.
+        eblif (str): Parsed contents of EBLIF file.
 
     Returns:
         Dict from pad site name to net name.
 
     """
     pin_to_signal = {}
-    with open(pcf) as f:
-        for pcf_constraint in parse_simple_pcf(f):
-            assert pcf_constraint.pad not in pin_to_signal, pcf_constraint.pad
-            pin_to_signal[pcf_constraint.pad] = pcf_constraint.net
+    if pcf:
+        with open(pcf) as f:
+            for pcf_constraint in parse_simple_pcf(f):
+                assert pcf_constraint.pad not in pin_to_signal, pcf_constraint.pad
+                pin_to_signal[pcf_constraint.pad] = pcf_constraint.net
+    if eblif:
+        io_place = vpr_io_place.IoPlace()
+        io_place.read_io_loc_pairs(eblif)
+        for net, pad in io_place.net_to_pad:
+            if pad not in pin_to_signal:
+                pin_to_signal[pad] = net
+            elif net != pin_to_signal[pad]:
+                print(
+                    """ERROR:
+Conflicting pin constraints for pad {}:\n{}\n{}""".format(
+                        pad, net, pin_to_signal[pad]
+                    ),
+                    file=sys.stderr
+                )
+                sys.exit(1)
 
     site_to_signal = {}
 
@@ -341,9 +360,13 @@ def main():
     maybe_get_wire = create_maybe_get_wire(conn)
 
     top = Module(db, grid, conn, name=args.top)
-    if args.pcf:
+    if args.eblif:
+        with open(args.eblif) as f:
+            parsed_eblif = eblif.parse_blif(f)
+
+    if args.eblif or args.pcf:
         top.set_site_to_signal(
-            load_io_sites(args.db_root, args.part, args.pcf)
+            load_io_sites(args.db_root, args.part, args.pcf, parsed_eblif)
         )
 
     if args.route_file:
@@ -360,9 +383,6 @@ def main():
             top.set_io_banks(part_data['iobanks'])
 
     if args.eblif:
-        with open(args.eblif) as f:
-            parsed_eblif = eblif.parse_blif(f)
-
         top.add_to_cname_map(parsed_eblif)
         top.make_iosettings_map(parsed_eblif)
 
