@@ -9,7 +9,7 @@ input  wire [15:0]  sw,
 output wire [15:0]  led
 );
 
-parameter SRL_COUNT = 4;
+parameter SRL_COUNT = 8;
 parameter PRESCALER = 4;
 
 // UART loopback

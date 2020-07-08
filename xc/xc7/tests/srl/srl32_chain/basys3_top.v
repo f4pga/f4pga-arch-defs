@@ -90,9 +90,6 @@ always @(posedge clk)
 
 // ============================================================================
 
-wire net_0;
-LUT2 #(.INIT(4'd0)) lut_0 (.I0(1'b0), .I1(|sw), .O(net_0));
-
 // LEDs
 genvar j;
 generate for(j=0; j<8; j=j+1) begin
@@ -100,8 +97,8 @@ generate for(j=0; j<8; j=j+1) begin
     assign led[j  ] = (sw[1]) ? error_lat[j] : error[j];
     assign led[j+8] = srl_q[j];
   end else begin
-    assign led[j  ] = net_0;
-    assign led[j+8] = net_0;
+    assign led[j  ] = |sw;
+    assign led[j+8] = |sw;
   end
 end endgenerate
 
