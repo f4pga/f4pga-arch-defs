@@ -1912,6 +1912,7 @@ module IBUF (
   parameter IBUF_LOW_PWR = 0;   // TODO: Map this to fasm
   parameter IN_TERM = "NONE";   // Not supported by Vivado ?
   parameter PULLTYPE = "NONE";  // Not supported by Vivado ?
+  parameter IO_LOC_PAIRS = "NONE";
 
   IBUF_VPR # (
     .LVCMOS12_LVCMOS15_LVCMOS18_IN(
@@ -1968,7 +1969,8 @@ module IBUF (
     .PULLTYPE_KEEPER(PULLTYPE == "KEEPER"),
 
     .PULLTYPE(PULLTYPE),
-    .IOSTANDARD(IOSTANDARD)
+    .IOSTANDARD(IOSTANDARD),
+    .IO_LOC_PAIRS(IO_LOC_PAIRS)
   ) _TECHMAP_REPLACE_ (
     .I(I),
     .O(O)
@@ -1985,6 +1987,7 @@ module OBUF (
   parameter DRIVE = 12;
   parameter SLEW = "SLOW";
   parameter PULLTYPE = "NONE";  // Not supported by Vivado ?
+  parameter IO_LOC_PAIRS = "NONE";
 
   OBUF_VPR # (
     .LVCMOS12_DRIVE_I12(
@@ -2088,7 +2091,8 @@ module OBUF (
     .PULLTYPE(PULLTYPE),
     .IOSTANDARD(IOSTANDARD),
     .DRIVE(DRIVE),
-    .SLEW(SLEW)
+    .SLEW(SLEW),
+    .IO_LOC_PAIRS(IO_LOC_PAIRS)
   ) _TECHMAP_REPLACE_ (
     .I(I),
     .O(O)
@@ -2109,6 +2113,7 @@ module IOBUF (
   parameter IBUF_LOW_PWR = 0;  // TODO: Map this to fasm
   parameter IN_TERM = "NONE";  // Not supported by Vivado ?
   parameter PULLTYPE = "NONE"; // Not supported by Vivado ?
+  parameter IO_LOC_PAIRS = "NONE";
 
   IOBUF_VPR # (
     .LVCMOS12_DRIVE_I12(
@@ -2232,7 +2237,8 @@ module IOBUF (
     .PULLTYPE(PULLTYPE),
     .IOSTANDARD(IOSTANDARD),
     .DRIVE(DRIVE),
-    .SLEW(SLEW)
+    .SLEW(SLEW),
+    .IO_LOC_PAIRS(IO_LOC_PAIRS)
   ) _TECHMAP_REPLACE_ (
     .I(I),
     .T(T),
@@ -2255,6 +2261,7 @@ module OBUFTDS (
   parameter SLEW = "FAST";
   parameter IN_TERM = "NONE";  // Not supported by Vivado ?
   parameter PULLTYPE = "NONE"; // Not supported by Vivado ?
+  parameter IO_LOC_PAIRS = "NONE";
 
   wire complementary;
 
@@ -2289,7 +2296,8 @@ module OBUFTDS (
 
     .PULLTYPE(PULLTYPE),
     .IOSTANDARD(IOSTANDARD),
-    .SLEW(SLEW)
+    .SLEW(SLEW),
+    .IO_LOC_PAIRS(IO_LOC_PAIRS)
   ) obuftds_m (
   .I(I),
   .T(T),
@@ -2328,7 +2336,8 @@ module OBUFTDS (
 
     .PULLTYPE(PULLTYPE),
     .IOSTANDARD(IOSTANDARD),
-    .SLEW(SLEW)
+    .SLEW(SLEW),
+    .IO_LOC_PAIRS(IO_LOC_PAIRS)
   ) obuftds_s (
   .IB(complementary),
   .OB(OB)
@@ -2346,6 +2355,7 @@ module OBUFDS (
   parameter IOSTANDARD = "DIFF_SSTL135";  // TODO: Is this the default ?
   parameter SLEW = "FAST";
   parameter PULLTYPE = "NONE";  // Not supported by Vivado ?
+  parameter IO_LOC_PAIRS = "NONE";
 
   OBUFTDS # (
   .PULLTYPE(PULLTYPE),
@@ -2500,6 +2510,7 @@ module OSERDESE2 (
   parameter DATA_WIDTH = 4;
   parameter SERDES_MODE = "MASTER";
   parameter TRISTATE_WIDTH = 4;
+  parameter IO_LOC_PAIRS = "NONE";
 
   if (DATA_RATE_OQ == "DDR" &&
       !(DATA_WIDTH == 2 || DATA_WIDTH == 4 ||

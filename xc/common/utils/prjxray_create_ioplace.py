@@ -18,7 +18,7 @@ def main():
         '-p',
         "-P",
         type=argparse.FileType('r'),
-        required=True,
+        required=False,
         help='PCF input file'
     )
     parser.add_argument(
@@ -96,46 +96,61 @@ def main():
     # to be used in fasm2bels.
     iostandard_constraints = {}
 
-    fname = args.pcf.name.replace(".pcf", ".json")
-    if os.path.isfile(fname):
-        with open(fname, "r") as fp:
-            iostandard_constraints = json.load(fp)
-
-    # Constrain nets
-    for pcf_constraint in parse_simple_pcf(args.pcf):
-        if not io_place.is_net(pcf_constraint.net):
-            print(
-                """ERROR:
-PCF constraint "{}" from line {} constraints net {} which is not in available netlist:\n{}"""
-                .format(
-                    pcf_constraint.line_str, pcf_constraint.line_num,
-                    pcf_constraint.net, '\n'.join(io_place.get_nets())
-                ),
-                file=sys.stderr
-            )
-            sys.exit(1)
-
-        if pcf_constraint.pad not in pad_map:
-            print(
-                """ERROR:
-PCF constraint "{}" from line {} constraints pad {} which is not in available pad map:\n{}"""
-                .format(
-                    pcf_constraint.line_str, pcf_constraint.line_num,
-                    pcf_constraint.pad, '\n'.join(sorted(pad_map.keys()))
-                ),
-                file=sys.stderr
-            )
-            sys.exit(1)
-
-        loc, is_output, iob = pad_map[pcf_constraint.pad]
-        io_place.constrain_net(
-            net_name=pcf_constraint.net,
-            loc=loc,
-            comment=pcf_constraint.line_str
+    if args.pcf:
+        fname = args.pcf.name.replace(".pcf", ".json")
+        if os.path.isfile(fname):
+            with open(fname, "r") as fp:
+                iostandard_constraints = json.load(fp)
+    net_to_pad = io_place.net_to_pad
+    if args.pcf:
+        pcf_constraints = parse_simple_pcf(args.pcf)
+        net_to_pad |= set(
+            (constr.net, constr.pad) for constr in pcf_constraints
         )
+    # Check for conflicting pad constraints
+    net_to_pad_map = dict()
+    for (net, pad) in net_to_pad:
+        if net not in net_to_pad_map:
+            net_to_pad_map[net] = pad
+        elif pad != net_to_pad_map[net]:
+            print(
+                """ERROR:
+Conflicting pad constraints for net {}:\n{}\n{}""".format(
+                    net, pad, net_to_pad_map[net]
+                ),
+                file=sys.stderr
+            )
+            sys.exit(1)
+    # Constrain nets
+    for net, pad in net_to_pad:
+        if not io_place.is_net(net):
+            print(
+                """ERROR:
+Constrained net {} is not in available netlist:\n{}""".format(
+                    net, '\n'.join(io_place.get_nets())
+                ),
+                file=sys.stderr
+            )
+            sys.exit(1)
 
-        if pcf_constraint.pad in iostandard_constraints:
-            iostandard_defs[iob] = iostandard_constraints[pcf_constraint.pad]
+        if pad not in pad_map:
+            print(
+                """ERROR:
+Constrained pad {} is not in available pad map:\n{}""".format(
+                    pad, '\n'.join(sorted(pad_map.keys()))
+                ),
+                file=sys.stderr
+            )
+            sys.exit(1)
+
+        loc, is_output, iob = pad_map[pad]
+        io_place.constrain_net(
+            net_name=net,
+            loc=loc,
+            comment="set_property LOC {} [get_ports {{{}}}]".format(pad, net)
+        )
+        if pad in iostandard_constraints:
+            iostandard_defs[iob] = iostandard_constraints[pad]
         else:
             if is_output:
                 iostandard_defs[iob] = {
