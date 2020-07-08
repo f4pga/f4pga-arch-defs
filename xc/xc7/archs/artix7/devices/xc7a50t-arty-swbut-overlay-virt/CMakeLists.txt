@@ -1,6 +1,6 @@
 add_xc_device_define_type(
   ARCH artix7
-  DEVICE xc7a50t
+  DEVICE xc7a50t-arty-swbut-overlay
   OVERLAY_DIR ${symbiflow-arch-defs_SOURCE_DIR}/xc/xc7/archs/artix7/devices/xc7a50t-arty-swbut-overlay-virt
   TILE_TYPES
     CLBLL_L
