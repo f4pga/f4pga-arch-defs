@@ -14,12 +14,12 @@ synth_design -top {top}
 
 write_checkpoint -force design_{name}_pre_source.dcp
 
-source {bit_tcl}
+read_xdc {bit_xdc}
 """.format(
             name=args.name,
             bit_v=args.verilog,
             top=args.top,
-            bit_tcl=args.routing_tcl,
+            bit_xdc=args.routing_xdc,
             part=args.part
         ),
         file=f_out
@@ -111,7 +111,7 @@ def main():
         '--verilog', help="Input verilog file to build.", required=True
     )
     parser.add_argument(
-        '--routing_tcl',
+        '--routing_xdc',
         help="TCL script to run after synthesis to add static routing.",
         required=True
     )
