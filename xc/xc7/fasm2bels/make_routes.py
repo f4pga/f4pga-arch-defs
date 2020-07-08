@@ -100,9 +100,7 @@ def output_builder(fixed_route):
         else:
             yield i
 
-    # TCL cannot express 1-length list, so add an additional element to
-    # prevent TCL from collapsing the 1-length list.
-    yield ' {} ]'
+    yield ']'
 
 
 class Net(object):
