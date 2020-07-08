@@ -23,3 +23,7 @@ export CPU_VARIANT=linux
 export PLATFORM=arty
 export FIRMWARE=linux
 ```
+
+To create `baselitex_arty100t.v`, copy from `baselitex_arty.v` and then make the following edits:
+* *Add* constraint `(* LOC="PLLE2_ADV_X1Y1" *)` to instance `PLLE2_ADV`.
+* *Change* constraint `(* LOC="IDELAYCTRL_X1Y0" *)` to `(* LOC="IDELAYCTRL_X1Y1" *)` on instance `IDELAYCTRL`.
