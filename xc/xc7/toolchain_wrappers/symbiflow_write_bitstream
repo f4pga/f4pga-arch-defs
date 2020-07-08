@@ -7,8 +7,15 @@ MYPATH=`dirname ${MYPATH}`
 source ${MYPATH}/env
 echo "Writing bitstream ..."
 
-if [ -z ${XRAY_DATABASE_DIR} ]; then
-	echo "ERROR: XRAY_DATABASE_DIR variable is unset."
+DATABASE_DIR=""
+if [ ! -z ${XRAY_DATABASE_DIR} ]; then
+	DATABASE_DIR=${XRAY_DATABASE_DIR}
+elif [ ! -z ${CONDA_PREFIX} ]; then
+	DATABASE_DIR=`realpath ${CONDA_PREFIX}/share/symbiflow/prjxray-db`
+else
+	echo "ERROR: Database path cannot be found."
+	echo "       Please set a conda environment with the prjxray-db package"
+	echo "       or set the XRAY_DATABASE_DIR env variable to point to the database."
 	return 1
 fi
 

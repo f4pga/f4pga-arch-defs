@@ -150,7 +150,7 @@ function(ADD_XC_ARCH_DEFINE)
         \${FASM_TO_BIT_EXTRA_ARGS}"
     BIT_TO_V bitread
     BIT_TO_V_CMD "${CMAKE_COMMAND} -E env \
-    PYTHONPATH=${PRJRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils:${symbiflow-arch-defs_SOURCE_DIR}/utils \
+    PYTHONPATH=${symbiflow-arch-defs_BINARY_DIR}/env/conda/lib/python3.7/site-packages:${PRJRAY_DIR}:${PRJRAY_DIR}/third_party/fasm:${symbiflow-arch-defs_SOURCE_DIR}/xc/${FAMILY}:${symbiflow-arch-defs_SOURCE_DIR}/utils \
         \${PYTHON3} -mfasm2bels \
         \${BIT_TO_V_EXTRA_ARGS} \
         --db_root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH} \
