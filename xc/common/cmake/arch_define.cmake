@@ -145,7 +145,6 @@ function(ADD_XC_ARCH_DEFINE)
         --emit_pudc_b_pullup \
         --fn_in \${OUT_FASM} \
         --bit_out \${OUT_BITSTREAM} \
-        --frm_out \${OUT_FRAMES} \
         --frm2bit $<TARGET_FILE:xc7frames2bit> \
         \${FASM_TO_BIT_EXTRA_ARGS}"
     BIT_TO_V bitread
