@@ -119,11 +119,15 @@ class VprGrid(object):
     """This class contains a set of dictionaries helpful
     to have a fast lookup at the various coordinates mapping."""
 
-    def __init__(self, vpr_grid_map):
+    def __init__(self, vpr_grid_map, graph_limit):
         self.site_dict = dict()
         self.site_type_dict = dict()
         self.cmt_dict = dict()
         self.tile_dict = dict()
+
+        if graph_limit is not None:
+            limits = graph_limit.split(",")
+            xmin, ymin, xmax, ymax = [int(x) for x in limits]
 
         with open(vpr_grid_map, 'r') as csv_vpr_grid:
             csv_reader = csv.DictReader(csv_vpr_grid)
@@ -136,6 +140,12 @@ class VprGrid(object):
                 can_x = row['canon_x']
                 can_y = row['canon_y']
                 clk_region = row['clock_region']
+
+                if graph_limit is not None:
+                    if int(can_x) < xmin or int(can_x) > xmax:
+                        continue
+                    if int(can_y) < ymin or int(can_y) > ymax:
+                        continue
 
                 clk_region = None if not clk_region else int(clk_region)
 
@@ -199,6 +209,7 @@ class ClockPlacer(object):
             io_locs,
             blif_data,
             roi,
+            graph_limit,
             allow_bufg_logic_sources=False
     ):
 
@@ -211,15 +222,29 @@ class ClockPlacer(object):
 
         cmt_dict = vpr_grid.get_cmt_dict()
 
-        top_cmt_tile = next(
-            k for k, v in cmt_dict.items() if k.startswith('CLK_BUFG_TOP')
-        )
-        bot_cmt_tile = next(
-            k for k, v in cmt_dict.items() if k.startswith('CLK_BUFG_BOT')
-        )
+        try:
+            top_cmt_tile = next(
+                k for k, v in cmt_dict.items() if k.startswith('CLK_BUFG_TOP')
+            )
+            _, thresh_top_y = cmt_dict[top_cmt_tile]['canon_loc']
+        except StopIteration:
+            thresh_top_y = None
 
-        _, thresh_top_y = cmt_dict[top_cmt_tile]['canon_loc']
-        _, thresh_bot_y = cmt_dict[bot_cmt_tile]['canon_loc']
+        try:
+            bot_cmt_tile = next(
+                k for k, v in cmt_dict.items() if k.startswith('CLK_BUFG_BOT')
+            )
+            _, thresh_bot_y = cmt_dict[bot_cmt_tile]['canon_loc']
+        except StopIteration:
+            thresh_bot_y = None
+
+        if graph_limit is None:
+            assert thresh_top_y is not None, "BUFG sites in the top half of the device not found"
+            assert thresh_bot_y is not None, "BUFG sites in the bottom half of the device not found"
+        else:
+            assert thresh_top_y is not None or thresh_bot_y is not None, (
+                "The device grid does not contain any BUFG sites"
+            )
 
         for k, v in cmt_dict.items():
             clock_region = v['clock_region']
@@ -228,9 +253,9 @@ class ClockPlacer(object):
                 continue
             elif clock_region in self.cmt_to_bufg_tile:
                 continue
-            elif y <= thresh_top_y:
+            elif thresh_top_y is not None and y <= thresh_top_y:
                 self.cmt_to_bufg_tile[clock_region] = "TOP"
-            elif y >= thresh_bot_y:
+            elif thresh_bot_y is not None and y >= thresh_bot_y:
                 self.cmt_to_bufg_tile[clock_region] = "BOT"
 
         self.input_pins = {}
@@ -659,6 +684,7 @@ def main():
         action="store_true",
         help="When set allows BUFGs to be driven by logic"
     )
+    parser.add_argument('--graph_limit', help='Graph limit parameters')
 
     args = parser.parse_args()
 
@@ -681,7 +707,7 @@ def main():
 
     eblif_data = eblif.parse_blif(args.blif)
 
-    vpr_grid = VprGrid(args.vpr_grid_map)
+    vpr_grid = VprGrid(args.vpr_grid_map, args.graph_limit)
 
     blocks = {}
     block_locs = {}
@@ -702,7 +728,7 @@ def main():
         )
 
     clock_placer = ClockPlacer(
-        vpr_grid, io_blocks, eblif_data, args.roi,
+        vpr_grid, io_blocks, eblif_data, args.roi, args.graph_limit,
         args.allow_bufg_logic_sources
     )
     if clock_placer.has_clock_nets():
