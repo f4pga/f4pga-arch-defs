@@ -91,7 +91,12 @@ def find_downstream_node(conn, check_downstream_default, source_node_pkey):
 
 
 def output_builder(fixed_route):
-    yield '[list'
+    # TCL cannot express 1-length list, so the curly brackets are
+    # used to prevent TCL from collapsing the 1-length list.
+    if len(fixed_route) == 1:
+        yield '{ '
+    else:
+        yield '[list '
 
     for i in fixed_route:
         if type(i) is list:
@@ -100,7 +105,10 @@ def output_builder(fixed_route):
         else:
             yield i
 
-    yield ']'
+    if len(fixed_route) == 1:
+        yield ' }'
+    else:
+        yield ' ]'
 
 
 class Net(object):
@@ -301,7 +309,12 @@ class Net(object):
                 if parent_node == self.source_wire_pkey:
                     source_nodes.append(node)
 
-            yield '[list '
+            # TCL cannot express 1-length list, so the curly brackets are
+            # used to prevent TCL from collapsing the 1-length list.
+            if len(source_nodes) == 1:
+                yield '{ '
+            else:
+                yield '[list '
 
             for source_node in source_nodes:
                 yield '('
@@ -312,9 +325,10 @@ class Net(object):
 
                 yield ')'
 
-            # TCL cannot express 1-length list, so add an additional element
-            # to prevent TCL from collapsing the 1-length list.
-            yield '{} ]'
+            if len(source_nodes) == 1:
+                yield ' }'
+            else:
+                yield ' ]'
 
 
 def create_check_for_default(db, conn):
