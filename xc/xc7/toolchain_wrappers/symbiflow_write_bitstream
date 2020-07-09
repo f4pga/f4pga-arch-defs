@@ -19,6 +19,11 @@ else
 	return 1
 fi
 
+FRM2BIT=""
+if [ ! -z ${FRAMES2BIT} ]; then
+	FRM2BIT="--frm2bit ${FRAMES2BIT}"
+fi
+
 OPTS=d:f:b:p:
 LONGOPTS=device:,fasm:,bit:,part:
 
@@ -78,5 +83,5 @@ fi
 FRAMES="${BIT%.*}.frames"
 DBROOT=`realpath ${XRAY_DATABASE_DIR}/${DEVICE}`
 
-xcfasm --db-root ${DBROOT} --part ${PART} --part_file ${DBROOT}/${PART}/part.yaml --sparse --emit_pudc_b_pullup --fn_in ${FASM} --bit_out ${BIT}
+xcfasm --db-root ${DBROOT} --part ${PART} --part_file ${DBROOT}/${PART}/part.yaml --sparse --emit_pudc_b_pullup --fn_in ${FASM} --bit_out ${BIT} ${FRM2BIT}
 
