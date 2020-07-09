@@ -319,7 +319,9 @@ def main():
     )
     parser.add_argument('--eblif', help="EBLIF file used to generate design")
     parser.add_argument('verilog_file', help="Filename of output verilog file")
-    parser.add_argument('xdc_file', help="Filename of output xdc constraints file.")
+    parser.add_argument(
+        'xdc_file', help="Filename of output xdc constraints file."
+    )
 
     args = parser.parse_args()
 
