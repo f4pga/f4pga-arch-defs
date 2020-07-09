@@ -137,6 +137,14 @@ function(ADD_XC_BOARD)
       )
   endif()
 
+  get_target_property(GRAPH_LIMIT ${DEVICE_TYPE} GRAPH_LIMIT)
+  if(NOT "${GRAPH_LIMIT}" STREQUAL "GRAPH_LIMIT-NOTFOUND")
+    set_property(
+      TARGET ${BOARD}
+      APPEND_STRING PROPERTY PLACE_CONSTR_TOOL_EXTRA_ARGS "--graph_limit ${GRAPH_LIMIT}"
+    )
+  endif()
+
   add_file_target(FILE ${PINMAP_CSV} GENERATED)
 
   set_target_properties(
