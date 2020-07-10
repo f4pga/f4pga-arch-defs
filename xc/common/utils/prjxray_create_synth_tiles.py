@@ -114,7 +114,7 @@ SELECT pkey FROM wire WHERE node_pkey = ?
 """, (node_pkey, )
     )
     wire_pkeys = cur.fetchall()
-    in_outs = {w: wire_in_roi(conn, g, roi, w) for w, in wire_pkeys}
+    in_outs = {w: (overlay ^ wire_in_roi(conn, g, roi, w)) for w, in wire_pkeys}
     ins = {i for i, v in in_outs.items() if v}
     outs = {i for i, v in in_outs.items() if not v}
     min_manhattan_dist = 1000000
@@ -157,6 +157,7 @@ def main():
     parser.add_argument('--db_root', required=True)
     parser.add_argument('--part', required=True)
     parser.add_argument('--roi', required=False)
+    parser.add_argument('--overlay', required=False)
     parser.add_argument(
         '--connection_database', help='Connection database', required=True
     )
@@ -169,159 +170,180 @@ def main():
 
     synth_tiles = {}
     synth_tiles['tiles'] = {}
+    synth_tiles['info'] = list()
 
+    rois = dict()
     if args.roi:
         with open(args.roi) as f:
             j = json.load(f)
-    else:
-        assert False, 'Synth tiles must be for roi or partition region'
 
-    roi = Roi(
-        db=db,
-        x1=j['info']['GRID_X_MIN'],
-        y1=j['info']['GRID_Y_MIN'],
-        x2=j['info']['GRID_X_MAX'],
-        y2=j['info']['GRID_Y_MAX'],
-    )
+        
+        roi = Roi(
+            db=db,
+            x1=j['info']['GRID_X_MIN'],
+            y1=j['info']['GRID_Y_MIN'],
+            x2=j['info']['GRID_X_MAX'],
+            y2=j['info']['GRID_Y_MAX'],
+        )
 
-    with DatabaseCache(args.connection_database, read_only=True) as conn:
-        synth_tiles['info'] = j['info']
-        tile_in_use = set()
-        tile_pin_count = dict()
-        num_synth_tiles = 0
-        for port in sorted(j["ports"], key=lambda i: i['name']):
-            if port['type'] == 'out':
-                port_type = 'input'
-                is_clock = False
-            elif port['type'] == 'in':
-                is_clock = False
-                port_type = 'output'
-            elif port['type'] == 'clk':
-                port_type = 'output'
-                is_clock = True
-            else:
-                assert False, port
-
-            if 'wire' not in port:
-                tile, wire = find_wire_from_node(conn, g, roi, port['node'])
-            else:
-                tile, wire = port['wire'].split('/')
-
-            tile_in_use.add(tile)
-
-            # Make sure connecting wire is not in ROI!
-            loc = g.loc_of_tilename(tile)
-
-            if roi.tile_in_roi(loc):
-                # Or if in the ROI, make sure it has no sites.
-                gridinfo = g.gridinfo_at_tilename(tile)
-                assert len(db.get_tile_type(gridinfo.tile_type).get_sites()
-                           ) == 0, "{}/{}".format(tile, wire)
-
-            vpr_loc = map_tile_to_vpr_coord(conn, tile)
-
-            if tile not in synth_tiles['tiles']:
-                tile_name = 'SYN-IOPAD-{}'.format(num_synth_tiles)
-                synth_tiles['tiles'][tile] = {
-                    'pins': [],
-                    'loc': vpr_loc,
-                    'tile_name': tile_name,
-                }
-                num_synth_tiles += 1
-                tile_pin_count[tile] = 0
-
-            synth_tiles['tiles'][tile]['pins'].append(
-                {
-                    'roi_name':
-                        port['name'].replace('[', '_').replace(']', '_'),
-                    'wire':
-                        wire,
-                    'pad':
-                        port['pin'],
-                    'port_type':
-                        port_type,
-                    'is_clock':
-                        is_clock,
-                    'z_loc':
-                        tile_pin_count[tile],
-                }
+        rois[roi] = j
+    elif args.overlay:
+        with open(args.overlay) as f:
+            j = json.load(f)
+        
+        for r in j:
+            roi = Roi(
+                db=db,
+                x1=r['info']['GRID_X_MIN'],
+                y1=r['info']['GRID_Y_MIN'],
+                x2=r['info']['GRID_X_MAX'],
+                y2=r['info']['GRID_Y_MAX'],
             )
 
-            tile_pin_count[tile] += 1
+            rois[roi] = r
+    else:
+        assert False, 'Synth tiles must be for roi or overlay'
 
-        # Find two VBRK's in the corner of the fabric to use as the synthetic VCC/
-        # GND source.
-        vbrk_loc = None
-        vbrk_tile = None
-        vbrk2_loc = None
-        vbrk2_tile = None
-        for tile in g.tiles():
-            if tile in tile_in_use:
-                continue
 
-            loc = g.loc_of_tilename(tile)
-            if not roi.tile_in_roi(loc):
-                continue
+    with DatabaseCache(args.connection_database, read_only=True) as conn:
+        tile_in_use = set()
+        for roi, j in rois.items():
 
-            gridinfo = g.gridinfo_at_tilename(tile)
-            if 'VBRK' not in gridinfo.tile_type:
-                continue
+            synth_tiles['info'].append(j['info'])
+            tile_pin_count = dict()
+            num_synth_tiles = 0
+            for port in sorted(j["ports"], key=lambda i: i['name']):
+                if port['type'] == 'out':
+                    port_type = 'input' if not args.overlay else 'output'
+                    is_clock = False
+                elif port['type'] == 'in':
+                    is_clock = False
+                    port_type = 'output' if not args.overlay else 'input'
+                elif port['type'] == 'clk':
+                    port_type = 'output' if not args.overlay else 'input'
+                    is_clock = True
+                else:
+                    assert False, port
 
-            assert len(
-                db.get_tile_type(gridinfo.tile_type).get_sites()
-            ) == 0, tile
+                if 'wire' not in port:
+                    tile, wire = find_wire_from_node(conn, g, roi, port['node'], overlay=bool(args.overlay))
+                else:
+                    tile, wire = port['wire'].split('/')
 
-            if vbrk_loc is None:
-                vbrk2_loc = vbrk_loc
-                vbrk2_tile = vbrk_tile
-                vbrk_loc = loc
-                vbrk_tile = tile
-            else:
-                if (loc.grid_x < vbrk_loc.grid_x
-                        and loc.grid_y < vbrk_loc.grid_y) or vbrk2_loc is None:
+                tile_in_use.add(tile)
+
+                # Make sure connecting wire is not in ROI!
+                loc = g.loc_of_tilename(tile)
+
+                if bool(args.overlay) ^ roi.tile_in_roi(loc):
+                    # Or if in the ROI, make sure it has no sites.
+                    gridinfo = g.gridinfo_at_tilename(tile)
+                    assert len(db.get_tile_type(gridinfo.tile_type).get_sites()
+                               ) == 0, "{}/{}".format(tile, wire)
+
+                vpr_loc = map_tile_to_vpr_coord(conn, tile)
+
+                if tile not in synth_tiles['tiles']:
+                    tile_name = 'SYN-IOPAD-{}'.format(num_synth_tiles)
+                    synth_tiles['tiles'][tile] = {
+                        'pins': [],
+                        'loc': vpr_loc,
+                        'tile_name': tile_name,
+                    }
+                    num_synth_tiles += 1
+                    tile_pin_count[tile] = 0
+
+                synth_tiles['tiles'][tile]['pins'].append(
+                    {
+                        'roi_name':
+                            port['name'].replace('[', '_').replace(']', '_'),
+                        'wire':
+                            wire,
+                        'pad':
+                            port['pin'],
+                        'port_type':
+                            port_type,
+                        'is_clock':
+                            is_clock,
+                        'z_loc':
+                            tile_pin_count[tile],
+                    }
+                )
+
+                tile_pin_count[tile] += 1
+
+        if not args.overlay:
+            # Find two VBRK's in the corner of the fabric to use as the synthetic VCC/
+            # GND source.
+            vbrk_loc = None
+            vbrk_tile = None
+            vbrk2_loc = None
+            vbrk2_tile = None
+            for tile in g.tiles():
+                if tile in tile_in_use:
+                    continue
+
+                loc = g.loc_of_tilename(tile)
+                if not roi.tile_in_roi(loc):
+                    continue
+
+                gridinfo = g.gridinfo_at_tilename(tile)
+                if 'VBRK' not in gridinfo.tile_type:
+                    continue
+
+                assert len(
+                    db.get_tile_type(gridinfo.tile_type).get_sites()
+                ) == 0, tile
+
+                if vbrk_loc is None:
                     vbrk2_loc = vbrk_loc
                     vbrk2_tile = vbrk_tile
                     vbrk_loc = loc
                     vbrk_tile = tile
+                else:
+                    if (loc.grid_x < vbrk_loc.grid_x
+                            and loc.grid_y < vbrk_loc.grid_y) or vbrk2_loc is None:
+                        vbrk2_loc = vbrk_loc
+                        vbrk2_tile = vbrk_tile
+                        vbrk_loc = loc
+                        vbrk_tile = tile
 
-        assert vbrk_loc is not None
-        assert vbrk_tile is not None
-        assert vbrk_tile not in synth_tiles['tiles']
+            assert vbrk_loc is not None
+            assert vbrk_tile is not None
+            assert vbrk_tile not in synth_tiles['tiles']
 
-        vbrk_vpr_loc = map_tile_to_vpr_coord(conn, vbrk_tile)
-        synth_tiles['tiles'][vbrk_tile] = {
-            'loc':
-                vbrk_vpr_loc,
-            'pins':
-                [
-                    {
-                        'wire': 'VCC',
-                        'pad': 'VCC',
-                        'port_type': 'VCC',
-                        'is_clock': False,
-                        'z_loc': '0',
-                    },
-                ],
-        }
+            vbrk_vpr_loc = map_tile_to_vpr_coord(conn, vbrk_tile)
+            synth_tiles['tiles'][vbrk_tile] = {
+                'loc':
+                    vbrk_vpr_loc,
+                'pins':
+                    [
+                        {
+                            'wire': 'VCC',
+                            'pad': 'VCC',
+                            'port_type': 'VCC',
+                            'is_clock': False,
+                        },
+                    ],
+            }
 
-        assert vbrk2_loc is not None
-        assert vbrk2_tile is not None
-        assert vbrk2_tile not in synth_tiles['tiles']
-        vbrk2_vpr_loc = map_tile_to_vpr_coord(conn, vbrk2_tile)
-        synth_tiles['tiles'][vbrk2_tile] = {
-            'loc':
-                vbrk2_vpr_loc,
-            'pins':
-                [
-                    {
-                        'wire': 'GND',
-                        'pad': 'GND',
-                        'port_type': 'GND',
-                        'is_clock': False,
-                        'z_loc': '0',
-                    },
-                ],
-        }
+            assert vbrk2_loc is not None
+            assert vbrk2_tile is not None
+            assert vbrk2_tile not in synth_tiles['tiles']
+            vbrk2_vpr_loc = map_tile_to_vpr_coord(conn, vbrk2_tile)
+            synth_tiles['tiles'][vbrk2_tile] = {
+                'loc':
+                    vbrk2_vpr_loc,
+                'pins':
+                    [
+                        {
+                            'wire': 'GND',
+                            'pad': 'GND',
+                            'port_type': 'GND',
+                            'is_clock': False,
+                        },
+                    ],
+            }
 
     with open(args.synth_tiles, 'w') as f:
         json.dump(synth_tiles, f, indent=2)

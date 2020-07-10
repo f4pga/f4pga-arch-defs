@@ -931,7 +931,7 @@ def main():
             synth_tiles = json.load(f)
         
         region_dict = dict()
-        for r in j['info']:
+        for r in synth_tiles['info']:
             bounds = (r['GRID_X_MIN'], r['GRID_X_MAX'], \
                     r['GRID_Y_MIN'], r['GRID_Y_MAX'])
             region_dict[r['name']] = bounds
@@ -941,19 +941,35 @@ def main():
             region_dict=region_dict
         )
 
-        synth_tile_map = add_synthetic_tiles(
-            model_xml, complexblocklist_xml, tiles_xml, need_io=True
-        )
-
         for _, tile_info in synth_tiles['tiles'].items():
+            if tile_info['pins'][0]['port_type'] in ['GND', 'VCC']:
+                continue
+
             assert tuple(tile_info['loc']) not in synth_loc_map
+            tile_name = tile_info['tile_name']
+            num_input = len(
+                list(
+                    filter(
+                        lambda t: t['port_type'] == 'output', tile_info['pins']
+                    )
+                )
+            )
+            num_output = len(
+                list(
+                    filter(
+                        lambda t: t['port_type'] == 'input', tile_info['pins']
+                    )
+                )
+            )
 
-            assert len(tile_info['pins']) == 1
+            create_synth_io_tile(
+                complexblocklist_xml, tiles_xml, tile_name, num_input,
+                num_output
+            )
 
-            vpr_tile_type = synth_tile_map[tile_info['pins'][0]['port_type']]
+            synth_loc_map[tuple(tile_info['loc'])] = tile_name
 
-            synth_loc_map[tuple(tile_info['loc'])] = vpr_tile_type
-
+        create_synth_pb_types(complexblocklist_xml)
 
     with DatabaseCache(args.connection_database, read_only=True) as conn:
         c = conn.cursor()

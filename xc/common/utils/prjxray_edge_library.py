@@ -1,5 +1,6 @@
 import prjxray.db
 from prjxray.roi import Roi
+from prjxray.overlay import Overlay
 from prjxray import grid_types
 import simplejson as json
 from lib import progressbar_utils
@@ -2198,7 +2199,24 @@ def create_edges(args):
             ]
             add_graph_nodes_for_pins(conn, tile_type, wire, pins)
 
-        if args.synth_tiles:
+        if args.synth_tiles and args.overlay:
+            use_roi = True
+            with open(args.synth_tiles) as f:
+                synth_tiles = json.load(f)
+
+            region_dict = dict()
+            for r in synth_tiles['info']:
+                bounds = (r['GRID_X_MIN'], r['GRID_X_MAX'], \
+                        r['GRID_Y_MIN'], r['GRID_Y_MAX'])
+                region_dict[r['name']] = bounds
+
+            roi = Overlay(
+                db=db,
+                region_dict=region_dict
+            )
+
+            print('{} generating routing graph for Overlay.'.format(now()))
+        elif args.synth_tiles:
             use_roi = True
             with open(args.synth_tiles) as f:
                 synth_tiles = json.load(f)

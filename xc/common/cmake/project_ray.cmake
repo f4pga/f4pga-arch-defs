@@ -131,7 +131,7 @@ function(PROJECT_RAY_ARCH)
       DEPENDS
         ${CREATE_SYNTH_TILES}
         ${PROJECT_RAY_ARCH_USE_OVERLAY} ${SYNTH_DEPS}
-        ${PYTHON3} ${PYTHON3_TARGET} simplejson intervaltree
+        ${PYTHON3}
         )
 
     add_file_target(FILE synth_tiles.json GENERATED)
@@ -143,7 +143,7 @@ function(PROJECT_RAY_ARCH)
     append_file_dependency(DEPS synth_tiles.json)
     list(APPEND DEPS ${PROJECT_RAY_ARCH_USE_OVERLAY})
 
-    set(ROI_ARG_FOR_CREATE_EDGES --synth_tiles ${CMAKE_CURRENT_BINARY_DIR}/synth_tiles.json)
+    set(ROI_ARG_FOR_CREATE_EDGES --synth_tiles ${CMAKE_CURRENT_BINARY_DIR}/synth_tiles.json --overlay)
     append_file_dependency(CHANNELS_DEPS synth_tiles.json)
   endif()
 
