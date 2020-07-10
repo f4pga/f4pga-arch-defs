@@ -442,7 +442,11 @@ def check_feature(feature):
         features.append(
             '{}.{}_ACTIVE'.format(feature_path[0], feature_path[-1])
         )
-        features.append('{}.{}_USED'.format(feature_path[0], feature_path[-1]))
+
+        if "FREQ_REF" not in feature_path[-2]:
+            features.append(
+                '{}.{}_USED'.format(feature_path[0], feature_path[-1])
+            )
 
         return ' '.join(features)
 
