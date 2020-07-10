@@ -168,7 +168,7 @@ function(ADD_XC_ARCH_DEFINE)
         \${PCF_INPUT_IO_FILE} \
         --eblif \${OUT_EBLIF} \
         --top \${TOP} \
-        \${OUT_BIT_VERILOG} \${OUT_BIT_VERILOG}.tcl"
+        \${OUT_BIT_VERILOG} \${OUT_BIT_VERILOG}.xdc"
 
     NO_BIT_TIME
     USE_FASM

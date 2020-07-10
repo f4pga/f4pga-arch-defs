@@ -1578,21 +1578,21 @@ class Module(object):
     def output_bel_locations(self):
         """ Yields lines of tcl that will assign set the location of BELs. """
         for bel in sorted(self.get_bels(), key=lambda bel: bel.priority):
-            yield """\
-set cell [get_cells *{cell}]
-if {{ $cell == {{}} }} {{
-    error "Failed to find cell!"
-}}""".format(cell=bel.get_prefixed_name())
+            get_cell = "[get_cells *{cell}]".format(
+                cell=bel.get_prefixed_name()
+            )
 
             if bel.bel is not None:
                 yield """\
-set_property BEL "[get_property SITE_TYPE [get_sites {site}]].{bel}" $cell""".format(
-                    site=bel.site,
+set_property BEL {bel} {get_cell}""".format(
                     bel=bel.bel,
+                    get_cell=get_cell,
                 )
 
             yield """\
-set_property LOC [get_sites {site}] $cell""".format(site=bel.site)
+set_property LOC {site} {get_cell}""".format(
+                site=bel.site, get_cell=get_cell
+            )
 
     def output_nets(self):
         """ Yields lines of tcl that will assign the exact routing path for nets.
@@ -1618,14 +1618,7 @@ set_property LOC [get_sites {site}] $cell""".format(site=bel.site)
 
                 yield """
 set pin [get_pins *{cell}/{pin}]
-if {{ $pin == {{}} }} {{
-    error "Failed to find pin!"
-}}
-set net [get_nets -of_object $pin]
-if {{ $net == {{}} }} {{
-    error "Failed to find net!"
-}}
-""".format(
+set net [get_nets -of_object $pin]""".format(
                     cell=bel.get_prefixed_name(),
                     pin=pin,
                 )
@@ -1639,14 +1632,12 @@ if {{ $net == {{}} }} {{
                 assert net_wire_pkey in [ZERO_NET, ONE_NET]
                 continue
 
-            yield """
-set route_with_dummy {fixed_route}
-""".format(fixed_route=' '.join(fixed_route))
+            yield """set route {fixed_route}""".format(
+                fixed_route=' '.join(fixed_route)
+            )
 
             # Remove extra {} elements required to construct 1-length lists.
-            yield """\
-regsub -all {{}} $route_with_dummy "" route
-set_property FIXED_ROUTE $route $net"""
+            yield """set_property FIXED_ROUTE $route $net"""
 
     def output_disabled_drcs(self):
         for drc in self.disabled_drcs:

@@ -338,7 +338,9 @@ def main():
     )
     parser.add_argument('--eblif', help="EBLIF file used to generate design")
     parser.add_argument('verilog_file', help="Filename of output verilog file")
-    parser.add_argument('tcl_file', help="Filename of output tcl script.")
+    parser.add_argument(
+        'xdc_file', help="Filename of output xdc constraints file."
+    )
 
     args = parser.parse_args()
 
@@ -434,7 +436,7 @@ def main():
         for line in top.output_verilog():
             print(line, file=f)
 
-    with open(args.tcl_file, 'w') as f:
+    with open(args.xdc_file, 'w') as f:
         for line in top.output_bel_locations():
             print(line, file=f)
 
