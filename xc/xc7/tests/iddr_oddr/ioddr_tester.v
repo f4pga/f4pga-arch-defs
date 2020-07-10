@@ -67,11 +67,11 @@ module ioddr_tester (
     wire [1:0] r_dat2;
     generate if(DDR_CLK_EDGE == "OPPOSITE_EDGE") begin
 
-        reg [1:0] tmp;
+        reg tmp;
         always @(posedge CLK)
-            tmp <= r_dat;
+            tmp <= r_dat[0];
 
-        assign r_dat2 = tmp;
+        assign r_dat2 = {r_dat[1], tmp};
 
     end else begin
 
