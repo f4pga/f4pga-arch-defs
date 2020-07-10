@@ -51,7 +51,13 @@ def main():
     )
     parser.add_argument(
         '--synth_tiles',
-        help='If using an ROI, synthetic tile defintion from prjxray-arch-import'
+        help='If using an ROI or Overlay, synthetic tile defintion from prjxray-arch-import'
+    )
+    parser.add_argument(
+        '--overlay',
+        action='store_true',
+        required=False,
+        help='Use synth tiles for Overlay instead of ROI'
     )
     parser.add_argument(
         '--graph_limit',

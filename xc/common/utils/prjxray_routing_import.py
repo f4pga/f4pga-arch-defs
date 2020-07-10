@@ -25,6 +25,7 @@ from hilbertcurve.hilbertcurve import HilbertCurve
 import math
 import prjxray.db
 from prjxray.roi import Roi
+from prjxray.overlay import Overlay
 import prjxray.grid as grid
 from lib.rr_graph import graph2
 from lib.rr_graph import tracks
@@ -1287,6 +1288,12 @@ def main():
         help='If using an ROI, synthetic tile defintion from prjxray-arch-import'
     )
     parser.add_argument(
+        '--overlay',
+        action='store_true',
+        required=False,
+        help='Use synth tiles for Overlay instead of ROI'
+    )
+    parser.add_argument(
         '--graph_limit',
         help='Limit grid to specified dimensions in x_min,y_min,x_max,y_max',
     )
@@ -1302,7 +1309,24 @@ def main():
     populate_hclk_cmt_tiles(db)
 
     synth_tiles = None
-    if args.synth_tiles:
+    if args.synth_tiles and args.overlay:
+        use_roi = True
+        with open(args.synth_tiles) as f:
+            synth_tiles = json.load(f)
+
+        region_dict = dict()
+        for r in synth_tiles['info']:
+            bounds = (r['GRID_X_MIN'], r['GRID_X_MAX'], \
+                    r['GRID_Y_MIN'], r['GRID_Y_MAX'])
+            region_dict[r['name']] = bounds
+
+        roi = Overlay(
+            db=db,
+            region_dict=region_dict
+        )
+
+        print('{} generating routing graph for Overlay.'.format(now()))
+    elif args.synth_tiles:
         use_roi = True
         with open(args.synth_tiles) as f:
             synth_tiles = json.load(f)
