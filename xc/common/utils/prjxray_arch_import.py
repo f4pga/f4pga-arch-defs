@@ -975,9 +975,11 @@ def main():
         c = conn.cursor()
 
         if 'GND' not in synth_tile_map:
-            synth_tile_map, synth_loc_map = insert_constant_tiles(
+            synth_tile_map, synth_loc_map_const = insert_constant_tiles(
                 conn, model_xml, complexblocklist_xml, tiles_xml
             )
+
+            synth_loc_map.update(synth_loc_map_const)
 
         # Find the grid extent.
         y_max = 0
