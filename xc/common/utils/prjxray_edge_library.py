@@ -2260,6 +2260,14 @@ def create_and_insert_edges(
                 continue
 
             # Mark connections that need an edge split
+            #
+            # Edge splits increase the base cost of the path, making the
+            # router avoid them unless they are really required.
+            #
+            # HCLK_CMT_CK_BUFHCLK -> HCLK_CMT_CK_IN and -> HCLK_CMT_MUX_CLK_
+            # are both BUFH -> BUFH edges.  In general it doesn't make sense
+            # for the router to follow these paths unless required, so make
+            # them more undesirable.
             CK_IN = 'HCLK_CMT_CK_BUFHCLK' in pip.net_from and 'HCLK_CMT_CK_IN' in pip.net_to
             MUX_CLK = 'HCLK_CMT_CK_BUFHCLK' in pip.net_from and 'HCLK_CMT_MUX_CLK_' in pip.net_to
             CLK_GFAN = 'GCLK' in pip.net_from and 'GFAN' in pip.net_to
