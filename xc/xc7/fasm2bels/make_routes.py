@@ -9,6 +9,25 @@ ONE_NET = -2
 
 DEBUG = False
 
+# The following constants are used to wrap lists so that 1-length
+# lists do not get trimmed away producing errors during parsing
+#
+# Error example:
+#   - Input: [list a b c [list d e] [list f] [list g h]]
+#   - Output: a b c {d e} f {g h}
+#
+#   In this example, the `f` list gets evaluated into a string, which is not
+#   the expected result
+#
+# Correct example:
+#   - Input: [list a b c " [list d e] " " [list f] " " [list g h] " ]]
+#   - Output: a b c {d e} {f} {g h}
+#
+#   The correct example has the `f` list correctly evaluated into an
+#   actual list
+TCL_LIST_OPEN = '"[list '
+TCL_LIST_CLOSE = '] "'
+
 
 def create_check_downstream_default(conn, db):
     """ Returns check_for_default function. """
@@ -90,8 +109,8 @@ def find_downstream_node(conn, check_downstream_default, source_node_pkey):
     return None
 
 
-def output_builder(fixed_route):
-    yield '[list'
+def output_builder(fixed_route, first_run=False):
+    yield TCL_LIST_OPEN
 
     for i in fixed_route:
         if type(i) is list:
@@ -100,9 +119,7 @@ def output_builder(fixed_route):
         else:
             yield i
 
-    # TCL cannot express 1-length list, so add an additional element to
-    # prevent TCL from collapsing the 1-length list.
-    yield ' {} ]'
+    yield TCL_LIST_CLOSE
 
 
 class Net(object):
@@ -303,7 +320,7 @@ class Net(object):
                 if parent_node == self.source_wire_pkey:
                     source_nodes.append(node)
 
-            yield '[list '
+            yield TCL_LIST_OPEN
 
             for source_node in source_nodes:
                 yield '('
@@ -314,9 +331,7 @@ class Net(object):
 
                 yield ')'
 
-            # TCL cannot express 1-length list, so add an additional element
-            # to prevent TCL from collapsing the 1-length list.
-            yield '{} ]'
+            yield TCL_LIST_CLOSE
 
 
 def create_check_for_default(db, conn):
