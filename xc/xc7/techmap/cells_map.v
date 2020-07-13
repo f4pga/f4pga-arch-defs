@@ -2084,7 +2084,7 @@ module IBUF (
 endmodule
 
 module OBUF (
-  input  I,
+  input I,
   output O
   );
 
@@ -2695,25 +2695,25 @@ module OSERDESE2 (
   if (DATA_RATE_OQ == "DDR" &&
       !(DATA_WIDTH == 2 || DATA_WIDTH == 4 ||
         DATA_WIDTH == 6 || DATA_WIDTH == 8)) begin
-    wire _TECHMAP_FAIL_ = 1'b1;
+    wire _TECHMAP_FAIL_;
   end
 
   if (DATA_RATE_OQ == "SDR" &&
       !(DATA_WIDTH >= 2 || DATA_WIDTH <= 8)) begin
-    wire _TECHMAP_FAIL_ = 1'b1;
+    wire _TECHMAP_FAIL_;
   end
 
   if ((DATA_RATE_TQ == "SDR" || DATA_RATE_TQ == "BUF") &&
       TRISTATE_WIDTH != 1) begin
-    wire _TECHMAP_FAIL_ = 1'b1;
+    wire _TECHMAP_FAIL_;
   end
 
   if (DATA_RATE_OQ == "SDR" && DATA_RATE_TQ == "DDR") begin
-    wire _TECHMAP_FAIL_ = 1'b1;
+    wire _TECHMAP_FAIL_;
   end
 
   if (TRISTATE_WIDTH != 1 && TRISTATE_WIDTH != 4) begin
-    wire _TECHMAP_FAIL_ = 1'b1;
+    wire _TECHMAP_FAIL_;
   end
 
   // TODO: the following params behave in a weird way.
@@ -3018,13 +3018,13 @@ module ISERDESE2 (
           (DATA_WIDTH != 4 &&
            DATA_WIDTH != 6 &&
            DATA_WIDTH != 8)) begin
-      wire _TECHMAP_FAIL_ = 1'b1;
+      wire _TECHMAP_FAIL_;
     end
 
     if (DATA_RATE == "SDR" &&
         (DATA_WIDTH < 2 ||
          DATA_WIDTH > 8)) begin
-      wire _TECHMAP_FAIL_ = 1'b1;
+      wire _TECHMAP_FAIL_;
     end
   end
 
@@ -3033,11 +3033,14 @@ module ISERDESE2 (
       INTERFACE_TYPE == "MEMORY_QDR") begin
 
     if (DATA_RATE == "SDR") begin
-      wire _TECHMAP_FAIL_ = 1'b1;
+      wire _TECHMAP_FAIL_;
     end
 
-    if (DATA_RATE == "DDR" && DATA_WIDTH != 4) begin
-      wire _TECHMAP_FAIL_ = 1'b1;
+    if (DATA_RATE == "DDR" &&
+        (DATA_WIDTH != 4 &&
+         DATA_WIDTH != 6 &&
+         DATA_WIDTH != 8)) begin
+      wire _TECHMAP_FAIL_;
     end
   end
 
@@ -3189,7 +3192,7 @@ module ISERDESE2 (
        .Q8          (Q8)
       );
     end else begin
-        wire _TECHMAP_FAIL_ = 1'b1;
+        wire _TECHMAP_FAIL_;
     end
 
 
@@ -3247,7 +3250,7 @@ module IDDR_2CLK (
     localparam SRVAL  = 1'bx;
     localparam SRUSED = 1'bx;
 
-    error Cannot_have_both_S_and_R_connected();
+    $error("Both S and R cannot be used simultaneously");
   end endgenerate
 
   generate if (DDR_CLK_EDGE != "OPPOSITE_EDGE") begin
