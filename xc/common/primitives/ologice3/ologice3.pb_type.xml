@@ -339,6 +339,12 @@
         </meta>
       </metadata>
     </pb_type>
+
+    <pb_type name="T_INV" blif_model=".subckt T_INV" num_pb="1">
+      <input  name="TI" num_pins="1"/>
+      <output name="TO" num_pins="1"/>
+    </pb_type>
+
     <interconnect>
       <direct name="CLK" input="OLOGICE3.CLK" output="OSERDESE2.CLK" />
       <direct name="CLKDIV" input="OLOGICE3.CLKDIV" output="OSERDESE2.CLKDIV" />
@@ -365,9 +371,12 @@
       <direct name="TBYTEOUT" input="OSERDESE2.TBYTEOUT" output="OLOGICE3.TBYTEOUT" />
       <direct name="TCE" input="OLOGICE3.TCE" output="OSERDESE2.TCE" />
       <direct name="TFB" input="OSERDESE2.TFB" output="OLOGICE3.TFB" />
-      <direct name="TQ" input="OSERDESE2.TQ" output="OLOGICE3.TQ" />
       <direct name="SHIFTIN1" input="OLOGICE3.SHIFTIN1" output="OSERDESE2.SHIFTIN1" />
       <direct name="SHIFTIN2" input="OLOGICE3.SHIFTIN2" output="OSERDESE2.SHIFTIN2" />
+
+      <direct name="T1_to_T_INV.TI" input="OLOGICE3.T1" output="T_INV.TI"/>
+      <mux name="TQ" input="OSERDESE2.TQ T_INV.TO" output="OLOGICE3.TQ"/>
+
     </interconnect>
   </mode>
   <!-- TODO
