@@ -8,6 +8,14 @@ add_fpga_target(
   )
 
 add_fpga_target(
+  NAME buttons_arty_pr
+  BOARD arty-swbut-pr
+  SOURCES buttons_arty.v
+  INPUT_IO_FILE ${COMMON}/arty_swbut_pr_overlay.pcf
+  EXPLICIT_ADD_FILE_TARGET
+  )
+
+add_fpga_target(
   NAME buttons_arty100t
   BOARD arty100t-full
   SOURCES buttons_arty.v
