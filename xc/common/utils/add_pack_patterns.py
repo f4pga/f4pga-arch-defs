@@ -294,8 +294,7 @@ def main():
                 ('IOB33.O', 'IOB33_MODES.O'),
                 ('IOB33_MODES.O', 'OBUFT_VPR.I'),
                 ('OBUFT_VPR.O', 'outpad.outpad'),
-                ('T_INV.TO', 'OLOGIC_TFF.TQ'),
-                ('OLOGIC_TFF.TQ', 'OLOGICE3.TQ'),
+                ('T_INV.TO', 'OLOGICE3.TQ'),
                 ('IOB33M.T', 'IOB33_MODES.T'),
                 ('IOB33S.T', 'IOB33_MODES.T'),
                 ('IOB33.T', 'IOB33_MODES.T'),
@@ -330,6 +329,26 @@ def main():
                     ('IOB33M.O', 'IOB33_MODES.O'),
                     ('IOB33_MODES.O', 'OBUFTDS_M_VPR.I'),
                     ('OBUFTDS_M_VPR.O', 'outpad.outpad'),
+                ]
+            )
+
+        # Adding OSERDES via differential OBUFDS/OBUFTDS + TQ via T_INV
+        # pack patterns
+        if "IOPAD_M" in top_name:
+            if IOPAD_OLOGIC_OQ_REGEX.match(dir_name):
+                add_pack_pattern(direct, 'OSERDES_to_T_INV_to_OBUFDS')
+            if IOPAD_OLOGIC_TQ_REGEX.match(dir_name):
+                add_pack_pattern(direct, 'OSERDES_to_T_INV_to_OBUFDS')
+
+            maybe_add_pack_pattern(
+                direct, 'OSERDES_to_T_INV_to_OBUFDS', [
+                    ('OSERDESE2.OQ', 'OLOGICE3.OQ'),
+                    ('IOB33M.O', 'IOB33_MODES.O'),
+                    ('IOB33_MODES.O', 'OBUFTDS_M_VPR.I'),
+                    ('OBUFTDS_M_VPR.O', 'outpad.outpad'),
+                    ('T_INV.TO', 'OLOGICE3.TQ'),
+                    ('IOB33M.T', 'IOB33_MODES.T'),
+                    ('IOB33_MODES.T', 'OBUFTDS_M_VPR.T'),
                 ]
             )
 
