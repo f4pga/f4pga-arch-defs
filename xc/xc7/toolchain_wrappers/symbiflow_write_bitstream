@@ -47,7 +47,7 @@ while true; do
 	esac
 done
 
-DATABASE_DIR=`prjxray-config`
+DATABASE_DIR=${DATABASE_DIR:=$(prjxray-config)}
 DBROOT=`realpath ${DATABASE_DIR}/${DEVICE}`
 
 if [ -z $DEVICE ]; then
