@@ -63,6 +63,8 @@
           <input  name="TI" num_pins="1"/>
           <output name="TO" num_pins="1"/>
 
+          <delay_constant in_port="TI" out_port="TO" max="1e-12"/>
+
           <metadata>
             <meta name="fasm_features">
               OSERDES.DATA_RATE_TQ.BUF
@@ -343,6 +345,8 @@
     <pb_type name="T_INV" blif_model=".subckt T_INV" num_pb="1">
       <input  name="TI" num_pins="1"/>
       <output name="TO" num_pins="1"/>
+
+      <delay_constant in_port="TI" out_port="TO" max="1e-12"/>
     </pb_type>
 
     <interconnect>
