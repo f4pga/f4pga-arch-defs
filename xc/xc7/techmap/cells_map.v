@@ -811,11 +811,18 @@ module RAM64X1D (
         .WE(WE),
         .O(SPO_FORCE)
     );
+
+    wire Dstub;
+    DI64_STUB stub1 (
+        .DI(D),
+        .DO(Dstub)
+    );
+
     DPRAM64 #(
         .INIT(INIT),
         .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
     ) dram0 (
-        .DI(D),
+        .DI(Dstub),
         .A(DPRA),
         .WA(WA),
         .CLK(WCLK),

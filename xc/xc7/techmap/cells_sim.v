@@ -252,6 +252,11 @@ module SPRAM32 (
   end
 endmodule
 
+module DI64_STUB (
+    input DI, output DO
+);
+    assign DO = DI;
+endmodule
 
 // To ensure that all DRAMs are co-located within a SLICEM, this block is
 // a simple passthrough black box to allow a pack pattern for dual port DRAMs.

@@ -11,6 +11,7 @@
   <output name="DO5_32" num_pins="1" />
   <output name="O6"     num_pins="1" />
   <output name="O5"     num_pins="1" />
+  <output name="DO1"    num_pins="1" />
 
   <!-- TODO: Missing modes: SRL -->
   <mode name="LUT">
@@ -35,11 +36,15 @@
       <direct name="WA"    input="{N}_DRAM.WA[5:0]" output="DPRAM64.WA[5:0]"    />
       <direct name="WA7"   input="{N}_DRAM.WA[6]"   output="DPRAM64.WA7"        />
       <direct name="WA8"   input="{N}_DRAM.WA[7]"   output="DPRAM64.WA8"        />
-      <direct name="DI"    input="{N}_DRAM.DI1"     output="DPRAM64.DI"         />
+      <direct name="DI"    input="{N}_DRAM.DI1"     output="DPRAM64.DI"         >
+        <pack_pattern in_port="{N}_DRAM.DI1" name="DRAM_DP" out_port="DPRAM64.DI" />
+      </direct>
       <direct name="WE"    input="{N}_DRAM.WE"      output="DPRAM64.WE"         />
 
       <direct name="O6"    input="DPRAM64.O"        output="{N}_DRAM.O6"        />
       <direct name="DO6"   input="DPRAM64.O"        output="{N}_DRAM.DO6"       />
+
+      <direct name="DIPAS" input="{N}_DRAM.DI1"     output="{N}_DRAM.DO1"       />
     </interconnect>
     <metadata>
       <meta name="fasm_prefix">{N}LUT</meta>
