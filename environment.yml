@@ -15,6 +15,7 @@ dependencies:
   - iverilog
   - libxml2=2.9.10=20200629_180127
   - icestorm
+  - prjxray-db
   - pip
   - pip:
     - -r file:requirements.txt
