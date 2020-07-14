@@ -90,6 +90,8 @@ function(ADD_XC_ARCH_DEFINE)
       add_file_target(FILE ${VPR_CELLS_SIM} ABSOLUTE)
   endif ()
 
+  get_target_property_required(XCFASM env XCFASM)
+
   define_arch(
     ARCH ${ARCH}
     FAMILY ${FAMILY}
@@ -136,7 +138,7 @@ function(ADD_XC_ARCH_DEFINE)
         --output /dev/stdout \
         \${PLACE_CONSTR_TOOL_EXTRA_ARGS}"
     BITSTREAM_EXTENSION bit
-    FASM_TO_BIT ${symbiflow-arch-defs_SOURCE_DIR}/env/conda/envs/symbiflow_arch_def_base/bin/xcfasm
+    FASM_TO_BIT ${XCFASM}
     FASM_TO_BIT_CMD "${CMAKE_COMMAND} -E env \
     PYTHONPATH=${symbiflow-arch-defs_BINARY_DIR}/env/conda/lib/python3.7/site-packages:${PRJRAY_DIR}:${PRJRAY_DIR}/third_party/fasm \
     \${FASM_TO_BIT} \
