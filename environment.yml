@@ -6,7 +6,6 @@ dependencies:
   - symbiflow-yosys=0.8_3925_g6bccd35a=20200627_023447
   - symbiflow-yosys-plugins=1.0.0.7_0041_g1c495fd=20200627_023447
   - symbiflow-vtr=8.0.0.rc2_4003_g8980e4621=20200627_023447
-  - prjxray-db=0.0_0230_g485a837=20200713_220637
   - cmake
   - make
   - openocd
