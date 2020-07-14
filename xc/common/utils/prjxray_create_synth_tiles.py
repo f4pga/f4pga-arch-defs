@@ -36,11 +36,10 @@ WHERE tile_map.phy_tile_pkey = ? AND tile_type.name != 'NULL'
     return grid_x, grid_y
 
 
-def in_roi(roi, x, y):
-    return x >= roi.x1 and x <= roi.x2 and y >= roi.y1 and y <= roi.y2
-
-
 def tile_in_roi(conn, g, roi, tile_pkey):
+    """
+    Checks if the given tile_pkey is at a location within the specified roi
+    """
     c = conn.cursor()
     c.execute(
         """
@@ -53,10 +52,10 @@ SELECT name FROM phy_tile WHERE pkey =
     return roi.tile_in_roi(loc)
 
 
-#    return in_roi(roi, x, y)
-
-
 def wire_in_roi(conn, g, roi, wire_pkey):
+    """
+    Checks if the given wire_pkey is at a location within the specified roi
+    """
     c = conn.cursor()
     c.execute("""
 SELECT tile_pkey FROM wire WHERE pkey = ?
@@ -66,6 +65,10 @@ SELECT tile_pkey FROM wire WHERE pkey = ?
 
 
 def wire_manhattan_distance(conn, wire_pkey1, wire_pkey2):
+    """
+    Determines the manhattan distance between two tiles containing
+    the given wire_pkeys
+    """
     c = conn.cursor()
     c.execute(
         """
@@ -83,6 +86,14 @@ SELECT grid_x, grid_y FROM tile WHERE pkey = (SELECT tile_pkey FROM wire WHERE p
 
 
 def find_wire_from_node(conn, g, roi, node_name):
+    """
+    Finds a pair on wires in the given node such that:
+    1. One wire is inside the roi and the other is outside
+    2. The manhattan distance between these the wires is the minimum of any such pair
+
+    Returns the wire from this pair that is outside the roi and the tile the returned
+    wire is contained in.
+    """
     tile, node = node_name.split('/')
 
     cur = conn.cursor()
