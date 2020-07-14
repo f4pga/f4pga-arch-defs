@@ -1008,270 +1008,490 @@ function(ADD_FPGA_TARGET)
     message(FATAL_ERROR "BOARD is a required parameters.")
   endif()
 
-  get_target_property_required(DEVICE_MAIN ${BOARD} DEVICE)
+  get_target_property_required(DEVICE ${BOARD} DEVICE)
   get_target_property_required(PACKAGE ${BOARD} PACKAGE)
 
-  get_target_property(CONTAINED_ROI_DEVICES ${DEVICE_MAIN} CONTAINED_ROI_DEVICES)
-  if("${CONTAINED_ROI_DEVICES}" STREQUAL "CONTAINED_ROI_DEVICES-NOTFOUND")
-    set(CONTAINED_ROI_DEVICES ${DEVICE_MAIN})
-  else()
-    list(APPEND CONTAINED_ROI_DEVICES ${DEVICE_MAIN})
+  get_target_property_required(ARCH ${DEVICE} ARCH)
+  get_target_property_required(DEVICE_TYPE ${DEVICE} DEVICE_TYPE)
+
+  get_target_property_required(YOSYS env YOSYS)
+  get_target_property_required(QUIET_CMD env QUIET_CMD)
+  get_target_property_required(YOSYS_SYNTH_SCRIPT ${ARCH} YOSYS_SYNTH_SCRIPT)
+  get_target_property_required(YOSYS_CONV_SCRIPT ${ARCH} YOSYS_CONV_SCRIPT)
+
+  get_target_property_required(
+    DEVICE_MERGED_FILE ${DEVICE_TYPE} DEVICE_MERGED_FILE
+  )
+  get_target_property_required(
+    OUT_RRXML_REAL ${DEVICE} ${PACKAGE}_OUT_RRXML_REAL
+  )
+  get_target_property_required(
+    OUT_RRBIN_REAL ${DEVICE} ${PACKAGE}_OUT_RRBIN_REAL
+  )
+  get_target_property_required(
+    OUT_RRXML_VIRT ${DEVICE} OUT_RRXML_VIRT
+  )
+
+  if(NOT "${ADD_FPGA_TARGET_INPUT_XDC_FILE}" STREQUAL "")
+      get_target_property_required(PART_JSON ${BOARD} PART_JSON)
   endif()
 
-  foreach(DEVICE ${CONTAINED_ROI_DEVICES})
-    get_target_property_required(ARCH ${DEVICE} ARCH)
-    get_target_property_required(DEVICE_TYPE ${DEVICE} DEVICE_TYPE)
+  set(NAME ${ADD_FPGA_TARGET_NAME})
+  get_target_property_required(DEVICE_FULL_TEMPLATE ${ARCH} DEVICE_FULL_TEMPLATE)
+  string(CONFIGURE ${DEVICE_FULL_TEMPLATE} DEVICE_FULL)
+  set(FQDN ${ARCH}-${DEVICE_TYPE}-${DEVICE}-${PACKAGE})
+  set(OUT_LOCAL_REL ${NAME}/${FQDN})
+  set(OUT_LOCAL ${CMAKE_CURRENT_BINARY_DIR}/${OUT_LOCAL_REL})
 
-    get_target_property_required(YOSYS env YOSYS)
-    get_target_property_required(QUIET_CMD env QUIET_CMD)
-    get_target_property_required(YOSYS_SYNTH_SCRIPT ${ARCH} YOSYS_SYNTH_SCRIPT)
-    get_target_property_required(YOSYS_CONV_SCRIPT ${ARCH} YOSYS_CONV_SCRIPT)
+  # Create target to handle all output paths of off
+  add_custom_target(${NAME})
+  set_target_properties(${NAME} PROPERTIES
+      TOP ${TOP}
+      BOARD ${BOARD}
+      )
+  set(VPR_ROUTE_CHAN_WIDTH 100)
+  set(VPR_ROUTE_CHAN_MINWIDTH_HINT ${VPR_ROUTE_CHAN_WIDTH})
 
-    get_target_property_required(
-      DEVICE_MERGED_FILE ${DEVICE_TYPE} DEVICE_MERGED_FILE
-    )
-    get_target_property_required(
-      OUT_RRXML_REAL ${DEVICE} ${PACKAGE}_OUT_RRXML_REAL
-    )
-    get_target_property_required(
-      OUT_RRBIN_REAL ${DEVICE} ${PACKAGE}_OUT_RRBIN_REAL
-    )
-    get_target_property_required(
-      OUT_RRXML_VIRT ${DEVICE} OUT_RRXML_VIRT
-    )
-
-    if(NOT "${ADD_FPGA_TARGET_INPUT_XDC_FILE}" STREQUAL "")
-        get_target_property_required(PART_JSON ${BOARD} PART_JSON)
+  if(${ADD_FPGA_TARGET_NO_SYNTHESIS})
+    list(LENGTH ADD_FPGA_TARGET_SOURCES SRC_COUNT)
+    if(NOT ${SRC_COUNT} EQUAL 1)
+      message(FATAL_ERROR "In NO_SYNTHESIS, only one input source is allowed, given ${SRC_COUNT}.")
     endif()
+    set(READ_FUNCTION "read_blif")
+  else()
+    set(READ_FUNCTION "read_verilog")
+  endif()
 
-    set(NAME ${ADD_FPGA_TARGET_NAME})
-    get_target_property_required(DEVICE_FULL_TEMPLATE ${ARCH} DEVICE_FULL_TEMPLATE)
-    string(CONFIGURE ${DEVICE_FULL_TEMPLATE} DEVICE_FULL)
-    set(FQDN ${ARCH}-${DEVICE_TYPE}-${DEVICE}-${PACKAGE})
-    set(OUT_LOCAL_REL ${NAME}/${FQDN})
-    set(OUT_LOCAL ${CMAKE_CURRENT_BINARY_DIR}/${OUT_LOCAL_REL})
-
-    # Create target to handle all output paths of off
-    add_custom_target(${NAME})
-    set_target_properties(${NAME} PROPERTIES
-        TOP ${TOP}
-        BOARD ${BOARD}
-        )
-    set(VPR_ROUTE_CHAN_WIDTH 100)
-    set(VPR_ROUTE_CHAN_MINWIDTH_HINT ${VPR_ROUTE_CHAN_WIDTH})
-
-    if(${ADD_FPGA_TARGET_NO_SYNTHESIS})
-      list(LENGTH ADD_FPGA_TARGET_SOURCES SRC_COUNT)
-      if(NOT ${SRC_COUNT} EQUAL 1)
-        message(FATAL_ERROR "In NO_SYNTHESIS, only one input source is allowed, given ${SRC_COUNT}.")
-      endif()
-      set(READ_FUNCTION "read_blif")
-    else()
-      set(READ_FUNCTION "read_verilog")
-    endif()
-
-    if(NOT ${ADD_FPGA_TARGET_EXPLICIT_ADD_FILE_TARGET})
-      if(NOT ${ADD_FPGA_TARGET_NO_SYNTHESIS})
-        foreach(SRC ${ADD_FPGA_TARGET_SOURCES})
-          add_file_target(FILE ${SRC} SCANNER_TYPE verilog)
-        endforeach()
-      else()
-        foreach(SRC ${ADD_FPGA_TARGET_SOURCES})
-          add_file_target(FILE ${SRC})
-        endforeach()
-      endif()
-      foreach(SRC ${ADD_FPGA_TARGET_TESTBENCH_SOURCES})
+  if(NOT ${ADD_FPGA_TARGET_EXPLICIT_ADD_FILE_TARGET})
+    if(NOT ${ADD_FPGA_TARGET_NO_SYNTHESIS})
+      foreach(SRC ${ADD_FPGA_TARGET_SOURCES})
         add_file_target(FILE ${SRC} SCANNER_TYPE verilog)
       endforeach()
-
-      if(NOT "${ADD_FPGA_TARGET_INPUT_IO_FILE}" STREQUAL "")
-        add_file_target(FILE ${ADD_FPGA_TARGET_INPUT_IO_FILE})
-      endif()
-      if(NOT "${ADD_FPGA_TARGET_INPUT_XDC_FILE}" STREQUAL "")
-        add_file_target(FILE ${ADD_FPGA_TARGET_INPUT_XDC_FILE})
-      endif()
+    else()
+      foreach(SRC ${ADD_FPGA_TARGET_SOURCES})
+        add_file_target(FILE ${SRC})
+      endforeach()
     endif()
+    foreach(SRC ${ADD_FPGA_TARGET_TESTBENCH_SOURCES})
+      add_file_target(FILE ${SRC} SCANNER_TYPE verilog)
+    endforeach()
 
+    if(NOT "${ADD_FPGA_TARGET_INPUT_IO_FILE}" STREQUAL "")
+      add_file_target(FILE ${ADD_FPGA_TARGET_INPUT_IO_FILE})
+    endif()
     if(NOT "${ADD_FPGA_TARGET_INPUT_XDC_FILE}" STREQUAL "")
-      get_file_location(INPUT_XDC_FILE ${ADD_FPGA_TARGET_INPUT_XDC_FILE})
-      append_file_dependency(YOSYS_IO_DEPS ${ADD_FPGA_TARGET_INPUT_XDC_FILE})
+      add_file_target(FILE ${ADD_FPGA_TARGET_INPUT_XDC_FILE})
+    endif()
+  endif()
+
+  if(NOT "${ADD_FPGA_TARGET_INPUT_XDC_FILE}" STREQUAL "")
+    get_file_location(INPUT_XDC_FILE ${ADD_FPGA_TARGET_INPUT_XDC_FILE})
+    append_file_dependency(YOSYS_IO_DEPS ${ADD_FPGA_TARGET_INPUT_XDC_FILE})
+  endif()
+
+  #
+  # Generate BLIF as start of vpr input.
+  #
+  set(OUT_EBLIF ${OUT_LOCAL}/${TOP}.eblif)
+  set(OUT_EBLIF_REL ${OUT_LOCAL_REL}/${TOP}.eblif)
+  set(OUT_SYNTH_V ${OUT_LOCAL}/${TOP}_synth.v)
+  set(OUT_SYNTH_V_REL ${OUT_LOCAL_REL}/${TOP}_synth.v)
+  set(OUT_FASM_EXTRA ${OUT_LOCAL}/${TOP}_fasm_extra.fasm)
+
+  set(SOURCE_FILES_DEPS "")
+  set(SOURCE_FILES "")
+  foreach(SRC ${ADD_FPGA_TARGET_SOURCES})
+    append_file_location(SOURCE_FILES ${SRC})
+    append_file_dependency(SOURCE_FILES_DEPS ${SRC})
+  endforeach()
+
+  set(CELLS_SIM_DEPS "")
+  get_cells_sim_path(PATH_TO_CELLS_SIM ${ARCH})
+  foreach(CELL ${PATH_TO_CELLS_SIM})
+    get_file_target(CELL_TARGET ${CELL})
+    list(APPEND CELLS_SIM_DEPS ${CELL_TARGET})
+  endforeach()
+
+  set(YOSYS_IO_DEPS "")
+
+  if(NOT ${ADD_FPGA_TARGET_INPUT_IO_FILE} STREQUAL "" OR NOT ${ADD_FPGA_TARGET_INPUT_XDC_FILE} STREQUAL "")
+    get_target_property_required(PINMAP_FILE ${BOARD} PINMAP)
+    get_file_location(PINMAP ${PINMAP_FILE})
+    append_file_dependency(YOSYS_IO_DEPS ${PINMAP_FILE})
+  endif()
+
+  if(NOT ${ADD_FPGA_TARGET_INPUT_IO_FILE} STREQUAL "")
+    get_file_location(INPUT_IO_FILE ${ADD_FPGA_TARGET_INPUT_IO_FILE})
+    append_file_dependency(YOSYS_IO_DEPS ${ADD_FPGA_TARGET_INPUT_IO_FILE})
+  endif()
+
+  if(NOT ${ADD_FPGA_TARGET_NO_SYNTHESIS})
+    set(COMPLETE_YOSYS_SYNTH_SCRIPT "tcl ${YOSYS_SYNTH_SCRIPT}")
+
+    set(OUT_JSON_SYNTH ${OUT_LOCAL}/${TOP}_synth.json)
+    set(OUT_JSON_SYNTH_REL ${OUT_LOCAL_REL}/${TOP}_synth.json)
+    set(OUT_JSON ${OUT_LOCAL}/${TOP}.json)
+    set(OUT_JSON_REL ${OUT_LOCAL_REL}/${TOP}.json)
+
+    get_target_property(USE_ROI ${DEVICE_TYPE} USE_ROI)
+    if("${USE_ROI}" STREQUAL "NOTFOUND")
+        set(USE_ROI FALSE)
+    endif()
+    # TECHMAP is optional for ARCH. We don't care if this is NOTFOUND
+    # as targets not defining it should not use TECHMAP_PATH ENV variable
+    get_target_property(YOSYS_TECHMAP ${ARCH} YOSYS_TECHMAP)
+
+    add_custom_command(
+      OUTPUT ${OUT_JSON_SYNTH} ${OUT_SYNTH_V} ${OUT_FASM_EXTRA}
+      DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS} ${INPUT_XDC_FILE} ${CELLS_SIM_DEPS}
+              ${YOSYS} ${QUIET_CMD} ${YOSYS_IO_DEPS}
+              ${YOSYS_SYNTH_SCRIPT}
+      COMMAND
+        ${CMAKE_COMMAND} -E make_directory ${OUT_LOCAL}
+      COMMAND
+        ${CMAKE_COMMAND} -E env
+          TECHMAP_PATH=${YOSYS_TECHMAP}
+          symbiflow-arch-defs_SOURCE_DIR=${symbiflow-arch-defs_SOURCE_DIR}
+          symbiflow-arch-defs_BINARY_DIR=${symbiflow-arch-defs_BINARY_DIR}
+          OUT_JSON=${OUT_JSON_SYNTH}
+          OUT_SYNTH_V=${OUT_SYNTH_V}
+          OUT_FASM_EXTRA=${OUT_FASM_EXTRA}
+          PART_JSON=${PART_JSON}
+          INPUT_XDC_FILE=${INPUT_XDC_FILE}
+          USE_ROI=${USE_ROI}
+          PCF_FILE=${INPUT_IO_FILE}
+          PINMAP_FILE=${PINMAP}
+          ${ADD_FPGA_TARGET_DEFINES}
+          ${QUIET_CMD} ${YOSYS} -p "${COMPLETE_YOSYS_SYNTH_SCRIPT}" -l ${OUT_JSON_SYNTH}.log ${SOURCE_FILES}
+      COMMAND
+        ${CMAKE_COMMAND} -E touch ${OUT_FASM_EXTRA}
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+      VERBATIM
+    )
+
+    set(SPLIT_INOUTS ${symbiflow-arch-defs_SOURCE_DIR}/utils/split_inouts.py)
+
+    add_custom_command(
+      OUTPUT ${OUT_JSON}
+      DEPENDS ${OUT_JSON_SYNTH} ${QUIET_CMD} ${SPLIT_INOUTS} ${PYTHON3}
+      COMMAND
+        ${PYTHON3} ${SPLIT_INOUTS} -i ${OUT_JSON_SYNTH} -o ${OUT_JSON}
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+      VERBATIM
+    )
+
+    add_custom_command(
+      OUTPUT ${OUT_EBLIF}
+      DEPENDS ${OUT_JSON}
+              ${YOSYS} ${QUIET_CMD}
+              ${YOSYS_CONV_SCRIPT}
+      COMMAND
+        ${CMAKE_COMMAND} -E env
+          symbiflow-arch-defs_SOURCE_DIR=${symbiflow-arch-defs_SOURCE_DIR}
+          OUT_EBLIF=${OUT_EBLIF}
+          ${ADD_FPGA_TARGET_DEFINES}
+          ${QUIET_CMD} ${YOSYS} -p "read_json ${OUT_JSON}; tcl ${YOSYS_CONV_SCRIPT}" -l ${OUT_EBLIF}.log
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+      VERBATIM
+    )
+
+    add_output_to_fpga_target(${NAME} EBLIF ${OUT_EBLIF_REL})
+    add_output_to_fpga_target(${NAME} SYNTH_V ${OUT_SYNTH_V_REL})
+    add_output_to_fpga_target(${NAME} JSON_SYNTH ${OUT_JSON_SYNTH_REL})
+    add_output_to_fpga_target(${NAME} JSON ${OUT_JSON_REL})
+
+  else()
+    add_custom_command(
+      OUTPUT ${OUT_EBLIF}
+      DEPENDS ${SOURCE_FILES_DEPS}
+      COMMAND
+        ${CMAKE_COMMAND} -E make_directory ${OUT_LOCAL}
+      COMMAND ${CMAKE_COMMAND} -E copy ${SOURCE_FILES} ${OUT_EBLIF}
+      )
+    add_output_to_fpga_target(${NAME} EBLIF ${OUT_EBLIF_REL})
+  endif()
+
+  add_custom_target(${NAME}_eblif DEPENDS ${OUT_EBLIF})
+
+  # Generate routing and generate HLC.
+  set(OUT_ROUTE ${OUT_LOCAL}/${TOP}.route)
+
+  set(VPR_DEPS "")
+  append_file_dependency(VPR_DEPS ${OUT_EBLIF_REL})
+  list(APPEND VPR_DEPS ${DEFINE_DEVICE_DEVICE_TYPE})
+
+  get_file_location(OUT_RRXML_VIRT_LOCATION ${OUT_RRXML_VIRT})
+  get_file_location(OUT_RRXML_REAL_LOCATION ${OUT_RRXML_REAL})
+  get_file_location(OUT_RRBIN_REAL_LOCATION ${OUT_RRBIN_REAL})
+  get_file_location(DEVICE_MERGED_FILE_LOCATION ${DEVICE_MERGED_FILE})
+
+  foreach(SRC ${DEVICE_MERGED_FILE} ${OUT_RRBIN_REAL})
+    append_file_dependency(VPR_DEPS ${SRC})
+  endforeach()
+
+  get_target_property_required(VPR env VPR)
+
+  get_target_property_required(ROUTE_CHAN_WIDTH ${ARCH} ROUTE_CHAN_WIDTH)
+
+  get_target_property(VPR_ARCH_ARGS ${ARCH} VPR_ARCH_ARGS)
+  if("${VPR_ARCH_ARGS}" STREQUAL "VPR_ARCH_ARGS-NOTFOUND")
+    set(VPR_ARCH_ARGS "")
+  endif()
+
+  separate_arguments(
+    VPR_BASE_ARGS_LIST UNIX_COMMAND "${VPR_BASE_ARGS}"
+    )
+  list(APPEND VPR_BASE_ARGS_LIST --route_chan_width ${ROUTE_CHAN_WIDTH})
+  separate_arguments(
+    VPR_EXTRA_ARGS_LIST UNIX_COMMAND "${VPR_EXTRA_ARGS}"
+    )
+
+  # Setting noisy warnings log file if needed.
+  set(OUT_NOISY_WARNINGS ${OUT_LOCAL}/noisy_warnings.log)
+  string(CONFIGURE ${VPR_ARCH_ARGS} VPR_ARCH_ARGS_EXPANDED)
+  separate_arguments(
+    VPR_ARCH_ARGS_LIST UNIX_COMMAND "${VPR_ARCH_ARGS_EXPANDED}"
+    )
+
+  if(NOT "${ADD_FPGA_TARGET_SDC_FILE}" STREQUAL "")
+    append_file_dependency(VPR_DEPS ${ADD_FPGA_TARGET_SDC_FILE})
+    get_file_location(SDC_LOCATION ${ADD_FPGA_TARGET_SDC_FILE})
+    set(SDC_ARG --sdc_file ${SDC_LOCATION})
+  else()
+    set(SDC_ARG "")
+  endif()
+
+  set(
+    VPR_CMD
+    ${QUIET_CMD} ${VPR}
+    ${DEVICE_MERGED_FILE_LOCATION}
+    ${OUT_EBLIF}
+    --device ${DEVICE_FULL}
+    --read_rr_graph ${OUT_RRBIN_REAL_LOCATION}
+    ${VPR_BASE_ARGS_LIST}
+    ${VPR_ARCH_ARGS_LIST}
+    ${VPR_EXTRA_ARGS_LIST}
+    ${SDC_ARG}
+  )
+
+  get_target_property_required(
+    USE_LOOKAHEAD_CACHE ${DEVICE} ${PACKAGE}_HAS_LOOKAHEAD_CACHE
+  )
+  if(${USE_LOOKAHEAD_CACHE})
+    # If lookahead is cached, use the cache instead of recomputing lookaheads.
+    get_target_property_required(
+      LOOKAHEAD_FILE ${DEVICE} ${PACKAGE}_LOOKAHEAD_FILE
+      )
+    append_file_dependency(VPR_DEPS ${LOOKAHEAD_FILE})
+    get_file_location(LOOKAHEAD_LOCATION ${LOOKAHEAD_FILE})
+    list(APPEND VPR_CMD --read_router_lookahead ${LOOKAHEAD_LOCATION})
+  endif()
+
+  get_target_property_required(
+    USE_PLACE_DELAY_CACHE ${DEVICE} ${PACKAGE}_HAS_PLACE_DELAY_CACHE
+  )
+  if(${USE_PLACE_DELAY_CACHE})
+    get_target_property_required(
+      PLACE_DELAY_FILE ${DEVICE} ${PACKAGE}_PLACE_DELAY_FILE
+      )
+    append_file_dependency(VPR_DEPS ${PLACE_DELAY_FILE})
+    get_file_location(PLACE_DELAY_LOCATION ${PLACE_DELAY_FILE})
+    list(APPEND VPR_CMD --read_placement_delay_lookup ${PLACE_DELAY_LOCATION})
+  endif()
+
+  list(APPEND VPR_DEPS ${VPR} ${QUIET_CMD})
+  append_file_dependency(VPR_DEPS ${OUT_EBLIF_REL})
+
+  # Generate packing.
+  # -------------------------------------------------------------------------
+  set(OUT_NET ${OUT_LOCAL}/${TOP}.net)
+  set(OUT_NET_REL ${OUT_LOCAL_REL}/${TOP}.net)
+
+  add_custom_command(
+    OUTPUT ${OUT_NET} ${OUT_LOCAL}/pack.log
+    DEPENDS ${VPR_DEPS}
+    COMMAND ${VPR_CMD} --pack
+    COMMAND
+      ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log ${OUT_LOCAL}/pack.log
+    WORKING_DIRECTORY ${OUT_LOCAL}
+  )
+
+  add_output_to_fpga_target(${NAME} NET ${OUT_NET_REL})
+
+  if(NOT "${ADD_FPGA_TARGET_ASSERT_USAGE}" STREQUAL "")
+      set(USAGE_UTIL ${symbiflow-arch-defs_SOURCE_DIR}/utils/report_block_usage.py)
+      add_custom_target(
+          ${NAME}_assert_usage
+          COMMAND ${PYTHON3} ${USAGE_UTIL}
+            --assert_usage ${ADD_FPGA_TARGET_ASSERT_USAGE}
+            ${OUT_LOCAL}/pack.log
+          DEPENDS ${PYTHON3} ${USAGE_UTIL} ${OUT_LOCAL}/pack.log
+          )
+  endif()
+
+  set(ECHO_OUT_NET ${OUT_LOCAL}/echo/${TOP}.net)
+  add_custom_command(
+    OUTPUT ${ECHO_OUT_NET}
+    DEPENDS ${VPR_DEPS}
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${OUT_LOCAL}/echo
+    COMMAND cd ${OUT_LOCAL}/echo && ${VPR_CMD} --pack_verbosity 3 --echo_file on --pack
+    COMMAND
+      ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/echo/vpr_stdout.log ${OUT_LOCAL}/echo/pack.log
+    )
+
+  # Generate placement constraints.
+  # -------------------------------------------------------------------------
+  set(FIX_PINS_ARG "")
+
+  if(NOT ${ADD_FPGA_TARGET_INPUT_IO_FILE} STREQUAL "" OR NOT ${ADD_FPGA_TARGET_INPUT_XDC_FILE} STREQUAL "")
+    get_target_property_required(NO_PINS ${ARCH} NO_PINS)
+    if(${NO_PINS})
+      message(FATAL_ERROR "Arch ${ARCH} does not currently support pin constraints.")
+    endif()
+    get_target_property_required(PLACE_TOOL ${ARCH} PLACE_TOOL)
+    get_target_property_required(PLACE_TOOL_CMD ${ARCH} PLACE_TOOL_CMD)
+
+    get_target_property_required(NO_PLACE_CONSTR ${ARCH} NO_PLACE_CONSTR)
+    if(NOT ${NO_PLACE_CONSTR})
+      get_target_property_required(PLACE_CONSTR_TOOL ${ARCH} PLACE_CONSTR_TOOL)
+      get_target_property_required(PLACE_CONSTR_TOOL_CMD ${ARCH} PLACE_CONSTR_TOOL_CMD)
     endif()
 
-    #
-    # Generate BLIF as start of vpr input.
-    #
-    set(OUT_EBLIF ${OUT_LOCAL}/${TOP}.eblif)
-    set(OUT_EBLIF_REL ${OUT_LOCAL_REL}/${TOP}.eblif)
-    set(OUT_SYNTH_V ${OUT_LOCAL}/${TOP}_synth.v)
-    set(OUT_SYNTH_V_REL ${OUT_LOCAL_REL}/${TOP}_synth.v)
-    set(OUT_FASM_EXTRA ${OUT_LOCAL}/${TOP}_fasm_extra.fasm)
+    get_target_property_required(PYTHON3 env PYTHON3)
 
-    set(SOURCE_FILES_DEPS "")
-    set(SOURCE_FILES "")
-    foreach(SRC ${ADD_FPGA_TARGET_SOURCES})
-      append_file_location(SOURCE_FILES ${SRC})
-      append_file_dependency(SOURCE_FILES_DEPS ${SRC})
-    endforeach()
 
-    set(CELLS_SIM_DEPS "")
-    get_cells_sim_path(PATH_TO_CELLS_SIM ${ARCH})
-    foreach(CELL ${PATH_TO_CELLS_SIM})
-      get_file_target(CELL_TARGET ${CELL})
-      list(APPEND CELLS_SIM_DEPS ${CELL_TARGET})
-    endforeach()
-
-    set(YOSYS_IO_DEPS "")
-
-    if(NOT ${ADD_FPGA_TARGET_INPUT_IO_FILE} STREQUAL "" OR NOT ${ADD_FPGA_TARGET_INPUT_XDC_FILE} STREQUAL "")
-      get_target_property_required(PINMAP_FILE ${BOARD} PINMAP)
-      get_file_location(PINMAP ${PINMAP_FILE})
-      append_file_dependency(YOSYS_IO_DEPS ${PINMAP_FILE})
+    # Add complete dependency chain
+    set(IO_DEPS ${VPR_DEPS})
+    if(NOT ${ADD_FPGA_TARGET_INPUT_IO_FILE} STREQUAL "")
+      append_file_dependency(IO_DEPS ${ADD_FPGA_TARGET_INPUT_IO_FILE})
     endif()
+    append_file_dependency(IO_DEPS ${PINMAP_FILE})
+    append_file_dependency(IO_DEPS ${OUT_NET_REL})
 
     if(NOT ${ADD_FPGA_TARGET_INPUT_IO_FILE} STREQUAL "")
-      get_file_location(INPUT_IO_FILE ${ADD_FPGA_TARGET_INPUT_IO_FILE})
-      append_file_dependency(YOSYS_IO_DEPS ${ADD_FPGA_TARGET_INPUT_IO_FILE})
+      set_target_properties(${NAME} PROPERTIES
+          INPUT_IO_FILE ${ADD_FPGA_TARGET_INPUT_IO_FILE})
+      set(PCF_INPUT_IO_FILE "--pcf ${INPUT_IO_FILE}")
     endif()
 
-    if(NOT ${ADD_FPGA_TARGET_NO_SYNTHESIS})
-      set(COMPLETE_YOSYS_SYNTH_SCRIPT "tcl ${YOSYS_SYNTH_SCRIPT}")
+    # Set variables for the string(CONFIGURE) below.
+    set(OUT_IO ${OUT_LOCAL}/${TOP}_io.place)
+    set(OUT_IO_REL ${OUT_LOCAL_REL}/${TOP}_io.place)
+    set(OUT_CONSTR ${OUT_LOCAL}/${TOP}_constraints.place)
+    set(OUT_CONSTR_REL ${OUT_LOCAL_REL}/${TOP}_constraints.place)
+    set(OUT_NET ${OUT_LOCAL}/${TOP}.net)
 
-      set(OUT_JSON_SYNTH ${OUT_LOCAL}/${TOP}_synth.json)
-      set(OUT_JSON_SYNTH_REL ${OUT_LOCAL_REL}/${TOP}_synth.json)
-      set(OUT_JSON ${OUT_LOCAL}/${TOP}.json)
-      set(OUT_JSON_REL ${OUT_LOCAL_REL}/${TOP}.json)
+    # Generate IO constraints
+    string(CONFIGURE ${PLACE_TOOL_CMD} PLACE_TOOL_CMD_FOR_TARGET)
+    separate_arguments(
+      PLACE_TOOL_CMD_FOR_TARGET_LIST UNIX_COMMAND ${PLACE_TOOL_CMD_FOR_TARGET}
+    )
 
-      get_target_property(USE_ROI ${DEVICE_TYPE} USE_ROI)
-      if("${USE_ROI}" STREQUAL "NOTFOUND")
-          set(USE_ROI FALSE)
+    add_custom_command(
+      OUTPUT ${OUT_IO}
+      DEPENDS ${IO_DEPS}
+      COMMAND ${PLACE_TOOL_CMD_FOR_TARGET_LIST} --out ${OUT_IO}
+      WORKING_DIRECTORY ${OUT_LOCAL}
+    )
+
+    add_output_to_fpga_target(${NAME} IO_PLACE ${OUT_IO_REL})
+    append_file_dependency(VPR_DEPS ${OUT_IO_REL})
+
+    set(CONSTR_DEPS "")
+    if(NOT ${NO_PLACE_CONSTR})
+      append_file_dependency(CONSTR_DEPS ${OUT_IO_REL})
+
+      get_target_property(PLACE_CONSTR_TOOL_EXTRA_ARGS ${BOARD} PLACE_CONSTR_TOOL_EXTRA_ARGS)
+      if ("${PLACE_CONSTR_TOOL_EXTRA_ARGS}" STREQUAL "PLACE_CONSTR_TOOL_EXTRA_ARGS-NOTFOUND")
+        set(PLACE_CONSTR_TOOL_EXTRA_ARGS "")
       endif()
-      # TECHMAP is optional for ARCH. We don't care if this is NOTFOUND
-      # as targets not defining it should not use TECHMAP_PATH ENV variable
-      get_target_property(YOSYS_TECHMAP ${ARCH} YOSYS_TECHMAP)
 
-      add_custom_command(
-        OUTPUT ${OUT_JSON_SYNTH} ${OUT_SYNTH_V} ${OUT_FASM_EXTRA}
-        DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS} ${INPUT_XDC_FILE} ${CELLS_SIM_DEPS}
-                ${YOSYS} ${QUIET_CMD} ${YOSYS_IO_DEPS}
-                ${YOSYS_SYNTH_SCRIPT}
-        COMMAND
-          ${CMAKE_COMMAND} -E make_directory ${OUT_LOCAL}
-        COMMAND
-          ${CMAKE_COMMAND} -E env
-            TECHMAP_PATH=${YOSYS_TECHMAP}
-            symbiflow-arch-defs_SOURCE_DIR=${symbiflow-arch-defs_SOURCE_DIR}
-            symbiflow-arch-defs_BINARY_DIR=${symbiflow-arch-defs_BINARY_DIR}
-            OUT_JSON=${OUT_JSON_SYNTH}
-            OUT_SYNTH_V=${OUT_SYNTH_V}
-            OUT_FASM_EXTRA=${OUT_FASM_EXTRA}
-            PART_JSON=${PART_JSON}
-            INPUT_XDC_FILE=${INPUT_XDC_FILE}
-            USE_ROI=${USE_ROI}
-            PCF_FILE=${INPUT_IO_FILE}
-            PINMAP_FILE=${PINMAP}
-            ${ADD_FPGA_TARGET_DEFINES}
-            ${QUIET_CMD} ${YOSYS} -p "${COMPLETE_YOSYS_SYNTH_SCRIPT}" -l ${OUT_JSON_SYNTH}.log ${SOURCE_FILES}
-        COMMAND
-          ${CMAKE_COMMAND} -E touch ${OUT_FASM_EXTRA}
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-        VERBATIM
-      )
-
-      set(SPLIT_INOUTS ${symbiflow-arch-defs_SOURCE_DIR}/utils/split_inouts.py)
-
-      add_custom_command(
-        OUTPUT ${OUT_JSON}
-        DEPENDS ${OUT_JSON_SYNTH} ${QUIET_CMD} ${SPLIT_INOUTS} ${PYTHON3}
-        COMMAND
-          ${PYTHON3} ${SPLIT_INOUTS} -i ${OUT_JSON_SYNTH} -o ${OUT_JSON}
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-        VERBATIM
+      # Generate LOC constrains
+      string(CONFIGURE ${PLACE_CONSTR_TOOL_CMD} PLACE_CONSTR_TOOL_CMD_FOR_TARGET)
+      separate_arguments(
+        PLACE_CONSTR_TOOL_CMD_FOR_TARGET_LIST UNIX_COMMAND ${PLACE_CONSTR_TOOL_CMD_FOR_TARGET}
       )
 
       add_custom_command(
-        OUTPUT ${OUT_EBLIF}
-        DEPENDS ${OUT_JSON}
-                ${YOSYS} ${QUIET_CMD}
-                ${YOSYS_CONV_SCRIPT}
+        OUTPUT ${OUT_CONSTR}
+        DEPENDS ${CONSTR_DEPS}
         COMMAND
-          ${CMAKE_COMMAND} -E env
-            symbiflow-arch-defs_SOURCE_DIR=${symbiflow-arch-defs_SOURCE_DIR}
-            OUT_EBLIF=${OUT_EBLIF}
-            ${ADD_FPGA_TARGET_DEFINES}
-            ${QUIET_CMD} ${YOSYS} -p "read_json ${OUT_JSON}; tcl ${YOSYS_CONV_SCRIPT}" -l ${OUT_EBLIF}.log
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-        VERBATIM
+          ${PLACE_CONSTR_TOOL_CMD_FOR_TARGET_LIST} < ${OUT_IO} > ${OUT_CONSTR}
+        WORKING_DIRECTORY ${OUT_LOCAL}
       )
 
-      add_output_to_fpga_target(${NAME} EBLIF ${OUT_EBLIF_REL})
-      add_output_to_fpga_target(${NAME} SYNTH_V ${OUT_SYNTH_V_REL})
-      add_output_to_fpga_target(${NAME} JSON_SYNTH ${OUT_JSON_SYNTH_REL})
-      add_output_to_fpga_target(${NAME} JSON ${OUT_JSON_REL})
+      add_output_to_fpga_target(${NAME} IO_PLACE ${OUT_CONSTR_REL})
+      append_file_dependency(VPR_DEPS ${OUT_CONSTR_REL})
 
+      set(FIX_PINS_ARG --fix_pins ${OUT_CONSTR})
     else()
-      add_custom_command(
-        OUTPUT ${OUT_EBLIF}
-        DEPENDS ${SOURCE_FILES_DEPS}
-        COMMAND
-          ${CMAKE_COMMAND} -E make_directory ${OUT_LOCAL}
-        COMMAND ${CMAKE_COMMAND} -E copy ${SOURCE_FILES} ${OUT_EBLIF}
-        )
-      add_output_to_fpga_target(${NAME} EBLIF ${OUT_EBLIF_REL})
+      set(FIX_PINS_ARG --fix_pins ${OUT_IO})
     endif()
 
-    add_custom_target(${NAME}_eblif DEPENDS ${OUT_EBLIF})
+  endif()
 
-    # Generate routing and generate HLC.
-    set(OUT_ROUTE ${OUT_LOCAL}/${TOP}.route)
+  # Generate placement.
+  # -------------------------------------------------------------------------
+  set(OUT_PLACE ${OUT_LOCAL}/${TOP}.place)
+  add_custom_command(
+    OUTPUT ${OUT_PLACE}
+    DEPENDS ${OUT_NET} ${VPR_DEPS}
+    COMMAND ${VPR_CMD} ${FIX_PINS_ARG} --place
+    COMMAND
+      ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log
+      ${OUT_LOCAL}/place.log
+    WORKING_DIRECTORY ${OUT_LOCAL}
+  )
 
-    set(VPR_DEPS "")
-    append_file_dependency(VPR_DEPS ${OUT_EBLIF_REL})
-    list(APPEND VPR_DEPS ${DEFINE_DEVICE_DEVICE_TYPE})
+  set(ECHO_OUT_PLACE ${OUT_LOCAL}/echo/${TOP}.place)
+  add_custom_command(
+    OUTPUT ${ECHO_OUT_PLACE}
+    DEPENDS ${ECHO_OUT_NET} ${VPR_DEPS}
+    COMMAND ${VPR_CMD} ${FIX_PINS_ARG} --echo_file on --place
+    COMMAND
+      ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/echo/vpr_stdout.log
+        ${OUT_LOCAL}/echo/place.log
+    WORKING_DIRECTORY ${OUT_LOCAL}/echo
+  )
 
-    get_file_location(OUT_RRXML_VIRT_LOCATION ${OUT_RRXML_VIRT})
-    get_file_location(OUT_RRXML_REAL_LOCATION ${OUT_RRXML_REAL})
-    get_file_location(OUT_RRBIN_REAL_LOCATION ${OUT_RRBIN_REAL})
-    get_file_location(DEVICE_MERGED_FILE_LOCATION ${DEVICE_MERGED_FILE})
+  # Generate routing.
+  # -------------------------------------------------------------------------
+  add_custom_command(
+    OUTPUT ${OUT_ROUTE}
+    DEPENDS ${OUT_PLACE} ${VPR_DEPS}
+    COMMAND ${VPR_CMD} --route
+    COMMAND
+      ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log
+        ${OUT_LOCAL}/route.log
+    WORKING_DIRECTORY ${OUT_LOCAL}
+  )
+  add_custom_target(${NAME}_route DEPENDS ${OUT_ROUTE})
+  add_dependencies(all_${BOARD}_route ${NAME}_route)
 
-    foreach(SRC ${DEVICE_MERGED_FILE} ${OUT_RRBIN_REAL})
-      append_file_dependency(VPR_DEPS ${SRC})
-    endforeach()
+  set(ECHO_ATOM_NETLIST_ORIG ${OUT_LOCAL}/echo/atom_netlist.orig.echo.blif)
+  set(ECHO_ATOM_NETLIST_CLEANED ${OUT_LOCAL}/echo/atom_netlist.cleaned.echo.blif)
+  add_custom_command(
+    OUTPUT ${ECHO_ATOM_NETLIST_ORIG} ${ECHO_ATOM_NETLIST_CLEANED}
+    DEPENDS ${ECHO_OUT_PLACE} ${VPR_DEPS} ${ECHO_DIRECTORY_TARGET}
+    COMMAND ${VPR_CMD} --echo_file on --route
+    COMMAND
+      ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/echo/vpr_stdout.log
+        ${OUT_LOCAL}/echo/route.log
+    WORKING_DIRECTORY ${OUT_LOCAL}/echo
+  )
+  add_custom_target(${NAME}_route_echo DEPENDS ${ECHO_ATOM_NETLIST_ORIG})
 
-    get_target_property_required(VPR env VPR)
+  if(${ADD_FPGA_TARGET_ROUTE_ONLY})
+    return()
+  endif()
 
-    get_target_property_required(ROUTE_CHAN_WIDTH ${ARCH} ROUTE_CHAN_WIDTH)
+  get_target_property_required(USE_FASM ${ARCH} USE_FASM)
 
-    get_target_property(VPR_ARCH_ARGS ${ARCH} VPR_ARCH_ARGS)
-    if("${VPR_ARCH_ARGS}" STREQUAL "VPR_ARCH_ARGS-NOTFOUND")
-      set(VPR_ARCH_ARGS "")
-    endif()
-
-    separate_arguments(
-      VPR_BASE_ARGS_LIST UNIX_COMMAND "${VPR_BASE_ARGS}"
-      )
-    list(APPEND VPR_BASE_ARGS_LIST --route_chan_width ${ROUTE_CHAN_WIDTH})
-    separate_arguments(
-      VPR_EXTRA_ARGS_LIST UNIX_COMMAND "${VPR_EXTRA_ARGS}"
-      )
-
-    # Setting noisy warnings log file if needed.
-    set(OUT_NOISY_WARNINGS ${OUT_LOCAL}/noisy_warnings.log)
-    string(CONFIGURE ${VPR_ARCH_ARGS} VPR_ARCH_ARGS_EXPANDED)
-    separate_arguments(
-      VPR_ARCH_ARGS_LIST UNIX_COMMAND "${VPR_ARCH_ARGS_EXPANDED}"
-      )
-
-    if(NOT "${ADD_FPGA_TARGET_SDC_FILE}" STREQUAL "")
-      append_file_dependency(VPR_DEPS ${ADD_FPGA_TARGET_SDC_FILE})
-      get_file_location(SDC_LOCATION ${ADD_FPGA_TARGET_SDC_FILE})
-      set(SDC_ARG --sdc_file ${SDC_LOCATION})
-    else()
-      set(SDC_ARG "")
-    endif()
-
+  if(${USE_FASM})
+    get_target_property_required(GENFASM env GENFASM)
     set(
-      VPR_CMD
-      ${QUIET_CMD} ${VPR}
+      GENFASM_CMD
+      ${QUIET_CMD} ${GENFASM}
       ${DEVICE_MERGED_FILE_LOCATION}
       ${OUT_EBLIF}
       --device ${DEVICE_FULL}
@@ -1279,304 +1499,75 @@ function(ADD_FPGA_TARGET)
       ${VPR_BASE_ARGS_LIST}
       ${VPR_ARCH_ARGS_LIST}
       ${VPR_EXTRA_ARGS_LIST}
-      ${SDC_ARG}
     )
-
-    get_target_property_required(
-      USE_LOOKAHEAD_CACHE ${DEVICE} ${PACKAGE}_HAS_LOOKAHEAD_CACHE
+  else()
+    get_target_property_required(GENHLC env GENHLC)
+    set(
+      GENHLC_CMD
+      ${QUIET_CMD} ${GENHLC}
+      ${DEVICE_MERGED_FILE_LOCATION}
+      ${OUT_EBLIF}
+      --device ${DEVICE_FULL}
+      --read_rr_graph ${OUT_RRBIN_REAL_LOCATION}
+      ${VPR_BASE_ARGS_LIST}
+      ${VPR_ARCH_ARGS_LIST}
+      ${VPR_EXTRA_ARGS_LIST}
     )
-    if(${USE_LOOKAHEAD_CACHE})
-      # If lookahead is cached, use the cache instead of recomputing lookaheads.
-      get_target_property_required(
-        LOOKAHEAD_FILE ${DEVICE} ${PACKAGE}_LOOKAHEAD_FILE
-        )
-      append_file_dependency(VPR_DEPS ${LOOKAHEAD_FILE})
-      get_file_location(LOOKAHEAD_LOCATION ${LOOKAHEAD_FILE})
-      list(APPEND VPR_CMD --read_router_lookahead ${LOOKAHEAD_LOCATION})
-    endif()
+  endif()
 
-    get_target_property_required(
-      USE_PLACE_DELAY_CACHE ${DEVICE} ${PACKAGE}_HAS_PLACE_DELAY_CACHE
-    )
-    if(${USE_PLACE_DELAY_CACHE})
-      get_target_property_required(
-        PLACE_DELAY_FILE ${DEVICE} ${PACKAGE}_PLACE_DELAY_FILE
-        )
-      append_file_dependency(VPR_DEPS ${PLACE_DELAY_FILE})
-      get_file_location(PLACE_DELAY_LOCATION ${PLACE_DELAY_FILE})
-      list(APPEND VPR_CMD --read_placement_delay_lookup ${PLACE_DELAY_LOCATION})
-    endif()
-
-    list(APPEND VPR_DEPS ${VPR} ${QUIET_CMD})
-    append_file_dependency(VPR_DEPS ${OUT_EBLIF_REL})
-
-    # Generate packing.
+  if(${USE_FASM})
+    # Generate FASM
     # -------------------------------------------------------------------------
-    set(OUT_NET ${OUT_LOCAL}/${TOP}.net)
-    set(OUT_NET_REL ${OUT_LOCAL_REL}/${TOP}.net)
-
+    set(OUT_FASM ${OUT_LOCAL}/${TOP}.fasm)
+    set(OUT_FASM_CONCATENATED ${OUT_LOCAL}/${TOP}.concat.fasm)
+    set(OUT_FASM_GENFASM ${OUT_LOCAL}/${TOP}.genfasm.fasm)
     add_custom_command(
-      OUTPUT ${OUT_NET} ${OUT_LOCAL}/pack.log
-      DEPENDS ${VPR_DEPS}
-      COMMAND ${VPR_CMD} --pack
-      COMMAND
-        ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log ${OUT_LOCAL}/pack.log
-      WORKING_DIRECTORY ${OUT_LOCAL}
-    )
-
-    add_output_to_fpga_target(${NAME} NET ${OUT_NET_REL})
-
-    if(NOT "${ADD_FPGA_TARGET_ASSERT_USAGE}" STREQUAL "")
-        set(USAGE_UTIL ${symbiflow-arch-defs_SOURCE_DIR}/utils/report_block_usage.py)
-        add_custom_target(
-            ${NAME}_assert_usage
-            COMMAND ${PYTHON3} ${USAGE_UTIL}
-              --assert_usage ${ADD_FPGA_TARGET_ASSERT_USAGE}
-              ${OUT_LOCAL}/pack.log
-            DEPENDS ${PYTHON3} ${USAGE_UTIL} ${OUT_LOCAL}/pack.log
-            )
-    endif()
-
-    set(ECHO_OUT_NET ${OUT_LOCAL}/echo/${TOP}.net)
-    add_custom_command(
-      OUTPUT ${ECHO_OUT_NET}
-      DEPENDS ${VPR_DEPS}
-      COMMAND ${CMAKE_COMMAND} -E make_directory ${OUT_LOCAL}/echo
-      COMMAND cd ${OUT_LOCAL}/echo && ${VPR_CMD} --pack_verbosity 3 --echo_file on --pack
-      COMMAND
-        ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/echo/vpr_stdout.log ${OUT_LOCAL}/echo/pack.log
-      )
-
-    # Generate placement constraints.
-    # -------------------------------------------------------------------------
-    set(FIX_PINS_ARG "")
-
-    if(NOT ${ADD_FPGA_TARGET_INPUT_IO_FILE} STREQUAL "" OR NOT ${ADD_FPGA_TARGET_INPUT_XDC_FILE} STREQUAL "")
-      get_target_property_required(NO_PINS ${ARCH} NO_PINS)
-      if(${NO_PINS})
-        message(FATAL_ERROR "Arch ${ARCH} does not currently support pin constraints.")
-      endif()
-      get_target_property_required(PLACE_TOOL ${ARCH} PLACE_TOOL)
-      get_target_property_required(PLACE_TOOL_CMD ${ARCH} PLACE_TOOL_CMD)
-
-      get_target_property_required(NO_PLACE_CONSTR ${ARCH} NO_PLACE_CONSTR)
-      if(NOT ${NO_PLACE_CONSTR})
-        get_target_property_required(PLACE_CONSTR_TOOL ${ARCH} PLACE_CONSTR_TOOL)
-        get_target_property_required(PLACE_CONSTR_TOOL_CMD ${ARCH} PLACE_CONSTR_TOOL_CMD)
-      endif()
-
-      get_target_property_required(PYTHON3 env PYTHON3)
-
-
-      # Add complete dependency chain
-      set(IO_DEPS ${VPR_DEPS})
-      if(NOT ${ADD_FPGA_TARGET_INPUT_IO_FILE} STREQUAL "")
-        append_file_dependency(IO_DEPS ${ADD_FPGA_TARGET_INPUT_IO_FILE})
-      endif()
-      append_file_dependency(IO_DEPS ${PINMAP_FILE})
-      append_file_dependency(IO_DEPS ${OUT_NET_REL})
-
-      if(NOT ${ADD_FPGA_TARGET_INPUT_IO_FILE} STREQUAL "")
-        set_target_properties(${NAME} PROPERTIES
-            INPUT_IO_FILE ${ADD_FPGA_TARGET_INPUT_IO_FILE})
-        set(PCF_INPUT_IO_FILE "--pcf ${INPUT_IO_FILE}")
-      endif()
-
-      # Set variables for the string(CONFIGURE) below.
-      set(OUT_IO ${OUT_LOCAL}/${TOP}_io.place)
-      set(OUT_IO_REL ${OUT_LOCAL_REL}/${TOP}_io.place)
-      set(OUT_CONSTR ${OUT_LOCAL}/${TOP}_constraints.place)
-      set(OUT_CONSTR_REL ${OUT_LOCAL_REL}/${TOP}_constraints.place)
-      set(OUT_NET ${OUT_LOCAL}/${TOP}.net)
-
-      # Generate IO constraints
-      string(CONFIGURE ${PLACE_TOOL_CMD} PLACE_TOOL_CMD_FOR_TARGET)
-      separate_arguments(
-        PLACE_TOOL_CMD_FOR_TARGET_LIST UNIX_COMMAND ${PLACE_TOOL_CMD_FOR_TARGET}
-      )
-
-      add_custom_command(
-        OUTPUT ${OUT_IO}
-        DEPENDS ${IO_DEPS}
-        COMMAND ${PLACE_TOOL_CMD_FOR_TARGET_LIST} --out ${OUT_IO}
-        WORKING_DIRECTORY ${OUT_LOCAL}
-      )
-
-      add_output_to_fpga_target(${NAME} IO_PLACE ${OUT_IO_REL})
-      append_file_dependency(VPR_DEPS ${OUT_IO_REL})
-
-      set(CONSTR_DEPS "")
-      if(NOT ${NO_PLACE_CONSTR})
-        append_file_dependency(CONSTR_DEPS ${OUT_IO_REL})
-
-        get_target_property(PLACE_CONSTR_TOOL_EXTRA_ARGS ${BOARD} PLACE_CONSTR_TOOL_EXTRA_ARGS)
-        if ("${PLACE_CONSTR_TOOL_EXTRA_ARGS}" STREQUAL "PLACE_CONSTR_TOOL_EXTRA_ARGS-NOTFOUND")
-          set(PLACE_CONSTR_TOOL_EXTRA_ARGS "")
-        endif()
-
-        # Generate LOC constrains
-        string(CONFIGURE ${PLACE_CONSTR_TOOL_CMD} PLACE_CONSTR_TOOL_CMD_FOR_TARGET)
-        separate_arguments(
-          PLACE_CONSTR_TOOL_CMD_FOR_TARGET_LIST UNIX_COMMAND ${PLACE_CONSTR_TOOL_CMD_FOR_TARGET}
-        )
-
-        add_custom_command(
-          OUTPUT ${OUT_CONSTR}
-          DEPENDS ${CONSTR_DEPS}
-          COMMAND
-            ${PLACE_CONSTR_TOOL_CMD_FOR_TARGET_LIST} < ${OUT_IO} > ${OUT_CONSTR}
-          WORKING_DIRECTORY ${OUT_LOCAL}
-        )
-
-        add_output_to_fpga_target(${NAME} IO_PLACE ${OUT_CONSTR_REL})
-        append_file_dependency(VPR_DEPS ${OUT_CONSTR_REL})
-
-        set(FIX_PINS_ARG --fix_pins ${OUT_CONSTR})
-      else()
-        set(FIX_PINS_ARG --fix_pins ${OUT_IO})
-      endif()
-
-    endif()
-
-    # Generate placement.
-    # -------------------------------------------------------------------------
-    set(OUT_PLACE ${OUT_LOCAL}/${TOP}.place)
-    add_custom_command(
-      OUTPUT ${OUT_PLACE}
-      DEPENDS ${OUT_NET} ${VPR_DEPS}
-      COMMAND ${VPR_CMD} ${FIX_PINS_ARG} --place
+      OUTPUT ${OUT_FASM}
+      DEPENDS ${OUT_ROUTE} ${OUT_PLACE} ${VPR_DEPS}
+      COMMAND ${GENFASM_CMD}
       COMMAND
         ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log
-        ${OUT_LOCAL}/place.log
+          ${OUT_LOCAL}/genhlc.log
+      COMMAND
+        ${CMAKE_COMMAND} -E copy ${OUT_FASM} ${OUT_FASM_GENFASM}
+      COMMAND cat ${OUT_FASM} ${OUT_FASM_EXTRA} > ${OUT_FASM_CONCATENATED}
+      COMMAND
+        ${CMAKE_COMMAND} -E rename ${OUT_FASM_CONCATENATED} ${OUT_FASM}
       WORKING_DIRECTORY ${OUT_LOCAL}
     )
+    add_custom_target(${NAME}_fasm DEPENDS ${OUT_FASM})
 
-    set(ECHO_OUT_PLACE ${OUT_LOCAL}/echo/${TOP}.place)
-    add_custom_command(
-      OUTPUT ${ECHO_OUT_PLACE}
-      DEPENDS ${ECHO_OUT_NET} ${VPR_DEPS}
-      COMMAND ${VPR_CMD} ${FIX_PINS_ARG} --echo_file on --place
-      COMMAND
-        ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/echo/vpr_stdout.log
-          ${OUT_LOCAL}/echo/place.log
-      WORKING_DIRECTORY ${OUT_LOCAL}/echo
-    )
-
-    # Generate routing.
+    set_target_properties(${NAME} PROPERTIES OUT_FASM ${OUT_FASM})
+  else()
+    # Generate HLC
     # -------------------------------------------------------------------------
+    set(OUT_HLC ${OUT_LOCAL}/${TOP}.hlc)
     add_custom_command(
-      OUTPUT ${OUT_ROUTE}
-      DEPENDS ${OUT_PLACE} ${VPR_DEPS}
-      COMMAND ${VPR_CMD} --route
+      OUTPUT ${OUT_HLC}
+      DEPENDS ${OUT_ROUTE} ${OUT_PLACE} ${VPR_DEPS}
+      COMMAND ${GENHLC_CMD}
       COMMAND
         ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log
-          ${OUT_LOCAL}/route.log
+          ${OUT_LOCAL}/genhlc.log
       WORKING_DIRECTORY ${OUT_LOCAL}
     )
-    add_custom_target(${NAME}_route DEPENDS ${OUT_ROUTE})
-    add_dependencies(all_${BOARD}_route ${NAME}_route)
+    add_custom_target(${NAME}_hlc DEPENDS ${OUT_HLC})
+  endif()
 
-    set(ECHO_ATOM_NETLIST_ORIG ${OUT_LOCAL}/echo/atom_netlist.orig.echo.blif)
-    set(ECHO_ATOM_NETLIST_CLEANED ${OUT_LOCAL}/echo/atom_netlist.cleaned.echo.blif)
-    add_custom_command(
-      OUTPUT ${ECHO_ATOM_NETLIST_ORIG} ${ECHO_ATOM_NETLIST_CLEANED}
-      DEPENDS ${ECHO_OUT_PLACE} ${VPR_DEPS} ${ECHO_DIRECTORY_TARGET}
-      COMMAND ${VPR_CMD} --echo_file on --route
-      COMMAND
-        ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/echo/vpr_stdout.log
-          ${OUT_LOCAL}/echo/route.log
-      WORKING_DIRECTORY ${OUT_LOCAL}/echo
+  # Generate analysis.
+  #-------------------------------------------------------------------------
+  set(OUT_ANALYSIS ${OUT_LOCAL}/analysis.log)
+  set(OUT_POST_SYNTHESIS_V ${OUT_LOCAL}/top_post_synthesis.v)
+  set(OUT_POST_SYNTHESIS_BLIF ${OUT_LOCAL}/top_post_synthesis.blif)
+  add_custom_command(
+    OUTPUT ${OUT_ANALYSIS} ${OUT_POST_SYNTHESIS_V} ${OUT_POST_SYNTHESIS_BLIF}
+    DEPENDS ${OUT_ROUTE} ${VPR_DEPS}
+    COMMAND ${VPR_CMD} --analysis --gen_post_synthesis_netlist on
+    COMMAND ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log
+        ${OUT_LOCAL}/analysis.log
+    WORKING_DIRECTORY ${OUT_LOCAL}
     )
-    add_custom_target(${NAME}_route_echo DEPENDS ${ECHO_ATOM_NETLIST_ORIG})
-
-    if(${ADD_FPGA_TARGET_ROUTE_ONLY})
-      return()
-    endif()
-
-    get_target_property_required(USE_FASM ${ARCH} USE_FASM)
-
-    if(${USE_FASM})
-      get_target_property_required(GENFASM env GENFASM)
-      set(
-        GENFASM_CMD
-        ${QUIET_CMD} ${GENFASM}
-        ${DEVICE_MERGED_FILE_LOCATION}
-        ${OUT_EBLIF}
-        --device ${DEVICE_FULL}
-        --read_rr_graph ${OUT_RRBIN_REAL_LOCATION}
-        ${VPR_BASE_ARGS_LIST}
-        ${VPR_ARCH_ARGS_LIST}
-        ${VPR_EXTRA_ARGS_LIST}
-      )
-    else()
-      get_target_property_required(GENHLC env GENHLC)
-      set(
-        GENHLC_CMD
-        ${QUIET_CMD} ${GENHLC}
-        ${DEVICE_MERGED_FILE_LOCATION}
-        ${OUT_EBLIF}
-        --device ${DEVICE_FULL}
-        --read_rr_graph ${OUT_RRBIN_REAL_LOCATION}
-        ${VPR_BASE_ARGS_LIST}
-        ${VPR_ARCH_ARGS_LIST}
-        ${VPR_EXTRA_ARGS_LIST}
-      )
-    endif()
-
-    if(${USE_FASM})
-      # Generate FASM
-      # -------------------------------------------------------------------------
-      set(OUT_FASM ${OUT_LOCAL}/${TOP}.fasm)
-      set(OUT_FASM_CONCATENATED ${OUT_LOCAL}/${TOP}.concat.fasm)
-      set(OUT_FASM_GENFASM ${OUT_LOCAL}/${TOP}.genfasm.fasm)
-      add_custom_command(
-        OUTPUT ${OUT_FASM}
-        DEPENDS ${OUT_ROUTE} ${OUT_PLACE} ${VPR_DEPS}
-        COMMAND ${GENFASM_CMD}
-        COMMAND
-          ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log
-            ${OUT_LOCAL}/genhlc.log
-        COMMAND
-          ${CMAKE_COMMAND} -E copy ${OUT_FASM} ${OUT_FASM_GENFASM}
-        COMMAND cat ${OUT_FASM} ${OUT_FASM_EXTRA} > ${OUT_FASM_CONCATENATED}
-        COMMAND
-          ${CMAKE_COMMAND} -E rename ${OUT_FASM_CONCATENATED} ${OUT_FASM}
-        WORKING_DIRECTORY ${OUT_LOCAL}
-      )
-      add_custom_target(${NAME}_fasm DEPENDS ${OUT_FASM})
-
-      set_target_properties(${NAME} PROPERTIES OUT_FASM ${OUT_FASM})
-    else()
-      # Generate HLC
-      # -------------------------------------------------------------------------
-      set(OUT_HLC ${OUT_LOCAL}/${TOP}.hlc)
-      add_custom_command(
-        OUTPUT ${OUT_HLC}
-        DEPENDS ${OUT_ROUTE} ${OUT_PLACE} ${VPR_DEPS}
-        COMMAND ${GENHLC_CMD}
-        COMMAND
-          ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log
-            ${OUT_LOCAL}/genhlc.log
-        WORKING_DIRECTORY ${OUT_LOCAL}
-      )
-      add_custom_target(${NAME}_hlc DEPENDS ${OUT_HLC})
-    endif()
-
-    # Generate analysis.
-    #-------------------------------------------------------------------------
-    set(OUT_ANALYSIS ${OUT_LOCAL}/analysis.log)
-    set(OUT_POST_SYNTHESIS_V ${OUT_LOCAL}/top_post_synthesis.v)
-    set(OUT_POST_SYNTHESIS_BLIF ${OUT_LOCAL}/top_post_synthesis.blif)
-    add_custom_command(
-      OUTPUT ${OUT_ANALYSIS} ${OUT_POST_SYNTHESIS_V} ${OUT_POST_SYNTHESIS_BLIF}
-      DEPENDS ${OUT_ROUTE} ${VPR_DEPS}
-      COMMAND ${VPR_CMD} --analysis --gen_post_synthesis_netlist on
-      COMMAND ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log
-          ${OUT_LOCAL}/analysis.log
-      WORKING_DIRECTORY ${OUT_LOCAL}
-      )
-    add_custom_target(${NAME}_analysis DEPENDS ${OUT_ANALYSIS})
-  endforeach()
+  add_custom_target(${NAME}_analysis DEPENDS ${OUT_ANALYSIS})
 
   get_target_property_required(NO_BITSTREAM ${ARCH} NO_BITSTREAM)
   if(NOT ${NO_BITSTREAM})
