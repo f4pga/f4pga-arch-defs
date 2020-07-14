@@ -87,7 +87,7 @@ if [ ${#VERILOG_FILES[@]} -eq 0 ]; then
 	exit 1
 fi
 
-DATABASE_DIR=`prjxray-config`
+DATABASE_DIR=${DATABASE_DIR:=$(prjxray-config)}
 
 export USE_ROI="FALSE"
 export INPUT_XDC_FILE=${XDC_FILES[*]}
