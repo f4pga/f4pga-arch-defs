@@ -79,6 +79,15 @@ add_xc_board(
   PROG_CMD "${OPENOCD} -f board/digilent_nexys_video.cfg -c \\\"init $<SEMICOLON> pld load 0 \${OUT_BIN} $<SEMICOLON> exit\\\""
 )
 
+add_xc_board(
+  BOARD nexys_video-mid
+  DEVICE xc7a200t-mid
+  PACKAGE test
+  PART xc7a200tsbg484-1
+  PROG_TOOL ${OPENOCD_TARGET}
+  PROG_CMD "${OPENOCD} -f board/digilent_nexys_video.cfg -c \\\"init $<SEMICOLON> pld load 0 \${OUT_BIN} $<SEMICOLON> exit\\\""
+)
+
 #add_xc_board(
 #  BOARD zedboard-full
 #  DEVICE xc7z020
