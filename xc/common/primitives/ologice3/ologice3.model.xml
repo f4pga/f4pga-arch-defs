@@ -47,7 +47,7 @@
   </model>
   <model name="T_INV">
     <input_ports>
-      <port name="TI"/>
+      <port name="TI" combinational_sink_ports="TO"/>
     </input_ports>
     <output_ports>
       <port name="TO"/>
