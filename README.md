@@ -11,10 +11,15 @@ concentrating on;
  * [Xilinx Series 7 (Artix 7 and Zynq 7)](xc/xc7)
 
  * Kokoro Build Status
-   * ![Test Architectures Status](http://storage.googleapis.com/symbiflow-arch-defs/testarch.svg)
-   * ![Lattice iCE40 Status](http://storage.googleapis.com/symbiflow-arch-defs/ice40.svg)
-   * ![Xilinx Series 7 Status](http://storage.googleapis.com/symbiflow-arch-defs/xc7.svg) || ![Xilinx Series 7 - Vendor Tool Tests Status](http://storage.googleapis.com/symbiflow-arch-defs/xc7_vendor.svg) || ![Xilinx XC7A200T Status](http://storage.googleapis.com/symbiflow-arch-defs/xc7a200t.svg) || ![Xilinx XC7A200T - Vendor Tool Tests Build Status](http://storage.googleapis.com/symbiflow-arch-defs/xc7a200t_vendor.svg)
-   * ![Lattice iCE40 Status](http://storage.googleapis.com/symbiflow-arch-defs/ice40.svg)
+   * [![Test Architectures Status](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/testarch.svg)](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/testarch.html)
+
+   * [![Lattice iCE40 Status](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/ice40.svg)](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/ice40.html)
+
+   * [![Xilinx Series 7 Status](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/xc7.svg)](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/xc7.html) ||
+     [![Xilinx Series 7 - Vendor Tool Tests Status](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/xc7_vendor.svg)](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/xc7_vendor.html) ||
+     [![Xilinx Series 7 - Install](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/install.svg)](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/xc7a200t_vendor.html)
+     [![Xilinx XC7A200T Status](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/xc7a200t.svg)](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/xc7a200t.html) ||
+     [![Xilinx XC7A200T - Vendor Tool Tests Status](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/xc7a200t_vendor.svg)](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/xc7a200t_vendor.html)
 
 The aim is to include useful documentation (both human and machine readable) on
 the primitives and routing infrastructure for these architectures. We hope this
