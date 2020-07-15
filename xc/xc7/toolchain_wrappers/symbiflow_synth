@@ -10,11 +10,6 @@ SYNTH_TCL_PATH=`realpath ${MYPATH}/../share/symbiflow/scripts/xc7/synth.tcl`
 CONV_TCL_PATH=`realpath ${MYPATH}/../share/symbiflow/scripts/xc7/conv.tcl`
 SPLIT_INOUTS=`realpath ${MYPATH}/python/split_inouts.py`
 
-if [ -z ${XRAY_DATABASE_DIR} ]; then
-	echo "ERROR: XRAY_DATABASE_DIR variable is unset."
-	return 1
-fi
-
 VERILOG_FILES=()
 XDC_FILES=()
 TOP=top
@@ -92,13 +87,15 @@ if [ ${#VERILOG_FILES[@]} -eq 0 ]; then
 	exit 1
 fi
 
+DATABASE_DIR=${DATABASE_DIR:=$(prjxray-config)}
+
 export USE_ROI="FALSE"
 export INPUT_XDC_FILE=${XDC_FILES[*]}
 export OUT_JSON=$TOP.json
 export SYNTH_JSON=${TOP}_io.json
 export OUT_SYNTH_V=${TOP}_synth.v
 export OUT_EBLIF=${TOP}.eblif
-export PART_JSON=`realpath ${XRAY_DATABASE_DIR}/$DEVICE/$PART/part.json`
+export PART_JSON=`realpath ${DATABASE_DIR}/$DEVICE/$PART/part.json`
 export OUT_FASM_EXTRA=${TOP}_fasm_extra.fasm
 LOG=${TOP}_synth.log
 

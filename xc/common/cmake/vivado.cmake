@@ -188,7 +188,7 @@ function(ADD_VIVADO_TARGET)
   endif()
 
 
-  get_target_property_required(BITSTREAM ${ADD_VIVADO_TARGET_PARENT_NAME} BIN)
+  get_target_property_required(BITSTREAM ${ADD_VIVADO_TARGET_PARENT_NAME} BIT)
   get_target_property_required(BIT_VERILOG ${ADD_VIVADO_TARGET_PARENT_NAME} BIT_V)
   get_target_property_required(TOP ${ADD_VIVADO_TARGET_PARENT_NAME} TOP)
   get_target_property_required(BOARD ${ADD_VIVADO_TARGET_PARENT_NAME} BOARD)
@@ -327,7 +327,7 @@ function(ADD_VIVADO_PNR_TARGET)
 
   set(NAME ${ADD_VIVADO_PNR_TARGET_NAME})
 
-  get_target_property_required(BITSTREAM ${ADD_VIVADO_PNR_TARGET_PARENT_NAME} BIN)
+  get_target_property_required(BITSTREAM ${ADD_VIVADO_PNR_TARGET_PARENT_NAME} BIT)
   get_target_property_required(SYNTH_V ${ADD_VIVADO_PNR_TARGET_PARENT_NAME} SYNTH_V)
   get_target_property_required(TOP ${ADD_VIVADO_PNR_TARGET_PARENT_NAME} TOP)
   get_target_property_required(BOARD ${ADD_VIVADO_PNR_TARGET_PARENT_NAME} BOARD)
