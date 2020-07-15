@@ -181,13 +181,20 @@ def main():
         help='Pin map CSV file'
     )
 
+    parser.add_argument(
+        "--output-format",
+        default=None,
+        type=str,
+        help='Output format of IOMUX commands (openocd/jlink)'
+    )
+
     args = parser.parse_args()
 
     # Read the requested configurtion from a JSON file
     if args.json is not None:
 
         if args.pcf is not None or args.eblif is not None:
-            print("Ese either '--json' or '--pcf' + '--eblif' options!")
+            print("Use either '--json' or '--pcf' + '--eblif' options!")
             exit(-1)
 
         with open(args.json, "r") as fp:
@@ -197,7 +204,7 @@ def main():
     else:
 
         if args.json is not None or (args.eblif is None or args.pcf is None):
-            print("Ese either '--json' or '--pcf' + '--eblif' options!")
+            print("Use either '--json' or '--pcf' + '--eblif' options!")
             exit(-1)
 
         pad_map = {}
@@ -291,10 +298,18 @@ def main():
     # Convert the config to IOMUX register content
     iomux_regs = generate_iomux_register_content(config)
 
-    # Output JLink commands
     print("")
-    for adr in sorted(iomux_regs.keys()):
-        print("w4 0x{:08X} 0x{:08X}".format(adr, iomux_regs[adr]))
+    if args.output_format == "openocd":
+        # Output openOCD process
+        for adr in sorted(iomux_regs.keys()):
+            print("    mww 0x{:08X} 0x{:08X}".format(adr, iomux_regs[adr]))
+    elif args.output_format == "jlink":
+        # Output JLink commands
+        for adr in sorted(iomux_regs.keys()):
+            print("w4 0x{:08X} 0x{:08X}".format(adr, iomux_regs[adr]))
+    else:
+        print("Use either 'openocd' or 'jlink' output format!")
+        exit(-1)
 
 
 # =============================================================================
