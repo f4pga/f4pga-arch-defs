@@ -15,6 +15,3 @@ set_io x1(1)    B4
 
 set_io y1(0)    A4
 set_io y1(1)    C5
-
-set_io C1(0)    B5
-set_io C1(1)    D6
