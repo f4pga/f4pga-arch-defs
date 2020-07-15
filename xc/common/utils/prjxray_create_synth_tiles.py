@@ -16,11 +16,8 @@ def map_tile_to_vpr_coord(conn, tile):
     c.execute("SELECT pkey FROM phy_tile WHERE name = ?;", (tile, ))
     phy_tile_pkey = c.fetchone()[0]
 
-    c.execute("SELECT pkey FROM tile_type WHERE name = 'NULL'")
-    null_tile_type_pkey, = c.fetchone()
-
-    # It is expected that this tile has only one logical location,
-    # because why split a tile with no sites?
+    # Filters NULL tiles to prevent selecting two tiles that point
+    # to the same phy_tile
     c.execute(
         """
 SELECT tile_map.tile_pkey FROM tile_map INNER JOIN tile
@@ -39,11 +36,127 @@ WHERE tile_map.phy_tile_pkey = ? AND tile_type.name != 'NULL'
     return grid_x, grid_y
 
 
+def tile_in_roi(conn, g, roi, tile_pkey):
+    """
+    Checks if the given tile_pkey is at a location within the specified roi
+    """
+    c = conn.cursor()
+    c.execute(
+        """
+SELECT name FROM phy_tile WHERE pkey =
+(SELECT phy_tile_pkey FROM tile WHERE pkey = ?)
+""", (tile_pkey, )
+    )
+    tile, = c.fetchone()
+    loc = g.loc_of_tilename(tile)
+    return roi.tile_in_roi(loc)
+
+
+def wire_in_roi(conn, g, roi, wire_pkey):
+    """
+    Checks if the given wire_pkey is at a location within the specified roi
+    """
+    c = conn.cursor()
+    c.execute("""
+SELECT tile_pkey FROM wire WHERE pkey = ?
+""", (wire_pkey, ))
+    tile_pkey, = c.fetchone()
+    return tile_in_roi(conn, g, roi, tile_pkey)
+
+
+def wire_manhattan_distance(conn, wire_pkey1, wire_pkey2):
+    """
+    Determines the manhattan distance between two tiles containing
+    the given wire_pkeys
+    """
+    c = conn.cursor()
+    c.execute(
+        """
+SELECT grid_x, grid_y FROM tile WHERE pkey = (SELECT tile_pkey FROM wire WHERE pkey = ?)
+""", (wire_pkey1, )
+    )
+    x1, y1 = c.fetchone()
+    c.execute(
+        """
+SELECT grid_x, grid_y FROM tile WHERE pkey = (SELECT tile_pkey FROM wire WHERE pkey = ?)
+""", (wire_pkey2, )
+    )
+    x2, y2 = c.fetchone()
+    return abs(x1 - x2) + abs(y1 - y2)
+
+
+def find_wire_from_node(conn, g, roi, node_name):
+    """
+    Finds a pair on wires in the given node such that:
+    1. One wire is inside the roi and the other is outside
+    2. The manhattan distance between these the wires is the minimum of any such pair
+
+    Returns the wire from this pair that is outside the roi and the tile the returned
+    wire is contained in.
+    """
+    tile, node = node_name.split('/')
+
+    cur = conn.cursor()
+    cur.execute(
+        """
+SELECT pkey, node_pkey FROM wire WHERE
+wire_in_tile_pkey IN (SELECT pkey FROM wire_in_tile WHERE name = ?)
+AND
+phy_tile_pkey = (SELECT pkey FROM phy_tile WHERE name = ?)
+    """, (node, tile)
+    )
+    results = cur.fetchall()
+    assert len(results) == 1
+    wire_pkey, node_pkey = results[0]
+    cur.execute(
+        """
+SELECT pkey FROM wire WHERE node_pkey = ?
+""", (node_pkey, )
+    )
+    wire_pkeys = cur.fetchall()
+    in_outs = {w: wire_in_roi(conn, g, roi, w) for w, in wire_pkeys}
+    ins = {i for i, v in in_outs.items() if v}
+    outs = {i for i, v in in_outs.items() if not v}
+    min_manhattan_dist = 1000000
+    for i in ins:
+        for j in outs:
+            d = wire_manhattan_distance(conn, i, j)
+            if d < min_manhattan_dist:
+                min_manhattan_dist = d
+                correct_wire = j
+
+    cur.execute(
+        """
+SELECT node_pkey, phy_tile_pkey, wire_in_tile_pkey FROM wire WHERE pkey = ?
+""", (correct_wire, )
+    )
+    node_pkey_correct_wire, phy_tile_pkey, wire_in_tile_pkey = cur.fetchone()
+    cur.execute(
+        """
+SELECT name, tile_type_pkey FROM wire_in_tile WHERE pkey = ?
+""", (wire_in_tile_pkey, )
+    )
+    wire, tile_type_pkey = cur.fetchone()
+    cur.execute(
+        """
+SELECT name FROM tile_type WHERE pkey = ?
+""", (tile_type_pkey, )
+    )
+    tile_type, = cur.fetchone()
+    cur.execute(
+        """
+SELECT name FROM phy_tile WHERE pkey = ?
+""", (phy_tile_pkey, )
+    )
+    tile, = cur.fetchone()
+    return tile, wire
+
+
 def main():
     parser = argparse.ArgumentParser(description="Generate synth_tiles.json")
     parser.add_argument('--db_root', required=True)
     parser.add_argument('--part', required=True)
-    parser.add_argument('--roi', required=True)
+    parser.add_argument('--roi', required=False)
     parser.add_argument(
         '--connection_database', help='Connection database', required=True
     )
@@ -57,8 +170,11 @@ def main():
     synth_tiles = {}
     synth_tiles['tiles'] = {}
 
-    with open(args.roi) as f:
-        j = json.load(f)
+    if args.roi:
+        with open(args.roi) as f:
+            j = json.load(f)
+    else:
+        assert False, 'Synth tiles must be for roi or partition region'
 
     roi = Roi(
         db=db,
@@ -70,32 +186,35 @@ def main():
 
     with DatabaseCache(args.connection_database, read_only=True) as conn:
         synth_tiles['info'] = j['info']
-        vbrk_in_use = set()
+        tile_in_use = set()
         for port in j['ports']:
-            if port['name'].startswith('dout['):
+            if port['type'] == 'out':
                 port_type = 'input'
                 is_clock = False
-            elif port['name'].startswith('din['):
+            elif port['type'] == 'in':
                 is_clock = False
                 port_type = 'output'
-            elif port['name'].startswith('clk'):
+            elif port['type'] == 'clk':
                 port_type = 'output'
                 is_clock = True
             else:
                 assert False, port
 
-            tile, wire = port['wire'].split('/')
+            if 'wire' not in port:
+                tile, wire = find_wire_from_node(conn, g, roi, port['node'])
+            else:
+                tile, wire = port['wire'].split('/')
 
-            vbrk_in_use.add(tile)
+            tile_in_use.add(tile)
 
             # Make sure connecting wire is not in ROI!
             loc = g.loc_of_tilename(tile)
+
             if roi.tile_in_roi(loc):
                 # Or if in the ROI, make sure it has no sites.
                 gridinfo = g.gridinfo_at_tilename(tile)
-                assert len(
-                    db.get_tile_type(gridinfo.tile_type).get_sites()
-                ) == 0, tile
+                assert len(db.get_tile_type(gridinfo.tile_type).get_sites()
+                           ) == 0, "{}/{}".format(tile, wire)
 
             vpr_loc = map_tile_to_vpr_coord(conn, tile)
 
@@ -127,7 +246,7 @@ def main():
         vbrk2_loc = None
         vbrk2_tile = None
         for tile in g.tiles():
-            if tile in vbrk_in_use:
+            if tile in tile_in_use:
                 continue
 
             loc = g.loc_of_tilename(tile)
