@@ -18,7 +18,7 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
   list(JOIN VPR_BASE_ARGS " " VPR_BASE_ARGS)
   string(JOIN " " VPR_ARGS ${VPR_BASE_ARGS} "--route_chan_width ${ROUTE_CHAN_WIDTH}" ${VPR_ARCH_ARGS})
 
-  set(WRAPPERS env symbiflow_generate_constraints symbiflow_pack symbiflow_place symbiflow_route symbiflow_synth symbiflow_write_bitstream symbiflow_write_fasm symbiflow_write_jlink symbiflow_write_bitheader symbiflow_write_fasm2bels symbiflow_generate_fasm2bels ql_symbiflow symbiflow_analysis)
+  set(WRAPPERS env symbiflow_generate_constraints symbiflow_pack symbiflow_place symbiflow_route symbiflow_synth symbiflow_write_bitstream symbiflow_write_fasm symbiflow_write_jlink symbiflow_write_openocd symbiflow_write_bitheader symbiflow_write_fasm2bels symbiflow_generate_fasm2bels ql_symbiflow symbiflow_analysis)
 
   get_file_target(CELLS_SIM_TARGET ${DEFINE_QL_TOOLCHAIN_TARGET_CELLS_SIM})
   # Add cells.sim to all deps, so it is installed with make install
@@ -90,6 +90,10 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/quicklogic-fasm/quicklogic_fasm/bitstream_to_jlink.py
+          DESTINATION bin/python
+          PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
+
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/quicklogic-fasm/quicklogic_fasm/bitstream_to_openocd.py
           DESTINATION bin/python
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 

@@ -18,6 +18,7 @@ include(../common/cmake/quicklogic_device.cmake)
 include(../common/cmake/quicklogic_board.cmake)
 
 include(../common/cmake/quicklogic_jlink.cmake)
+include(../common/cmake/quicklogic_openocd.cmake)
 
 
 set(SDF_TIMING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/timings)
