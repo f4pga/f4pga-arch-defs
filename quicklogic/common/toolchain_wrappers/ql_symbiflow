@@ -404,6 +404,9 @@ all: \${BUILDDIR}/\${TOP}.bit\n\
 \${BUILDDIR}/\${TOP}.jlink: \${BUILDDIR}/\${TOP}.bit\n\
 	cd \${BUILDDIR} && symbiflow_write_jlink -f \${TOP}.fasm -P \${PACKAGENAME} -b \${TOP}.bit\n\
 \n\
+\${BUILDDIR}/\${TOP}.openocd: \${BUILDDIR}/\${TOP}.bit\n\
+	cd \${BUILDDIR} && write_openocd -f \${TOP}.fasm -P \${PACKAGENAME} -b \${TOP}.bit\n\
+\n\
 \${BUILDDIR}/\${TOP}_jlink.h: \${BUILDDIR}/\${TOP}.jlink\n\
 	cd \${BUILDDIR} && symbiflow_write_jlinkheader\n\
 \n\
@@ -425,6 +428,9 @@ cd $SOURCE;make -f Makefile.symbiflow ${BUILDDIR}/${TOP}.eblif || exit
 elif [[ ! -z "$OUT" && $1 == "-compile" ]];then 
    if [[ " ${OUT_ARR[@]} " =~ " jlink " ]]; then
     cd $SOURCE;make -f Makefile.symbiflow ${BUILDDIR}/${TOP}.jlink || exit
+   fi
+   if [[ " ${OUT_ARR[@]} " =~ " openocd " ]]; then
+    cd $SOURCE;make -f Makefile.symbiflow ${BUILDDIR}/${TOP}.openocd || exit
    fi
    if [[ " ${OUT_ARR[@]} " =~ " post_verilog " ]]; then
     cd $SOURCE;make -f Makefile.symbiflow  ${BUILDDIR}/${TOP}.post_v || exit

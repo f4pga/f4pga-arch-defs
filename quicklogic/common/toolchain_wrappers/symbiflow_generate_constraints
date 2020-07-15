@@ -31,7 +31,9 @@ PROJECT=$(basename -- "$EBLIF")
 IOPLACE_FILE="${PROJECT%.*}_io.place"
 PLACE_FILE="${PROJECT%.*}_constraints.place"
 IOMUX_JLINK="${PROJECT%.*}_iomux.jlink"
+IOMUX_OPENOCD="${PROJECT%.*}_iomux.openocd"
 
 python3 ${IOGEN} --pcf $PCF --blif $EBLIF --map $PINMAP --net $NET > ${IOPLACE_FILE}
 python3 ${PLACEGEN} --blif $EBLIF --map $CLKMAP -i ${IOPLACE_FILE} > ${PLACE_FILE}
-python3 ${CONSTR_GEN} --eblif $EBLIF --pcf $PCF --map $PINMAP > ${IOMUX_JLINK}
+python3 ${CONSTR_GEN} --eblif $EBLIF --pcf $PCF --map $PINMAP --output-format=jlink > ${IOMUX_JLINK}
+python3 ${CONSTR_GEN} --eblif $EBLIF --pcf $PCF --map $PINMAP --output-format=openocd > ${IOMUX_OPENOCD}
