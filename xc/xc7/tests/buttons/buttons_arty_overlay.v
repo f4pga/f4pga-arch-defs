@@ -1,6 +1,6 @@
 module top (
     input  wire clk,
-
+    output wire clk_pr1,
     input  wire [7:0] sw,
     output wire [7:0] sw_pr1,
     output wire [7:0] led,
@@ -8,4 +8,5 @@ module top (
 );
     assign led = led_pr1;
     assign sw_pr1 = sw;
+    assign clk_pr1 = clk;
 endmodule
