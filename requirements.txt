@@ -23,3 +23,4 @@ yapf==0.26.0
 -e third_party/python-sdf-timing
 -e third_party/python-symbiflow-v2x
 -e third_party/vtr-xml-utils
+-e third_party/symbiflow-xc-fasm2bels
