@@ -23,7 +23,15 @@ function(DEFINE_XC_TOOLCHAIN_TARGET)
   get_target_property_required(DOC_PRJ ${ARCH} DOC_PRJ)
   get_target_property_required(DOC_PRJ_DB ${ARCH} DOC_PRJ_DB)
 
-  set(WRAPPERS env generate_constraints pack place route synth write_bitstream write_fasm)
+  set(WRAPPERS
+    env
+    symbiflow_generate_constraints
+    symbiflow_pack
+    symbiflow_place
+    symbiflow_route
+    symbiflow_synth
+    symbiflow_write_bitstream
+    symbiflow_write_fasm)
   set(TOOLCHAIN_WRAPPERS)
 
   foreach(WRAPPER ${WRAPPERS})

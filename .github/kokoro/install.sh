@@ -26,9 +26,11 @@ echo "========================================"
 echo "Compressing and uploading install dir"
 echo "----------------------------------------"
 (
-	export GIT_HASH=$(git rev-parse --short HEAD)
-	tar vcf - install | xz -9 -T${MAX_CORES} - > symbiflow-arch-defs-install-${GIT_HASH}.tar.xz
 	du -ah install
+	pushd install
+	export GIT_HASH=$(git rev-parse --short HEAD)
+	tar vcf - * | xz -9 -T${MAX_CORES} - > ../symbiflow-arch-defs-install-${GIT_HASH}.tar.xz
+	popd
 )
 echo "----------------------------------------"
 

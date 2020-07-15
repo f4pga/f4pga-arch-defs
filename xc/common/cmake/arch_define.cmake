@@ -90,6 +90,8 @@ function(ADD_XC_ARCH_DEFINE)
       add_file_target(FILE ${VPR_CELLS_SIM} ABSOLUTE)
   endif ()
 
+  get_target_property_required(XCFASM env XCFASM)
+
   define_arch(
     ARCH ${ARCH}
     FAMILY ${FAMILY}
@@ -135,22 +137,18 @@ function(ADD_XC_ARCH_DEFINE)
         --input /dev/stdin \
         --output /dev/stdout \
         \${PLACE_CONSTR_TOOL_EXTRA_ARGS}"
-    BITSTREAM_EXTENSION frames
-    BIN_EXTENSION bit
-    FASM_TO_BIT ${PRJRAY_DIR}/utils/fasm2frames.py
+    BITSTREAM_EXTENSION bit
+    FASM_TO_BIT ${XCFASM}
     FASM_TO_BIT_CMD "${CMAKE_COMMAND} -E env \
     PYTHONPATH=${symbiflow-arch-defs_BINARY_DIR}/env/conda/lib/python3.7/site-packages:${PRJRAY_DIR}:${PRJRAY_DIR}/third_party/fasm \
-    \${PYTHON3} \${FASM_TO_BIT} \
+    \${FASM_TO_BIT} \
         --db-root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH} \
         --sparse \
         --emit_pudc_b_pullup \
-        \${FASM_TO_BIT_EXTRA_ARGS} \
-    \${OUT_FASM} \${OUT_BITSTREAM}"
-    BIT_TO_BIN xc7frames2bit
-    BIT_TO_BIN_CMD "xc7frames2bit \
-        --frm_file \${OUT_BITSTREAM} \
-        --output_file \${OUT_BIN} \
-        \${BIT_TO_BIN_EXTRA_ARGS}"
+        --fn_in \${OUT_FASM} \
+        --bit_out \${OUT_BITSTREAM} \
+        --frm2bit $<TARGET_FILE:xc7frames2bit> \
+        \${FASM_TO_BIT_EXTRA_ARGS}"
     BIT_TO_V bitread
     BIT_TO_V_CMD "${CMAKE_COMMAND} -E env \
     PYTHONPATH=${symbiflow-arch-defs_BINARY_DIR}/env/conda/lib/python3.7/site-packages:${PRJRAY_DIR}:${PRJRAY_DIR}/third_party/fasm:${symbiflow-arch-defs_SOURCE_DIR}/xc/${FAMILY}:${symbiflow-arch-defs_SOURCE_DIR}/utils \
@@ -161,15 +159,15 @@ function(ADD_XC_ARCH_DEFINE)
         --vpr_capnp_schema_dir ${VPR_CAPNP_SCHEMA_DIR} \
         --route \${OUT_ROUTE} \
         --bitread $<TARGET_FILE:bitread> \
-        --bit_file \${OUT_BIN} \
-        --fasm_file \${OUT_BIN}.fasm \
+        --bit_file \${OUT_BITSTREAM} \
+        --fasm_file \${OUT_BITSTREAM}.fasm \
         --iostandard ${DEFAULT_IOSTANDARD} \
         --drive ${DEFAULT_DRIVE} \
         \${PCF_INPUT_IO_FILE} \
         --eblif \${OUT_EBLIF} \
         --top \${TOP} \
         \${OUT_BIT_VERILOG} \${OUT_BIT_VERILOG}.xdc"
-
+    NO_BIT_TO_BIN
     NO_BIT_TIME
     USE_FASM
     RR_GRAPH_EXT ".bin"

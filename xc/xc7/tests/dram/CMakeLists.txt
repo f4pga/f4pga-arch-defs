@@ -21,7 +21,7 @@ function(dram_tests dram_num_instances dram_mode outpad inpad enable_vivado_targ
   endif()
 
   add_dependencies(test_dram_packing
-    dram_${dram_num_instances}_${dram_mode}_bin
+    dram_${dram_num_instances}_${dram_mode}_bit
     dram_${dram_num_instances}_${dram_mode}_assert_usage
   )
 

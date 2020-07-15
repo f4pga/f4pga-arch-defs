@@ -5,8 +5,7 @@ add_test(NAME binary_toolchain_test
 	PATH=${INSTALLATION_DIR_BIN}:$ENV{PATH}
 	${CMAKE_COMMAND} -E env
 	PYTHONPATH=${PRJXRAY_DIR}:${PRJXRAY_DIR}/third_party/fasm
-	XRAY_FASM2FRAMES=${PRJXRAY_DIR}/utils/fasm2frames.py
-	XRAY_TOOLS_DIR=${symbiflow-arch-defs_SOURCE_DIR}/build/third_party/prjxray/tools
-	XRAY_DATABASE_DIR=${PRJXRAY_DB_DIR}
+	DATABASE_DIR=${PRJXRAY_DB_DIR}
+	FRAMES2BIT=$<TARGET_FILE:xc7frames2bit>
 	make
 	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})

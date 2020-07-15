@@ -1625,6 +1625,7 @@ function(ADD_FPGA_TARGET)
     add_output_to_fpga_target(${NAME} BIT ${OUT_LOCAL_REL}/${TOP}.${BITSTREAM_EXTENSION})
 
     get_target_property_required(NO_BIT_TO_BIN ${ARCH} NO_BIT_TO_BIN)
+    set(OUT_BIN ${OUT_BITSTREAM})
     if(NOT ${NO_BIT_TO_BIN})
       get_target_property_required(BIN_EXTENSION ${ARCH} BIN_EXTENSION)
       set(OUT_BIN ${OUT_LOCAL}/${TOP}.${BIN_EXTENSION})
@@ -1643,7 +1644,7 @@ function(ADD_FPGA_TARGET)
         COMMAND ${BIT_TO_BIN_CMD_FOR_TARGET_LIST}
         DEPENDS ${BIT_TO_BIN} ${OUT_BITSTREAM}
         )
-  
+
       add_custom_target(${NAME}_bin DEPENDS ${OUT_BIN})
       add_output_to_fpga_target(${NAME} BIN ${OUT_LOCAL_REL}/${TOP}.${BIN_EXTENSION})
       add_dependencies(all_${BOARD}_bin ${NAME}_bin)
