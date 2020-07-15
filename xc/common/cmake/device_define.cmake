@@ -124,21 +124,15 @@ function(ADD_XC_BOARD)
 
     get_target_property_required(SYNTH_TILES ${DEVICE_TYPE} SYNTH_TILES)
     get_file_location(SYNTH_TILES_LOCATION ${SYNTH_TILES})
-    get_target_property_required(CONTAINED_ROI_DEVICES ${DEVICE_TYPE} CONTAINED_ROI_DEVICES)
-
-    set_target_properties(${BOARD}
-      PROPERTIES CONTAINED_ROI_DEVICES ${CONTAINED_ROI_DEVICES}
-    )
-
-    set_target_properties(${BOARD}
-      PROPERTIES PLACE_TOOL_EXTRA_ARGS "--synth_tiles ${SYNTH_TILES_LOCATION}"
-    )
 
     set(CREATE_PINMAP_CSV ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/prjxray_create_pinmap_csv.py)
     set(PINMAP_CSV ${BOARD}_pinmap.csv)
     set(PINMAP_CSV_DEPS ${PYTHON3} ${CREATE_PINMAP_CSV})
     append_file_dependency(PINMAP_CSV_DEPS ${CHANNELS_DB})
-    append_file_dependency(PINMAP_CSV_DEPS ${SYNTH_TILES})
+
+    set_target_properties(${BOARD}
+      PROPERTIES PLACE_TOOL_EXTRA_ARGS "--synth_tiles ${SYNTH_TILES_LOCATION}"
+    )
 
     add_custom_command(
       OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
@@ -146,7 +140,6 @@ function(ADD_XC_BOARD)
         --connection_database ${CHANNELS_LOCATION}
         --package_pins ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/${PART}/package_pins.csv
         --output ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
-        --synth_tiles ${SYNTH_TILES_LOCATION}
         DEPENDS ${PINMAP_CSV_DEPS}
       )
   else()
@@ -350,7 +343,7 @@ endfunction()
 function(ADD_XC_DEVICE_DEFINE)
   set(options USE_ROI USE_OVERLAY)
   set(oneValueArgs ARCH PART)
-  set(multiValueArgs DEVICES CONTAINED_ROI_DEVICES)
+  set(multiValueArgs DEVICES)
   cmake_parse_arguments(
     ADD_XC_DEVICE_DEFINE
      "${options}"
@@ -364,7 +357,6 @@ function(ADD_XC_DEVICE_DEFINE)
   set(ARCH ${ADD_XC_DEVICE_DEFINE_ARCH})
   set(PART ${ADD_XC_DEVICE_DEFINE_PART})
   set(DEVICES ${ADD_XC_DEVICE_DEFINE_DEVICES})
-  set(CONTAINED_ROI_DEVICES ${ADD_XC_DEVICE_DEFINE_CONTAINED_ROI_DEVICES})
 
   list(LENGTH DEVICES DEVICE_COUNT)
   math(EXPR DEVICE_COUNT_N_1 "${DEVICE_COUNT} - 1")
@@ -401,10 +393,6 @@ function(ADD_XC_DEVICE_DEFINE)
         get_file_location(SYNTH_TILES_LOCATION ${SYNTH_TILES})
         append_file_dependency(DEVICE_RR_PATCH_DEPS ${SYNTH_TILES})
         set(RR_PATCH_EXTRA_ARGS --synth_tiles ${SYNTH_TILES_LOCATION} --overlay ${RR_PATCH_EXTRA_ARGS})
-        set(CONTAINED_ROI_DEVICES ${CONTAINED_ROI_DEVICES})
-        set_target_properties(${DEVICE_TYPE}
-          PROPERTIES CONTAINED_ROI_DEVICES ${CONTAINED_ROI_DEVICES}
-        )
     endif()
 
     get_target_property_required(LIMIT_GRAPH_TO_DEVICE ${DEVICE_TYPE} LIMIT_GRAPH_TO_DEVICE)

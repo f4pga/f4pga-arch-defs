@@ -33,7 +33,7 @@ add_xc_board(
 )
 
 add_xc_board(
-  BOARD arty-swbut-pr
+  BOARD arty-swbut-overlay
   DEVICE xc7a50t-arty-swbut-overlay
   PACKAGE test
   PROG_CMD "${OPENOCD} -f ${PRJXRAY_DIR}/utils/openocd/board-digilent-basys3.cfg -c \\\"init $<SEMICOLON> pld load 0 \${OUT_BIN} $<SEMICOLON> exit\\\""
