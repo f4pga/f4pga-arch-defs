@@ -81,6 +81,9 @@ function(ADD_XC_BOARD)
   if(${USE_ROI})
     get_target_property_required(ROI_DIR ${DEVICE_TYPE} ROI_DIR)
 
+    get_target_property_required(SYNTH_TILES ${DEVICE_TYPE} SYNTH_TILES)
+    get_file_location(SYNTH_TILES_LOCATION ${SYNTH_TILES})
+
     set_target_properties(${BOARD}
       PROPERTIES FASM_TO_BIT_EXTRA_ARGS " \
       --roi ${ROI_DIR}/design.json \
@@ -92,6 +95,11 @@ function(ADD_XC_BOARD)
       PROPERTIES PLACE_CONSTR_TOOL_EXTRA_ARGS " \
       --vpr_grid_map ${VPR_GRID_MAP_LOCATION} \
       --roi
+    ")
+
+    set_target_properties(${BOARD}
+      PROPERTIES PLACE_TOOL_EXTRA_ARGS " \
+      --synth_tiles ${SYNTH_TILES_LOCATION} \
     ")
 
     get_target_property_required(SYNTH_TILES ${DEVICE_TYPE} SYNTH_TILES)
@@ -131,8 +139,9 @@ function(ADD_XC_BOARD)
     append_file_dependency(PINMAP_CSV_DEPS ${CHANNELS_DB})
 
     set_target_properties(${BOARD}
-      PROPERTIES PLACE_TOOL_EXTRA_ARGS "--synth_tiles ${SYNTH_TILES_LOCATION}"
-    )
+      PROPERTIES PLACE_TOOL_EXTRA_ARGS " \
+      --synth_tiles ${SYNTH_TILES_LOCATION} \
+    ")
 
     add_custom_command(
       OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}

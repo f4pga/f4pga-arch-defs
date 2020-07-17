@@ -1406,6 +1406,11 @@ function(ADD_FPGA_TARGET)
         set(PLACE_CONSTR_TOOL_EXTRA_ARGS "")
       endif()
 
+      get_target_property(PLACE_TOOL_EXTRA_ARGS ${BOARD} PLACE_TOOL_EXTRA_ARGS)
+      if ("${PLACE_TOOL_EXTRA_ARGS}" STREQUAL "PLACE_TOOL_EXTRA_ARGS-NOTFOUND")
+        set(PLACE_TOOL_EXTRA_ARGS "")
+      endif()
+
       # Generate LOC constrains
       string(CONFIGURE ${PLACE_CONSTR_TOOL_CMD} PLACE_CONSTR_TOOL_CMD_FOR_TARGET)
       separate_arguments(

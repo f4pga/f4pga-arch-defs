@@ -1,23 +1,22 @@
-# clk
 set_io clk SYN0
 
 # sw[7:0] corresponds to {BTN3-0, SW3-0} in arty
-set_io sw[0] A8
-set_io sw[1] C11
-set_io sw[2] C10
-set_io sw[3] A10
-set_io sw[4] D9
-set_io sw[5] C9
-set_io sw[6] B9
-set_io sw[7] B8
+set_io sw[0] SYN1
+set_io sw[1] SYN2
+set_io sw[2] SYN3
+set_io sw[3] SYN4
+set_io sw[4] SYN5
+set_io sw[5] SYN6
+set_io sw[6] SYN7
+set_io sw[7] SYN8
 
 # led[7:0] corresponds to {LD7-0} in arty.
 # only green components of RGB leds
-set_io led[0] F6
-set_io led[1] J4
-set_io led[2] J2
-set_io led[3] H6
-set_io led[4] H5
-set_io led[5] J5
-set_io led[6] T9
-set_io led[7] T10
+set_io led[0] SYN9
+set_io led[1] SYN10
+set_io led[2] SYN11
+set_io led[3] SYN12
+set_io led[4] SYN13
+set_io led[5] SYN14
+set_io led[6] SYN15
+set_io led[7] SYN16
