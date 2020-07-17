@@ -342,6 +342,15 @@
       </metadata>
     </pb_type>
 
+    <!-- This is a model of the inverter for T signal. It is used when the T
+         net bypasses the OSERDES and is connected to const0. In that case
+         the route actually goes to const1 and this inverter is used.
+
+         Note that there are no fasm features emitted. That's because not
+         emitting the ZINV_T1 feature enables the inversion.
+
+         When the T signal is connected to the OSERDES then the inversion is
+         controlled by its parameter. -->
     <pb_type name="T_INV" blif_model=".subckt T_INV" num_pb="1">
       <input  name="TI" num_pins="1"/>
       <output name="TO" num_pins="1"/>
@@ -378,6 +387,13 @@
       <direct name="SHIFTIN1" input="OLOGICE3.SHIFTIN1" output="OSERDESE2.SHIFTIN1" />
       <direct name="SHIFTIN2" input="OLOGICE3.SHIFTIN2" output="OSERDESE2.SHIFTIN2" />
 
+      <!-- This is a routing mux that allows the T signal to bypass the OSERDES
+           when it is in "TQ BUF" mode. This is used when the T connection is
+           routed to const0, see the comment on the "T_INV" pb_type above.
+
+           When T is connected to const0 it is being actually routed to cons1
+           through the T_INV inverter and the T1 input pin. When it is connected
+           to the OSERDES it is routed to the TQ output of it. -->
       <direct name="T1_to_T_INV.TI" input="OLOGICE3.T1" output="T_INV.TI"/>
       <mux name="TQ" input="OSERDESE2.TQ T_INV.TO" output="OLOGICE3.TQ"/>
 
