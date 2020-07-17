@@ -1,9 +1,26 @@
 add_file_target(FILE buttons_arty.v SCANNER_TYPE verilog)
+add_file_target(FILE buttons_arty_rev.v SCANNER_TYPE verilog)
 add_fpga_target(
   NAME buttons_arty
   BOARD arty-swbut
   SOURCES buttons_arty.v
   INPUT_IO_FILE ${COMMON}/arty_swbut.pcf
+  EXPLICIT_ADD_FILE_TARGET
+  )
+
+add_fpga_target(
+  NAME buttons_arty_pr
+  BOARD arty-swbut-pr
+  SOURCES buttons_arty.v
+  INPUT_IO_FILE ${COMMON}/arty_swbut_pr.pcf
+  EXPLICIT_ADD_FILE_TARGET
+  )
+
+add_fpga_target(
+  NAME buttons_arty_pr_rev
+  BOARD arty-swbut-pr
+  SOURCES buttons_arty_rev.v
+  INPUT_IO_FILE ${COMMON}/arty_swbut_pr.pcf
   EXPLICIT_ADD_FILE_TARGET
   )
 

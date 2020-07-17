@@ -170,14 +170,14 @@ def main():
 
     synth_tiles = {}
     synth_tiles['tiles'] = {}
-    synth_tiles['info'] = list()
 
     rois = dict()
     if args.roi:
         with open(args.roi) as f:
             j = json.load(f)
 
-        
+        synth_tiles['info'] = j['info']
+
         roi = Roi(
             db=db,
             x1=j['info']['GRID_X_MIN'],
@@ -191,6 +191,8 @@ def main():
         with open(args.overlay) as f:
             j = json.load(f)
         
+        synth_tiles['info'] = list()
+
         for r in j:
             roi = Roi(
                 db=db,
@@ -208,8 +210,9 @@ def main():
     with DatabaseCache(args.connection_database, read_only=True) as conn:
         tile_in_use = set()
         for roi, j in rois.items():
-
-            synth_tiles['info'].append(j['info'])
+            if args.overlay:
+                synth_tiles['info'].append(j['info'])
+            
             tile_pin_count = dict()
             num_synth_tiles = 0
             for port in sorted(j["ports"], key=lambda i: i['name']):

@@ -1369,6 +1369,10 @@ def main():
     if synth_tiles is None:
         synth_tiles = find_constant_network(graph)
 
+    if args.overlay:
+        synth_tiles_const = find_constant_network(graph)
+        synth_tiles['tiles'].update(synth_tiles_const['tiles'])
+
     with sqlite3.connect("file:{}?mode=ro".format(args.connection_database),
                          uri=True) as conn:
 
