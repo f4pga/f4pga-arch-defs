@@ -24,6 +24,7 @@ class VModule(object):
             belinversions,
             interfaces,
             designconnections,
+            org_loc_map,
             cand_map,
             inversionpins,
             io_to_fbio,
@@ -41,6 +42,7 @@ class VModule(object):
         self.belinversions = belinversions
         self.interfaces = interfaces
         self.designconnections = designconnections
+        self.org_loc_map = org_loc_map
         self.cand_map = cand_map
         self.inversionpins = inversionpins
         self.useinversionpins = useinversionpins
@@ -547,7 +549,9 @@ class VModule(object):
                         inputs[inputname] = "1'b0"
                         continue
                     elif wire[1].startswith("CAND"):
-                        inputs[inputname] = self.cand_map[currloc][wire[1]]
+                        dst = (currloc, inputname)
+                        dst = self.org_loc_map.get(dst, dst)
+                        inputs[inputname] = self.cand_map[dst[0]][wire[1]]
                         continue
                     srctype = self.vpr_tile_grid[wire[0]].type
                     srctype_cells = self.vpr_tile_types[srctype].cells

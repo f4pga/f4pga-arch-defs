@@ -175,6 +175,10 @@ class Fasm2Bels(object):
         # A map of clock wires that connect to switchboxes
         self.cand_map = defaultdict(lambda: dict())
 
+        # A map of original (loc, pin) to new (loc, pin). Created during
+        # aggregation of multi-loc cells.
+        self.org_loc_map = {}
+
     def parse_logic_line(self, feature: Feature):
         '''Parses a setting for a BEL.
 
@@ -473,10 +477,24 @@ class Fasm2Bels(object):
                         bellockey, celltype=belloctype
                     )][belloctype].extend(belloc)
         self.belinversion = newbelinversions
+
         for loc, conns in self.designconnections.items():
             for pin, src in conns.items():
                 dstloc = self.remap_multiloc_loc(loc, pinname=pin)
                 srcloc = self.remap_multiloc_loc(src[0], pinname=src[1])
+
+                if srcloc != src[0]:
+                    k, v = ((srcloc, src[1]), src)
+                    if k in self.org_loc_map:
+                        assert v == self.org_loc_map[k], (k, self.org_loc_map[k], v)
+                    self.org_loc_map[k] = v
+
+                if dstloc != loc:
+                    k, v = ((dstloc, pin), (loc, pin))
+                    if k in self.org_loc_map:
+                        assert v == self.org_loc_map[k], (k, self.org_loc_map[k], v)
+                    self.org_loc_map[k] = v
+
                 newdesignconnections[dstloc][pin] = (srcloc, src[1])
         self.designconnections = newdesignconnections
 
@@ -865,8 +883,8 @@ class Fasm2Bels(object):
         module = VModule(
             self.vpr_tile_grid, self.vpr_tile_types, self.cells_library,
             pcf_data, self.belinversions, self.interfaces,
-            self.designconnections, self.cand_map, self.inversionpins,
-            self.io_to_fbio
+            self.designconnections, self.org_loc_map, self.cand_map,
+            self.inversionpins, self.io_to_fbio
         )
         module.parse_bels()
         verilog = module.generate_verilog()
