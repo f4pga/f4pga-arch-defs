@@ -133,9 +133,7 @@ Conflicting pad constraints for net {}:\n{}\n{}""".format(
             if tile:
                 synth_tile_pad = True
                 pin_list = list(
-                    filter(
-                        lambda p: p['pad'] == pad, tile['pins']
-                    )
+                    filter(lambda p: p['pad'] == pad, tile['pins'])
                 )
                 assert len(pin_list) == 1
                 pin, = pin_list

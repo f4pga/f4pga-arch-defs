@@ -140,8 +140,6 @@ class IoPlace(object):
             name = constraint.name
             name = self.net_to_block.get(name) if self.net_to_block else name
 
-            print(vpr_net)
-            print(name)
             # This block is already constrained, check if there is no
             # conflict there.
             if name in constrained_blocks:

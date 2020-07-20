@@ -1381,6 +1381,11 @@ function(ADD_FPGA_TARGET)
     set(OUT_CONSTR_REL ${OUT_LOCAL_REL}/${TOP}_constraints.place)
     set(OUT_NET ${OUT_LOCAL}/${TOP}.net)
 
+    get_target_property(PLACE_TOOL_EXTRA_ARGS ${BOARD} PLACE_TOOL_EXTRA_ARGS)
+    if ("${PLACE_TOOL_EXTRA_ARGS}" STREQUAL "PLACE_TOOL_EXTRA_ARGS-NOTFOUND")
+      set(PLACE_TOOL_EXTRA_ARGS "")
+    endif()
+
     # Generate IO constraints
     string(CONFIGURE ${PLACE_TOOL_CMD} PLACE_TOOL_CMD_FOR_TARGET)
     separate_arguments(
@@ -1404,11 +1409,6 @@ function(ADD_FPGA_TARGET)
       get_target_property(PLACE_CONSTR_TOOL_EXTRA_ARGS ${BOARD} PLACE_CONSTR_TOOL_EXTRA_ARGS)
       if ("${PLACE_CONSTR_TOOL_EXTRA_ARGS}" STREQUAL "PLACE_CONSTR_TOOL_EXTRA_ARGS-NOTFOUND")
         set(PLACE_CONSTR_TOOL_EXTRA_ARGS "")
-      endif()
-
-      get_target_property(PLACE_TOOL_EXTRA_ARGS ${BOARD} PLACE_TOOL_EXTRA_ARGS)
-      if ("${PLACE_TOOL_EXTRA_ARGS}" STREQUAL "PLACE_TOOL_EXTRA_ARGS-NOTFOUND")
-        set(PLACE_TOOL_EXTRA_ARGS "")
       endif()
 
       # Generate LOC constrains

@@ -85,7 +85,7 @@ SELECT grid_x, grid_y FROM tile WHERE pkey = (SELECT tile_pkey FROM wire WHERE p
     return abs(x1 - x2) + abs(y1 - y2)
 
 
-def find_wire_from_node(conn, g, roi, node_name):
+def find_wire_from_node(conn, g, roi, node_name, overlay=False):
     """
     Finds a pair on wires in the given node such that:
     1. One wire is inside the roi and the other is outside
@@ -114,7 +114,10 @@ SELECT pkey FROM wire WHERE node_pkey = ?
 """, (node_pkey, )
     )
     wire_pkeys = cur.fetchall()
-    in_outs = {w: (overlay ^ wire_in_roi(conn, g, roi, w)) for w, in wire_pkeys}
+    in_outs = {
+        w: (overlay ^ wire_in_roi(conn, g, roi, w))
+        for w, in wire_pkeys
+    }
     ins = {i for i, v in in_outs.items() if v}
     outs = {i for i, v in in_outs.items() if not v}
     min_manhattan_dist = 1000000
@@ -190,7 +193,7 @@ def main():
     elif args.overlay:
         with open(args.overlay) as f:
             j = json.load(f)
-        
+
         synth_tiles['info'] = list()
 
         for r in j:
@@ -206,13 +209,12 @@ def main():
     else:
         assert False, 'Synth tiles must be for roi or overlay'
 
-
     with DatabaseCache(args.connection_database, read_only=True) as conn:
         tile_in_use = set()
         for roi, j in rois.items():
             if args.overlay:
                 synth_tiles['info'].append(j['info'])
-            
+
             tile_pin_count = dict()
             num_synth_tiles = 0
             for port in sorted(j["ports"], key=lambda i: i['name']):
@@ -229,7 +231,9 @@ def main():
                     assert False, port
 
                 if 'wire' not in port:
-                    tile, wire = find_wire_from_node(conn, g, roi, port['node'], overlay=bool(args.overlay))
+                    tile, wire = find_wire_from_node(
+                        conn, g, roi, port['node'], overlay=bool(args.overlay)
+                    )
                 else:
                     tile, wire = port['wire'].split('/')
 
@@ -241,8 +245,9 @@ def main():
                 if bool(args.overlay) ^ roi.tile_in_roi(loc):
                     # Or if in the ROI, make sure it has no sites.
                     gridinfo = g.gridinfo_at_tilename(tile)
-                    assert len(db.get_tile_type(gridinfo.tile_type).get_sites()
-                               ) == 0, "{}/{}".format(tile, wire)
+                    assert len(
+                        db.get_tile_type(gridinfo.tile_type).get_sites()
+                    ) == 0, "{}/{}".format(tile, wire)
 
                 vpr_loc = map_tile_to_vpr_coord(conn, tile)
 
@@ -304,8 +309,8 @@ def main():
                     vbrk_loc = loc
                     vbrk_tile = tile
                 else:
-                    if (loc.grid_x < vbrk_loc.grid_x
-                            and loc.grid_y < vbrk_loc.grid_y) or vbrk2_loc is None:
+                    if (loc.grid_x < vbrk_loc.grid_x and
+                            loc.grid_y < vbrk_loc.grid_y) or vbrk2_loc is None:
                         vbrk2_loc = vbrk_loc
                         vbrk2_tile = vbrk_tile
                         vbrk_loc = loc
