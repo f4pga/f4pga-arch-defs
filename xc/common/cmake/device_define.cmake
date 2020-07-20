@@ -78,6 +78,7 @@ function(ADD_XC_BOARD)
   get_target_property(USE_OVERLAY ${DEVICE_TYPE} USE_OVERLAY)
   get_target_property_required(PYTHON3 env PYTHON3)
 
+
   if(${USE_ROI})
     get_target_property_required(ROI_DIR ${DEVICE_TYPE} ROI_DIR)
 
@@ -132,11 +133,11 @@ function(ADD_XC_BOARD)
 
     get_target_property_required(SYNTH_TILES ${DEVICE_TYPE} SYNTH_TILES)
     get_file_location(SYNTH_TILES_LOCATION ${SYNTH_TILES})
-
     set(CREATE_PINMAP_CSV ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/prjxray_create_pinmap_csv.py)
     set(PINMAP_CSV ${BOARD}_pinmap.csv)
     set(PINMAP_CSV_DEPS ${PYTHON3} ${CREATE_PINMAP_CSV})
     append_file_dependency(PINMAP_CSV_DEPS ${CHANNELS_DB})
+    append_file_dependency(PINMAP_CSV_DEPS ${SYNTH_TILES})
 
     set_target_properties(${BOARD}
       PROPERTIES PLACE_TOOL_EXTRA_ARGS " \
@@ -147,8 +148,10 @@ function(ADD_XC_BOARD)
       OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
       COMMAND ${PYTHON3} ${CREATE_PINMAP_CSV}
         --connection_database ${CHANNELS_LOCATION}
+        --synth_tiles ${SYNTH_TILES_LOCATION}
         --package_pins ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/${PART}/package_pins.csv
         --output ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
+        --overlay
         DEPENDS ${PINMAP_CSV_DEPS}
       )
   else()
@@ -202,6 +205,7 @@ function(ADD_XC_BOARD)
     dummy_${ARCH}_${DEVICE}_${ADD_XC_BOARD_PACKAGE}
     PROPERTIES
     PLACE_CONSTR_TOOL_EXTRA_ARGS "--vpr_grid_map ${VPR_GRID_MAP_LOCATION} --roi"
+    PLACE_TOOL_EXTRA_ARGS "--synth_tiles ${SYNTH_TILES_LOCATION}"
     PINMAP
     ${CMAKE_CURRENT_SOURCE_DIR}/${PINMAP_CSV})
 

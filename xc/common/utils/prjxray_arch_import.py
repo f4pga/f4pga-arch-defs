@@ -175,63 +175,43 @@ def create_synth_pb_types(model_xml, complexblocklist_xml, is_overlay=False):
             'num_pins': '1',
         }
     )
-    
+
     if is_overlay:
         # Add model for SYN_IBUF
-        ibuf_model = ET.SubElement(
-            model_xml, 'model', {
-                'name': 'SYN_IBUF'
-            }
-        )
+        ibuf_model = ET.SubElement(model_xml, 'model', {'name': 'SYN_IBUF'})
 
-        ibuf_input_ports = ET.SubElement(
-            ibuf_model, 'input_ports', {}
-        )
+        ibuf_input_ports = ET.SubElement(ibuf_model, 'input_ports', {})
 
         ET.SubElement(
             ibuf_input_ports, 'port', {
-                    'name': 'I',
-                    'combinational_sink_ports': 'O'
+                'name': 'I',
+                'combinational_sink_ports': 'O'
             }
         )
 
-        ibuf_output_ports = ET.SubElement(
-            ibuf_model, 'output_ports', {}
-        )
+        ibuf_output_ports = ET.SubElement(ibuf_model, 'output_ports', {})
 
-        ET.SubElement(
-            ibuf_output_ports, 'port', {
-                    'name': 'O',
-            }
-        )
+        ET.SubElement(ibuf_output_ports, 'port', {
+            'name': 'O',
+        })
 
         # Add model for SYN_OBUF
-        obuf_model = ET.SubElement(
-            model_xml, 'model', {
-                'name': 'SYN_OBUF'
-            }
-        )
+        obuf_model = ET.SubElement(model_xml, 'model', {'name': 'SYN_OBUF'})
 
-        obuf_input_ports = ET.SubElement(
-            obuf_model, 'input_ports', {}
-        )
+        obuf_input_ports = ET.SubElement(obuf_model, 'input_ports', {})
 
         ET.SubElement(
             obuf_input_ports, 'port', {
-                    'name': 'I',
-                    'combinational_sink_ports': 'O'
+                'name': 'I',
+                'combinational_sink_ports': 'O'
             }
         )
 
-        obuf_output_ports = ET.SubElement(
-            obuf_model, 'output_ports', {}
-        )
+        obuf_output_ports = ET.SubElement(obuf_model, 'output_ports', {})
 
-        ET.SubElement(
-            obuf_output_ports, 'port', {
-                    'name': 'O',
-            }
-        )
+        ET.SubElement(obuf_output_ports, 'port', {
+            'name': 'O',
+        })
 
         obuf_pb = ET.SubElement(
             pb_xml_out, 'pb_type', {
@@ -240,20 +220,16 @@ def create_synth_pb_types(model_xml, complexblocklist_xml, is_overlay=False):
                 'num_pb': '1',
             }
         )
-        
-        ET.SubElement(
-            obuf_pb, 'input', {
-                'name': 'I',
-                'num_pins': '1',
-            }
-        )
 
-        ET.SubElement(
-            obuf_pb, 'output', {
-                'name': 'O',
-                'num_pins': '1',
-            }
-        )
+        ET.SubElement(obuf_pb, 'input', {
+            'name': 'I',
+            'num_pins': '1',
+        })
+
+        ET.SubElement(obuf_pb, 'output', {
+            'name': 'O',
+            'num_pins': '1',
+        })
 
         ET.SubElement(
             obuf_pb, 'delay_constant', {
@@ -271,19 +247,15 @@ def create_synth_pb_types(model_xml, complexblocklist_xml, is_overlay=False):
             }
         )
 
-        ET.SubElement(
-            ibuf_pb, 'input', {
-                'name': 'I',
-                'num_pins': '1',
-            }
-        )
+        ET.SubElement(ibuf_pb, 'input', {
+            'name': 'I',
+            'num_pins': '1',
+        })
 
-        ET.SubElement(
-            ibuf_pb, 'output', {
-                'name': 'O',
-                'num_pins': '1',
-            }
-        )
+        ET.SubElement(ibuf_pb, 'output', {
+            'name': 'O',
+            'num_pins': '1',
+        })
 
         ET.SubElement(
             ibuf_pb, 'delay_constant', {
@@ -402,8 +374,6 @@ def create_synth_pb_types(model_xml, complexblocklist_xml, is_overlay=False):
                 'out_port': output_name_in,
             }
         )
-
-
 
 
 def create_synth_constant_tiles(
@@ -1096,17 +1066,14 @@ def main():
 
         with open(args.synth_tiles) as f:
             synth_tiles = json.load(f)
-        
+
         region_dict = dict()
         for r in synth_tiles['info']:
-            bounds = (r['GRID_X_MIN'], r['GRID_X_MAX'], \
-                    r['GRID_Y_MIN'], r['GRID_Y_MAX'])
+            bounds = (r['GRID_X_MIN'], r['GRID_X_MAX'],
+                      r['GRID_Y_MIN'], r['GRID_Y_MAX'])
             region_dict[r['name']] = bounds
 
-        roi = Overlay(
-            db=db,
-            region_dict=region_dict
-        )
+        roi = Overlay(region_dict=region_dict)
 
         for _, tile_info in synth_tiles['tiles'].items():
             if tile_info['pins'][0]['port_type'] in ['GND', 'VCC']:
