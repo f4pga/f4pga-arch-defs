@@ -50,13 +50,6 @@ module FDPE_ZINI (output reg Q, input C, CE, D, PRE);
 endmodule
 
 // ============================================================================
-// LUT related muxes
-
-module MUXF6(output O, input I0, I1, S);
-  assign O = S ? I1 : I0;
-endmodule
-
-// ============================================================================
 // Carry chain primitives
 
 module CARRY4_VPR(O0, O1, O2, O3, CO_CHAIN, CO_FABRIC0, CO_FABRIC1, CO_FABRIC2, CO_FABRIC3, CYINIT, CIN, DI0, DI1, DI2, DI3, S0, S1, S2, S3);
@@ -259,6 +252,11 @@ module SPRAM32 (
   end
 endmodule
 
+module DI64_STUB (
+    input DI, output DO
+);
+    assign DO = DI;
+endmodule
 
 // To ensure that all DRAMs are co-located within a SLICEM, this block is
 // a simple passthrough black box to allow a pack pattern for dual port DRAMs.

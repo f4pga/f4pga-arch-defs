@@ -11,6 +11,7 @@
  <xi:include href="dram_2_output_stub.model.xml"           xpointer="xpointer(models/child::node())" />
  <xi:include href="dram_4_output_stub.model.xml"           xpointer="xpointer(models/child::node())" />
  <xi:include href="dram_8_output_stub.model.xml"           xpointer="xpointer(models/child::node())" />
- <xi:include href="srl/srlc32e_vpr.model.xml"    xpointer="xpointer(models/child::node())" />
- <xi:include href="srl/srlc16e_vpr.model.xml"    xpointer="xpointer(models/child::node())" />
+ <xi:include href="di64_stub.model.xml"                    xpointer="xpointer(models/child::node())" />
+ <xi:include href="srl/srlc32e_vpr.model.xml"              xpointer="xpointer(models/child::node())" />
+ <xi:include href="srl/srlc16e_vpr.model.xml"              xpointer="xpointer(models/child::node())" />
 </models>

@@ -391,6 +391,14 @@
       </pb_type>
 
       <xi:include href="wemux.pb_type.xml"/>
+      <pb_type name="DI64_STUB" blif_model=".subckt DI64_STUB" num_pb="3">
+        <xi:include href="di64_stub.pb_type.xml"
+                    xpointer="xpointer(pb_type/child::node())" />
+        <metadata>
+          <meta name="type">bel</meta>
+          <meta name="subtype">blackbox</meta>
+        </metadata>
+      </pb_type>
 
       <interconnect>
         <direct name="AMEMCLK" input="SLICEM_MODES.CLK" output="A_DRAM.CLK"/>
@@ -461,38 +469,44 @@
         <direct name="B_WA8" input="SLICEM_MODES.WA8"  output="B_DRAM.WA[7]" />
         <direct name="A_WA8" input="SLICEM_MODES.WA8"  output="A_DRAM.WA[7]" />
 
+          <!-- The DI64_STUB's enforce the required that in the DPO RAM64 case,
+            the SPO RAM64 **must** use the same site pin as the DPO RAM64.
+          -->
+        <direct name="CI_STUB" input="SLICEM_MODES.DI" output="DI64_STUB[0].DI" />
+        <direct name="BI_STUB" input="SLICEM_MODES.DI" output="DI64_STUB[1].DI" />
+        <direct name="AI_STUB" input="B_DRAM.DO1" output="DI64_STUB[2].DI" />
+
         <!-- DI1 inputs -->
         <direct name="D_DI1" input="SLICEM_MODES.DI" output="D_DRAM.DI1" />
-        <mux name="CDI1MUX" input="SLICEM_MODES.DI SLICEM_MODES.CI" output="C_DRAM.DI1">
+        <mux name="CDI1MUX" input="SLICEM_MODES.DI DI64_STUB[0].DO SLICEM_MODES.CI" output="C_DRAM.DI1">
           <metadata>
             <meta name="fasm_mux">
               SLICEM_MODES.DI = CLUT.DI1MUX.DI_DMC31
+              DI64_STUB[0].DO = CLUT.DI1MUX.DI_DMC31
               SLICEM_MODES.CI = CLUT.DI1MUX.CI
             </meta>
           </metadata>
+          <pack_pattern in_port="DI64_STUB[0].DO" name="DRAM_DP" out_port="C_DRAM.DI1" />
         </mux>
-        <mux name="BDI1MUX" input="SLICEM_MODES.DI SLICEM_MODES.BI" output="B_DRAM.DI1">
+        <mux name="BDI1MUX" input="SLICEM_MODES.DI DI64_STUB[1].DO SLICEM_MODES.BI" output="B_DRAM.DI1">
           <metadata>
             <meta name="fasm_mux">
               SLICEM_MODES.DI = BLUT.DI1MUX.DI_CMC31
+              DI64_STUB[1].DO = BLUT.DI1MUX.DI_CMC31
               SLICEM_MODES.BI = BLUT.DI1MUX.BI
             </meta>
           </metadata>
         </mux>
-        <!-- TODO: ensure BLUT.DI1MUX is set correctly for SLICEM_MODES.DI/BI
-
-          For now, the FASM features are emitted to ensure that the mux
-          is set correctly, and it there is a mux conflict it will arise
-          during fasm2frames.
-        -->
-        <mux name="ADI1MUX" input="SLICEM_MODES.DI SLICEM_MODES.BI SLICEM_MODES.AI" output="A_DRAM.DI1">
+        <mux name="ADI1MUX" input="SLICEM_MODES.DI DI64_STUB[2].DO SLICEM_MODES.BI SLICEM_MODES.AI" output="A_DRAM.DI1">
           <metadata>
             <meta name="fasm_mux">
               SLICEM_MODES.DI = ALUT.DI1MUX.BDI1_BMC31,BLUT.DI1MUX.DI_CMC31
+              DI64_STUB[2].DO = ALUT.DI1MUX.BDI1_BMC31
               SLICEM_MODES.BI = ALUT.DI1MUX.BDI1_BMC31,BLUT.DI1MUX.BI
               SLICEM_MODES.AI = ALUT.DI1MUX.AI
             </meta>
           </metadata>
+          <pack_pattern in_port="DI64_STUB[2].DO" name="DRAM_DP" out_port="A_DRAM.DI1" />
         </mux>
 
         <!-- DI2 inputs -->
