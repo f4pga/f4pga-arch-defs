@@ -365,7 +365,7 @@ class VModule(object):
                 if key in cellpins:
                     cell_connections[cell_name][key] = connections[key]
 
-                # Some switchbox inputs are named like 
+                # Some switchbox inputs are named like
                 # "<cell><cell_index>_<pin>". Break down the name and check.
                 fields = key.split("_", maxsplit=1)
                 if len(fields) == 2:
@@ -455,7 +455,8 @@ class VModule(object):
             if srctype not in self.elements[wire[0]]:
                 # if the source element does not exist, create it
                 self.elements[wire[0]][srctype] = Element(
-                    wire[0], self.get_element_type(srctype), self.get_element_name(srctype, wire[0]),
+                    wire[0], self.get_element_type(srctype),
+                    self.get_element_name(srctype, wire[0]),
                     {srconame: wirename}
                 )
             else:
@@ -503,7 +504,10 @@ class VModule(object):
                 outputs = {}
 
                 # Check each output
-                for output_name, (loc, wire,) in connections.items():
+                for output_name, (
+                        loc,
+                        wire,
+                ) in connections.items():
 
                     # That wire is connected to something. Skip processing
                     # of the cell here
@@ -520,7 +524,8 @@ class VModule(object):
                 # If Element does not exist, create it
                 if currtype not in self.elements[currloc]:
                     self.elements[currloc][currtype] = Element(
-                        currloc, self.get_element_type(currtype), currname, outputs
+                        currloc, self.get_element_type(currtype), currname,
+                        outputs
                     )
                 # Else update IOs
                 else:
@@ -568,7 +573,8 @@ class VModule(object):
                 if currtype not in self.elements[currloc]:
                     # If Element does not exist, create it
                     self.elements[currloc][currtype] = Element(
-                        currloc, self.get_element_type(currtype), currname, inputs
+                        currloc, self.get_element_type(currtype), currname,
+                        inputs
                     )
                 else:
                     # else update IOs

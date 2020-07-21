@@ -984,12 +984,18 @@ def make_ram2x1_instance(ports, separator=",\n"):
         for name, width, assoc_clock in ports[key]:
             if name not in RAM_2X1_COMMON_PORTS:
                 if name[:-3] not in RAM_2X1_COMMON_PORTS:
-                	if name.find("_0") >= 0 or name.find("_1") >= 0:
-                    		verilog += "      .{}({}){}".format(name, name, separator)
-                	elif name.find("_b") >=0:
-                    		verilog += "      .{}({}){}".format(name.replace("_b", "_0_b"), name, separator)
-                	else:
-                    		verilog += "      .{}_0({}){}".format(name, name, separator)
+                    if name.find("_0") >= 0 or name.find("_1") >= 0:
+                        verilog += "      .{}({}){}".format(
+                            name, name, separator
+                        )
+                    elif name.find("_b") >= 0:
+                        verilog += "      .{}({}){}".format(
+                            name.replace("_b", "_0_b"), name, separator
+                        )
+                    else:
+                        verilog += "      .{}_0({}){}".format(
+                            name, name, separator
+                        )
 
     verilog = verilog[:-2] + ");\n\n"
 
