@@ -117,11 +117,17 @@ function(DEFINE_XC_PINMAP_CSV_INSTALL_TARGET)
     return()
   endif()
 
-  # FIXME: do not install a200t
-  # if(${DEVICE} STREQUAL "xc7a200t")
-  #   message(STATUS "FIXME: Skipping pinmap installation for ${DEVICE}-${PACKAGE} part: ${PART}")
-  #   return()
-  # endif()
+  if(DEFINED INSTALL_DEVICE)
+    if(NOT ${DEVICE} STREQUAL ${INSTALL_DEVICE})
+      return()
+    endif()
+  else()
+    # FIXME: do not install a200t by default
+    if(${DEVICE} STREQUAL "xc7a200t")
+      message(STATUS "FIXME: Skipping pinmap installation for ${DEVICE}-${PACKAGE} part: ${PART}")
+      return()
+    endif()
+  endif()
 
   get_target_property_required(PINMAP ${BOARD} PINMAP)
   get_file_location(PINMAP_FILE ${PINMAP})
