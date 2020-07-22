@@ -1533,8 +1533,10 @@ end
   if(WRITE_WIDTH_A < 18) begin
       assign WEA_WIDE = {4{WEA[0]}};
   end else if(WRITE_WIDTH_A == 18) begin
-      assign WEA_WIDE[3:2] = {2{WEA[1]}};
-      assign WEA_WIDE[1:0] = {2{WEA[0]}};
+      assign WEA_WIDE[3] = WEA[1];
+      assign WEA_WIDE[1] = WEA[1];
+      assign WEA_WIDE[2] = WEA[0];
+      assign WEA_WIDE[0] = WEA[0];
   end else if(WRITE_WIDTH_A == 36) begin
       assign WEA_WIDE = WEA;
   end
@@ -1544,8 +1546,10 @@ end
       assign WEBWE_WIDE[3:0] = {4{WEBWE[0]}};
   end else if(WRITE_WIDTH_B == 18) begin
       assign WEBWE_WIDE[7:4] = 4'b0;
-      assign WEBWE_WIDE[3:2] = {2{WEBWE[1]}};
-      assign WEBWE_WIDE[1:0] = {2{WEBWE[0]}};
+      assign WEBWE_WIDE[3] = WEBWE[1];
+      assign WEBWE_WIDE[1] = WEBWE[1];
+      assign WEBWE_WIDE[2] = WEBWE[0];
+      assign WEBWE_WIDE[0] = WEBWE[0];
   end else if(WRITE_WIDTH_B == 36) begin
       assign WEBWE_WIDE = WEBWE;
   end else if(WRITE_WIDTH_B == 72) begin
