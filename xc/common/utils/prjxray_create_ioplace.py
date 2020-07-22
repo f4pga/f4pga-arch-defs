@@ -9,16 +9,6 @@ import vpr_io_place
 from lib.parse_pcf import parse_simple_pcf
 
 
-def get_synth_tile_from_pad(synth_tiles, pad):
-    """ Gets synthetic IO tile containing pad.
-        Will return None if pad is not associated with any synth tile.
-    """
-    for _, tile in synth_tiles['tiles'].items():
-        for pin in tile['pins']:
-            if pin['pad'] == pad:
-                return tile
-
-
 def main():
     parser = argparse.ArgumentParser(
         description='Convert a PCF file into a VPR io.place file.'
