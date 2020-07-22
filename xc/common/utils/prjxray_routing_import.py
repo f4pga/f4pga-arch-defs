@@ -40,6 +40,7 @@ import functools
 import pickle
 
 import sqlite3
+from prjxray_db_cache import DatabaseCache
 
 now = datetime.datetime.now
 
@@ -1323,8 +1324,7 @@ def main():
     if synth_tiles is None:
         synth_tiles = find_constant_network(graph)
 
-    with sqlite3.connect("file:{}?mode=ro".format(args.connection_database),
-                         uri=True) as conn:
+    with DatabaseCache(args.connection_database, read_only=True) as conn:
 
         populate_bufg_rebuf_map(conn)
 
