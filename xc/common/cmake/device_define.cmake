@@ -72,6 +72,7 @@ function(ADD_XC_BOARD)
     PROPERTIES BIT_TO_V_EXTRA_ARGS " \
     --part ${PART}
     --connection_database ${CHANNELS_LOCATION}
+    --vpr_grid_map ${VPR_GRID_MAP_LOCATION}
   ")
 
   get_target_property_required(PYTHON3 env PYTHON3)
