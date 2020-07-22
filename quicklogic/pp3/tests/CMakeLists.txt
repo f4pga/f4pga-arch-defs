@@ -1,4 +1,5 @@
 add_custom_target(all_ql_tests)
+add_custom_target(all_quick_tests)
 
 # A test for LUT -> LOGIC cell techmaps
 add_subdirectory(techmaps)

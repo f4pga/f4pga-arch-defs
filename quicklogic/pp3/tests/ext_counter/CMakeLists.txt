@@ -15,6 +15,9 @@ add_jlink_output(
 
 add_dependencies(all_ql_tests ext_counter-ql-chandalar_bit)
 add_dependencies(all_ql_tests ext_counter-ql-chandalar_jlink)
+add_dependencies(all_quick_tests ext_counter-ql-chandalar_analysis)
+add_dependencies(ext_counter-ql-chandalar_analysis ext_counter-ql-chandalar_bit_v)
+
 
 add_file_target(FILE quickfeather.pcf)
 

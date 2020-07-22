@@ -22,4 +22,7 @@ add_jlink_output(
 
 add_dependencies(all_ql_tests ram_test-ql-chandalar_bit)
 add_dependencies(all_ql_tests ram_test-ql-chandalar_jlink)
+add_dependencies(all_quick_tests ram_test-ql-chandalar_analysis)
+add_dependencies(ram_test-ql-chandalar_analysis ram_test-ql-chandalar_bit_v)
+
 

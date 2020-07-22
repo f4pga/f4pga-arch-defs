@@ -10,4 +10,6 @@ add_fpga_target(
   )
 
 add_dependencies(all_ql_tests ext_mult-ql-chandalar_route)
+add_dependencies(all_quick_tests ext_mult-ql-chandalar_analysis)
+add_dependencies(ext_mult-ql-chandalar_analysis ext_mult-ql-chandalar_bit_v)
 

@@ -1,3 +1,5 @@
+#add_custom_target(all_ql_tests)
+
 add_subdirectory(bin2seven)
 add_subdirectory(clock_tree_design)
 add_subdirectory(clock_test)

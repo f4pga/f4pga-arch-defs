@@ -21,4 +21,7 @@ add_jlink_output(
 
 add_dependencies(all_ql_tests fifo_test-ql-chandalar_bit)
 add_dependencies(all_ql_tests fifo_test-ql-chandalar_jlink)
+add_dependencies(all_quick_tests fifo_test-ql-chandalar_analysis)
+add_dependencies(fifo_test-ql-chandalar_analysis fifo_test-ql-chandalar_bit_v)
+
 
