@@ -62,6 +62,9 @@ if { $::env(USE_ROI) == "TRUE" } {
     synth_xilinx -vpr -flatten -abc9 -nosrl -noclkbuf -nodsp -iopad -nowidelut -run map_ffs:check
 }
 
+write_ilang $::env(OUT_JSON).post_abc9.ilang
+
+chtype -map CARRY4_VPR CARRY4_FIX
 techmap -map  $::env(TECHMAP_PATH)/cells_map.v
 
 # opt_expr -undriven makes sure all nets are driven, if only by the $undef
