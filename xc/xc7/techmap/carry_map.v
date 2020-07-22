@@ -35,14 +35,22 @@ module CARRY4(
   //  - Change into CARRY_CO_LUT when O and CO are required (e.g. compute CO
   //    from O ^ S).
   genvar i;
-  generate for (i = 0; i < 4; i = i + 1) begin:co_outputs
-      CARRY_CO_DIRECT co_output(
+  generate for (i = 0; i < 3; i = i + 1) begin:co_outputs
+      CARRY_CO_DIRECT #(.TOP_OF_CHAIN(0)) co_output(
           .CO(CO_output[i]),
-          .O(O[i]),
-          .S(S[i]),
+          .O(O[i+1]),
+          .S(S[i+1]),
           .OUT(CO[i])
       );
   end endgenerate
+
+  CARRY_CO_DIRECT #(.TOP_OF_CHAIN(1)) co_output(
+      .CO(CO_output[3]),
+      .O(O[3]),
+      .S(S[3]),
+      .DI(DI[3]),
+      .OUT(CO[3])
+  );
 
   if(IS_CYINIT_FABRIC) begin
     CARRY4_VPR #(
