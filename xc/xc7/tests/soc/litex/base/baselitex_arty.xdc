@@ -1,4 +1,4 @@
-# ### serial:0.tx
+### serial:0.tx
 ##set_property LOC D10 [get_ports serial_tx]
 set_property IOSTANDARD LVCMOS33 [get_ports serial_tx]
 # ### serial:0.rx
@@ -74,6 +74,9 @@ set_property IOSTANDARD SSTL135 [get_ports {ddram_a[13]} ]
 set_property SLEW FAST [get_ports {ddram_ba[0]} ]
 set_property IOSTANDARD SSTL135 [get_ports {ddram_ba[0]} ]
 # ### ddram:0.ba
+##set_property LOC P4 [get_ports {ddram_ba[1]} ]
+set_property SLEW FAST [get_ports {ddram_ba[1]} ]
+set_property IOSTANDARD SSTL135 [get_ports {ddram_ba[1]} ]
 # ### ddram:0.ba
 ##set_property LOC P2 [get_ports {ddram_ba[2]} ]
 set_property SLEW FAST [get_ports {ddram_ba[2]} ]
