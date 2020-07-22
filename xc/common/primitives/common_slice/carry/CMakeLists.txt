@@ -3,6 +3,16 @@ add_file_target(
   SCANNER_TYPE verilog
   )
 
+add_file_target(
+  FILE carry_cout_plug.sim.v
+  SCANNER_TYPE verilog
+  )
+
+v2x(
+    NAME carry_cout_plug
+    SRCS carry_cout_plug.sim.v
+    )
+
 # TODO - Switch to use V2X once FASM parameter support exists.
 #v2x(
 #  NAME carry4_vpr
