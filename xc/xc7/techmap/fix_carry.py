@@ -116,7 +116,7 @@ def create_bit_to_cell_map(design, top_module):
 
                 if is_output:
                     # First element of list of cells is net driver.
-                    assert list_of_cells[0] is None
+                    assert list_of_cells[0] is None, (bit, list_of_cells[0], cellname)
                     list_of_cells[0] = (cellname, port, bit_idx)
                 else:
                     list_of_cells.append((cellname, port, bit_idx))

@@ -53,14 +53,14 @@ endmodule
 // Carry chain primitives
 
 // Output CO directly
-module CARRY_CO_DIRECT(input CO, input O, input S, output OUT);
+module CARRY_CO_DIRECT(input CO, input O, input S, input DI, output OUT);
 
 assign OUT = CO;
 
 endmodule
 
 // Compute CO from O and S
-module CARRY_CO_LUT(input CO, input O, input S, output OUT);
+module CARRY_CO_LUT(input CO, input O, input S, input DI, output OUT);
 
 assign OUT = O ^ S;
 

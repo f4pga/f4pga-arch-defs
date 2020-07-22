@@ -53,7 +53,7 @@ generate if(TOP_OF_CHAIN)
     // DI, S, O (1, 1, 0) = 6 => OUT = S ^ O => 1
     // DI, S, O (1, 1, 1) = 7 => OUT = S ^ O => 0
     //
-    LUT3 #(.INIT(4'b01110100)) mux_and_xor_lut (.I0(O), .I1(S), .I2(DI), .O(OUT));
+    LUT3 #(.INIT(8'b01110100)) mux_and_xor_lut (.I0(O), .I1(S), .I2(DI), .O(OUT));
 else
     // S == S[i+1]
     // O == O[i+1]
@@ -69,6 +69,6 @@ else
     // S, O (1, 1) = 3 => 0
     //
     LUT2 #(.INIT(4'b0110)) xor_lut (.I0(O), .I1(S), .O(OUT));
-end endgenerate
+endgenerate
 
 endmodule
