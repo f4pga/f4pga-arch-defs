@@ -55,12 +55,6 @@ def main():
         help='The output io.place file'
     )
     parser.add_argument(
-        "--synth_tiles",
-        type=str,
-        required=False,
-        help='Synth tiles json file'
-    )
-    parser.add_argument(
         "--iostandard_defs", help='(optional) Output IOSTANDARD def file'
     )
     parser.add_argument(
@@ -100,6 +94,7 @@ def main():
             ),
             pin_map_entry['is_output'],
             pin_map_entry['iob'],
+            pin_map_entry['real_io_assoc'],
         )
 
     iostandard_defs = {}
@@ -137,9 +132,6 @@ Conflicting pad constraints for net {}:\n{}\n{}""".format(
                 file=sys.stderr
             )
             sys.exit(1)
-    if args.synth_tiles:
-        with open(args.synth_tiles) as f:
-            synth_tiles = json.load(f)
 
     # Constrain nets
     for net, pad in net_to_pad:
@@ -163,39 +155,26 @@ Constrained pad {} is not in available pad map:\n{}""".format(
             )
             sys.exit(1)
 
-        loc, is_output, iob = pad_map[pad]
-
-        if args.synth_tiles:
-            tile = get_synth_tile_from_pad(synth_tiles, pad)
-            # If tile is None, the pcf_constraint is not associated with a synth tile
-            # Occurs in overlays or other architectures with a mix of synth and real IOs
-            if tile:
-                pin_list = list(
-                    filter(lambda p: p['pad'] == pad, tile['pins'])
-                )
-                assert len(pin_list) == 1
-                pin, = pin_list
-                z_loc = pin['z_loc']
-                x, y, _ = loc
-                loc = (x, y, z_loc)
+        loc, is_output, iob, real_io_assoc = pad_map[pad]
 
         io_place.constrain_net(
             net_name=net,
             loc=loc,
             comment="set_property LOC {} [get_ports {{{}}}]".format(pad, net)
         )
-        if pad in iostandard_constraints:
-            iostandard_defs[iob] = iostandard_constraints[pad]
-        else:
-            if is_output:
-                iostandard_defs[iob] = {
-                    'DRIVE': args.drive,
-                    'IOSTANDARD': args.iostandard,
-                }
+        if real_io_assoc == 'True':
+            if pad in iostandard_constraints:
+                iostandard_defs[iob] = iostandard_constraints[pad]
             else:
-                iostandard_defs[iob] = {
-                    'IOSTANDARD': args.iostandard,
-                }
+                if is_output:
+                    iostandard_defs[iob] = {
+                        'DRIVE': args.drive,
+                        'IOSTANDARD': args.iostandard,
+                    }
+                else:
+                    iostandard_defs[iob] = {
+                        'IOSTANDARD': args.iostandard,
+                    }
 
     io_place.output_io_place(args.output)
 
