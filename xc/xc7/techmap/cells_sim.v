@@ -53,15 +53,9 @@ endmodule
 // Carry chain primitives
 
 // Output CO directly
-
-(* abc9_box, blackbox *)
 module CARRY_CO_DIRECT(input CO, input O, input S, output OUT);
 
 assign OUT = CO;
-
-specify
-(CO => OUT) = 0;
-endspecify
 
 endmodule
 
