@@ -1,6 +1,7 @@
 import json
 import sys
 
+
 def find_top_module(design):
     """
     Looks for the top-level module in the design. Returns its name. Throws
@@ -43,7 +44,8 @@ def find_carry4_chains(design, top_module, bit_to_cells):
             assert len(cin_connections) == 1
 
             # Goto driver of CIN, should be a CARRY_CO_DIRECT.
-            direct_cellname, port, bit_idx = bit_to_cells[cin_connections[0]][0]
+            direct_cellname, port, bit_idx = bit_to_cells[cin_connections[0]
+                                                          ][0]
             direct_cell = cells[direct_cellname]
             assert direct_cell["type"] == "CARRY_CO_DIRECT", direct_cellname
             assert port == "OUT"
@@ -194,7 +196,9 @@ def fixup_congested_rows(design, top_module, bit_to_cells, chain):
             co_bit = co_conns[0]
 
             is_o_used = is_bit_used(bit_to_cells, o_bit)
-            is_co_used, direct_cellname = is_bit_used_other_than_carry4_cin(design, top_module, co_bit, bit_to_cells)
+            is_co_used, direct_cellname = is_bit_used_other_than_carry4_cin(
+                design, top_module, co_bit, bit_to_cells
+            )
 
             if is_o_used and is_co_used:
                 # Output at this row is congested.
@@ -203,7 +207,9 @@ def fixup_congested_rows(design, top_module, bit_to_cells, chain):
                 direct_cell = cells[direct_cellname]
                 direct_cell["type"] = "CARRY_CO_LUT"
 
-                fixup_cin(design, top_module, bit_to_cells, co_bit, direct_cellname)
+                fixup_cin(
+                    design, top_module, bit_to_cells, co_bit, direct_cellname
+                )
 
 
 def main():
@@ -216,6 +222,7 @@ def main():
         fixup_congested_rows(design, top_module, bit_to_cells, chain)
 
     json.dump(design, sys.stdout, indent=2)
+
 
 if __name__ == "__main__":
     main()
