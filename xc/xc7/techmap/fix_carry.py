@@ -116,7 +116,9 @@ def create_bit_to_cell_map(design, top_module):
 
                 if is_output:
                     # First element of list of cells is net driver.
-                    assert list_of_cells[0] is None, (bit, list_of_cells[0], cellname)
+                    assert list_of_cells[0] is None, (
+                        bit, list_of_cells[0], cellname
+                    )
                     list_of_cells[0] = (cellname, port, bit_idx)
                 else:
                     list_of_cells.append((cellname, port, bit_idx))
@@ -155,7 +157,7 @@ def is_bit_used_other_than_carry4_cin(design, top_module, bit, bit_to_cells):
 
 
 def fixup_cin(design, top_module, bit_to_cells, co_bit, direct_cellname):
-    """ Move connection from CARRY_CO_LUT.OUT -> CARRY_COUT_PLUG.CIN to 
+    """ Move connection from CARRY_CO_LUT.OUT -> CARRY_COUT_PLUG.CIN to
         directly to preceeding CARRY4.
     """
     cells = design["modules"][top_module]["cells"]
