@@ -14,7 +14,7 @@ if { $::env(USE_ROI) == "TRUE" } {
     synth_xilinx -flatten -abc9 -nosrl -noclkbuf -nodsp -noiopad -nowidelut
 } else {
     # Read Yosys baseline library first.
-    read_verilog -lib -specify -D_EXPLICIT_CARRY +/xilinx/cells_sim.v
+    read_verilog -lib -specify +/xilinx/cells_sim.v
     read_verilog -lib +/xilinx/cells_xtra.v
 
     # Overwrite some models (e.g. IBUF with more parameters)
@@ -45,7 +45,7 @@ read_json $::env(OUT_JSON).carry_fixup_out.json
 techmap -map  $::env(TECHMAP_PATH)/clean_carry_map.v
 
 # Re-read baseline libraries
-read_verilog -lib -specify -D_EXPLICIT_CARRY +/xilinx/cells_sim.v
+read_verilog -lib -specify +/xilinx/cells_sim.v
 read_verilog -lib +/xilinx/cells_xtra.v
 read_verilog -specify -lib $::env(TECHMAP_PATH)/cells_sim.v
 if { $::env(USE_ROI) != "TRUE" } {
