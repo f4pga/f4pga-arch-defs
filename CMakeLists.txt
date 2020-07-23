@@ -27,7 +27,7 @@ add_custom_target(all_ice40_tests)
 set(ENV_DIR ${symbiflow-arch-defs_SOURCE_DIR}/env/conda/envs/symbiflow_arch_def_base/ CACHE PATH "Path to environment")
 set(YOSYS_DATADIR ${ENV_DIR}/share/yosys CACHE PATH "Path to yosys data directory")
 set(VPR_CAPNP_SCHEMA_DIR ${ENV_DIR}/capnp CACHE PATH "Path to VPR schema directory")
-set(INSTALL_DEVICE "small_devices" CACHE STRING "The device or device set to install")
+set(INSTALL_DEVICE "small_devices" CACHE STRING "The device to install, or 'small_devices', which includes all devices except xc7a200t.")
 
 
 setup_env()
