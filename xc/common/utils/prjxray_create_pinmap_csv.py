@@ -28,8 +28,8 @@ WHERE
  site_instance.name = ?;""", (site_name, )
     )
     results = cur.fetchall()
-    assert len(results) == 1, site_name
-    return results[0]
+    if len(results) == 1:
+        return results[0]
 
 
 def main():
@@ -71,9 +71,11 @@ def main():
         for line in csv.DictReader(args.package_pins):
             assert line['pin'] not in pin_to_iob
             loc = get_vpr_coords_from_site_name(conn, line['site'])
-            pin_to_iob[line['pin']] = (line['site'], loc)
+            if loc:
+                pin_to_iob[line['pin']] = (line['site'], loc)
 
-    synth_tiles = json.load(args.synth_tiles)
+    if args.synth_tiles:
+        synth_tiles = json.load(args.synth_tiles)
 
     fieldnames = [
         'name', 'x', 'y', 'z', 'is_clock', 'is_input', 'is_output', 'iob',
