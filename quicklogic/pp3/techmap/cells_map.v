@@ -380,6 +380,23 @@ endmodule
 // ============================================================================
 // Multiplexers
 
+module mux2x0 (
+  output Q,
+  input  S,
+  input  A,
+  input  B
+);
+
+  // The F-Frag
+  F_FRAG f_frag (
+  .F1(A),
+  .F2(B),
+  .FS(S),
+  .FZ(Q)
+  );
+
+endmodule
+
 module mux4x0 (
     output Q,
     input  S0,
@@ -405,7 +422,7 @@ module mux4x0 (
   .XA2(B),
   .XB1(C),
   .XB2(D),
-  .XZ (O)
+  .XZ (Q)
   );
 
 endmodule
@@ -449,7 +466,7 @@ module mux8x0 (
   .BA2(F),
   .BB1(G),
   .BB2(H),
-  .CZ (O)
+  .CZ (Q)
   );
 
 endmodule
