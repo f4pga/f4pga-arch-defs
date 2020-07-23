@@ -1,3 +1,27 @@
+""" Script for addressing CARRY4 output congestion in elaborated netlists.
+
+Usage:
+
+    python3 fix_carry.py < input-netlist-json > output-netlist-json
+
+Description:
+
+    In the 7-series SLICEL (and SLICEM) sites, there can be output congestion
+    if both the CO and O of the CARRY4 are used.  This congestion can be
+    avoided if transparent/open latches or registers on the output of the
+    CARRY4.
+
+    VPR does not currently support either of those options, so for now, if
+    both CO and O are used, the CO output is converted into a LUT equation to
+    recompute the CO output from O, DI and S.  See carry_map.v and
+    clean_carry_map.v for details.
+
+    This script identifies CARRY4 chains in the netlist, identifies if there
+    is output congestion on the O and CO ports, and marks the congestion by
+    changing CARRY_CO_DIRECT (e.g. directly use the CO port) to CARRY_CO_LUT
+    (compute the CO value using a LUT equation).
+
+"""
 import json
 import sys
 
@@ -17,6 +41,23 @@ def find_top_module(design):
 
 
 def find_carry4_chains(design, top_module, bit_to_cells):
+    """ Identify CARRY4 carry chains starting from the root CARRY4.
+
+    All non-root CARRY4 cells should end up as part of a chain, otherwise
+    an assertion is raised.
+
+    Arguments:
+     design (dict) - "design" field from Yosys JSON format
+     top_module (str) - Name of top module.
+     bit_to_cells (dict) - Map of net bit identifier and cell information.
+        Computes in "create_bit_to_cell_map".
+
+    Returns:
+        list of list of strings - List of CARRY4 chains.  Each chain is a list
+            of cellnames.  The cells are listed in chain order, starting from
+            the root.
+
+    """
     cells = design["modules"][top_module]["cells"]
 
     used_carry4s = set()
@@ -98,6 +139,27 @@ def find_carry4_chains(design, top_module, bit_to_cells):
 
 
 def create_bit_to_cell_map(design, top_module):
+    """ Create map from net bit identifier to cell information.
+
+    Arguments:
+     design (dict) - "design" field from Yosys JSON format
+     top_module (str) - Name of top module.
+
+    Returns:
+     bit_to_cells (dict) - Map of net bit identifier and cell information.
+        Computes in "create_bit_to_cell_map".
+
+    The map keys are the net bit identifier used to mark which net a cell port
+    is connected too.  The map values are a list of cell ports that are in the
+    net.  The first element of the list is the driver port, and the remaining
+    elements are sink ports.
+
+    The list elements are 3-tuples with:
+      cellname (str) - The name of the cell this port belongs too
+      port (str) - The name of the port this element is connected too.
+      bit_idx (int) - For multi bit ports, a 0-based index into the port.
+
+    """
     bit_to_cells = {}
 
     cells = design["modules"][top_module]["cells"]
@@ -127,12 +189,14 @@ def create_bit_to_cell_map(design, top_module):
 
 
 def is_bit_used(bit_to_cells, bit):
+    """ Is the net bit specified used by any sinks? """
     list_of_cells = bit_to_cells[bit]
 
     return len(list_of_cells) > 1
 
 
 def is_bit_used_other_than_carry4_cin(design, top_module, bit, bit_to_cells):
+    """ Is the net bit specified used by any sinks other than a carry chain? """
     cells = design["modules"][top_module]["cells"]
     list_of_cells = bit_to_cells[bit]
     assert len(list_of_cells) == 2, bit
@@ -178,6 +242,16 @@ def fixup_cin(design, top_module, bit_to_cells, co_bit, direct_cellname):
 
 
 def fixup_congested_rows(design, top_module, bit_to_cells, chain):
+    """ Walk the specified carry chain, and identify if any outputs are congested.
+
+    Arguments:
+     design (dict) - "design" field from Yosys JSON format
+     top_module (str) - Name of top module.
+     bit_to_cells (dict) - Map of net bit identifier and cell information.
+        Computes in "create_bit_to_cell_map".
+     chain (list of str) - List of cells in the carry chain.
+
+    """
     cells = design["modules"][top_module]["cells"]
 
     O_ports = ["O0", "O1", "O2", "O3"]
