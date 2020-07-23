@@ -74,6 +74,7 @@ def main():
             if loc:
                 pin_to_iob[line['pin']] = (line['site'], loc)
 
+    args.package_pins.seek(0)
     if args.synth_tiles:
         synth_tiles = json.load(args.synth_tiles)
 
