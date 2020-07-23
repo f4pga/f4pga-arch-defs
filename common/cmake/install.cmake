@@ -36,10 +36,14 @@ function(INSTALL_DEVICE_FILES)
 
   set(INSTALL_FILES)
 
-  # FIXME: do not install a200t
-  if(${DEVICE} STREQUAL "xc7a200t")
-    message(STATUS "FIXME: Skipping device files installation for ${DEVICE}-${PACKAGE} type: ${DEVICE_TYPE}")
-    return()
+  if("small_devices" STREQUAL ${INSTALL_DEVICE})
+    if(${DEVICE} STREQUAL "xc7a200t")
+      return()
+    endif()
+  else()
+    if(NOT ${DEVICE} STREQUAL ${INSTALL_DEVICE})
+      return()
+    endif()
   endif()
 
   # Get files to be installed
