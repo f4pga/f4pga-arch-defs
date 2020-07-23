@@ -105,3 +105,17 @@ module IOBUFDS (
   parameter PULLTYPE = "NONE"; // Not supported by Vivado ?
   parameter IO_LOC_PAIRS = ""; // Used by read_xdc.
 endmodule
+
+module OBUFTDS (
+    (* iopad_external_pin *)
+    output O;
+    (* iopad_external_pin *)
+    output OB;
+    input I;
+    input T;
+    );
+    parameter CAPACITANCE = "DONT_CARE";
+    parameter IOSTANDARD = "DEFAULT";
+    parameter SLEW = "SLOW";
+    parameter IO_LOC_PAIRS = ""; // Used by read_xdc.
+endmodule
