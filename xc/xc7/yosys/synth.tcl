@@ -64,6 +64,13 @@ if { $::env(USE_ROI) == "TRUE" } {
 
 write_ilang $::env(OUT_JSON).post_abc9.ilang
 
+# Either the JSON bounce or ABC9 pass causes the CARRY4_VPR CIN/CYINIT pins
+# to have 0's when unused.  As a result VPR will attempt to route a 0 to those
+# ports. However this is not generally possible or desirable.
+#
+# $::env(TECHMAP_PATH)/cells_map.v has a simple techmap pass where these
+# unused ports are removed.  In theory yosys's "rmports" would work here, but
+# it does not.
 chtype -map CARRY4_VPR CARRY4_FIX
 techmap -map  $::env(TECHMAP_PATH)/cells_map.v
 
