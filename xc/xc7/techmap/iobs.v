@@ -108,11 +108,11 @@ endmodule
 
 module OBUFTDS (
     (* iopad_external_pin *)
-    output O;
+    output O,
     (* iopad_external_pin *)
-    output OB;
-    input I;
-    input T;
+    output OB,
+    input I,
+    input T
     );
     parameter CAPACITANCE = "DONT_CARE";
     parameter IOSTANDARD = "DEFAULT";

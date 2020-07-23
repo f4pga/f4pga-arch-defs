@@ -147,7 +147,6 @@ def create_bit_to_cell_map(design, top_module):
 
     Returns:
      bit_to_cells (dict) - Map of net bit identifier and cell information.
-        Computes in "create_bit_to_cell_map".
 
     The map keys are the net bit identifier used to mark which net a cell port
     is connected too.  The map values are a list of cell ports that are in the
@@ -220,6 +219,27 @@ def is_bit_used_other_than_carry4_cin(design, top_module, bit, bit_to_cells):
     return False, direct_cellname
 
 
+def create_bit_to_net_map(design, top_module):
+    """ Create map from net bit identifier to net information.
+
+    Arguments:
+     design (dict) - "design" field from Yosys JSON format
+     top_module (str) - Name of top module.
+
+    Returns:
+     bit_to_nets (dict) - Map of net bit identifier to net information.
+    """
+    bit_to_nets = {}
+
+    nets = design["modules"][top_module]["netnames"]
+
+    for net in nets:
+        for bit_idx, bit in enumerate(nets[net]["bits"]):
+            bit_to_nets[bit] = (net, bit_idx)
+
+    return bit_to_nets
+
+
 def fixup_cin(design, top_module, bit_to_cells, co_bit, direct_cellname):
     """ Move connection from CARRY_CO_LUT.OUT -> CARRY_COUT_PLUG.CIN to
         directly to preceeding CARRY4.
@@ -241,7 +261,7 @@ def fixup_cin(design, top_module, bit_to_cells, co_bit, direct_cellname):
             cells[cellname]["connections"]["CIN"][0] = co_bit
 
 
-def fixup_congested_rows(design, top_module, bit_to_cells, chain):
+def fixup_congested_rows(design, top_module, bit_to_cells, bit_to_nets, chain):
     """ Walk the specified carry chain, and identify if any outputs are congested.
 
     Arguments:
@@ -249,6 +269,8 @@ def fixup_congested_rows(design, top_module, bit_to_cells, chain):
      top_module (str) - Name of top module.
      bit_to_cells (dict) - Map of net bit identifier and cell information.
         Computes in "create_bit_to_cell_map".
+     bit_to_nets (dict) - Map of net bit identifier to net information.
+        Computes in "create_bit_to_net_map".
      chain (list of str) - List of cells in the carry chain.
 
     """
@@ -257,12 +279,33 @@ def fixup_congested_rows(design, top_module, bit_to_cells, chain):
     O_ports = ["O0", "O1", "O2", "O3"]
     CO_ports = ["CO0", "CO1", "CO2", "CO3"]
 
+    def check_if_rest_of_carry4_is_unused(cellname, cell_idx):
+        assert cell_idx < len(O_ports) - 1
+
+        cell = cells[cellname]
+        connections = cell["connections"]
+
+        for o, co in zip(O_ports[cell_idx:], CO_ports[cell_idx:]):
+            o_conns = connections[o]
+            assert len(o_conns) == 1
+            o_bit = o_conns[0]
+            if is_bit_used(bit_to_cells, o_bit):
+                return False
+
+            co_conns = connections[co]
+            assert len(co_conns) == 1
+            co_bit = co_conns[0]
+            if is_bit_used(bit_to_cells, co_bit):
+                return False
+
+        return True
+
     # Carry chain is congested if both O and CO is used at the same level.
     # CO to next element in the chain is fine.
-    for chain in chain:
-        cell = cells[chain]
+    for chain_idx, cellname in enumerate(chain):
+        cell = cells[cellname]
         connections = cell["connections"]
-        for o, co in zip(O_ports, CO_ports):
+        for cell_idx, (o, co) in enumerate(zip(O_ports, CO_ports)):
             o_conns = connections[o]
             assert len(o_conns) == 1
             o_bit = o_conns[0]
@@ -278,14 +321,44 @@ def fixup_congested_rows(design, top_module, bit_to_cells, chain):
 
             if is_o_used and is_co_used:
                 # Output at this row is congested.
-                # Change CARRY_CO_DIRECT to CARRY_CO_LUT, but also directly
-                # connected the carry chain (if any).
                 direct_cell = cells[direct_cellname]
-                direct_cell["type"] = "CARRY_CO_LUT"
 
-                fixup_cin(
-                    design, top_module, bit_to_cells, co_bit, direct_cellname
-                )
+                if co == 'CO3' and chain_idx == len(chain) - 1:
+                    # This congestion is on the top of the carry chain,
+                    # emit a dummy layer to the chain.
+                    direct_cell["type"] = "CARRY_CO_TOP_POP"
+                    assert int(direct_cell["parameters"]["TOP_OF_CHAIN"]) == 1
+                # If this is the last CARRY4 in the chain, see if the
+                # remaining part of the chain is idle.
+                elif chain_idx == len(chain) - 1 and \
+                    check_if_rest_of_carry4_is_unused(cellname, cell_idx + 1):
+
+                    # Because the rest of the CARRY4 is idle, it is safe to
+                    # use the next row up to output the top of the carry.
+                    connections["S{}".format(cell_idx + 1)] = ["1'b0"]
+
+                    next_o_conns = connections[O_ports[cell_idx + 1]]
+                    assert len(next_o_conns) == 1
+                    direct_cell["connections"]["CO"][0] = next_o_conns[0]
+
+                    netname, bit_idx = bit_to_nets[next_o_conns[0]]
+                    assert bit_idx == 0
+
+                    # Update annotation that this net is now in use.
+                    net = design["module"][top_module]["netnames"][netname]
+                    assert net["attributes"].get("unused_bits", None) == "0 "
+                    del net["attributes"]["unused_bits"]
+                else:
+                    # The previous two stragies (use another layer of carry)
+                    # only work for the top of the chain.  This appears to be
+                    # in the middle of the chain, so just spill it out to a
+                    # LUT, and fixup the direct carry chain (if any).
+                    direct_cell["type"] = "CARRY_CO_LUT"
+
+                    fixup_cin(
+                        design, top_module, bit_to_cells, co_bit,
+                        direct_cellname
+                    )
 
 
 def main():
@@ -293,9 +366,12 @@ def main():
     top_module = find_top_module(design)
 
     bit_to_cells = create_bit_to_cell_map(design, top_module)
+    bit_to_nets = create_bit_to_net_map(design, top_module)
 
     for chain in find_carry4_chains(design, top_module, bit_to_cells):
-        fixup_congested_rows(design, top_module, bit_to_cells, chain)
+        fixup_congested_rows(
+            design, top_module, bit_to_cells, bit_to_nets, chain
+        )
 
     json.dump(design, sys.stdout, indent=2)
 

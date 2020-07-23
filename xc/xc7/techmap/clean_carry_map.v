@@ -1,7 +1,7 @@
 // Output CO directly
 module CARRY_CO_DIRECT(input CO, input O, input S, input DI, output OUT);
 
-parameter TOP_OF_CHAIN = 0;
+parameter TOP_OF_CHAIN = 1'b0;
 
 assign OUT = CO;
 
@@ -10,7 +10,7 @@ endmodule
 // Compute CO from S, DI, O.
 module CARRY_CO_LUT(input CO, input O, input S, input DI, output OUT);
 
-parameter TOP_OF_CHAIN = 0;
+parameter TOP_OF_CHAIN = 1'b0;
 
 generate if(TOP_OF_CHAIN)
     // S == S[i]
@@ -70,5 +70,29 @@ else
     //
     LUT2 #(.INIT(4'b0110)) xor_lut (.I0(O), .I1(S), .O(OUT));
 endgenerate
+
+endmodule
+
+module CARRY_CO_TOP_POP(input CO, input O, input S, input DI, output OUT);
+// Add 1 dummy layer to the carry chain to get the CO, this can only be used
+// at the top of the carry chain when CO[3] was needed.
+
+parameter TOP_OF_CHAIN = 1'b0;
+
+wire cin_from_below;
+CARRY_COUT_PLUG cin_plug(
+    .CIN(CO),
+    .COUT(cin_from_below)
+);
+
+CARRY4_VPR #(
+    .CYINIT_AX(1'b0),
+    .CYINIT_C0(1'b0),
+    .CYINIT_C1(1'b0)
+) dummy (
+    .CIN(cin_from_below),
+    .O0(OUT),
+    .S0(1'b0)
+);
 
 endmodule
