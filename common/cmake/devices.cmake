@@ -963,7 +963,7 @@ function(ADD_BITSTREAM_TARGET)
         set(FASM_TO_BIT_DEPS "")
       endif()
 
-      string(APPEND ALL_OUT_FASM ${OUT_FASM} )
+      append_file_dependency(ALL_OUT_FASM ${OUT_FASM})
 
       if(USE_OVERLAY)
         if (NOT OVERLAY)
@@ -1708,6 +1708,7 @@ function(ADD_FPGA_TARGET)
     )
     add_custom_target(${NAME}_fasm DEPENDS ${OUT_FASM})
 
+    add_output_to_fpga_target(${NAME} FASM ${OUT_FASM})
     set_target_properties(${NAME} PROPERTIES OUT_FASM ${OUT_FASM})
   else()
     # Generate HLC
