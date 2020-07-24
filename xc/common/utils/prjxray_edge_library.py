@@ -2206,8 +2206,10 @@ def create_edges(args):
 
             region_dict = dict()
             for r in synth_tiles['info']:
-                bounds = (r['GRID_X_MIN'], r['GRID_X_MAX'],
-                          r['GRID_Y_MIN'], r['GRID_Y_MAX'])
+                bounds = (
+                    r['GRID_X_MIN'], r['GRID_X_MAX'], r['GRID_Y_MIN'],
+                    r['GRID_Y_MAX']
+                )
                 region_dict[r['name']] = bounds
 
             roi = Overlay(region_dict=region_dict)

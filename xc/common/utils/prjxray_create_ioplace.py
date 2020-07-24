@@ -125,23 +125,6 @@ Conflicting pad constraints for net {}:\n{}\n{}""".format(
 
     # Constrain nets
     for net, pad in net_to_pad:
-        synth_tile_pad = False
-        if args.synth_tiles:
-            tile = get_synth_tile_from_pad(synth_tiles, pad)
-            # If tile is None, the pcf_constraint is not associated with a synth tile
-            # Occurs in overlays or other architectures with a mix of synth and real IOs
-            if tile:
-                synth_tile_pad = True
-                pin_list = list(
-                    filter(lambda p: p['pad'] == pad, tile['pins'])
-                )
-                assert len(pin_list) == 1
-                pin, = pin_list
-                z_loc = pin['z_loc']
-                loc = tile['loc']
-                x, y = loc
-                loc = (x, y, z_loc)
-
         if not io_place.is_net(net):
             print(
                 """ERROR:
@@ -152,7 +135,7 @@ Constrained net {} is not in available netlist:\n{}""".format(
             )
             sys.exit(1)
 
-        if pad not in pad_map and not synth_tile_pad:
+        if pad not in pad_map:
             print(
                 """ERROR:
 Constrained pad {} is not in available pad map:\n{}""".format(
@@ -169,7 +152,6 @@ Constrained pad {} is not in available pad map:\n{}""".format(
             loc=loc,
             comment="set_property LOC {} [get_ports {{{}}}]".format(pad, net)
         )
-
         if real_io_assoc == 'True':
             if pad in iostandard_constraints:
                 iostandard_defs[iob] = iostandard_constraints[pad]
