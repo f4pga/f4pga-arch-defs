@@ -10,10 +10,16 @@
             },
         "ports": [
             {
-                "name": "clk",
+                "name": "clk1",
                 "type": "clk",
                 "node": "CLK_HROW_TOP_R_X60Y130/CLK_HROW_CK_BUFHCLK_L0",
                 "pin": "SYN0"
+            },
+            {
+                "name": "clk2",
+                "type": "clk",
+                "node": "CLK_HROW_TOP_R_X60Y130/CLK_HROW_CK_BUFHCLK_L1",
+                "pin": "SYN17"
             },
             {
                 "name": "din[0]",

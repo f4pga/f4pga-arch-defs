@@ -1,7 +1,8 @@
 # clk
 set_io clk E3
 
-set_io clk_pr1 SYN0
+set_io clk1_pr1 SYN0
+set_io clk2_pr1 SYN17
 
 # sw[7:0] corresponds to {BTN3-0, SW3-0} in arty
 set_io sw[0] A8
