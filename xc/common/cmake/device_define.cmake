@@ -124,6 +124,7 @@ function(ADD_XC_BOARD)
     set_target_properties(${BOARD}
       PROPERTIES FASM_TO_BIT_EXTRA_ARGS " \
       --part ${PART} \
+      --part_file ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/${PART}/part.yaml \
     ")
 
     set_target_properties(${BOARD}

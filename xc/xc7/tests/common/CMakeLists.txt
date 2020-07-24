@@ -7,6 +7,7 @@ add_file_target(FILE basys3_pmod.pcf)
 add_file_target(FILE arty_uart.pcf)
 add_file_target(FILE arty_swbut.pcf)
 add_file_target(FILE arty_swbut_pr_overlay.pcf)
+add_file_target(FILE arty_swbut_pr_2clk.pcf)
 add_file_target(FILE arty_swbut_pr.pcf)
 
 # ZYBO constraint files
