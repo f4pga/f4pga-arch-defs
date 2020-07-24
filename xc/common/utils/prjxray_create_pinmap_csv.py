@@ -5,6 +5,7 @@ import argparse
 import sys
 import csv
 import sqlite3
+import json
 
 
 def get_vpr_coords_from_site_name(conn, site_name):
@@ -27,8 +28,8 @@ WHERE
  site_instance.name = ?;""", (site_name, )
     )
     results = cur.fetchall()
-    assert len(results) == 1, site_name
-    return results[0]
+    if len(results) == 1:
+        return results[0]
 
 
 def main():
@@ -45,28 +46,80 @@ def main():
         required=True
     )
     parser.add_argument(
+        "--synth_tiles",
+        type=argparse.FileType('r'),
+        required=False,
+        help='Pin map synth_tiles JSON file'
+    )
+    parser.add_argument(
+        "--overlay",
+        type=bool,
+        required=False,
+        help='Whether the pin map should contain a mix of real and synth IOs'
+    )
+    parser.add_argument(
         "--package_pins",
         type=argparse.FileType('r'),
         required=True,
-        help='Map listing relationship between pads and sites.',
+        help='Map listing relationship between pads and sites.'
     )
 
     args = parser.parse_args()
 
+    pin_to_iob = {}
+    with sqlite3.connect(args.connection_database) as conn:
+        for line in csv.DictReader(args.package_pins):
+            assert line['pin'] not in pin_to_iob
+            loc = get_vpr_coords_from_site_name(conn, line['site'])
+            if loc:
+                pin_to_iob[line['pin']] = (line['site'], loc)
+
+    args.package_pins.seek(0)
+    if args.synth_tiles:
+        synth_tiles = json.load(args.synth_tiles)
+
     fieldnames = [
-        'name', 'x', 'y', 'z', 'is_clock', 'is_input', 'is_output', 'iob'
+        'name', 'x', 'y', 'z', 'is_clock', 'is_input', 'is_output', 'iob',
+        'real_io_assoc'
     ]
     writer = csv.DictWriter(args.output, fieldnames=fieldnames)
 
     writer.writeheader()
-    with sqlite3.connect(args.connection_database) as conn:
+    synth_tile_pads = set()
+    if args.synth_tiles:
+        for synth_tile in synth_tiles['tiles'].values():
+            for pin in synth_tile['pins']:
+                assert pin['pad'] not in synth_tile_pads
+                synth_tile_pads.add(pin['pad'])
+                real_io_assoc = pin['pad'] in pin_to_iob
+                x = synth_tile['loc'][0]
+                y = synth_tile['loc'][1]
+                z = pin['z_loc']
+                writer.writerow(
+                    dict(
+                        name=pin['pad'],
+                        x=x,
+                        y=y,
+                        z=z,
+                        is_clock=1 if pin['is_clock'] else 0,
+                        is_input=0 if pin['port_type'] == 'input' else 1,
+                        is_output=0 if pin['port_type'] == 'output' else 1,
+                        iob=pin_to_iob[pin['pad']][0] if real_io_assoc else '',
+                        real_io_assoc=real_io_assoc,
+                    )
+                )
+
+    if not args.synth_tiles or args.overlay:
         for line in csv.DictReader(args.package_pins):
 
             # Skip PS7 MIO and DDR pads as they are not routable
             if line['tile'].startswith('PSS'):
                 continue
 
-            loc = get_vpr_coords_from_site_name(conn, line['site'])
+            if line['pin'] in synth_tile_pads:
+                continue
+
+            loc = pin_to_iob[line['pin']][1]
             if loc is not None:
                 writer.writerow(
                     dict(
@@ -78,6 +131,7 @@ def main():
                         is_input=1,
                         is_output=1,
                         iob=line['site'],
+                        real_io_assoc='True',
                     )
                 )
 

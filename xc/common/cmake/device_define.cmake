@@ -95,19 +95,21 @@ function(ADD_XC_BOARD)
 
     get_target_property_required(SYNTH_TILES ${DEVICE_TYPE} SYNTH_TILES)
     get_file_location(SYNTH_TILES_LOCATION ${SYNTH_TILES})
-    set(SYNTH_TILES_TO_PINMAP_CSV ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/prjxray_synth_tiles_to_pinmap_csv.py)
-    set(PINMAP_CSV ${BOARD}_synth_tiles_pinmap.csv)
-
-    set(PINMAP_CSV_DEPS ${PYTHON3} ${SYNTH_TILES_TO_PINMAP_CSV})
+    set(CREATE_PINMAP_CSV ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/prjxray_create_pinmap_csv.py)
+    set(PINMAP_CSV ${BOARD}_pinmap.csv)
+    set(PINMAP_CSV_DEPS ${PYTHON3} ${CREATE_PINMAP_CSV})
+    append_file_dependency(PINMAP_CSV_DEPS ${CHANNELS_DB})
     append_file_dependency(PINMAP_CSV_DEPS ${SYNTH_TILES})
+
     add_custom_command(
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
-    COMMAND ${PYTHON3} ${SYNTH_TILES_TO_PINMAP_CSV}
+      OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
+      COMMAND ${PYTHON3} ${CREATE_PINMAP_CSV}
+        --connection_database ${CHANNELS_LOCATION}
         --synth_tiles ${SYNTH_TILES_LOCATION}
         --package_pins ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/${PART}/package_pins.csv
         --output ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
         DEPENDS ${PINMAP_CSV_DEPS}
-        )
+      )
   else()
 
     set_target_properties(${BOARD}
