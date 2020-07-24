@@ -84,6 +84,7 @@ def main():
             ),
             pin_map_entry['is_output'],
             pin_map_entry['iob'],
+            pin_map_entry['real_io_assoc'],
         )
 
     iostandard_defs = {}
@@ -121,6 +122,7 @@ Conflicting pad constraints for net {}:\n{}\n{}""".format(
                 file=sys.stderr
             )
             sys.exit(1)
+
     # Constrain nets
     for net, pad in net_to_pad:
         if not io_place.is_net(net):
@@ -143,24 +145,26 @@ Constrained pad {} is not in available pad map:\n{}""".format(
             )
             sys.exit(1)
 
-        loc, is_output, iob = pad_map[pad]
+        loc, is_output, iob, real_io_assoc = pad_map[pad]
+
         io_place.constrain_net(
             net_name=net,
             loc=loc,
             comment="set_property LOC {} [get_ports {{{}}}]".format(pad, net)
         )
-        if pad in iostandard_constraints:
-            iostandard_defs[iob] = iostandard_constraints[pad]
-        else:
-            if is_output:
-                iostandard_defs[iob] = {
-                    'DRIVE': args.drive,
-                    'IOSTANDARD': args.iostandard,
-                }
+        if real_io_assoc == 'True':
+            if pad in iostandard_constraints:
+                iostandard_defs[iob] = iostandard_constraints[pad]
             else:
-                iostandard_defs[iob] = {
-                    'IOSTANDARD': args.iostandard,
-                }
+                if is_output:
+                    iostandard_defs[iob] = {
+                        'DRIVE': args.drive,
+                        'IOSTANDARD': args.iostandard,
+                    }
+                else:
+                    iostandard_defs[iob] = {
+                        'IOSTANDARD': args.iostandard,
+                    }
 
     io_place.output_io_place(args.output)
 
