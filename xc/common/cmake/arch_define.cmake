@@ -68,7 +68,7 @@ function(ADD_XC_ARCH_DEFINE)
       --strict_checks off \
       --allow_dangling_combinational_nodes on \
       --disable_errors check_unbuffered_edges:check_route \
-      --congested_routing_iteration_threshold 0.8 \
+      --congested_routing_iteration_threshold 0.08 \
       --incremental_reroute_delay_ripup off \
       --base_cost_type delay_normalized_length_bounded \
       --bb_factor 10 \
