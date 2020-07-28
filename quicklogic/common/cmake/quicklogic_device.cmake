@@ -297,6 +297,9 @@ function(QUICKLOGIC_DEFINE_DEVICE)
         --route_chan_width 500
         --allow_dangling_combinational_nodes on
         --allowed_tiles_for_delay_model TL-LOGIC # TODO: Make this a parameter !
+        --allow_unrelated_clustering on
+        --balance_block_type_utilization on
+        --target_ext_pin_util 1.0
     )
 
   endforeach()
