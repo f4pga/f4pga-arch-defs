@@ -6,7 +6,13 @@ read_verilog -lib $::env(TECHMAP_PATH)/cells_sim.v
 read_verilog -lib $::env(DEVICE_CELLS_SIM)
 
 # Synthesize
-synth_quicklogic 
+synth_quicklogic -family pp3 
+
+# Optimize the netlist by adaptively splitting cells that fit into C_FRAG into
+# smaller that can fit into F_FRAG.
+source $::env(symbiflow-arch-defs_SOURCE_DIR)/quicklogic/pp3/yosys/pack.tcl
+pack
+stat
 
 # Assing parameters to IO cells basing on constraints and package pinmap
 if { $::env(PCF_FILE) != "" && $::env(PINMAP_FILE) != ""} {
@@ -31,10 +37,9 @@ techmap -map  $::env(DEVICE_CELLS_MAP)
 # net.
 opt_expr -undriven
 opt_clean
-
 setundef -zero -params
-
 stat
 
+# Write output files
 write_json $::env(OUT_JSON)
 write_verilog $::env(OUT_SYNTH_V)
