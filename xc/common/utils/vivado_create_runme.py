@@ -45,8 +45,37 @@ create_clock -period {period} -name {pin} -waveform {{0.000 {half_period}}} [get
     if args.additional_xdc:
         print("source {}".format(args.additional_xdc), file=f_out)
 
-    print(
-        """
+    if args.place_and_route:
+        print(
+            """
+write_checkpoint -force design_{name}_pre_route.dcp
+
+place_design
+route_design
+
+set_property IS_ENABLED 1 [get_drc_checks *]
+set_property CFGBVS VCCO [current_design]
+set_property CONFIG_VOLTAGE 3.3 [current_design]
+set_property BITSTREAM.GENERAL.PERFRAMECRC YES [current_design]
+set_property IS_ENABLED 0 [get_drc_checks {{LUTLP-1}}]
+
+report_utilization -file design_{name}_utilization.rpt
+report_clock_utilization -file design_{name}_clock_utilization.rpt
+report_timing_summary -datasheet -max_paths 10 -file design_{name}_timing_summary.rpt
+report_power -file design_{name}_power.rpt
+report_route_status -file design_{name}_route_status.rpt
+
+write_checkpoint -force design_{name}.dcp
+write_bitstream -force design_{name}.bit
+save_project_as -force design_{name}.xpr
+
+report_timing_summary
+""".format(name=args.name),
+            file=f_out
+        )
+    else:
+        print(
+            """
 
 write_checkpoint -force design_{name}_pre_route.dcp
 save_project_as -force design_{name}.xpr
@@ -97,8 +126,8 @@ save_project_as -force design_{name}.xpr
 
 report_timing_summary
 """.format(name=args.name),
-        file=f_out
-    )
+            file=f_out
+        )
 
 
 def main():
@@ -135,6 +164,11 @@ def main():
     parser.add_argument(
         '--additional_xdc',
         help="Filename of additional XDC file.",
+    )
+    parser.add_argument(
+        '--place_and_route',
+        help="Run full place and route flow, rather than an incremental route.",
+        action="store_true",
     )
 
     args = parser.parse_args()

@@ -423,6 +423,7 @@ function(ADD_VIVADO_PNR_TARGET)
         --name ${NAME}
         --verilog ${SYNTH_OUT}
         --routing_xdc ${XDC_FILE}
+        --place_and_route
         --top ${TOP}
         --part ${PART}
         --clock_pins "${ADD_VIVADO_PNR_TARGET_CLOCK_PINS}"
