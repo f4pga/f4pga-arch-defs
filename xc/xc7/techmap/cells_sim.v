@@ -986,16 +986,28 @@ module ISERDESE2_IDELAY_VPR (
   output Q8
   );
 
-  parameter [0:0] DATA_RATE_SDR = 1'b0;
-  parameter [0:0] DATA_WIDTH_W3 = 1'b0;
-  parameter [0:0] DATA_WIDTH_W4_6 = 1'b0;
-  parameter [0:0] DATA_WIDTH_W5_7 = 1'b0;
-  parameter [0:0] DATA_WIDTH_W8 = 1'b0;
-  parameter [0:0] INTERFACE_TYPE_MEMORY_DDR3 = 1'b0;
-  parameter [0:0] INTERFACE_TYPE_NOT_MEMORY  = 1'b0;
-  parameter [0:0] INTERFACE_TYPE_OVERSAMPLE  = 1'b0;
-  parameter [0:0] INTERFACE_TYPE_Z_MEMORY    = 1'b0;
-  parameter [0:0] NUM_CE_N2 = 1'b0;
+  parameter [0:0] MEMORY_DDR3_4     = 1'b0;
+  parameter [0:0] MEMORY_DDR_4      = 1'b0;
+  parameter [0:0] MEMORY_QDR_4      = 1'b0;
+
+  parameter [0:0] NETWORKING_SDR_2  = 1'b0;
+  parameter [0:0] NETWORKING_SDR_3  = 1'b0;
+  parameter [0:0] NETWORKING_SDR_4  = 1'b0;
+  parameter [0:0] NETWORKING_SDR_5  = 1'b0;
+  parameter [0:0] NETWORKING_SDR_6  = 1'b0;
+  parameter [0:0] NETWORKING_SDR_7  = 1'b0;
+  parameter [0:0] NETWORKING_SDR_8  = 1'b0;
+
+  parameter [0:0] NETWORKING_DDR_4  = 1'b0;
+  parameter [0:0] NETWORKING_DDR_6  = 1'b0;
+  parameter [0:0] NETWORKING_DDR_8  = 1'b0;
+  parameter [0:0] NETWORKING_DDR_10 = 1'b0;
+  parameter [0:0] NETWORKING_DDR_14 = 1'b0;
+
+  parameter [0:0] OVERSAMPLE_DDR_4  = 1'b0;
+
+  parameter [0:0] NUM_CE_N1 = 1'b0;
+  parameter [0:0] NUM_CE_N2 = 1'b1;
 
   parameter [0:0] IOBDELAY_IFD = 1'b0;
   parameter [0:0] IOBDELAY_IBUF = 1'b0;
@@ -1034,16 +1046,28 @@ module ISERDESE2_NO_IDELAY_VPR (
   output Q8
   );
 
-  parameter [0:0] DATA_RATE_SDR = 1'b0;
-  parameter [0:0] DATA_WIDTH_W3 = 1'b0;
-  parameter [0:0] DATA_WIDTH_W4_6 = 1'b0;
-  parameter [0:0] DATA_WIDTH_W5_7 = 1'b0;
-  parameter [0:0] DATA_WIDTH_W8 = 1'b0;
-  parameter [0:0] INTERFACE_TYPE_MEMORY_DDR3 = 1'b0;
-  parameter [0:0] INTERFACE_TYPE_NOT_MEMORY  = 1'b0;
-  parameter [0:0] INTERFACE_TYPE_OVERSAMPLE  = 1'b0;
-  parameter [0:0] INTERFACE_TYPE_Z_MEMORY    = 1'b0;
-  parameter [0:0] NUM_CE_N2 = 1'b0;
+  parameter [0:0] MEMORY_DDR3_4     = 1'b0;
+  parameter [0:0] MEMORY_DDR_4      = 1'b0;
+  parameter [0:0] MEMORY_QDR_4      = 1'b0;
+
+  parameter [0:0] NETWORKING_SDR_2  = 1'b0;
+  parameter [0:0] NETWORKING_SDR_3  = 1'b0;
+  parameter [0:0] NETWORKING_SDR_4  = 1'b0;
+  parameter [0:0] NETWORKING_SDR_5  = 1'b0;
+  parameter [0:0] NETWORKING_SDR_6  = 1'b0;
+  parameter [0:0] NETWORKING_SDR_7  = 1'b0;
+  parameter [0:0] NETWORKING_SDR_8  = 1'b0;
+
+  parameter [0:0] NETWORKING_DDR_4  = 1'b0;
+  parameter [0:0] NETWORKING_DDR_6  = 1'b0;
+  parameter [0:0] NETWORKING_DDR_8  = 1'b0;
+  parameter [0:0] NETWORKING_DDR_10 = 1'b0;
+  parameter [0:0] NETWORKING_DDR_14 = 1'b0;
+
+  parameter [0:0] OVERSAMPLE_DDR_4  = 1'b0;
+
+  parameter [0:0] NUM_CE_N1 = 1'b0;
+  parameter [0:0] NUM_CE_N2 = 1'b1;
 
   parameter [0:0] IOBDELAY_IFD = 1'b0;
   parameter [0:0] IOBDELAY_IBUF = 1'b0;

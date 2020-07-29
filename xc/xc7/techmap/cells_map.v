@@ -2961,12 +2961,13 @@ module ISERDESE2 (
       wire _TECHMAP_FAIL_ = 1'b1;
     end
 
-    if (DATA_RATE == "DDR" &&
-        (DATA_WIDTH != 4 &&
-         DATA_WIDTH != 6 &&
-         DATA_WIDTH != 8)) begin
+    if (DATA_RATE == "DDR" && DATA_WIDTH != 4) begin
       wire _TECHMAP_FAIL_ = 1'b1;
     end
+  end
+
+  if (NUM_CE != 1 && NUM_CE != 2) begin
+    wire _TECHMAP_FAIL_ = 1'b1;
   end
 
   parameter _TECHMAP_CONSTMSK_D_ = 1'b1;
@@ -2974,20 +2975,52 @@ module ISERDESE2 (
   parameter _TECHMAP_CONSTMSK_DDLY_ = 1'b1;
   parameter _TECHMAP_CONSTVAL_DDLY_ = 1'bx;
 
+  localparam [0:0] MEMORY_DDR3_4     = (INTERFACE_TYPE == "MEMORY_DDR3" && DATA_RATE == "DDR" && DATA_WIDTH == 4);
+  localparam [0:0] MEMORY_DDR_4      = (INTERFACE_TYPE == "MEMORY"      && DATA_RATE == "DDR" && DATA_WIDTH == 4);
+  localparam [0:0] MEMORY_QDR_4      = (INTERFACE_TYPE == "MEMORY_QDR"  && DATA_RATE == "DDR" && DATA_WIDTH == 4);
+
+  localparam [0:0] NETWORKING_SDR_2  = (INTERFACE_TYPE == "NETWORKING"  && DATA_RATE == "SDR" && DATA_WIDTH == 2);
+  localparam [0:0] NETWORKING_SDR_3  = (INTERFACE_TYPE == "NETWORKING"  && DATA_RATE == "SDR" && DATA_WIDTH == 3);
+  localparam [0:0] NETWORKING_SDR_4  = (INTERFACE_TYPE == "NETWORKING"  && DATA_RATE == "SDR" && DATA_WIDTH == 4);
+  localparam [0:0] NETWORKING_SDR_5  = (INTERFACE_TYPE == "NETWORKING"  && DATA_RATE == "SDR" && DATA_WIDTH == 5);
+  localparam [0:0] NETWORKING_SDR_6  = (INTERFACE_TYPE == "NETWORKING"  && DATA_RATE == "SDR" && DATA_WIDTH == 6);
+  localparam [0:0] NETWORKING_SDR_7  = (INTERFACE_TYPE == "NETWORKING"  && DATA_RATE == "SDR" && DATA_WIDTH == 7);
+  localparam [0:0] NETWORKING_SDR_8  = (INTERFACE_TYPE == "NETWORKING"  && DATA_RATE == "SDR" && DATA_WIDTH == 8);
+
+  localparam [0:0] NETWORKING_DDR_4  = (INTERFACE_TYPE == "NETWORKING"  && DATA_RATE == "DDR" && DATA_WIDTH == 4);
+  localparam [0:0] NETWORKING_DDR_6  = (INTERFACE_TYPE == "NETWORKING"  && DATA_RATE == "DDR" && DATA_WIDTH == 6);
+  localparam [0:0] NETWORKING_DDR_8  = (INTERFACE_TYPE == "NETWORKING"  && DATA_RATE == "DDR" && DATA_WIDTH == 8);
+  localparam [0:0] NETWORKING_DDR_10 = (INTERFACE_TYPE == "NETWORKING"  && DATA_RATE == "DDR" && DATA_WIDTH == 10);
+  localparam [0:0] NETWORKING_DDR_14 = (INTERFACE_TYPE == "NETWORKING"  && DATA_RATE == "DDR" && DATA_WIDTH == 14);
+
+  localparam [0:0] OVERSAMPLE_DDR_4  = (INTERFACE_TYPE == "OVERSAMPLE"  && DATA_RATE == "DDR" && DATA_WIDTH == 4);
+
   if (_TECHMAP_CONSTMSK_D_ == 1'b1) begin
       ISERDESE2_IDELAY_VPR #(
-          .DATA_RATE_SDR                (DATA_RATE == "SDR"),
-          .INTERFACE_TYPE_MEMORY_DDR3   (INTERFACE_TYPE == "MEMORY_DDR3"),
-          .INTERFACE_TYPE_NOT_MEMORY    (INTERFACE_TYPE != "MEMORY"         ||
-                                         INTERFACE_TYPE != "MEMORY_DDR3"    ||
-                                         INTERFACE_TYPE != "MEMORY_QDR"),
-          .INTERFACE_TYPE_OVERSAMPLE    (INTERFACE_TYPE == "OVERSAMPLE"),
-          .INTERFACE_TYPE_Z_MEMORY      (INTERFACE_TYPE != "OVERSAMPLE" || INTERFACE_TYPE != "NETWORKING"),
-          .DATA_WIDTH_W3                (DATA_WIDTH == 3),
-          .DATA_WIDTH_W4_6              (DATA_WIDTH == 4 || DATA_WIDTH == 6),
-          .DATA_WIDTH_W5_7              (DATA_WIDTH == 5 || DATA_WIDTH == 7),
-          .DATA_WIDTH_W8                (DATA_WIDTH == 8),
+
+          .MEMORY_DDR3_4                (MEMORY_DDR3_4),
+          .MEMORY_DDR_4                 (MEMORY_DDR_4),
+          .MEMORY_QDR_4                 (MEMORY_QDR_4),
+
+          .NETWORKING_SDR_2             (NETWORKING_SDR_2),
+          .NETWORKING_SDR_3             (NETWORKING_SDR_3),
+          .NETWORKING_SDR_4             (NETWORKING_SDR_4),
+          .NETWORKING_SDR_5             (NETWORKING_SDR_5),
+          .NETWORKING_SDR_6             (NETWORKING_SDR_6),
+          .NETWORKING_SDR_7             (NETWORKING_SDR_7),
+          .NETWORKING_SDR_8             (NETWORKING_SDR_8),
+
+          .NETWORKING_DDR_4             (NETWORKING_DDR_4),
+          .NETWORKING_DDR_6             (NETWORKING_DDR_6),
+          .NETWORKING_DDR_8             (NETWORKING_DDR_8),
+          .NETWORKING_DDR_10            (NETWORKING_DDR_10),
+          .NETWORKING_DDR_14            (NETWORKING_DDR_14),
+
+          .OVERSAMPLE_DDR_4             (OVERSAMPLE_DDR_4),
+
+          .NUM_CE_N1                    (NUM_CE == 1),
           .NUM_CE_N2                    (NUM_CE == 2),
+
           .IOBDELAY_IFD                 (IOBDELAY == "IFD" || IOBDELAY == "BOTH"),
           .IOBDELAY_IBUF                (IOBDELAY == "IBUF" || IOBDELAY == "BOTH"),
 
@@ -3022,18 +3055,30 @@ module ISERDESE2 (
       );
     end else if (_TECHMAP_CONSTMSK_DDLY_ == 1'b1) begin
       ISERDESE2_NO_IDELAY_VPR #(
-          .DATA_RATE_SDR                (DATA_RATE == "SDR"),
-          .INTERFACE_TYPE_MEMORY_DDR3   (INTERFACE_TYPE == "MEMORY_DDR3"),
-          .INTERFACE_TYPE_NOT_MEMORY    (INTERFACE_TYPE != "MEMORY"         ||
-                                         INTERFACE_TYPE != "MEMORY_DDR3"    ||
-                                         INTERFACE_TYPE != "MEMORY_QDR"),
-          .INTERFACE_TYPE_OVERSAMPLE    (INTERFACE_TYPE == "OVERSAMPLE"),
-          .INTERFACE_TYPE_Z_MEMORY      (INTERFACE_TYPE != "OVERSAMPLE" || INTERFACE_TYPE != "NETWORKING"),
-          .DATA_WIDTH_W3                (DATA_WIDTH == 3),
-          .DATA_WIDTH_W4_6              (DATA_WIDTH == 4 || DATA_WIDTH == 6),
-          .DATA_WIDTH_W5_7              (DATA_WIDTH == 5 || DATA_WIDTH == 7),
-          .DATA_WIDTH_W8                (DATA_WIDTH == 8),
+
+          .MEMORY_DDR3_4                (MEMORY_DDR3_4),
+          .MEMORY_DDR_4                 (MEMORY_DDR_4),
+          .MEMORY_QDR_4                 (MEMORY_QDR_4),
+
+          .NETWORKING_SDR_2             (NETWORKING_SDR_2),
+          .NETWORKING_SDR_3             (NETWORKING_SDR_3),
+          .NETWORKING_SDR_4             (NETWORKING_SDR_4),
+          .NETWORKING_SDR_5             (NETWORKING_SDR_5),
+          .NETWORKING_SDR_6             (NETWORKING_SDR_6),
+          .NETWORKING_SDR_7             (NETWORKING_SDR_7),
+          .NETWORKING_SDR_8             (NETWORKING_SDR_8),
+
+          .NETWORKING_DDR_4             (NETWORKING_DDR_4),
+          .NETWORKING_DDR_6             (NETWORKING_DDR_6),
+          .NETWORKING_DDR_8             (NETWORKING_DDR_8),
+          .NETWORKING_DDR_10            (NETWORKING_DDR_10),
+          .NETWORKING_DDR_14            (NETWORKING_DDR_14),
+
+          .OVERSAMPLE_DDR_4             (OVERSAMPLE_DDR_4),
+
+          .NUM_CE_N1                    (NUM_CE == 1),
           .NUM_CE_N2                    (NUM_CE == 2),
+
           .IOBDELAY_IFD                 (IOBDELAY == "IFD" || IOBDELAY == "BOTH"),
           .IOBDELAY_IBUF                (IOBDELAY == "IBUF" || IOBDELAY == "BOTH"),
 
