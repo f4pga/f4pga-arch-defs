@@ -331,6 +331,7 @@ def main():
                             'pad': 'VCC',
                             'port_type': 'VCC',
                             'is_clock': False,
+                            'z_loc': '0',
                         },
                     ],
             }
@@ -349,6 +350,7 @@ def main():
                             'pad': 'GND',
                             'port_type': 'GND',
                             'is_clock': False,
+                            'z_loc': '0',
                         },
                     ],
             }

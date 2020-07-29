@@ -53,7 +53,7 @@ def main():
     )
     parser.add_argument(
         "--overlay",
-        type=bool,
+        action='store_true',
         required=False,
         help='Whether the pin map should contain a mix of real and synth IOs'
     )
