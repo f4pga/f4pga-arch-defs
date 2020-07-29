@@ -931,7 +931,7 @@ endfunction()
 
 function(ADD_BITSTREAM_TARGET)
   set(options)
-  set(oneValueArgs USE_FASM)
+  set(oneValueArgs NAME USE_FASM USE_OLD_DIR)
   set(multiValueArgs INCLUDED_TARGETS)
   cmake_parse_arguments(
     ADD_BITSTREAM_TARGET
@@ -945,6 +945,7 @@ function(ADD_BITSTREAM_TARGET)
   set(NAME ${ADD_BITSTREAM_TARGET_NAME})
   set(INCLUDED_TARGETS ${ADD_BITSTREAM_TARGET_INCLUDED_TARGETS})
   set(USE_FASM ${ADD_BITSTREAM_TARGET_USE_FASM})
+  set(USE_OLD_DIR ${ADD_BITSTREAM_TARGET_USE_OLD_DIR})
 
   if("${USE_FASM}" STREQUAL "")
     set(USE_FASM TRUE)
@@ -958,12 +959,13 @@ function(ADD_BITSTREAM_TARGET)
       get_target_property_required(DEVICE ${BOARD} DEVICE)
       get_target_property_required(DEVICE_TYPE ${DEVICE} DEVICE_TYPE)
       get_target_property(USE_OVERLAY ${DEVICE_TYPE} USE_OVERLAY)
-      get_target_property_required(OUT_FASM ${TARGET} OUT_FASM)
+      get_target_property_required(FASM ${TARGET} FASM)
       if ("${FASM_TO_BIT_DEPS}" STREQUAL "FASM_TO_BIT_DEPS-NOTFOUND")
         set(FASM_TO_BIT_DEPS "")
       endif()
 
-      append_file_dependency(ALL_OUT_FASM ${OUT_FASM})
+      append_file_location(ALL_OUT_FASM ${FASM})
+      append_file_dependency(ALL_OUT_FASM_DEPS ${FASM})
 
       if(USE_OVERLAY)
         if (NOT OVERLAY)
@@ -992,18 +994,26 @@ function(ADD_BITSTREAM_TARGET)
       set(FASM_TO_BIT_EXTRA_ARGS "")
     endif()
 
-    get_target_property_required(OUT_FASM ${OVERLAY} OUT_FASM)
-    get_target_property_required(OUT_FASM_MERGED ${OVERLAY} OUT_FASM_MERGED)
-    get_target_property_required(OUT_LOCAL ${OVERLAY} OUT_LOCAL)
     get_target_property_required(TOP ${OVERLAY} TOP)
     get_target_property_required(ARCH ${OVERLAY_DEVICE} ARCH)
     get_target_property_required(BITSTREAM_EXTENSION ${ARCH} BITSTREAM_EXTENSION)
     get_target_property_required(FASM_TO_BIT ${ARCH} FASM_TO_BIT)
     get_target_property_required(FASM_TO_BIT_CMD ${ARCH} FASM_TO_BIT_CMD)
     get_target_property(FASM_TO_BIT_DEPS ${ARCH} FASM_TO_BIT_DEPS)
+
+    if(NOT USE_OLD_DIR)
+      set(FQDN ${ARCH}-${DEVICE_TYPE}-${DEVICE}-${PACKAGE})
+      set(OUT_LOCAL_REL ${NAME}/${FQDN})
+      set(OUT_LOCAL ${CMAKE_CURRENT_BINARY_DIR}/${OUT_LOCAL_REL})
+      set(OVERLAY ${NAME})
+      add_custom_target(${NAME})
+    else()
+      set(OUT_LOCAL ${USE_OLD_DIR})
+    endif()
+
     set(OUT_BITSTREAM ${OUT_LOCAL}/${TOP}.${BITSTREAM_EXTENSION})
 
-    set(BITSTREAM_DEPS ${ALL_OUT_FASM} ${FASM_TO_BIT} ${FASM_TO_BIT_DEPS})
+    set(BITSTREAM_DEPS ${ALL_OUT_FASM_DEPS} ${FASM_TO_BIT} ${FASM_TO_BIT_DEPS})
 
     set(OUT_FASM ${OUT_FASM_MERGED})
     string(CONFIGURE ${FASM_TO_BIT_CMD} FASM_TO_BIT_CMD_FOR_TARGET)
@@ -1016,12 +1026,23 @@ function(ADD_BITSTREAM_TARGET)
     )
     set(FASM_TO_BIT_CMD_FOR_TARGET_LIST ${FASM_TO_BIT_CMD_FOR_TARGET_LIST} ${FASM_TO_BIT_EXTRA_ARGS_LIST})
 
-    add_custom_command(
-      OUTPUT ${OUT_BITSTREAM}
-      DEPENDS ${BITSTREAM_DEPS}
-      COMMAND cat ${ALL_OUT_FASM} >> ${OUT_FASM_MERGED}
-      COMMAND ${FASM_TO_BIT_CMD_FOR_TARGET_LIST}
-    )
+    if(NOT USE_OLD_DIR)
+      add_custom_command(
+        OUTPUT ${OUT_BITSTREAM}
+        DEPENDS ${BITSTREAM_DEPS}
+        COMMAND
+          ${CMAKE_COMMAND} -E make_directory ${OUT_LOCAL}
+        COMMAND cat ${ALL_OUT_FASM} >> ${OUT_FASM_MERGED}
+        COMMAND ${FASM_TO_BIT_CMD_FOR_TARGET_LIST}
+      )
+    else()
+      add_custom_command(
+        OUTPUT ${OUT_BITSTREAM}
+        DEPENDS ${BITSTREAM_DEPS}
+        COMMAND cat ${ALL_OUT_FASM} >> ${OUT_FASM_MERGED}
+        COMMAND ${FASM_TO_BIT_CMD_FOR_TARGET_LIST}
+      )
+    endif()
   else()
     get_target_property_required(HLC_TO_BIT ${ARCH} HLC_TO_BIT)
     get_target_property_required(HLC_TO_BIT_CMD ${ARCH} HLC_TO_BIT_CMD)
@@ -1037,7 +1058,7 @@ function(ADD_BITSTREAM_TARGET)
   endif()
 
   add_custom_target(${OVERLAY}_bit DEPENDS ${OUT_BITSTREAM})
-  add_output_to_fpga_target(${OVERLAY} BIT ${OUT_LOCAL_REL}/${TOP}.${BITSTREAM_EXTENSION})
+  add_output_to_fpga_target(${OVERLAY} BIT ${OUT_LOCAL}/${TOP}.${BITSTREAM_EXTENSION})
 
   get_target_property_required(NO_BIT_TO_BIN ${ARCH} NO_BIT_TO_BIN)
   set(OUT_BIN ${OUT_BITSTREAM})
@@ -1061,7 +1082,7 @@ function(ADD_BITSTREAM_TARGET)
       )
 
     add_custom_target(${OVERLAY}_bin DEPENDS ${OUT_BIN})
-    add_output_to_fpga_target(${OVERLAY} BIN ${OUT_LOCAL_REL}/${TOP}.${BIN_EXTENSION})
+    add_output_to_fpga_target(${OVERLAY} BIN ${OUT_LOCAL}/${TOP}.${BIN_EXTENSION})
     add_dependencies(all_${BOARD}_bin ${OVERLAY}_bin)
   else()
     add_dependencies(all_${BOARD}_bin ${OVERLAY}_bit)
@@ -1206,8 +1227,6 @@ function(ADD_FPGA_TARGET)
   set_target_properties(${NAME} PROPERTIES
       TOP ${TOP}
       BOARD ${BOARD}
-      OUT_LOCAL ${OUT_LOCAL}
-      OUT_LOCAL_REL ${OUT_LOCAL_REL}
       )
   set(VPR_ROUTE_CHAN_WIDTH 100)
   set(VPR_ROUTE_CHAN_MINWIDTH_HINT ${VPR_ROUTE_CHAN_WIDTH})
@@ -1687,11 +1706,6 @@ function(ADD_FPGA_TARGET)
     set(OUT_FASM_MERGED ${OUT_LOCAL}/${TOP}.merged.fasm)
     set(OUT_FASM_CONCATENATED ${OUT_LOCAL}/${TOP}.concat.fasm)
     set(OUT_FASM_GENFASM ${OUT_LOCAL}/${TOP}.genfasm.fasm)
-    set_target_properties(${NAME} PROPERTIES
-      OUT_FASM ${OUT_FASM}
-      OUT_FASM_GENFASM ${OUT_FASM_GENFASM}
-      OUT_FASM_MERGED ${OUT_FASM_MERGED}
-      )
     add_custom_command(
       OUTPUT ${OUT_FASM}
       DEPENDS ${OUT_ROUTE} ${OUT_PLACE} ${VPR_DEPS}
@@ -1708,7 +1722,7 @@ function(ADD_FPGA_TARGET)
     )
     add_custom_target(${NAME}_fasm DEPENDS ${OUT_FASM})
 
-    add_output_to_fpga_target(${NAME} FASM ${OUT_FASM})
+    add_output_to_fpga_target(${NAME} FASM ${OUT_LOCAL_REL}/${TOP}.fasm)
     set_target_properties(${NAME} PROPERTIES OUT_FASM ${OUT_FASM})
   else()
     # Generate HLC
@@ -1747,12 +1761,11 @@ function(ADD_FPGA_TARGET)
     get_target_property_required(DEVICE_TYPE ${DEVICE} DEVICE_TYPE)
     get_target_property(USE_OVERLAY ${DEVICE_TYPE} USE_OVERLAY)
 
-    if(NOT ${USE_OVERLAY})
-      add_bitstream_target(
-        USE_FASM ${USE_FASM}
-        INCLUDED_TARGETS ${NAME}
-      )
-    endif()
+    add_bitstream_target(
+      USE_FASM ${USE_FASM}
+      INCLUDED_TARGETS ${NAME}
+      USE_OLD_DIR ${OUT_LOCAL}
+    )
 
     get_target_property_required(NO_BIT_TO_V ${ARCH} NO_BIT_TO_V)
     if(NOT ${NO_BIT_TO_V})

@@ -53,6 +53,7 @@ add_fpga_target(
 )
 
 add_bitstream_target(
+  NAME counter_arty_merged
   INCLUDED_TARGETS counter_arty_overlay counter_arty_pr
 )
 
