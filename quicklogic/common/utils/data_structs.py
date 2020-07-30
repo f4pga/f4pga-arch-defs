@@ -81,10 +81,11 @@ class TileType(object):
     It has rather a group of cells bound to a common geographical location.
     """
 
-    def __init__(self, type, cells):
+    def __init__(self, type, cells, fake_const_pin=False):
         self.type = type
         self.cells = cells
         self.pins = []
+        self.fake_const_pin = fake_const_pin
 
     def make_pins(self, cells_library):
         """
@@ -105,6 +106,16 @@ class TileType(object):
                             attrib=pin.attrib
                         )
                     )
+
+        # Add the fake constant connection pin if marked
+        if self.fake_const_pin:
+            self.pins.append(
+                Pin(
+                    name="FAKE_CONST",
+                    direction=PinDirection.INPUT,
+                    attrib={}
+                )
+            )
 
 
 """

@@ -445,7 +445,7 @@ def get_node_id_for_tile_pin(graph, loc, tile_type, pin_name):
     return nodes[0][0]
 
 
-def build_tile_pin_to_node_map(graph, tile_types, tile_grid):
+def build_tile_pin_to_node_map(graph, nodes_by_id, tile_types, tile_grid):
     """
     Builds a map of tile pins (at given location!) to rr nodes.
     """
@@ -472,8 +472,10 @@ def build_tile_pin_to_node_map(graph, tile_types, tile_grid):
                 )
                 continue
 
+            # Convert to Node objects
+            node = nodes_by_id[node_id]
             # Add to the map
-            node_map[loc][pin.name] = node_id
+            node_map[loc][pin.name] = node
 
     return node_map
 
@@ -981,13 +983,18 @@ def populate_direct_connections(graph, connections, connection_loc_to_node):
         add_edge(graph, src_tile_node.id, dst_tile_node.id, switch_id)
 
 
-def populate_const_connections(graph, switchbox_models, const_node_map):
+def populate_const_connections(graph, switchbox_models, tile_types, tile_grid,
+                               tile_pin_to_node, const_node_map):
     """
     Connects switchbox inputs that represent VCC and GND constants to
     nodes of the global const network.
+
+    Also connect FAKE_CONST pins of tiles directly to the global const network.
     """
 
     bar = progressbar_utils.progressbar
+
+    # Connect the global const network to switchbox inputs
     for loc, switchbox_model in bar(switchbox_models.items()):
 
         # Look for input connected to a const
@@ -1007,6 +1014,26 @@ def populate_const_connections(graph, switchbox_models, const_node_map):
                     sbox_node,
                 )
 
+    # Add edges from the global const network to FAKE_CONST pins of tiles
+    # that bypass the switchbox.
+    switch_id = graph.get_switch_id("generic")
+
+    for loc, tile in bar(tile_grid.items()):
+        if tile is None:
+            continue
+
+        tile_type = tile_types[tile.type]
+        if tile_type.fake_const_pin:
+            tile_node = tile_pin_to_node[loc]["FAKE_CONST"]
+            
+            for const in ["GND", "VCC"]:
+                const_node = const_node_map[const][loc]
+                connect(
+                    graph,
+                    const_node,
+                    tile_node,
+                    switch_id=switch_id
+                )
 
 def populate_cand_connections(graph, switchbox_models, cand_node_map):
     """
@@ -1330,7 +1357,7 @@ def main():
 
     # Build tile pin names to rr node ids map
     tile_pin_to_node = build_tile_pin_to_node_map(
-        xml_graph.graph, vpr_tile_types, vpr_tile_grid
+        xml_graph.graph, nodes_by_id, vpr_tile_types, vpr_tile_grid
     )
 
     # Add const network
@@ -1446,7 +1473,9 @@ def main():
     )
     populate_cand_connections(xml_graph.graph, switchbox_models, cand_node_map)
     populate_const_connections(
-        xml_graph.graph, switchbox_models, const_node_map
+        xml_graph.graph, switchbox_models,
+        vpr_tile_types, vpr_tile_grid,
+        tile_pin_to_node, const_node_map
     )
 
     # Create channels from tracks

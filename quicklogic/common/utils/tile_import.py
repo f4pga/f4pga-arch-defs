@@ -114,6 +114,9 @@ def make_top_level_pb_type(tile_type, nsmap):
     for pin in tile_type.pins:
         name, idx = get_pin_name(pin.name)
 
+        if tile_type.fake_const_pin and name == "FAKE_CONST":
+            continue
+
         cell_pin = name if idx is None else "{}[{}]".format(name, idx)
         tile_pin = fixup_pin_name(pin.name)
 
@@ -140,6 +143,22 @@ def make_top_level_pb_type(tile_type, nsmap):
 
         else:
             assert False, pin
+
+    # If the tile has a fake const input then connect it to each cell wrapper
+    if tile_type.fake_const_pin:
+        tile_pin = "{}.FAKE_CONST".format(pb_name)
+
+        for cell_type, cell_count in tile_type.cells.items():
+            for i in range(cell_count):
+                cell_pin = "{}[{}].{}".format(cell_type, i, "FAKE_CONST")
+
+                ET.SubElement(
+                    xml_ic, "direct", {
+                        "name": "{}_to_{}".format(tile_pin, cell_pin),
+                        "input": tile_pin,
+                        "output": cell_pin
+                    }
+                )
 
     return xml_pb
 

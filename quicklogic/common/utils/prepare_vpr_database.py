@@ -128,7 +128,7 @@ def add_synthetic_cell_and_tile_types(tile_types, cells_library):
         tile_types[tile_type.type] = tile_type
 
 
-def make_tile_type(cells, cells_library, tile_types):
+def make_tile_type(cells, cells_library, tile_types, fake_const_pin=False):
     """
     Creates a tile type given a list of cells that constitute to it.
     """
@@ -155,7 +155,8 @@ def make_tile_type(cells, cells_library, tile_types):
         return tile_types[type_name]
 
     # Create the new tile type
-    tile_type = TileType(type=type_name, cells=cell_counts)
+    tile_type = TileType(type=type_name, cells=cell_counts,
+                         fake_const_pin=fake_const_pin)
 
     # Create pins
     tile_type.make_pins(cells_library)
@@ -182,7 +183,8 @@ def strip_cells(tile, cell_types, tile_types, cells_library):
         return None
 
     # Create the new tile type and tile
-    new_tile_type = make_tile_type(new_cells, cells_library, tile_types)
+    new_tile_type = make_tile_type(new_cells, cells_library, tile_types,
+                                   tile_type.fake_const_pin)
     new_tile = Tile(type=new_tile_type.type, name=tile.name, cells=new_cells)
 
     return new_tile
@@ -211,6 +213,11 @@ def process_tilegrid(
     def add_loc_map(phy_loc, vpr_loc):
         fwd_loc_map[phy_loc] = vpr_loc
         bwd_loc_map[vpr_loc] = phy_loc
+
+    # Add a fake constant connector pin to LOGIC tile type
+    tile_type = tile_types["LOGIC"]
+    tile_type.fake_const_pin = True
+    tile_type.make_pins(cells_library)
 
     # Generate the VPR tile grid
     for phy_loc, tile in tile_grid.items():
