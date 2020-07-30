@@ -125,8 +125,7 @@ function(ADD_XC_ARCH_DEFINE)
         --map \${PINMAP} \
         --blif \${OUT_EBLIF} \
         \${PCF_INPUT_IO_FILE} \
-        --net \${OUT_NET} \
-        \${PLACE_TOOL_EXTRA_ARGS}"
+        --net \${OUT_NET}"
     PLACE_CONSTR_TOOL
       ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/prjxray_create_place_constraints.py
     PLACE_CONSTR_TOOL_CMD "${CMAKE_COMMAND} -E env \

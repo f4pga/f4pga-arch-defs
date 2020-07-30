@@ -1011,6 +1011,7 @@ function(ADD_BITSTREAM_TARGET)
       set(OUT_LOCAL ${USE_OLD_DIR})
     endif()
 
+    set(OUT_FASM_MERGED ${OUT_LOCAL}/${TOP}.merged.fasm)
     set(OUT_BITSTREAM ${OUT_LOCAL}/${TOP}.${BITSTREAM_EXTENSION})
 
     set(BITSTREAM_DEPS ${ALL_OUT_FASM_DEPS} ${FASM_TO_BIT} ${FASM_TO_BIT_DEPS})
@@ -1703,7 +1704,6 @@ function(ADD_FPGA_TARGET)
     # Generate FASM
     # -------------------------------------------------------------------------
     set(OUT_FASM ${OUT_LOCAL}/${TOP}.fasm)
-    set(OUT_FASM_MERGED ${OUT_LOCAL}/${TOP}.merged.fasm)
     set(OUT_FASM_CONCATENATED ${OUT_LOCAL}/${TOP}.concat.fasm)
     set(OUT_FASM_GENFASM ${OUT_LOCAL}/${TOP}.genfasm.fasm)
     add_custom_command(
