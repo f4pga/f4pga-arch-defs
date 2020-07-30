@@ -15,6 +15,3 @@ add_jlink_output(
 
 add_dependencies(all_ql_tests bin2seven-ql-chandalar_bit)
 add_dependencies(all_ql_tests bin2seven-ql-chandalar_jlink)
-add_dependencies(all_quick_tests bin2seven-ql-chandalar_analysis)
-add_dependencies(bin2seven-ql-chandalar_analysis bin2seven-ql-chandalar_bit_v)
-

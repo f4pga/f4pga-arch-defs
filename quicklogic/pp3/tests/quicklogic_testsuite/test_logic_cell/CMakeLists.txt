@@ -15,6 +15,3 @@ add_jlink_output(
 
 add_dependencies(all_ql_tests test_logic_cell-ql-chandalar_bit)
 add_dependencies(all_ql_tests test_logic_cell-ql-chandalar_jlink)
-#add_dependencies(all_quick_tests test_logic_cell-ql-chandalar_analysis)
-#add_dependencies(test_logic_cell-ql-chandalar_analysis test_logic_cell-ql-chandalar_bit_v)
-

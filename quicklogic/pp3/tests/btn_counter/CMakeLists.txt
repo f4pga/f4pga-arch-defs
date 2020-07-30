@@ -17,8 +17,6 @@ add_jlink_output(
 
 add_dependencies(all_ql_tests btn_counter-ql-chandalar_bit)
 add_dependencies(all_ql_tests btn_counter-ql-chandalar_jlink)
-add_dependencies(all_quick_tests btn_counter-ql-chandalar_analysis)
-add_dependencies(btn_counter-ql-chandalar_analysis btn_counter-ql-chandalar_bit_v)
 
 
 add_fpga_target(
