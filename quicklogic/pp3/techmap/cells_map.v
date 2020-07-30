@@ -735,10 +735,11 @@ module dff(
   .QST(1'b0),
   .QRT(1'b0),
   .QEN(1'b1),
-  .QDI(D),
-  .QDS(1'b1), // FIXME: Always select QDI as the FF's input
-  .CZI(),
-  .QZ (Q)
+  .QD (D),
+  .QZ (Q),
+
+  .CONST0 (1'b0),
+  .CONST1 (1'b1)
   );
 
 endmodule
@@ -761,10 +762,11 @@ module dffc(
   .QST(1'b0),
   .QRT(CLR),
   .QEN(1'b1),
-  .QDI(D),
-  .QDS(1'b1), // FIXME: Always select QDI as the FF's input
-  .CZI(),
-  .QZ (Q)
+  .QD (D),
+  .QZ (Q),
+
+  .CONST0 (1'b0),
+  .CONST1 (1'b1)
   );
 
 endmodule
@@ -787,10 +789,11 @@ module dffp(
   .QST(PRE),
   .QRT(1'b0),
   .QEN(1'b1),
-  .QDI(D),
-  .QDS(1'b1), // FIXME: Always select QDI as the FF's input
-  .CZI(),
-  .QZ (Q)
+  .QD (D),
+  .QZ (Q),
+
+  .CONST0 (1'b0),
+  .CONST1 (1'b1)
   );
 
 endmodule
@@ -814,10 +817,11 @@ module dffpc(
   .QST(PRE),
   .QRT(CLR),
   .QEN(1'b1),
-  .QDI(D),
-  .QDS(1'b1), // FIXME: Always select QDI as the FF's input
-  .CZI(),
-  .QZ (Q)
+  .QD (D),
+  .QZ (Q),
+
+  .CONST0 (1'b0),
+  .CONST1 (1'b1)
   );
 
 endmodule
@@ -840,10 +844,11 @@ module dffe(
   .QST(1'b0),
   .QRT(1'b0),
   .QEN(EN),
-  .QDI(D),
-  .QDS(1'b1), // FIXME: Always select QDI as the FF's input
-  .CZI(),
-  .QZ (Q)
+  .QD (D),
+  .QZ (Q),
+
+  .CONST0 (1'b0),
+  .CONST1 (1'b1)
   );
 
 endmodule
@@ -867,10 +872,11 @@ module dffec(
   .QST(1'b0),
   .QRT(CLR),
   .QEN(EN),
-  .QDI(D),
-  .QDS(1'b1), // FIXME: Always select QDI as the FF's input
-  .CZI(),
-  .QZ (Q)
+  .QD (D),
+  .QZ (Q),
+
+  .CONST0 (1'b0),
+  .CONST1 (1'b1)
   );
 
 endmodule
@@ -895,10 +901,11 @@ module dffepc(
   .QST(PRE),
   .QRT(CLR),
   .QEN(EN),
-  .QDI(D),
-  .QDS(1'b1), // FIXME: Always select QDI as the FF's input
-  .CZI(),
-  .QZ (Q)
+  .QD (D),
+  .QZ (Q),
+
+  .CONST0 (1'b0),
+  .CONST1 (1'b1)
   );
 
 endmodule
@@ -921,10 +928,11 @@ module dffsc(
   .QST(1'b0),
   .QRT(CLR),
   .QEN(1'b1),
-  .QDI(D),
-  .QDS(1'b1), // FIXME: Always select QDI as the FF's input
-  .CZI(),
-  .QZ (Q)
+  .QD (D),
+  .QZ (Q),
+
+  .CONST0 (1'b0),
+  .CONST1 (1'b1)
   );
 
 endmodule
