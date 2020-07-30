@@ -1,11 +1,11 @@
 `include "./logic_macro.sim.v"
 `include "./c_frag_modes.sim.v"
+`include "./q_frag_modes.sim.v"
 `include "./f_frag.sim.v"
-`include "./q_frag.sim.v"
 
 (* FASM_FEATURES="LOGIC.LOGIC.Ipwr_gates.J_pwr_st" *)
 (* MODES="MACRO;FRAGS" *)
-module LOGIC (QST, QDS, TBS, TAB, TSL, TA1, TA2, TB1, TB2, BAB, BSL, BA1, BA2, BB1, BB2, QDI, QEN, QCK, QRT, F1, F2, FS, TZ, CZ, QZ, FZ);
+module LOGIC (QST, QDS, TBS, TAB, TSL, TA1, TA2, TB1, TB2, BAB, BSL, BA1, BA2, BB1, BB2, QDI, QEN, QCK, QRT, F1, F2, FS, TZ, CZ, QZ, FZ, FAKE_CONST);
     input wire QST;
     input wire QDS;
     input wire TBS;
@@ -32,6 +32,10 @@ module LOGIC (QST, QDS, TBS, TAB, TSL, TA1, TA2, TB1, TB2, BAB, BSL, BA1, BA2, B
     output wire CZ;
     output wire QZ;
     output wire FZ;
+
+    // This is a synthetic pin that can be connected to the global const
+    // network bypassing the switchbox.
+    input wire FAKE_CONST;
 
     parameter MODE = "MACRO";
 
@@ -93,17 +97,19 @@ module LOGIC (QST, QDS, TBS, TAB, TSL, TA1, TA2, TB1, TB2, BAB, BSL, BA1, BA2, B
         .CZ (CZ)
         );
 
-        // The Q-Frag
+        // The Q-Frag (with modes)
         (* FASM_PREFIX="LOGIC.LOGIC" *)
-        Q_FRAG q_frag (
+        Q_FRAG_MODES q_frag_modes (
         .QCK(QCK),
         .QST(QST),
         .QRT(QRT),
         .QEN(QEN),
         .QDI(QDI),
         .QDS(QDS),
-        .CZI(), // Deliberately disconnected as here the Q_FRAG always has to use the QDI input
-        .QZ (QZ)
+        .CZI(CZ),
+        .QZ (QZ),
+
+        .FAKE_CONST (FAKE_CONST)
         );
 
         // The F-Frag
