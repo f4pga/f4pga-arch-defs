@@ -931,7 +931,7 @@ endfunction()
 
 function(ADD_BITSTREAM_TARGET)
   set(options)
-  set(oneValueArgs NAME USE_FASM USE_OLD_DIR)
+  set(oneValueArgs NAME USE_FASM OUT_LOCAL_REL)
   set(multiValueArgs INCLUDED_TARGETS)
   cmake_parse_arguments(
     ADD_BITSTREAM_TARGET
@@ -945,7 +945,7 @@ function(ADD_BITSTREAM_TARGET)
   set(NAME ${ADD_BITSTREAM_TARGET_NAME})
   set(INCLUDED_TARGETS ${ADD_BITSTREAM_TARGET_INCLUDED_TARGETS})
   set(USE_FASM ${ADD_BITSTREAM_TARGET_USE_FASM})
-  set(USE_OLD_DIR ${ADD_BITSTREAM_TARGET_USE_OLD_DIR})
+  set(OUT_LOCAL_REL ${ADD_BITSTREAM_TARGET_OUT_LOCAL_REL})
 
   if("${USE_FASM}" STREQUAL "")
     set(USE_FASM TRUE)
@@ -1001,14 +1001,14 @@ function(ADD_BITSTREAM_TARGET)
     get_target_property_required(FASM_TO_BIT_CMD ${ARCH} FASM_TO_BIT_CMD)
     get_target_property(FASM_TO_BIT_DEPS ${ARCH} FASM_TO_BIT_DEPS)
 
-    if(NOT USE_OLD_DIR)
+    if(NOT OUT_LOCAL_REL)
       set(FQDN ${ARCH}-${DEVICE_TYPE}-${DEVICE}-${PACKAGE})
       set(OUT_LOCAL_REL ${NAME}/${FQDN})
       set(OUT_LOCAL ${CMAKE_CURRENT_BINARY_DIR}/${OUT_LOCAL_REL})
       set(OVERLAY ${NAME})
       add_custom_target(${NAME})
     else()
-      set(OUT_LOCAL ${USE_OLD_DIR})
+      set(OUT_LOCAL ${CMAKE_CURRENT_BINARY_DIR}/${OUT_LOCAL_REL})
     endif()
 
     set(OUT_FASM_MERGED ${OUT_LOCAL}/${TOP}.merged.fasm)
@@ -1058,8 +1058,8 @@ function(ADD_BITSTREAM_TARGET)
     )
   endif()
 
-  add_custom_target(${OVERLAY}_bit DEPENDS ${OUT_BITSTREAM})
-  add_output_to_fpga_target(${OVERLAY} BIT ${OUT_LOCAL}/${TOP}.${BITSTREAM_EXTENSION})
+  add_custom_target(${NAME}_bit DEPENDS ${OUT_BITSTREAM})
+  add_output_to_fpga_target(${NAME} BIT ${OUT_LOCAL_REL}/${TOP}.${BITSTREAM_EXTENSION})
 
   get_target_property_required(NO_BIT_TO_BIN ${ARCH} NO_BIT_TO_BIN)
   set(OUT_BIN ${OUT_BITSTREAM})
@@ -1082,11 +1082,11 @@ function(ADD_BITSTREAM_TARGET)
       DEPENDS ${BIT_TO_BIN} ${OUT_BITSTREAM}
       )
 
-    add_custom_target(${OVERLAY}_bin DEPENDS ${OUT_BIN})
-    add_output_to_fpga_target(${OVERLAY} BIN ${OUT_LOCAL}/${TOP}.${BIN_EXTENSION})
-    add_dependencies(all_${BOARD}_bin ${OVERLAY}_bin)
+    add_custom_target(${NAME}_bin DEPENDS ${OUT_BIN})
+    add_output_to_fpga_target(${NAME} BIN ${OUT_LOCAL_REL}/${TOP}.${BIN_EXTENSION})
+    add_dependencies(all_${BOARD}_bin ${NAME}_bin)
   else()
-    add_dependencies(all_${BOARD}_bin ${OVERLAY}_bit)
+    add_dependencies(all_${BOARD}_bin ${NAME}_bit)
   endif()
 
   get_target_property(PROG_TOOL ${BOARD} PROG_TOOL)
@@ -1102,7 +1102,7 @@ function(ADD_BITSTREAM_TARGET)
   endif()
 
   add_custom_target(
-    ${OVERLAY}_prog
+    ${NAME}_prog
     COMMAND ${PROG_CMD_LIST}
     DEPENDS ${OUT_BIN} ${PROG_TOOL}
     )
@@ -1762,9 +1762,10 @@ function(ADD_FPGA_TARGET)
     get_target_property(USE_OVERLAY ${DEVICE_TYPE} USE_OVERLAY)
 
     add_bitstream_target(
+      NAME ${NAME}
       USE_FASM ${USE_FASM}
       INCLUDED_TARGETS ${NAME}
-      USE_OLD_DIR ${OUT_LOCAL}
+      OUT_LOCAL_REL ${OUT_LOCAL_REL}
     )
 
     get_target_property_required(NO_BIT_TO_V ${ARCH} NO_BIT_TO_V)

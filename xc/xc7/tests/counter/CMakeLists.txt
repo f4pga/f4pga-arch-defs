@@ -45,7 +45,7 @@ add_fpga_target(
 
 add_file_target(FILE counter_arty_2clk.v SCANNER_TYPE verilog)
 add_fpga_target(
-  NAME counter_arty_pr
+  NAME counter_arty_pr_2clk
   BOARD arty-swbut-pr
   SOURCES counter_arty_2clk.v
   INPUT_IO_FILE ${COMMON}/arty_swbut_pr_2clk.pcf
@@ -53,8 +53,8 @@ add_fpga_target(
 )
 
 add_bitstream_target(
-  NAME counter_arty_merged
-  INCLUDED_TARGETS counter_arty_overlay counter_arty_pr
+  NAME counter_arty_merged_2clk
+  INCLUDED_TARGETS counter_arty_overlay counter_arty_pr_2clk
 )
 
 add_file_target(FILE counter_arty.v SCANNER_TYPE verilog)
@@ -64,6 +64,19 @@ add_fpga_target(
   SOURCES counter_arty.v
   INPUT_IO_FILE ${COMMON}/arty_swbut.pcf
   EXPLICIT_ADD_FILE_TARGET
+)
+
+add_fpga_target(
+  NAME counter_arty_pr
+  BOARD arty-swbut-pr
+  SOURCES counter_arty.v
+  INPUT_IO_FILE ${COMMON}/arty_swbut_pr.pcf
+  EXPLICIT_ADD_FILE_TARGET
+)
+
+add_bitstream_target(
+  NAME counter_arty_merged
+  INCLUDED_TARGETS counter_arty_overlay counter_arty_pr
 )
 
 add_file_target(FILE counter_arty_bufg.v SCANNER_TYPE verilog)
