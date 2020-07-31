@@ -1014,6 +1014,9 @@ function(ADD_BITSTREAM_TARGET)
     set(OUT_FASM_MERGED ${OUT_LOCAL}/${TOP}.merged.fasm)
     set(OUT_BITSTREAM ${OUT_LOCAL}/${TOP}.${BITSTREAM_EXTENSION})
 
+    set_target_properties(${NAME} PROPERTIES
+      OUT_BITSTREAM ${OUT_BITSTREAM}
+    )
     set(BITSTREAM_DEPS ${ALL_OUT_FASM_DEPS} ${FASM_TO_BIT} ${FASM_TO_BIT_DEPS})
 
     set(OUT_FASM ${OUT_FASM_MERGED})
@@ -1768,6 +1771,7 @@ function(ADD_FPGA_TARGET)
       OUT_LOCAL_REL ${OUT_LOCAL_REL}
     )
 
+    get_target_property(OUT_BITSTREAM ${NAME} OUT_BITSTREAM)
     get_target_property_required(NO_BIT_TO_V ${ARCH} NO_BIT_TO_V)
     if(NOT ${NO_BIT_TO_V})
         # Generate verilog from bitstream
