@@ -61,6 +61,42 @@ def is_loc_free(loc, tile_grid):
 
     return False
 
+# =============================================================================
+
+
+def process_cells_library(cells_library):
+    """
+    Processes the cells library, modifies some of them according to
+    requirements of their VPR representation
+    """
+    vpr_cells_library = {}
+
+    for cell_type, cell in cells_library.items():
+
+        # If the cell is a QMUX add the missing QCLKIN1 and QCLKIN2
+        # input pins.
+        if cell_type == "QMUX":
+            cell_pins = cell.pins
+
+            for i in [1, 2]:
+                cell_pins.append(
+                    Pin(
+                        name="QCLKIN{}".format(i),
+                        direction=PinDirection.INPUT,
+                        attrib={"hardWired": "true"}
+                    )
+                )
+
+            # Substitute the cell
+            vpr_cells_library[cell_type] = CellType(
+                type=cell_type,
+                pins=cell_pins
+            )
+
+        # Copy the cell
+        vpr_cells_library[cell_type] = cell
+
+    return vpr_cells_library
 
 # =============================================================================
 
@@ -207,14 +243,27 @@ def process_tilegrid(
                     else:
                         cell_loc = vpr_loc
 
-                    # Add the cell
+                    # Get the orignal cell
                     clock_cell = clock_cells[cell.name]
+                    pin_map = clock_cell.pin_map
+
+                    # If the cell is QMUX then extend its pin map with
+                    # QCLKIN0 and QCLKIN1 pins that are not present in the
+                    # techfile.
+                    if clock_cell.type == "QMUX":
+                        gmux_base = int(pin_map["QCLKIN0"].rsplit("_")[1])
+                        for i in [1, 2]:
+                            key = "QCLKIN{}".format(i)
+                            val = "GMUX_{}".format((gmux_base + i) % 5)
+                            pin_map[key] = val
+
+                    # Add the cell
                     clock_cell = ClockCell(
                         type=clock_cell.type,
                         name=clock_cell.name,
                         loc=cell_loc,
                         quadrant=clock_cell.quadrant,
-                        pin_map=clock_cell.pin_map
+                        pin_map=pin_map
                     )
 
                     vpr_clock_cells[clock_cell.name] = clock_cell
@@ -723,6 +772,54 @@ def process_connections(
             src=eps[0], dst=eps[1], is_direct=connection.is_direct
         )
 
+    # A QMUX should have 3 QCLKIN inputs but accorting to the EOS S3/PP3E
+    # techfile it has only one. It is assumed then when "QCLKIN0=GMUX_1" then
+    # "QCLKIN1=GMUX_2" etc.
+    new_qmux_connections = []
+    for connection in vpr_connections:
+
+        # Get only those that target QCLKIN0 of a QMUX.
+        if connection.dst.type != ConnectionType.CLOCK:
+            continue
+        if connection.src.type != ConnectionType.TILE:
+            continue
+
+        dst_cell_name, dst_pin = connection.dst.pin.split(".", maxsplit=1)
+        if not dst_cell_name.startswith("QMUX") or dst_pin != "QCLKIN0":
+            continue
+
+        src_cell_name, src_pin = connection.src.pin.split("_", maxsplit=1)
+        if not src_cell_name.startswith("GMUX"):
+            continue
+
+        # Add two new connections for QCLKIN1 and QCLKIN2.
+        # GMUX connections are already spread along the Z axis so the Z
+        # coordinate indicates the GMUX cell index.
+        gmux_base = connection.src.loc.z
+        for i in [1, 2]:
+            gmux_idx = (gmux_base + i) % 5
+
+            c = Connection(
+                src=ConnectionLoc(
+                    loc=Loc(
+                        x=connection.src.loc.x,
+                        y=connection.src.loc.y,
+                        z=gmux_idx
+                    ),
+                    pin="GMUX0_IZ",
+                    type=connection.src.type
+                ),
+                dst=ConnectionLoc(
+                    loc=connection.dst.loc,
+                    pin="{}.QCLKIN{}".format(dst_cell_name, i),
+                    type=connection.dst.type
+                ),
+                is_direct=connection.is_direct
+            )
+            new_qmux_connections.append(c)
+
+    vpr_connections.extend(new_qmux_connections)
+
     # Handle QMUX connections. Instead of making them SWITCHBOX -> TILE convert
     # to SWITCHBOX -> CLOCK
     for i, connection in enumerate(vpr_connections):
@@ -1043,8 +1140,11 @@ def main():
     else:
         cell_timings = None
 
+    # Process the cells library
+    vpr_cells_library = process_cells_library(cells_library)
+
     # Add synthetic stuff
-    add_synthetic_cell_and_tile_types(tile_types, cells_library)
+    add_synthetic_cell_and_tile_types(tile_types, vpr_cells_library)
 
     # Determine the grid offset so occupied locations start at GRID_MARGIN
     tl_min = min([loc.x for loc in phy_tile_grid]), \
@@ -1082,7 +1182,7 @@ def main():
 
     # Process the tilegrid
     vpr_tile_grid, vpr_clock_cells, loc_map = process_tilegrid(
-        tile_types, phy_tile_grid, phy_clock_cells, cells_library, grid_size,
+        tile_types, phy_tile_grid, phy_clock_cells, vpr_cells_library, grid_size,
         grid_offset, grid_limit
     )
 
@@ -1250,7 +1350,7 @@ def main():
 
     # Prepare the VPR database and write it
     db_root = {
-        "cells_library": cells_library,
+        "vpr_cells_library": vpr_cells_library,
         "loc_map": loc_map,
         "vpr_quadrants": vpr_quadrants,
         "vpr_tile_types": vpr_tile_types,

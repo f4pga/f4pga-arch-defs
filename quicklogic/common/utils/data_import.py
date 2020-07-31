@@ -139,18 +139,6 @@ def parse_library(xml_library):
                         )
                     )
 
-        # FIXME: If the cell is a QMUX add the missing QCLKIN1 and QCLKIN2
-        # input pins
-        if cell_type == "QMUX":
-            for i in [1, 2]:
-                cell_pins.append(
-                    Pin(
-                        name="QCLKIN{}".format(i),
-                        direction=PinDirection.INPUT,
-                        attrib={"hardWired": "true"}
-                    )
-                )
-
         # Add the cell
         cells.append(CellType(type=cell_type, pins=cell_pins))
 
@@ -846,18 +834,6 @@ def parse_clock_network(xml_clock_network):
         # Get the cell's pinmap
         pin_map = {k: v for k, v in xml_cell.attrib.items() \
             if k not in NON_PIN_TAGS}
-
-        # FIXME: A QMUX should have 3 QCLKIN inputs but accorting to the
-        # techfile it has only one. Should it be assumed that eg. when
-        # "QCLKIN0=GMUX_1" then "QCLKIN1=GMUX_2" etc ?!?!
-
-        # For now let's assume that yes and add the missing pins
-        if xml_cell.attrib["type"] == "QMUX":
-            gmux_base = int(pin_map["QCLKIN0"].rsplit("_")[1])
-            for i in [1, 2]:
-                key = "QCLKIN{}".format(i)
-                val = "GMUX_{}".format((gmux_base + i) % 5)
-                pin_map[key] = val
 
         # Return the cell
         return ClockCell(

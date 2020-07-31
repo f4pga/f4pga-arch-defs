@@ -1271,7 +1271,6 @@ def main():
 
         vpr_quadrants = db["vpr_quadrants"]
         vpr_clock_cells = db["vpr_clock_cells"]
-        cells_library = db["cells_library"]
         loc_map = db["loc_map"]
         vpr_tile_types = db["vpr_tile_types"]
         vpr_tile_grid = db["vpr_tile_grid"]
