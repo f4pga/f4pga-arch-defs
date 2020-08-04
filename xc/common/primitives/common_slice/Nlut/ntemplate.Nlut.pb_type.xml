@@ -71,13 +71,25 @@
 
      <!-- LUT outputs -->
      <direct name="O5" input="{N}5LUT[0].out"                output="{N}LUT.O5">
-      <pack_pattern in_port="{N}5LUT[0].out" name="LUT5x2"     out_port="{N}LUT.O5"/>
+      <pack_pattern name="LUT_to_FF_FDSE" />
+      <pack_pattern name="LUT_to_FF_FDRE" />
+      <pack_pattern name="LUT_to_FF_FDCE" />
+      <pack_pattern name="LUT_to_FF_FDPE" />
      </direct>
      <mux    name="O6" input="{N}5LUT[1].out F6MUX.O" output="{N}LUT.O6">
+      <pack_pattern in_port="{N}5LUT[1].out" name="LUT_to_FF_FDSE" out_port="{N}LUT.O6" />
+      <pack_pattern in_port="{N}5LUT[1].out" name="LUT_to_FF_FDRE" out_port="{N}LUT.O6" />
+      <pack_pattern in_port="{N}5LUT[1].out" name="LUT_to_FF_FDPE" out_port="{N}LUT.O6" />
+      <pack_pattern in_port="{N}5LUT[1].out" name="LUT_to_FF_FDCE" out_port="{N}LUT.O6" />
+
+      <pack_pattern in_port="F6MUX.O"        name="F6MUX_to_FF_FDSE" out_port="{N}LUT.O6" />
+      <pack_pattern in_port="F6MUX.O"        name="F6MUX_to_FF_FDRE" out_port="{N}LUT.O6" />
+      <pack_pattern in_port="F6MUX.O"        name="F6MUX_to_FF_FDPE" out_port="{N}LUT.O6" />
+      <pack_pattern in_port="F6MUX.O"        name="F6MUX_to_FF_FDCE" out_port="{N}LUT.O6" />
+
       <pack_pattern in_port="F6MUX.O"        name="LUT5toLUT6" out_port="{N}LUT.O6"/>
       <pack_pattern in_port="F6MUX.O"        name="LUT5toLUT7" out_port="{N}LUT.O6"/>
       <pack_pattern in_port="F6MUX.O"        name="LUT5toLUT8" out_port="{N}LUT.O6"/>
-      <pack_pattern in_port="{N}5LUT[1].out" name="LUT5x2"     out_port="{N}LUT.O6"/>
      </mux>
    </interconnect>
    <metadata>
