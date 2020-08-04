@@ -11,8 +11,8 @@ module GMUX_IC (IC, IS0, IZ);
     output wire IZ;
 	
     specify
-        (IC => IZ) = (0);
-		(IS0 => IZ) = (0);
+        (IC => IZ) = (0,0);
+		(IS0 => IZ) = (0,0);
     endspecify
 
     assign IZ = IS0 ? IC : 1'bx;
