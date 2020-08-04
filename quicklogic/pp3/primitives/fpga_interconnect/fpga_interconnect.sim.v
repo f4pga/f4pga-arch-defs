@@ -8,7 +8,7 @@ module fpga_interconnect(
     output wire dataout;
 
     specify
-        (datain=>dataout)="";
+        (datain=>dataout)=(0);
     endspecify
 
     assign dataout = datain;

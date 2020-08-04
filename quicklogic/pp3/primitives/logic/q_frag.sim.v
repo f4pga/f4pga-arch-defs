@@ -37,7 +37,7 @@ module Q_FRAG(QCK, QST, QRT, QEN, QDI, QDS, CZI, QZ);
     output reg  QZ;
     
     specify
-        (QCK => QZ) = "";
+        (QCK => QZ) = (0);
 		$setup(CZI, posedge QCK, "");
         $hold(posedge QCK, CZI, "");
         $setup(QDI, posedge QCK, "");

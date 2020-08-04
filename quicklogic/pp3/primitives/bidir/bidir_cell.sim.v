@@ -22,10 +22,10 @@ module BIDIR_CELL(
     output wire O_PAD_$out;
 	
     specify
-        (O_DAT => O_PAD_$out) = "";
-        (O_EN => O_PAD_$out) = "";
-        (I_PAD_$inp => I_DAT) = "";
-        (I_EN => I_DAT) = "";
+        (O_DAT => O_PAD_$out) = (0);
+        (O_EN => O_PAD_$out) = (0);
+        (I_PAD_$inp => I_DAT) = (0);
+        (I_EN => I_DAT) = (0);
     endspecify
 
     // Parameters

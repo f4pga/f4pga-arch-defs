@@ -83,25 +83,25 @@ module C_FRAG (TBS, TAB, TSL, TA1, TA2, TB1, TB2, BAB, BSL, BA1, BA2, BB1, BB2, 
     assign CZ = CZI;
 
     specify
-        (TBS => CZ) = "";
-        (TAB => CZ) = "";
-        (TSL => CZ) = "";
-        (TA1 => CZ) = "";
-        (TA2 => CZ) = "";
-        (TB1 => CZ) = "";
-        (TB2 => CZ) = "";
-        (BAB => CZ) = "";
-        (BSL => CZ) = "";
-        (BA1 => CZ) = "";
-        (BA2 => CZ) = "";
-        (BB1 => CZ) = "";
-        (BB2 => CZ) = "";
-        (TAB => TZ) = "";
-        (TSL => TZ) = "";
-        (TA1 => TZ) = "";
-        (TA2 => TZ) = "";
-        (TB1 => TZ) = "";
-        (TB2 => TZ) = "";
+        (TBS => CZ) = (0);
+        (TAB => CZ) = (0);
+        (TSL => CZ) = (0);
+        (TA1 => CZ) = (0);
+        (TA2 => CZ) = (0);
+        (TB1 => CZ) = (0);
+        (TB2 => CZ) = (0);
+        (BAB => CZ) = (0);
+        (BSL => CZ) = (0);
+        (BA1 => CZ) = (0);
+        (BA2 => CZ) = (0);
+        (BB1 => CZ) = (0);
+        (BB2 => CZ) = (0);
+        (TAB => TZ) = (0);
+        (TSL => TZ) = (0);
+        (TA1 => TZ) = (0);
+        (TA2 => TZ) = (0);
+        (TB1 => TZ) = (0);
+        (TB2 => TZ) = (0);
     endspecify
 
 endmodule

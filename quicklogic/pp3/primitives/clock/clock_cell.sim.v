@@ -11,7 +11,7 @@ module CLOCK_CELL(I_PAD, O_CLK);
     output wire O_CLK;
 	
 	specify
-        (I_PAD=>O_CLK)="";
+        (I_PAD=>O_CLK)=(0);
     endspecify
 
     assign O_CLK = I_PAD;

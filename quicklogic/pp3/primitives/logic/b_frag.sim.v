@@ -28,13 +28,13 @@ module B_FRAG (TBS, XAB, XSL, XA1, XA2, XB1, XB2, XZ);
     output wire XZ;
    
     specify
-        (TBS => XZ) = "";
-        (XAB => XZ) = "";
-        (XSL => XZ) = "";
-        (XA1 => XZ) = "";
-        (XA2 => XZ) = "";
-        (XB1 => XZ) = "";
-        (XB2 => XZ) = "";
+        (TBS => XZ) = (0);
+        (XAB => XZ) = (0);
+        (XSL => XZ) = (0);
+        (XA1 => XZ) = (0);
+        (XA2 => XZ) = (0);
+        (XB1 => XZ) = (0);
+        (XB2 => XZ) = (0);
     endspecify
 
     // Control parameters

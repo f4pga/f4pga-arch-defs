@@ -10,9 +10,9 @@ module F_FRAG (F1, F2, FS, FZ);
     (* DELAY_CONST_FS="{iopath_FS_FZ}" *)
     output wire FZ;
     specify
-        (F1 => FZ) = "";
-        (F2 => FZ) = "";
-        (FS => FZ) = "";
+        (F1 => FZ) = (0);
+        (F2 => FZ) = (0);
+        (FS => FZ) = (0);
     endspecify
     // The F-mux
     assign FZ = FS ? F2 : F1;
