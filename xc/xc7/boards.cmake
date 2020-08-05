@@ -116,3 +116,11 @@ add_xc_board(
 #  PACKAGE test
 #  PART xc7z020clg484-1
 #)
+
+add_xc_board(
+  BOARD zybo-z7-20
+  DEVICE xc7z020
+  PACKAGE test
+  PART xc7z020clg400-1
+  PROG_CMD "${OPENOCD} -f ${OPENOCD_DATADIR}/scripts/interface/ftdi/digilent-hs1.cfg -f ${OPENOCD_DATADIR}/scripts/target/zynq_7000.cfg -c \\\"ftdi_tdo_sample_edge falling $<SEMICOLON> adapter_khz 1000000 $<SEMICOLON> init $<SEMICOLON> pld load 0 \${OUT_BIN} $<SEMICOLON> exit\\\""
+)

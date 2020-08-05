@@ -112,6 +112,15 @@ add_fpga_target(
   EXPLICIT_ADD_FILE_TARGET
 )
 
+add_file_target(FILE counter_zybo_z7.v SCANNER_TYPE verilog)
+add_fpga_target(
+  NAME counter_zybo_z7
+  BOARD zybo-z7-20
+  SOURCES counter_zybo_z7.v
+  INPUT_IO_FILE ../common/zybo_z7.pcf
+  EXPLICIT_ADD_FILE_TARGET
+)
+
 add_vivado_target(
   NAME counter_pynqz1_vivado
   PARENT_NAME counter_pynqz1
