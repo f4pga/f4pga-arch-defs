@@ -30,6 +30,8 @@ IGNORED_IO_CELL_TYPES = (
 
 # =============================================================================
 
+DEBUG = False
+
 
 def is_loc_within_limit(loc, limit):
     """
@@ -61,6 +63,7 @@ def is_loc_free(loc, tile_grid):
 
     return False
 
+
 # =============================================================================
 
 
@@ -89,14 +92,14 @@ def process_cells_library(cells_library):
 
             # Substitute the cell
             vpr_cells_library[cell_type] = CellType(
-                type=cell_type,
-                pins=cell_pins
+                type=cell_type, pins=cell_pins
             )
 
         # Copy the cell
         vpr_cells_library[cell_type] = cell
 
     return vpr_cells_library
+
 
 # =============================================================================
 
@@ -1182,8 +1185,8 @@ def main():
 
     # Process the tilegrid
     vpr_tile_grid, vpr_clock_cells, loc_map = process_tilegrid(
-        tile_types, phy_tile_grid, phy_clock_cells, vpr_cells_library, grid_size,
-        grid_offset, grid_limit
+        tile_types, phy_tile_grid, phy_clock_cells, vpr_cells_library,
+        grid_size, grid_offset, grid_limit
     )
 
     # Process the switchbox grid
@@ -1266,87 +1269,88 @@ def main():
         sw = add_vpr_switches_for_cell("CAND", cell_timings)
         vpr_switches.update(sw)
 
-    # DBEUG
-    print("Tile grid:")
-    xmax = max([loc.x for loc in vpr_tile_grid])
-    ymax = max([loc.y for loc in vpr_tile_grid])
-    for y in range(ymax + 1):
-        l = " {:>2}: ".format(y)
-        for x in range(xmax + 1):
-            loc = Loc(x=x, y=y, z=0)
-            if loc not in vpr_tile_grid:
-                l += " "
-            elif vpr_tile_grid[loc] is not None:
-                tile_type = vpr_tile_types[vpr_tile_grid[loc].type]
-                label = sorted(list(tile_type.cells.keys()))[0][0].upper()
-                l += label
-            else:
-                l += "."
-        print(l)
+    if DEBUG:
+        # DBEUG
+        print("Tile grid:")
+        xmax = max([loc.x for loc in vpr_tile_grid])
+        ymax = max([loc.y for loc in vpr_tile_grid])
+        for y in range(ymax + 1):
+            l = " {:>2}: ".format(y)
+            for x in range(xmax + 1):
+                loc = Loc(x=x, y=y, z=0)
+                if loc not in vpr_tile_grid:
+                    l += " "
+                elif vpr_tile_grid[loc] is not None:
+                    tile_type = vpr_tile_types[vpr_tile_grid[loc].type]
+                    label = sorted(list(tile_type.cells.keys()))[0][0].upper()
+                    l += label
+                else:
+                    l += "."
+            print(l)
 
-    # DBEUG
-    print("Tile capacity / sub-tile count")
-    xmax = max([loc.x for loc in vpr_tile_grid])
-    ymax = max([loc.y for loc in vpr_tile_grid])
-    for y in range(ymax + 1):
-        l = " {:>2}: ".format(y)
-        for x in range(xmax + 1):
+        # DBEUG
+        print("Tile capacity / sub-tile count")
+        xmax = max([loc.x for loc in vpr_tile_grid])
+        ymax = max([loc.y for loc in vpr_tile_grid])
+        for y in range(ymax + 1):
+            l = " {:>2}: ".format(y)
+            for x in range(xmax + 1):
 
-            tiles = {loc: tile for loc, tile in vpr_tile_grid.items() if \
-                     loc.x == x and loc.y == y}
-            count = len([t for t in tiles.values() if t is not None])
+                tiles = {loc: tile for loc, tile in vpr_tile_grid.items() if \
+                         loc.x == x and loc.y == y}
+                count = len([t for t in tiles.values() if t is not None])
 
-            if len(tiles) == 0:
-                l += " "
-            elif count == 0:
-                l += "."
-            else:
-                l += "{:X}".format(count)
+                if len(tiles) == 0:
+                    l += " "
+                elif count == 0:
+                    l += "."
+                else:
+                    l += "{:X}".format(count)
 
-        print(l)
+            print(l)
 
-    # DEBUG
-    print("Switchbox grid:")
-    xmax = max([loc.x for loc in vpr_switchbox_grid])
-    ymax = max([loc.y for loc in vpr_switchbox_grid])
-    for y in range(ymax + 1):
-        l = " {:>2}: ".format(y)
-        for x in range(xmax + 1):
-            loc = Loc(x=x, y=y, z=0)
-            if loc not in vpr_switchbox_grid:
-                l += " "
-            elif vpr_switchbox_grid[loc] is not None:
-                l += "X"
-            else:
-                l += "."
-        print(l)
+        # DEBUG
+        print("Switchbox grid:")
+        xmax = max([loc.x for loc in vpr_switchbox_grid])
+        ymax = max([loc.y for loc in vpr_switchbox_grid])
+        for y in range(ymax + 1):
+            l = " {:>2}: ".format(y)
+            for x in range(xmax + 1):
+                loc = Loc(x=x, y=y, z=0)
+                if loc not in vpr_switchbox_grid:
+                    l += " "
+                elif vpr_switchbox_grid[loc] is not None:
+                    l += "X"
+                else:
+                    l += "."
+            print(l)
 
-    # DBEUG
-    print("Route-through global clock cells:")
-    xmax = max([loc.x for loc in vpr_tile_grid])
-    ymax = max([loc.y for loc in vpr_tile_grid])
-    for y in range(ymax + 1):
-        l = " {:>2}: ".format(y)
-        for x in range(xmax + 1):
-            loc = Loc(x=x, y=y, z=0)
+        # DBEUG
+        print("Route-through global clock cells:")
+        xmax = max([loc.x for loc in vpr_tile_grid])
+        ymax = max([loc.y for loc in vpr_tile_grid])
+        for y in range(ymax + 1):
+            l = " {:>2}: ".format(y)
+            for x in range(xmax + 1):
+                loc = Loc(x=x, y=y, z=0)
 
-            for cell in vpr_clock_cells.values():
-                if cell.loc == loc:
-                    l += cell.name[0].upper()
-                    break
-            else:
-                l += "."
-        print(l)
+                for cell in vpr_clock_cells.values():
+                    if cell.loc == loc:
+                        l += cell.name[0].upper()
+                        break
+                else:
+                    l += "."
+            print(l)
 
-    # DEBUG
-    print("VPR Segments:")
-    for s in vpr_segments.values():
-        print("", s)
+        # DEBUG
+        print("VPR Segments:")
+        for s in vpr_segments.values():
+            print("", s)
 
-    # DEBUG
-    print("VPR Switches:")
-    for s in vpr_switches.values():
-        print("", s)
+        # DEBUG
+        print("VPR Switches:")
+        for s in vpr_switches.values():
+            print("", s)
 
     # Prepare the VPR database and write it
     db_root = {

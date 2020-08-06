@@ -8,6 +8,42 @@ import lxml.etree as ET
 import sdf_timing.sdfparse
 from sdf_timing.utils import get_scale_seconds
 
+from termcolor import colored
+
+
+def log(ltype, message, outdesc=None):
+    """Prints log messages.
+
+    Parameters
+    ----------
+    ltype: str
+        Log type, can be INFO, WARNING, ERROR
+    message: str
+        Log message
+    """
+
+    LOGLEVELS = ["INFO", "WARNING", "ERROR", "ALL"]
+    SUPPRESSBELOW = "ERROR"
+
+    if ltype not in LOGLEVELS[:-1]:
+        return
+
+    dat = {
+        "INFO": (0, "green"),
+        "WARNING": (1, "yellow"),
+        "ERROR": (2, "red"),
+        "ALL": (3, "black")
+    }
+
+    if dat[ltype][0] >= dat[SUPPRESSBELOW][0]:
+        print(colored("{}: {}".format(ltype, message), dat[ltype][1]))
+        if outdesc:
+            print(
+                colored("{}: {}".format(ltype, message), dat[ltype][1]),
+                file=outdesc
+            )
+
+
 # =============================================================================
 
 # RAM 2x1 ports, their widths and associated clocks.
@@ -709,9 +745,11 @@ def make_pb_type(
             else:
                 delay = 1e-10
                 stats["missing_timings"] += 1
-                print(
-                    "WARNING: No setup timing for '{}'->'{}' for pb_type '{}'".
-                    format(alias + suffix, assoc_clock, pb_name)
+                log(
+                    "WARNING",
+                    "No setup timing for '{}'->'{}' for pb_type '{}'".format(
+                        alias + suffix, assoc_clock, pb_name
+                    )
                 )
 
             stats["total_timings"] += 1
@@ -742,9 +780,11 @@ def make_pb_type(
             else:
                 delay = 1e-10
                 stats["missing_timings"] += 1
-                print(
-                    "WARNING: No hold timing for '{}'->'{}' for pb_type '{}'".
-                    format(alias + suffix, assoc_clock, pb_name)
+                log(
+                    "WARNING",
+                    "No hold timing for '{}'->'{}' for pb_type '{}'".format(
+                        alias + suffix, assoc_clock, pb_name
+                    )
                 )
 
             stats["total_timings"] += 1
@@ -791,9 +831,10 @@ def make_pb_type(
                 delay_min = 1e-10
                 delay_max = 1e-10
                 stats["missing_timings"] += 1
-                print(
-                    "WARNING: No \"clock to Q\" timing for '{}'->'{}' for pb_type '{}'"
-                    .format(assoc_clock, alias + suffix, pb_name)
+                log(
+                    "WARNING",
+                    "No \"clock to Q\" timing for '{}'->'{}' for pb_type '{}'".
+                    format(assoc_clock, alias + suffix, pb_name)
                 )
 
             stats["total_timings"] += 1
