@@ -285,6 +285,7 @@ function(QUICKLOGIC_DEFINE_DEVICE)
       WIRE_EBLIF ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/passthrough.eblif
       RR_PATCH_DEPS ${DEVICE_RR_PATCH_DEPS}
       CACHE_PLACE_DELAY
+      CACHE_LOOKAHEAD
       CACHE_ARGS
         --constant_net_method route
         --clock_modeling route
