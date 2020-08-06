@@ -1002,12 +1002,14 @@ function(ADD_BITSTREAM_TARGET)
     get_target_property(FASM_TO_BIT_DEPS ${ARCH} FASM_TO_BIT_DEPS)
 
     if(NOT OUT_LOCAL_REL)
+      set(CREATE_NEW_DIR TRUE)
       set(FQDN ${ARCH}-${DEVICE_TYPE}-${DEVICE}-${PACKAGE})
       set(OUT_LOCAL_REL ${NAME}/${FQDN})
       set(OUT_LOCAL ${CMAKE_CURRENT_BINARY_DIR}/${OUT_LOCAL_REL})
       set(MAIN_TARGET ${NAME})
       add_custom_target(${NAME})
     else()
+      set(CREATE_NEW_DIR FALSE)
       set(OUT_LOCAL ${CMAKE_CURRENT_BINARY_DIR}/${OUT_LOCAL_REL})
     endif()
 
@@ -1030,7 +1032,7 @@ function(ADD_BITSTREAM_TARGET)
     )
     set(FASM_TO_BIT_CMD_FOR_TARGET_LIST ${FASM_TO_BIT_CMD_FOR_TARGET_LIST} ${FASM_TO_BIT_EXTRA_ARGS_LIST})
 
-    if(NOT USE_OLD_DIR)
+    if(CREATE_NEW_DIR)
       add_custom_command(
         OUTPUT ${OUT_BITSTREAM}
         DEPENDS ${BITSTREAM_DEPS}

@@ -819,7 +819,7 @@ def create_track_rr_graph(
     print('original {} final {}'.format(num_channels, len(alive_tracks)))
 
 
-def add_synthetic_edges(conn, graph, node_mapping, grid, synth_tiles):
+def add_synthetic_edges(conn, graph, node_mapping, grid, synth_tiles, overlay):
     cur = conn.cursor()
     delayless_switch = graph.get_switch_id('__vpr_delayless_switch__')
 
@@ -897,11 +897,13 @@ WHERE
             assert track_node in node_mapping, (track_node, track_pkey)
             if wire == 'inpad' and num_inpad > 1:
                 pin_name = graph.create_pin_name_from_tile_type_sub_tile_num_and_pin(
-                    tile_type, pin['z_loc'], wire
+                    tile_type, pin['z_loc'] if not overlay else
+                    (pin['z_loc'] - num_outpad), wire
                 )
             elif wire == 'outpad' and num_outpad > 1:
                 pin_name = graph.create_pin_name_from_tile_type_sub_tile_num_and_pin(
-                    tile_type, (pin['z_loc'] - num_inpad), wire
+                    tile_type, (pin['z_loc'] - num_inpad)
+                    if not overlay else pin['z_loc'], wire
                 )
             else:
                 pin_name = graph.create_pin_name_from_tile_type_and_pin(
@@ -1440,7 +1442,9 @@ FROM
         # Set of (src, sink, switch_id) tuples that pip edges have been sent to
         # VPR.  VPR cannot handle duplicate paths with the same switch id.
         print('{} Adding synthetic edges'.format(now()))
-        add_synthetic_edges(conn, graph, node_mapping, grid, synth_tiles)
+        add_synthetic_edges(
+            conn, graph, node_mapping, grid, synth_tiles, args.overlay
+        )
 
         print('{} Creating channels.'.format(now()))
         channels_obj = create_channels(conn)
