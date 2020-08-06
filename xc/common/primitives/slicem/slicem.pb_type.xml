@@ -401,10 +401,32 @@
       </pb_type>
 
       <interconnect>
-        <direct name="AMEMCLK" input="SLICEM_MODES.CLK" output="A_DRAM.CLK"/>
-        <direct name="BMEMCLK" input="SLICEM_MODES.CLK" output="B_DRAM.CLK"/>
-        <direct name="CMEMCLK" input="SLICEM_MODES.CLK" output="C_DRAM.CLK"/>
-        <direct name="DMEMCLK" input="SLICEM_MODES.CLK" output="D_DRAM.CLK"/>
+        <!-- The DLUT must be in RAM-mode for any of the RAM's to work.
+            As a corollary, a DRAM requires the clock, so only turn on the
+            DRAM if the clock is also connected.
+          -->
+        <direct name="AMEMCLK" input="SLICEM_MODES.CLK" output="A_DRAM.CLK">
+          <metadata>
+            <meta name="fasm_mux">
+              SLICEM_MODES.CLK = DLUT.RAM
+            </meta>
+          </metadata>
+        </direct>
+        <direct name="BMEMCLK" input="SLICEM_MODES.CLK" output="B_DRAM.CLK">
+          <metadata>
+            <meta name="fasm_mux">
+              SLICEM_MODES.CLK = DLUT.RAM
+            </meta>
+          </metadata>
+        </direct>
+        <direct name="CMEMCLK" input="SLICEM_MODES.CLK" output="C_DRAM.CLK">
+          <metadata>
+            <meta name="fasm_mux">
+              SLICEM_MODES.CLK = DLUT.RAM
+            </meta>
+          </metadata>
+        </direct>
+        <direct name="DMEMCLK" input="SLICEM_MODES.CLK" output="D_DRAM.CLK" />
 
         <direct name="D1" input="SLICEM_MODES.D1" output="D_DRAM.A[0]" />
         <direct name="D2" input="SLICEM_MODES.D2" output="D_DRAM.A[1]" />
@@ -842,17 +864,6 @@
         <mux name="F7AMUX_O"   input="F7AMUX.O DRAM_2_OUTPUT_STUB.DPO_OUT" output="SLICEM_MODES.F7AMUX_O" />
         <mux name="F7BMUX_O"   input="F7BMUX.O DRAM_2_OUTPUT_STUB.SPO_OUT" output="SLICEM_MODES.F7BMUX_O" />
       </interconnect>
-
-
-      <!-- The DLUT must be in RAM-mode for any of the RAM's to work.
-           As a corollary, a DRAM requires the clock, so only turn on the
-           DRAM if the clock is also connected.
-      -->
-      <metadata>
-        <meta name="fasm_mux">
-          SLICEM.CLK = DLUT.RAM
-        </meta>
-      </metadata>
 
     </mode>
     <metadata>
