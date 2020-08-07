@@ -16,5 +16,5 @@ add_jlink_output(
 
 add_dependencies(all_ql_tests camif-ql-chandalar_bit)
 add_dependencies(all_ql_tests camif-ql-chandalar_jlink)
-add_dependencies(all_quick_tests camif-ql-chandalar_analysis)
-add_dependencies(camif-ql-chandalar_analysis camif-ql-chandalar_bit_v)
+#add_dependencies(all_quick_tests camif-ql-chandalar_analysis)
+#add_dependencies(camif-ql-chandalar_analysis camif-ql-chandalar_bit_v)
