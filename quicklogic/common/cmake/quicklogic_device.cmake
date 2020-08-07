@@ -1,7 +1,7 @@
 function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   # ~~~
   # QUICKLOGIC_DEFINE_DEVICE_TYPE(
-  #   FAMILY <family>  
+  #   FAMILY <family>
   #   ARCH <arch>
   #   DEVICE <device>
   #   PACKAGES <package> <package> ...
@@ -64,7 +64,7 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
 
   get_target_property_required(QUICKLOGIC_TIMINGS_IMPORTER env QUICKLOGIC_TIMINGS_IMPORTER)
   get_target_property_required(QUICKLOGIC_TIMINGS_IMPORTER_TARGET env QUICKLOGIC_TIMINGS_IMPORTER_TARGET)
-  
+
   # TODO: How to handle different timing cases that depend on a cell config?
   # For example BIDIR cells have different timings for different voltages.
   #
@@ -123,8 +123,7 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${VPR_DB_FILE}
     COMMAND ${PYTHON3} ${PREPARE_VPR_DATABASE}
       --phy-db ${PHY_DB_FILE}
-      --vpr-db ${VPR_DB_FILE}
-      --sdf-dir ${SDF_TIMING_DIR} 
+      --sdf-dir ${SDF_TIMING_DIR} > ${VPR_DB_FILE}
       ${GRID_LIMIT_ARGS}
     DEPENDS ${PHY_DB_FILE} sdf_timing ${SDF_FILE_TARGETS} ${PREPARE_VPR_DATABASE} ${PYTHON3_TARGET}
   )
