@@ -2199,7 +2199,8 @@ def create_edges(args):
             ]
             add_graph_nodes_for_pins(conn, tile_type, wire, pins)
 
-        if args.synth_tiles and args.overlay:
+        if args.overlay:
+            assert args.synth_tiles
             use_roi = True
             with open(args.synth_tiles) as f:
                 synth_tiles = json.load(f)

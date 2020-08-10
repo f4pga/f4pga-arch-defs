@@ -382,20 +382,16 @@ function(ADD_XC_DEVICE_DEFINE)
     set(DEVICE_RR_PATCH_DEPS "")
     append_file_dependency(DEVICE_RR_PATCH_DEPS ${CHANNELS_DB})
 
-    if(${USE_ROI})
+    if(${USE_ROI} OR ${USE_OVERLAY})
         # SYNTH_TILES used in ROI.
         get_target_property_required(SYNTH_TILES ${DEVICE_TYPE} SYNTH_TILES)
         get_file_location(SYNTH_TILES_LOCATION ${SYNTH_TILES})
         append_file_dependency(DEVICE_RR_PATCH_DEPS ${SYNTH_TILES})
-        set(RR_PATCH_EXTRA_ARGS --synth_tiles ${SYNTH_TILES_LOCATION} ${RR_PATCH_EXTRA_ARGS})
-    endif()
-
-    if(${USE_OVERLAY})
-        # SYNTH_TILES used in ROI.
-        get_target_property_required(SYNTH_TILES ${DEVICE_TYPE} SYNTH_TILES)
-        get_file_location(SYNTH_TILES_LOCATION ${SYNTH_TILES})
-        append_file_dependency(DEVICE_RR_PATCH_DEPS ${SYNTH_TILES})
-        set(RR_PATCH_EXTRA_ARGS --synth_tiles ${SYNTH_TILES_LOCATION} --overlay ${RR_PATCH_EXTRA_ARGS})
+        if(${USE_ROI})
+          set(RR_PATCH_EXTRA_ARGS --synth_tiles ${SYNTH_TILES_LOCATION} ${RR_PATCH_EXTRA_ARGS})
+        else()
+          set(RR_PATCH_EXTRA_ARGS --synth_tiles ${SYNTH_TILES_LOCATION} --overlay ${RR_PATCH_EXTRA_ARGS})
+        endif()
     endif()
 
     get_target_property_required(LIMIT_GRAPH_TO_DEVICE ${DEVICE_TYPE} LIMIT_GRAPH_TO_DEVICE)
