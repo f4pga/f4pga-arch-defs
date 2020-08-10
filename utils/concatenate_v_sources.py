@@ -24,6 +24,7 @@ parser.add_argument(
 include_re = re.compile(r'^`include *"([^"]+)"', flags=re.MULTILINE)
 slash_star_re = re.compile(r'\s*/\*.*\*/\s*', flags=re.DOTALL)
 slash_slash_re = re.compile(r'\s*//[^\n]*')
+v2x_re = re.compile('.*\(\*.*((DELAY)|(CLOCK)|(MODEL)|(SETUP)|(HOLD)|(FASM)).*\*\)\n')
 
 
 def process_includes(file, includes_list):
@@ -36,6 +37,8 @@ def process_includes(file, includes_list):
     code = file.read()
     code = slash_star_re.sub('', code)
     code = slash_slash_re.sub('', code)
+    code = v2x_re.sub('', code)
+
 
     def process_match(match):
         include_path = path.join(path.dirname(file_name), match[1])

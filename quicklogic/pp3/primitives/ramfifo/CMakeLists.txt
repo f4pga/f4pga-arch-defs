@@ -1,3 +1,3 @@
 add_file_target(FILE ramfifo.sim.v SCANNER_TYPE verilog)
-
-add_to_cells_sim(ramfifo.sim.v)
+add_file_target(FILE ram.sim.v SCANNER_TYPE verilog)
+add_file_target(FILE fifo_controller.sim.v SCANNER_TYPE verilog)
