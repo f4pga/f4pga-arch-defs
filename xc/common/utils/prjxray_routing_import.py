@@ -1311,7 +1311,8 @@ def main():
     populate_hclk_cmt_tiles(db)
 
     synth_tiles = None
-    if args.synth_tiles and args.overlay:
+    if args.overlay:
+        assert args.synth_tiles
         use_roi = True
         with open(args.synth_tiles) as f:
             synth_tiles = json.load(f)

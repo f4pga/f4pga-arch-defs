@@ -930,8 +930,34 @@ function(ADD_FPGA_TARGET_BOARDS)
 endfunction()
 
 function(ADD_BITSTREAM_TARGET)
-  set(options)
-  set(oneValueArgs NAME USE_FASM OUT_LOCAL_REL)
+  # ~~~
+  # ADD_BITSTREAM_TARGET(
+  #   NAME <name>
+  #   [USE_FASM]
+  #   [OUT_LOCAL_REL <relative path to existing directory>]
+  #   INCLUDED_TARGETS <target list>
+  #   )
+  # ~~~
+  #
+  # ADD_BITSTREAM_TARGET defines an FPGA bitstream target made up of one or more
+  # FPGA targets.
+  #
+  # INCLUDED_TARGETS is a list of targets that should have their FASM merged before
+  # generating a bitstream. If only one target is given, it will generate a bitstream
+  # directly from the provided target's FASM.
+  #
+  # OUT_LOCAL_REL should be provided to add the target to an already existing directory.
+  #
+  # Targets generated:
+  #
+  # * <name>_bit - Generate output bitstream.
+  #
+  # Output files:
+  #
+  # * ${TOP}.${BITSTREAM_EXTENSION} - Bitstream for target.
+  #
+  set(options USE_FASM)
+  set(oneValueArgs NAME OUT_LOCAL_REL)
   set(multiValueArgs INCLUDED_TARGETS)
   cmake_parse_arguments(
     ADD_BITSTREAM_TARGET
@@ -947,9 +973,6 @@ function(ADD_BITSTREAM_TARGET)
   set(USE_FASM ${ADD_BITSTREAM_TARGET_USE_FASM})
   set(OUT_LOCAL_REL ${ADD_BITSTREAM_TARGET_OUT_LOCAL_REL})
 
-  if("${USE_FASM}" STREQUAL "")
-    set(USE_FASM TRUE)
-  endif()
   # Generate bitstream
   # -------------------------------------------------------------------------
   set(ALL_OUT_FASM "")
@@ -1566,11 +1589,6 @@ function(ADD_FPGA_TARGET)
     set(OUT_CONSTR_REL ${OUT_LOCAL_REL}/${TOP}_constraints.place)
     set(OUT_NET ${OUT_LOCAL}/${TOP}.net)
 
-    get_target_property(PLACE_TOOL_EXTRA_ARGS ${BOARD} PLACE_TOOL_EXTRA_ARGS)
-    if ("${PLACE_TOOL_EXTRA_ARGS}" STREQUAL "PLACE_TOOL_EXTRA_ARGS-NOTFOUND")
-      set(PLACE_TOOL_EXTRA_ARGS "")
-    endif()
-
     # Generate IO constraints
     string(CONFIGURE ${PLACE_TOOL_CMD} PLACE_TOOL_CMD_FOR_TARGET)
     separate_arguments(
@@ -1762,16 +1780,21 @@ function(ADD_FPGA_TARGET)
 
   get_target_property_required(NO_BITSTREAM ${ARCH} NO_BITSTREAM)
   if(NOT ${NO_BITSTREAM})
-
-    get_target_property_required(DEVICE_TYPE ${DEVICE} DEVICE_TYPE)
-    get_target_property(USE_OVERLAY ${DEVICE_TYPE} USE_OVERLAY)
-
-    add_bitstream_target(
-      NAME ${NAME}
-      USE_FASM ${USE_FASM}
-      INCLUDED_TARGETS ${NAME}
-      OUT_LOCAL_REL ${OUT_LOCAL_REL}
-    )
+    if(${USE_FASM})
+      add_bitstream_target(
+        NAME ${NAME}
+        USE_FASM
+        INCLUDED_TARGETS ${NAME}
+        OUT_LOCAL_REL ${OUT_LOCAL_REL}
+      )
+    else()
+      add_bitstream_target(
+        NAME ${NAME}
+        USE_FASM
+        INCLUDED_TARGETS ${NAME}
+        OUT_LOCAL_REL ${OUT_LOCAL_REL}
+      )
+    endif()
 
     get_target_property(OUT_BITSTREAM ${NAME} OUT_BITSTREAM)
     get_target_property_required(NO_BIT_TO_V ${ARCH} NO_BIT_TO_V)
