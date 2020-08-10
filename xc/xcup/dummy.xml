@@ -1,0 +1,10 @@
+<empty>
+   <interconnect>
+   </interconnect>
+   <pinlocations pattern="spread_perimeter"/>
+   <fc in_type="frac" in_val="1.0" out_type="frac" out_val="1.0">
+     <fc_override fc_type="frac" fc_val="0.1" segment_name="global" />
+     <fc_override fc_type="frac" fc_val="0.4" segment_name="long-span "/>
+     <fc_override fc_type="frac" fc_val="1.0" segment_name="short-span "/>
+   </fc>
+</empty>

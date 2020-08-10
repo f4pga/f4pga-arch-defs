@@ -1,0 +1,274 @@
+{
+    "SLICEL": {
+        "A5LUT": {
+            "ALUT": ["LUT5.SLICEL/A5LUT"]
+        },
+        "B5LUT": {
+            "BLUT": ["LUT5.SLICEL/B5LUT"]
+        },
+        "C5LUT": {
+            "CLUT": ["LUT5.SLICEL/C5LUT"]
+        },
+        "D5LUT": {
+            "DLUT": ["LUT5.SLICEL/D5LUT"]
+        },
+        "F7AMUX":{
+            "COMMON_LUT_AND_F78MUX":
+                ["SELMUX2_1.SLICEL/F7AMUX"]
+        },
+        "F7BMUX":{
+            "COMMON_LUT_AND_F78MUX":
+                ["SELMUX2_1.SLICEL/F7BMUX"]
+        },
+        "F8MUX":{
+            "COMMON_LUT_AND_F78MUX":
+                ["SELMUX2_1.SLICEL/F8MUX"]
+        },
+        "FDSE":{
+            "FF_FDSE_or_FDRE":
+                ["FF_INIT.SLICEL", "FF_INIT_QH.SLICEL"],
+            "REG_FDSE_or_FDRE":
+                ["REG_INIT_FF.SLICEL", "REG_INIT_FF_QH.SLICEL"]
+        },
+        "FDRE":{
+            "FF_FDSE_or_FDRE":
+                ["FF_INIT.SLICEL", "FF_INIT_QL.SLICEL"],
+            "REG_FDSE_or_FDRE":
+                ["REG_INIT_FF.SLICEL", "REG_INIT_FF_QL.SLICEL"]
+        },
+        "FDPE":{
+            "FF_FDPE_or_FDCE":
+                ["FF_INIT.SLICEL", "FF_INIT_QH.SLICEL"],
+            "REG_FDPE_or_FDCE":
+                ["REG_INIT_FF.SLICEL", "REG_INIT_FF_QH.SLICEL"]
+        },
+        "FDCE":{
+            "FF_FDPE_or_FDCE":
+                ["FF_INIT.SLICEL", "FF_INIT_QL.SLICEL"],
+            "REG_FDPE_or_FDCE":
+                ["REG_INIT_FF.SLICEL", "REG_INIT_FF_QL.SLICEL"]
+        },
+        "LDPE":{
+            "LDPE_or_LDCE":
+                ["REG_INIT_LAT_LOGIC_AND.SLICEL", "REG_INIT_LAT.SLICEL"]
+        },
+        "LDCE":{
+            "LDPE_or_LDCE":
+                ["REG_INIT_LAT_LOGIC_AND.SLICEL", "REG_INIT_LAT.SLICEL"]
+        },
+        "CARRY4_VPR":{
+            "COMMON_SLICE":
+                ["CARRY4.SLICEL", "CARRY4_O5.SLICEL"]
+        },
+        "ROUTING_BEL": {
+            "SLICEL0":
+                ["ROUTING_BEL.SLICEL/[ABCD]MUX", "ROUTING_BEL.SLICEL/[ABCD]FF", "ROUTING_BEL.SLICEL/[ABCD]", "ROUTING_BEL.SLICEL/COUT", "ROUTING_BEL.SLICEL/CARRY4", "ROUTING_BEL.SLICEL/[ABCD]5FFL"]
+        }
+    },
+    "SLICEM": {
+        "A5LUT": {
+            "ALUT":
+                ["LUT_OR_MEM5LRAM.SLICEM/A5LUT"],
+            "A_DRAM":
+                ["LUT_OR_MEM5LRAM.SLICEM/A5LUT"]
+        },
+        "B5LUT": {
+            "BLUT":
+                ["LUT_OR_MEM5LRAM.SLICEM/B5LUT"],
+            "B_DRAM":
+                ["LUT_OR_MEM5LRAM.SLICEM/B5LUT"]
+        },
+        "C5LUT": {
+            "CLUT":
+                ["LUT_OR_MEM5LRAM.SLICEM/C5LUT"],
+            "C_DRAM":
+                ["LUT_OR_MEM5LRAM.SLICEM/C5LUT"]
+        },
+        "D5LUT": {
+            "DLUT":
+                ["LUT_OR_MEM5LRAM.SLICEM/D5LUT"],
+            "D_DRAM":
+                ["LUT_OR_MEM5LRAM.SLICEM/D5LUT"]
+        },
+        "DPRAM32_O6": {
+            "A_DRAM":
+                ["LUT_OR_MEM5LRAM.SLICEM", "LUT_OR_MEM5LRAM.SLICEM/A5LUT"],
+            "B_DRAM":
+                ["LUT_OR_MEM5LRAM.SLICEM", "LUT_OR_MEM5LRAM.SLICEM/B5LUT"],
+            "C_DRAM":
+                ["LUT_OR_MEM5LRAM.SLICEM", "LUT_OR_MEM5LRAM.SLICEM/C5LUT"],
+            "D_DRAM":
+                ["LUT_OR_MEM5LRAM.SLICEM", "LUT_OR_MEM5LRAM.SLICEM/D5LUT"]
+        },
+        "SPRAM32_O6": {
+            "A_DRAM":
+                ["LUT_OR_MEM5LRAM.SLICEM", "LUT_OR_MEM5LRAM.SLICEM/A5LUT"],
+            "B_DRAM":
+                ["LUT_OR_MEM5LRAM.SLICEM", "LUT_OR_MEM5LRAM.SLICEM/B5LUT"],
+            "C_DRAM":
+                ["LUT_OR_MEM5LRAM.SLICEM", "LUT_OR_MEM5LRAM.SLICEM/C5LUT"],
+            "D_DRAM":
+                ["LUT_OR_MEM5LRAM.SLICEM", "LUT_OR_MEM5LRAM.SLICEM/D5LUT"]
+        },
+        "DPRAM32_O5": {
+            "A_DRAM":
+                ["LUT_OR_MEM5LRAM.SLICEM", "LUT_OR_MEM5LRAM.SLICEM/A5LUT"],
+            "B_DRAM":
+                ["LUT_OR_MEM5LRAM.SLICEM", "LUT_OR_MEM5LRAM.SLICEM/B5LUT"],
+            "C_DRAM":
+                ["LUT_OR_MEM5LRAM.SLICEM", "LUT_OR_MEM5LRAM.SLICEM/C5LUT"],
+            "D_DRAM":
+                ["LUT_OR_MEM5LRAM.SLICEM", "LUT_OR_MEM5LRAM.SLICEM/D5LUT"]
+        },
+        "DPRAM64": {
+            "A_DRAM":
+                ["LUT_OR_MEM6LRAM.SLICEM", "LUT_OR_MEM6LRAM.SLICEM/A6LUT"],
+            "B_DRAM":
+                ["LUT_OR_MEM6LRAM.SLICEM", "LUT_OR_MEM6LRAM.SLICEM/B6LUT"],
+            "C_DRAM":
+                ["LUT_OR_MEM6LRAM.SLICEM", "LUT_OR_MEM6LRAM.SLICEM/C6LUT"],
+            "D_DRAM":
+                ["LUT_OR_MEM6LRAM.SLICEM", "LUT_OR_MEM6LRAM.SLICEM/D6LUT"]
+        },
+        "DPRAM64_for_RAM128X1D": {
+            "A_DRAM128":
+                ["LUT_OR_MEM6LRAM.SLICEM", "LUT_OR_MEM6LRAM.SLICEM/A6LUT"],
+            "B_DRAM128":
+                ["LUT_OR_MEM6LRAM.SLICEM", "LUT_OR_MEM6LRAM.SLICEM/B6LUT"],
+            "C_DRAM128":
+                ["LUT_OR_MEM6LRAM.SLICEM", "LUT_OR_MEM6LRAM.SLICEM/C6LUT"],
+            "D_DRAM128":
+                ["LUT_OR_MEM6LRAM.SLICEM", "LUT_OR_MEM6LRAM.SLICEM/D6LUT"]
+        },
+        "SRLC32E_VPR":{
+            "ASRL":
+                ["LUT_OR_MEM6SHFREG.SLICEM", "LUT_OR_MEM6SHFREG.SLICEM/A6LUT", "LUT_OR_MEM6LRAM.SLICEM/A6LUT"],
+            "BSRL":
+                ["LUT_OR_MEM6SHFREG.SLICEM", "LUT_OR_MEM6SHFREG.SLICEM/B6LUT", "LUT_OR_MEM6LRAM.SLICEM/B6LUT"],
+            "CSRL":
+                ["LUT_OR_MEM6SHFREG.SLICEM", "LUT_OR_MEM6SHFREG.SLICEM/C6LUT", "LUT_OR_MEM6LRAM.SLICEM/C6LUT"],
+            "DSRL":
+                ["LUT_OR_MEM6SHFREG.SLICEM", "LUT_OR_MEM6SHFREG.SLICEM/D6LUT", "LUT_OR_MEM6LRAM.SLICEM/D6LUT"]
+        },
+        "SRLC16E_VPR_0": {
+            "ASRL":
+                ["LUT_OR_MEM5SHFREG.SLICEM", "LUT_OR_MEM5SHFREG.SLICEM/A5LUT", "LUT_OR_MEM5LRAM.SLICEM/A5LUT"],
+            "BSRL":
+                ["LUT_OR_MEM5SHFREG.SLICEM", "LUT_OR_MEM5SHFREG.SLICEM/B5LUT", "LUT_OR_MEM5LRAM.SLICEM/B5LUT"],
+            "CSRL":
+                ["LUT_OR_MEM5SHFREG.SLICEM", "LUT_OR_MEM5SHFREG.SLICEM/C5LUT", "LUT_OR_MEM5LRAM.SLICEM/C5LUT"],
+            "DSRL":
+                ["LUT_OR_MEM5SHFREG.SLICEM", "LUT_OR_MEM5SHFREG.SLICEM/D5LUT", "LUT_OR_MEM5LRAM.SLICEM/D5LUT"]
+        },
+        "SRLC16E_VPR_1": {
+            "ASRL":
+                ["LUT_OR_MEM6SHFREG.SLICEM", "LUT_OR_MEM6SHFREG.SLICEM/A6LUT", "LUT_OR_MEM6LRAM.SLICEM/A6LUT"],
+            "BSRL":
+                ["LUT_OR_MEM6SHFREG.SLICEM", "LUT_OR_MEM6SHFREG.SLICEM/B6LUT", "LUT_OR_MEM6LRAM.SLICEM/B6LUT"],
+            "CSRL":
+                ["LUT_OR_MEM6SHFREG.SLICEM", "LUT_OR_MEM6SHFREG.SLICEM/C6LUT", "LUT_OR_MEM6LRAM.SLICEM/C6LUT"],
+            "DSRL":
+                ["LUT_OR_MEM6SHFREG.SLICEM", "LUT_OR_MEM6SHFREG.SLICEM/D6LUT", "LUT_OR_MEM6LRAM.SLICEM/D6LUT"]
+        },
+        "F7AMUX":{
+            "SLICEM_MODES":
+                ["SELMUX2_1.SLICEM/F7AMUX"],
+            "COMMON_LUT_AND_F78MUX":
+                ["SELMUX2_1.SLICEM/F7AMUX"]
+        },
+        "F7BMUX":{
+            "SLICEM_MODES":
+                ["SELMUX2_1.SLICEM/F7BMUX"],
+            "COMMON_LUT_AND_F78MUX":
+                ["SELMUX2_1.SLICEM/F7BMUX"]
+        },
+        "F8MUX":{
+            "SLICEM_MODES":
+                ["SELMUX2_1.SLICEM/F8MUX"],
+            "COMMON_LUT_AND_F78MUX":
+                ["SELMUX2_1.SLICEM/F8MUX"]
+        },
+        "FDSE":{
+            "FF_FDSE_or_FDRE":
+                ["FF_INIT.SLICEM", "FF_INIT_QH.SLICEM"],
+            "REG_FDSE_or_FDRE":
+                ["REG_INIT_FF.SLICEM", "REG_INIT_FF_QH.SLICEM"]
+        },
+        "FDRE":{
+            "FF_FDSE_or_FDRE":
+                ["FF_INIT.SLICEM", "FF_INIT_QL.SLICEM"],
+            "REG_FDSE_or_FDRE":
+                ["REG_INIT_FF.SLICEM", "REG_INIT_FF_QL.SLICEM"]
+        },
+        "FDPE":{
+            "FF_FDPE_or_FDCE":
+                ["FF_INIT.SLICEM", "FF_INIT_QH.SLICEM"],
+            "REG_FDPE_or_FDCE":
+                ["REG_INIT_FF.SLICEM", "REG_INIT_FF_QH.SLICEM"]
+        },
+        "FDCE":{
+            "FF_FDPE_or_FDCE":
+                ["FF_INIT.SLICEM", "FF_INIT_QL.SLICEM"],
+            "REG_FDPE_or_FDCE":
+                ["REG_INIT_FF.SLICEM", "REG_INIT_FF_QL.SLICEM"]
+        },
+        "LDPE":{
+            "LDPE_or_LDCE":
+                ["REG_INIT_LAT_LOGIC_AND.SLICEM", "REG_INIT_LAT.SLICEM"]
+        },
+        "LDCE":{
+            "LDPE_or_LDCE":
+                ["REG_INIT_LAT_LOGIC_AND.SLICEM", "REG_INIT_LAT.SLICEM"]
+        },
+        "CARRY4_VPR":{
+            "COMMON_SLICE":
+                ["CARRY4.SLICEM", "CARRY4_O5.SLICEM"]
+        },
+        "ROUTING_BEL": {
+            "SLICEM":
+                ["ROUTING_BEL.SLICEM/[ABCD]MUX", "ROUTING_BEL.SLICEM/[ABCD]FF", "ROUTING_BEL.SLICEM/[ABCD]", "ROUTING_BEL.SLICEM/COUT", "ROUTING_BEL.SLICEM/CARRY4", "ROUTING_BEL.SLICEM/[ABCD]5FFL"]
+        }
+    },
+    "BRAM_X": {
+        "RAMB36E1": {
+            "RAMBFIFO36E1" :
+                ["RAMBFIFO36E1.RAMBFIFO36E1", "RAMBFIFO36E1_DOA_REG_U_1.RAMBFIFO36E1", "RAMBFIFO36E1_DOB_REG_U_1.RAMBFIFO36E1", "RAMBFIFO36E1_ISFIFO_FALSE.RAMBFIFO36E1", "RAMBFIFO36E1RAM_MODE_RAMB18TDP_U_WRITE_MODE_U_RF_EN_ECC_READ_FALSE_EN_ECC_WRITE_FALSE.RAMBFIFO36E1", "RAMBFIFO36E1RAM_MODE_U_RAMB18TDP_U_DOA_REG_U_1_EN_ECC_READ_FALSE.RAMBFIFO36E1", "RAMBFIFO36E1RAM_MODE_U_RAMB18TDP_U_DOB_REG_U_1_EN_ECC_READ_FALSE.RAMBFIFO36E1"]
+        },
+        "RAMB18E1_Y0_IN": {
+          "RAMB18E1_Y0":
+                ["RAMBFIFO36E1.RAMBFIFO36E1", "RAMBFIFO36E1_DOA_REG_U_1.RAMBFIFO36E1", "RAMBFIFO36E1_DOB_REG_U_1.RAMBFIFO36E1", "RAMBFIFO36E1_ISFIFO_FALSE.RAMBFIFO36E1", "RAMBFIFO36E1RAM_MODE_RAMB18TDP_U_WRITE_MODE_U_RF_EN_ECC_READ_FALSE_EN_ECC_WRITE_FALSE.RAMBFIFO36E1", "RAMBFIFO36E1RAM_MODE_U_RAMB18TDP_U_DOA_REG_U_1_EN_ECC_READ_FALSE.RAMBFIFO36E1", "RAMBFIFO36E1RAM_MODE_U_RAMB18TDP_U_DOB_REG_U_1_EN_ECC_READ_FALSE.RAMBFIFO36E1"]
+        },
+        "RAMB18E1_Y1": {
+            "BRAM" :
+                ["RAMBFIFO36E1.RAMBFIFO36E1", "RAMBFIFO36E1_DOA_REG_U_1.RAMBFIFO36E1", "RAMBFIFO36E1_DOB_REG_U_1.RAMBFIFO36E1", "RAMBFIFO36E1_ISFIFO_FALSE.RAMBFIFO36E1", "RAMBFIFO36E1RAM_MODE_RAMB18TDP_U_WRITE_MODE_U_RF_EN_ECC_READ_FALSE_EN_ECC_WRITE_FALSE.RAMBFIFO36E1", "RAMBFIFO36E1RAM_MODE_U_RAMB18TDP_U_DOA_REG_U_1_EN_ECC_READ_FALSE.RAMBFIFO36E1", "RAMBFIFO36E1RAM_MODE_U_RAMB18TDP_U_DOB_REG_U_1_EN_ECC_READ_FALSE.RAMBFIFO36E1"]
+        }
+    },
+    "PLLE2_ADV": {
+        "PLLE2_ADV": {
+            "BLK-TL-PLLE2_ADV":
+                ["PLLE2_ADV_PLLE2_ADVPLLE2_ADV.PLLE2_ADV", "PLLE2_ADV_PLLE2_ADVPLLE2_ADV_COMPENSATION_BUF_IN.PLLE2_ADV"]
+        }
+    },
+    "BUFGCTRL_VPR": {
+        "BUFGCTRL_VPR": {
+            "BLK-TL-BUFGCTRL":
+                ["BUFGCTRL.BUFGCTRL"]
+        }
+    },
+    "ILOGICE": {
+        "ISERDESE2_NO_IDELAY": {
+            "ILOGICE3":
+                ["ISERDESE2.ILOGICE3", "ISERDESE2_SRTYPE_SYNC.ILOGICE3", "ISERDESE2_NUM_CE_2.ILOGICE3", "ISERDESE2_INTERFACE_TYPE_NETWORKING.ILOGICE3", "ISERDESE2_DATA_RATE_DDR_IOBDELAY_NONE.ILOGICE3", "ISERDESE2_IOBDELAY_NONE.ILOGICE3", "ISERDESE2_TFB_USED_TRUE.ILOGICE3", "ISERDESE2_DATA_RATE_DDR.ILOGICE3"]
+        },
+        "ISERDESE2_IDELAY": {
+            "ILOGICE3":
+                ["ISERDESE2.ILOGICE3", "ISERDESE2_SRTYPE_SYNC.ILOGICE3", "ISERDESE2_NUM_CE_2.ILOGICE3", "ISERDESE2_INTERFACE_TYPE_NETWORKING.ILOGICE3", "ISERDESE2_DATA_RATE_DDR_IOBDELAY_BOTH.ILOGICE3", "ISERDESE2_IOBDELAY_BOTH.ILOGICE3", "ISERDESE2_TFB_USED_TRUE.ILOGICE3", "ISERDESE2_DATA_RATE_DDR.ILOGICE3"]
+        }
+    },
+    "OLOGICE": {
+        "OSERDESE2": {
+            "OLOGICE3":
+                ["OSERDESE2.OLOGICE3", "OSERDESE2_DATA_RATE_TQ_DDR_TRISTATE_WIDTH_4.OLOGICE3", "OSERDESE2_DATA_RATE_TQ_BUF.OLOGICE3", "OSERDESE2_SELFHEAL_TRUE.OLOGICE3", "OSERDESE2_SRTYPE_SYNC.OLOGICE3", "OSERDESE2_TBYTE_CTL_TRUE.OLOGICE3", "OSERDESE2_TBYTE_SRC_TRUE.OLOGICE3"]
+        }
+    }
+}

@@ -1,0 +1,8 @@
+<empty>
+   <input  name="DUMMY_I" num_pins="1" />
+   <output name="DUMMY_O" num_pins="1" />
+   <interconnect>
+   </interconnect>
+   <pinlocations pattern="spread_perimeter"/>
+   <fc in_type="frac" in_val="1.0" out_type="frac" out_val="1.0" />
+</empty>
