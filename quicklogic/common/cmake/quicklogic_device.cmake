@@ -10,10 +10,11 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   #   TECHFILE_NAME <techfile name>
   #   ROUTING_TIMING_FILE_NAME <routing timing CSV file>
   #   LIB_TIMING_FILES <list timing lib files [can be wildcard]>
+  #   RAM_TIMING_SDF <name of the RAM timing data>
   #   )
   # ~~~
   set(options)
-  set(oneValueArgs FAMILY DEVICE ARCH GRID_LIMIT TECHFILE_NAME ROUTING_TIMING_FILE_NAME)
+  set(oneValueArgs FAMILY DEVICE ARCH GRID_LIMIT TECHFILE_NAME ROUTING_TIMING_FILE_NAME RAM_TIMING_SDF)
   set(multiValueArgs PACKAGES PB_TYPES LIB_TIMING_FILES DONT_NORMALIZE_FILES)
   cmake_parse_arguments(
     QUICKLOGIC_DEFINE_DEVICE_TYPE
@@ -32,6 +33,7 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   set(ROUTING_TIMING_FILE_NAME ${QUICKLOGIC_DEFINE_DEVICE_TYPE_ROUTING_TIMING_FILE_NAME})
   set(LIB_TIMING_FILES ${QUICKLOGIC_DEFINE_DEVICE_TYPE_LIB_TIMING_FILES})
   set(DONT_NORMALIZE_FILES ${QUICKLOGIC_DEFINE_DEVICE_TYPE_DONT_NORMALIZE_FILES})
+  set(RAM_TIMING_SDF ${QUICKLOGIC_DEFINE_DEVICE_TYPE_RAM_TIMING_SDF})
 
   set(DEVICE_TYPE ${DEVICE}-virt)
 
@@ -146,7 +148,7 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   # we cannot model that in the VPR for now we simply use one for all 4 RAMs.
   set(RAM_GENERATOR ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/primitives/ram/make_rams.py)
   set(RAM_MODE_DEFS ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/primitives/ram/ram_modes.json)
-  set(RAM_SDF_FILE  ${SDF_TIMING_DIR}/RAM_ss_0p990v_m040c.sdf) # FIXME: Look for the file in the step above !
+  set(RAM_SDF_FILE  ${SDF_TIMING_DIR}/${RAM_TIMING_SDF}.sdf)
 
   set(RAM_MODEL_XML  "ram.model.xml")
   set(RAM_PBTYPE_XML "ram.pb_type.xml")
@@ -163,7 +165,6 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
           --mode-defs ${RAM_MODE_DEFS}
           --xml-path ${CMAKE_CURRENT_BINARY_DIR}
           --vlog-path ${CMAKE_CURRENT_BINARY_DIR}
-      COMMAND ${CMAKE_COMMAND} -E copy "ram_a1.pb_type.xml" ${RAM_PBTYPE_XML}
       DEPENDS ${PYTHON3} ${PYTHON3_TARGET} ${RAM_GENERATOR} ${RAM_MODE_DEFS} ${RAM_SDF_FILE_TARGET}
   )
 

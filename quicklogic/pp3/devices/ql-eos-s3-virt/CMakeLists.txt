@@ -22,6 +22,7 @@ quicklogic_define_device_type(
     GMUX
     ASSP
     MULT
+  RAM_TIMING_SDF RAM_ss_0p990v_m040c
 )
 
 foreach(PACKAGE ${PACKAGES})

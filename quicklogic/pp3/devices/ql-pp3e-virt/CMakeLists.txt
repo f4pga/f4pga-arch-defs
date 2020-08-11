@@ -15,4 +15,5 @@ quicklogic_define_device_type(
     LOGIC
     CLOCK BIDIR
     GMUX
+  RAM_TIMING_SDF RAM_COM_BC_120V
 )
