@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import argparse
 import pickle
-import sys
 import itertools
 import re
 import os
@@ -1103,6 +1102,12 @@ def main():
         help="A directory with SDF timing files"
     )
     parser.add_argument(
+        "--vpr-db",
+        type=str,
+        default="vpr_database.pickle",
+        help="Output VPR database file"
+    )
+    parser.add_argument(
         "--grid-limit",
         type=str,
         default=None,
@@ -1364,7 +1369,8 @@ def main():
         "switches": list(vpr_switches.values()),
     }
 
-    pickle.dump(db_root, sys.stdout.buffer, protocol=3)
+    with open(args.vpr_db, "wb") as fp:
+        pickle.dump(db_root, fp, protocol=3)
 
 
 # =============================================================================
