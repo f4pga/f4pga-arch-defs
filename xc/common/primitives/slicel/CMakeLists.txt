@@ -13,3 +13,4 @@ n_template(
     PREFIXES 0;1;2
     SRCS ntemplate.slicelN.model.xml
     )
+add_subdirectory(ultrascale)
