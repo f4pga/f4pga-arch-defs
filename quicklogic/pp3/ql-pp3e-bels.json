@@ -113,12 +113,19 @@
     "GMUX": {
         "gmux": {
             "IP": [
-                "GMUX_IS0_EQ_0.GMUX",
-                "GMUX_IS0_EQ_1.GMUX"
+                "GMUX.GMUX",
+                "GMUX.GMUX"
             ],
             "IC": [
-                "GMUX_IS0_EQ_0.GMUX",
-                "GMUX_IS0_EQ_1.GMUX"
+                "GMUX.GMUX",
+                "GMUX.GMUX"
+            ]
+        }
+    },
+    "CLOCK": {
+        "clock_buf": {
+            "CLOCK": [
+                "CLOCK.CLOCK"
             ]
         }
     }
