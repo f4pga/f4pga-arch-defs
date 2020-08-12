@@ -363,7 +363,6 @@
       <metadata>
         <meta name="fasm_features">
           IDDR_OR_ISERDES.IN_USE
-          ISERDES.INTERFACE_TYPE.Z_MEMORY
         </meta>
         <meta name="fasm_params">
           ZINV_D = ZINV_D
