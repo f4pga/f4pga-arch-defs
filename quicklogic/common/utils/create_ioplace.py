@@ -114,6 +114,8 @@ def main():
         inst = io_place.get_top_level_block_instance_for_net(
             pcf_constraint.net
         )
+        if inst is None:
+            continue
 
         match = BLOCK_INSTANCE_RE.match(inst)
         assert match is not None, inst
