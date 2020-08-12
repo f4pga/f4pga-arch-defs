@@ -41,3 +41,8 @@ add_dependencies(all_ql_tests lut2-ql-chandalar_route)
 add_dependencies(all_ql_tests lut3-ql-chandalar_route)
 add_dependencies(all_ql_tests lut4-ql-chandalar_route)
 
+
+add_dependencies(all_quick_tests lut1-ql-chandalar_bit)
+add_dependencies(all_quick_tests lut2-ql-chandalar_bit)
+add_dependencies(all_quick_tests lut3-ql-chandalar_bit)
+add_dependencies(all_quick_tests lut4-ql-chandalar_bit)

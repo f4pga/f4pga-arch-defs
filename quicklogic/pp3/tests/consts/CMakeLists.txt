@@ -10,4 +10,5 @@ add_fpga_target(
   )
 
 add_dependencies(all_ql_tests consts-ql-chandalar_route)
+add_dependencies(all_quick_tests consts-ql-chandalar_bit)
 
