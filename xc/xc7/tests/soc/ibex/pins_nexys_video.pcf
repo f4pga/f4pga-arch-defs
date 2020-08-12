@@ -1,0 +1,6 @@
+set_io IO_CLK R4
+set_io LED[0] T14
+set_io LED[1] T15
+set_io LED[2] T16
+set_io LED[3] U16
+set_io IO_RST_N G4
