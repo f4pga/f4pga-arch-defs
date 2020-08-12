@@ -25,6 +25,7 @@ from hilbertcurve.hilbertcurve import HilbertCurve
 import math
 import prjxray.db
 from prjxray.roi import Roi
+from prjxray.overlay import Overlay
 import prjxray.grid as grid
 from lib.rr_graph import graph2
 from lib.rr_graph import tracks
@@ -818,7 +819,7 @@ def create_track_rr_graph(
     print('original {} final {}'.format(num_channels, len(alive_tracks)))
 
 
-def add_synthetic_edges(conn, graph, node_mapping, grid, synth_tiles):
+def add_synthetic_edges(conn, graph, node_mapping, grid, synth_tiles, overlay):
     cur = conn.cursor()
     delayless_switch = graph.get_switch_id('__vpr_delayless_switch__')
 
@@ -896,11 +897,13 @@ WHERE
             assert track_node in node_mapping, (track_node, track_pkey)
             if wire == 'inpad' and num_inpad > 1:
                 pin_name = graph.create_pin_name_from_tile_type_sub_tile_num_and_pin(
-                    tile_type, pin['z_loc'], wire
+                    tile_type, pin['z_loc'] if not overlay else
+                    (pin['z_loc'] - num_outpad), wire
                 )
             elif wire == 'outpad' and num_outpad > 1:
                 pin_name = graph.create_pin_name_from_tile_type_sub_tile_num_and_pin(
-                    tile_type, (pin['z_loc'] - num_inpad), wire
+                    tile_type, (pin['z_loc'] - num_inpad)
+                    if not overlay else pin['z_loc'], wire
                 )
             else:
                 pin_name = graph.create_pin_name_from_tile_type_and_pin(
@@ -1287,6 +1290,12 @@ def main():
         help='If using an ROI, synthetic tile defintion from prjxray-arch-import'
     )
     parser.add_argument(
+        '--overlay',
+        action='store_true',
+        required=False,
+        help='Use synth tiles for Overlay instead of ROI'
+    )
+    parser.add_argument(
         '--graph_limit',
         help='Limit grid to specified dimensions in x_min,y_min,x_max,y_max',
     )
@@ -1302,7 +1311,24 @@ def main():
     populate_hclk_cmt_tiles(db)
 
     synth_tiles = None
-    if args.synth_tiles:
+    if args.overlay:
+        assert args.synth_tiles
+        use_roi = True
+        with open(args.synth_tiles) as f:
+            synth_tiles = json.load(f)
+
+        region_dict = dict()
+        for r in synth_tiles['info']:
+            bounds = (
+                r['GRID_X_MIN'], r['GRID_X_MAX'], r['GRID_Y_MIN'],
+                r['GRID_Y_MAX']
+            )
+            region_dict[r['name']] = bounds
+
+        roi = Overlay(region_dict=region_dict)
+
+        print('{} generating routing graph for Overlay.'.format(now()))
+    elif args.synth_tiles:
         use_roi = True
         with open(args.synth_tiles) as f:
             synth_tiles = json.load(f)
@@ -1344,6 +1370,10 @@ def main():
 
     if synth_tiles is None:
         synth_tiles = find_constant_network(graph)
+
+    if args.overlay:
+        synth_tiles_const = find_constant_network(graph)
+        synth_tiles['tiles'].update(synth_tiles_const['tiles'])
 
     with sqlite3.connect("file:{}?mode=ro".format(args.connection_database),
                          uri=True) as conn:
@@ -1413,7 +1443,9 @@ FROM
         # Set of (src, sink, switch_id) tuples that pip edges have been sent to
         # VPR.  VPR cannot handle duplicate paths with the same switch id.
         print('{} Adding synthetic edges'.format(now()))
-        add_synthetic_edges(conn, graph, node_mapping, grid, synth_tiles)
+        add_synthetic_edges(
+            conn, graph, node_mapping, grid, synth_tiles, args.overlay
+        )
 
         print('{} Creating channels.'.format(now()))
         channels_obj = create_channels(conn)

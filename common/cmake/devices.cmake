@@ -929,6 +929,214 @@ function(ADD_FPGA_TARGET_BOARDS)
   endforeach()
 endfunction()
 
+function(ADD_BITSTREAM_TARGET)
+  # ~~~
+  # ADD_BITSTREAM_TARGET(
+  #   NAME <name>
+  #   [USE_FASM]
+  #   [OUT_LOCAL_REL <relative path to existing directory>]
+  #   INCLUDED_TARGETS <target list>
+  #   )
+  # ~~~
+  #
+  # ADD_BITSTREAM_TARGET defines an FPGA bitstream target made up of one or more
+  # FPGA targets.
+  #
+  # INCLUDED_TARGETS is a list of targets that should have their FASM merged before
+  # generating a bitstream. If only one target is given, it will generate a bitstream
+  # directly from the provided target's FASM.
+  #
+  # OUT_LOCAL_REL should be provided to add the target to an already existing directory.
+  #
+  # Targets generated:
+  #
+  # * <name>_bit - Generate output bitstream.
+  #
+  # Output files:
+  #
+  # * ${TOP}.${BITSTREAM_EXTENSION} - Bitstream for target.
+  #
+  set(options USE_FASM)
+  set(oneValueArgs NAME OUT_LOCAL_REL)
+  set(multiValueArgs INCLUDED_TARGETS)
+  cmake_parse_arguments(
+    ADD_BITSTREAM_TARGET
+    "${options}"
+    "${oneValueArgs}"
+    "${multiValueArgs}"
+    ${ARGN}
+  )
+
+
+  set(NAME ${ADD_BITSTREAM_TARGET_NAME})
+  set(INCLUDED_TARGETS ${ADD_BITSTREAM_TARGET_INCLUDED_TARGETS})
+  set(USE_FASM ${ADD_BITSTREAM_TARGET_USE_FASM})
+  set(OUT_LOCAL_REL ${ADD_BITSTREAM_TARGET_OUT_LOCAL_REL})
+
+  # Generate bitstream
+  # -------------------------------------------------------------------------
+  set(ALL_OUT_FASM "")
+  if(${USE_FASM})
+    foreach(TARGET ${INCLUDED_TARGETS})
+      get_target_property_required(BOARD ${TARGET} BOARD)
+      get_target_property_required(DEVICE ${BOARD} DEVICE)
+      get_target_property_required(DEVICE_TYPE ${DEVICE} DEVICE_TYPE)
+      get_target_property(USE_OVERLAY ${DEVICE_TYPE} USE_OVERLAY)
+      get_target_property_required(FASM ${TARGET} FASM)
+      if ("${FASM_TO_BIT_DEPS}" STREQUAL "FASM_TO_BIT_DEPS-NOTFOUND")
+        set(FASM_TO_BIT_DEPS "")
+      endif()
+
+      append_file_location(ALL_OUT_FASM ${FASM})
+      append_file_dependency(ALL_OUT_FASM_DEPS ${FASM})
+
+      if(USE_OVERLAY)
+        if (NOT MAIN_TARGET)
+          set(MAIN_TARGET ${TARGET})
+        else()
+          message(FATAL_ERROR "More than one overlay device for ${BOARD}")
+        endif()
+      endif()
+    endforeach()
+
+    if (NOT MAIN_TARGET)
+      list(LENGTH ${INCLUDED_TARGETS} TARGETS_LENGTH)
+      if(NOT ${TARGETS_LENGTH} EQUAL 0)
+        message(FATAL_ERROR "Multiple devices but no overlay for ${BOARD}")
+      endif()
+      set(MAIN_TARGET ${INCLUDED_TARGETS})
+    endif()
+
+    get_target_property_required(MAIN_TARGET_BOARD ${MAIN_TARGET} BOARD)
+    get_target_property_required(MAIN_TARGET_DEVICE ${MAIN_TARGET_BOARD} DEVICE)
+    get_target_property_required(PACKAGE ${MAIN_TARGET_BOARD} PACKAGE)
+    get_target_property_required(PYTHON3 env PYTHON3)
+
+    get_target_property(FASM_TO_BIT_EXTRA_ARGS ${MAIN_TARGET_BOARD} FASM_TO_BIT_EXTRA_ARGS)
+    if ("${FASM_TO_BIT_EXTRA_ARGS}" STREQUAL "FASM_TO_BIT_EXTRA_ARGS-NOTFOUND")
+      set(FASM_TO_BIT_EXTRA_ARGS "")
+    endif()
+
+    get_target_property_required(TOP ${MAIN_TARGET} TOP)
+    get_target_property_required(ARCH ${MAIN_TARGET_DEVICE} ARCH)
+    get_target_property_required(BITSTREAM_EXTENSION ${ARCH} BITSTREAM_EXTENSION)
+    get_target_property_required(FASM_TO_BIT ${ARCH} FASM_TO_BIT)
+    get_target_property_required(FASM_TO_BIT_CMD ${ARCH} FASM_TO_BIT_CMD)
+    get_target_property(FASM_TO_BIT_DEPS ${ARCH} FASM_TO_BIT_DEPS)
+
+    if(NOT OUT_LOCAL_REL)
+      set(CREATE_NEW_DIR TRUE)
+      set(FQDN ${ARCH}-${DEVICE_TYPE}-${DEVICE}-${PACKAGE})
+      set(OUT_LOCAL_REL ${NAME}/${FQDN})
+      set(OUT_LOCAL ${CMAKE_CURRENT_BINARY_DIR}/${OUT_LOCAL_REL})
+      set(MAIN_TARGET ${NAME})
+      add_custom_target(${NAME})
+    else()
+      set(CREATE_NEW_DIR FALSE)
+      set(OUT_LOCAL ${CMAKE_CURRENT_BINARY_DIR}/${OUT_LOCAL_REL})
+    endif()
+
+    set(OUT_FASM_MERGED ${OUT_LOCAL}/${TOP}.merged.fasm)
+    set(OUT_BITSTREAM ${OUT_LOCAL}/${TOP}.${BITSTREAM_EXTENSION})
+
+    set_target_properties(${NAME} PROPERTIES
+      OUT_BITSTREAM ${OUT_BITSTREAM}
+    )
+    set(BITSTREAM_DEPS ${ALL_OUT_FASM_DEPS} ${FASM_TO_BIT} ${FASM_TO_BIT_DEPS})
+
+    set(OUT_FASM ${OUT_FASM_MERGED})
+    string(CONFIGURE ${FASM_TO_BIT_CMD} FASM_TO_BIT_CMD_FOR_TARGET)
+    separate_arguments(
+      FASM_TO_BIT_CMD_FOR_TARGET_LIST UNIX_COMMAND ${FASM_TO_BIT_CMD_FOR_TARGET}
+    )
+
+    separate_arguments(
+      FASM_TO_BIT_EXTRA_ARGS_LIST UNIX_COMMAND ${FASM_TO_BIT_EXTRA_ARGS}
+    )
+    set(FASM_TO_BIT_CMD_FOR_TARGET_LIST ${FASM_TO_BIT_CMD_FOR_TARGET_LIST} ${FASM_TO_BIT_EXTRA_ARGS_LIST})
+
+    if(CREATE_NEW_DIR)
+      add_custom_command(
+        OUTPUT ${OUT_BITSTREAM}
+        DEPENDS ${BITSTREAM_DEPS}
+        COMMAND
+          ${CMAKE_COMMAND} -E make_directory ${OUT_LOCAL}
+        COMMAND cat ${ALL_OUT_FASM} >> ${OUT_FASM_MERGED}
+        COMMAND ${FASM_TO_BIT_CMD_FOR_TARGET_LIST}
+      )
+    else()
+      add_custom_command(
+        OUTPUT ${OUT_BITSTREAM}
+        DEPENDS ${BITSTREAM_DEPS}
+        COMMAND cat ${ALL_OUT_FASM} >> ${OUT_FASM_MERGED}
+        COMMAND ${FASM_TO_BIT_CMD_FOR_TARGET_LIST}
+      )
+    endif()
+  else()
+    get_target_property_required(HLC_TO_BIT ${ARCH} HLC_TO_BIT)
+    get_target_property_required(HLC_TO_BIT_CMD ${ARCH} HLC_TO_BIT_CMD)
+    string(CONFIGURE ${HLC_TO_BIT_CMD} HLC_TO_BIT_CMD_FOR_TARGET)
+    separate_arguments(
+      HLC_TO_BIT_CMD_FOR_TARGET_LIST UNIX_COMMAND ${HLC_TO_BIT_CMD_FOR_TARGET}
+    )
+    add_custom_command(
+      OUTPUT ${OUT_BITSTREAM}
+      DEPENDS ${OUT_HLC} ${HLC_TO_BIT}
+      COMMAND ${HLC_TO_BIT_CMD_FOR_TARGET_LIST}
+    )
+  endif()
+
+  add_custom_target(${NAME}_bit DEPENDS ${OUT_BITSTREAM})
+  add_output_to_fpga_target(${NAME} BIT ${OUT_LOCAL_REL}/${TOP}.${BITSTREAM_EXTENSION})
+
+  get_target_property_required(NO_BIT_TO_BIN ${ARCH} NO_BIT_TO_BIN)
+  set(OUT_BIN ${OUT_BITSTREAM})
+  if(NOT ${NO_BIT_TO_BIN})
+    get_target_property_required(BIN_EXTENSION ${ARCH} BIN_EXTENSION)
+    set(OUT_BIN ${OUT_LOCAL}/${TOP}.${BIN_EXTENSION})
+    get_target_property_required(BIT_TO_BIN ${ARCH} BIT_TO_BIN)
+    get_target_property_required(BIT_TO_BIN_CMD ${ARCH} BIT_TO_BIN_CMD)
+    get_target_property(BIT_TO_BIN_EXTRA_ARGS ${BOARD} BIT_TO_BIN_EXTRA_ARGS)
+    if (${BIT_TO_BIN_EXTRA_ARGS} STREQUAL NOTFOUND)
+      set(BIT_TO_BIN_EXTRA_ARGS "")
+    endif()
+    string(CONFIGURE ${BIT_TO_BIN_CMD} BIT_TO_BIN_CMD_FOR_TARGET)
+    separate_arguments(
+      BIT_TO_BIN_CMD_FOR_TARGET_LIST UNIX_COMMAND ${BIT_TO_BIN_CMD_FOR_TARGET}
+    )
+    add_custom_command(
+      OUTPUT ${OUT_BIN}
+      COMMAND ${BIT_TO_BIN_CMD_FOR_TARGET_LIST}
+      DEPENDS ${BIT_TO_BIN} ${OUT_BITSTREAM}
+      )
+
+    add_custom_target(${NAME}_bin DEPENDS ${OUT_BIN})
+    add_output_to_fpga_target(${NAME} BIN ${OUT_LOCAL_REL}/${TOP}.${BIN_EXTENSION})
+    add_dependencies(all_${BOARD}_bin ${NAME}_bin)
+  else()
+    add_dependencies(all_${BOARD}_bin ${NAME}_bit)
+  endif()
+
+  get_target_property(PROG_TOOL ${BOARD} PROG_TOOL)
+  get_target_property(PROG_CMD ${BOARD} PROG_CMD)
+
+  if("${PROG_CMD}" STREQUAL "${BOARD}-NOTFOUND" OR "${PROG_CMD}" STREQUAL "")
+      set(PROG_CMD_LIST ${PROG_TOOL} ${OUT_BIN})
+  else()
+      string(CONFIGURE ${PROG_CMD} PROG_CMD_FOR_TARGET)
+      separate_arguments(
+          PROG_CMD_LIST UNIX_COMMAND ${PROG_CMD_FOR_TARGET}
+      )
+  endif()
+
+  add_custom_target(
+    ${NAME}_prog
+    COMMAND ${PROG_CMD_LIST}
+    DEPENDS ${OUT_BIN} ${PROG_TOOL}
+    )
+
+endfunction()
+
 function(ADD_FPGA_TARGET)
   # ~~~
   # ADD_FPGA_TARGET(
@@ -1537,6 +1745,7 @@ function(ADD_FPGA_TARGET)
     )
     add_custom_target(${NAME}_fasm DEPENDS ${OUT_FASM})
 
+    add_output_to_fpga_target(${NAME} FASM ${OUT_LOCAL_REL}/${TOP}.fasm)
     set_target_properties(${NAME} PROPERTIES OUT_FASM ${OUT_FASM})
   else()
     # Generate HLC
@@ -1571,105 +1780,23 @@ function(ADD_FPGA_TARGET)
 
   get_target_property_required(NO_BITSTREAM ${ARCH} NO_BITSTREAM)
   if(NOT ${NO_BITSTREAM})
-    # Generate bitstream
-    # -------------------------------------------------------------------------
-    get_target_property_required(BITSTREAM_EXTENSION ${ARCH} BITSTREAM_EXTENSION)
-    set(OUT_BITSTREAM ${OUT_LOCAL}/${TOP}.${BITSTREAM_EXTENSION})
-
     if(${USE_FASM})
-      get_target_property_required(FASM_TO_BIT ${ARCH} FASM_TO_BIT)
-      get_target_property_required(FASM_TO_BIT_CMD ${ARCH} FASM_TO_BIT_CMD)
-      get_target_property(FASM_TO_BIT_DEPS ${ARCH} FASM_TO_BIT_DEPS)
-      if ("${FASM_TO_BIT_DEPS}" STREQUAL "FASM_TO_BIT_DEPS-NOTFOUND")
-        set(FASM_TO_BIT_DEPS "")
-      endif()
-      get_target_property(FASM_TO_BIT_EXTRA_ARGS ${BOARD} FASM_TO_BIT_EXTRA_ARGS)
-      if ("${FASM_TO_BIT_EXTRA_ARGS}" STREQUAL "FASM_TO_BIT_EXTRA_ARGS-NOTFOUND")
-        set(FASM_TO_BIT_EXTRA_ARGS "")
-      endif()
-
-      get_target_property_required(PYTHON3 env PYTHON3)
-
-      set(BITSTREAM_DEPS ${OUT_FASM} ${FASM_TO_BIT} ${FASM_TO_BIT_DEPS})
-
-      string(CONFIGURE ${FASM_TO_BIT_CMD} FASM_TO_BIT_CMD_FOR_TARGET)
-      separate_arguments(
-        FASM_TO_BIT_CMD_FOR_TARGET_LIST UNIX_COMMAND ${FASM_TO_BIT_CMD_FOR_TARGET}
-      )
-
-      separate_arguments(
-        FASM_TO_BIT_EXTRA_ARGS_LIST UNIX_COMMAND ${FASM_TO_BIT_EXTRA_ARGS}
-      )
-      set(FASM_TO_BIT_CMD_FOR_TARGET_LIST ${FASM_TO_BIT_CMD_FOR_TARGET_LIST} ${FASM_TO_BIT_EXTRA_ARGS_LIST})
-
-      add_custom_command(
-        OUTPUT ${OUT_BITSTREAM}
-        DEPENDS ${BITSTREAM_DEPS}
-        COMMAND ${FASM_TO_BIT_CMD_FOR_TARGET_LIST}
+      add_bitstream_target(
+        NAME ${NAME}
+        USE_FASM
+        INCLUDED_TARGETS ${NAME}
+        OUT_LOCAL_REL ${OUT_LOCAL_REL}
       )
     else()
-      get_target_property_required(HLC_TO_BIT ${ARCH} HLC_TO_BIT)
-      get_target_property_required(HLC_TO_BIT_CMD ${ARCH} HLC_TO_BIT_CMD)
-      string(CONFIGURE ${HLC_TO_BIT_CMD} HLC_TO_BIT_CMD_FOR_TARGET)
-      separate_arguments(
-        HLC_TO_BIT_CMD_FOR_TARGET_LIST UNIX_COMMAND ${HLC_TO_BIT_CMD_FOR_TARGET}
-      )
-      add_custom_command(
-        OUTPUT ${OUT_BITSTREAM}
-        DEPENDS ${OUT_HLC} ${HLC_TO_BIT}
-        COMMAND ${HLC_TO_BIT_CMD_FOR_TARGET_LIST}
+      add_bitstream_target(
+        NAME ${NAME}
+        USE_FASM
+        INCLUDED_TARGETS ${NAME}
+        OUT_LOCAL_REL ${OUT_LOCAL_REL}
       )
     endif()
 
-    add_custom_target(${NAME}_bit DEPENDS ${OUT_BITSTREAM})
-    add_output_to_fpga_target(${NAME} BIT ${OUT_LOCAL_REL}/${TOP}.${BITSTREAM_EXTENSION})
-
-    get_target_property_required(NO_BIT_TO_BIN ${ARCH} NO_BIT_TO_BIN)
-    set(OUT_BIN ${OUT_BITSTREAM})
-    if(NOT ${NO_BIT_TO_BIN})
-      get_target_property_required(BIN_EXTENSION ${ARCH} BIN_EXTENSION)
-      set(OUT_BIN ${OUT_LOCAL}/${TOP}.${BIN_EXTENSION})
-      get_target_property_required(BIT_TO_BIN ${ARCH} BIT_TO_BIN)
-      get_target_property_required(BIT_TO_BIN_CMD ${ARCH} BIT_TO_BIN_CMD)
-      get_target_property(BIT_TO_BIN_EXTRA_ARGS ${BOARD} BIT_TO_BIN_EXTRA_ARGS)
-      if (${BIT_TO_BIN_EXTRA_ARGS} STREQUAL NOTFOUND)
-        set(BIT_TO_BIN_EXTRA_ARGS "")
-      endif()
-      string(CONFIGURE ${BIT_TO_BIN_CMD} BIT_TO_BIN_CMD_FOR_TARGET)
-      separate_arguments(
-        BIT_TO_BIN_CMD_FOR_TARGET_LIST UNIX_COMMAND ${BIT_TO_BIN_CMD_FOR_TARGET}
-      )
-      add_custom_command(
-        OUTPUT ${OUT_BIN}
-        COMMAND ${BIT_TO_BIN_CMD_FOR_TARGET_LIST}
-        DEPENDS ${BIT_TO_BIN} ${OUT_BITSTREAM}
-        )
-
-      add_custom_target(${NAME}_bin DEPENDS ${OUT_BIN})
-      add_output_to_fpga_target(${NAME} BIN ${OUT_LOCAL_REL}/${TOP}.${BIN_EXTENSION})
-      add_dependencies(all_${BOARD}_bin ${NAME}_bin)
-    else()
-      add_dependencies(all_${BOARD}_bin ${NAME}_bit)
-    endif()
-
-    get_target_property(PROG_TOOL ${BOARD} PROG_TOOL)
-    get_target_property(PROG_CMD ${BOARD} PROG_CMD)
-
-    if("${PROG_CMD}" STREQUAL "${BOARD}-NOTFOUND" OR "${PROG_CMD}" STREQUAL "")
-        set(PROG_CMD_LIST ${PROG_TOOL} ${OUT_BIN})
-    else()
-        string(CONFIGURE ${PROG_CMD} PROG_CMD_FOR_TARGET)
-        separate_arguments(
-            PROG_CMD_LIST UNIX_COMMAND ${PROG_CMD_FOR_TARGET}
-        )
-    endif()
-
-    add_custom_target(
-      ${NAME}_prog
-      COMMAND ${PROG_CMD_LIST}
-      DEPENDS ${OUT_BIN} ${PROG_TOOL}
-      )
-
+    get_target_property(OUT_BITSTREAM ${NAME} OUT_BITSTREAM)
     get_target_property_required(NO_BIT_TO_V ${ARCH} NO_BIT_TO_V)
     if(NOT ${NO_BIT_TO_V})
         # Generate verilog from bitstream

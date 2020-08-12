@@ -25,4 +25,17 @@ module OBUF (
 
 endmodule
 
+module SYN_OBUF(
+    input I,
+    (* iopad_external_pin *)
+    output O);
+  assign O = I;
+endmodule
+
+module SYN_IBUF(
+    output O,
+    (* iopad_external_pin *)
+    input I);
+  assign O = I;
+endmodule
 

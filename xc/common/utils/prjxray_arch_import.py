@@ -13,6 +13,7 @@ from __future__ import print_function
 import argparse
 import prjxray.db
 from prjxray.roi import Roi
+from prjxray.overlay import Overlay
 from prjxray import grid_types
 import simplejson as json
 import sys
@@ -123,7 +124,7 @@ def create_synth_io_tile(
         )
 
 
-def create_synth_pb_types(complexblocklist_xml):
+def create_synth_pb_types(model_xml, complexblocklist_xml, is_overlay=False):
     """ Creates synthetic IO pad tiles used to connect ROI inputs and outputs to the routing network.
     """
     pb_xml_in = ET.SubElement(
@@ -175,6 +176,94 @@ def create_synth_pb_types(complexblocklist_xml):
         }
     )
 
+    if is_overlay:
+        # Add model for SYN_IBUF
+        ibuf_model = ET.SubElement(model_xml, 'model', {'name': 'SYN_IBUF'})
+
+        ibuf_input_ports = ET.SubElement(ibuf_model, 'input_ports', {})
+
+        ET.SubElement(
+            ibuf_input_ports, 'port', {
+                'name': 'I',
+                'combinational_sink_ports': 'O'
+            }
+        )
+
+        ibuf_output_ports = ET.SubElement(ibuf_model, 'output_ports', {})
+
+        ET.SubElement(ibuf_output_ports, 'port', {
+            'name': 'O',
+        })
+
+        # Add model for SYN_OBUF
+        obuf_model = ET.SubElement(model_xml, 'model', {'name': 'SYN_OBUF'})
+
+        obuf_input_ports = ET.SubElement(obuf_model, 'input_ports', {})
+
+        ET.SubElement(
+            obuf_input_ports, 'port', {
+                'name': 'I',
+                'combinational_sink_ports': 'O'
+            }
+        )
+
+        obuf_output_ports = ET.SubElement(obuf_model, 'output_ports', {})
+
+        ET.SubElement(obuf_output_ports, 'port', {
+            'name': 'O',
+        })
+
+        obuf_pb = ET.SubElement(
+            pb_xml_out, 'pb_type', {
+                'name': "SYN-OBUF",
+                'blif_model': '.subckt SYN_OBUF',
+                'num_pb': '1',
+            }
+        )
+
+        ET.SubElement(obuf_pb, 'input', {
+            'name': 'I',
+            'num_pins': '1',
+        })
+
+        ET.SubElement(obuf_pb, 'output', {
+            'name': 'O',
+            'num_pins': '1',
+        })
+
+        ET.SubElement(
+            obuf_pb, 'delay_constant', {
+                'max': '1e-11',
+                'in_port': 'I',
+                'out_port': 'O',
+            }
+        )
+
+        ibuf_pb = ET.SubElement(
+            pb_xml_in, 'pb_type', {
+                'name': "SYN-IBUF",
+                'blif_model': '.subckt SYN_IBUF',
+                'num_pb': '1',
+            }
+        )
+
+        ET.SubElement(ibuf_pb, 'input', {
+            'name': 'I',
+            'num_pins': '1',
+        })
+
+        ET.SubElement(ibuf_pb, 'output', {
+            'name': 'O',
+            'num_pins': '1',
+        })
+
+        ET.SubElement(
+            ibuf_pb, 'delay_constant', {
+                'max': '1e-11',
+                'in_port': 'I',
+                'out_port': 'O',
+            }
+        )
     pin_pb_type_in = ET.SubElement(
         pb_xml_in, 'pb_type', {
             'name': pad_name_in,
@@ -205,37 +294,86 @@ def create_synth_pb_types(complexblocklist_xml):
         }
     )
 
-    direct_xml_out = ET.SubElement(
-        interconnect_xml_out, 'direct', {
-            'name': '{}_to_{}'.format(input_name_out, output_name_out),
-            'input': input_name_out,
-            'output': output_name_out,
-        }
-    )
+    if is_overlay:
+        direct_xml_out = ET.SubElement(
+            interconnect_xml_out, 'direct', {
+                'name': '{}_to_{}'.format('SYN-OBUF.O', 'outpad.outpad'),
+                'input': 'SYN-OBUF.O',
+                'output': 'outpad.outpad',
+            }
+        )
 
-    ET.SubElement(
-        direct_xml_out, 'delay_constant', {
-            'max': '1e-11',
-            'in_port': input_name_out,
-            'out_port': output_name_out,
-        }
-    )
+        ET.SubElement(
+            direct_xml_out, 'pack_pattern', {
+                'in_port': 'SYN-OBUF.O',
+                'name': '{}to{}'.format('OBUF', 'outpad'),
+                'out_port': 'outpad.outpad',
+            }
+        )
 
-    direct_xml_in = ET.SubElement(
-        interconnect_xml_in, 'direct', {
-            'name': '{}_to_{}'.format(input_name_in, output_name_in),
-            'input': input_name_in,
-            'output': output_name_in,
-        }
-    )
+        ET.SubElement(
+            interconnect_xml_out, 'direct', {
+                'name': '{}_to_{}'.format('SYN-OUTPAD.outpad', 'SYN-OBUF.I'),
+                'input': 'SYN-OUTPAD.outpad',
+                'output': 'SYN-OBUF.I',
+            }
+        )
 
-    ET.SubElement(
-        direct_xml_in, 'delay_constant', {
-            'max': '1e-11',
-            'in_port': input_name_in,
-            'out_port': output_name_in,
-        }
-    )
+        direct_xml_in = ET.SubElement(
+            interconnect_xml_in, 'direct', {
+                'name': '{}_to_{}'.format('inpad.inpad', 'SYN-IBUF.I'),
+                'input': 'inpad.inpad',
+                'output': 'SYN-IBUF.I',
+            }
+        )
+
+        ET.SubElement(
+            direct_xml_in, 'pack_pattern', {
+                'in_port': 'inpad.inpad',
+                'name': '{}to{}'.format('inpad', 'IBUF'),
+                'out_port': 'SYN-IBUF.I',
+            }
+        )
+
+        ET.SubElement(
+            interconnect_xml_in, 'direct', {
+                'name': '{}_to_{}'.format('SYN-IBUF.O', 'SYN-INPAD.inpad'),
+                'input': 'SYN-IBUF.O',
+                'output': 'SYN-INPAD.inpad',
+            }
+        )
+    else:
+        direct_xml_out = ET.SubElement(
+            interconnect_xml_out, 'direct', {
+                'name': '{}_to_{}'.format(input_name_out, output_name_out),
+                'input': input_name_out,
+                'output': output_name_out,
+            }
+        )
+
+        ET.SubElement(
+            direct_xml_out, 'delay_constant', {
+                'max': '1e-11',
+                'in_port': input_name_out,
+                'out_port': output_name_out,
+            }
+        )
+
+        direct_xml_in = ET.SubElement(
+            interconnect_xml_in, 'direct', {
+                'name': '{}_to_{}'.format(input_name_in, output_name_in),
+                'input': input_name_in,
+                'output': output_name_in,
+            }
+        )
+
+        ET.SubElement(
+            direct_xml_in, 'delay_constant', {
+                'max': '1e-11',
+                'in_port': input_name_in,
+                'out_port': output_name_in,
+            }
+        )
 
 
 def create_synth_constant_tiles(
@@ -778,6 +916,7 @@ def main():
         '--pin_assignments', required=True, type=argparse.FileType('r')
     )
     parser.add_argument('--use_roi', required=False)
+    parser.add_argument('--use_overlay', required=False)
     parser.add_argument('--device', required=True)
     parser.add_argument('--synth_tiles', required=False)
     parser.add_argument('--connection_database', required=True)
@@ -897,7 +1036,7 @@ def main():
 
             synth_loc_map[tuple(tile_info['loc'])] = tile_name
 
-        create_synth_pb_types(complexblocklist_xml)
+        create_synth_pb_types(model_xml, complexblocklist_xml)
 
         synth_tile_map = add_constant_synthetic_tiles(
             model_xml, complexblocklist_xml, tiles_xml
@@ -921,14 +1060,62 @@ def main():
             x2=x_max,
             y2=y_max,
         )
+    elif args.use_overlay:
+        with open(args.use_overlay) as f:
+            j = json.load(f)
+
+        with open(args.synth_tiles) as f:
+            synth_tiles = json.load(f)
+
+        region_dict = dict()
+        for r in synth_tiles['info']:
+            bounds = (
+                r['GRID_X_MIN'], r['GRID_X_MAX'], r['GRID_Y_MIN'],
+                r['GRID_Y_MAX']
+            )
+            region_dict[r['name']] = bounds
+
+        roi = Overlay(region_dict=region_dict)
+
+        for _, tile_info in synth_tiles['tiles'].items():
+            if tile_info['pins'][0]['port_type'] in ['GND', 'VCC']:
+                continue
+
+            assert tuple(tile_info['loc']) not in synth_loc_map
+            tile_name = tile_info['tile_name']
+            num_input = len(
+                list(
+                    filter(
+                        lambda t: t['port_type'] == 'output', tile_info['pins']
+                    )
+                )
+            )
+            num_output = len(
+                list(
+                    filter(
+                        lambda t: t['port_type'] == 'input', tile_info['pins']
+                    )
+                )
+            )
+
+            create_synth_io_tile(
+                complexblocklist_xml, tiles_xml, tile_name, num_input,
+                num_output
+            )
+
+            synth_loc_map[tuple(tile_info['loc'])] = tile_name
+
+        create_synth_pb_types(model_xml, complexblocklist_xml, True)
 
     with DatabaseCache(args.connection_database, read_only=True) as conn:
         c = conn.cursor()
 
         if 'GND' not in synth_tile_map:
-            synth_tile_map, synth_loc_map = insert_constant_tiles(
+            synth_tile_map, synth_loc_map_const = insert_constant_tiles(
                 conn, model_xml, complexblocklist_xml, tiles_xml
             )
+
+            synth_loc_map.update(synth_loc_map_const)
 
         # Find the grid extent.
         y_max = 0
