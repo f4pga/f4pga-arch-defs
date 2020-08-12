@@ -23,6 +23,7 @@ quicklogic_define_device_type(
     ASSP
     MULT
   RAM_TIMING_SDF RAM_ss_0p990v_m040c
+  RAM_PBTYPE_COPY ram_a1.pb_type.xml
 )
 
 foreach(PACKAGE ${PACKAGES})
