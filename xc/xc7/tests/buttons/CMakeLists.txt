@@ -1,9 +1,26 @@
 add_file_target(FILE buttons_arty.v SCANNER_TYPE verilog)
+add_file_target(FILE buttons_arty_rev.v SCANNER_TYPE verilog)
 add_fpga_target(
   NAME buttons_arty
   BOARD arty-swbut
   SOURCES buttons_arty.v
   INPUT_IO_FILE ${COMMON}/arty_swbut.pcf
+  EXPLICIT_ADD_FILE_TARGET
+  )
+
+add_fpga_target(
+  NAME buttons_arty_pr
+  BOARD arty-swbut-pr
+  SOURCES buttons_arty.v
+  INPUT_IO_FILE ${COMMON}/arty_swbut_pr.pcf
+  EXPLICIT_ADD_FILE_TARGET
+  )
+
+add_fpga_target(
+  NAME buttons_arty_pr_rev
+  BOARD arty-swbut-pr
+  SOURCES buttons_arty_rev.v
+  INPUT_IO_FILE ${COMMON}/arty_swbut_pr.pcf
   EXPLICIT_ADD_FILE_TARGET
   )
 
@@ -18,6 +35,15 @@ add_fpga_target(
 add_vivado_target(
   NAME buttons_arty100t_vivado
   PARENT_NAME buttons_arty100t
+  )
+
+add_file_target(FILE buttons_arty_overlay.v SCANNER_TYPE verilog)
+add_fpga_target(
+  NAME buttons_arty_overlay
+  BOARD arty-swbut-overlay
+  SOURCES buttons_arty_overlay.v
+  INPUT_IO_FILE ${COMMON}/arty_swbut_pr_overlay.pcf
+  EXPLICIT_ADD_FILE_TARGET
   )
 
 add_file_target(FILE buttons_basys3.v SCANNER_TYPE verilog)
