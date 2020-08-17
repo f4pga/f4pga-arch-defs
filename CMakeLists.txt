@@ -195,6 +195,7 @@ add_custom_target(all_xc7_200t)
 if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
 add_dependencies(all_xc7_200t
     all_nexys_video_bin
+    all_nexys_video-mid_bin
     )
 endif()
 
