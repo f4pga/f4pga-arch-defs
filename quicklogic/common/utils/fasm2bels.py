@@ -589,24 +589,41 @@ class Fasm2Bels(object):
                 continue
 
             # This is not for the given QMUX
-            if qmux != "QMUX{}".format(match.group("idx")):
+            qmux_idx = int(match.group("idx"))
+            if qmux != "QMUX{}".format(qmux_idx):
                 continue
 
             # Get the QCLKIN pin index. These are named "QCLKIN<index>"
             match = re.match(r"QCLKIN(?P<idx>[0-9]+)", pin)
             if match is None:
                 continue
+            qclkin_idx = int(match.group("idx"))
 
             # Get the source endpoint of the connection
             cell, pin = connection.src.pin.split("_", maxsplit=1)
-            index = int(match.group("idx"))
+            match = re.match(r"GMUX(?P<idx>[0-9]+)", cell)
+            if match is None:
+                continue
+            gmux_idx = int(match.group("idx"))
 
-            # Store it
-            sel_map[index] = (
-                connection.src.loc,
-                cell,
-                pin,
-            )
+            # Since fasm2bels uses physical database, it is not aware of
+            # other QMUX inputs that QCLKIN0. Assume that the connection
+            # found is to the QCLKIN0 pin and add QCLKIN1..2 to the map
+            # as well.
+            assert qclkin_idx == 0, connection
+
+            # Make map entries
+            for i in range(3):
+
+                # Calculate GMUX index for QCLKIN<i> input of the QMUX
+                idx = (gmux_idx + i) % 5
+
+                # Add to the map
+                sel_map[i] = (
+                    connection.src.loc,
+                    "GMUX{}".format(idx),
+                    pin,
+                )
 
         return sel_map
 
