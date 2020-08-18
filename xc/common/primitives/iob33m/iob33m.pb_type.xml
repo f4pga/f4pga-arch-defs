@@ -32,7 +32,7 @@
     <xi:include href="../iob33/modes/no_ibuf.xml"/>
     <xi:include href="../iob33/modes/no_obuf.xml"/>
     <xi:include href="../iob33/modes/ibuf.xml"/>
-    <xi:include href="../iob33/modes/obuf.xml"/>
+    <xi:include href="../iob33/modes/obuft.xml"/>
     <xi:include href="../iob33/modes/iobuf.xml"/>
 
     <mode name="OBUFTDS_M">

@@ -28,7 +28,7 @@
     <xi:include href="modes/no_ibuf.xml"/>
     <xi:include href="modes/no_obuf.xml"/>
     <xi:include href="modes/ibuf.xml"/>
-    <xi:include href="modes/obuf.xml"/>
+    <xi:include href="modes/obuft.xml"/>
     <xi:include href="modes/iobuf.xml"/>
   </pb_type>
 

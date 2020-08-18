@@ -664,8 +664,9 @@ module IBUF_VPR (
 
 endmodule
 
-module OBUF_VPR (
-	input I,
+module OBUFT_VPR (
+	input  I,
+    input  T,
 	output O
 );
 
@@ -703,7 +704,7 @@ module OBUF_VPR (
   parameter DRIVE = 0;
   parameter SLEW = "";
 
-  assign O = I;
+  assign O = (T == 1'b0) ? I : 1'bz;
 
 endmodule
 
@@ -904,6 +905,16 @@ module IOBUFDS_S_VPR (
 
 endmodule
 
+(* whitebox *)
+module T_INV (
+    input  TI,
+    output TO
+);
+
+  assign TO = ~TI;
+
+endmodule
+
 // ============================================================================
 // I/OSERDES
 
@@ -1094,6 +1105,64 @@ module ISERDESE2_NO_IDELAY_VPR (
   parameter [0:0] ZINV_C = 1'b0;
 
 endmodule
+
+// ============================================================================
+// IDDR/ODDR
+
+(* blackbox *)
+module IDDR_VPR (
+  input  CK,
+  input  CKB,
+  input  CE,
+  input  SR,
+  input  D,
+  output Q1,
+  output Q2
+);
+
+  parameter [0:0] ZINV_D = 1'b1;
+  parameter [0:0] ZINV_C = 1'b1;
+
+  parameter [0:0] SRTYPE_SYNC = 1'b0;
+
+  parameter [0:0] SAME_EDGE     = 1'b1;
+  parameter [0:0] OPPOSITE_EDGE = 1'b0;
+
+  parameter [0:0] ZINIT_Q1   = 1'b0;
+  parameter [0:0] ZINIT_Q2   = 1'b0;
+  parameter [0:0] ZINIT_Q3   = 1'b0;
+  parameter [0:0] ZINIT_Q4   = 1'b0;
+  parameter [0:0] ZSRVAL_Q12 = 1'b0;
+  parameter [0:0] ZSRVAL_Q34 = 1'b0;
+
+endmodule
+
+(* blackbox *)
+module ODDR_VPR (
+  input  CK,
+  input  CE,
+  input  SR,
+  input  D1,
+  input  D2,
+  output Q
+);
+
+  parameter [0:0] ZINV_CLK = 1'b1;
+  parameter [0:0] ZINV_D1  = 1'b1;
+  parameter [0:0] ZINV_D2  = 1'b1;
+  parameter [0:0] INV_D1   = 1'b0;
+  parameter [0:0] INV_D2   = 1'b0;
+
+  parameter [0:0] SRTYPE_SYNC = 1'b0;
+  parameter [0:0] SAME_EDGE   = 1'b1;
+
+  parameter [0:0] ZINIT_Q  = 1'b1;
+  parameter [0:0] ZSRVAL_Q = 1'b1;
+
+endmodule
+
+// ============================================================================
+// IDELAYE2
 
 module IDELAYE2_VPR (
   input C,

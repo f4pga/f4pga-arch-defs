@@ -68,4 +68,17 @@
       <port name="SHIFTOUT2"/>
     </output_ports>
   </model>
+  <model name="IDDR_VPR">
+    <input_ports>
+      <port name="CK"  is_clock="1"/>
+      <port name="CKB" is_clock="1"/>
+      <port name="CE"  clock="CK"/>
+      <port name="SR"/>
+      <port name="D"   clock="CK"/>      
+    </input_ports>
+    <output_ports>
+      <port name="Q1"  clock="CK"/>
+      <port name="Q2"  clock="CK"/>
+    </output_ports>
+  </model>
 </models>
