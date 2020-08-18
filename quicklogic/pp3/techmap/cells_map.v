@@ -442,35 +442,31 @@ module mux8x0 (
     input  H
 );
 
-  // Split into 2x mux4x0 plus a F_FRAG
-
-  wire q0, q1;
-
-  mux4x0 mux_0 (
-  .A (A),
-  .B (B),
-  .C (C),
-  .D (D),
-  .S0(S0),
-  .S1(S1),
-  .Q (q0)
-  );
-
-  mux4x0 mux_1 (
-  .A (E),
-  .B (F),
-  .C (G),
-  .D (H),
-  .S0(S0),
-  .S1(S1),
-  .Q (q1)
-  );
-
-  F_FRAG f_frag (
-  .F1(q0),
-  .F2(q1),
-  .FS(S2),
-  .FZ(Q)
+  C_FRAG # (
+  .TAS1(1'b0),
+  .TAS2(1'b0),
+  .TBS1(1'b0),
+  .TBS2(1'b0),
+  .BAS1(1'b0),
+  .BAS2(1'b0),
+  .BBS1(1'b0),
+  .BBS2(1'b0),
+  )
+  c_frag (
+  .TBS(S2),
+  .TAB(S1),
+  .TSL(S0),
+  .TA1(A),
+  .TA2(B),
+  .TB1(C),
+  .TB2(D),
+  .BAB(S1),
+  .BSL(S0),
+  .BA1(E),
+  .BA2(F),
+  .BB1(G),
+  .BB2(H),
+  .CZ (Q)
   );
 
 endmodule
