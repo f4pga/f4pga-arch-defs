@@ -2,9 +2,12 @@ yosys -import
 
 plugin -i xdc
 plugin -i fasm
+plugin -i params
 
 # Import the commands from the plugins to the tcl interpreter
 yosys -import
+
+source [file join [file normalize [info script]] .. utils.tcl]
 
 # -flatten is used to ensure that the output eblif has only one module.
 # Some of symbiflow expects eblifs with only one module.
@@ -21,6 +24,7 @@ if { $::env(USE_ROI) == "TRUE" } {
     read_verilog -lib $::env(TECHMAP_PATH)/iobs.v
 
     hierarchy -check -auto-top
+    update_pll_params
 
     # Start flow after library reading
     synth_xilinx -vpr -flatten -abc9 -nosrl -noclkbuf -nodsp -iopad -nowidelut -run prepare:check
