@@ -1,9 +1,11 @@
-<mode name="OBUF" xmlns:xi="http://www.w3.org/2001/XInclude">
-  <pb_type name="OBUF_VPR" blif_model=".subckt OBUF_VPR" num_pb="1">
+<mode name="OBUFT" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <pb_type name="OBUFT_VPR" blif_model=".subckt OBUFT_VPR" num_pb="1">
     <input name="I" num_pins="1"/>
+    <input name="T" num_pins="1"/>
     <output name="O" num_pins="1"/>
 
     <delay_constant max="10e-12" in_port="I" out_port="O"/>
+    <delay_constant max="10e-12" in_port="T" out_port="O"/>
 
     <metadata>
       <meta name="fasm_params">
@@ -40,9 +42,10 @@
   <xi:include href="../outpad.pb_type.xml"/>
 
   <interconnect>
-    <direct name="IOB33_MODES.O_to_OBUF_VPR.I" input="IOB33_MODES.O" output="OBUF_VPR.I"/>
-    <direct name="OBUF_VPR.O_to_outpad.outpad" input="OBUF_VPR.O" output="outpad.outpad">
-      <pack_pattern name="OBUF_to_outpad"/>
+    <direct name="IOB33_MODES.O_to_OBUFT_VPR.I" input="IOB33_MODES.O" output="OBUFT_VPR.I"/>
+    <direct name="IOB33_MODES.T_to_OBUFT_VPR.T" input="IOB33_MODES.T" output="OBUFT_VPR.T"/>
+    <direct name="OBUFT_VPR.O_to_outpad.outpad" input="OBUFT_VPR.O"   output="outpad.outpad">
+      <pack_pattern name="OBUFT_to_outpad"/>
     </direct>
   </interconnect>
 </mode>

@@ -442,7 +442,17 @@ def check_feature(feature):
         features.append(
             '{}.{}_ACTIVE'.format(feature_path[0], feature_path[-1])
         )
-        features.append('{}.{}_USED'.format(feature_path[0], feature_path[-1]))
+
+        # Whenever a PIP connecting a CCIOn input of a HCLK_CMT tile is used
+        # the additional feature CCIOn_USED has to be emitted. There is however
+        # one exception which is for all PIPs connecting CCIOn with
+        # MUX_OUT_FREQ_REFn wires. For those the feature should no be emitted.
+        #
+        # For more details refer to the fuzzer 045-hclk-cmt-pips in prjxray.
+        if "FREQ_REF" not in feature_path[-2]:
+            features.append(
+                '{}.{}_USED'.format(feature_path[0], feature_path[-1])
+            )
 
         return ' '.join(features)
 

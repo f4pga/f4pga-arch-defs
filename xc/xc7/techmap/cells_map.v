@@ -2094,7 +2094,52 @@ module OBUF (
   parameter PULLTYPE = "NONE";  // Not supported by Vivado ?
   parameter IO_LOC_PAIRS = "NONE";
 
-  OBUF_VPR # (
+  OBUFT # (
+    .PULLTYPE(PULLTYPE),
+    .IOSTANDARD(IOSTANDARD),
+    .DRIVE(DRIVE),
+    .SLEW(SLEW),
+    .IO_LOC_PAIRS(IO_LOC_PAIRS)
+  ) _TECHMAP_REPLACE_ (
+    .I(I),
+    .T(1'b0),
+    .O(O)
+  );
+
+endmodule
+
+module OBUFT (
+  input  I,
+  input  T,
+  output O
+  );
+
+  parameter IOSTANDARD = "LVCMOS33";
+  parameter DRIVE = 12;
+  parameter SLEW = "SLOW";
+  parameter PULLTYPE = "NONE";  // Not supported by Vivado ?
+  parameter IO_LOC_PAIRS = "NONE";
+
+  parameter _TECHMAP_CONSTMSK_T_ = 1'bx;
+  parameter _TECHMAP_CONSTVAL_T_ = 1'bx;
+
+  wire t;
+
+  // When T=1'b0 Vivado routes it to const1 and enables an inverter in OLOGIC.
+  // To mimic this behavior insert a specialized inverter that will go to the
+  // OLOGIC site.
+  generate if (_TECHMAP_CONSTMSK_T_ == 1'b1 && _TECHMAP_CONSTVAL_T_ == 1'b0) begin
+    T_INV t_inv (
+    .TI (1'b1),
+    .TO (t)
+    );
+
+  end else begin
+    assign t = T;
+
+  end endgenerate
+
+  OBUFT_VPR # (
     .LVCMOS12_DRIVE_I12(
       (IOSTANDARD == "LVCMOS12" && DRIVE == 12)
     ),
@@ -2198,8 +2243,9 @@ module OBUF (
     .DRIVE(DRIVE),
     .SLEW(SLEW),
     .IO_LOC_PAIRS(IO_LOC_PAIRS)
-  ) _TECHMAP_REPLACE_ (
+  ) obuft (
     .I(I),
+    .T(t),
     .O(O)
   );
 
@@ -2368,6 +2414,29 @@ module OBUFTDS (
   parameter PULLTYPE = "NONE"; // Not supported by Vivado ?
   parameter IO_LOC_PAIRS = "NONE";
 
+  parameter HAS_OSERDES = 0; // Set inside yosys/synth.tcl
+
+  parameter _TECHMAP_CONSTMSK_T_ = 1'bx;
+  parameter _TECHMAP_CONSTVAL_T_ = 1'bx;
+
+  wire t;
+
+  // When T=1'b0 Vivado routes it to const1 and enables an inverter in OLOGIC.
+  // BUT, that happens only when there is an OSERDES with "TQ.BUF" mode.
+  //
+  // Presence of an OSERDES is detected in the sytnesis script and the parameter
+  // HAS_OSERDES is set.
+  generate if (_TECHMAP_CONSTMSK_T_ == 1'b1 && _TECHMAP_CONSTVAL_T_ == 1'b0 && HAS_OSERDES == 1) begin
+    T_INV t_inv (
+    .TI (1'b1),
+    .TO (t)
+    );
+
+  end else begin
+    assign t = T;
+
+  end endgenerate
+
   wire complementary;
 
   OBUFTDS_M_VPR # (
@@ -2405,7 +2474,7 @@ module OBUFTDS (
     .IO_LOC_PAIRS(IO_LOC_PAIRS)
   ) obuftds_m (
   .I(I),
-  .T(T),
+  .T(t),
   .O(O),
   .OB(complementary)
   );
@@ -2462,10 +2531,13 @@ module OBUFDS (
   parameter PULLTYPE = "NONE";  // Not supported by Vivado ?
   parameter IO_LOC_PAIRS = "NONE";
 
+  parameter HAS_OSERDES = 0; // Set inside yosys/synth.tcl
+
   OBUFTDS # (
   .PULLTYPE(PULLTYPE),
   .IOSTANDARD(IOSTANDARD),
-  .SLEW(SLEW)
+  .SLEW(SLEW),
+  .HAS_OSERDES(HAS_OSERDES)
   ) _TECHMAP_REPLACE_ (
   .I(I),
   .T(1'b0),
@@ -2488,6 +2560,7 @@ module IOBUFDS (
   parameter SLEW = "SLOW";
   parameter IN_TERM = "NONE";  // Not supported by Vivado ?
   parameter PULLTYPE = "NONE"; // Not supported by Vivado ?
+  parameter IO_LOC_PAIRS = "NONE";
 
   wire complementary_o;
   wire complementary_i;
@@ -2527,7 +2600,8 @@ module IOBUFDS (
 
     .PULLTYPE(PULLTYPE),
     .IOSTANDARD(IOSTANDARD),
-    .SLEW(SLEW)
+    .SLEW(SLEW),
+    .IO_LOC_PAIRS(IO_LOC_PAIRS)
   ) iobufds_m (
     .I(I),
     .T(T),
@@ -2573,7 +2647,8 @@ module IOBUFDS (
 
     .PULLTYPE(PULLTYPE),
     .IOSTANDARD(IOSTANDARD),
-    .SLEW(SLEW)
+    .SLEW(SLEW),
+    .IO_LOC_PAIRS(IO_LOC_PAIRS)
   ) iobufds_s (
     .IB(complementary_o),
     .OB(complementary_i),
@@ -2620,25 +2695,25 @@ module OSERDESE2 (
   if (DATA_RATE_OQ == "DDR" &&
       !(DATA_WIDTH == 2 || DATA_WIDTH == 4 ||
         DATA_WIDTH == 6 || DATA_WIDTH == 8)) begin
-    wire _TECHMAP_FAIL_ = 1'b1;
+    wire _TECHMAP_FAIL_;
   end
 
   if (DATA_RATE_OQ == "SDR" &&
       !(DATA_WIDTH >= 2 || DATA_WIDTH <= 8)) begin
-    wire _TECHMAP_FAIL_ = 1'b1;
+    wire _TECHMAP_FAIL_;
   end
 
   if ((DATA_RATE_TQ == "SDR" || DATA_RATE_TQ == "BUF") &&
       TRISTATE_WIDTH != 1) begin
-    wire _TECHMAP_FAIL_ = 1'b1;
+    wire _TECHMAP_FAIL_;
   end
 
   if (DATA_RATE_OQ == "SDR" && DATA_RATE_TQ == "DDR") begin
-    wire _TECHMAP_FAIL_ = 1'b1;
+    wire _TECHMAP_FAIL_;
   end
 
   if (TRISTATE_WIDTH != 1 && TRISTATE_WIDTH != 4) begin
-    wire _TECHMAP_FAIL_ = 1'b1;
+    wire _TECHMAP_FAIL_;
   end
 
   // TODO: the following params behave in a weird way.
@@ -2943,13 +3018,13 @@ module ISERDESE2 (
           (DATA_WIDTH != 4 &&
            DATA_WIDTH != 6 &&
            DATA_WIDTH != 8)) begin
-      wire _TECHMAP_FAIL_ = 1'b1;
+      wire _TECHMAP_FAIL_;
     end
 
     if (DATA_RATE == "SDR" &&
         (DATA_WIDTH < 2 ||
          DATA_WIDTH > 8)) begin
-      wire _TECHMAP_FAIL_ = 1'b1;
+      wire _TECHMAP_FAIL_;
     end
   end
 
@@ -2958,11 +3033,14 @@ module ISERDESE2 (
       INTERFACE_TYPE == "MEMORY_QDR") begin
 
     if (DATA_RATE == "SDR") begin
-      wire _TECHMAP_FAIL_ = 1'b1;
+      wire _TECHMAP_FAIL_;
     end
 
-    if (DATA_RATE == "DDR" && DATA_WIDTH != 4) begin
-      wire _TECHMAP_FAIL_ = 1'b1;
+    if (DATA_RATE == "DDR" &&
+        (DATA_WIDTH != 4 &&
+         DATA_WIDTH != 6 &&
+         DATA_WIDTH != 8)) begin
+      wire _TECHMAP_FAIL_;
     end
   end
 
@@ -3114,11 +3192,214 @@ module ISERDESE2 (
        .Q8          (Q8)
       );
     end else begin
-        wire _TECHMAP_FAIL_ = 1'b1;
+        wire _TECHMAP_FAIL_;
     end
 
 
 endmodule
+
+// ============================================================================
+// IDDR/ODDR
+
+module IDDR_2CLK (
+  output Q1,
+  output Q2,
+  input  C,
+  input  CB,
+  input  CE,
+  input  D,
+  input  R,
+  input  S,
+);
+
+  parameter DDR_CLK_EDGE = "OPPOSITE_EDGE";
+  parameter INIT_Q1 = 1'b0;
+  parameter INIT_Q2 = 1'b0;
+  parameter [0:0] IS_C_INVERTED  = 1'b0;
+  parameter [0:0] IS_CB_INVERTED = 1'b0;
+  parameter [0:0] IS_D_INVERTED  = 1'b0;
+  parameter SRTYPE = "SYNC";
+
+  parameter _TECHMAP_CONSTMSK_R_ = 1'b1;
+  parameter _TECHMAP_CONSTVAL_R_ = 1'bx;
+  parameter _TECHMAP_CONSTMSK_S_ = 1'b1;
+  parameter _TECHMAP_CONSTVAL_S_ = 1'bx;
+
+  localparam [0:0] R_USED = (_TECHMAP_CONSTMSK_R_ != 1'b1);
+  localparam [0:0] S_USED = (_TECHMAP_CONSTMSK_S_ != 1'b1);
+
+  wire SR;
+
+  generate if (!R_USED && !S_USED) begin
+    assign SR = 1'b0;
+    localparam SRVAL  = 1'b1;
+    localparam SRUSED = 1'b1;
+
+  end else if (R_USED && !S_USED) begin
+    assign SR = R;
+    localparam SRVAL  = 1'b0;
+    localparam SRUSED = 1'b1;
+
+  end else if (!R_USED && S_USED) begin
+    assign SR = S;
+    localparam SRVAL  = 1'b1;
+    localparam SRUSED = 1'b1;
+
+  end else begin
+    assign SR = 1'bx;
+    localparam SRVAL  = 1'bx;
+    localparam SRUSED = 1'bx;
+
+    $error("Both S and R cannot be used simultaneously");
+  end endgenerate
+
+  generate if (DDR_CLK_EDGE != "OPPOSITE_EDGE") begin
+    localparam INIT_Q3 = INIT_Q1;
+    localparam INIT_Q4 = INIT_Q2;
+    localparam SRVAL34 = SRVAL;
+
+  end else begin
+    localparam INIT_Q3 = 1'b1;
+    localparam INIT_Q4 = 1'b1;
+    localparam SRVAL34 = 1'b1;
+
+  end endgenerate
+
+  IDDR_VPR #(
+    .ZINV_D         (!IS_D_INVERTED),
+    .ZINV_C         (!IS_C_INVERTED),
+    .SRTYPE_SYNC    (SRTYPE == "SYNC"),
+    .SAME_EDGE      (DDR_CLK_EDGE != "OPPOSITE_EDGE"),
+    .OPPOSITE_EDGE  (DDR_CLK_EDGE == "OPPOSITE_EDGE"),
+    .ZINIT_Q1       (!INIT_Q1),
+    .ZINIT_Q2       (!INIT_Q2),
+    .ZINIT_Q3       (!INIT_Q3),
+    .ZINIT_Q4       (!INIT_Q4),
+    .ZSRVAL_Q12     (!SRVAL),
+    .ZSRVAL_Q34     (!SRVAL34)
+
+  ) _TECHMAP_REPLACE_ (
+    .CK  (C),
+    .CKB (CB),
+    .CE  (CE),
+    .SR  (SR),
+    .D   (D),
+    .Q1  (Q1),
+    .Q2  (Q2)
+  );
+
+endmodule
+
+module IDDR (
+  output Q1,
+  output Q2,
+  input  C,
+  input  CE,
+  input  D,
+  input  R,
+  input  S,
+);
+
+  parameter DDR_CLK_EDGE = "OPPOSITE_EDGE";
+  parameter INIT_Q1 = 1'b0;
+  parameter INIT_Q2 = 1'b0;
+  parameter [0:0] IS_C_INVERTED = 1'b0;
+  parameter [0:0] IS_D_INVERTED = 1'b0;
+  parameter SRTYPE = "SYNC";
+
+  IDDR_2CLK # (
+    .DDR_CLK_EDGE   (DDR_CLK_EDGE),
+    .SRTYPE         (SRTYPE),
+    .INIT_Q1        (INIT_Q1),
+    .INIT_Q2        (INIT_Q2),
+    .IS_C_INVERTED  (IS_C_INVERTED),
+    .IS_CB_INVERTED (!IS_C_INVERTED),
+    .IS_D_INVERTED  (IS_D_INVERTED)
+
+  ) _TECHMAP_REPLACE_ (
+    .C  (C),
+    .CB (C),
+    .CE (CE),
+    .S  (S),
+    .R  (R),
+    .D  (D),
+    .Q1 (Q1),
+    .Q2 (Q2)
+  );
+
+endmodule
+
+module ODDR (
+  input  C,
+  input  CE,
+  input  R,
+  input  S,
+  input  D1,
+  input  D2,
+  output Q
+);
+
+  parameter DDR_CLK_EDGE = "OPPOSITE_EDGE";
+  parameter INIT = 1'b0;
+  parameter [0:0] IS_C_INVERTED = 1'b0;
+  parameter [0:0] IS_D1_INVERTED = 1'b0;
+  parameter [0:0] IS_D2_INVERTED = 1'b0;
+  parameter SRTYPE = "SYNC";
+
+  parameter _TECHMAP_CONSTMSK_R_ = 1'b1;
+  parameter _TECHMAP_CONSTVAL_R_ = 1'bx;
+  parameter _TECHMAP_CONSTMSK_S_ = 1'b1;
+  parameter _TECHMAP_CONSTVAL_S_ = 1'bx;
+
+  localparam [0:0] R_USED = (_TECHMAP_CONSTMSK_R_ != 1'b1);
+  localparam [0:0] S_USED = (_TECHMAP_CONSTMSK_S_ != 1'b1);
+
+  wire SR;
+
+  generate if (!R_USED && !S_USED) begin
+    assign SR = 1'b0;
+    localparam SRVAL = 1'b1;
+
+  end else if (R_USED && !S_USED) begin
+    assign SR = R;
+    localparam SRVAL = 1'b0;
+
+  end else if (!R_USED && S_USED) begin
+    assign SR = S;
+    localparam SRVAL = 1'b1;
+
+  end else begin
+    assign SR = 1'bx;
+    localparam SRVAL = 1'bx;
+
+    error Cannot_have_both_S_and_R_connected();
+  end endgenerate
+
+  ODDR_VPR # (
+    .ZINV_CLK       (!IS_C_INVERTED),
+    .ZINV_D1        (!IS_D1_INVERTED),
+    .ZINV_D1        (!IS_D2_INVERTED),
+    .INV_D1         ( IS_D1_INVERTED),
+    .INV_D1         ( IS_D2_INVERTED),
+    .SRTYPE_SYNC    ( SRTYPE == "SYNC"),
+    .SAME_EDGE      ( DDR_CLK_EDGE != "OPPOSITE_EDGE"),
+    .ZINIT_Q        (!INIT),
+    .ZSRVAL_Q       (!SRVAL)
+
+  ) _TECHMAP_REPLACE_ (
+    .CK (C),
+    .CE (CE),
+    .SR (SR),
+    .D1 (D1),
+    .D2 (D2),
+    .Q  (Q)
+  );
+
+endmodule
+
+
+// ============================================================================
+// IDELAYE2
 
 module IDELAYE2 (
   input C,
