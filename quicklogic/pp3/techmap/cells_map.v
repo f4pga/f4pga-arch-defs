@@ -483,6 +483,7 @@ module LUT1 (
   input  I0
 );
   parameter [1:0] INIT = 0;
+  parameter EQN = "(I0)";
 
   // The F-Frag
   F_FRAG f_frag (
@@ -501,6 +502,7 @@ module LUT2 (
   input  I1
 );
   parameter [3:0] INIT = 0;
+  parameter EQN = "(I0)";
 
   wire XSL = I0;
   wire XAB = I1;
@@ -539,6 +541,7 @@ module LUT3 (
   input  I2
 );
   parameter [7:0] INIT = 0;
+  parameter EQN = "(I0)";
 
   wire XSL = I1;
   wire XAB = I2;
@@ -611,6 +614,7 @@ module LUT4 (
   input  I3
 );
   parameter [15:0] INIT = 0;
+  parameter EQN = "(I0)";
 
   wire TSL = I1;
   wire BSL = I1;
