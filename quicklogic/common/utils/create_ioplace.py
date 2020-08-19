@@ -81,14 +81,18 @@ def main():
             continue
 
         name = pin_map_entry['name']
-        alias = pin_map_entry['alias']
+        alias = ""
+        if 'alias' in pin_map_entry:
+            alias = pin_map_entry['alias']
+
         for type in IOB_TYPES[pin_map_entry['type']]:
             pad_map[name][type] = (
                 int(pin_map_entry['x']),
                 int(pin_map_entry['y']),
                 int(pin_map_entry['z']),
             )
-            pad_alias_map[alias] = name
+            if 'alias' in pin_map_entry:
+                pad_alias_map[alias] = name
 
     for pcf_constraint in parse_simple_pcf(args.pcf):
         pad_name = pcf_constraint.pad
