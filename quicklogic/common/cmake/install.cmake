@@ -127,6 +127,10 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
   install(FILES  ${DEFINE_QL_TOOLCHAIN_TARGET_CONV_SCRIPT} ${DEFINE_QL_TOOLCHAIN_TARGET_SYNTH_SCRIPT}
     DESTINATION share/quicklogic)
 
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/yosys/pack.tcl
+	  DESTINATION share/quicklogic
+          PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
+
 endfunction()
 
 function(DEFINE_QL_DEVICE_CELLS_INSTALL_TARGET)

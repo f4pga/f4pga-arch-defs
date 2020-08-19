@@ -10,7 +10,9 @@ synth_quicklogic -family pp3
 
 # Optimize the netlist by adaptively splitting cells that fit into C_FRAG into
 # smaller that can fit into F_FRAG.
-source $::env(symbiflow-arch-defs_SOURCE_DIR)/quicklogic/pp3/yosys/pack.tcl
+set mypath [ file dirname [ file normalize [ info script ] ] ]
+source "$mypath/pack.tcl"
+
 pack
 stat
 
