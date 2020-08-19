@@ -1137,6 +1137,7 @@ def parse_pinmap(xml_root, tile_grid):
         # Parse pins
         for xml_pin in xml_pins.findall("Pin"):
             pin_name = xml_pin.attrib["name"]
+            pin_alias = xml_pin.get("alias", None)
             cell_names = []
             cell_locs = []
 
@@ -1180,7 +1181,7 @@ def parse_pinmap(xml_root, tile_grid):
 
                 # Store the mapping
                 pkg_pin_map[pin_name].add(
-                    PackagePin(name=pin_name, loc=cell_loc, cell=cell)
+                    PackagePin(name=pin_name, alias=pin_alias, loc=cell_loc, cell=cell)
                 )
 
                 # Check if there is a CLOCK cell at the same location
@@ -1190,7 +1191,7 @@ def parse_pinmap(xml_root, tile_grid):
 
                     # Store the mapping for the CLOCK cell
                     pkg_pin_map[pin_name].add(
-                        PackagePin(name=pin_name, loc=cell_loc, cell=cells[0])
+                        PackagePin(name=pin_name, alias=pin_alias, loc=cell_loc, cell=cells[0])
                     )
 
             # Convert to list
@@ -1465,7 +1466,7 @@ def main():
         "switchbox_types": data["switchbox_types"],
         "switchbox_grid": data["switchbox_grid"],
         "connections": connections,
-        "package_pinmaps": data["package_pinmaps"],
+        "package_pinmaps": data["package_pinmaps"]
     }
 
     if switchbox_timing is not None:

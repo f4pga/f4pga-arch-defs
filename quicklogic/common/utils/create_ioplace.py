@@ -73,6 +73,7 @@ def main():
 
     # Map of pad names to VPR locations.
     pad_map = defaultdict(lambda: dict())
+    pad_alias_map = defaultdict(lambda: dict())
 
     for pin_map_entry in csv.DictReader(args.map):
 
@@ -80,14 +81,17 @@ def main():
             continue
 
         name = pin_map_entry['name']
+        alias = pin_map_entry['alias']
         for type in IOB_TYPES[pin_map_entry['type']]:
             pad_map[name][type] = (
                 int(pin_map_entry['x']),
                 int(pin_map_entry['y']),
                 int(pin_map_entry['z']),
             )
+            pad_alias_map[alias] = name
 
     for pcf_constraint in parse_simple_pcf(args.pcf):
+        pad_name = pcf_constraint.pad
         if not io_place.is_net(pcf_constraint.net):
             print(
                 'PCF constraint "{}" from line {} constraints net {} which is not in available netlist:\n{}'
@@ -99,16 +103,20 @@ def main():
             )
             sys.exit(1)
 
-        if pcf_constraint.pad not in pad_map:
+        if pad_name not in pad_map and pad_name not in pad_alias_map:
             print(
                 'PCF constraint "{}" from line {} constraints pad {} which is not in available pad map:\n{}'
                 .format(
                     pcf_constraint.line_str, pcf_constraint.line_num,
-                    pcf_constraint.pad, '\n'.join(sorted(pad_map.keys()))
+                    pad_name, '\n'.join(sorted(pad_map.keys()))
                 ),
                 file=sys.stderr
             )
             sys.exit(1)
+
+        # Alias is specified in pcf file so assign it to corresponding pad name
+        if pad_name in pad_alias_map:
+            pad_name = pad_alias_map[pad_name]
 
         # Get the top-level block instance, strip its index
         inst = io_place.get_top_level_block_instance_for_net(
@@ -123,7 +131,7 @@ def main():
         inst = match.group("name")
 
         # Pick correct loc for that pb_type
-        locs = pad_map[pcf_constraint.pad]
+        locs = pad_map[pad_name]
         if inst not in locs:
             print(
                 'PCF constraint "{}" from line {} constraints net {} of a block type {} to a location for block types:\n{}'

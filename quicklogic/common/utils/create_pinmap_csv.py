@@ -13,12 +13,34 @@ def generate_pinmap_csv(package_pinmap):
     """
     csv_lines = []
 
+    is_header = True
     for pkg_pin_name, pkg_pins in package_pinmap.items():
         for pkg_pin in pkg_pins:
-            line = "{},{},{},0,{}".format(
-                pkg_pin.name, pkg_pin.loc.x, pkg_pin.loc.y, pkg_pin.cell.type
-            )
-            csv_lines.append(line)
+            if pkg_pin.alias is not None:
+                if is_header:
+                    csv_lines.append("name,x,y,z,type,alias\n")
+                    is_header = False
+
+                line = "{},{},{},0,{},{}".format(
+                    pkg_pin.name,
+                    pkg_pin.loc.x,
+                    pkg_pin.loc.y,
+                    pkg_pin.cell.type,
+                    pkg_pin.alias
+                )
+                csv_lines.append(line)
+            else:
+                if is_header:
+                    csv_lines.append("name,x,y,z,type\n")
+                    is_header = False
+
+                line = "{},{},{},0,{}".format(
+                    pkg_pin.name,
+                    pkg_pin.loc.x,
+                    pkg_pin.loc.y,
+                    pkg_pin.cell.type
+                )
+                csv_lines.append(line)
 
     return csv_lines
 
@@ -63,7 +85,7 @@ def main():
     csv_lines = generate_pinmap_csv(package_pinmaps[args.package])
 
     # Write the pinmap CSV file
-    args.o.write("name,x,y,z,type\n")
+    #args.o.write("name,x,y,z,type\n")
     args.o.write("\n".join(csv_lines) + "\n")
 
 

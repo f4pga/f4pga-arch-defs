@@ -334,10 +334,11 @@ A package pin. Holds information about what cells the pin cooresponds to and
 where it is in the tilegrid.
 
 name    - The pin name
+alias   - Alias
 loc     - Location in the physical FPGA gric
 cell    - Cell object that the package pin correspond to
 """
-PackagePin = namedtuple("PackagePin", "name loc cell")
+PackagePin = namedtuple("PackagePin", "name alias loc cell")
 
 # =============================================================================
 

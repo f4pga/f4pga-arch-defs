@@ -912,7 +912,7 @@ def process_package_pinmap(package_pinmap, vpr_tile_grid, grid_limit=None):
 
             # Remap location
             new_package_pinmap[pin.name].append(
-                PackagePin(name=pin.name, loc=loc, cell=cell)
+                PackagePin(name=pin.name, alias=pin.alias, loc=loc, cell=cell)
             )
 
     # Convert to regular dict
