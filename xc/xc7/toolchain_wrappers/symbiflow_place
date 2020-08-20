@@ -10,8 +10,7 @@ source ${MYPATH}/vpr_common
 parse_args $@
 
 if [ -z $PCF ]; then
-     echo "Please provide pcf file name"
-     exit 1
+    PCF=""
 fi
 
 if [ -z $NET ]; then
@@ -22,7 +21,7 @@ fi
 OUT_NOISY_WARNINGS=noisy_warnings-${DEVICE}_place.log
 
 echo "Generating coinstrains ..."
-symbiflow_generate_constraints $PCF $EBLIF $NET $PART $DEVICE $ARCH_DEF
+symbiflow_generate_constraints $EBLIF $NET $PART $DEVICE $ARCH_DEF $PCF
 
 run_vpr --fix_pins constraints.place --place
 
