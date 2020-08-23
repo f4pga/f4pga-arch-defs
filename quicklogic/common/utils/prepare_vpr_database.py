@@ -372,6 +372,7 @@ def process_tilegrid(
                 if not is_loc_free(new_loc, vpr_tile_grid):
                     continue
 
+                bwd_loc_map[new_loc] = phy_loc
                 if cell.name not in cells_set:
                     cells_set.append(cell.name)
                     tile_type = make_tile_type(

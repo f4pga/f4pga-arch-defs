@@ -704,6 +704,19 @@ def make_pb_type(
                 }
             )
 
+    # fasm 
+    if model_name:
+        xml_metadata = ET.SubElement(xml_pb, "metadata")
+        xml_fasmprefix = ET.SubElement(xml_metadata, "meta", {"name": "fasm_prefix"})
+        xml_fasmprefix.text = "RAM.RAM"
+        xml_fasm = ET.SubElement(xml_metadata, "meta", {"name": "fasm_params"})
+        if "_0_" in pb_name or "_1_" in pb_name:
+            xml_fasm.text = "\n\
+               INIT[9215:0] = INIT\n"
+        else:
+            xml_fasm.text = "\n\
+               INIT[18431:0] = INIT\n"
+
     # Timings
     if timings is not None:
 
@@ -1136,6 +1149,9 @@ def make_techmap(conditions):
 
     verilog += "\n"
 
+    
+    verilog += "  parameter [18431:0] INIT = 18432'bx;\n"
+
     # Split condition strings for single and dual ram modes
     sing_conditions = [c for c in conditions if "CONCAT_EN=0" in c]
     dual_conditions = [c for c in conditions if "CONCAT_EN=1" in c]
@@ -1178,8 +1194,16 @@ def make_techmap(conditions):
             mode_name = make_mode_name(condition)
             model_name = "RAM_" + mode_name + "_VPR"
 
-            verilog += "        {} RAM_{} (\n".format(model_name, part)
-
+            #verilog += "        {} RAM_{} # (\n".format(model_name, part)
+            verilog += "        {} # (\n".format(model_name)
+             
+            if part == 0: 
+                verilog += "        .INIT(INIT[9215:0]),\n"
+            else:
+                verilog += "        .INIT(INIT[18431:9216]),\n"
+              
+            verilog += "        )"
+            verilog += "        RAM_{}  (\n".format(part)
             # Ports mapped to the part
             for key in ["clock", "input", "output"]:
                 for name, width, assoc_clock in model_ports[key]:
@@ -1234,7 +1258,7 @@ def make_techmap(conditions):
                 continue
 
             cond_part = "(_TECHMAP_CONSTVAL_{}_0_ == {})".format(sig, val)
-            cond_part = "(_TECHMAP_CONSTVAL_{}_1_ == {})".format(sig, val)
+            #cond_part = "(_TECHMAP_CONSTVAL_{}_1_ == {})".format(sig, val)
             verilog_cond.append(cond_part)
 
         verilog_cond = " && ".join(verilog_cond)
@@ -1247,7 +1271,12 @@ def make_techmap(conditions):
         mode_name = make_mode_name(condition)
         model_name = "RAM_" + mode_name + "_VPR"
 
-        verilog += "      {} RAM (\n".format(model_name)
+        verilog += "        {} # (\n".format(model_name)
+
+        verilog += "        .INIT(INIT[18431:0]),\n"
+
+        verilog += "        )"
+        verilog += "      RAM (\n"
 
         # Ports always mapped 1-to-1
         for key in ["clock", "input", "output"]:
@@ -1353,6 +1382,12 @@ def main():
         # Initialize the top-level pb_type XML
         xml_pb_root = make_pb_type("RAM", RAM_2X1_PORTS, None)[0]
 
+
+        
+        # meta data for fasm parameters
+        #xml_metadata = ET.SubElement(xml_pb_root, "metadata", {"name": "fasm_params"})
+        #xml_fasm = ET.SubElement(xml_pb_root, "meta", {"name": "fasm_params"})
+     
         # Wrapper pb_type for split RAM (CONCAT_EN=0)
         xml_mode = ET.SubElement(xml_pb_root, "mode", {"name": "SING"})
 
