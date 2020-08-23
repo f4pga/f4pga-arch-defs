@@ -35,4 +35,5 @@ add_subdirectory(quicklogic_testsuite)
 
 # Hardblocks tests
 add_subdirectory(ram)
+add_subdirectory(bram_init)
 add_subdirectory(mult)
