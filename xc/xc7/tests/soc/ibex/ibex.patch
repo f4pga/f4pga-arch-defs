@@ -1,0 +1,112 @@
+diff --git a/examples/fpga/artya7/rtl/top_artya7.sv b/examples/fpga/artya7/rtl/top_artya7.sv
+index 37304b4..c1a0b05 100644
+--- a/examples/fpga/artya7/rtl/top_artya7.sv
++++ b/examples/fpga/artya7/rtl/top_artya7.sv
+@@ -11,7 +11,7 @@ module top_artya7 (
+   parameter int          MEM_SIZE     = 64 * 1024; // 64 kB
+   parameter logic [31:0] MEM_START    = 32'h00000000;
+   parameter logic [31:0] MEM_MASK     = MEM_SIZE-1;
+-  parameter              SRAMInitFile = "";
++  parameter              SRAMInitFile = "led.vmem";
+ 
+   logic clk_sys, rst_sys_n;
+ 
+diff --git a/shared/rtl/fpga/xilinx/clkgen_xil7series.sv b/shared/rtl/fpga/xilinx/clkgen_xil7series.sv
+index e41b4b0..5ca5d6c 100644
+--- a/shared/rtl/fpga/xilinx/clkgen_xil7series.sv
++++ b/shared/rtl/fpga/xilinx/clkgen_xil7series.sv
+@@ -27,10 +27,10 @@ module clkgen_xil7series (
+     .STARTUP_WAIT         ("FALSE"),
+     .DIVCLK_DIVIDE        (1),
+     .CLKFBOUT_MULT        (12),
+-    .CLKFBOUT_PHASE       (0.000),
++    .CLKFBOUT_PHASE       (0),
+     .CLKOUT0_DIVIDE       (24),
+-    .CLKOUT0_PHASE        (0.000),
+-    .CLKOUT0_DUTY_CYCLE   (0.500)
++    .CLKOUT0_PHASE        (0),
++    .CLKOUT0_DUTY_CYCLE   (500)
+   ) pll (
+     .CLKFBOUT            (clk_fb_unbuf),
+     .CLKOUT0             (clk_50_unbuf),
+@@ -40,7 +40,7 @@ module clkgen_xil7series (
+     .CLKOUT4             (),
+     .CLKOUT5             (),
+      // Input clock control
+-    .CLKFBIN             (clk_fb_buf),
++    .CLKFBIN             (clk_fb_unbuf),
+     .CLKIN1              (io_clk_buf),
+     .CLKIN2              (1'b0),
+      // Tied to always select the primary input clock
+@@ -59,12 +59,6 @@ module clkgen_xil7series (
+     // Do not reset PLL on external reset, otherwise ILA disconnects at a reset
+     .RST                 (1'b0));
+ 
+-  // output buffering
+-  BUFG clk_fb_bufg (
+-    .I (clk_fb_unbuf),
+-    .O (clk_fb_buf)
+-  );
+-
+   BUFG clk_50_bufg (
+     .I (clk_50_unbuf),
+     .O (clk_50_buf)
+diff --git a/vendor/lowrisc_ip/prim/rtl/prim_lfsr.sv b/vendor/lowrisc_ip/prim/rtl/prim_lfsr.sv
+index cf35642..3b60d04 100644
+--- a/vendor/lowrisc_ip/prim/rtl/prim_lfsr.sv
++++ b/vendor/lowrisc_ip/prim/rtl/prim_lfsr.sv
+@@ -299,7 +299,7 @@ module prim_lfsr #(
+   ////////////////
+   // Galois XOR //
+   ////////////////
+-  if (64'(LfsrType) == 64'("GAL_XOR")) begin : gen_gal_xor
++  if (LfsrType == "GAL_XOR") begin : gen_gal_xor
+ 
+     // if custom polynomial is provided
+     if (CustomCoeffs > 0) begin : gen_custom
+@@ -324,7 +324,7 @@ module prim_lfsr #(
+   ////////////////////
+   // Fibonacci XNOR //
+   ////////////////////
+-  end else if (64'(LfsrType) == "FIB_XNOR") begin : gen_fib_xnor
++  end else if (LfsrType == "FIB_XNOR") begin : gen_fib_xnor
+ 
+     // if custom polynomial is provided
+     if (CustomCoeffs > 0) begin : gen_custom
+@@ -389,7 +389,7 @@ module prim_lfsr #(
+     logic state0;
+ 
+     // Galois XOR
+-    if (64'(LfsrType) == 64'("GAL_XOR")) begin
++    if (LfsrType == "GAL_XOR") begin
+       if (state == 0) begin
+         state = DefaultSeed;
+       end else begin
+@@ -399,7 +399,7 @@ module prim_lfsr #(
+         state ^= LfsrDw'(entropy);
+       end
+     // Fibonacci XNOR
+-    end else if (64'(LfsrType) == "FIB_XNOR") begin
++    end else if (LfsrType == "FIB_XNOR") begin
+       if (&state) begin
+         state = DefaultSeed;
+       end else begin
+diff --git a/vendor/lowrisc_ip/prim_generic/rtl/prim_generic_clock_gating.sv b/vendor/lowrisc_ip/prim_generic/rtl/prim_generic_clock_gating.sv
+index 376c38e..1fb302d 100644
+--- a/vendor/lowrisc_ip/prim_generic/rtl/prim_generic_clock_gating.sv
++++ b/vendor/lowrisc_ip/prim_generic/rtl/prim_generic_clock_gating.sv
+@@ -11,13 +11,6 @@ module prim_generic_clock_gating (
+   output logic clk_o
+ );
+ 
+-  // Assume en_i synchronized, if not put synchronizer prior to en_i
+-  logic en_latch;
+-  always_latch begin
+-    if (!clk_i) begin
+-      en_latch = en_i | test_en_i;
+-    end
+-  end
+-  assign clk_o = en_latch & clk_i;
++  assign clk_o = clk_i;
+ 
+ endmodule
