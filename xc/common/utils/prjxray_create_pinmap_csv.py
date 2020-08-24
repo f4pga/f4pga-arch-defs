@@ -89,7 +89,7 @@ def main():
     if args.synth_tiles:
         for synth_tile in synth_tiles['tiles'].values():
             for pin in synth_tile['pins']:
-                assert pin['pad'] not in synth_tile_pads
+                assert pin['pad'] not in synth_tile_pads, pin['pad']
                 synth_tile_pads.add(pin['pad'])
                 real_io_assoc = pin['pad'] in pin_to_iob
                 x = synth_tile['loc'][0]
