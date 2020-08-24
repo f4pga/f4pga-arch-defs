@@ -1032,7 +1032,7 @@ def make_ports(ports, separator=",\n"):
 def make_ram2x1_instance(ports, separator=",\n"):
     verilog = ""
 
-    verilog += "\n   ram8k_2x1_cell I1 ( \n"
+    verilog += "\n   ram8k_2x1_cell # (.INIT(INIT)) I1 ( \n"
 
     for key in ["clock", "input", "output"]:
         for name, width, assoc_clock in ports[key]:
@@ -1099,6 +1099,8 @@ module {} (
     verilog += make_ports(ports)
     verilog = verilog[:-2] + "\n"
     verilog += ");\n"
+
+    verilog += "  parameter [18431:0] INIT = 18432'bx;\n"
 
     #Specify
     verilog += make_specify(specify_ports)
