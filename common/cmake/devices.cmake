@@ -1304,6 +1304,8 @@ function(ADD_FPGA_TARGET)
   set(OUT_SYNTH_V ${OUT_LOCAL}/${TOP}_synth.v)
   set(OUT_SYNTH_V_REL ${OUT_LOCAL_REL}/${TOP}_synth.v)
   set(OUT_FASM_EXTRA ${OUT_LOCAL}/${TOP}_fasm_extra.fasm)
+  set(OUT_SDC ${OUT_LOCAL}/${NAME}.sdc)
+  set(OUT_SDC_REL ${OUT_LOCAL_REL}/${NAME}.sdc)
 
   set(SOURCE_FILES_DEPS "")
   set(SOURCE_FILES "")
@@ -1332,6 +1334,11 @@ function(ADD_FPGA_TARGET)
     append_file_dependency(YOSYS_IO_DEPS ${ADD_FPGA_TARGET_INPUT_IO_FILE})
   endif()
 
+  if(NOT "${ADD_FPGA_TARGET_SDC_FILE}" STREQUAL "")
+    get_file_location(SDC_FILE ${ADD_FPGA_TARGET_SDC_FILE})
+    append_file_dependency(YOSYS_IO_DEPS ${ADD_FPGA_TARGET_SDC_FILE})
+  endif()
+
   if(NOT ${ADD_FPGA_TARGET_NO_SYNTHESIS})
     set(COMPLETE_YOSYS_SYNTH_SCRIPT "tcl ${YOSYS_SYNTH_SCRIPT}")
 
@@ -1349,7 +1356,7 @@ function(ADD_FPGA_TARGET)
     get_target_property(YOSYS_TECHMAP ${ARCH} YOSYS_TECHMAP)
 
     add_custom_command(
-      OUTPUT ${OUT_JSON_SYNTH} ${OUT_SYNTH_V} ${OUT_FASM_EXTRA}
+      OUTPUT ${OUT_JSON_SYNTH} ${OUT_SYNTH_V} ${OUT_FASM_EXTRA} ${OUT_SDC}
       DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS} ${INPUT_XDC_FILE} ${CELLS_SIM_DEPS}
               ${YOSYS} ${QUIET_CMD} ${YOSYS_IO_DEPS}
               ${YOSYS_SYNTH_SCRIPT}
@@ -1365,6 +1372,8 @@ function(ADD_FPGA_TARGET)
           OUT_FASM_EXTRA=${OUT_FASM_EXTRA}
           PART_JSON=${PART_JSON}
           INPUT_XDC_FILE=${INPUT_XDC_FILE}
+          SDC_FILE=${SDC_FILE}
+          OUT_SDC=${OUT_SDC}
           USE_ROI=${USE_ROI}
           PCF_FILE=${INPUT_IO_FILE}
           PINMAP_FILE=${PINMAP}
@@ -1406,6 +1415,7 @@ function(ADD_FPGA_TARGET)
     add_output_to_fpga_target(${NAME} SYNTH_V ${OUT_SYNTH_V_REL})
     add_output_to_fpga_target(${NAME} JSON_SYNTH ${OUT_JSON_SYNTH_REL})
     add_output_to_fpga_target(${NAME} JSON ${OUT_JSON_REL})
+    add_output_to_fpga_target(${NAME} SDC ${OUT_SDC_REL})
 
   else()
     add_custom_command(
@@ -1461,9 +1471,8 @@ function(ADD_FPGA_TARGET)
     )
 
   if(NOT "${ADD_FPGA_TARGET_SDC_FILE}" STREQUAL "")
-    append_file_dependency(VPR_DEPS ${ADD_FPGA_TARGET_SDC_FILE})
-    get_file_location(SDC_LOCATION ${ADD_FPGA_TARGET_SDC_FILE})
-    set(SDC_ARG --sdc_file ${SDC_LOCATION})
+    append_file_dependency(VPR_DEPS ${OUT_SDC_REL})
+    set(SDC_ARG --sdc_file ${OUT_SDC})
   else()
     set(SDC_ARG "")
   endif()
