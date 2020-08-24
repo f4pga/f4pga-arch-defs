@@ -121,6 +121,7 @@ SELECT pkey FROM wire WHERE node_pkey = ?
     ins = {i for i, v in in_outs.items() if v}
     outs = {i for i, v in in_outs.items() if not v}
     min_manhattan_dist = 1000000
+    correct_wire = None
     for i in ins:
         for j in outs:
             d = wire_manhattan_distance(conn, i, j)
@@ -128,6 +129,7 @@ SELECT pkey FROM wire WHERE node_pkey = ?
                 min_manhattan_dist = d
                 correct_wire = j
 
+    assert correct_wire is not None, node_name
     cur.execute(
         """
 SELECT node_pkey, phy_tile_pkey, wire_in_tile_pkey FROM wire WHERE pkey = ?
@@ -211,12 +213,12 @@ def main():
 
     with DatabaseCache(args.connection_database, read_only=True) as conn:
         tile_in_use = set()
+        num_synth_tiles = 0
         for roi, j in rois.items():
             if args.overlay:
                 synth_tiles['info'].append(j['info'])
 
             tile_pin_count = dict()
-            num_synth_tiles = 0
             for port in sorted(j['ports'],
                                key=lambda i: (i['type'], i['name'])):
                 if port['type'] == 'out':

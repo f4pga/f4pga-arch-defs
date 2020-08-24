@@ -2,7 +2,7 @@
     "info":
         {
         "name": "pr1",
-        "GRID_X_MAX": 58,
+        "GRID_X_MAX": 55,
         "GRID_X_MIN": 10,
         "GRID_Y_MAX": 51,
         "GRID_Y_MIN": 0

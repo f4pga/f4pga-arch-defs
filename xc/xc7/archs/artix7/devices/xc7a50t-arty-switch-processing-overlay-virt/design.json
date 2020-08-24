@@ -3,7 +3,7 @@
         "info":
             {
             "name": "pr1",
-            "GRID_X_MAX": 58,
+            "GRID_X_MAX": 55,
             "GRID_X_MIN": 10,
             "GRID_Y_MAX": 51,
             "GRID_Y_MIN": 0
@@ -13,7 +13,7 @@
                 "name": "clk",
                 "type": "clk",
                 "node": "CLK_HROW_TOP_R_X60Y130/CLK_HROW_CK_BUFHCLK_L0",
-                "wire": "HCLK_CLB_X56Y130/HCLK_CLB_CK_BUFHCLK0",
+                "wire": "HCLK_L_X57Y130/HCLK_CK_BUFHCLK0",
                 "pin": "SYN0"
             },
             {
@@ -72,11 +72,11 @@
             }
         ]
     },
-    {
+        {
         "info":
             {
             "name": "pr2",
-            "GRID_X_MAX": 58,
+            "GRID_X_MAX": 55,
             "GRID_X_MIN": 10,
             "GRID_Y_MAX": 156,
             "GRID_Y_MIN": 105
@@ -86,7 +86,7 @@
                 "name": "clk",
                 "type": "clk",
                 "node": "CLK_HROW_BOT_R_X60Y26/CLK_HROW_CK_BUFHCLK_L8",
-                "wire": "HCLK_L_X56Y26/HCLK_CK_BUFHCLK8",
+                "wire": "HCLK_CLB_X56Y26/HCLK_CLB_CK_BUFHCLK8",
                 "pin": "SYN10"
             },
             {
@@ -116,25 +116,25 @@
             {
                 "name": "out[0]",
                 "type": "out",
-                "node": "INT_R_X23Y117/LH12",
+                "node": "INT_L_X20Y49/ER1BEG_S0",
                 "pin": "SYN15"
             },
             {
                 "name": "out[1]",
                 "type": "out",
-                "node": "INT_R_X23Y121/LH12",
+                "node": "INT_L_X20Y50/SW2BEG0",
                 "pin": "SYN16"
             },
             {
                 "name": "out[2]",
                 "type": "out",
-                "node": "INT_L_X2Y117/SW6BEG0",
+                "node": "INT_L_X2Y50/SW2BEG2",
                 "pin": "SYN17"
             },
             {
                 "name": "out[3]",
                 "type": "out",
-                "node": "INT_L_X2Y121/SW6BEG0",
+                "node": "INT_L_X2Y50/SS2BEG0",
                 "pin": "SYN18"
             },
             {
