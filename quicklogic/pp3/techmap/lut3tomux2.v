@@ -8,6 +8,7 @@ module LUT3 (
 );
 
     parameter [7:0] INIT = 8'd0;
+    parameter EQN = "(I0)";
 
     generate if (INIT == 8'b1010_1100) begin
         mux2x0 _TECHMAP_REPLACE_ (.S(I2), .A(I1), .B(I0), .Q(O));

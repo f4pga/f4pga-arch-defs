@@ -6,6 +6,7 @@ module LUT2(
 );
 
     parameter [3:0] INIT = 4'd0;
+    parameter EQN = "(I0)";
 
     generate if (INIT == 4'b1000) begin
         mux2x0 _TECHMAP_REPLACE_ (.A( 0), .B(I0), .S(I1), .Q(O));

@@ -7,6 +7,7 @@ module LUT2 (
   input  I1
 );
   parameter [3:0] INIT = 0;
+  parameter EQN = "(I0)";
 
   wire XA1 = INIT[0];
   wire XA2 = INIT[1];
