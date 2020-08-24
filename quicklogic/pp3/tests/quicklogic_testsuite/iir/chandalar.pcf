@@ -29,6 +29,7 @@ set_io params(6)     F7
 set_io params(7)     F6
 set_io params(8)     H5
 set_io params(9)     G5
+set_io params(10)    G2
 set_io params(11)    F5
 set_io params(12)    F4
 set_io params(13)    G4

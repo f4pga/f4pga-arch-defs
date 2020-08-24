@@ -12,6 +12,7 @@ set_io rbsp(5) B4
 set_io rbsp(6) A4
 set_io rbsp(7) C5
 set_io rbsp(8) B5
+set_io rbsp(9) D6
 
 set_io nC(0) A5
 set_io nC(1) C6
@@ -24,6 +25,7 @@ set_io max_coeff_num(0) G8
 set_io max_coeff_num(1) H7
 set_io max_coeff_num(2) G7
 set_io max_coeff_num(3) H6
+set_io max_coeff_num(4) E3
 
 set_io coeff(0) G6
 set_io coeff(1) F7
@@ -34,3 +36,18 @@ set_io coeff(5) F5
 set_io coeff(6) F4
 set_io coeff(7) G4
 set_io coeff(8) H4
+
+set_io idle F3
+set_io valid F2
+
+set_io len_comb(0) H3
+set_io len_comb(1) G2
+set_io len_comb(2) E2
+set_io len_comb(3) H2
+set_io len_comb(4) D2
+
+set_io TotalCoeff(0) F1
+set_io TotalCoeff(1) H1
+set_io TotalCoeff(2) D1
+set_io TotalCoeff(3) E1
+set_io TotalCoeff(4) G1
