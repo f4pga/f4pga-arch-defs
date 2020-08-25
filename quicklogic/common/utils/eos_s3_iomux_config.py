@@ -245,7 +245,9 @@ def main():
                 sys.exit(1)
 
             # get pad alias to get IO pad count
-            pad_alias = pad_map[pad_name]
+            pad_alias = ""
+            if pad_name in pad_map:
+                pad_alias = pad_map[pad_name]
 
             # Alias is specified in pcf file so assign it to corresponding pad name
             if pad_name in pad_alias_map:
