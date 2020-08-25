@@ -284,7 +284,6 @@ def main():
             else:
                 assert False, (constraint.net, constraint.pad)
 
-            print("=====pad: ", str(pad))
             config["pads"][str(pad)] = pad_config
 
     # Convert the config to IOMUX register content
