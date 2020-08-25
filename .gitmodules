@@ -34,3 +34,6 @@
 [submodule "third_party/symbiflow-xc-fasm2bels"]
 	path = third_party/symbiflow-xc-fasm2bels
 	url = https://github.com/SymbiFlow/symbiflow-xc-fasm2bels.git
+[submodule "third_party/ibex"]
+	path = third_party/ibex
+	url = https://github.com/lowRISC/ibex
