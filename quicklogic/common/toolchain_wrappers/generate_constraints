@@ -35,4 +35,4 @@ IOMUX_JLINK="${PROJECT%.*}_iomux.jlink"
 
 python3 ${IOGEN} --pcf $PCF --blif $EBLIF --map $PINMAP --net $NET > ${IOPLACE_FILE}
 python3 ${PLACEGEN} --blif $EBLIF --map $CLKMAP -i ${IOPLACE_FILE} > ${PLACE_FILE}
-python3 ${CONSTR_GEN} --eblif $EBLIF --pcf $PCF > ${IOMUX_JLINK}
+python3 ${CONSTR_GEN} --eblif $EBLIF --pcf $PCF --map $PINMAP > ${IOMUX_JLINK}

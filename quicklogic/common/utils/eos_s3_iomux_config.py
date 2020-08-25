@@ -5,13 +5,23 @@ either from data in JSON format or from the given EBLIF netlist plus PCF
 constraints of the FPGA design.
 """
 import argparse
+import csv
 import json
 import re
+import sys
+from collections import defaultdict
 
 from lib.parse_pcf import parse_simple_pcf
 from eblif import parse_blif
 
 # =============================================================================
+
+# Known IOB types and VPR cells that can be placed at their sites
+IOB_TYPES = {
+    "CLOCK": ["PB-CLOCK", ],
+    "BIDIR": ["PB-BIDIR", ],
+    "SDIOMUX": ["PB-SDIOMUX", ],
+}
 
 # Default configuration of the IOMUX pad
 PAD_DEFAULT = {
@@ -162,6 +172,14 @@ def main():
         type=str,
         help="PCF constraints file for a design"
     )
+    parser.add_argument(
+        "--map",
+        "-m",
+        "-M",
+        type=argparse.FileType('r'),
+        required=True,
+        help='Pin map CSV file'
+    )
 
     args = parser.parse_args()
 
@@ -182,6 +200,21 @@ def main():
             print("Ese either '--json' or '--pcf' + '--eblif' options!")
             exit(-1)
 
+        pad_map = {}
+        pad_alias_map = {}
+
+        for pin_map_entry in csv.DictReader(args.map):
+
+            if pin_map_entry['type'] not in IOB_TYPES:
+                continue
+
+            name = pin_map_entry['name']
+            alias = ""
+            if 'alias' in pin_map_entry:
+                alias = pin_map_entry['alias']
+                pad_alias_map[alias] = name
+                pad_map[name] = alias
+
         # Read and parse PCF
         with open(args.pcf, "r") as fp:
             pcf = list(parse_simple_pcf(fp))
@@ -197,15 +230,32 @@ def main():
         eblif_outputs = eblif["outputs"]["args"]
 
         for constraint in pcf:
+
+            pad_name = constraint.pad
+
+            if pad_name not in pad_map and pad_name not in pad_alias_map:
+                print(
+                    'PCF constraint "{}" from line {} constraints pad {} which is not in available pad map:\n{}'
+                    .format(
+                        constraint.line_str, constraint.line_num,
+                        pad_name, '\n'.join(sorted(pad_map.keys()))
+                    ),
+                    file=sys.stderr
+                )
+                sys.exit(1)
+
+            # get pad alias to get IO pad count
+            pad_alias = pad_map[pad_name]
+
+            # Alias is specified in pcf file so assign it to corresponding pad name
+            if pad_name in pad_alias_map:
+                pad_alias = pad_name
+
             pad = None
 
-            match = re.match(r"^FBIO_([0-9]+)$", constraint.pad)
+            match = re.match(r"^IO_([0-9]+)$", pad_alias)
             if match is not None:
                 pad = int(match.group(1))
-
-            match = re.match(r"^SFBIO_([0-9]+)$", constraint.pad)
-            if match is not None:
-                pad = int(match.group(1)) + 32
 
             # Pad not found or out of range
             if pad is None or pad < 0 or pad >= 46:
@@ -234,6 +284,7 @@ def main():
             else:
                 assert False, (constraint.net, constraint.pad)
 
+            print("=====pad: ", str(pad))
             config["pads"][str(pad)] = pad_config
 
     # Convert the config to IOMUX register content
