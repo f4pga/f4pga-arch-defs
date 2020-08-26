@@ -219,8 +219,7 @@ def main():
                 synth_tiles['info'].append(j['info'])
 
             tile_pin_count = dict()
-            for port in sorted(j['ports'],
-                               key=lambda i: (i['type'], i['name'])):
+            for port in sorted(sorted(j['ports'], key=lambda i: i['name']), key=lambda i: i['type'], reverse=bool(args.overlay)):
                 if port['type'] == 'out':
                     port_type = 'input' if not args.overlay else 'output'
                     is_clock = False

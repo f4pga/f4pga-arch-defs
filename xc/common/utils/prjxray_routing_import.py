@@ -39,6 +39,7 @@ import datetime
 import re
 import functools
 import pickle
+from prjxray_db_cache import DatabaseCache
 
 import sqlite3
 
@@ -907,13 +908,11 @@ WHERE
             assert track_node in node_mapping, (track_node, track_pkey)
             if wire == 'inpad' and num_inpad > 1:
                 pin_name = graph.create_pin_name_from_tile_type_sub_tile_num_and_pin(
-                    tile_type, pin['z_loc'] if not overlay else
-                    (pin['z_loc'] - num_outpad), wire
+                    tile_type, pin['z_loc'], wire
                 )
             elif wire == 'outpad' and num_outpad > 1:
                 pin_name = graph.create_pin_name_from_tile_type_sub_tile_num_and_pin(
-                    tile_type, (pin['z_loc'] - num_inpad)
-                    if not overlay else pin['z_loc'], wire
+                    tile_type, (pin['z_loc'] - num_inpad), wire
                 )
             else:
                 pin_name = graph.create_pin_name_from_tile_type_and_pin(
@@ -1385,8 +1384,7 @@ def main():
         synth_tiles_const = find_constant_network(graph)
         synth_tiles['tiles'].update(synth_tiles_const['tiles'])
 
-    with sqlite3.connect("file:{}?mode=ro".format(args.connection_database),
-                         uri=True) as conn:
+    with DatabaseCache(args.connection_database, read_only=True) as conn:
 
         populate_bufg_rebuf_map(conn)
 
