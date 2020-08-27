@@ -33,6 +33,9 @@ function(ADD_JLINK_OUTPUT)
 
   get_file_location(EBLIF_LOC ${EBLIF})
   get_file_location(PCF_LOC ${PCF})
+  get_target_property_required(BOARD ${PARENT} BOARD)
+  
+  set(PINMAP ${symbiflow-arch-defs_BINARY_DIR}/quicklogic/pp3/${BOARD}_pinmap.csv)
 
   # Generate a JLINK script that sets IOMUX configuration.
   set(IOMUX_CONFIG_GEN ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/eos_s3_iomux_config.py)
@@ -44,6 +47,7 @@ function(ADD_JLINK_OUTPUT)
       ${PYTHON3} ${IOMUX_CONFIG_GEN}
         --eblif ${EBLIF_LOC}
         --pcf ${PCF_LOC}
+        --map ${PINMAP}
         >${WORK_DIR}/${IOMUX_CONFIG}
     DEPENDS ${PYTHON3_TARGET} ${IOMUX_CONFIG_GEN} ${EBLIF} ${PCF}
   )
