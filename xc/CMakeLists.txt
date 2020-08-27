@@ -7,3 +7,4 @@ add_subdirectory(common)
 prepare_rapidwright()
 
 add_subdirectory(xc7)
+add_subdirectory(xcu)
