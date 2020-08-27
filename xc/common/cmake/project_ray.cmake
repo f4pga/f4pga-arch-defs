@@ -27,15 +27,16 @@ function(PROJECT_RAY_ARCH)
   get_target_property_required(FAMILY ${ARCH} FAMILY)
   get_target_property_required(DOC_PRJ ${ARCH} DOC_PRJ)
   get_target_property_required(DOC_PRJ_DB ${ARCH} DOC_PRJ_DB)
+  get_target_property_required(PRJRAY_NAME ${ARCH} DOC_PRJ_NAME)
 
   set(PRJRAY_DIR ${DOC_PRJ})
   set(PRJRAY_DB_DIR ${DOC_PRJ_DB})
 
   set(PART ${PROJECT_RAY_ARCH_PART})
   set(DEVICE ${PROJECT_RAY_ARCH_DEVICE})
-  set(ARCH_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/prjxray_arch_import.py)
-  set(CREATE_SYNTH_TILES ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/prjxray_create_synth_tiles.py)
-  set(CREATE_EDGES ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/prjxray_create_edges.py)
+  set(ARCH_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/${PRJRAY_NAME}_arch_import.py)
+  set(CREATE_SYNTH_TILES ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/${PRJRAY_NAME}_create_synth_tiles.py)
+  set(CREATE_EDGES ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/${PRJRAY_NAME}_create_edges.py)
   set(DEPS ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/${PART}/tilegrid.json)
 
   if("${PROJECT_RAY_ARCH_PB_TYPES}" STREQUAL "")
@@ -209,7 +210,7 @@ endfunction()
 
 function(PROJECT_RAY_PREPARE_DATABASE)
   set(options)
-  set(oneValueArgs FAMILY PRJRAY_ARCH PRJRAY_DIR PRJRAY_DB_DIR PROTOTYPE_PART)
+  set(oneValueArgs FAMILY PRJRAY_ARCH PRJRAY_DIR PRJRAY_DB_DIR PRJRAY_NAME PROTOTYPE_PART)
   set(multiValueArgs PARTS)
   cmake_parse_arguments(
     PROJECT_RAY_PREPARE_DATABASE
@@ -225,10 +226,11 @@ function(PROJECT_RAY_PREPARE_DATABASE)
   set(PRJRAY_ARCH ${PROJECT_RAY_PREPARE_DATABASE_PRJRAY_ARCH})
   set(PRJRAY_DIR ${PROJECT_RAY_PREPARE_DATABASE_PRJRAY_DIR})
   set(PRJRAY_DB_DIR ${PROJECT_RAY_PREPARE_DATABASE_PRJRAY_DB_DIR})
+  set(PRJRAY_NAME ${PROJECT_RAY_PREPARE_DATABASE_PRJRAY_NAME})
   set(PROTOTYPE_PART ${PROJECT_RAY_PREPARE_DATABASE_PROTOTYPE_PART})
 
-  set(FORM_CHANNELS ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/prjxray_form_channels.py)
-  set(ASSIGN_PINS ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/prjxray_assign_tile_pin_direction.py)
+  set(FORM_CHANNELS ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/${PRJRAY_NAME}_form_channels.py)
+  set(ASSIGN_PINS ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/${PRJRAY_NAME}_assign_tile_pin_direction.py)
   file(GLOB DEPS ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/*.json)
   file(GLOB DEPS2 ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/${PART}/*.json)
   file(GLOB DEPS3 ${PRJRAY_DIR}/prjxray/*.py)
@@ -334,21 +336,29 @@ function(PROJECT_RAY_TILE)
   get_target_property_required(FAMILY ${ARCH} FAMILY)
   get_target_property_required(DOC_PRJ ${ARCH} DOC_PRJ)
   get_target_property_required(DOC_PRJ_DB ${ARCH} DOC_PRJ_DB)
+  get_target_property_required(PRJRAY_NAME ${ARCH} DOC_PRJ_NAME)
 
   set(PRJRAY_DIR ${DOC_PRJ})
   set(PRJRAY_DB_DIR ${DOC_PRJ_DB})
 
-  set(TILE_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/prjxray_tile_import.py)
+  # FIXME: A workaround for xc7 primitives not being located under xc7 path.
+  if (NOT "${FAMILY}" STREQUAL "xc7")
+      set(PRIMITIVES_PATH "${FAMILY}")
+  else ()
+      set(PRIMITIVES_PATH "common")
+  endif ()
+
+  set(TILE_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/${PRJRAY_NAME}_tile_import.py)
   get_project_ray_dependencies(DEPS ${PRJRAY_DB_DIR} ${PRJRAY_ARCH} ${TILE})
 
   set(PB_TYPE_INCLUDE_FILES "")
   set(MODEL_INCLUDE_FILES "")
   foreach(SITE_TYPE ${PROJECT_RAY_TILE_SITE_TYPES})
     string(TOLOWER ${SITE_TYPE} SITE_TYPE_LOWER)
-    append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/primitives/${SITE_TYPE_LOWER}.pb_type.xml)
-    append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/primitives/${SITE_TYPE_LOWER}.model.xml)
-    list(APPEND PB_TYPE_INCLUDE_FILES ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/primitives/${SITE_TYPE_LOWER}.pb_type.xml)
-    list(APPEND MODEL_INCLUDE_FILES ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/primitives/${SITE_TYPE_LOWER}.model.xml)
+    append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc/${PRIMITIVES_PATH}/primitives/${SITE_TYPE_LOWER}.pb_type.xml)
+    append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc/${PRIMITIVES_PATH}/primitives/${SITE_TYPE_LOWER}.model.xml)
+    list(APPEND PB_TYPE_INCLUDE_FILES ${symbiflow-arch-defs_SOURCE_DIR}/xc/${PRIMITIVES_PATH}/primitives/${SITE_TYPE_LOWER}.pb_type.xml)
+    list(APPEND MODEL_INCLUDE_FILES ${symbiflow-arch-defs_SOURCE_DIR}/xc/${PRIMITIVES_PATH}/primitives/${SITE_TYPE_LOWER}.model.xml)
   endforeach()
   string(REPLACE ";" "," SITE_TYPES_COMMA "${PROJECT_RAY_TILE_SITE_TYPES}")
 
@@ -394,7 +404,7 @@ function(PROJECT_RAY_TILE)
     --db_root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/
     --part ${PROTOTYPE_PART}
     --tile ${TILE_UPPER}
-    --site_directory ${symbiflow-arch-defs_BINARY_DIR}/xc/common/primitives
+    --site_directory ${symbiflow-arch-defs_BINARY_DIR}/xc/${PRIMITIVES_PATH}/primitives
     --site_types ${SITE_TYPES_COMMA}
     --pin_assignments ${PIN_ASSIGNMENTS}
     --output-pb-type ${CMAKE_CURRENT_BINARY_DIR}/${TILE}.pb_type.xml
@@ -424,7 +434,7 @@ function(PROJECT_RAY_TILE)
       )
 
   # tile tags
-  set(PHYSICAL_TILE_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/prjxray_physical_tile_import.py)
+  set(PHYSICAL_TILE_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/${PRJRAY_NAME}_physical_tile_import.py)
   get_project_ray_dependencies(DEPS ${PRJRAY_DB_DIR} ${PRJRAY_ARCH} ${TILE})
 
   foreach(EQUIVALENT_SITE ${PROJECT_RAY_TILE_EQUIVALENT_SITES})
@@ -510,9 +520,17 @@ function(PROJECT_RAY_EQUIV_TILE)
 
   get_target_property_required(DOC_PRJ ${ARCH} DOC_PRJ)
   get_target_property_required(DOC_PRJ_DB ${ARCH} DOC_PRJ_DB)
+  get_target_property_required(PRJRAY_NAME ${ARCH} DOC_PRJ_NAME)
 
   set(PRJRAY_DIR ${DOC_PRJ})
   set(PRJRAY_DB_DIR ${DOC_PRJ_DB})
+
+  # FIXME: A workaround for xc7 primitives not being located under xc7 path.
+  if (NOT "${FAMILY}" STREQUAL "xc7")
+      set(PRIMITIVES_PATH "${FAMILY}")
+  else ()
+      set(PRIMITIVES_PATH "common")
+  endif ()
 
   # This code is using prefixed variables because PB_TYPE_SITES list are
   # variables from parent scope, and prefixing is the canonical CMake way to
@@ -555,10 +573,10 @@ function(PROJECT_RAY_EQUIV_TILE)
   list(REMOVE_DUPLICATES PROJECT_RAY_EQUIV_TILE_SITES)
   foreach(SITE_TYPE ${PROJECT_RAY_EQUIV_TILE_SITES})
     string(TOLOWER ${SITE_TYPE} SITE_TYPE_LOWER)
-    append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/primitives/${SITE_TYPE_LOWER}/${SITE_TYPE_LOWER}.pb_type.xml)
-    append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/primitives/${SITE_TYPE_LOWER}/${SITE_TYPE_LOWER}.model.xml)
-    list(APPEND PB_TYPE_INCLUDE_FILES ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/primitives/${SITE_TYPE_LOWER}/${SITE_TYPE_LOWER}.pb_type.xml)
-    list(APPEND MODEL_INCLUDE_FILES ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/primitives/${SITE_TYPE_LOWER}/${SITE_TYPE_LOWER}.model.xml)
+    append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc/${PRIMITIVES_PATH}/primitives/${SITE_TYPE_LOWER}/${SITE_TYPE_LOWER}.pb_type.xml)
+    append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc/${PRIMITIVES_PATH}/primitives/${SITE_TYPE_LOWER}/${SITE_TYPE_LOWER}.model.xml)
+    list(APPEND PB_TYPE_INCLUDE_FILES ${symbiflow-arch-defs_SOURCE_DIR}/xc/${PRIMITIVES_PATH}/primitives/${SITE_TYPE_LOWER}/${SITE_TYPE_LOWER}.pb_type.xml)
+    list(APPEND MODEL_INCLUDE_FILES ${symbiflow-arch-defs_SOURCE_DIR}/xc/${PRIMITIVES_PATH}/primitives/${SITE_TYPE_LOWER}/${SITE_TYPE_LOWER}.model.xml)
   endforeach()
 
   set(TILES_ARGS "${PROJECT_RAY_EQUIV_TILE_TILES}")
@@ -591,13 +609,13 @@ function(PROJECT_RAY_EQUIV_TILE)
       list(APPEND OUTPUTS ${PB_TYPE_LOWER}/${PB_TYPE_LOWER}.model.xml)
   endforeach()
 
-  set(TILE_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/prjxray_create_equiv_tiles.py)
+  set(TILE_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/${PRJRAY_NAME}_create_equiv_tiles.py)
   add_custom_command(
     OUTPUT ${OUTPUTS}
     COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
     ${PYTHON3} ${TILE_IMPORT}
     --output_directory ${symbiflow-arch-defs_BINARY_DIR}/xc/${FAMILY}/archs/${ARCH}/tiles
-    --site_directory ${symbiflow-arch-defs_BINARY_DIR}/xc/common/primitives
+    --site_directory ${symbiflow-arch-defs_BINARY_DIR}/xc/${PRIMITIVES_PATH}/primitives
     --connection_database ${GENERIC_CHANNELS_LOCATION}
     --tile_types ${TILES_ARGS}
     --pb_types ${PROJECT_RAY_EQUIV_TILE_PB_TYPES_ARGS}
@@ -679,14 +697,22 @@ function(PROJECT_RAY_TILE_CAPACITY)
   get_target_property_required(PROTOTYPE_PART ${ARCH} PROTOTYPE_PART)
   get_target_property_required(DOC_PRJ ${ARCH} DOC_PRJ)
   get_target_property_required(DOC_PRJ_DB ${ARCH} DOC_PRJ_DB)
+  get_target_property_required(PRJRAY_NAME ${ARCH} DOC_PRJ_NAME)
 
   set(PRJRAY_DIR ${DOC_PRJ})
   set(PRJRAY_DB_DIR ${DOC_PRJ_DB})
 
+  # FIXME: A workaround for xc7 primitives not being located under xc7 path.
+  if (NOT "${FAMILY}" STREQUAL "xc7")
+      set(PRIMITIVES_PATH "${FAMILY}")
+  else ()
+      set(PRIMITIVES_PATH "common")
+  endif ()
+
   append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc/${FAMILY}/archs/${ARCH}/pin_assignments.json)
   get_file_location(PIN_ASSIGNMENTS ${symbiflow-arch-defs_SOURCE_DIR}/xc/${FAMILY}/archs/${ARCH}/pin_assignments.json)
 
-  set(TILE_CAPACITY_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/prjxray_import_tile_capacity.py)
+  set(TILE_CAPACITY_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/${PRJRAY_NAME}_import_tile_capacity.py)
 
   string(REPLACE ";" "," SITE_TYPES_COMMA "${PROJECT_RAY_TILE_CAPACITY_SITE_TYPES}")
 
@@ -699,7 +725,7 @@ function(PROJECT_RAY_TILE_CAPACITY)
       --db_root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/
       --part ${PROTOTYPE_PART}
       --output_directory ${CMAKE_CURRENT_BINARY_DIR}
-      --site_directory ${symbiflow-arch-defs_BINARY_DIR}/xc/common/primitives
+      --site_directory ${symbiflow-arch-defs_BINARY_DIR}/xc/${PRIMITIVES_PATH}/primitives
       --tile_type ${TILE}
       --pb_types ${SITE_TYPES_COMMA}
       --pin_assignments ${PIN_ASSIGNMENTS}
