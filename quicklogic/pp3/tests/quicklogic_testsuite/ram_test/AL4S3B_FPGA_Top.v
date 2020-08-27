@@ -41,8 +41,9 @@ parameter       APERWIDTH                   = 17            ;
 parameter       APERSIZE                    = 10            ;
 
 parameter       FPGA_REG_BASE_ADDRESS       = 17'h00000     ; // Assumes 128K Byte FPGA Memory Aperture
-parameter       FPGA_RAM1_BASE_ADDRESS      = 17'h01000     ;
-parameter       FPGA_RAM2_BASE_ADDRESS      = 17'h02000     ;
+parameter       FPGA_RAM0_BASE_ADDRESS      = 17'h01000     ;
+parameter       FPGA_RAM1_BASE_ADDRESS      = 17'h02000     ;
+parameter       FPGA_RAM2_BASE_ADDRESS      = 17'h03000     ;
 parameter       FPGA_RAM3_BASE_ADDRESS      = 17'h04000     ;
 parameter       QL_RESERVED_BASE_ADDRESS    = 17'h08000     ; // Assumes 128K Byte FPGA Memory Aperture
 
@@ -184,6 +185,7 @@ AL4S3B_FPGA_IP              #(
     .APERSIZE                  ( APERSIZE                    ),
 
     .FPGA_REG_BASE_ADDRESS     ( FPGA_REG_BASE_ADDRESS       ), 
+	.FPGA_RAM0_BASE_ADDRESS    ( FPGA_RAM0_BASE_ADDRESS      ),
 	.FPGA_RAM1_BASE_ADDRESS    ( FPGA_RAM1_BASE_ADDRESS      ),
 	.FPGA_RAM2_BASE_ADDRESS    ( FPGA_RAM2_BASE_ADDRESS      ),
 	.FPGA_RAM3_BASE_ADDRESS    ( FPGA_RAM3_BASE_ADDRESS      ),
