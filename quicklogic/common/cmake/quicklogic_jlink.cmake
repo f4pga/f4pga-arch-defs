@@ -34,10 +34,6 @@ function(ADD_JLINK_OUTPUT)
   get_file_location(EBLIF_LOC ${EBLIF})
   get_file_location(PCF_LOC ${PCF})
 
-  get_target_property_required(BOARD ${PARENT} BOARD)
-
-  set(PINMAP ${symbiflow-arch-defs_BINARY_DIR}/quicklogic/pp3/${BOARD}_pinmap.csv)
-  
   # Generate a JLINK script that sets IOMUX configuration.
   set(IOMUX_CONFIG_GEN ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/eos_s3_iomux_config.py)
   set(IOMUX_CONFIG "top_iomux.jlink")
@@ -48,7 +44,6 @@ function(ADD_JLINK_OUTPUT)
       ${PYTHON3} ${IOMUX_CONFIG_GEN}
         --eblif ${EBLIF_LOC}
         --pcf ${PCF_LOC}
-        --map ${PINMAP} 
         >${WORK_DIR}/${IOMUX_CONFIG}
     DEPENDS ${PYTHON3_TARGET} ${IOMUX_CONFIG_GEN} ${EBLIF} ${PCF}
   )
@@ -76,5 +71,27 @@ function(ADD_JLINK_OUTPUT)
   )
 
   add_custom_target(${PARENT}_jlink DEPENDS ${WORK_DIR}/${OUT_JLINK})
+
+
+  set(DESIGN_CMDS "jlink_cmds.txt")
+  set(OUT_JLINK_COPY "jlink_cmds_copy.txt")
+  set(JLINK_SCRIPT "design.JLinkScript")
+  add_custom_command(
+    OUTPUT ${WORK_DIR}/${OUT_JLINK_COPY}
+    DEPENDS ${WORK_DIR}/${OUT_JLINK} ${DESIGN_CMDS} ${JLINK_SCRIPT}
+  )
+
+  add_custom_target(${PARENT}_jlink_copy DEPENDS ${WORK_DIR}/${OUT_JLINK_COPY} )
+
+  set(OUT_JLINK_HARDWARE "top.jlink_hardware")
+  set(JLINK_EXE "/usr/bin/JLinkExe")
+  add_custom_command(
+    OUTPUT ${WORK_DIR}/${OUT_JLINK_HARDWARE}
+    COMMAND cat ${WORK_DIR}/../../${DESIGN_CMDS} >>${WORK_DIR}/${OUT_JLINK}
+    COMMAND ${JLINK_EXE} -JLinkScriptFile design.JLinkScript.txt
+    DEPENDS ${WORK_DIR}/${OUT_JLINK}
+  )
+
+  add_custom_target(${PARENT}_jlink_hardware DEPENDS ${PARENT}_jlink_copy ${WORK_DIR}/${OUT_JLINK_HARDWARE})
 
 endfunction()

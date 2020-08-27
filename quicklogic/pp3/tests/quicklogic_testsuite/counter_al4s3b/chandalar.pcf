@@ -1,0 +1,17 @@
+set_io count(0) A2
+set_io count(1) B2
+set_io count(2) B1
+set_io count(3) C1
+set_io count(4) B4
+set_io count(5) A4
+set_io count(6) C5
+set_io count(7) B5
+set_io count(8) D6
+set_io count(9) A5
+set_io count(10) C6
+set_io count(11) E7
+set_io count(12) D7
+set_io count(13) E8
+set_io count(14) H8
+set_io count(15) G8
+
