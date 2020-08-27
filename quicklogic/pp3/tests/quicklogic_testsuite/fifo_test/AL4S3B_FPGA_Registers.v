@@ -37,7 +37,7 @@ module AL4S3B_FPGA_Registers (
                          WBs_CYC_i,
                          WBs_BYTE_STB_i,
                          WBs_WE_i,
-						 WBs_RD_i,
+                         WBs_RD_i,
                          WBs_STB_i,
                          WBs_DAT_i,
                          WBs_CLK_i,
@@ -48,14 +48,13 @@ module AL4S3B_FPGA_Registers (
                          //
                          // Misc
                          //
-						 CLK_4M_CNTL_o,
-						 CLK_1M_CNTL_o,
+                         CLK_4M_CNTL_o,
+                         CLK_1M_CNTL_o,
                          Device_ID_o,
 						 	 
-				         GPIO_IN_i,
-				         GPIO_OUT_o,
-				         GPIO_OE_o
-
+                         GPIO_IN_i,
+                         GPIO_OUT_o,
+                         GPIO_OE_o
                          );
 
 
@@ -322,41 +321,44 @@ always @(
 end
 
 assign pop1 = pop1_r1 & (~pop1_r2);
-assign pop2 = pop2_r1 & (~pop2_r2);
 
-af512x16_512x16_f512x16_512x16 FIFO1FIFO2_INST     (
-				.DIN0(WBs_DAT_i[15:0]),
-				.PUSH0(FB_FIFO1_Wr_Dcd),
-				.POP0(pop1),
-				.Fifo_Push_Flush0(WBs_RST_i),
-				.Fifo_Pop_Flush0(WBs_RST_i),
-				.Push_Clk0(WBs_CLK_i),
-				.Pop_Clk0(WBs_CLK_i),
-				.PUSH_FLAG0(PUSH_FLAG1),
-				.POP_FLAG0(POP_FLAG1),
-				.Push_Clk0_En(1'b1),
-				.Pop_Clk0_En(1'b1),
-				.Fifo0_Dir(1'b0),
-				.Async_Flush0(WBs_RST_i),
-				.Almost_Full0(Almost_Full1),
-				.Almost_Empty0(Almost_Empty1),
-				.DOUT0(FIFO1_DOUT),
-				
-				.DIN1(WBs_DAT_i[15:0]),
-				.PUSH1(FB_FIFO2_Wr_Dcd),
-				.POP1(pop2),
-				.Fifo_Push_Flush1(WBs_RST_i),
-				.Fifo_Pop_Flush1(WBs_RST_i),
-				.Clk1(WBs_CLK_i),
-				.PUSH_FLAG1(PUSH_FLAG2),
-				.POP_FLAG1(POP_FLAG2),
-				.Clk1_En(1'b1),
-				.Fifo1_Dir(1'b0),
-				.Async_Flush1(WBs_RST_i),
-				.Almost_Full1(Almost_Full2),
-				.Almost_Empty1(Almost_Empty2),
-				.DOUT1(FIFO2_DOUT)
-				);
+af512x16_512x16 FIFO1_INST (
+                          .DIN(WBs_DAT_i[15:0]),
+                          .PUSH(FB_FIFO1_Wr_Dcd),
+                          .POP(pop1),
+                          .Fifo_Push_Flush(WBs_RST_i),
+                          .Fifo_Pop_Flush(WBs_RST_i),
+                          .Push_Clk(WBs_CLK_i),
+                          .Pop_Clk(WBs_CLK_i),
+                          .PUSH_FLAG(PUSH_FLAG1),
+                          .POP_FLAG(POP_FLAG1),
+                          .Push_Clk_En(1'b1),
+                          .Pop_Clk_En(1'b1),
+                          .Fifo_Dir(1'b0),
+                          .Async_Flush(WBs_RST_i),
+                          .Almost_Full(Almost_Full1),
+                          .Almost_Empty(Almost_Empty1),
+                          .DOUT(FIFO1_DOUT)
+                          );
+
+assign pop2 = pop2_r1 & (~pop2_r2);        
+
+f1024x16_1024x16 FIFO2_INST (
+                            .DIN(WBs_DAT_i[15:0]),
+                            .PUSH(FB_FIFO2_Wr_Dcd),
+                            .POP(pop2),
+                            .Fifo_Push_Flush(WBs_RST_i),
+                            .Fifo_Pop_Flush(WBs_RST_i),
+                            .Clk(WBs_CLK_i),
+                            .PUSH_FLAG(PUSH_FLAG2),
+                            .POP_FLAG(POP_FLAG2),
+                            .Clk_En(1'b1),
+                            .Fifo_Dir(1'b0),
+                            .Async_Flush(WBs_RST_i),
+                            .Almost_Full(Almost_Full2),
+                            .Almost_Empty(Almost_Empty2),
+                            .DOUT(FIFO2_DOUT)
+                            );
 				
 assign pop3 = pop3_r1 & (~pop3_r2);
 
