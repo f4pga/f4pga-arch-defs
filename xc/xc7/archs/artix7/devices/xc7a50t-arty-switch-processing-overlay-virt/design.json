@@ -67,7 +67,7 @@
             {
                 "name": "rst",
                 "type": "in",
-                "node": "INT_R_X21Y119/EE4BEG2",
+                "node": "INT_L_X0Y119/EE4BEG1",
                 "pin": "SYN9"
             }
         ]
@@ -98,19 +98,19 @@
             {
                 "name": "in[1]",
                 "type": "in",
-                "node": "INT_L_X20Y50/SW2BEG0",
+                "node": "INT_R_X1Y34/EE4BEG3",
                 "pin": "SYN12"
             },
             {
                 "name": "in[2]",
                 "type": "in",
-                "node": "INT_L_X2Y50/SW2BEG2",
+                "node": "INT_L_X0Y47/EE4BEG3",
                 "pin": "SYN13"
             },
             {
                 "name": "in[3]",
                 "type": "in",
-                "node": "INT_L_X2Y50/SS2BEG0",
+                "node": "INT_L_X0Y39/EE4BEG1",
                 "pin": "SYN14"
             },
             {
@@ -122,19 +122,19 @@
             {
                 "name": "out[1]",
                 "type": "out",
-                "node": "INT_L_X20Y50/SW2BEG0",
+                "node": "INT_R_X3Y34/WW4BEG2",
                 "pin": "SYN16"
             },
             {
                 "name": "out[2]",
                 "type": "out",
-                "node": "INT_L_X2Y50/SW2BEG2",
+                "node": "INT_L_X2Y33/WW2BEG2",
                 "pin": "SYN17"
             },
             {
                 "name": "out[3]",
                 "type": "out",
-                "node": "INT_L_X2Y50/SS2BEG0",
+                "node": "INT_L_X4Y30/WW4BEG2",
                 "pin": "SYN18"
             },
             {

@@ -30,6 +30,8 @@ def main():
         'file:{}?mode=ro'.format(args.connection_database), uri=True
     )
 
+    from IPython import embed
+    embed()
     graph_node_pkey = inode_to_graph_map[args.inode]
 
     cur = conn.cursor()
