@@ -2,7 +2,7 @@
     "info":
         {
         "name": "pr2",
-        "GRID_X_MAX": 55,
+        "GRID_X_MAX": 57,
         "GRID_X_MIN": 10,
         "GRID_Y_MAX": 156,
         "GRID_Y_MIN": 105
@@ -24,19 +24,19 @@
         {
             "name": "in[1]",
             "type": "in",
-            "node": "INT_L_X20Y50/SW2BEG0",
+            "node": "INT_R_X1Y34/EE4BEG3",
             "pin": "SYN2"
         },
         {
             "name": "in[2]",
             "type": "in",
-            "node": "INT_L_X2Y50/SW2BEG2",
+            "node": "INT_L_X0Y47/EE4BEG3",
             "pin": "SYN3"
         },
         {
             "name": "in[3]",
             "type": "in",
-            "node": "INT_L_X2Y50/SS2BEG0",
+            "node": "INT_L_X0Y39/EE4BEG1",
             "pin": "SYN4"
         },
         {
@@ -48,19 +48,19 @@
         {
             "name": "out[1]",
             "type": "out",
-            "node": "INT_L_X20Y50/SW2BEG0",
+            "node": "INT_R_X3Y34/WW4BEG2",
             "pin": "SYN6"
         },
         {
             "name": "out[2]",
             "type": "out",
-            "node": "INT_L_X2Y50/SW2BEG2",
+            "node": "INT_L_X2Y33/WW2BEG2",
             "pin": "SYN7"
         },
         {
             "name": "out[3]",
             "type": "out",
-            "node": "INT_L_X2Y50/SS2BEG0",
+            "node": "INT_L_X4Y30/WW4BEG2",
             "pin": "SYN8"
         },
         {

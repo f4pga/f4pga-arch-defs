@@ -52,19 +52,25 @@ add_fpga_target(
   )
 
 add_bitstream_target(
-  NAME switch_processing_both_merged
+  NAME switch_processing_arty_both_merged
   USE_FASM
   INCLUDED_TARGETS switch_processing_arty_add_1_pr1 switch_processing_arty_blink_pr2 switch_processing_arty_overlay
   )
 
 add_bitstream_target(
-  NAME switch_processing_add_1_merged
+  NAME switch_processing_arty_add_1_merged
   USE_FASM
   INCLUDED_TARGETS switch_processing_arty_add_1_pr1 switch_processing_arty_identity_pr2 switch_processing_arty_overlay
   )
 
 add_bitstream_target(
-  NAME switch_processing_blink_merged
+  NAME switch_processing_arty_blink_merged
   USE_FASM
   INCLUDED_TARGETS switch_processing_arty_identity_pr1 switch_processing_arty_blink_pr2 switch_processing_arty_overlay
+  )
+
+add_bitstream_target(
+  NAME switch_processing_arty_identity_merged
+  USE_FASM
+  INCLUDED_TARGETS switch_processing_arty_identity_pr1 switch_processing_arty_identity_pr2 switch_processing_arty_overlay
   )
