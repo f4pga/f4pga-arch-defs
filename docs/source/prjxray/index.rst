@@ -10,3 +10,4 @@ managing Project-XRay data inside the Architecture Definitions Project.
 
    flow-diagram
    vtr-rrgraph
+   partial-reconfig
