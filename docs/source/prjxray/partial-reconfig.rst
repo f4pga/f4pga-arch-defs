@@ -9,11 +9,11 @@ Background
 
 Partition Regions
 -----------------
-In this documentation the terms partition region and region of interest (ROI) are used interchangably to refer to some smaller portiton of a larger FPGA architecture.  This region may or may not align with frame boundaries, but the most tested use-case is for partition regions that are one clock region tall.
+In this documentation the terms partition region and region of interest (ROI) are used interchangeably to refer to some smaller portion of a larger FPGA architecture.  This region may or may not align with frame boundaries, but the most tested use-case is for partition regions that are one clock region tall.
 
 Overlay Architecture
 --------------------
-The overlay architecture is essentially the "inverse" of all the parition regions in a design; it includes everything in the full device that is not in a partition region.  Typically this includes chip IOs and the PS region if the chip has one.
+The overlay architecture is essentially the "inverse" of all the partition regions in a design; it includes everything in the full device that is not in a partition region.  Typically this includes chip IOs and the PS region if the chip has one.
 
 Synthetic IO Tiles (Synth IOs)
 ------------------------------
@@ -47,6 +47,7 @@ The goal of this test is to have two partition regions with identical interfaces
 
 Define the first partition region:
 
+`/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr1-roi-virt/design.json`_
 .. code-block:: javascript
 
 	{
@@ -123,7 +124,6 @@ Define the first partition region:
 	    ]
 	}
 
-`/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr1-roi-virt/design.json`_
 
 Here we see the info section defines the boundaries of the partition region. It is important to use the prjxray grid, not the VPR grid or the Vivado grid, to define these boundaries. The ports section is then used to define the interface pins for the region. A synth IO will be placed to correspond to each of these interface pins. Each pin must contain a name, pin name, type, and node name. The name and pin name must be unique identifiers. The type can be in, out or clk. The node is the vivado node that a synth IO should be connected to.
 
@@ -131,6 +131,7 @@ Optionally, a wire name can be provided to give an exact location for the synth 
 
 Now the CMake files must be defined properly for the first partition region architecture:
 
+`/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr1-roi-virt/CMakeLists.txt`_
 .. code-block:: RST
 
 	add_xc_device_define_type(
@@ -149,12 +150,12 @@ Now the CMake files must be defined properly for the first partition region arch
 	    BRAM_L
 	)
 
-`/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr1-roi-virt/CMakeLists.txt`_
 
 The important argument here is ``ROI_DIR`` which points to the directory containing the ``design.json`` defined earlier.
 
 Next, define the second partition region in a similar way as the first:
 
+`/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr2-roi-virt/design.json`_
 .. code-block:: javascript
 
 	{
@@ -231,9 +232,8 @@ Next, define the second partition region in a similar way as the first:
 	    ]
 	}
 
-`/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr2-roi-virt/design.json`_
 
-
+`/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr2-roi-virt/CMakeLists.txt`_
 .. code-block:: RST
 
 	add_xc_device_define_type(
@@ -252,7 +252,6 @@ Next, define the second partition region in a similar way as the first:
 	    BRAM_L
 	)
 
-`/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr2-roi-virt/CMakeLists.txt`_
 
 .. _/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr1-roi-virt/design.json: https://github.com/SymbiFlow/symbiflow-arch-defs/blob/master/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr1-roi-virt/design.json
 .. _/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr1-roi-virt/CMakeLists.txt: https://github.com/SymbiFlow/symbiflow-arch-defs/blob/master/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr1-roi-virt/CMakeLists.txt
@@ -261,6 +260,8 @@ Next, define the second partition region in a similar way as the first:
 
 The last ``design.json`` that must be defined is for the overlay. It is mostly a list of the json for the partition regions contained in the design. One important change is the pin names must still be unique across all ports in the overlay. Any explicit wires must also be changed to be on the other side of the partition region boundary.
 
+
+`/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-overlay-virt/design.json`_
 .. code-block:: javascript
 
 	[
@@ -412,8 +413,8 @@ The last ``design.json`` that must be defined is for the overlay. It is mostly a
 	    }
 	]
 
-`/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-overlay-virt/design.json`_
 
+`/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-overlay-virt/CMakeLists.txt`_
 .. code-block:: RST
 
 	add_xc_device_define_type(
@@ -449,7 +450,6 @@ The last ``design.json`` that must be defined is for the overlay. It is mostly a
 	    HCLK_IOI3
 	)
 
-`/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-overlay-virt/CMakeLists.txt`_
 
 The important argument here is ``OVERLAY_DIR`` which points to the directory containing the ``design.json`` for this overlay. Notice this ``CMakeLists.txt`` also contains more tile/pb types because it contains the real IOs.
 
@@ -458,6 +458,7 @@ The important argument here is ``OVERLAY_DIR`` which points to the directory con
 
 Continuing on past ``design.json`` definitions, CMake needs to be informed these new architectures should be built.  This is done in another ``CMakeLists.txt`` by adding the following:
 
+`/xc/xc7/archs/artix7/devices/CMakeLists.txt`_
 .. code-block:: RST
 
 	add_xc_device_define(
@@ -473,10 +474,10 @@ Continuing on past ``design.json`` definitions, CMake needs to be informed these
 	  DEVICES xc7a50t-arty-switch-processing-overlay
 	)
 
-`/xc/xc7/archs/artix7/devices/CMakeLists.txt`_
 
 The last step before switching over to adding a test is adding to ``boards.cmake``:
 
+`/xc/xc7/boards.cmake`_
 .. code-block:: RST
 
 	add_xc_board(
@@ -503,7 +504,6 @@ The last step before switching over to adding a test is adding to ``boards.cmake
 	  PART xc7a35tcsg324-1
 	)
 
-`/xc/xc7/boards.cmake`_
 
 This defines a separate board for each of the partition regions and overlay so they can be mapped to separately.
 
