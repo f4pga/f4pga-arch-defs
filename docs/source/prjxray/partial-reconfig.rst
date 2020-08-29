@@ -47,7 +47,7 @@ The goal of this test is to have two partition regions with identical interfaces
 
 Define the first partition region:
 
-`/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr1-roi-virt/design.json`_
+`xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr1-roi-virt/design.json`_
 
 .. code-block:: javascript
 
@@ -132,7 +132,7 @@ Optionally, a wire name can be provided to give an exact location for the synth 
 
 Now the CMake files must be defined properly for the first partition region architecture:
 
-`/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr1-roi-virt/CMakeLists.txt`_
+`xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr1-roi-virt/CMakeLists.txt`_
 
 .. code-block:: RST
 
@@ -157,7 +157,7 @@ The important argument here is ``ROI_DIR`` which points to the directory contain
 
 Next, define the second partition region in a similar way as the first:
 
-`/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr2-roi-virt/design.json`_
+`xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr2-roi-virt/design.json`_
 
 .. code-block:: javascript
 
@@ -236,7 +236,7 @@ Next, define the second partition region in a similar way as the first:
 	}
 
 
-`/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr2-roi-virt/CMakeLists.txt`_
+`xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr2-roi-virt/CMakeLists.txt`_
 
 .. code-block:: RST
 
@@ -257,15 +257,15 @@ Next, define the second partition region in a similar way as the first:
 	)
 
 
-.. _/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr1-roi-virt/design.json: https://github.com/SymbiFlow/symbiflow-arch-defs/blob/master/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr1-roi-virt/design.json
-.. _/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr1-roi-virt/CMakeLists.txt: https://github.com/SymbiFlow/symbiflow-arch-defs/blob/master/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr1-roi-virt/CMakeLists.txt
-.. _/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr2-roi-virt/design.json: https://github.com/SymbiFlow/symbiflow-arch-defs/blob/master/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr2-roi-virt/design.json
-.. _/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr2-roi-virt/CMakeLists.txt: https://github.com/SymbiFlow/symbiflow-arch-defs/blob/master/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr2-roi-virt/CMakeLists.txt
+.. _xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr1-roi-virt/design.json: https://github.com/SymbiFlow/symbiflow-arch-defs/blob/master/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr1-roi-virt/design.json
+.. _xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr1-roi-virt/CMakeLists.txt: https://github.com/SymbiFlow/symbiflow-arch-defs/blob/master/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr1-roi-virt/CMakeLists.txt
+.. _xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr2-roi-virt/design.json: https://github.com/SymbiFlow/symbiflow-arch-defs/blob/master/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr2-roi-virt/design.json
+.. _xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr2-roi-virt/CMakeLists.txt: https://github.com/SymbiFlow/symbiflow-arch-defs/blob/master/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr2-roi-virt/CMakeLists.txt
 
 The last ``design.json`` that must be defined is for the overlay. It is mostly a list of the json for the partition regions contained in the design. One important change is the pin names must still be unique across all ports in the overlay. Any explicit wires must also be changed to be on the other side of the partition region boundary.
 
 
-`/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-overlay-virt/design.json`_
+`xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-overlay-virt/design.json`_
 
 .. code-block:: javascript
 
@@ -419,7 +419,7 @@ The last ``design.json`` that must be defined is for the overlay. It is mostly a
 	]
 
 
-`/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-overlay-virt/CMakeLists.txt`_
+`xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-overlay-virt/CMakeLists.txt`_
 
 .. code-block:: RST
 
@@ -459,12 +459,12 @@ The last ``design.json`` that must be defined is for the overlay. It is mostly a
 
 The important argument here is ``OVERLAY_DIR`` which points to the directory containing the ``design.json`` for this overlay. Notice this ``CMakeLists.txt`` also contains more tile/pb types because it contains the real IOs.
 
-.. _/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-overlay-virt/design.json: https://github.com/SymbiFlow/symbiflow-arch-defs/blob/master/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-overlay-virt/design.json
-.. _/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-overlay-virt/CMakeLists.txt: https://github.com/SymbiFlow/symbiflow-arch-defs/blob/master/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-overlay-virt/CMakeLists.txt
+.. _xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-overlay-virt/design.json: https://github.com/SymbiFlow/symbiflow-arch-defs/blob/master/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-overlay-virt/design.json
+.. _xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-overlay-virt/CMakeLists.txt: https://github.com/SymbiFlow/symbiflow-arch-defs/blob/master/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-overlay-virt/CMakeLists.txt
 
 Continuing on past ``design.json`` definitions, CMake needs to be informed these new architectures should be built.  This is done in another ``CMakeLists.txt`` by adding the following:
 
-`/xc/xc7/archs/artix7/devices/CMakeLists.txt`_
+`xc/xc7/archs/artix7/devices/CMakeLists.txt`_
 
 .. code-block:: RST
 
@@ -484,7 +484,7 @@ Continuing on past ``design.json`` definitions, CMake needs to be informed these
 
 The last step before switching over to adding a test is adding to ``boards.cmake``:
 
-`/xc/xc7/boards.cmake`_
+`xc/xc7/boards.cmake`_
 
 .. code-block:: RST
 
@@ -515,8 +515,8 @@ The last step before switching over to adding a test is adding to ``boards.cmake
 
 This defines a separate board for each of the partition regions and overlay so they can be mapped to separately.
 
-.. _/xc/xc7/archs/artix7/devices/CMakeLists.txt: https://github.com/SymbiFlow/symbiflow-arch-defs/blob/master/xc/xc7/archs/artix7/devices/CMakeLists.txt
-.. _/xc/xc7/boards.cmake: https://github.com/SymbiFlow/symbiflow-arch-defs/blob/master/xc/xc7/boards.cmake
+.. _xc/xc7/archs/artix7/devices/CMakeLists.txt: https://github.com/SymbiFlow/symbiflow-arch-defs/blob/master/xc/xc7/archs/artix7/devices/CMakeLists.txt
+.. _xc/xc7/boards.cmake: https://github.com/SymbiFlow/symbiflow-arch-defs/blob/master/xc/xc7/boards.cmake
 
 Now to define a test. This part of the documentation will not go in detail on how to define a new test case in symbiflow-arch-defs, but will point out items of importance for using the partial reconfiguration flow.
 
@@ -604,6 +604,8 @@ Lastly, multiple merged bitstream targets are defined. These targets will concat
 The last thing to cover related to the SymbiFlow partial reconfiguration flow is synthetic ibufs and obufs required in the overlay verilog:
 
 `switch_processing_arty_overlay.v`_
+
+.. _switch_processing_arty_overlay.v: https://github.com/SymbiFlow/symbiflow-arch-defs/blob/master/xc/xc7/tests/switch_processing/switch_processing_arty_overlay.v
 
 Currently the ``SYN_IBUF`` and ``SYN_OBUF`` must be explicitly defined for each top level IO that will be constrained to a synth IO. In the future this should be able to be resolved using a yosys io map pass, but currently if explicit synthetic buffers are not defined the top level IOs will be packed into a real IO. This will prevent constraining the top level IOs to the intended synthetic IO location.
 
