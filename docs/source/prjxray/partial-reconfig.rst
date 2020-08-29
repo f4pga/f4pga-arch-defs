@@ -48,6 +48,7 @@ The goal of this test is to have two partition regions with identical interfaces
 Define the first partition region:
 
 `/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr1-roi-virt/design.json`_
+
 .. code-block:: javascript
 
 	{
@@ -132,6 +133,7 @@ Optionally, a wire name can be provided to give an exact location for the synth 
 Now the CMake files must be defined properly for the first partition region architecture:
 
 `/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr1-roi-virt/CMakeLists.txt`_
+
 .. code-block:: RST
 
 	add_xc_device_define_type(
@@ -156,6 +158,7 @@ The important argument here is ``ROI_DIR`` which points to the directory contain
 Next, define the second partition region in a similar way as the first:
 
 `/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr2-roi-virt/design.json`_
+
 .. code-block:: javascript
 
 	{
@@ -234,6 +237,7 @@ Next, define the second partition region in a similar way as the first:
 
 
 `/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr2-roi-virt/CMakeLists.txt`_
+
 .. code-block:: RST
 
 	add_xc_device_define_type(
@@ -262,6 +266,7 @@ The last ``design.json`` that must be defined is for the overlay. It is mostly a
 
 
 `/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-overlay-virt/design.json`_
+
 .. code-block:: javascript
 
 	[
@@ -415,6 +420,7 @@ The last ``design.json`` that must be defined is for the overlay. It is mostly a
 
 
 `/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-overlay-virt/CMakeLists.txt`_
+
 .. code-block:: RST
 
 	add_xc_device_define_type(
@@ -459,6 +465,7 @@ The important argument here is ``OVERLAY_DIR`` which points to the directory con
 Continuing on past ``design.json`` definitions, CMake needs to be informed these new architectures should be built.  This is done in another ``CMakeLists.txt`` by adding the following:
 
 `/xc/xc7/archs/artix7/devices/CMakeLists.txt`_
+
 .. code-block:: RST
 
 	add_xc_device_define(
@@ -478,6 +485,7 @@ Continuing on past ``design.json`` definitions, CMake needs to be informed these
 The last step before switching over to adding a test is adding to ``boards.cmake``:
 
 `/xc/xc7/boards.cmake`_
+
 .. code-block:: RST
 
 	add_xc_board(
