@@ -76,6 +76,6 @@ module top (
     BUFG clk_bufg(.I(clk_ibuf), .O(clk_b));
 
     wire [3:0] out1;
-    add_1(sw, out1, clk_b, rst);
-    blink(out1, led, clk_b, rst);
+    add_1 add_1_inst(sw, out1, clk_b, rst);
+    blink blink_inst(out1, led, clk_b, rst);
 endmodule
