@@ -1,8 +1,0 @@
-set_io GPIO_PIN(7) A2
-set_io GPIO_PIN(6) B2
-set_io GPIO_PIN(5) C3
-set_io GPIO_PIN(4) B3
-set_io GPIO_PIN(3) A3
-set_io GPIO_PIN(1) A4
-set_io GPIO_PIN(2) C5
-set_io GPIO_PIN(0) B5
