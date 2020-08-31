@@ -710,9 +710,12 @@ def make_pb_type(
         xml_fasmprefix = ET.SubElement(xml_metadata, "meta", {"name": "fasm_prefix"})
         xml_fasmprefix.text = "RAM.RAM"
         xml_fasm = ET.SubElement(xml_metadata, "meta", {"name": "fasm_params"})
-        if "_0_" in pb_name or "_1_" in pb_name:
+        if "_0_" in pb_name:
             xml_fasm.text = "\n\
                INIT[9215:0] = INIT\n"
+        elif "_1_" in pb_name:
+            xml_fasm.text = "\n\
+               INIT[18431:9216] = INIT\n"
         else:
             xml_fasm.text = "\n\
                INIT[18431:0] = INIT\n"
