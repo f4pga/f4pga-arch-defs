@@ -3,10 +3,7 @@
 # i.e. treats them as strings, the parameter values need to be multiplied by 1000
 # for the PLL registers to have correct values calculated during techmapping.
 proc update_pll_params {} {
-    set temp_file "[pid].tmp"
-    select t:PLLE2_ADV -list -write $temp_file
-    set fh [open $temp_file r]
-    while {[gets $fh cell] >= 0} {
+    foreach cell [selection_to_tcl_list "t:PLLE2_ADV"] {
 	for {set output 0} {$output < 6} {incr output} {
 	    set param_name "CLKOUT${output}_PHASE"
 	    set param_value [getparam $param_name $cell]
@@ -17,6 +14,4 @@ proc update_pll_params {} {
 	    }
 	}
     }
-    close $fh
-    file delete $temp_file
 }

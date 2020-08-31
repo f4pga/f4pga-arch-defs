@@ -3,6 +3,7 @@ yosys -import
 plugin -i xdc
 plugin -i fasm
 plugin -i params
+plugin -i selection
 
 # Import the commands from the plugins to the tcl interpreter
 yosys -import
