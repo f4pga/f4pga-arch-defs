@@ -38,14 +38,15 @@ module top (
 //
 
 parameter       APERWIDTH                   = 17            ;
-parameter       APERSIZE                    = 10            ;
+parameter       APERSIZE                    = 11            ;
 
 parameter       FPGA_REG_BASE_ADDRESS       = 17'h00000     ; // Assumes 128K Byte FPGA Memory Aperture
-parameter       FPGA_RAM0_BASE_ADDRESS      = 17'h01000     ;
-parameter       FPGA_RAM1_BASE_ADDRESS      = 17'h02000     ;
-parameter       FPGA_RAM2_BASE_ADDRESS      = 17'h03000     ;
-parameter       FPGA_RAM3_BASE_ADDRESS      = 17'h04000     ;
-parameter       QL_RESERVED_BASE_ADDRESS    = 17'h08000     ; // Assumes 128K Byte FPGA Memory Aperture
+parameter       FPGA_RAM0_BASE_ADDRESS      = 17'h02000     ; //0x40022000
+parameter       FPGA_RAM1_BASE_ADDRESS      = 17'h04000     ; //0x40024000
+parameter       FPGA_RAM2_BASE_ADDRESS      = 17'h06000     ; //0x40026000
+parameter       FPGA_RAM3_BASE_ADDRESS      = 17'h08000     ; //0x40028000
+parameter       FPGA_RAM4_BASE_ADDRESS      = 17'h0a000     ; //0x4002a000
+parameter       QL_RESERVED_BASE_ADDRESS    = 17'h0c000     ; // Assumes 128K Byte FPGA Memory Aperture
 
 parameter       ADDRWIDTH_FAB_REG           =  7            ;
 parameter       DATAWIDTH_FAB_REG           = 32            ;
@@ -189,6 +190,7 @@ AL4S3B_FPGA_IP              #(
 	.FPGA_RAM1_BASE_ADDRESS    ( FPGA_RAM1_BASE_ADDRESS      ),
 	.FPGA_RAM2_BASE_ADDRESS    ( FPGA_RAM2_BASE_ADDRESS      ),
 	.FPGA_RAM3_BASE_ADDRESS    ( FPGA_RAM3_BASE_ADDRESS      ),
+  .FPGA_RAM4_BASE_ADDRESS    ( FPGA_RAM4_BASE_ADDRESS      ),
     .QL_RESERVED_BASE_ADDRESS  ( QL_RESERVED_BASE_ADDRESS    ),
 
 	.ADDRWIDTH_FAB_REG         ( ADDRWIDTH_FAB_REG           ), 

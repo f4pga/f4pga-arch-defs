@@ -32,9 +32,10 @@ module AL4S3B_FPGA_RAMs (
                          //
                          WBs_ADR_i,
                          WBs_RAM0_CYC_i,
-						 WBs_RAM1_CYC_i,
-						 WBs_RAM2_CYC_i,
-						 WBs_RAM3_CYC_i,
+                         WBs_RAM1_CYC_i,
+                         WBs_RAM2_CYC_i,
+                         WBs_RAM3_CYC_i,
+                         WBs_RAM4_CYC_i,
                          WBs_BYTE_STB_i,
                          WBs_WE_i,
                          WBs_STB_i,
@@ -43,8 +44,9 @@ module AL4S3B_FPGA_RAMs (
                          WBs_RST_i,
                          WBs_RAM0_DAT_o,
                          WBs_RAM1_DAT_o,
-						 WBs_RAM2_DAT_o,
-						 WBs_RAM3_DAT_o,
+                         WBs_RAM2_DAT_o,
+                         WBs_RAM3_DAT_o,
+                         WBs_RAM4_DAT_o,
                          WBs_ACK_o
                          );
 
@@ -68,6 +70,7 @@ input                    WBs_RAM0_CYC_i;
 input                    WBs_RAM1_CYC_i;
 input                    WBs_RAM2_CYC_i;
 input                    WBs_RAM3_CYC_i;
+input                    WBs_RAM4_CYC_i;
 input             [3:0]  WBs_BYTE_STB_i;  // Byte Select                to   FPGA
 input                    WBs_WE_i      ;  // Write Enable               to   FPGA
 input                    WBs_STB_i     ;  // Strobe Signal              to   FPGA
@@ -78,6 +81,7 @@ output  [DATAWIDTH-1:0]  WBs_RAM0_DAT_o;
 output  [DATAWIDTH-1:0]  WBs_RAM1_DAT_o;  
 output  [DATAWIDTH-1:0]  WBs_RAM2_DAT_o;  
 output  [DATAWIDTH-1:0]  WBs_RAM3_DAT_o;  
+output  [DATAWIDTH-1:0]  WBs_RAM4_DAT_o;
 output                   WBs_ACK_o     ;  // Transfer Cycle Acknowledge from FPGA
 
 
@@ -94,6 +98,7 @@ wire                     WBs_RAM0_CYC_i;
 wire                     WBs_RAM1_CYC_i;
 wire                     WBs_RAM2_CYC_i;
 wire                     WBs_RAM3_CYC_i;
+wire                     WBs_RAM4_CYC_i;
 wire              [3:0]  WBs_BYTE_STB_i;  // Wishbone Byte   Enables
 wire                     WBs_WE_i      ;  // Wishbone Write  Enable Strobe
 wire                     WBs_STB_i     ;  // Wishbone Transfer      Strobe
@@ -114,6 +119,7 @@ wire                     FB_RAM0_Wr_Dcd    ;
 wire                     FB_RAM1_Wr_Dcd    ;
 wire                     FB_RAM2_Wr_Dcd    ;
 wire                     FB_RAM3_Wr_Dcd    ;
+wire                     FB_RAM4_Wr_Dcd    ;
 
 wire					 WBs_ACK_o_nxt;
 
@@ -121,6 +127,7 @@ wire [15:0]  RAM0_Dat_out;
 wire [15:0]  RAM1_Dat_out;
 wire [7:0]   RAM2_Dat_out;
 wire [31:0]  RAM3_Dat_out;
+wire [7:0]   RAM4_Dat_out;
 
 
 //------Logic Operations---------------
@@ -130,12 +137,13 @@ wire [31:0]  RAM3_Dat_out;
 //
 assign FB_RAM0_Wr_Dcd    = WBs_RAM0_CYC_i & WBs_STB_i & WBs_WE_i  & (~WBs_ACK_o);
 assign FB_RAM1_Wr_Dcd    = WBs_RAM1_CYC_i & WBs_STB_i & WBs_WE_i  & (~WBs_ACK_o);
-assign FB_RAM3_Wr_Dcd    = WBs_RAM3_CYC_i & WBs_STB_i & WBs_WE_i  & (~WBs_ACK_o);
 assign FB_RAM2_Wr_Dcd    = WBs_RAM2_CYC_i & WBs_STB_i & WBs_WE_i  & (~WBs_ACK_o);
+assign FB_RAM3_Wr_Dcd    = WBs_RAM3_CYC_i & WBs_STB_i & WBs_WE_i  & (~WBs_ACK_o);
+assign FB_RAM4_Wr_Dcd    = WBs_RAM4_CYC_i & WBs_STB_i & WBs_WE_i  & (~WBs_ACK_o);
 
 // Define the Acknowledge back to the host for registers
 //
-assign WBs_ACK_o_nxt     = (WBs_RAM0_CYC_i | WBs_RAM1_CYC_i | WBs_RAM2_CYC_i | WBs_RAM3_CYC_i) & WBs_STB_i & (~WBs_ACK_o);
+assign WBs_ACK_o_nxt     = (WBs_RAM0_CYC_i | WBs_RAM1_CYC_i | WBs_RAM2_CYC_i | WBs_RAM3_CYC_i | WBs_RAM4_CYC_i) & WBs_STB_i & (~WBs_ACK_o);
 
 
 // Define the FPGA's Local Registers
@@ -179,7 +187,22 @@ r1024x16_1024x16 RAM1_INST (
 			.WEN({FB_RAM1_Wr_Dcd,FB_RAM1_Wr_Dcd}),
 			.RD(RAM1_Dat_out)
 			);
-			
+		
+
+assign WBs_RAM2_DAT_o = {24'h0,RAM2_Dat_out};
+
+r1024x8_1024x8 RAM2_INST (	
+			.WA(WBs_ADR_i[9:0]),
+			.RA(WBs_ADR_i[9:0]),
+			.WD(WBs_DAT_i[7:0]),
+			.WClk(WBs_CLK_i),
+			.RClk(WBs_CLK_i),
+			.WClk_En(1'b1),
+			.RClk_En(1'b1),
+			.WEN(FB_RAM2_Wr_Dcd),
+			.RD(RAM2_Dat_out)
+			);
+
 assign WBs_RAM3_DAT_o = RAM3_Dat_out;
 
 r512x32_512x32 RAM3_INST (	
@@ -194,17 +217,18 @@ r512x32_512x32 RAM3_INST (
 			.RD(RAM3_Dat_out)
 			);
 
-assign WBs_RAM2_DAT_o = RAM2_Dat_out;
-r1024x8_1024x8 RAM2_INST (	
-			.WA(WBs_ADR_i[9:0]),
-			.RA(WBs_ADR_i[9:0]),
+assign WBs_RAM4_DAT_o = {24'h0,RAM4_Dat_out};
+
+r2048x8_2048x8 RAM4_INST (	
+			.WA(WBs_ADR_i[10:0]),
+			.RA(WBs_ADR_i[10:0]),
 			.WD(WBs_DAT_i[7:0]),
 			.WClk(WBs_CLK_i),
 			.RClk(WBs_CLK_i),
 			.WClk_En(1'b1),
 			.RClk_En(1'b1),
-			.WEN(FB_RAM2_Wr_Dcd),
-			.RD(RAM2_Dat_out)
+			.WEN(FB_RAM4_Wr_Dcd),
+			.RD(RAM4_Dat_out)
 			);
 			
 endmodule

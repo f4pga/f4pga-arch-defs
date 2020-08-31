@@ -17,7 +17,7 @@ parameter data_width_int = 16;
 parameter wr_enable_int = 2;
 parameter reg_rd_int = 0;
 
-RAM_16K_BLK #(.addr_int(addr_int),.data_depth_int(data_depth_int),.data_width_int(data_width_int),.wr_enable_int(wr_enable_int),.reg_rd_int(reg_rd_int),
+RAM_8K_BLK #(.addr_int(addr_int),.data_depth_int(data_depth_int),.data_width_int(data_width_int),.wr_enable_int(wr_enable_int),.reg_rd_int(reg_rd_int),
 			  .INIT(INIT),.INIT_FILE(INIT_FILE)
 			  )
 RAM_INST (	.WA(WA),

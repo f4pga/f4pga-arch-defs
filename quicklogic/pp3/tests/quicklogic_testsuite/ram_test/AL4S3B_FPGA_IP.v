@@ -64,14 +64,15 @@ module AL4S3B_FPGA_IP (
 //
 
 parameter       APERWIDTH                   = 17            ;
-parameter       APERSIZE                    = 10             ;
+parameter       APERSIZE                    = 11             ;
 
 parameter       FPGA_REG_BASE_ADDRESS       = 17'h00000     ; // Assumes 128K Byte FPGA Memory Aperture
-parameter       FPGA_RAM0_BASE_ADDRESS      = 17'h01000     ;
-parameter       FPGA_RAM1_BASE_ADDRESS      = 17'h02000     ;
-parameter       FPGA_RAM2_BASE_ADDRESS      = 17'h03000     ;
-parameter       FPGA_RAM3_BASE_ADDRESS      = 17'h04000     ;
-parameter       QL_RESERVED_BASE_ADDRESS    = 17'h08000     ; // Assumes 128K Byte FPGA Memory Aperture
+parameter       FPGA_RAM0_BASE_ADDRESS      = 17'h02000     ; //0x40022000
+parameter       FPGA_RAM1_BASE_ADDRESS      = 17'h04000     ; //0x40024000
+parameter       FPGA_RAM2_BASE_ADDRESS      = 17'h06000     ; //0x40026000
+parameter       FPGA_RAM3_BASE_ADDRESS      = 17'h08000     ; //0x40028000
+parameter       FPGA_RAM4_BASE_ADDRESS      = 17'h0a000     ; //0x4002a000
+parameter       QL_RESERVED_BASE_ADDRESS    = 17'h0c000     ; // Assumes 128K Byte FPGA Memory Aperture
 
 parameter       ADDRWIDTH_FAB_REG           =  7            ;
 parameter       DATAWIDTH_FAB_REG           = 32            ;
@@ -199,7 +200,8 @@ wire    [31:0]  WBs_DAT_o_QL_Reserved;
 wire            WBs_RAM0_CYC   ;
 wire            WBs_RAM1_CYC   ;
 wire            WBs_RAM2_CYC   ;
-wire            WBs_RAM3_CYC   ;
+wire            WBs_RAM3_CYC   ; 
+wire            WBs_RAM4_CYC   ;
 
 wire            WBs_ACK_RAMs   ;
 
@@ -207,6 +209,7 @@ wire    [31:0]  WBs_RAM0_DAT ;
 wire    [31:0]  WBs_RAM1_DAT ;
 wire    [31:0]  WBs_RAM2_DAT ;
 wire    [31:0]  WBs_RAM3_DAT ;
+wire    [31:0]  WBs_RAM4_DAT ;
 
 //------Logic Operations---------------
 //
@@ -227,6 +230,9 @@ assign WBs_RAM2_CYC       = (  WBs_ADR[APERWIDTH-1:APERSIZE+2] == FPGA_RAM2_BASE
                             & (  WBs_CYC                                                                                );
 							
 assign WBs_RAM3_CYC       = (  WBs_ADR[APERWIDTH-1:APERSIZE+2] == FPGA_RAM3_BASE_ADDRESS    [APERWIDTH-1:APERSIZE+2] ) 
+                            & (  WBs_CYC                                                                                ); 
+                            
+assign WBs_RAM4_CYC       = (  WBs_ADR[APERWIDTH-1:APERSIZE+2] == FPGA_RAM4_BASE_ADDRESS    [APERWIDTH-1:APERSIZE+2] ) 
                             & (  WBs_CYC                                                                                );
 
 assign WBs_CYC_QL_Reserved  = (  WBs_ADR[APERWIDTH-1:APERSIZE+2] == QL_RESERVED_BASE_ADDRESS   [APERWIDTH-1:APERSIZE+2] ) 
@@ -257,7 +263,8 @@ always @(
 	FPGA_RAM0_BASE_ADDRESS   [APERWIDTH-1:APERSIZE+2]:   WBs_RD_DAT  <=          WBs_RAM0_DAT   		;
 	FPGA_RAM1_BASE_ADDRESS   [APERWIDTH-1:APERSIZE+2]:   WBs_RD_DAT  <=          WBs_RAM1_DAT   		;
 	FPGA_RAM2_BASE_ADDRESS   [APERWIDTH-1:APERSIZE+2]:   WBs_RD_DAT  <=          WBs_RAM2_DAT   		;
-	FPGA_RAM3_BASE_ADDRESS   [APERWIDTH-1:APERSIZE+2]:   WBs_RD_DAT  <=          WBs_RAM3_DAT   		;
+	FPGA_RAM3_BASE_ADDRESS   [APERWIDTH-1:APERSIZE+2]:   WBs_RD_DAT  <=          WBs_RAM3_DAT   		; 
+  FPGA_RAM4_BASE_ADDRESS   [APERWIDTH-1:APERSIZE+2]:   WBs_RD_DAT  <=          WBs_RAM4_DAT   		;
     QL_RESERVED_BASE_ADDRESS [APERWIDTH-1:APERSIZE+2]:   WBs_RD_DAT  <=          WBs_DAT_o_QL_Reserved  ;
 	default:                                             WBs_RD_DAT  <=          DEFAULT_READ_VALUE     ;
 	endcase
@@ -350,8 +357,9 @@ AL4S3B_FPGA_RAMs #(
     .WBs_ADR_i                 ( WBs_ADR[ADDRWIDTH_FAB_RAMs+1:2] ),
     .WBs_RAM0_CYC_i            ( WBs_RAM0_CYC                   ),
     .WBs_RAM1_CYC_i            ( WBs_RAM1_CYC                   ),
-	.WBs_RAM2_CYC_i            ( WBs_RAM2_CYC                   ),
-	.WBs_RAM3_CYC_i            ( WBs_RAM3_CYC                   ),
+    .WBs_RAM2_CYC_i            ( WBs_RAM2_CYC                   ),
+    .WBs_RAM3_CYC_i            ( WBs_RAM3_CYC                   ),
+    .WBs_RAM4_CYC_i            ( WBs_RAM4_CYC                   ),
     .WBs_BYTE_STB_i            ( WBs_BYTE_STB                   ),
     .WBs_WE_i                  ( WBs_WE                         ),
     .WBs_STB_i                 ( WBs_STB                        ),
@@ -360,8 +368,9 @@ AL4S3B_FPGA_RAMs #(
     .WBs_RST_i                 ( WB_RST                         ),
     .WBs_RAM0_DAT_o            ( WBs_RAM0_DAT               	),
     .WBs_RAM1_DAT_o            ( WBs_RAM1_DAT               	),
-	.WBs_RAM2_DAT_o            ( WBs_RAM2_DAT               	),
-	.WBs_RAM3_DAT_o            ( WBs_RAM3_DAT               	),
+    .WBs_RAM2_DAT_o            ( WBs_RAM2_DAT               	),
+    .WBs_RAM3_DAT_o            ( WBs_RAM3_DAT               	),
+    .WBs_RAM4_DAT_o            ( WBs_RAM4_DAT               	),
     .WBs_ACK_o                 ( WBs_ACK_RAMs                   )
     );
 
