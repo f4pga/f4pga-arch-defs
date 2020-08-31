@@ -34,7 +34,7 @@ function(lut_techmap_test N LUT_COUNT)
     get_file_location(VPR_CELLS_SIM_FILE ${VPR_CELLS_SIM_FILE})
 
     get_filename_component(YOSYS_PATH ${YOSYS} DIRECTORY)
-    set(YOSYS_CELLS_SIM_FILE ${YOSYS_PATH}/../share/yosys/quicklogic/cells_sim.v)
+    set(YOSYS_CELLS_SIM_FILE ${YOSYS_PATH}/../share/yosys/quicklogic/${FAMILY_NAME}_cells_sim.v)
 
     set(BASENAME "test_techmap_lut${N}_x${LUT_COUNT}")
     set(LUT_DUT_FILE "${BASENAME}_dut_lut.v")
