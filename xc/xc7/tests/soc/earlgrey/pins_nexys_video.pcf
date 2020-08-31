@@ -1,0 +1,4 @@
+set_io IO_CLK R4
+set_io IO_RST_N G4
+set_io IO_UTX AA19
+set_io IO_URX V18
