@@ -34,3 +34,6 @@
 [submodule "third_party/symbiflow-xc-fasm2bels"]
 	path = third_party/symbiflow-xc-fasm2bels
 	url = https://github.com/SymbiFlow/symbiflow-xc-fasm2bels.git
+[submodule "third_party/opentitan"]
+	path = third_party/opentitan
+	url = https://github.com/lowRISC/opentitan
