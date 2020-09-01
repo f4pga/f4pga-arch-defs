@@ -34,7 +34,8 @@ function(lut_techmap_test N LUT_COUNT)
     get_file_location(VPR_CELLS_SIM_FILE ${VPR_CELLS_SIM_FILE})
 
     get_filename_component(YOSYS_PATH ${YOSYS} DIRECTORY)
-    set(YOSYS_CELLS_SIM_FILE ${YOSYS_PATH}/../share/yosys/quicklogic/${FAMILY_NAME}_cells_sim.v)
+    set(YOSYS_CELLS_SIM_PATH ${YOSYS_PATH}/../share/yosys/quicklogic)
+    set(YOSYS_CELLS_SIM_FILE ${YOSYS_CELLS_SIM_PATH}/${FAMILY_NAME}_cells_sim.v)
 
     set(BASENAME "test_techmap_lut${N}_x${LUT_COUNT}")
     set(LUT_DUT_FILE "${BASENAME}_dut_lut.v")
@@ -95,6 +96,8 @@ function(lut_techmap_test N LUT_COUNT)
         COMMAND ${QUIET_CMD} ${IVERILOG} -v -DVCDFILE=\"${BASENAME}.vcd\"
             -s tb
             -o ${CMAKE_CURRENT_BINARY_DIR}/${VPP_FILE}
+            -grelative-include
+            -I${YOSYS_CELLS_SIM_PATH}
             ${YOSYS_CELLS_SIM_FILE}
             ${VPR_CELLS_SIM_FILE}
             ${CMAKE_CURRENT_BINARY_DIR}/${LUT_DUT_FILE}
