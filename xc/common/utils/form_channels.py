@@ -47,6 +47,24 @@ VCC_NET = 'VCC_NET'
 GND_NET = 'GND_NET'
 
 
+def filter_loc(loc, grid_limit):
+    """
+    Grid location filter func. Returns True if the given location lies within
+    the grid_limit
+    """
+
+    # No limit
+    if grid_limit is None:
+        return True
+
+    if loc[0] < grid_limit[0] or loc[0] > grid_limit[2]:
+        return False
+    if loc[1] < grid_limit[1] or loc[1] > grid_limit[3]:
+        return False
+
+    return True
+
+
 def import_site_type(db, write_cur, site_types, site_type_name):
     assert site_type_name not in site_types
     site_type = db.get_site_type(site_type_name)
@@ -431,7 +449,7 @@ def build_other_indicies(write_cur):
     )
 
 
-def import_phy_grid(db, grid, conn, get_switch, get_switch_timing, get_site_pin_timing):
+def import_phy_grid(db, grid, conn, get_switch, get_switch_timing, get_site_pin_timing, grid_limit=None):
     write_cur = conn.cursor()
 
     tile_types = {}
@@ -439,6 +457,10 @@ def import_phy_grid(db, grid, conn, get_switch, get_switch_timing, get_site_pin_
 
     for tile in grid.tiles():
         gridinfo = grid.gridinfo_at_tilename(tile)
+
+        loc = tuple(grid.loc_of_tilename(tile))
+        if not filter_loc(loc, grid_limit):
+            continue
 
         if gridinfo.tile_type not in tile_types:
             if gridinfo.tile_type in tile_types:
@@ -463,6 +485,10 @@ def import_phy_grid(db, grid, conn, get_switch, get_switch_timing, get_site_pin_
 
     for tile in grid.tiles():
         gridinfo = grid.gridinfo_at_tilename(tile)
+
+        loc = tuple(grid.loc_of_tilename(tile))
+        if not filter_loc(loc, grid_limit):
+            continue
 
         clock_region_pkey = None
         if gridinfo.clock_region is not None:
@@ -540,7 +566,7 @@ AND
     write_cur.connection.commit()
 
 
-def import_nodes(db, grid, conn):
+def import_nodes(db, grid, conn, grid_limit=None):
     # Some nodes are just 1 wire, so start by enumerating all wires.
 
     cur = conn.cursor()
@@ -550,6 +576,11 @@ def import_nodes(db, grid, conn):
     tile_wire_map = {}
     wires = {}
     for tile in progressbar_utils.progressbar(grid.tiles()):
+
+        loc = tuple(grid.loc_of_tilename(tile))
+        if not filter_loc(loc, grid_limit):
+            continue
+
         gridinfo = grid.gridinfo_at_tilename(tile)
         tile_type = db.get_tile_type(gridinfo.tile_type)
 
@@ -590,6 +621,13 @@ VALUES
 
     for connection in progressbar_utils.progressbar(
             connections.get_connections()):
+
+        loc_a = (connection.wire_a.grid_x, connection.wire_a.grid_y,)
+        loc_b = (connection.wire_b.grid_x, connection.wire_b.grid_y,)
+        if not filter_loc(loc_a, grid_limit) or \
+           not filter_loc(loc_b, grid_limit):
+            continue
+
         a_pkey = tile_wire_map[
             (connection.wire_a.tile, connection.wire_a.wire)]
         b_pkey = tile_wire_map[
