@@ -1,0 +1,17 @@
+# clk
+set_io clk E3
+
+set_io rst C2
+
+# sw[7:0] corresponds to {BTN3-0, SW3-0} in arty
+set_io sw[0] A8
+set_io sw[1] C11
+set_io sw[2] C10
+set_io sw[3] A10
+
+# led[7:0] corresponds to {LD7-0} in arty.
+# only green components of RGB leds
+set_io led[0] H5
+set_io led[1] J5
+set_io led[2] T9
+set_io led[3] T10

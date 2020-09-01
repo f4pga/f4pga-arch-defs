@@ -1,0 +1,73 @@
+{
+    "info":
+        {
+        "name": "pr2",
+        "GRID_X_MAX": 57,
+        "GRID_X_MIN": 10,
+        "GRID_Y_MAX": 156,
+        "GRID_Y_MIN": 105
+        },
+    "ports": [
+        {
+            "name": "clk",
+            "type": "clk",
+            "node": "CLK_HROW_BOT_R_X60Y26/CLK_HROW_CK_BUFHCLK_L8",
+            "wire": "HCLK_CLB_X56Y26/HCLK_CLB_CK_BUFHCLK8",
+            "pin": "SYN0"
+        },
+        {
+            "name": "in[0]",
+            "type": "in",
+            "node": "INT_L_X20Y51/SS2BEG0",
+            "pin": "SYN1"
+        },
+        {
+            "name": "in[1]",
+            "type": "in",
+            "node": "INT_R_X1Y34/EE4BEG3",
+            "pin": "SYN2"
+        },
+        {
+            "name": "in[2]",
+            "type": "in",
+            "node": "INT_L_X0Y47/EE4BEG3",
+            "pin": "SYN3"
+        },
+        {
+            "name": "in[3]",
+            "type": "in",
+            "node": "INT_L_X0Y39/EE4BEG1",
+            "pin": "SYN4"
+        },
+        {
+            "name": "out[0]",
+            "type": "out",
+            "node": "INT_L_X20Y49/ER1BEG_S0",
+            "pin": "SYN5"
+        },
+        {
+            "name": "out[1]",
+            "type": "out",
+            "node": "INT_R_X3Y34/WW4BEG2",
+            "pin": "SYN6"
+        },
+        {
+            "name": "out[2]",
+            "type": "out",
+            "node": "INT_L_X2Y33/WW2BEG2",
+            "pin": "SYN7"
+        },
+        {
+            "name": "out[3]",
+            "type": "out",
+            "node": "INT_L_X4Y30/WW4BEG2",
+            "pin": "SYN8"
+        },
+        {
+            "name": "rst",
+            "type": "in",
+            "node": "INT_R_X23Y46/WW4BEG3",
+            "pin": "SYN9"
+        }
+    ]
+}
