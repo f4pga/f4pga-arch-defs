@@ -119,7 +119,7 @@ def create_get_switch(conn, get_pip_timing=None):
         """
         key = (
             bool(is_pass_transistor), float(delay), float(drive_resistance),
-            float(internal_capacitance), float(penalty_cost)
+            float(internal_capacitance)
         )
 
         if key not in pip_cache:
@@ -168,12 +168,12 @@ VALUES
 
         """
 
-        drive_resistance, internal_capacitance, delay, penalty_cost = \
+        drive_resistance, internal_capacitance, delay = \
             get_pip_timing(pip, pip_timing)
 
         return get_switch_timing(
             pip.is_pass_transistor, delay, internal_capacitance,
-            drive_resistance, penalty_cost
+            drive_resistance
         )
 
     return get_switch, get_switch_timing
