@@ -14,6 +14,8 @@ find -name "*result*.xml" \
     -o -name "pack.log" \
     -o -name "place.log" \
     -o -name "route.log" \
+    -o -name "*_sv2v.v.log" \
+    -o -name "*.bit" \
     -o -name "*_qor.csv" \
     | xargs tar -cvf ../results.tar
 cd ..
