@@ -1,0 +1,40 @@
+# clk
+set_io clk E3
+set_io clk_pr1 SYN0
+set_io clk_pr2 SYN10
+
+set_io rst C2
+set_io rst_pr1 SYN9
+set_io rst_pr2 SYN19
+
+# sw[3:0] corresponds to SW3-0 in arty
+set_io sw[0] A8
+set_io sw[1] C11
+set_io sw[2] C10
+set_io sw[3] A10
+
+set_io in_pr1[0] SYN1
+set_io in_pr1[1] SYN2
+set_io in_pr1[2] SYN3
+set_io in_pr1[3] SYN4
+
+set_io in_pr2[0] SYN11
+set_io in_pr2[1] SYN12
+set_io in_pr2[2] SYN13
+set_io in_pr2[3] SYN14
+
+# led[3:0] corresponds to {LD3-0} in arty.
+set_io led[0] H5
+set_io led[1] J5
+set_io led[2] T9
+set_io led[3] T10
+
+set_io out_pr1[0] SYN5
+set_io out_pr1[1] SYN6
+set_io out_pr1[2] SYN7
+set_io out_pr1[3] SYN8
+
+set_io out_pr2[0] SYN15
+set_io out_pr2[1] SYN16
+set_io out_pr2[2] SYN17
+set_io out_pr2[3] SYN18

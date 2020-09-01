@@ -1,0 +1,13 @@
+set_io clk SYN0
+
+set_io rst SYN9
+
+set_io in[0] SYN1
+set_io in[1] SYN2
+set_io in[2] SYN3
+set_io in[3] SYN4
+
+set_io out[0] SYN5
+set_io out[1] SYN6
+set_io out[2] SYN7
+set_io out[3] SYN8
