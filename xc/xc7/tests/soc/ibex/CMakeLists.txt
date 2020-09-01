@@ -1,9 +1,10 @@
 get_filename_component(IBEX_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../third_party/ibex ABSOLUTE)
 
-add_file_target(FILE led.vmem)
-set(SV2V_IBEX_FLAGS --define=RegFile=ibex_pkg::RegFileFF --define=SRAMInitFile=led.vmem --define=PRIM_DEFAULT_IMPL=prim_pkg::ImplXilinx)
+set(SV2V_ROM_INIT_FILE led.vmem)
+set(SV2V_IBEX_FLAGS --define=RegFile=ibex_pkg::RegFileFF --define=SRAMInitFile=${SV2V_ROM_INIT_FILE})
 
 set(SOURCE_FILE_LIST
+  prim_assert.sv
   clkgen_xil7series.sv
   ram_1p.sv
   ibex_pkg.sv
@@ -47,6 +48,7 @@ set(SOURCE_FILE_LIST
 )
 
 set(INCLUDE_FILE_LIST
+  prim_util_memload.svh
   prim_assert_dummy_macros.svh
   prim_assert_yosys_macros.svh
   prim_assert_standard_macros.svh
@@ -60,13 +62,16 @@ add_custom_command(
     ${PYTHON3} -m pip install -r ${IBEX_DIR}/python-requirements.txt &&
     fusesoc --cores-root=${IBEX_DIR} run --target=synth --setup lowrisc:ibex:top_artya7 --part xc7a35ticsg324-1L
   COMMAND
-    find build -name "\"*.sv\"" -exec cp {} . "\;" &&
-    find build -name "\"*.svh\"" -exec cp {} . "\;"
+    for file in ${SOURCE_FILE_LIST}\; do find build -name \"$$file\" -exec cp {} . \\\; \; done
+  COMMAND
+    for file in ${INCLUDE_FILE_LIST}\; do find build -name \"$$file\" -exec cp {} . \\\; \; done
   COMMAND
     bash -c \"cd ${IBEX_DIR} && git apply -R ${CMAKE_CURRENT_SOURCE_DIR}/ibex.patch\"
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   DEPENDS ${PYTHON3} ${IBEX_DIR}
 )
+
+add_file_target(FILE ${SV2V_ROM_INIT_FILE})
 
 foreach(SRC ${SOURCE_FILE_LIST})
   add_file_target(FILE ${SRC} GENERATED)
@@ -97,7 +102,7 @@ add_fpga_target(
   TOP top_artya7
   INCLUDES
     ${INCLUDE_FILE_LIST}
-    led.vmem
+    ${SV2V_ROM_INIT_FILE}
   SOURCES ibex_sv2v.v
   INPUT_IO_FILE pins_artya7.pcf
   SDC_FILE pins_artya7.sdc
@@ -120,7 +125,7 @@ add_fpga_target(
   TOP top_artya7
   INCLUDES
     ${INCLUDE_FILE_LIST}
-    led.vmem
+    ${SV2V_ROM_INIT_FILE}
   SOURCES ibex_sv2v.v
   INPUT_IO_FILE pins_nexys_video.pcf
   SDC_FILE pins_nexys_video.sdc
