@@ -1,3 +1,0 @@
-r
-log out_log
--Device Cortex-M4 -If SWD -Speed 4000 -commandFile "top.jlink"
