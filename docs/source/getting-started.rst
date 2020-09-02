@@ -52,15 +52,15 @@ you will type:
 
 .. code-block:: bash
 
-    cd build/xc7/tests/counter
-    make counter_arty_bin
+    cd build/xc/xc7/tests/counter
+    make counter_arty_bit
 
 Load bitstream
 --------------
 
 The last step is to load the bitstream to your platform.
 The final output file can be found in the appropriate test directory, i.e:
-``/build/xc7/tests/counter/counter_arty/artix7-xc7a50t-arty-roi-virt-xc7a50t-arty-test/top.bit``
+``build/xc/xc7/tests/counter/counter_arty/artix7-xc7a50t-arty-swbut-roi-virt-xc7a50t-arty-swbut-test/top.bit``
 
 The loading proces may be different for every vendor.
 For convenience a target is provided for this purpose, e.g.:
