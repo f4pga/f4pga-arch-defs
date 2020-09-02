@@ -4,7 +4,8 @@ add_file_target(FILE AL4S3B_FPGA_IP.v SCANNER TYPE verilog)
 add_file_target(FILE AL4S3B_FPGA_Top.v SCANNER TYPE verilog) 
 add_file_target(FILE chandalar.pcf)
 add_file_target(FILE jlink_cmds.txt)
-add_file_target(FILE design.JLinkScript)
+add_file_target(FILE jlink_out_gold)
+add_file_target(FILE jlink_script.sh)
 
 add_fpga_target(
   NAME counter_al4s3b-ql-chandalar

@@ -1,17 +1,19 @@
+sleep 100
 w4 0x40005484 0x8c7
 mem32 0x40005484 1
 w4 0x40004020 0x206
 mem32 0x40004020 1
 w4 0x40004064 1
 mem32 0x40004064 1
-mem32 0x40020000 1  // read IP ID, it should be = 0x12340C16
-mem32 0x40020004 1  // read Revision number, it should be = 0x100
-w4 0x40020008 0x10  // Counter SET
-mem32 0x40020014 1  // read counter value, it should be = 0xFFFF
-w4 0x40020008 0x1   // Counter RESET
-mem32 0x40020014 1  // read counter value, it should be = 0x0
-w4 0x4002000C 0x3   // Enable counter with check
-mem32 0x40020014 1  // read counter value, it keeps changing
-mem32 0x40020014 1  // read counter value, it keeps changing
-mem32 0x40020010 1  // 0 - counter working fine, 1 - count error
-mem32 0x40020010 2  // read status and count
+mem32 0x40020000 1
+mem32 0x40020004 1
+w4 0x40020008 0x10
+mem32 0x40020014 1
+w4 0x40020008 0x1
+mem32 0x40020014 1
+w4 0x4002000C 0x3
+mem32 0x40020014 1
+mem32 0x40020014 1
+mem32 0x40020010 1
+mem32 0x40020010 2
+exit

@@ -7,8 +7,8 @@ set_io count(5) A4
 set_io count(6) C5
 set_io count(7) B5
 set_io count(8) D6
-set_io count(9) A5
-set_io count(10) C6
+set_io count(9) F6
+set_io count(10) F7
 set_io count(11) E7
 set_io count(12) D7
 set_io count(13) E8

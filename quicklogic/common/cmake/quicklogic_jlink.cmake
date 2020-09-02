@@ -79,10 +79,11 @@ function(ADD_JLINK_OUTPUT)
 
   set(DESIGN_CMDS "jlink_cmds.txt")
   set(OUT_JLINK_COPY "jlink_cmds_copy.txt")
-  set(JLINK_SCRIPT "design.JLinkScript")
+  set(JLINK_SCRIPT "jlink_script.sh")
+  set(JLINK_GOLD "jlink_out_gold")
   add_custom_command(
     OUTPUT ${WORK_DIR}/${OUT_JLINK_COPY}
-    DEPENDS ${WORK_DIR}/${OUT_JLINK} ${DESIGN_CMDS} ${JLINK_SCRIPT}
+    DEPENDS ${WORK_DIR}/${OUT_JLINK} ${DESIGN_CMDS} ${JLINK_SCRIPT} ${JLINK_GOLD}
   )
 
   add_custom_target(${PARENT}_jlink_copy DEPENDS ${WORK_DIR}/${OUT_JLINK_COPY} )
@@ -91,8 +92,10 @@ function(ADD_JLINK_OUTPUT)
   set(JLINK_EXE "/usr/bin/JLinkExe")
   add_custom_command(
     OUTPUT ${WORK_DIR}/${OUT_JLINK_HARDWARE}
-    COMMAND cat ${WORK_DIR}/../../${DESIGN_CMDS} >>${WORK_DIR}/${OUT_JLINK}
-    COMMAND ${JLINK_EXE} -JLinkScriptFile design.JLinkScript.txt
+    COMMAND cp ${WORK_DIR}/${OUT_JLINK} ${WORK_DIR}/../../${OUT_JLINK}
+    COMMAND bash ${WORK_DIR}/../../${JLINK_SCRIPT}
+    COMMAND ${JLINK_EXE} -Device Cortex-M4 -If SWD -Speed 4000 -commandFile "top.jlink" >jlink_out
+    COMMAND diff jlink_out jlink_out_gold > top.jlink_hardware 2>&1
     DEPENDS ${WORK_DIR}/${OUT_JLINK}
   )
 
