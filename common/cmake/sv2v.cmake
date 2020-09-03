@@ -7,16 +7,9 @@ function(ADD_SV2V_TARGET)
   # ADD_SV2V_TARGET(
   #    NAME <name>
   #    SOURCES <source list>
-  #    INCLUDES <include list>
   #    FLAGS <flags>
-  #    [EXPLICIT_ADD_FILE_TARGET]
   #
-  # ADD_SV2V_TARGET is used for converting SystemVerilog sources to Verilog.
-  # SOURCES will be passed to the conversion tool, whereas INCLUDES will be
-  # just copied to the build directory.
-  # By default SOURCES and INCLUDES will be implicitly passed to ADD_FILE_TARGET.
-  # If EXPLICIT_ADD_FILE_TARGET is supplied, this behavior is suppressed.
-  #
+  # ADD_SV2V_TARGET is used for converting SystemVerilog SOURCES to Verilog.
   # FLAGS is a string with the flags that are passed to the sv2v during the conversion.
   #
   # Targets  generated:
@@ -30,9 +23,8 @@ function(ADD_SV2V_TARGET)
   # Outputs for this target will be located in the ${CMAKE_CURRENT_BINARY_DIR}
   # ~~~
 
-  set(options EXPLICIT_ADD_FILE_TARGET)
   set(oneValueArgs NAME)
-  set(multiValueArgs SOURCES INCLUDES FLAGS)
+  set(multiValueArgs SOURCES FLAGS)
   cmake_parse_arguments(
     ADD_SV2V_TARGET
     "${options}"
@@ -41,28 +33,11 @@ function(ADD_SV2V_TARGET)
     "${ARGN}"
   )
 
-  # Create file targets for INCLUDES and SOURCES
+  # Create a dependency list
 
-  if(NOT ${ADD_SV2V_TARGET_EXPLICIT_ADD_FILE_TARGET})
-    foreach(SRC ${ADD_SV2V_TARGET_SOURCES})
-      add_file_target(FILE ${SRC} SCANNER_TYPE verilog)
-    endforeach()
-
-    foreach(INC ${ADD_FPGA_TARGET_INCLUDES})
-      add_file_target(FILE ${INC} SCANNER_TYPE verilog)
-    endforeach()
-  endif()
-
-  # Find file locations for INCLUDES and SOURCES
-
-  set(SOURCES_LOCATION "")
+  set(SOURCES_DEPS "")
   foreach(SRC ${ADD_SV2V_TARGET_SOURCES})
-    append_file_location(SOURCES_LOCATION ${SRC})
-  endforeach()
-
-  set(INCLUDES_LOCATION "")
-  foreach(INC ${ADD_SV2V_TARGET_INCLUDES})
-    append_file_location(INCLUDES_LOCATION ${INC})
+    append_file_dependency(SOURCES_DEPS ${SRC})
   endforeach()
 
   # sv2v conversion
@@ -74,7 +49,7 @@ function(ADD_SV2V_TARGET)
 
   add_custom_command(
     OUTPUT ${OUT_FILE}
-    DEPENDS ${SOURCES_LOCATION} ${INCLUDES_LOCATION}
+    DEPENDS ${SOURCES_DEPS}
     COMMAND
       ${CMAKE_COMMAND} -E env
       zachjs-sv2v ${FLAGS} ${SOURCES} > ${OUT_FILE} 2> ${OUT_FILE}.log
