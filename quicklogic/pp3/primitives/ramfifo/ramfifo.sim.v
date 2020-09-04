@@ -33,7 +33,8 @@ module x2_model(
 									ram1_WENBA
 								);
 
-parameter ADDRWID = 10;								
+parameter ADDRWID = 10;	
+parameter [18431:0] INIT = 18432'bx;							
 
 	input										Concat_En;      
 	
@@ -330,9 +331,9 @@ parameter ADDRWID = 10;
 		end
 	end
   
-
-
-	ram	#(.ADDRWID(ADDRWID-2)) ram0_inst(
+	ram	#(.ADDRWID(ADDRWID-2),
+		  .init_1(INIT[ 0*9216 +: 9216])) 
+                          ram0_inst(
 									.AA( ram0_AA_SEL ),
 									.AB( ram0_AB_SEL ),
 									.CLKA( ram0_CEA ),
@@ -349,7 +350,9 @@ parameter ADDRWID = 10;
 									.QB( QB_0 )
 								);
 
-	ram	#(.ADDRWID(ADDRWID-2)) ram1_inst(
+	ram	#(.ADDRWID(ADDRWID-2),
+		  .init_1(INIT[ 1*9216 +: 9216])) 
+						   ram1_inst(
 									.AA( ram1_AA_SEL ),
 									.AB( ram1_AB_SEL ),
 									.CLKA( ram1_CEA ),
@@ -426,6 +429,7 @@ module ram_block_8K (
 								aFlushN_1
 				
                               );
+parameter [18431:0] INIT = 18432'bx;
 
   input                   CLK1_0;
   input                   CLK2_0;
@@ -523,7 +527,9 @@ module ram_block_8K (
   assign RAM1_CS1_SEL = ( FIFO_EN_1 ? CS1_1 : ~CS1_1 );
   assign RAM1_CS2_SEL = ( FIFO_EN_1 ? CS2_1 : ~CS2_1 );
 
-  x2_model #(.ADDRWID(`ADDRWID)) x2_8K_model_inst(
+  x2_model #(.ADDRWID(`ADDRWID),
+			 .INIT(INIT)) 
+			x2_8K_model_inst(
                             .Concat_En( Concat_En_SEL ),
                             
                             .ram0_WIDTH_SELA( WIDTH_SELECT1_0 ),
@@ -692,6 +698,8 @@ module ram8k_2x1_cell_macro (
 
 );
 
+parameter [18431:0] INIT = 18432'bx;
+
   input                   CLK1_0;
   input                   CLK2_0;
   input                   CLK1S_0;
@@ -841,7 +849,8 @@ sw_mux RAM1_Flush_sw_port2 (.port_out(RAM1CS_Sync_Flush_port2), .default_port(CS
 sw_mux RAM1_WidSel0_port2 (.port_out(RAM1_Wid_Sel0_port2), .default_port(WIDTH_SELECT2_1[0]), .alt_port(WIDTH_SELECT1_1[0]), .switch(RAM1_domain_sw));
 sw_mux RAM1_WidSel1_port2 (.port_out(RAM1_Wid_Sel1_port2), .default_port(WIDTH_SELECT2_1[1]), .alt_port(WIDTH_SELECT1_1[1]), .switch(RAM1_domain_sw));
 
-ram_block_8K ram_block_8K_inst (  
+ram_block_8K  # (.INIT(INIT))
+			  ram_block_8K_inst (  
                                 .CLK1_0(RAM0_clk_port1),
                                 .CLK2_0(RAM0_clk_port2),
                                 .WD_0(WD_0),
@@ -1053,8 +1062,11 @@ module ram8k_2x1_cell  (
 	input RMB_b2,
     input RMB_b3
 	);
+
+	parameter [18431:0] INIT = 18432'bx;
 	
-	ram8k_2x1_cell_macro I1 ( 	
+	ram8k_2x1_cell_macro # (.INIT(INIT))
+						I1 ( 	
 							.A1_0({A1_0_b10,A1_0_b9,A1_0_b8,A1_0_b7,A1_0_b6,A1_0_b5,A1_0_b4,A1_0_b3,A1_0_b2,A1_0_b1,A1_0_b0}), 
 							.A1_1({A1_1_b10,A1_1_b9,A1_1_b8,A1_1_b7,A1_1_b6,A1_1_b5,A1_1_b4,A1_1_b3,A1_1_b2,A1_1_b1,A1_1_b0}),
 							.A2_0({A2_0_b10,A2_0_b9,A2_0_b8,A2_0_b7,A2_0_b6,A2_0_b5,A2_0_b4,A2_0_b3,A2_0_b2,A2_0_b1,A2_0_b0}), 
