@@ -177,6 +177,14 @@ function(DEFINE_QL_DEVICE_CELLS_INSTALL_TARGET)
       DESTINATION "share/arch/${DEVICE}_${PACKAGE}/cells")
   endif()
 
+  # install RAMFIFO simulation model files
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/primitives/assp/assp_bfm.sim.v
+          DESTINATION "share/arch/${DEVICE}_${PACKAGE}/cells")
+
+  install(DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/primitives/ramfifo/
+          DESTINATION "share/arch/${DEVICE}_${PACKAGE}/cells"
+          FILES_MATCHING PATTERN "*.v")
+	  
 endfunction()
 
 function(DEFINE_QL_PINMAP_CSV_INSTALL_TARGET)
