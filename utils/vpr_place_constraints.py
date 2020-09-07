@@ -25,27 +25,28 @@ def get_root_cluster(curr):
 
 
 class PlaceConstraints(object):
-    def __init__(self):
+    def __init__(self, net_file):
         self.constraints = OrderedDict()
         self.block_to_loc = dict()
 
-    def load_loc_sites_from_net_file(self, net_file):
+        net_xml = ET.parse(net_file)
+        self.net_root = net_xml.getroot()
+
+    def load_loc_sites_from_net_file(self):
         """
         .place files expect top-level block (cluster) names, not net names, so
         build a mapping from net names to block names from the .net file.
         """
-        net_xml = ET.parse(net_file)
-        net_root = net_xml.getroot()
         self.net_to_block = {}
         self.block_to_root_block = {}
 
-        for el in net_root.iter('block'):
+        for el in self.net_root.iter('block'):
             root_block = get_root_cluster(el)
             if root_block is not None:
                 self.block_to_root_block[el.attrib['name']
                                          ] = root_block.attrib['name']
 
-        for attr in net_root.xpath("//attribute"):
+        for attr in self.net_root.xpath("//attribute"):
             name = attr.attrib["name"]
             if name != 'LOC':
                 continue
@@ -53,7 +54,7 @@ class PlaceConstraints(object):
             # Get block name
             top_block = attr.getparent()
             assert top_block is not None
-            while top_block.getparent() is not net_root:
+            while top_block.getparent() is not self.net_root:
                 assert top_block is not None
                 top_block = top_block.getparent()
 
@@ -129,3 +130,14 @@ class PlaceConstraints(object):
 
         for loc in self.block_to_loc:
             yield (loc, self.block_to_loc[loc])
+
+    def get_used_instances(self, instance):
+        instances = list()
+
+        for el in self.net_root.iter('block'):
+            inst = el.attrib['instance']
+            if instance in inst:
+                if len(el.getchildren()) != 0:
+                    instances.append(get_root_cluster(el).attrib['name'])
+
+        return instances
