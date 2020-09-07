@@ -92,12 +92,6 @@ CLOCKS = {
             "sinks": frozenset(),
             "type": "IBUF",
         },
-    "IDELAYCTRL":
-        {
-            "sources": frozenset(),
-            "sinks": frozenset(("REFCLK", )),
-            "type": "IDELAYCTRL",
-        },
 }
 
 
@@ -124,6 +118,7 @@ class VprGrid(object):
         self.site_type_dict = dict()
         self.cmt_dict = dict()
         self.tile_dict = dict()
+        self.vpr_loc_cmt = dict()
 
         if graph_limit is not None:
             limits = graph_limit.split(",")
@@ -189,6 +184,8 @@ class VprGrid(object):
 
                 self.tile_dict[phy_tile].append((site_name, site_type))
 
+                self.vpr_loc_cmt[(int(vpr_x), int(vpr_y))] = clk_region
+
     def get_site_dict(self):
         return self.site_dict
 
@@ -200,6 +197,9 @@ class VprGrid(object):
 
     def get_tile_dict(self):
         return self.tile_dict
+
+    def get_vpr_loc_cmt(self):
+        return self.vpr_loc_cmt
 
 
 class ClockPlacer(object):
@@ -219,8 +219,10 @@ class ClockPlacer(object):
             'TOP': [],
             'BOT': [],
         }
+        self.pll_cmts = list()
 
         cmt_dict = vpr_grid.get_cmt_dict()
+        site_type_dict = vpr_grid.get_site_type_dict()
 
         try:
             top_cmt_tile = next(
@@ -257,6 +259,9 @@ class ClockPlacer(object):
                 self.cmt_to_bufg_tile[clock_region] = "TOP"
             elif thresh_bot_y is not None and y >= thresh_bot_y:
                 self.cmt_to_bufg_tile[clock_region] = "BOT"
+
+        for _, _, clk_region in site_type_dict['PLLE2_ADV']:
+            self.pll_cmts.append(clk_region)
 
         self.input_pins = {}
         if not self.roi:
@@ -450,6 +455,12 @@ class ClockPlacer(object):
         for net in self.clock_sources:
             for clock_name in self.clock_sources[net]:
                 clock = self.clock_blocks[clock_name]
+
+                if CLOCKS[clock['subckt']]['type'] == 'PLLE2_ADV':
+                    problem.addConstraint(
+                        lambda cmt: cmt in self.pll_cmts,
+                        (clock_name, )
+                    )
 
                 if net in self.input_pins:
                     if CLOCKS[clock['subckt']]['type'] == 'BUFGCTRL':
@@ -700,8 +711,8 @@ def main():
         io_blocks[block] = (int(x), int(y), int(z))
         loc_in_use.add(io_blocks[block])
 
-    place_constraints = vpr_place_constraints.PlaceConstraints()
-    place_constraints.load_loc_sites_from_net_file(args.net)
+    place_constraints = vpr_place_constraints.PlaceConstraints(args.net)
+    place_constraints.load_loc_sites_from_net_file()
 
     grid_capacities = get_tile_capacities(args.arch)
 
@@ -709,6 +720,7 @@ def main():
 
     vpr_grid = VprGrid(args.vpr_grid_map, args.graph_limit)
 
+    # Constrain IO blocks and LOCed resources
     blocks = {}
     block_locs = {}
     for block, loc in place_constraints.get_loc_sites():
@@ -727,6 +739,7 @@ def main():
             block, vpr_loc, "Constraining block {}".format(block)
         )
 
+    # Constrain clock resources
     clock_placer = ClockPlacer(
         vpr_grid, io_blocks, eblif_data, args.roi, args.graph_limit,
         args.allow_bufg_logic_sources
@@ -740,6 +753,34 @@ def main():
             place_constraints.constrain_block(
                 block, vpr_loc, "Constraining clock block {}".format(block)
             )
+
+    # Constrain IDELAYCTRL sites
+    idelayctrl_cmts = set()
+    idelay_instances = place_constraints.get_used_instances("IDELAYE2")
+    for inst in idelay_instances:
+        x, y, z = io_blocks[inst]
+        idelayctrl_cmt = vpr_grid.get_vpr_loc_cmt()[(x, y)]
+        idelayctrl_cmts.add(idelayctrl_cmt)
+
+    idelayctrl_instances = place_constraints.get_used_instances("IDELAYCTRL")
+    assert len(idelayctrl_cmts) == len(
+        idelayctrl_instances
+    ), "The number of IDELAYCTRL blocks and IO banks with IDELAYs used do not match"
+
+    idelayctrl_sites = dict()
+    for site_name, _, clk_region in vpr_grid.get_site_type_dict(
+    )['IDELAYCTRL']:
+        if clk_region in idelayctrl_cmts:
+            idelayctrl_sites[clk_region] = site_name
+
+    for cmt, idelayctrl_block in zip(idelayctrl_cmts, idelayctrl_instances):
+        x, y = vpr_grid.get_site_dict()[idelayctrl_sites[cmt]]['vpr_loc']
+        vpr_loc = (x, y, 0)
+
+        place_constraints.constrain_block(
+            idelayctrl_block, vpr_loc,
+            "Constraining idelayctrl block {}".format(idelayctrl_block)
+        )
 
     place_constraints.output_place_constraints(args.output)
 
