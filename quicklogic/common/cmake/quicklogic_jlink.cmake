@@ -94,7 +94,9 @@ function(ADD_JLINK_OUTPUT)
     OUTPUT ${WORK_DIR}/${OUT_JLINK_HARDWARE}
     COMMAND cp ${WORK_DIR}/${OUT_JLINK} ${WORK_DIR}/../../${OUT_JLINK}
     COMMAND bash ${WORK_DIR}/../../${JLINK_SCRIPT}
-    COMMAND ${JLINK_EXE} -Device Cortex-M4 -If SWD -Speed 4000 -commandFile "top.jlink" >jlink_out
+    COMMAND ${JLINK_EXE} -Device Cortex-M4 -If SWD -Speed 4000 -commandFile "top.jlink"
+    COMMAND ${JLINK_EXE} -Device Cortex-M4 -If SWD -Speed 4000 -commandFile "jlink_cmds.txt" >jlink_out
+    COMMAND sed -i '/VTref/d' jlink_out
     COMMAND diff jlink_out jlink_out_gold > top.jlink_hardware 2>&1
     DEPENDS ${WORK_DIR}/${OUT_JLINK}
   )
