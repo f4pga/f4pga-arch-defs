@@ -9732,7 +9732,6 @@ BUFG BUFG_5(
 	.O(builder_pll_fb_bufg)
 );
 
-(* LOC="IDELAYCTRL_X1Y1" *)
 IDELAYCTRL IDELAYCTRL(
 	.REFCLK(clk200_clk),
 	.RST(main_ic_reset),

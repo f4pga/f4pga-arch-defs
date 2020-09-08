@@ -34,7 +34,6 @@ module top (
     assign led[7] = cnt[23];
 
     // IDELAYCTRL
-    (* LOC="IDELAYCTRL_X0Y0" *)
     IDELAYCTRL idelayctrl (
         .REFCLK (clk_ddr),
         .RDY    (led[6])
