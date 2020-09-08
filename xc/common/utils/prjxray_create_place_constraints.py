@@ -458,8 +458,7 @@ class ClockPlacer(object):
 
                 if CLOCKS[clock['subckt']]['type'] == 'PLLE2_ADV':
                     problem.addConstraint(
-                        lambda cmt: cmt in self.pll_cmts,
-                        (clock_name, )
+                        lambda cmt: cmt in self.pll_cmts, (clock_name, )
                     )
 
                 if net in self.input_pins:
@@ -763,15 +762,27 @@ def main():
         idelayctrl_cmts.add(idelayctrl_cmt)
 
     idelayctrl_instances = place_constraints.get_used_instances("IDELAYCTRL")
+
     assert len(idelayctrl_cmts) == len(
         idelayctrl_instances
-    ), "The number of IDELAYCTRL blocks and IO banks with IDELAYs used do not match"
+    ), "The number of IDELAYCTRL blocks and IO banks with IDELAYs used do not match."
 
     idelayctrl_sites = dict()
     for site_name, _, clk_region in vpr_grid.get_site_type_dict(
     )['IDELAYCTRL']:
         if clk_region in idelayctrl_cmts:
             idelayctrl_sites[clk_region] = site_name
+
+    # Check and remove user constrained IDELAYCTRLs
+    for idelayctrl_block in idelayctrl_instances:
+        if idelayctrl_block in blocks.keys():
+            x, y, _ = blocks[idelayctrl_block]
+            idelayctrl_cmt = vpr_grid.get_vpr_loc_cmt()[(x, y)]
+
+            assert idelayctrl_cmt in idelayctrl_cmts
+
+            idelayctrl_cmts.remove(idelayctrl_cmt)
+            idelayctrl_instances.remove(idelayctrl_block)
 
     for cmt, idelayctrl_block in zip(idelayctrl_cmts, idelayctrl_instances):
         x, y = vpr_grid.get_site_dict()[idelayctrl_sites[cmt]]['vpr_loc']
