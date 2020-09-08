@@ -1,0 +1,21 @@
+# 100 MHz CLK
+set_io clk E3
+
+# Reset
+set_io rst C2
+
+# LEDs
+set_io led[0] H5
+set_io led[1] J5
+set_io led[2] C6
+set_io led[3] G3
+set_io led[4] J3
+set_io led[5] K1
+set_io led[6] F6
+set_io led[7] J4
+set_io led[8] J2
+set_io led[9] H6
+
+# SWs
+set_io sw[0] A8
+set_io sw[1] R2
