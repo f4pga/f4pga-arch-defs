@@ -125,6 +125,8 @@ class PlaceConstraints(object):
                 constrained_blocks[name] = constraint
 
     def get_loc_sites(self):
+        """Yields user-constraints (block, location) pairs"""
+
         if self.block_to_loc is None:
             return
 
@@ -132,6 +134,25 @@ class PlaceConstraints(object):
             yield (loc, self.block_to_loc[loc])
 
     def get_used_instances(self, instance):
+        """
+        Returns a list containing the root clusters of the specified instances in the packed netlist
+        that are marked as used.
+
+        An instance is marked as used when the XML element relative to the instance name has
+        children tags.
+
+        E.g.:
+            <block name="idelayctrl_block" instance="IDELAYCTRL[0]">
+                <inputs>
+                    <port name="REFCLK">refclk</port>
+                </inputs>
+                ...
+            </block>
+            ...
+
+            <block name="open" instance="IDELAYCTRL[0]" />
+        """
+
         instances = list()
 
         for el in self.net_root.iter('block'):
