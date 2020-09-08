@@ -10147,7 +10147,6 @@ BUFG BUFG_4(
 	.O(clk200_clk)
 );
 
-(* LOC="IDELAYCTRL_X1Y0" *)
 IDELAYCTRL IDELAYCTRL(
 	.REFCLK(clk200_clk),
 	.RST(main_ic_reset),

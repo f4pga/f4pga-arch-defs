@@ -13455,7 +13455,6 @@ BUFG BUFG_5(
 wire eth_ref_clk_obuf;
 OBUF clk_eth_buf(.I(eth_ref_clk_obuf), .O(eth_ref_clk));
 
-(* LOC="IDELAYCTRL_X1Y1" *)
 IDELAYCTRL IDELAYCTRL(
 	.REFCLK(clk200_clk),
 	.RST(soc_ic_reset),
