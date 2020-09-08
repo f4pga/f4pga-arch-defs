@@ -11,6 +11,7 @@ include(common/cmake/v2x.cmake)
 include(common/cmake/install.cmake)
 include(common/cmake/devices.cmake)
 include(common/cmake/tools.cmake)
+include(common/cmake/sv2v.cmake)
 
 find_package(PythonInterp 3 REQUIRED)
 

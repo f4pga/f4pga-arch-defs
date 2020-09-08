@@ -1533,8 +1533,10 @@ end
   if(WRITE_WIDTH_A < 18) begin
       assign WEA_WIDE = {4{WEA[0]}};
   end else if(WRITE_WIDTH_A == 18) begin
-      assign WEA_WIDE[3:2] = {2{WEA[1]}};
-      assign WEA_WIDE[1:0] = {2{WEA[0]}};
+      assign WEA_WIDE[3] = WEA[1];
+      assign WEA_WIDE[1] = WEA[1];
+      assign WEA_WIDE[2] = WEA[0];
+      assign WEA_WIDE[0] = WEA[0];
   end else if(WRITE_WIDTH_A == 36) begin
       assign WEA_WIDE = WEA;
   end
@@ -1544,8 +1546,10 @@ end
       assign WEBWE_WIDE[3:0] = {4{WEBWE[0]}};
   end else if(WRITE_WIDTH_B == 18) begin
       assign WEBWE_WIDE[7:4] = 4'b0;
-      assign WEBWE_WIDE[3:2] = {2{WEBWE[1]}};
-      assign WEBWE_WIDE[1:0] = {2{WEBWE[0]}};
+      assign WEBWE_WIDE[3] = WEBWE[1];
+      assign WEBWE_WIDE[1] = WEBWE[1];
+      assign WEBWE_WIDE[2] = WEBWE[0];
+      assign WEBWE_WIDE[0] = WEBWE[0];
   end else if(WRITE_WIDTH_B == 36) begin
       assign WEBWE_WIDE = WEBWE;
   end else if(WRITE_WIDTH_B == 72) begin
@@ -1674,207 +1678,6 @@ end
     `undef DUP
   );
 endmodule // RAMB36E1
-
-module CARRY_COUT_PLUG(input CIN, output COUT);
-
-assign COUT = CIN;
-
-endmodule
-
-module CARRY4_CO_COUT(output [3:0] CO, output COUT, input CI, CYINIT, input [3:0] DI, S);
-  parameter _TECHMAP_CONSTMSK_CI_ = 1;
-  parameter _TECHMAP_CONSTVAL_CI_ = 1'b0;
-  parameter _TECHMAP_CONSTMSK_CYINIT_ = 1;
-  parameter _TECHMAP_CONSTVAL_CYINIT_ = 1'b0;
-
-  localparam [0:0] IS_CI_ZERO = (
-      _TECHMAP_CONSTMSK_CI_ == 1 && _TECHMAP_CONSTVAL_CI_ == 0 &&
-      _TECHMAP_CONSTMSK_CYINIT_ == 1 && _TECHMAP_CONSTVAL_CYINIT_ == 0);
-  localparam [0:0] IS_CI_ONE = (
-      _TECHMAP_CONSTMSK_CI_ == 1 && _TECHMAP_CONSTVAL_CI_ == 0 &&
-      _TECHMAP_CONSTMSK_CYINIT_ == 1 && _TECHMAP_CONSTVAL_CYINIT_ == 1);
-  localparam [0:0] IS_CYINIT_FABRIC = _TECHMAP_CONSTMSK_CYINIT_ == 0;
-  localparam [0:0] IS_CI_DISCONNECTED = _TECHMAP_CONSTMSK_CI_ == 1 &&
-    _TECHMAP_CONSTVAL_CI_ != 1;
-  localparam [0:0] IS_CYINIT_DISCONNECTED = _TECHMAP_CONSTMSK_CYINIT_ == 1 &&
-    _TECHMAP_CONSTVAL_CYINIT_ != 1;
-
-  wire [1023:0] _TECHMAP_DO_ = "proc; clean";
-  wire [3:0] O;
-
-  if(IS_CYINIT_FABRIC) begin
-    CARRY4_VPR #(
-        .CYINIT_AX(1'b1),
-        .CYINIT_C0(1'b0),
-        .CYINIT_C1(1'b0)
-    ) _TECHMAP_REPLACE_ (
-        .CO_CHAIN(COUT),
-        .CO_FABRIC0(CO[0]),
-        .CO_FABRIC1(CO[1]),
-        .CO_FABRIC2(CO[2]),
-        .CO_FABRIC3(CO[3]),
-        .CYINIT(CYINIT),
-        .O0(O[0]),
-        .O1(O[1]),
-        .O2(O[2]),
-        .O3(O[3]),
-        .DI0(DI[0]),
-        .DI1(DI[1]),
-        .DI2(DI[2]),
-        .DI3(DI[3]),
-        .S0(S[0]),
-        .S1(S[1]),
-        .S2(S[2]),
-        .S3(S[3])
-    );
-  end else if(IS_CI_ZERO || IS_CI_ONE) begin
-    CARRY4_VPR #(
-        .CYINIT_AX(1'b0),
-        .CYINIT_C0(IS_CI_ZERO),
-        .CYINIT_C1(IS_CI_ONE)
-    ) _TECHMAP_REPLACE_ (
-        .CO_CHAIN(COUT),
-        .CO_FABRIC0(CO[0]),
-        .CO_FABRIC1(CO[1]),
-        .CO_FABRIC2(CO[2]),
-        .CO_FABRIC3(CO[3]),
-        .O0(O[0]),
-        .O1(O[1]),
-        .O2(O[2]),
-        .O3(O[3]),
-        .DI0(DI[0]),
-        .DI1(DI[1]),
-        .DI2(DI[2]),
-        .DI3(DI[3]),
-        .S0(S[0]),
-        .S1(S[1]),
-        .S2(S[2]),
-        .S3(S[3])
-    );
-  end else begin
-    CARRY4_VPR #(
-        .CYINIT_AX(1'b0),
-        .CYINIT_C0(1'b0),
-        .CYINIT_C1(1'b0)
-    ) _TECHMAP_REPLACE_ (
-        .CO_CHAIN(COUT),
-        .CO_FABRIC0(CO[0]),
-        .CO_FABRIC1(CO[1]),
-        .CO_FABRIC2(CO[2]),
-        .CO_FABRIC3(CO[3]),
-        .O0(O[0]),
-        .O1(O[1]),
-        .O2(O[2]),
-        .O3(O[3]),
-        .DI0(DI[0]),
-        .DI1(DI[1]),
-        .DI2(DI[2]),
-        .DI3(DI[3]),
-        .S0(S[0]),
-        .S1(S[1]),
-        .S2(S[2]),
-        .S3(S[3]),
-        .CIN(CI)
-    );
-  end
-endmodule
-
-module CARRY4_COUT(output [3:0] CO, O, output COUT, input CI, CYINIT, input [3:0] DI, S);
-  parameter _TECHMAP_CONSTMSK_CI_ = 1;
-  parameter _TECHMAP_CONSTVAL_CI_ = 1'b0;
-  parameter _TECHMAP_CONSTMSK_CYINIT_ = 1;
-  parameter _TECHMAP_CONSTVAL_CYINIT_ = 1'b0;
-
-  localparam [0:0] IS_CI_ZERO = (
-      _TECHMAP_CONSTMSK_CI_ == 1 && _TECHMAP_CONSTVAL_CI_ == 0 &&
-      _TECHMAP_CONSTMSK_CYINIT_ == 1 && _TECHMAP_CONSTVAL_CYINIT_ == 0);
-  localparam [0:0] IS_CI_ONE = (
-      _TECHMAP_CONSTMSK_CI_ == 1 && _TECHMAP_CONSTVAL_CI_ == 0 &&
-      _TECHMAP_CONSTMSK_CYINIT_ == 1 && _TECHMAP_CONSTVAL_CYINIT_ == 1);
-  localparam [0:0] IS_CYINIT_FABRIC = _TECHMAP_CONSTMSK_CYINIT_ == 0;
-  localparam [0:0] IS_CI_DISCONNECTED = _TECHMAP_CONSTMSK_CI_ == 1 &&
-    _TECHMAP_CONSTVAL_CI_ != 1;
-  localparam [0:0] IS_CYINIT_DISCONNECTED = _TECHMAP_CONSTMSK_CYINIT_ == 1 &&
-    _TECHMAP_CONSTVAL_CYINIT_ != 1;
-
-  wire [1023:0] _TECHMAP_DO_ = "proc; clean";
-
-  if(IS_CYINIT_FABRIC) begin
-    CARRY4_VPR #(
-        .CYINIT_AX(1'b1),
-        .CYINIT_C0(1'b0),
-        .CYINIT_C1(1'b0)
-    ) _TECHMAP_REPLACE_ (
-        .CO_CHAIN(COUT),
-        .CO_FABRIC0(CO[0]),
-        .CO_FABRIC1(CO[1]),
-        .CO_FABRIC2(CO[2]),
-        .CO_FABRIC3(CO[3]),
-        .O0(O[0]),
-        .O1(O[1]),
-        .O2(O[2]),
-        .O3(O[3]),
-        .CYINIT(CYINIT),
-        .DI0(DI[0]),
-        .DI1(DI[1]),
-        .DI2(DI[2]),
-        .DI3(DI[3]),
-        .S0(S[0]),
-        .S1(S[1]),
-        .S2(S[2]),
-        .S3(S[3])
-    );
-  end else if(IS_CI_ZERO || IS_CI_ONE) begin
-    CARRY4_VPR #(
-        .CYINIT_AX(1'b0),
-        .CYINIT_C0(IS_CI_ZERO),
-        .CYINIT_C1(IS_CI_ONE)
-    ) _TECHMAP_REPLACE_ (
-        .CO_CHAIN(COUT),
-        .CO_FABRIC0(CO[0]),
-        .CO_FABRIC1(CO[1]),
-        .CO_FABRIC2(CO[2]),
-        .CO_FABRIC3(CO[3]),
-        .O0(O[0]),
-        .O1(O[1]),
-        .O2(O[2]),
-        .O3(O[3]),
-        .DI0(DI[0]),
-        .DI1(DI[1]),
-        .DI2(DI[2]),
-        .DI3(DI[3]),
-        .S0(S[0]),
-        .S1(S[1]),
-        .S2(S[2]),
-        .S3(S[3])
-    );
-  end else begin
-    CARRY4_VPR #(
-        .CYINIT_AX(1'b0),
-        .CYINIT_C0(1'b0),
-        .CYINIT_C1(1'b0)
-    ) _TECHMAP_REPLACE_ (
-        .CO_CHAIN(COUT),
-        .CO_FABRIC0(CO[0]),
-        .CO_FABRIC1(CO[1]),
-        .CO_FABRIC2(CO[2]),
-        .CO_FABRIC3(CO[3]),
-        .O0(O[0]),
-        .O1(O[1]),
-        .O2(O[2]),
-        .O3(O[3]),
-        .DI0(DI[0]),
-        .DI1(DI[1]),
-        .DI2(DI[2]),
-        .DI3(DI[3]),
-        .S0(S[0]),
-        .S1(S[1]),
-        .S2(S[2]),
-        .S3(S[3]),
-        .CIN(CI)
-    );
-  end
-endmodule
 
 // ============================================================================
 // SRLs
@@ -3532,6 +3335,28 @@ module BUFGCE (
     .IGNORE1(1'b1),
     .S0(1'b1),
     .S1(1'b0)
+  );
+endmodule
+
+module BUFGMUX (
+  input I0,
+  input I1,
+  input S,
+  output O
+  );
+
+  BUFGCTRL #(
+    .IS_CE0_INVERTED(1'b1)
+  )_TECHMAP_REPLACE_ (
+    .O(O),
+    .CE0(S),
+    .CE1(S),
+    .I0(I0),
+    .I1(I1),
+    .IGNORE0(1'b0),
+    .IGNORE1(1'b0),
+    .S0(1'b1),
+    .S1(1'b1)
   );
 endmodule
 
@@ -8364,3 +8189,81 @@ module PS7 (
 
 endmodule
 
+module CARRY4_FIX(output O0, O1, O2, O3, CO0, CO1, CO2, CO3, input CYINIT, CIN, DI0, DI1, DI2, DI3, S0, S1, S2, S3);
+  parameter CYINIT_AX = 1'b0;
+  parameter CYINIT_C0 = 1'b0;
+  parameter CYINIT_C1 = 1'b0;
+
+  if(CYINIT_AX) begin
+    CARRY4_VPR #(
+        .CYINIT_AX(1'b1),
+        .CYINIT_C0(1'b0),
+        .CYINIT_C1(1'b0)
+    ) _TECHMAP_REPLACE_ (
+        .CO0(CO0),
+        .CO1(CO1),
+        .CO2(CO2),
+        .CO3(CO3),
+        .CYINIT(CYINIT),
+        .O0(O0),
+        .O1(O1),
+        .O2(O2),
+        .O3(O3),
+        .DI0(DI0),
+        .DI1(DI1),
+        .DI2(DI2),
+        .DI3(DI3),
+        .S0(S0),
+        .S1(S1),
+        .S2(S2),
+        .S3(S3)
+    );
+  end else if(CYINIT_C0 || CYINIT_C1) begin
+    CARRY4_VPR #(
+        .CYINIT_AX(1'b0),
+        .CYINIT_C0(CYINIT_C0),
+        .CYINIT_C1(CYINIT_C1)
+    ) _TECHMAP_REPLACE_ (
+        .CO0(CO0),
+        .CO1(CO1),
+        .CO2(CO2),
+        .CO3(CO3),
+        .O0(O0),
+        .O1(O1),
+        .O2(O2),
+        .O3(O3),
+        .DI0(DI0),
+        .DI1(DI1),
+        .DI2(DI2),
+        .DI3(DI3),
+        .S0(S0),
+        .S1(S1),
+        .S2(S2),
+        .S3(S3)
+    );
+  end else begin
+    CARRY4_VPR #(
+        .CYINIT_AX(1'b0),
+        .CYINIT_C0(1'b0),
+        .CYINIT_C1(1'b0)
+    ) _TECHMAP_REPLACE_ (
+        .CO0(CO0),
+        .CO1(CO1),
+        .CO2(CO2),
+        .CO3(CO3),
+        .O0(O0),
+        .O1(O1),
+        .O2(O2),
+        .O3(O3),
+        .DI0(DI0),
+        .DI1(DI1),
+        .DI2(DI2),
+        .DI3(DI3),
+        .S0(S0),
+        .S1(S1),
+        .S2(S2),
+        .S3(S3),
+        .CIN(CIN)
+    );
+  end
+endmodule

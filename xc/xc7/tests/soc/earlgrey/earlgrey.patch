@@ -1,0 +1,127 @@
+diff --git a/hw/ip/prim/abstract/prim_ram_2p.sv b/hw/ip/prim/abstract/prim_ram_2p.sv
+index cab45d7..c38e691 100644
+--- a/hw/ip/prim/abstract/prim_ram_2p.sv
++++ b/hw/ip/prim/abstract/prim_ram_2p.sv
+@@ -55,23 +55,28 @@ module prim_ram_2p #(
+       .b_rdata_o
+     );
+   end else if (Impl == ImplXilinx) begin : gen_mem_xilinx
+-    prim_xilinx_ram_2p #(
++    prim_xilinx_ram_1p #(
+       .Width(Width),
+       .Depth(Depth)
+-    ) u_impl_xilinx (
+-      .clk_a_i,
+-      .clk_b_i,
+-      .a_req_i,
+-      .a_write_i,
+-      .a_addr_i,
+-      .a_wdata_i,
+-      .a_rdata_o,
+-      .b_req_i,
+-      .b_write_i,
+-      .b_addr_i,
+-      .b_wdata_i,
+-      .b_rdata_o
++    ) u_impl_xilinx_1(
++      .clk_a_i(clk_a_i),
++      .a_req_i(a_req_i),
++      .a_write_i(a_write_i),
++      .a_addr_i(a_addr_i),
++      .a_wdata_i(a_wdata_i),
++      .a_rdata_o(a_rdata_o)
+     );
++    prim_xilinx_ram_1p #(
++      .Width(Width),
++      .Depth(Depth)
++   ) u_impl_xilinx_2(
++      .clk_a_i(clk_b_i),
++      .a_req_i(b_req_i),
++      .a_write_i(b_write_i),
++      .a_addr_i(b_addr_i),
++      .a_wdata_i(b_wdata_i),
++      .a_rdata_o(b_rdata_o)
++   );
+   end else begin : gen_failure
+     // TODO: Find code that works across tools and causes a compile failure
+   end
+diff --git a/hw/ip/prim/rtl/prim_lfsr.sv b/hw/ip/prim/rtl/prim_lfsr.sv
+index 3c162be..0049bda 100644
+--- a/hw/ip/prim/rtl/prim_lfsr.sv
++++ b/hw/ip/prim/rtl/prim_lfsr.sv
+@@ -299,7 +299,7 @@ module prim_lfsr #(
+   ////////////////
+   // Galois XOR //
+   ////////////////
+-  if (64'(LfsrType) == 64'("GAL_XOR")) begin : gen_gal_xor
++  if (LfsrType == "GAL_XOR") begin : gen_gal_xor
+ 
+     // if custom polynomial is provided
+     if (CustomCoeffs > 0) begin : gen_custom
+@@ -324,7 +324,7 @@ module prim_lfsr #(
+   ////////////////////
+   // Fibonacci XNOR //
+   ////////////////////
+-  end else if (64'(LfsrType) == "FIB_XNOR") begin : gen_fib_xnor
++  end else if (LfsrType == "FIB_XNOR") begin : gen_fib_xnor
+ 
+     // if custom polynomial is provided
+     if (CustomCoeffs > 0) begin : gen_custom
+@@ -389,7 +389,7 @@ module prim_lfsr #(
+     logic state0;
+ 
+     // Galois XOR
+-    if (64'(LfsrType) == 64'("GAL_XOR")) begin
++    if (LfsrType == "GAL_XOR") begin
+       if (state == 0) begin
+         state = DefaultSeed;
+       end else begin
+@@ -399,7 +399,7 @@ module prim_lfsr #(
+         state ^= LfsrDw'(entropy);
+       end
+     // Fibonacci XNOR
+-    end else if (64'(LfsrType) == "FIB_XNOR") begin
++    end else if (LfsrType == "FIB_XNOR") begin
+       if (&state) begin
+         state = DefaultSeed;
+       end else begin
+diff --git a/hw/ip/prim_generic/rtl/prim_generic_pad_wrapper.sv b/hw/ip/prim_generic/rtl/prim_generic_pad_wrapper.sv
+index ca1dc9f..44d7cb8 100644
+--- a/hw/ip/prim_generic/rtl/prim_generic_pad_wrapper.sv
++++ b/hw/ip/prim_generic/rtl/prim_generic_pad_wrapper.sv
+@@ -33,7 +33,7 @@ module prim_generic_pad_wrapper #(
+   assign oe       = oe_i & ((od & ~out) | ~od);
+ 
+ // driving strength attributes are not supported by verilator
+-`ifdef VERILATOR
++`ifdef SYNTHESIS
+   assign inout_io = (oe) ? out : 1'bz;
+ `else
+   // different driver types
+diff --git a/hw/top_earlgrey/rtl/clkgen_xil7series.sv b/hw/top_earlgrey/rtl/clkgen_xil7series.sv
+index 03dab4b..87344d6 100644
+--- a/hw/top_earlgrey/rtl/clkgen_xil7series.sv
++++ b/hw/top_earlgrey/rtl/clkgen_xil7series.sv
+@@ -30,14 +30,14 @@ module clkgen_xil7series (
+     .STARTUP_WAIT         ("FALSE"),
+     .DIVCLK_DIVIDE        (1),
+     .CLKFBOUT_MULT        (12),
+-    .CLKFBOUT_PHASE       (0.000),
+-    .CLKOUT0_DIVIDE       (24),
+-    .CLKOUT0_PHASE        (0.000),
+-    .CLKOUT0_DUTY_CYCLE   (0.500),
+-    .CLKOUT1_DIVIDE       (25),
+-    .CLKOUT1_PHASE        (0.000),
+-    .CLKOUT1_DUTY_CYCLE   (0.500),
+-    .CLKIN1_PERIOD        (10.000)
++    .CLKFBOUT_PHASE       (0),
++    .CLKOUT0_DIVIDE       (48),
++    .CLKOUT0_PHASE        (0),
++    .CLKOUT0_DUTY_CYCLE   (500),
++    .CLKOUT1_DIVIDE       (50),
++    .CLKOUT1_PHASE        (0),
++    .CLKOUT1_DUTY_CYCLE   (500),
++    .CLKIN1_PERIOD        (10000)
+   ) pll (
+     .CLKFBOUT            (clk_fb_unbuf),
+     .CLKOUT0             (clk_50_unbuf),

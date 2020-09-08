@@ -59,6 +59,7 @@
 
   <!-- CARRY4 logic -->
   <xi:include href="carry/carry4_vpr.pb_type.xml" />
+  <xi:include href="carry/carry_cout_plug.pb_type.xml" />
 
   <pb_type name="CEUSEDMUX" num_pb="1" >
     <input name="CE" num_pins="1" />
@@ -260,6 +261,11 @@
   <interconnect>
     <!-- 5FF MUXs -->
     <mux name="D5FFMUX" input="COMMON_SLICE.DX COMMON_SLICE.DO5" output="SLICE_FF.D5[3]" >
+      <pack_pattern in_port="COMMON_SLICE.DO5" name="LUT_to_FF_FDSE" out_port="SLICE_FF.D5[3]" />
+      <pack_pattern in_port="COMMON_SLICE.DO5" name="LUT_to_FF_FDRE" out_port="SLICE_FF.D5[3]" />
+      <pack_pattern in_port="COMMON_SLICE.DO5" name="LUT_to_FF_FDPE" out_port="SLICE_FF.D5[3]" />
+      <pack_pattern in_port="COMMON_SLICE.DO5" name="LUT_to_FF_FDCE" out_port="SLICE_FF.D5[3]" />
+
       <delay_constant in_port="COMMON_SLICE.DX"  max="{interconnect_dx_d5ffl}" out_port="SLICE_FF.D5[3]" />
       <delay_constant in_port="COMMON_SLICE.DO5" max="{interconnect_d5lut_d5ffl}"    out_port="SLICE_FF.D5[3]" />
       <metadata>
@@ -270,6 +276,11 @@
       </metadata>
     </mux>
     <mux name="C5FFMUX" input="COMMON_SLICE.CX COMMON_SLICE.CO5" output="SLICE_FF.D5[2]" >
+      <pack_pattern in_port="COMMON_SLICE.CO5" name="LUT_to_FF_FDSE" out_port="SLICE_FF.D5[2]" />
+      <pack_pattern in_port="COMMON_SLICE.CO5" name="LUT_to_FF_FDRE" out_port="SLICE_FF.D5[2]" />
+      <pack_pattern in_port="COMMON_SLICE.CO5" name="LUT_to_FF_FDPE" out_port="SLICE_FF.D5[2]" />
+      <pack_pattern in_port="COMMON_SLICE.CO5" name="LUT_to_FF_FDCE" out_port="SLICE_FF.D5[2]" />
+
       <delay_constant in_port="COMMON_SLICE.CX"  max="{interconnect_cx_c5ffl}" out_port="SLICE_FF.D5[2]" />
       <delay_constant in_port="COMMON_SLICE.CO5" max="{interconnect_c5lut_c5ffl}"    out_port="SLICE_FF.D5[2]" />
       <metadata>
@@ -280,6 +291,11 @@
       </metadata>
     </mux>
     <mux name="B5FFMUX" input="COMMON_SLICE.BX COMMON_SLICE.BO5" output="SLICE_FF.D5[1]" >
+      <pack_pattern in_port="COMMON_SLICE.BO5" name="LUT_to_FF_FDSE" out_port="SLICE_FF.D5[1]" />
+      <pack_pattern in_port="COMMON_SLICE.BO5" name="LUT_to_FF_FDRE" out_port="SLICE_FF.D5[1]" />
+      <pack_pattern in_port="COMMON_SLICE.BO5" name="LUT_to_FF_FDPE" out_port="SLICE_FF.D5[1]" />
+      <pack_pattern in_port="COMMON_SLICE.BO5" name="LUT_to_FF_FDCE" out_port="SLICE_FF.D5[1]" />
+
       <delay_constant in_port="COMMON_SLICE.BX"  max="{interconnect_bx_b5ffl}" out_port="SLICE_FF.D5[1]" />
       <delay_constant in_port="COMMON_SLICE.BO5" max="{interconnect_b5lut_b5ffl}"    out_port="SLICE_FF.D5[1]" />
       <metadata>
@@ -290,6 +306,11 @@
       </metadata>
     </mux>
     <mux name="A5FFMUX" input="COMMON_SLICE.AX COMMON_SLICE.AO5" output="SLICE_FF.D5[0]" >
+      <pack_pattern in_port="COMMON_SLICE.AO5" name="LUT_to_FF_FDSE" out_port="SLICE_FF.D5[0]" />
+      <pack_pattern in_port="COMMON_SLICE.AO5" name="LUT_to_FF_FDRE" out_port="SLICE_FF.D5[0]" />
+      <pack_pattern in_port="COMMON_SLICE.AO5" name="LUT_to_FF_FDPE" out_port="SLICE_FF.D5[0]" />
+      <pack_pattern in_port="COMMON_SLICE.AO5" name="LUT_to_FF_FDCE" out_port="SLICE_FF.D5[0]" />
+
       <delay_constant in_port="COMMON_SLICE.AX"  max="{interconnect_ax_a5ffl}" out_port="SLICE_FF.D5[0]" />
       <delay_constant in_port="COMMON_SLICE.AO5" max="{interconnect_a5lut_a5ffl}"    out_port="SLICE_FF.D5[0]" />
       <metadata>
@@ -302,11 +323,11 @@
 
     <!-- [A-D]MUX -->
     <mux name="DOUTMUX"
-      input="COMMON_SLICE.AMC31 SLICE_FF.Q5[3] CARRY4_VPR.O3 CARRY4_VPR.CO_FABRIC3 COMMON_SLICE.DO6 COMMON_SLICE.DO5"
+      input="COMMON_SLICE.AMC31 SLICE_FF.Q5[3] CARRY4_VPR.O3 CARRY4_VPR.CO3 COMMON_SLICE.DO6 COMMON_SLICE.DO5"
       output="COMMON_SLICE.DMUX">
       <delay_constant in_port="SLICE_FF.Q5[3]" max="{interconnect_d5ff_dmux}" out_port="COMMON_SLICE.DMUX" />
       <delay_constant in_port="CARRY4_VPR.O3" max="{interconnect_carry4_co3_dmux}" out_port="COMMON_SLICE.DMUX" />
-      <delay_constant in_port="CARRY4_VPR.CO_FABRIC3" max="{interconnect_carry4_o3_dmux}" out_port="COMMON_SLICE.DMUX" />
+      <delay_constant in_port="CARRY4_VPR.CO3" max="{interconnect_carry4_o3_dmux}" out_port="COMMON_SLICE.DMUX" />
       <delay_constant in_port="COMMON_SLICE.DO6" max="{interconnect_d6lut_dmux}" out_port="COMMON_SLICE.DMUX" />
       <delay_constant in_port="COMMON_SLICE.DO5" max="{interconnect_d5lut_dmux}" out_port="COMMON_SLICE.DMUX" />
       <metadata>
@@ -315,17 +336,17 @@
           SLICE_FF.Q5[3] = DOUTMUX.D5Q
           COMMON_SLICE.DO5 = DOUTMUX.O5
           COMMON_SLICE.DO6 = DOUTMUX.O6
-          CARRY4_VPR.CO_FABRIC3 = DOUTMUX.CY
+          CARRY4_VPR.CO3 = DOUTMUX.CY
           CARRY4_VPR.O3 = DOUTMUX.XOR
         </meta>
       </metadata>
     </mux>
     <mux name="COUTMUX"
-      input="SLICE_FF.Q5[2] CARRY4_VPR.O2 CARRY4_VPR.CO_FABRIC2 COMMON_SLICE.CO6 COMMON_SLICE.CO5 COMMON_SLICE.F7BMUX_O"
+      input="SLICE_FF.Q5[2] CARRY4_VPR.O2 CARRY4_VPR.CO2 COMMON_SLICE.CO6 COMMON_SLICE.CO5 COMMON_SLICE.F7BMUX_O"
       output="COMMON_SLICE.CMUX" >
       <delay_constant in_port="SLICE_FF.Q5[2]" max="{interconnect_c5ff_cmux}" out_port="COMMON_SLICE.CMUX" />
       <delay_constant in_port="CARRY4_VPR.O2" max="{interconnect_carry4_co2_cmux}" out_port="COMMON_SLICE.CMUX" />
-      <delay_constant in_port="CARRY4_VPR.CO_FABRIC2" max="{interconnect_carry4_o2_cmux}" out_port="COMMON_SLICE.CMUX" />
+      <delay_constant in_port="CARRY4_VPR.CO2" max="{interconnect_carry4_o2_cmux}" out_port="COMMON_SLICE.CMUX" />
       <delay_constant in_port="COMMON_SLICE.CO6" max="{interconnect_c6lut_cmux}" out_port="COMMON_SLICE.CMUX" />
       <delay_constant in_port="COMMON_SLICE.CO5" max="{interconnect_c5lut_cmux}" out_port="COMMON_SLICE.CMUX" />
       <metadata>
@@ -334,17 +355,17 @@
           COMMON_SLICE.F7BMUX_O = COUTMUX.F7
           COMMON_SLICE.CO5 = COUTMUX.O5
           COMMON_SLICE.CO6 = COUTMUX.O6
-          CARRY4_VPR.CO_FABRIC2 = COUTMUX.CY
+          CARRY4_VPR.CO2 = COUTMUX.CY
           CARRY4_VPR.O2 = COUTMUX.XOR
         </meta>
       </metadata>
     </mux>
     <mux name="BOUTMUX"
-      input="SLICE_FF.Q5[1] CARRY4_VPR.O1 CARRY4_VPR.CO_FABRIC1 COMMON_SLICE.BO6 COMMON_SLICE.BO5 COMMON_SLICE.F8MUX_O"
+      input="SLICE_FF.Q5[1] CARRY4_VPR.O1 CARRY4_VPR.CO1 COMMON_SLICE.BO6 COMMON_SLICE.BO5 COMMON_SLICE.F8MUX_O"
       output="COMMON_SLICE.BMUX" >
       <delay_constant in_port="SLICE_FF.Q5[1]" max="{interconnect_b5ff_bmux}" out_port="COMMON_SLICE.BMUX" />
       <delay_constant in_port="CARRY4_VPR.O1" max="{interconnect_carry4_co1_bmux}" out_port="COMMON_SLICE.BMUX" />
-      <delay_constant in_port="CARRY4_VPR.CO_FABRIC1" max="{interconnect_carry4_o1_bmux}" out_port="COMMON_SLICE.BMUX" />
+      <delay_constant in_port="CARRY4_VPR.CO1" max="{interconnect_carry4_o1_bmux}" out_port="COMMON_SLICE.BMUX" />
       <delay_constant in_port="COMMON_SLICE.BO6" max="{interconnect_b6lut_bmux}" out_port="COMMON_SLICE.BMUX" />
       <delay_constant in_port="COMMON_SLICE.BO5" max="{interconnect_b5lut_bmux}" out_port="COMMON_SLICE.BMUX" />
       <metadata>
@@ -353,17 +374,17 @@
           COMMON_SLICE.F8MUX_O = BOUTMUX.F8
           COMMON_SLICE.BO5 = BOUTMUX.O5
           COMMON_SLICE.BO6 = BOUTMUX.O6
-          CARRY4_VPR.CO_FABRIC1 = BOUTMUX.CY
+          CARRY4_VPR.CO1 = BOUTMUX.CY
           CARRY4_VPR.O1 = BOUTMUX.XOR
         </meta>
       </metadata>
     </mux>
     <mux name="AOUTMUX"
-      input="SLICE_FF.Q5[0] CARRY4_VPR.O0 CARRY4_VPR.CO_FABRIC0 COMMON_SLICE.AO6 COMMON_SLICE.AO5 COMMON_SLICE.F7AMUX_O"
+      input="SLICE_FF.Q5[0] CARRY4_VPR.O0 CARRY4_VPR.CO0 COMMON_SLICE.AO6 COMMON_SLICE.AO5 COMMON_SLICE.F7AMUX_O"
       output="COMMON_SLICE.AMUX" >
       <delay_constant in_port="SLICE_FF.Q5[0]" max="{interconnect_a5ff_amux}" out_port="COMMON_SLICE.AMUX" />
       <delay_constant in_port="CARRY4_VPR.O0" max="{interconnect_carry4_co0_amux}" out_port="COMMON_SLICE.AMUX" />
-      <delay_constant in_port="CARRY4_VPR.CO_FABRIC0" max="{interconnect_carry4_o0_amux}" out_port="COMMON_SLICE.AMUX" />
+      <delay_constant in_port="CARRY4_VPR.CO0" max="{interconnect_carry4_o0_amux}" out_port="COMMON_SLICE.AMUX" />
       <delay_constant in_port="COMMON_SLICE.AO6" max="{interconnect_a6lut_amux}" out_port="COMMON_SLICE.AMUX" />
       <delay_constant in_port="COMMON_SLICE.AO5" max="{interconnect_a5lut_amux}" out_port="COMMON_SLICE.AMUX" />
       <metadata>
@@ -372,7 +393,7 @@
           COMMON_SLICE.F7AMUX_O = AOUTMUX.F7
           COMMON_SLICE.AO5 = AOUTMUX.O5
           COMMON_SLICE.AO6 = AOUTMUX.O6
-          CARRY4_VPR.CO_FABRIC0 = AOUTMUX.CY
+          CARRY4_VPR.CO0 = AOUTMUX.CY
           CARRY4_VPR.O0 = AOUTMUX.XOR
         </meta>
       </metadata>
@@ -380,12 +401,22 @@
 
     <!-- [A-D]FFMUX -->
     <mux name="DFFMUX"
-      input="COMMON_SLICE.AMC31 CARRY4_VPR.O3 CARRY4_VPR.CO_FABRIC3 COMMON_SLICE.DO6 COMMON_SLICE.DO5 COMMON_SLICE.DX"
+      input="COMMON_SLICE.AMC31 CARRY4_VPR.O3 CARRY4_VPR.CO3 COMMON_SLICE.DO6 COMMON_SLICE.DO5 COMMON_SLICE.DX"
       output="SLICE_FF.D[3]" >
+      <pack_pattern in_port="COMMON_SLICE.DO6" name="LUT_to_FF_FDSE" out_port="SLICE_FF.D[3]" />
+      <pack_pattern in_port="COMMON_SLICE.DO6" name="LUT_to_FF_FDRE" out_port="SLICE_FF.D[3]" />
+      <pack_pattern in_port="COMMON_SLICE.DO6" name="LUT_to_FF_FDPE" out_port="SLICE_FF.D[3]" />
+      <pack_pattern in_port="COMMON_SLICE.DO6" name="LUT_to_FF_FDCE" out_port="SLICE_FF.D[3]" />
+
+      <pack_pattern in_port="COMMON_SLICE.DO6" name="F6MUX_to_FF_FDSE" out_port="SLICE_FF.D[3]" />
+      <pack_pattern in_port="COMMON_SLICE.DO6" name="F6MUX_to_FF_FDRE" out_port="SLICE_FF.D[3]" />
+      <pack_pattern in_port="COMMON_SLICE.DO6" name="F6MUX_to_FF_FDPE" out_port="SLICE_FF.D[3]" />
+      <pack_pattern in_port="COMMON_SLICE.DO6" name="F6MUX_to_FF_FDCE" out_port="SLICE_FF.D[3]" />
+
       <delay_constant in_port="COMMON_SLICE.DX" max="{interconnect_dx_dff}" out_port="SLICE_FF.D[3]" />
       <delay_constant in_port="COMMON_SLICE.DO5" max="{interconnect_d5lut_dff}" out_port="SLICE_FF.D[3]" />
       <delay_constant in_port="COMMON_SLICE.DO6" max="{interconnect_d6lut_dff}" out_port="SLICE_FF.D[3]" />
-      <delay_constant in_port="CARRY4_VPR.CO_FABRIC3" max="{interconnect_carry4_co3_dff}" out_port="SLICE_FF.D[3]" />
+      <delay_constant in_port="CARRY4_VPR.CO3" max="{interconnect_carry4_co3_dff}" out_port="SLICE_FF.D[3]" />
       <delay_constant in_port="CARRY4_VPR.O3" max="{interconnect_carry4_o3_dff}" out_port="SLICE_FF.D[3]" />
       <metadata>
         <meta name="fasm_mux">
@@ -393,19 +424,29 @@
           COMMON_SLICE.DX = DFFMUX.DX
           COMMON_SLICE.DO5 = DFFMUX.O5
           COMMON_SLICE.DO6 = DFFMUX.O6
-          CARRY4_VPR.CO_FABRIC3 = DFFMUX.CY
+          CARRY4_VPR.CO3 = DFFMUX.CY
           CARRY4_VPR.O3 = DFFMUX.XOR
         </meta>
       </metadata>
     </mux>
     <mux name="CFFMUX"
-      input="CARRY4_VPR.O2 CARRY4_VPR.CO_FABRIC2 COMMON_SLICE.CO6 COMMON_SLICE.CO5 COMMON_SLICE.CX COMMON_SLICE.F7BMUX_O"
+      input="CARRY4_VPR.O2 CARRY4_VPR.CO2 COMMON_SLICE.CO6 COMMON_SLICE.CO5 COMMON_SLICE.CX COMMON_SLICE.F7BMUX_O"
       output="SLICE_FF.D[2]" >
+      <pack_pattern in_port="COMMON_SLICE.CO6" name="LUT_to_FF_FDSE" out_port="SLICE_FF.D[2]" />
+      <pack_pattern in_port="COMMON_SLICE.CO6" name="LUT_to_FF_FDRE" out_port="SLICE_FF.D[2]" />
+      <pack_pattern in_port="COMMON_SLICE.CO6" name="LUT_to_FF_FDPE" out_port="SLICE_FF.D[2]" />
+      <pack_pattern in_port="COMMON_SLICE.CO6" name="LUT_to_FF_FDCE" out_port="SLICE_FF.D[2]" />
+
+      <pack_pattern in_port="COMMON_SLICE.CO6" name="F6MUX_to_FF_FDSE" out_port="SLICE_FF.D[2]" />
+      <pack_pattern in_port="COMMON_SLICE.CO6" name="F6MUX_to_FF_FDRE" out_port="SLICE_FF.D[2]" />
+      <pack_pattern in_port="COMMON_SLICE.CO6" name="F6MUX_to_FF_FDPE" out_port="SLICE_FF.D[2]" />
+      <pack_pattern in_port="COMMON_SLICE.CO6" name="F6MUX_to_FF_FDCE" out_port="SLICE_FF.D[2]" />
+
       <delay_constant in_port="COMMON_SLICE.CX" max="{interconnect_cx_cff}" out_port="SLICE_FF.D[2]" />
       <delay_constant in_port="COMMON_SLICE.F7BMUX_O" max="{interconnect_f7bmux_cff}" out_port="SLICE_FF.D[2]" />
       <delay_constant in_port="COMMON_SLICE.CO5" max="{interconnect_c5lut_cff}" out_port="SLICE_FF.D[2]" />
       <delay_constant in_port="COMMON_SLICE.CO6" max="{interconnect_c6lut_cff}" out_port="SLICE_FF.D[2]" />
-      <delay_constant in_port="CARRY4_VPR.CO_FABRIC2" max="{interconnect_carry4_co2_cff}" out_port="SLICE_FF.D[2]" />
+      <delay_constant in_port="CARRY4_VPR.CO2" max="{interconnect_carry4_co2_cff}" out_port="SLICE_FF.D[2]" />
       <delay_constant in_port="CARRY4_VPR.O2" max="{interconnect_carry4_o2_cff}" out_port="SLICE_FF.D[2]" />
       <metadata>
         <meta name="fasm_mux">
@@ -413,19 +454,29 @@
           COMMON_SLICE.F7BMUX_O = CFFMUX.F7
           COMMON_SLICE.CO5 = CFFMUX.O5
           COMMON_SLICE.CO6 = CFFMUX.O6
-          CARRY4_VPR.CO_FABRIC2 = CFFMUX.CY
+          CARRY4_VPR.CO2 = CFFMUX.CY
           CARRY4_VPR.O2 = CFFMUX.XOR
         </meta>
       </metadata>
     </mux>
     <mux name="BFFMUX"
-      input="CARRY4_VPR.O1 CARRY4_VPR.CO_FABRIC1 COMMON_SLICE.BO6 COMMON_SLICE.BO5 COMMON_SLICE.BX COMMON_SLICE.F8MUX_O"
+      input="CARRY4_VPR.O1 CARRY4_VPR.CO1 COMMON_SLICE.BO6 COMMON_SLICE.BO5 COMMON_SLICE.BX COMMON_SLICE.F8MUX_O"
       output="SLICE_FF.D[1]" >
+      <pack_pattern in_port="COMMON_SLICE.BO6" name="LUT_to_FF_FDSE" out_port="SLICE_FF.D[1]" />
+      <pack_pattern in_port="COMMON_SLICE.BO6" name="LUT_to_FF_FDRE" out_port="SLICE_FF.D[1]" />
+      <pack_pattern in_port="COMMON_SLICE.BO6" name="LUT_to_FF_FDPE" out_port="SLICE_FF.D[1]" />
+      <pack_pattern in_port="COMMON_SLICE.BO6" name="LUT_to_FF_FDCE" out_port="SLICE_FF.D[1]" />
+
+      <pack_pattern in_port="COMMON_SLICE.BO6" name="F6MUX_to_FF_FDSE" out_port="SLICE_FF.D[1]" />
+      <pack_pattern in_port="COMMON_SLICE.BO6" name="F6MUX_to_FF_FDRE" out_port="SLICE_FF.D[1]" />
+      <pack_pattern in_port="COMMON_SLICE.BO6" name="F6MUX_to_FF_FDPE" out_port="SLICE_FF.D[1]" />
+      <pack_pattern in_port="COMMON_SLICE.BO6" name="F6MUX_to_FF_FDCE" out_port="SLICE_FF.D[1]" />
+
       <delay_constant in_port="COMMON_SLICE.BX" max="{interconnect_bx_bff}" out_port="SLICE_FF.D[1]" />
       <delay_constant in_port="COMMON_SLICE.F8MUX_O" max="{interconnect_f8mux_bff}" out_port="SLICE_FF.D[1]" />
       <delay_constant in_port="COMMON_SLICE.BO5" max="{interconnect_b5lut_bff}" out_port="SLICE_FF.D[1]" />
       <delay_constant in_port="COMMON_SLICE.BO6" max="{interconnect_b6lut_bff}" out_port="SLICE_FF.D[1]" />
-      <delay_constant in_port="CARRY4_VPR.CO_FABRIC1" max="{interconnect_carry4_co1_bff}" out_port="SLICE_FF.D[1]" />
+      <delay_constant in_port="CARRY4_VPR.CO1" max="{interconnect_carry4_co1_bff}" out_port="SLICE_FF.D[1]" />
       <delay_constant in_port="CARRY4_VPR.O1" max="{interconnect_carry4_o1_bff}" out_port="SLICE_FF.D[1]" />
       <metadata>
         <meta name="fasm_mux">
@@ -433,19 +484,29 @@
           COMMON_SLICE.F8MUX_O = BFFMUX.F8
           COMMON_SLICE.BO5 = BFFMUX.O5
           COMMON_SLICE.BO6 = BFFMUX.O6
-          CARRY4_VPR.CO_FABRIC1 = BFFMUX.CY
+          CARRY4_VPR.CO1 = BFFMUX.CY
           CARRY4_VPR.O1 = BFFMUX.XOR
         </meta>
       </metadata>
     </mux>
     <mux name="AFFMUX"
-      input="CARRY4_VPR.O0 CARRY4_VPR.CO_FABRIC0 COMMON_SLICE.AO6 COMMON_SLICE.AO5 COMMON_SLICE.AX COMMON_SLICE.F7AMUX_O"
+      input="CARRY4_VPR.O0 CARRY4_VPR.CO0 COMMON_SLICE.AO6 COMMON_SLICE.AO5 COMMON_SLICE.AX COMMON_SLICE.F7AMUX_O"
       output="SLICE_FF.D[0]" >
+      <pack_pattern in_port="COMMON_SLICE.AO6" name="LUT_to_FF_FDSE" out_port="SLICE_FF.D[0]" />
+      <pack_pattern in_port="COMMON_SLICE.AO6" name="LUT_to_FF_FDRE" out_port="SLICE_FF.D[0]" />
+      <pack_pattern in_port="COMMON_SLICE.AO6" name="LUT_to_FF_FDPE" out_port="SLICE_FF.D[0]" />
+      <pack_pattern in_port="COMMON_SLICE.AO6" name="LUT_to_FF_FDCE" out_port="SLICE_FF.D[0]" />
+
+      <pack_pattern in_port="COMMON_SLICE.AO6" name="F6MUX_to_FF_FDSE" out_port="SLICE_FF.D[0]" />
+      <pack_pattern in_port="COMMON_SLICE.AO6" name="F6MUX_to_FF_FDRE" out_port="SLICE_FF.D[0]" />
+      <pack_pattern in_port="COMMON_SLICE.AO6" name="F6MUX_to_FF_FDPE" out_port="SLICE_FF.D[0]" />
+      <pack_pattern in_port="COMMON_SLICE.AO6" name="F6MUX_to_FF_FDCE" out_port="SLICE_FF.D[0]" />
+
       <delay_constant in_port="COMMON_SLICE.AX" max="{interconnect_ax_aff}" out_port="SLICE_FF.D[0]" />
       <delay_constant in_port="COMMON_SLICE.F7AMUX_O" max="{interconnect_f7amux_aff}" out_port="SLICE_FF.D[0]" />
       <delay_constant in_port="COMMON_SLICE.AO5" max="{interconnect_a5lut_aff}" out_port="SLICE_FF.D[0]" />
       <delay_constant in_port="COMMON_SLICE.AO6" max="{interconnect_a6lut_aff}" out_port="SLICE_FF.D[0]" />
-      <delay_constant in_port="CARRY4_VPR.CO_FABRIC0" max="{interconnect_carry4_co0_aff}" out_port="SLICE_FF.D[0]" />
+      <delay_constant in_port="CARRY4_VPR.CO0" max="{interconnect_carry4_co0_aff}" out_port="SLICE_FF.D[0]" />
       <delay_constant in_port="CARRY4_VPR.O0" max="{interconnect_carry4_o0_aff}" out_port="SLICE_FF.D[0]" />
       <metadata>
         <meta name="fasm_mux">
@@ -453,7 +514,7 @@
           COMMON_SLICE.F7AMUX_O = AFFMUX.F7
           COMMON_SLICE.AO5 = AFFMUX.O5
           COMMON_SLICE.AO6 = AFFMUX.O6
-          CARRY4_VPR.CO_FABRIC0 = AFFMUX.CY
+          CARRY4_VPR.CO0 = AFFMUX.CY
           CARRY4_VPR.O0 = AFFMUX.XOR
         </meta>
       </metadata>
@@ -502,10 +563,14 @@
     </direct>
 
     <!-- Carry selects -->
-    <direct name="CARRY_S3" input="COMMON_SLICE.DO6" output="CARRY4_VPR.S3" />
-    <direct name="CARRY_S2" input="COMMON_SLICE.CO6" output="CARRY4_VPR.S2" />
-    <direct name="CARRY_S1" input="COMMON_SLICE.BO6" output="CARRY4_VPR.S1" />
-    <direct name="CARRY_S0" input="COMMON_SLICE.AO6" output="CARRY4_VPR.S0" />
+    <direct name="CARRY_S3" input="COMMON_SLICE.DO6" output="CARRY4_VPR.S3" >
+    </direct>
+    <direct name="CARRY_S2" input="COMMON_SLICE.CO6" output="CARRY4_VPR.S2" >
+    </direct>
+    <direct name="CARRY_S1" input="COMMON_SLICE.BO6" output="CARRY4_VPR.S1" >
+    </direct>
+    <direct name="CARRY_S0" input="COMMON_SLICE.AO6" output="CARRY4_VPR.S0" >
+    </direct>
 
     <!-- Carry MUXCY.DI -->
     <mux name="CARRY_DI3" input="COMMON_SLICE.DO5 COMMON_SLICE.DX" output="CARRY4_VPR.DI3" >
@@ -545,9 +610,13 @@
       </metadata>
     </mux>
 
-    <direct name="COUT" input="CARRY4_VPR.CO_CHAIN" output="COMMON_SLICE.COUT" >
+    <direct name="COUT_TO_PLUG" input="CARRY4_VPR.CO3" output="CARRY_COUT_PLUG.CIN" >
       <pack_pattern name="CARRYCHAIN"/>
-      <delay_constant in_port="CARRY4_VPR.CO_CHAIN" max="{interconnect_carry4_co3_cout}" out_port="COMMON_SLICE.COUT" />
+      <delay_constant in_port="CARRY4_VPR.CO3" max="{interconnect_carry4_co3_cout}" out_port="CARRY_COUT_PLUG.CIN" />
+    </direct>
+
+    <direct name="COUT" input="CARRY_COUT_PLUG.COUT" output="COMMON_SLICE.COUT" >
+      <pack_pattern name="CARRYCHAIN"/>
     </direct>
 
     <!-- Clock, Clock Enable and Reset -->

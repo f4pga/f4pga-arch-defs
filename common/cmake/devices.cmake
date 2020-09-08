@@ -1143,6 +1143,7 @@ function(ADD_FPGA_TARGET)
   #   NAME <name>
   #   [TOP <top>]
   #   BOARD <board>
+  #   [INCLUDES <include list>]
   #   SOURCES <source list>
   #   TESTBENCH_SOURCES <testbench source list>
   #   [INPUT_IO_FILE <input_io_file>]
@@ -1157,8 +1158,8 @@ function(ADD_FPGA_TARGET)
   # ~~~
   #
   # ADD_FPGA_TARGET defines a FPGA build targetting a specific board.  By
-  # default input files (SOURCES, TESTBENCH_SOURCES, INPUT_IO_FILE) will be
-  # implicitly passed to ADD_FILE_TARGET.  If EXPLICIT_ADD_FILE_TARGET is
+  # default input files (SOURCES, INCLUDES, TESTBENCH_SOURCES, INPUT_IO_FILE) will be
+  # implicitly passed to ADD_FILE_TARGET. If EXPLICIT_ADD_FILE_TARGET is
   # supplied, this behavior is supressed.
   #
   # TOP is the name of the top-level module in the design.  If no supplied,
@@ -1166,7 +1167,8 @@ function(ADD_FPGA_TARGET)
   #
   # The SOURCES file list will be used to synthesize the FPGA images.
   # INPUT_IO_FILE is required to define an io map. TESTBENCH_SOURCES will be
-  # used to run test benches.
+  # used to run test benches. All the files from the INCLUDES will be placed
+  # in the build directory without being explicitly passed to the synthesis tools.
   #
   # If NO_SYNTHESIS is supplied, <source list> must be 1 eblif file.
   #
@@ -1195,7 +1197,7 @@ function(ADD_FPGA_TARGET)
   #
   set(options EXPLICIT_ADD_FILE_TARGET EMIT_CHECK_TESTS NO_SYNTHESIS ROUTE_ONLY)
   set(oneValueArgs NAME TOP BOARD INPUT_IO_FILE EQUIV_CHECK_SCRIPT AUTOSIM_CYCLES ASSERT_USAGE SDC_FILE INPUT_XDC_FILE)
-  set(multiValueArgs SOURCES TESTBENCH_SOURCES DEFINES BIT_TO_V_EXTRA_ARGS)
+  set(multiValueArgs SOURCES INCLUDES TESTBENCH_SOURCES DEFINES BIT_TO_V_EXTRA_ARGS)
   cmake_parse_arguments(
     ADD_FPGA_TARGET
     "${options}"
@@ -1203,7 +1205,6 @@ function(ADD_FPGA_TARGET)
     "${multiValueArgs}"
     ${ARGN}
   )
- 
   get_target_property_required(PYTHON3 env PYTHON3)
 
   set(TOP "top")
@@ -1290,6 +1291,10 @@ function(ADD_FPGA_TARGET)
     if(NOT "${ADD_FPGA_TARGET_INPUT_XDC_FILE}" STREQUAL "")
       add_file_target(FILE ${ADD_FPGA_TARGET_INPUT_XDC_FILE})
     endif()
+
+    foreach(INC ${ADD_FPGA_TARGET_INCLUDES})
+      add_file_target(FILE ${INC} SCANNER_TYPE verilog)
+    endforeach()
   endif()
 
   if(NOT "${ADD_FPGA_TARGET_INPUT_XDC_FILE}" STREQUAL "")
@@ -1311,6 +1316,9 @@ function(ADD_FPGA_TARGET)
   foreach(SRC ${ADD_FPGA_TARGET_SOURCES})
     append_file_location(SOURCE_FILES ${SRC})
     append_file_dependency(SOURCE_FILES_DEPS ${SRC})
+  endforeach()
+  foreach(INC ${ADD_FPGA_TARGET_INCLUDES})
+    append_file_dependency(SOURCE_FILES_DEPS ${INC})
   endforeach()
 
   set(CELLS_SIM_DEPS "")
@@ -1369,6 +1377,7 @@ function(ADD_FPGA_TARGET)
           USE_ROI=${USE_ROI}
           PCF_FILE=${INPUT_IO_FILE}
           PINMAP_FILE=${PINMAP}
+          PYTHON3=${PYTHON3}
           ${ADD_FPGA_TARGET_DEFINES}
           ${QUIET_CMD} ${YOSYS} -p "${COMPLETE_YOSYS_SYNTH_SCRIPT}" -l ${OUT_JSON_SYNTH}.log ${SOURCE_FILES}
       COMMAND
