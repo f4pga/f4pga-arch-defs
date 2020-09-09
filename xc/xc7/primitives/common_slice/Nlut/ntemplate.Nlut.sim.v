@@ -11,7 +11,20 @@ module {N}LUT(A1, A2, A3, A4, A5, A6, O6, O5);
 	input wire A5;
 	input wire A6;
 
+	(* DELAY_CONST_A1 = "1e-10" *)
+	(* DELAY_CONST_A2 = "1e-10" *)
+	(* DELAY_CONST_A3 = "1e-10" *)
+	(* DELAY_CONST_A4 = "1e-10" *)
+	(* DELAY_CONST_A5 = "1e-10" *)
+	(* DELAY_CONST_A6 = "1e-10" *)
 	output wire O6;
+
+	(* DELAY_CONST_A1 = "1e-10" *)
+	(* DELAY_CONST_A2 = "1e-10" *)
+	(* DELAY_CONST_A3 = "1e-10" *)
+	(* DELAY_CONST_A4 = "1e-10" *)
+	(* DELAY_CONST_A5 = "1e-10" *)
+	(* DELAY_CONST_A6 = "1e-10" *)
 	output wire O5;
 
 	parameter [63:0] INIT = 0;

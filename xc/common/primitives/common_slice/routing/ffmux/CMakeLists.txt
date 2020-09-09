@@ -1,0 +1,9 @@
+mux_gen(
+  NAME ffmux
+  INPUTS F78,D6,D5,BYP
+  MUX_NAME FFMUX
+  OUTPUT OUT
+  SPLIT_INPUTS 1
+  TYPE routing
+  WIDTH 4
+)

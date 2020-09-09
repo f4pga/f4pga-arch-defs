@@ -1,2 +1,6 @@
-add_file_target(FILE ff.pb_type.xml SCANNER_TYPE xml)
-add_file_target(FILE ff.model.xml SCANNER_TYPE xml)
+add_file_target(FILE ff.sim.v SCANNER_TYPE verilog)
+
+v2x(
+    NAME ff
+    SRCS ff.sim.v
+    )
