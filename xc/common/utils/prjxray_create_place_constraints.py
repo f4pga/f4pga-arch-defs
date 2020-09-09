@@ -201,7 +201,11 @@ class VprGrid(object):
     def get_vpr_loc_cmt(self):
         """
         Returns a dictionary containing the mapping between
-        VPR physical locations to the belonging clock region
+        VPR physical locations to the belonging clock region.
+
+        Dictionary content:
+            - key   : (x, y) coordinate on the VPR grid
+            - value : clock region corresponding to the (x, y) coordinates
         """
         return self.vpr_loc_cmt
 
@@ -762,13 +766,14 @@ def main():
     Prior to the invocation of this script, the IDELAYCTRL sites must have been
     replicated accordingly to the IDELAY specifications.
     There can be three different usage combinations of IDELAYCTRL and IDELAYs in a design:
-        1. IODELAYs and IDELAYCTRLs can be constrained to banks as needed.
+        1. IODELAYs and IDELAYCTRLs can be constrained to banks as needed through an in-design LOC constraint.
            Manual replication of the constrained IDELAYCTRLs is necessary to provide a controller for each bank.
         2. IODELAYs and a single IDELAYCTRL can be left entirely unconstrained, becoming a default group.
            The IDELAYCTRLis replicated depending on bank usage. Replication must have happened prior to this step
         3. One or more IODELAY_GROUPs can be defined that contain IODELAYs and a single IDELAYCTRL each.
            These components can be otherwise unconstrained and the IDELAYCTRL for each group
            has to be replicated as needed (depending on bank usage).
+           NOTE: IODELAY_GROUPS are not enabled at the moment.
     """
     idelayctrl_cmts = set()
     idelay_instances = place_constraints.get_used_instances("IDELAYE2")
@@ -811,7 +816,7 @@ def main():
             "Constraining idelayctrl block {}".format(idelayctrl_block)
         )
 
-    if len(idelayctrl_block) > 0:
+    if len(idelayctrl_instances) > 0:
         print("Warning: IDELAY_GROUPS parameters are currently being ignored!", file=sys.stderr)
 
     place_constraints.output_place_constraints(args.output)
