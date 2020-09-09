@@ -199,6 +199,10 @@ class VprGrid(object):
         return self.tile_dict
 
     def get_vpr_loc_cmt(self):
+        """
+        Returns a dictionary containing the mapping between
+        VPR physical locations to the belonging clock region
+        """
         return self.vpr_loc_cmt
 
 
@@ -753,7 +757,19 @@ def main():
                 block, vpr_loc, "Constraining clock block {}".format(block)
             )
 
-    # Constrain IDELAYCTRL sites
+    """ Constrain IDELAYCTRL sites
+
+    Prior to the invocation of this script, the IDELAYCTRL sites must have been
+    replicated accordingly to the IDELAY specifications.
+    There can be three different usage combinations of IDELAYCTRL and IDELAYs in a design:
+        1. IODELAYs and IDELAYCTRLs can be constrained to banks as needed.
+           Manual replication of the constrained IDELAYCTRLs is necessary to provide a controller for each bank.
+        2. IODELAYs and a single IDELAYCTRL can be left entirely unconstrained, becoming a default group.
+           The IDELAYCTRLis replicated depending on bank usage. Replication must have happened prior to this step
+        3. One or more IODELAY_GROUPs can be defined that contain IODELAYs and a single IDELAYCTRL each.
+           These components can be otherwise unconstrained and the IDELAYCTRL for each group
+           has to be replicated as needed (depending on bank usage).
+    """
     idelayctrl_cmts = set()
     idelay_instances = place_constraints.get_used_instances("IDELAYE2")
     for inst in idelay_instances:
@@ -784,6 +800,8 @@ def main():
             idelayctrl_cmts.remove(idelayctrl_cmt)
             idelayctrl_instances.remove(idelayctrl_block)
 
+    # TODO: Add possibility to bind IDELAY banks to IDELAYCTRL sites using
+    #       the IDELAY_GROUP attribute.
     for cmt, idelayctrl_block in zip(idelayctrl_cmts, idelayctrl_instances):
         x, y = vpr_grid.get_site_dict()[idelayctrl_sites[cmt]]['vpr_loc']
         vpr_loc = (x, y, 0)
@@ -792,6 +810,9 @@ def main():
             idelayctrl_block, vpr_loc,
             "Constraining idelayctrl block {}".format(idelayctrl_block)
         )
+
+    if len(idelayctrl_block) > 0:
+        print("Warning: IDELAY_GROUPS parameters are currently being ignored!", file=sys.stderr)
 
     place_constraints.output_place_constraints(args.output)
 
