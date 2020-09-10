@@ -760,19 +760,21 @@ def main():
             place_constraints.constrain_block(
                 block, vpr_loc, "Constraining clock block {}".format(block)
             )
-
     """ Constrain IDELAYCTRL sites
 
     Prior to the invocation of this script, the IDELAYCTRL sites must have been
     replicated accordingly to the IDELAY specifications.
     There can be three different usage combinations of IDELAYCTRL and IDELAYs in a design:
-        1. IODELAYs and IDELAYCTRLs can be constrained to banks as needed through an in-design LOC constraint.
-           Manual replication of the constrained IDELAYCTRLs is necessary to provide a controller for each bank.
-        2. IODELAYs and a single IDELAYCTRL can be left entirely unconstrained, becoming a default group.
-           The IDELAYCTRLis replicated depending on bank usage. Replication must have happened prior to this step
-        3. One or more IODELAY_GROUPs can be defined that contain IODELAYs and a single IDELAYCTRL each.
-           These components can be otherwise unconstrained and the IDELAYCTRL for each group
-           has to be replicated as needed (depending on bank usage).
+        1. IODELAYs and IDELAYCTRLs can be constrained to banks as needed,
+           through an in-design LOC constraint.
+           Manual replication of the constrained IDELAYCTRLs is necessary to provide a
+           controller for each bank.
+        2. IODELAYs and a single IDELAYCTRL can be left entirely unconstrained,
+           becoming a default group. The IDELAYCTRLis replicated depending on bank usage.
+           Replication must have happened prior to this step
+        3. One or more IODELAY_GROUPs can be defined that contain IODELAYs and a single
+           IDELAYCTRL each. These components can be otherwise unconstrained and the IDELAYCTRL
+           for each group has to be replicated as needed (depending on bank usage).
            NOTE: IODELAY_GROUPS are not enabled at the moment.
     """
     idelayctrl_cmts = set()
@@ -817,7 +819,10 @@ def main():
         )
 
     if len(idelayctrl_instances) > 0:
-        print("Warning: IDELAY_GROUPS parameters are currently being ignored!", file=sys.stderr)
+        print(
+            "Warning: IDELAY_GROUPS parameters are currently being ignored!",
+            file=sys.stderr
+        )
 
     place_constraints.output_place_constraints(args.output)
 
