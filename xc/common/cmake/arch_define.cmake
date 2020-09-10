@@ -11,6 +11,7 @@ function(ADD_XC_ARCH_DEFINE)
   #   PROTOTYPE_PART <prototype_part>
   #   YOSYS_SYNTH_SCRIPT <yosys_script>
   #   YOSYS_CONV_SCRIPT <yosys_script>
+  #   YOSYS_UTILS_SCRIPT <yosys_script>
   #   )
   #
   # FAMILY: The family the architecture is belonging to (e.g. xc7).
@@ -30,7 +31,8 @@ function(ADD_XC_ARCH_DEFINE)
         PRJRAY_NAME
         PROTOTYPE_PART
         YOSYS_SYNTH_SCRIPT
-        YOSYS_CONV_SCRIPT)
+        YOSYS_CONV_SCRIPT
+        YOSYS_UTILS_SCRIPT)
   set(multiValueArgs)
   cmake_parse_arguments(
     ADD_XC_ARCH_DEFINE
@@ -57,6 +59,7 @@ function(ADD_XC_ARCH_DEFINE)
   set(PROTOTYPE_PART ${ADD_XC_ARCH_DEFINE_PROTOTYPE_PART})
   set(YOSYS_SYNTH_SCRIPT ${ADD_XC_ARCH_DEFINE_YOSYS_SYNTH_SCRIPT})
   set(YOSYS_CONV_SCRIPT ${ADD_XC_ARCH_DEFINE_YOSYS_CONV_SCRIPT})
+  set(YOSYS_UTILS_SCRIPT ${ADD_XC_ARCH_DEFINE_YOSYS_UTILS_SCRIPT})
   set(YOSYS_TECHMAP ${symbiflow-arch-defs_SOURCE_DIR}/xc/${FAMILY}/techmap)
   set(VPR_ARCH_ARGS "\
       --router_heap bucket \
@@ -181,6 +184,7 @@ function(ADD_XC_ARCH_DEFINE)
       ROUTE_CHAN_WIDTH 500
       VPR_ARCH_ARGS ${VPR_ARCH_ARGS}
       CONV_SCRIPT ${YOSYS_CONV_SCRIPT}
-      SYNTH_SCRIPT ${YOSYS_SYNTH_SCRIPT})
+      SYNTH_SCRIPT ${YOSYS_SYNTH_SCRIPT}
+      UTILS_SCRIPT ${YOSYS_UTILS_SCRIPT})
 
 endfunction()
