@@ -4,6 +4,7 @@ project_ray_prepare_database(
   PRJRAY_DB_DIR ${PRJURAY_DB_DIR}
   PRJRAY_NAME prjuray
   PROTOTYPE_PART xczu3eg-sbva484-1-e
+  GRAPH_LIMIT 0,0,239,123  # X0Y1 and X0Y2 only
   PARTS xczu3eg-sbva484-1-e
 )
 

@@ -247,6 +247,13 @@ def main():
         required=True
     )
     parser.add_argument(
+        '--grid_limit',
+        help='Tile grid range to import as <xmin>,<ymin>,<xmax>,<ymax> (inclusive)',
+        type=str,
+        default=None,
+        required=False
+    )
+    parser.add_argument(
         '--connection_database',
         help='Connection database',
         required=True
@@ -258,6 +265,12 @@ def main():
     )
 
     args = parser.parse_args()
+
+    grid_limit = None
+    if args.grid_limit is not None:
+        grid_limit = tuple([int(pos) for pos in args.grid_limit.split(",")])
+        assert len(grid_limit) == 4, grid_limit
+    print("Grid limit:", grid_limit)
 
     if os.path.exists(args.connection_database):
         os.remove(args.connection_database)
@@ -274,13 +287,12 @@ def main():
             get_pip_timing
         )
 
-        import_phy_grid(db, grid, conn, get_switch, get_switch_timing, get_site_pin_timing)
+        import_phy_grid(db, grid, conn, get_switch, get_switch_timing, get_site_pin_timing, grid_limit)
         
         segment_wire_map = SegmentWireMap(default_segment="unknown", db=db)
         import_segments(conn, db, segment_wire_map)
         print("{}: Initial database formed".format(datetime.datetime.now()))
-        import_nodes(db, grid, conn)
-        #add_fake_site_hardpins(conn, get_switch_timing)
+        import_nodes(db, grid, conn, grid_limit)
         print("{}: Connections made".format(datetime.datetime.now()))
         count_sites_and_pips_on_nodes(conn)
         print("{}: Counted sites and pips".format(datetime.datetime.now()))
