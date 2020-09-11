@@ -1061,14 +1061,14 @@ function(ADD_BITSTREAM_TARGET)
         DEPENDS ${BITSTREAM_DEPS}
         COMMAND
           ${CMAKE_COMMAND} -E make_directory ${OUT_LOCAL}
-        COMMAND cat ${ALL_OUT_FASM} >> ${OUT_FASM_MERGED}
+        COMMAND cat ${ALL_OUT_FASM} > ${OUT_FASM_MERGED}
         COMMAND ${FASM_TO_BIT_CMD_FOR_TARGET_LIST}
       )
     else()
       add_custom_command(
         OUTPUT ${OUT_BITSTREAM}
         DEPENDS ${BITSTREAM_DEPS}
-        COMMAND cat ${ALL_OUT_FASM} >> ${OUT_FASM_MERGED}
+        COMMAND cat ${ALL_OUT_FASM} > ${OUT_FASM_MERGED}
         COMMAND ${FASM_TO_BIT_CMD_FOR_TARGET_LIST}
       )
     endif()
