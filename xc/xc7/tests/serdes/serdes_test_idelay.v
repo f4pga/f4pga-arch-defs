@@ -70,7 +70,6 @@ oserdes
 
 wire DDLY;
 
-(* keep, LOC="IDELAYCTRL_X0Y0" *)
 IDELAYCTRL idelayctrl (
     .REFCLK(REFCLK),
     .RDY(RDY)
