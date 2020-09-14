@@ -10147,7 +10147,6 @@ BUFG BUFG_4(
 	.O(clk200_clk)
 );
 
-(* LOC="IDELAYCTRL_X1Y1" *)
 IDELAYCTRL IDELAYCTRL(
 	.REFCLK(clk200_clk),
 	.RST(main_ic_reset),
@@ -12195,7 +12194,6 @@ VexRiscv VexRiscv(
 	.iBusWishbone_WE(main_minsoc_cpu_ibus_we)
 );
 
-(* LOC="PLLE2_ADV_X1Y1" *)
 PLLE2_ADV #(
 	.CLKFBOUT_MULT(4'd12),
 	.CLKIN1_PERIOD(10.0),
