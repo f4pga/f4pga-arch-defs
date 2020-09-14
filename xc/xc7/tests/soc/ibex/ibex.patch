@@ -12,9 +12,21 @@ index c26ca45..be19828 100644
    logic clk_sys, rst_sys_n;
  
 diff --git a/shared/rtl/fpga/xilinx/clkgen_xil7series.sv b/shared/rtl/fpga/xilinx/clkgen_xil7series.sv
-index e41b4b0..f253c07 100644
+index e41b4b0..e080de7 100644
 --- a/shared/rtl/fpga/xilinx/clkgen_xil7series.sv
 +++ b/shared/rtl/fpga/xilinx/clkgen_xil7series.sv
+@@ -27,9 +27,9 @@ module clkgen_xil7series (
+     .STARTUP_WAIT         ("FALSE"),
+     .DIVCLK_DIVIDE        (1),
+     .CLKFBOUT_MULT        (12),
+-    .CLKFBOUT_PHASE       (0.000),
++    .CLKFBOUT_PHASE       (0),
+     .CLKOUT0_DIVIDE       (24),
+-    .CLKOUT0_PHASE        (0.000),
++    .CLKOUT0_PHASE        (0),
+     .CLKOUT0_DUTY_CYCLE   (0.500)
+   ) pll (
+     .CLKFBOUT            (clk_fb_unbuf),
 @@ -40,7 +40,7 @@ module clkgen_xil7series (
      .CLKOUT4             (),
      .CLKOUT5             (),
