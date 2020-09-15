@@ -11748,7 +11748,6 @@ end
 
 assign main_tag_port_dat_r = tag_mem[memadr_2];
 
-(* LOC="PLLE2_ADV_X1Y1" *)
 PLLE2_ADV #(
 	.CLKFBOUT_MULT(5'd16),
 	.CLKIN1_PERIOD(10.0),
