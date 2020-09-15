@@ -57,7 +57,8 @@ function(icestorm_setup)
     \${PYTHON3} \${PLACE_TOOL} \
     --map \${PINMAP} \
     --blif \${OUT_EBLIF} \
-    --pcf \${INPUT_IO_FILE}"
+    --pcf \${INPUT_IO_FILE} \
+    --net \${OUT_NET}"
     CELLS_SIM ${CELLS_SIM}
     BIT_TO_V ${ICEBOX_VLOG}
     BIT_TO_V_CMD "${ICEBOX_VLOG} -D -c -n \${TOP} -p \${INPUT_IO_FILE} -d \${PACKAGE} \${OUT_BITSTREAM} > \${OUT_BIT_VERILOG}"

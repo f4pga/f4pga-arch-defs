@@ -37,6 +37,13 @@ parser.add_argument(
     help='Pin map CSV file'
 )
 parser.add_argument(
+    "--net",
+    '-n',
+    type=argparse.FileType('r'),
+    required=True,
+    help='VPR Packed netlist file'
+)
+parser.add_argument(
     "--output",
     '-o',
     "-O",
@@ -59,9 +66,11 @@ def main(argv):
     io_place = vpr_io_place.IoPlace()
 
     io_place.read_io_list_from_eblif(args.blif)
+    io_place.load_net_file_ios(args.net)
 
     for name, (loc, pcf_line) in locs.items():
-        io_place.constrain_net(net_name=name, loc=loc, comment=pcf_line)
+        if io_place.is_net_packed(name):
+            io_place.constrain_net(net_name=name, loc=loc, comment=pcf_line)
 
     io_place.output_io_place(args.output)
 
