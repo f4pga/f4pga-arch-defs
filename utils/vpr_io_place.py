@@ -110,7 +110,7 @@ class IoPlace(object):
         for io_line in get_ios(net_root, ["inputs", "outputs"]):
             io_list = io_line.split(" ")
             for io in io_list:
-                self.net_file_io.add(io.lstrip("out:"))
+                self.net_file_io.add(io.replace("out:", ""))
 
     def constrain_net(self, net_name, loc, comment=""):
         assert len(loc) == 3
