@@ -23,6 +23,7 @@ action {
     regex: "**/pack.log"
     regex: "**/place.log"
     regex: "**/route.log"
+    regex: "**/*_sv2v.v.log"
     regex: "**/*_qor.csv"
     strip_prefix: "github/symbiflow-arch-defs-%(kokoro_type)s-%(arch)s/"
   }

@@ -11,6 +11,7 @@ pycapnp==1.0.0b1
 pyjson5
 pytest
 python-constraint
+pyyaml
 scipy
 simplejson
 svgwrite
