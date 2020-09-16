@@ -6,6 +6,7 @@ dependencies:
   - symbiflow-yosys=0.8_6021_gd8b2d1a2=20200708_083630
   - symbiflow-yosys-plugins=1.0.0.7_0060_g7454cd6=20200902_114536
   - symbiflow-vtr=8.0.0.rc2_4003_g8980e4621=20200720_145630
+  - zachjs-sv2v=0.0.5_0018_ga170536
   - cmake
   - make
   - openocd
@@ -18,3 +19,7 @@ dependencies:
   - pip
   - pip:
     - -r file:requirements.txt
+    # Ibex dependencies
+    - git+https://github.com/lowRISC/edalize.git@ot
+    - git+https://github.com/lowRISC/fusesoc.git@ot
+    - mako
