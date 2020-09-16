@@ -69,7 +69,6 @@ add_fpga_target(
     picorv32.v
     simpleuart.v
     firmware_noflash_100.v
-  SDC_FILE ${symbiflow-arch-defs_SOURCE_DIR}/xc/xc7/tests/common/basys3.sdc
   INPUT_IO_FILE ${symbiflow-arch-defs_SOURCE_DIR}/xc/xc7/tests/common/basys3.pcf
   TESTBENCH_SOURCES basys3_demo_tb.v
   EXPLICIT_ADD_FILE_TARGET
@@ -99,10 +98,11 @@ get_file_target(TARGET_BASYS3_PCF ${BASYS3_PCF})
 
 set(BASYS3_FREQS 50 100)
 
+add_file_target(FILE basys3.xdc)
+
 foreach(FREQ ${BASYS3_FREQS})
 
     add_file_target(FILE basys3-full_demo_${FREQ}.v SCANNER_TYPE verilog)
-    add_file_target(FILE basys3-full_${FREQ}.sdc)
 
     get_file_target(TARGET_BASYS3_DEMO_V basys3-full_demo_${FREQ}.v)
     add_dependencies(${TARGET_BASYS3_DEMO_V} ${TARGET_BASYS3_PCF})
@@ -117,7 +117,7 @@ foreach(FREQ ${BASYS3_FREQS})
         picorv32.v
         simpleuart.v
         firmware_noflash_${FREQ}.v
-      SDC_FILE basys3-full_${FREQ}.sdc
+      INPUT_XDC_FILE basys3.xdc
       INPUT_IO_FILE ${BASYS3_PCF}
       EXPLICIT_ADD_FILE_TARGET
     )
@@ -147,7 +147,6 @@ set(NEXYS_VIDEO_FREQS 50 100)
 foreach(FREQ ${NEXYS_VIDEO_FREQS})
 
     add_file_target(FILE nexys_video_demo_${FREQ}.v SCANNER_TYPE verilog)
-    add_file_target(FILE nexys_video_${FREQ}.sdc)
 
     get_file_target(TARGET_NEXYS_VIDEO_DEMO_V nexys_video_demo_${FREQ}.v)
     add_dependencies(${TARGET_NEXYS_VIDEO_DEMO_V} ${TARGET_NEXYS_VIDEO_XDC} ${TARGET_NEXYS_VIDEO_PCF})
@@ -164,7 +163,6 @@ foreach(FREQ ${NEXYS_VIDEO_FREQS})
         picorv32.v
         simpleuart.v
         firmware_noflash_${FREQ}.v
-      SDC_FILE nexys_video_${FREQ}.sdc
       INPUT_IO_FILE  ${NEXYS_VIDEO_PCF}
       INPUT_XDC_FILE ${NEXYS_VIDEO_XDC}
       EXPLICIT_ADD_FILE_TARGET
@@ -189,7 +187,6 @@ foreach(FREQ ${NEXYS_VIDEO_FREQS})
         picorv32.v
         simpleuart.v
         firmware_noflash_${FREQ}.v
-      SDC_FILE nexys_video_${FREQ}.sdc
       INPUT_IO_FILE  ${NEXYS_VIDEO_PCF}
       INPUT_XDC_FILE ${NEXYS_VIDEO_XDC}
       EXPLICIT_ADD_FILE_TARGET

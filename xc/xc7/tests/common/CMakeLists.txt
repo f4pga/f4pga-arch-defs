@@ -1,6 +1,7 @@
 # BASYS3 constraint files
 add_file_target(FILE basys3.pcf)
 add_file_target(FILE basys3.sdc)
+add_file_target(FILE basys3.xdc)
 add_file_target(FILE basys3_pmod.pcf)
 
 # ARTY constraint files

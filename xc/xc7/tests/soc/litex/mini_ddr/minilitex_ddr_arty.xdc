@@ -225,7 +225,7 @@ set_property IOSTANDARD SSTL135 [get_ports ddram_reset_n]
 
 set_property INTERNAL_VREF 0.675 [get_iobanks 34]
 
-#create_clock -name clk100 -period 10.0 [get_nets clk100]
+create_clock -period 10.0 clk100
 #
 #set_false_path -quiet -to [get_nets -quiet -filter {mr_ff == TRUE}]
 #

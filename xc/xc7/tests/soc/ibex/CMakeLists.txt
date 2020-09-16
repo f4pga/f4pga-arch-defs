@@ -73,7 +73,7 @@ add_fpga_target(
   TOP top_artya7
   SOURCES ibex_sv2v.v
   INPUT_IO_FILE pins_artya7.pcf
-  SDC_FILE pins_artya7.sdc
+  INPUT_SDC_FILE pins_artya7.sdc
   EXPLICIT_ADD_FILE_TARGET
 )
 
@@ -93,7 +93,7 @@ add_fpga_target(
   TOP top_artya7
   SOURCES ibex_sv2v.v
   INPUT_IO_FILE pins_nexys_video.pcf
-  SDC_FILE pins_nexys_video.sdc
+  INPUT_SDC_FILE pins_nexys_video.sdc
   EXPLICIT_ADD_FILE_TARGET
 )
 

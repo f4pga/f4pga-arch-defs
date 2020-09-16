@@ -30,7 +30,7 @@ add_fpga_target(
     basys3_toplevel.v
     Murax.v
   INPUT_IO_FILE basys3.pcf
-  SDC_FILE basys3.sdc
+  INPUT_SDC_FILE basys3.sdc
   EXPLICIT_ADD_FILE_TARGET
 )
 
@@ -53,13 +53,13 @@ add_vivado_pnr_target(
 # Basys3 (full, no ROI)
 
 add_file_target(FILE basys3-full.pcf)
+add_file_target(FILE basys3.xdc)
 
 set(BASYS_FREQS 50 100)
 
 foreach(FREQ ${BASYS_FREQS})
 
     add_file_target(FILE basys3-full_toplevel_${FREQ}.v SCANNER_TYPE verilog)
-    add_file_target(FILE basys3-full_${FREQ}.sdc)
 
     add_fpga_target(
       NAME murax_basys3_full_${FREQ}
@@ -69,7 +69,6 @@ foreach(FREQ ${BASYS_FREQS})
         basys3-full_toplevel_${FREQ}.v
         Murax.v
       INPUT_IO_FILE basys3-full.pcf
-      SDC_FILE basys3-full_${FREQ}.sdc
       EXPLICIT_ADD_FILE_TARGET
     )
 
@@ -110,7 +109,6 @@ foreach(FREQ ${NEXYS_VIDEO_FREQS})
       SOURCES
         nexys_video_toplevel_${FREQ}.v
         Murax.v
-      SDC_FILE nexys_video_${FREQ}.sdc
       INPUT_IO_FILE  ${NEXYS_VIDEO_PCF}
       INPUT_XDC_FILE ${NEXYS_VIDEO_XDC}
       EXPLICIT_ADD_FILE_TARGET
