@@ -2,7 +2,6 @@ add_file_target(FILE mem.init)
 add_file_target(FILE mem_1.init)
 
 add_file_target(FILE arty.pcf)
-add_file_target(FILE arty.sdc)
 add_file_target(FILE arty_clocks.xdc)
 add_file_target(FILE minilitex_ddr_arty.xdc)
 
@@ -17,7 +16,6 @@ add_fpga_target(
     minilitex_ddr_arty.v
     VexRiscv_Lite.v
   INPUT_XDC_FILE minilitex_ddr_arty.xdc
-  SDC_FILE arty.sdc
   EXPLICIT_ADD_FILE_TARGET
 )
 
@@ -35,7 +33,6 @@ add_fpga_target(
     VexRiscv_Lite.v
   INPUT_IO_FILE arty.pcf
   INPUT_XDC_FILE minilitex_ddr_arty.xdc
-  SDC_FILE arty.sdc
   EXPLICIT_ADD_FILE_TARGET
 )
 

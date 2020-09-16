@@ -271,7 +271,7 @@ set_property INTERNAL_VREF 0.750 [get_iobanks 34]
 
 #create_clock -name sys_clk -period 16.666 [get_nets sys_clk]
 #
-#create_clock -name clk100 -period 10.0 [get_nets clk100]
+create_clock -period 10.0 clk100
 #
 #create_clock -name eth_rx_clk -period 40.0 [get_nets eth_rx_clk]
 #
