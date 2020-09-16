@@ -4,6 +4,7 @@
 module CLOCK_CELL(I_PAD, O_CLK);
 
     (* iopad_external_pin *)
+    (* CLOCK, NO_COMB=0 *)
     input  wire I_PAD;
 
     (* CLOCK=0 *)
