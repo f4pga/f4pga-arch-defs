@@ -26,7 +26,6 @@ if { $::env(USE_ROI) == "TRUE" } {
     read_verilog -lib $::env(TECHMAP_PATH)/iobs.v
 
     hierarchy -check -auto-top
-    update_pll_params
 
     # Start flow after library reading
     synth_xilinx -vpr -flatten -abc9 -nosrl -nodsp -iopad -nowidelut -run prepare:check
@@ -35,16 +34,15 @@ if { $::env(USE_ROI) == "TRUE" } {
 # Check that post-synthesis cells match libraries.
 hierarchy -check
 
-# Read the SDC file
-read_sdc $::env(SDC_FILE)
-
 if { [info exists ::env(INPUT_XDC_FILE)] && $::env(INPUT_XDC_FILE) != "" } {
   read_xdc -part_json $::env(PART_JSON) $::env(INPUT_XDC_FILE)
   write_fasm -part_json $::env(PART_JSON)  $::env(OUT_FASM_EXTRA)
+
+  # Perform clock propagation based on the information from the XDC commands
+  propagate_clocks
 }
 
-# Perform clock propagation based on the information from the SDC commands
-propagate_clocks
+update_pll_params
 
 write_verilog $::env(OUT_SYNTH_V).premap.v
 
