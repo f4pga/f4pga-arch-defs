@@ -1441,7 +1441,8 @@ function(ADD_FPGA_TARGET)
   set(SDC_ARG "")
   if(NOT "${ADD_FPGA_TARGET_INPUT_XDC_FILE}" STREQUAL "")
     append_file_dependency(VPR_DEPS ${OUT_SDC_REL})
-    set(SDC_ARG --sdc_file ${OUT_SDC_REL})
+    get_file_location(SDC_LOCATION ${OUT_SDC_REL})
+    set(SDC_ARG --sdc_file ${SDC_LOCATION})
   endif()
 
   # Overrides the SDC if the INPUT_SDC_FILE parameter is set
