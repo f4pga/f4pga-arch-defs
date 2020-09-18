@@ -38,8 +38,6 @@ from lib.rr_graph import points
 from lib.rr_graph import tracks
 from lib.rr_graph import graph2
 import datetime
-import os
-import os.path
 from lib.connection_database import NodeClassification
 
 SINGLE_PRECISION_FLOAT_MIN = 2**-126
@@ -107,8 +105,7 @@ def create_get_switch(conn, get_pip_timing=None):
         "SELECT pkey FROM switch WHERE name = ?",
         ("__vpr_delayless_switch__", )
     )
-    pip_cache[(False, 0.0, 0.0, 0.0)] = write_cur.fetchone()[0]    
-
+    pip_cache[(False, 0.0, 0.0, 0.0)] = write_cur.fetchone()[0]
 
     def get_switch_timing(
             is_pass_transistor, delay, internal_capacitance, drive_resistance
@@ -449,7 +446,15 @@ def build_other_indicies(write_cur):
     )
 
 
-def import_phy_grid(db, grid, conn, get_switch, get_switch_timing, get_site_pin_timing, grid_limit=None):
+def import_phy_grid(
+        db,
+        grid,
+        conn,
+        get_switch,
+        get_switch_timing,
+        get_site_pin_timing,
+        grid_limit=None
+):
     write_cur = conn.cursor()
 
     tile_types = {}
@@ -478,7 +483,8 @@ def import_phy_grid(db, grid, conn, get_switch, get_switch_timing, get_site_pin_
 
     for tile_type in tile_types:
         add_wire_to_site_relation(
-            db, write_cur, tile_types, site_types, tile_type, get_switch_timing, get_site_pin_timing
+            db, write_cur, tile_types, site_types, tile_type,
+            get_switch_timing, get_site_pin_timing
         )
 
     clock_regions = {}
@@ -622,8 +628,14 @@ VALUES
     for connection in progressbar_utils.progressbar(
             connections.get_connections()):
 
-        loc_a = (connection.wire_a.grid_x, connection.wire_a.grid_y,)
-        loc_b = (connection.wire_b.grid_x, connection.wire_b.grid_y,)
+        loc_a = (
+            connection.wire_a.grid_x,
+            connection.wire_a.grid_y,
+        )
+        loc_b = (
+            connection.wire_b.grid_x,
+            connection.wire_b.grid_y,
+        )
         if not filter_loc(loc_a, grid_limit) or \
            not filter_loc(loc_b, grid_limit):
             continue
@@ -1526,7 +1538,6 @@ INSERT INTO phy_tile(name, grid_x, grid_y) VALUES (?, ?, ?)
     return vcc_track_pkey, gnd_track_pkey
 
 
-
 def traverse_pip(conn, wire_in_tile_pkey):
     """ Given a generic wire, find (if any) the wire on the other side of a pip.
 
@@ -1608,7 +1619,10 @@ def update_wire_in_tile_types(
     )
 
 
-def create_vpr_grid(conn, synthetic_tiles, tiles_to_merge, tiles_to_split, split_styles, grid_map_output):
+def create_vpr_grid(
+        conn, synthetic_tiles, tiles_to_merge, tiles_to_split, split_styles,
+        grid_map_output
+):
     """ Create VPR grid from prjxray grid. """
     cur = conn.cursor()
     cur2 = conn.cursor()

@@ -242,7 +242,8 @@ class Outpin(TimingNode):
     def propigate_downstream_capacitance(self, math):
         assert self.sink_wire is not None
         self.downstream_cap = self.sink_wire.propigate_downstream_capacitance(
-            math)
+            math
+        )
         self.rc_delay = math.multiply(self.downstream_cap, self.resistance)
 
     def propigate_delays(self, math):
@@ -362,12 +363,14 @@ class Wire(DownstreamNode):
     def propigate_downstream_capacitance(self, math):
         downstream_cap = math.sum(
             child.propigate_downstream_capacitance(math)
-            for child in self.children)
+            for child in self.children
+        )
 
         # Pi-model is definied such that wire resistance only sees half of the
         # wire capacitance.
         self.downstream_cap = math.plus(
-            math.divide(self.capacitance, 2), downstream_cap)
+            math.divide(self.capacitance, 2), downstream_cap
+        )
 
         # Upstream seems all of the wires capacitance
         return math.plus(downstream_cap, self.capacitance)
@@ -437,7 +440,8 @@ class Buffer(DownstreamNode):
     def propigate_downstream_capacitance(self, math):
         assert self.sink_wire is not None
         self.downstream_cap = self.sink_wire.propigate_downstream_capacitance(
-            math)
+            math
+        )
         return self.internal_capacitance
 
     def propigate_delays(self, elements, math):
@@ -445,8 +449,9 @@ class Buffer(DownstreamNode):
 
         assert self.sink_wire is not None
         self.sink_wire.propigate_delays(self.propigated_delays + [self], math)
-        self.rc_delay = math.multiply(self.downstream_cap,
-                                      self.drive_resistance)
+        self.rc_delay = math.multiply(
+            self.downstream_cap, self.drive_resistance
+        )
 
     def get_intrinsic_delays(self):
         return self.delays
@@ -499,7 +504,8 @@ class PassTransistor(DownstreamNode):
     def propigate_downstream_capacitance(self, math):
         assert self.sink_wire is not None
         self.downstream_cap = self.sink_wire.propigate_downstream_capacitance(
-            math)
+            math
+        )
 
         return self.downstream_cap
 
@@ -508,8 +514,9 @@ class PassTransistor(DownstreamNode):
 
         assert self.sink_wire is not None
         self.sink_wire.propigate_delays(self.propigated_delays + [self], math)
-        self.rc_delay = math.multiply(self.downstream_cap,
-                                      self.drive_resistance)
+        self.rc_delay = math.multiply(
+            self.downstream_cap, self.drive_resistance
+        )
 
     def get_intrinsic_delays(self):
         return self.delays

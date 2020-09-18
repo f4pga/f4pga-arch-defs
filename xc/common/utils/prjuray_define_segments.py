@@ -1,8 +1,6 @@
 """ Create segment definitions for prjuray interconnect.
 
 """
-import argparse
-from prjuray.db import Database
 import re
 from collections import OrderedDict
 
@@ -57,29 +55,29 @@ def get_segments(db):
 
     # TODO: Segment names, interconnect tile names.
 
-#    for segment in [
-#            'INPINFEED',
-#            'CLKFEED',
-#            'OUTPINFEED',
-#            'BRAM_CASCADE',
-#            'BUFG_CASCADE',
-#            'GCLK',
-#            'GCLK_OUTPINFEED',
-#            'GCLK_INPINFEED',
-#            'HCLK_CK_IN',
-#            'BRAM_IMUX',
-#            'HCLK_COLUMNS',
-#            'HCLK_ROWS',
-#            'HCLK_ROW_TO_COLUMN',
-#            'CCIO_OUTPINFEED',
-#            'CCIO_CLK_IN',
-#            'PLL_OUTPINFEED',
-#            'PLL_INPINFEED',
-#    ]:
-#        segments[segment] = set()
-#
-#    for tile in ['INT_L', 'INT_R']:
-#        add_segment_wires(db, tile, wires, segments)
+    #    for segment in [
+    #            'INPINFEED',
+    #            'CLKFEED',
+    #            'OUTPINFEED',
+    #            'BRAM_CASCADE',
+    #            'BUFG_CASCADE',
+    #            'GCLK',
+    #            'GCLK_OUTPINFEED',
+    #            'GCLK_INPINFEED',
+    #            'HCLK_CK_IN',
+    #            'BRAM_IMUX',
+    #            'HCLK_COLUMNS',
+    #            'HCLK_ROWS',
+    #            'HCLK_ROW_TO_COLUMN',
+    #            'CCIO_OUTPINFEED',
+    #            'CCIO_CLK_IN',
+    #            'PLL_OUTPINFEED',
+    #            'PLL_INPINFEED',
+    #    ]:
+    #        segments[segment] = set()
+    #
+    #    for tile in ['INT_L', 'INT_R']:
+    #        add_segment_wires(db, tile, wires, segments)
 
     reduce_wires_to_segments(wires, segments)
 
@@ -122,4 +120,3 @@ class SegmentWireMap(object):
 
     def get_segments(self):
         return self.segments.keys()
-
