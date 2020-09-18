@@ -242,7 +242,7 @@ IN (
   FROM
     const_nodes
 )
-        """, (NodeClassification.EDGES_TO_CHANNEL.value, )
+        """, (NodeClassification.CHANNEL.value, )
     )
 
     c.execute("""COMMIT TRANSACTION""")
