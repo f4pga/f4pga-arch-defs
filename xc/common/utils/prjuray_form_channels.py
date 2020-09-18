@@ -39,7 +39,7 @@ import prjuray.tile
 from prjuray_timing import PvtCorner
 
 from lib.connection_database import create_tables
-import tile_splitter.grid
+from lib.connection_database import NodeClassification
 
 from form_channels import create_get_switch
 from form_channels import import_phy_grid
@@ -175,45 +175,78 @@ UPDATE node SET track_pkey = ? WHERE pkey IN (
     write_cur.execute("""COMMIT TRANSACTION""")
 
 
-def add_fake_site_hardpins(conn, get_switch_timing):
+def identify_const_nodes(conn):
     """
-    Adds fake site pins to be used for GND_WIRE* and VCC_WIRE*.
+    Creates a new table for const nodes, identifies them and inserts their
+    pkeys along with const signal name to the table.
     """
 
-    write_cur = conn.cursor()
-
-    # Insert fake site pins for GND and VCC sources
-    write_cur.execute(
-        "INSERT INTO site_pin(name, site_type_pkey, direction) VALUES (\"GND\", NULL, \"output\")"
-    )
-    gnd_site_pin_pkey = write_cur.lastrowid
-
-    write_cur.execute(
-        "INSERT INTO site_pin(name, site_type_pkey, direction) VALUES (\"VCC\", NULL, \"output\")"
-    )
-    vcc_site_pin_pkey = write_cur.lastrowid
-
-    # Create a switch for VCC and GND wires
-    const_switch_pkey = get_switch_timing(
-        is_pass_transistor=False,
-        delay=0.0,
-        internal_capacitance=0.0,
-        drive_resistance=0.0,
-    )
-
-    # Assign GND_WIRE* and VCC_WIRE* to these site pins.
-    write_cur.execute(
+    # Create table to hold const nodes
+    c = conn.cursor()
+    c.execute(
         """
-UPDATE wire_in_tile SET site_pin_pkey = ?, site_pin_switch_pkey = ? WHERE name LIKE "GND_WIRE%"
-        """, (gnd_site_pin_pkey, const_switch_pkey,)
-        )
-
-    write_cur.execute(
+CREATE TABLE const_nodes(
+  node_pkey INT,
+  net_name TEXT,
+FOREIGN KEY(node_pkey) REFERENCES node(pkey)
+);
         """
-UPDATE wire_in_tile SET site_pin_pkey = ?, site_pin_switch_pkey = ? WHERE name LIKE "VCC_WIRE%"
-        """, (vcc_site_pin_pkey, const_switch_pkey,)
-        )
+    )
 
+    # Identify and insert const source nodes
+    c.execute(
+        """
+WITH
+  wire_info(name, node_pkey) AS (
+SELECT
+  wire_in_tile.name, wire.node_pkey
+FROM
+  wire
+INNER JOIN
+  wire_in_tile ON wire.wire_in_tile_pkey = wire_in_tile.pkey)
+INSERT INTO const_nodes(node_pkey, net_name)
+SELECT DISTINCT
+  wire_info.node_pkey,
+CASE
+  WHEN wire_info.name LIKE "GND_WIRE%" THEN "GND"
+  WHEN wire_info.name LIKE "VCC_WIRE%" THEN "VCC"
+  ELSE "unknown"
+END
+FROM
+  wire_info
+INNER JOIN
+  node ON wire_info.node_pkey == node.pkey
+WHERE
+  wire_info.name LIKE "GND_WIRE%" OR wire_info.name LIKE "VCC_WIRE%"
+        """
+    )
+
+
+def classify_const_nodes(conn):
+    """
+    Force classification of all const nodes
+    """
+    c = conn.cursor()
+    c.execute(
+        """
+UPDATE
+  node
+SET
+  classification = ?
+WHERE
+  number_pips > 0
+AND
+  pkey
+IN (
+  SELECT
+    node_pkey
+  FROM
+    const_nodes  
+)
+        """, (NodeClassification.EDGES_TO_CHANNEL.value,)
+    )
+    
+    c.execute("""COMMIT TRANSACTION""")
 
 # =============================================================================
 
@@ -297,6 +330,8 @@ def main():
         count_sites_and_pips_on_nodes(conn)
         print("{}: Counted sites and pips".format(datetime.datetime.now()))
         classify_nodes(conn, get_switch_timing, check_pip_for_direct)
+        identify_const_nodes(conn)
+        classify_const_nodes(conn)
         print("{}: Nodes classified".format(datetime.datetime.now()))
         with open(args.grid_map_output, 'w') as f:
             create_vpr_grid(
