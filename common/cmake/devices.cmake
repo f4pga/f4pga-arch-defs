@@ -599,7 +599,6 @@ function(DEFINE_DEVICE)
         --device ${DEVICE_FULL}
         ${WIRE_EBLIF}
         --place_algorithm bounding_box
-        --enable_timing_computations off
         --route_chan_width 6
         --echo_file on
         --min_route_chan_width_hint 1
@@ -1549,7 +1548,7 @@ function(ADD_FPGA_TARGET)
 
   # Generate placement constraints.
   # -------------------------------------------------------------------------
-  set(FIX_PINS_ARG "")
+  set(FIX_CLUSTERS_ARG "")
 
   if(NOT ${ADD_FPGA_TARGET_INPUT_IO_FILE} STREQUAL "" OR NOT ${ADD_FPGA_TARGET_INPUT_XDC_FILE} STREQUAL "")
     get_target_property_required(NO_PINS ${ARCH} NO_PINS)
@@ -1631,9 +1630,9 @@ function(ADD_FPGA_TARGET)
       add_output_to_fpga_target(${NAME} IO_PLACE ${OUT_CONSTR_REL})
       append_file_dependency(VPR_DEPS ${OUT_CONSTR_REL})
 
-      set(FIX_PINS_ARG --fix_pins ${OUT_CONSTR})
+      set(FIX_CLUSTERS_ARG --fix_clusters ${OUT_CONSTR})
     else()
-      set(FIX_PINS_ARG --fix_pins ${OUT_IO})
+      set(FIX_CLUSTERS_ARG --fix_clusters ${OUT_IO})
     endif()
 
   endif()
@@ -1644,7 +1643,7 @@ function(ADD_FPGA_TARGET)
   add_custom_command(
     OUTPUT ${OUT_PLACE}
     DEPENDS ${OUT_NET} ${VPR_DEPS}
-    COMMAND ${VPR_CMD} ${FIX_PINS_ARG} --place
+    COMMAND ${VPR_CMD} ${FIX_CLUSTERS_ARG} --place
     COMMAND
       ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log
       ${OUT_LOCAL}/place.log
@@ -1655,7 +1654,7 @@ function(ADD_FPGA_TARGET)
   add_custom_command(
     OUTPUT ${ECHO_OUT_PLACE}
     DEPENDS ${ECHO_OUT_NET} ${VPR_DEPS}
-    COMMAND ${VPR_CMD} ${FIX_PINS_ARG} --echo_file on --place
+    COMMAND ${VPR_CMD} ${FIX_CLUSTERS_ARG} --echo_file on --place
     COMMAND
       ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/echo/vpr_stdout.log
         ${OUT_LOCAL}/echo/place.log

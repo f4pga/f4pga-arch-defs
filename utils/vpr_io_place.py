@@ -25,6 +25,7 @@ class IoPlace(object):
         self.net_map = {}
         self.inout_nets = set()
         self.net_to_pad = set()
+        self.net_file_io = set()
 
     def read_io_loc_pairs(self, blif):
         """
@@ -89,6 +90,27 @@ class IoPlace(object):
                 assert top_block is not None
                 top_block = top_block.getparent()
             self.net_to_block[block.get("name")] = top_block.get("name")
+
+    def load_net_file_ios(self, net_file):
+        """
+        Loads input and outputs net names from the netlist file.
+        """
+
+        def get_ios(net_root, io_types):
+            "Get the top level io signals from the netlist XML root."
+            for io_type in io_types:
+                io = net_root.xpath("/block/{}/text ()".format(io_type))
+
+                if len(io) == 1:
+                    yield io[0]
+
+        net_xml = ET.parse(net_file)
+        net_root = net_xml.getroot()
+
+        for io_line in get_ios(net_root, ["inputs", "outputs"]):
+            io_list = io_line.split(" ")
+            for io in io_list:
+                self.net_file_io.add(io.replace("out:", ""))
 
     def constrain_net(self, net_name, loc, comment=""):
         assert len(loc) == 3
@@ -179,6 +201,9 @@ class IoPlace(object):
 
     def is_net(self, net):
         return net in self.net_map.values()
+
+    def is_net_packed(self, net):
+        return net in self.net_file_io
 
     def get_nets(self):
         for net in self.inputs:
