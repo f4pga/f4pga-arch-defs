@@ -7,8 +7,6 @@ MYPATH=`dirname ${MYPATH}`
 source ${MYPATH}/env
 echo "Writing bitstream ..."
 
-FRAMES2BIT=`realpath ${VPRPATH}/xc7frames2bit`
-
 OPTS=d:f:b:P:
 LONGOPTS=device:,fasm:,bit:,part:
 

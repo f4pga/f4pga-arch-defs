@@ -22,7 +22,6 @@ fi
 echo "PINMAP FILE : $PINMAPCSV"
 echo "CLKMAP FILE : $CLKMAPCSV"
 
-CHANNELS=`realpath ${MYPATH}/../share/arch/${DEVICE}/channels.db`
 PINMAP=`realpath ${MYPATH}/../share/arch/${DEVICE}/${PINMAPCSV}`
 CLKMAP=`realpath ${MYPATH}/../share/arch/${DEVICE}/${CLKMAPCSV}`
 IOGEN=`realpath ${MYPATH}/python/create_ioplace.py`
