@@ -57,6 +57,54 @@ from prjuray_define_segments import SegmentWireMap
 # =============================================================================
 
 
+def yield_downstream_nodes(conn, node_pkey):
+    """
+    For the given node pkey yields pkeys of all its downstream nodes
+    """
+
+    c = conn.cursor()
+    for (node,) in c.execute("""
+WITH wire_in_node(
+  wire_pkey
+) AS (
+  SELECT
+    wire.pkey
+  FROM
+    wire
+  WHERE
+    wire.node_pkey = ?
+), downstream_wire_in_tile(
+  wire_pkey, phy_tile_pkey, wire_in_tile_pkey
+) AS (
+  SELECT
+    wire.pkey,
+    wire.phy_tile_pkey,
+    pip_in_tile.dest_wire_in_tile_pkey
+  FROM
+    wire
+  INNER JOIN
+    pip_in_tile
+  ON
+    pip_in_tile.is_pseudo == 0 AND
+    pip_in_tile.src_wire_in_tile_pkey == wire.wire_in_tile_pkey
+)
+SELECT
+  wire.node_pkey
+FROM
+  wire
+INNER JOIN
+  downstream_wire_in_tile
+ON
+  downstream_wire_in_tile.phy_tile_pkey == wire.phy_tile_pkey AND
+  downstream_wire_in_tile.wire_in_tile_pkey == wire.wire_in_tile_pkey
+WHERE
+  downstream_wire_in_tile.wire_pkey IN wire_in_node
+        """, (node_pkey,)):
+        yield node
+
+# =============================================================================
+
+
 def get_pip_timing(pip, pip_timing=None):
     """
     Returns internal R, C, Tdel and penalty cost for the given PIP. When
@@ -223,17 +271,60 @@ WHERE
 
 def classify_const_nodes(conn):
     """
-    Force classification of all const nodes
+    Fixes classification of constant nodes.
     """
-    c = conn.cursor()
-    c.execute(
+
+    # Const nodes that have no PIPs should already be classified as NULL.
+
+    # Recursive walk utility function
+    def walk(node_pkey, stack, paths):
         """
-UPDATE
+        Walk recursively until a site is reached. Store path(s).
+        """
+        c2 = conn.cursor()
+
+        for node in yield_downstream_nodes(conn, node_pkey):
+            c2.execute("SELECT classification, site_wire_pkey FROM node WHERE pkey = ?", (node,))
+            classification, site_wire_pkey = c2.fetchone()
+
+            # We've hit either a site or a channel
+            if site_wire_pkey is not None or classification != NodeClassification.NULL.value:
+
+                # Mark all nodes currently on stack as CHANNEL
+                path = [(n, NodeClassification.CHANNEL.value,) for n in stack]
+                
+                # Mark the last one appripriately
+                if site_wire_pkey is None:
+                    path.append((node, NodeClassification.CHANNEL.value,))
+                else:
+                    path.append((node, NodeClassification.EDGES_TO_CHANNEL.value,))
+
+                paths.append(path)
+
+            # Recurse
+            else:
+                stack.append(node)
+                walk(node, stack, paths)
+                stack = stack[:-1]
+
+    # Const nodes that can reach either other CHANNEL nodes or site pins may
+    # have been classified as NULL. Fix it here by starting from each NULL
+    # const node that has PIPs and walking until a CHANNEL or site is found.
+    node_classification = {
+        NodeClassification.CHANNEL.value: set(),
+        NodeClassification.EDGES_TO_CHANNEL.value: set(),
+    }
+
+    c = conn.cursor()
+    for (node_pkey, ) in c.execute("""
+SELECT
+  pkey
+FROM
   node
-SET
-  classification = ?
 WHERE
-  number_pips > 0
+  number_pips > 0 AND
+  site_wire_pkey IS NULL AND
+  classification = ?
 AND
   pkey
 IN (
@@ -242,11 +333,33 @@ IN (
   FROM
     const_nodes
 )
-        """, (NodeClassification.CHANNEL.value, )
-    )
+        """, (NodeClassification.NULL.value, )):
 
-    c.execute("""COMMIT TRANSACTION""")
+        # Walk, collect paths to sites
+        paths = []
+        stack = [node_pkey]
+        walk(node_pkey, stack, paths)
 
+        # Collect nodes
+        for path in paths:
+            for node, classification in path:
+                node_classification[classification].add(node)
+
+    # Update classifications
+    c.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
+
+    for classification, nodes in node_classification.items():
+        for node in nodes:
+            c.execute("""
+UPDATE
+  node
+SET
+  classification = ?
+WHERE
+  pkey = ?
+            """, (classification, node, ))
+
+    c.execute("""COMMIT TRANSACTION;""")
 
 # =============================================================================
 
