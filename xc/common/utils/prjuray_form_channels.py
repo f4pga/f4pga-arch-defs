@@ -63,7 +63,7 @@ def yield_downstream_nodes(conn, node_pkey):
     """
 
     c = conn.cursor()
-    for (node,) in c.execute("""
+    for (node, ) in c.execute("""
 WITH wire_in_node(
   wire_pkey
 ) AS (
@@ -99,8 +99,9 @@ ON
   downstream_wire_in_tile.wire_in_tile_pkey == wire.wire_in_tile_pkey
 WHERE
   downstream_wire_in_tile.wire_pkey IN wire_in_node
-        """, (node_pkey,)):
+        """, (node_pkey, )):
         yield node
+
 
 # =============================================================================
 
@@ -284,20 +285,36 @@ def classify_const_nodes(conn):
         c2 = conn.cursor()
 
         for node in yield_downstream_nodes(conn, node_pkey):
-            c2.execute("SELECT classification, site_wire_pkey FROM node WHERE pkey = ?", (node,))
+            c2.execute(
+                "SELECT classification, site_wire_pkey FROM node WHERE pkey = ?",
+                (node, )
+            )
             classification, site_wire_pkey = c2.fetchone()
 
             # We've hit either a site or a channel
             if site_wire_pkey is not None or classification != NodeClassification.NULL.value:
 
                 # Mark all nodes currently on stack as CHANNEL
-                path = [(n, NodeClassification.CHANNEL.value,) for n in stack]
-                
+                path = [
+                    (
+                        n,
+                        NodeClassification.CHANNEL.value,
+                    ) for n in stack
+                ]
+
                 # Mark the last one appripriately
                 if site_wire_pkey is None:
-                    path.append((node, NodeClassification.CHANNEL.value,))
+                    path.append((
+                        node,
+                        NodeClassification.CHANNEL.value,
+                    ))
                 else:
-                    path.append((node, NodeClassification.EDGES_TO_CHANNEL.value,))
+                    path.append(
+                        (
+                            node,
+                            NodeClassification.EDGES_TO_CHANNEL.value,
+                        )
+                    )
 
                 paths.append(path)
 
@@ -350,16 +367,22 @@ IN (
 
     for classification, nodes in node_classification.items():
         for node in nodes:
-            c.execute("""
+            c.execute(
+                """
 UPDATE
   node
 SET
   classification = ?
 WHERE
   pkey = ?
-            """, (classification, node, ))
+            """, (
+                    classification,
+                    node,
+                )
+            )
 
     c.execute("""COMMIT TRANSACTION;""")
+
 
 # =============================================================================
 
