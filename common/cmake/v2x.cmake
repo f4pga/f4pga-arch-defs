@@ -5,6 +5,7 @@ function(V2X)
   #   [TOP_MODULE <top module>]
   #   SRCS <src1> <src2>
   #   [DO_NOT_APPLY_VERILOG_IMAGE_GEN]
+  #   [ENABLE_CANONICALIZE]
   #   )
   # ~~~
   #
@@ -17,7 +18,7 @@ function(V2X)
   #
   # By default V2X implicitly calls ADD_VERILOG_IMAGE_GEN for the input source
   # files.  DO_NOT_APPLY_VERILOG_IMAGE_GEN suppress this default.
-  set(options DO_NOT_APPLY_VERILOG_IMAGE_GEN)
+  set(options DO_NOT_APPLY_VERILOG_IMAGE_GEN ENABLE_CANONICALIZE)
   set(oneValueArgs NAME TOP_MODULE)
   set(multiValueArgs SRCS)
   cmake_parse_arguments(
@@ -88,21 +89,40 @@ function(V2X)
     set(INCLUDE_ARG "--includes=${INCLUDES_LIST}")
   endif()
 
+  set(PB_TYPE_TMP "${V2X_NAME}.pb_type.temp.xml")
+  set(PB_TYPE "${V2X_NAME}.pb_type.xml")
+
+  set(V2X_PB_TYPE_OUTPUT ${PB_TYPE})
+  if(${V2X_ENABLE_CANONICALIZE})
+    set(V2X_PB_TYPE_OUTPUT ${PB_TYPE_TMP})
+  endif()
+
   add_custom_command(
-    OUTPUT "${V2X_NAME}.pb_type.xml"
+    OUTPUT ${V2X_PB_TYPE_OUTPUT}
     DEPENDS
       ${DEPENDS_LIST}
       ${V2X_DIR}/v2x/vlog_to_pbtype.py
     COMMAND
     ${CMAKE_COMMAND} -E env YOSYS=${YOSYS} PYTHONPATH=${V2X_DIR}:${symbiflow-arch-defs_BINARY_DIR}/env/conda/lib/python3.7/site-packages
       ${PYTHON3} -m v2x --mode=pb_type ${TOP_ARG}
-      -o ${CMAKE_CURRENT_BINARY_DIR}/${V2X_NAME}.pb_type.xml ${FIRST_SOURCE}
+      -o ${CMAKE_CURRENT_BINARY_DIR}/${V2X_PB_TYPE_OUTPUT} ${FIRST_SOURCE}
       ${INCLUDE_ARG}
     WORKING_DIRECTORY ${V2X_DIR}/v2x/
   )
-  add_file_target(FILE "${V2X_NAME}.pb_type.xml" GENERATED)
-  get_file_target(SRC_TARGET_NAME "${V2X_NAME}.pb_type.xml")
+  add_file_target(FILE ${V2X_PB_TYPE_OUTPUT} GENERATED)
+  get_file_target(SRC_TARGET_NAME ${V2X_PB_TYPE_OUTPUT})
   set_target_properties(${SRC_TARGET_NAME} PROPERTIES INCLUDE_FILES "${PB_TYPE_INCLUDE_FILES}")
+
+  if(${V2X_ENABLE_CANONICALIZE})
+    xml_canonicalize_merge(
+      NAME ${V2X_NAME}
+      FILE ${V2X_PB_TYPE_OUTPUT}
+      OUTPUT ${PB_TYPE}
+    )
+
+    get_file_target(SRC_TARGET_NAME ${PB_TYPE})
+    set_target_properties(${SRC_TARGET_NAME} PROPERTIES INCLUDE_FILES "${PB_TYPE_INCLUDE_FILES}")
+  endif()
 
   add_custom_command(
     OUTPUT "${V2X_NAME}.model.xml"
