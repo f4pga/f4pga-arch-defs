@@ -492,21 +492,39 @@ function(PREPARE_RAPIDWRIGHT)
   #         location of the invoke_rapidwright.sh script which can be used to
   #         invoke RapidWright.
   add_custom_target(rapidwright)
+  set_target_properties(rapidwright PROPERTIES RAPIDWRIGHT_INSTALLED FALSE)
+
+  set(HAVE_RAPIDWRIGHT FALSE)
+  set(HAVE_JAVA FALSE)
+  set(HAVE_URAY_VIVADO FALSE)
   if(EXISTS "${RAPIDWRIGHT_PATH}" AND EXISTS ${RAPIDWRIGHT_PATH}/interchange AND EXISTS ${RAPIDWRIGHT_PATH}/scripts/invoke_rapidwright.sh)
+    set(HAVE_RAPIDWRIGHT TRUE)
+  endif()
+
+  if(${HAVE_RAPIDWRIGHT})
     find_program(JAVA java)
     if(EXISTS ${JAVA})
-      set_target_properties(rapidwright PROPERTIES
-        RAPIDWRIGHT_INSTALLED TRUE
-        RAPIDWRIGHT_PATH "${RAPIDWRIGHT_PATH}"
-        INVOKE_RAPIDWRIGHT "${RAPIDWRIGHT_PATH}/scripts/invoke_rapidwright.sh"
-        JAVA ${JAVA})
-    else()
-      message(WARNING "RAPIDWRIGHT_PATH defined, but JAVA not found. Interchange support not enabled.")
-      set_target_properties(rapidwright PROPERTIES RAPIDWRIGHT_INSTALLED FALSE)
+      set(HAVE_JAVA TRUE)
     endif()
-  else()
+  endif()
+
+  if(DEFINED ENV{URAY_VIVADO_SETTINGS} AND EXISTS "$ENV{URAY_VIVADO_SETTINGS}")
+      set(HAVE_URAY_VIVADO TRUE)
+  endif()
+
+
+  if(${HAVE_RAPIDWRIGHT} AND ${HAVE_JAVA} AND ${HAVE_URAY_VIVADO})
+    set_target_properties(rapidwright PROPERTIES
+      RAPIDWRIGHT_INSTALLED TRUE
+      RAPIDWRIGHT_PATH "${RAPIDWRIGHT_PATH}"
+      INVOKE_RAPIDWRIGHT "${RAPIDWRIGHT_PATH}/scripts/invoke_rapidwright.sh"
+      JAVA ${JAVA})
+  elseif(NOT ${HAVE_RAPIDWRIGHT})
     message(STATUS "RAPIDWRIGHT_PATH not defined. Interchange support not enabled.")
-    set_target_properties(rapidwright PROPERTIES RAPIDWRIGHT_INSTALLED FALSE)
+  elseif(NOT ${HAVE_JAVA})
+    message(WARNING "RAPIDWRIGHT_PATH defined, but JAVA not found. Interchange support not enabled.")
+  elseif(NOT ${HAVE_URAY_VIVADO})
+    message(WARNING "RAPIDWRIGHT_PATH defined, but URAY_VIVADO_SETTINGS not found. Interchange support not enabled.")
   endif()
 
   get_target_property_required(RAPIDWRIGHT_INSTALLED rapidwright RAPIDWRIGHT_INSTALLED)
