@@ -95,6 +95,18 @@ function(ADD_XC_ARCH_DEFINE)
 
   get_target_property_required(XCFASM env XCFASM)
 
+
+  get_target_property_required(RAPIDWRIGHT_INSTALLED rapidwright RAPIDWRIGHT_INSTALLED)
+  if(${RAPIDWRIGHT_INSTALLED})
+    get_target_property_required(RAPIDWRIGHT_PATH rapidwright RAPIDWRIGHT_PATH)
+    set(INTERCHANGE_FASM2BELS "--interchange_capnp_schema_dir ${RAPIDWRIGHT_PATH}/interchange
+            --logical_netlist \${OUT_BIT_VERILOG}.netlist
+            --physical_netlist \${OUT_BIT_VERILOG}.phys
+            --interchange_xdc \${OUT_BIT_VERILOG}.inter.xdc")
+  else()
+    set(INTERCHANGE_FASM2BELS)
+  endif()
+
   define_arch(
     ARCH ${ARCH}
     FAMILY ${FAMILY}
@@ -169,7 +181,8 @@ function(ADD_XC_ARCH_DEFINE)
         \${PCF_INPUT_IO_FILE} \
         --eblif \${OUT_EBLIF} \
         --top \${TOP} \
-        \${OUT_BIT_VERILOG} \${OUT_BIT_VERILOG}.xdc"
+        --verilog_file \${OUT_BIT_VERILOG}
+        --xdc_file \${OUT_BIT_VERILOG}.xdc ${INTERCHANGE_FASM2BELS}"
     NO_BIT_TO_BIN
     NO_BIT_TIME
     USE_FASM
