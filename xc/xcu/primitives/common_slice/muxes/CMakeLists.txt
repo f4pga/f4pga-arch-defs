@@ -1,0 +1,7 @@
+add_subdirectory(f7mux_ab)
+add_subdirectory(f7mux_cd)
+add_subdirectory(f7mux_ef)
+add_subdirectory(f7mux_gh)
+add_subdirectory(f8mux_top)
+add_subdirectory(f8mux_bot)
+add_subdirectory(f9mux)

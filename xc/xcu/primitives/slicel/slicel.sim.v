@@ -1,30 +1,30 @@
 // LUTs
-`include "../../../common/primitives/common_slice/Nlut/alut.sim.v"
-`include "../../../common/primitives/common_slice/Nlut/blut.sim.v"
-`include "../../../common/primitives/common_slice/Nlut/clut.sim.v"
-`include "../../../common/primitives/common_slice/Nlut/dlut.sim.v"
-`include "../../../common/primitives/common_slice/Nlut/elut.sim.v"
-`include "../../../common/primitives/common_slice/Nlut/flut.sim.v"
-`include "../../../common/primitives/common_slice/Nlut/glut.sim.v"
-`include "../../../common/primitives/common_slice/Nlut/hlut.sim.v"
+`include "../common_slice/Nlut/alut.sim.v"
+`include "../common_slice/Nlut/blut.sim.v"
+`include "../common_slice/Nlut/clut.sim.v"
+`include "../common_slice/Nlut/dlut.sim.v"
+`include "../common_slice/Nlut/elut.sim.v"
+`include "../common_slice/Nlut/flut.sim.v"
+`include "../common_slice/Nlut/glut.sim.v"
+`include "../common_slice/Nlut/hlut.sim.v"
 
 // Muxes
-`include "../../../common/primitives/common_slice/muxes/f7mux_ab/f7mux_ab.sim.v"
-`include "../../../common/primitives/common_slice/muxes/f7mux_cd/f7mux_cd.sim.v"
-`include "../../../common/primitives/common_slice/muxes/f7mux_ef/f7mux_ef.sim.v"
-`include "../../../common/primitives/common_slice/muxes/f7mux_gh/f7mux_gh.sim.v"
-`include "../../../common/primitives/common_slice/muxes/f8mux_top/f8mux_top.sim.v"
-`include "../../../common/primitives/common_slice/muxes/f8mux_bot/f8mux_bot.sim.v"
-`include "../../../common/primitives/common_slice/muxes/f9mux/f9mux.sim.v"
+`include "../common_slice/muxes/f7mux_ab/f7mux_ab.sim.v"
+`include "../common_slice/muxes/f7mux_cd/f7mux_cd.sim.v"
+`include "../common_slice/muxes/f7mux_ef/f7mux_ef.sim.v"
+`include "../common_slice/muxes/f7mux_gh/f7mux_gh.sim.v"
+`include "../common_slice/muxes/f8mux_top/f8mux_top.sim.v"
+`include "../common_slice/muxes/f8mux_bot/f8mux_bot.sim.v"
+`include "../common_slice/muxes/f9mux/f9mux.sim.v"
 
 // OUTMUX
-`include "../../../common/primitives/common_slice/routing/outmux/outmux.sim.v"
+`include "../common_slice/routing/outmux/outmux.sim.v"
 
 // FFMUX
-`include "../../../common/primitives/common_slice/routing/ffmux/ffmux.sim.v"
+`include "../common_slice/routing/ffmux/ffmux.sim.v"
 
 // Flip-Flop
-`include "../../../common/primitives/ff/ff.sim.v"
+`include "../ff/ff.sim.v"
 
 (* whitebox *)
 module SLICEL(
