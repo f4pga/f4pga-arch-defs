@@ -1,10 +1,12 @@
 add_file_target(FILE gclk_counter.v SCANNER_TYPE verilog)
+add_file_target(FILE gclk_counter.sdc)
 add_file_target(FILE chandalar.pcf)
 
 add_fpga_target(
   NAME gclk_counter-ql-chandalar
   BOARD chandalar
   SOURCES gclk_counter.v
+  SDC_FILE gclk_counter.sdc
   INPUT_IO_FILE chandalar.pcf
   EXPLICIT_ADD_FILE_TARGET
   )

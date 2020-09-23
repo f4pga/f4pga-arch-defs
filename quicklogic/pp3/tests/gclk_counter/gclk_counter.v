@@ -1,17 +1,18 @@
 module top(
-    input  wire [1:0] clk,
+    input  wire       clk0,
+    input  wire       clk1,
     output wire [3:0] led
 );
 
     // Counters
     reg [23:0] cnt0;
     initial cnt0 <= 0;
-    always @(posedge clk[0])
+    always @(posedge clk0)
         cnt0 <= cnt0 + 1;
 
     reg [23:0] cnt1;
     initial cnt1 <= 0;
-    always @(posedge clk[1])
+    always @(posedge clk1)
         cnt1 <= cnt1 + 1;
 
     // Outputs

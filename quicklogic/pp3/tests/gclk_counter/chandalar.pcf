@@ -1,5 +1,5 @@
-set_io clk(0)   G6 # GPIO24 CLK0 IO81 G6 S3B_AP_I2S_DOUT     J6.4
-set_io clk(1)   H6 # GPIO23 CLK1 IO77 H6 S3B_AP_I2S_WD_CLKIN J6.6
+set_io clk0     G6 # GPIO24 CLK0 IO81 G6 S3B_AP_I2S_DOUT     J6.4
+set_io clk1     H6 # GPIO23 CLK1 IO77 H6 S3B_AP_I2S_WD_CLKIN J6.6
 
 set_io led(0)   H7
 set_io led(1)   G7
