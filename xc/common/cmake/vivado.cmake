@@ -512,7 +512,6 @@ function(PREPARE_RAPIDWRIGHT)
       set(HAVE_URAY_VIVADO TRUE)
   endif()
 
-
   if(${HAVE_RAPIDWRIGHT} AND ${HAVE_JAVA} AND ${HAVE_URAY_VIVADO})
     set_target_properties(rapidwright PROPERTIES
       RAPIDWRIGHT_INSTALLED TRUE
@@ -634,7 +633,7 @@ function(CREATE_DCP_BY_INTERCHANGE)
         ${WORK_DIR}/${NAME}_power.rpt
         ${WORK_DIR}/${NAME}_timing_summary.rpt
         ${WORK_DIR}/${NAME}_route_status.rpt
-    COMMAND ${CMAKE_COMMAND} -E env XRAY_VIVADO_SETTINGS=$$URAY_VIVADO_SETTINGS ${PRJRAY_DIR}/utils/vivado.sh -mode batch -source ${RUNME}
+    COMMAND ${CMAKE_COMMAND} -E env XRAY_VIVADO_SETTINGS=$ENV{URAY_VIVADO_SETTINGS} ${PRJRAY_DIR}/utils/vivado.sh -mode batch -source ${RUNME}
         > ${CMAKE_CURRENT_BINARY_DIR}/${WORK_DIR}/vivado.stdout.log
     WORKING_DIRECTORY ${WORK_DIR}
     DEPENDS ${RUNME_DEPS}
