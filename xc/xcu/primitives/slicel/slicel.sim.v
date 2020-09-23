@@ -18,7 +18,14 @@
 `include "../common_slice/muxes/f9mux/f9mux.sim.v"
 
 // OUTMUX
-`include "../common_slice/routing/outmux/outmux.sim.v"
+`include "../common_slice/routing/outmux/outmuxa.sim.v"
+`include "../common_slice/routing/outmux/outmuxb.sim.v"
+`include "../common_slice/routing/outmux/outmuxc.sim.v"
+`include "../common_slice/routing/outmux/outmuxd.sim.v"
+`include "../common_slice/routing/outmux/outmuxe.sim.v"
+`include "../common_slice/routing/outmux/outmuxf.sim.v"
+`include "../common_slice/routing/outmux/outmuxg.sim.v"
+`include "../common_slice/routing/outmux/outmuxh.sim.v"
 
 // FFMUX
 `include "../common_slice/routing/ffmux/ffmuxa1.sim.v"
@@ -229,14 +236,14 @@ module SLICEL(
 	wire F9MUX_OUT;
 	F9MUX f9mux (.I0(F8MUX_TOP_OUT), .I1(F8MUX_BOT_OUT), .O(F9MUX_OUT), .S(DX));
 
-	OUTMUX AOUTMUX (/*.F78(1'b0),*/         .D6(A6LUT_O6), .D5(A5LUT_O5), .OUT(AMUX));
-	OUTMUX BOUTMUX (.F78(F7MUX_AB_OUT),     .D6(B6LUT_O6), .D5(B5LUT_O5), .OUT(BMUX));
-	OUTMUX COUTMUX (.F78(F8MUX_BOT_OUT),    .D6(C6LUT_O6), .D5(C5LUT_O5), .OUT(CMUX));
-	OUTMUX DOUTMUX (.F78(F7MUX_CD_OUT),     .D6(D6LUT_O6), .D5(D5LUT_O5), .OUT(DMUX));
-	OUTMUX EOUTMUX (.F78(F9MUX_OUT),        .D6(E6LUT_O6), .D5(E5LUT_O5), .OUT(EMUX));
-	OUTMUX FOUTMUX (.F78(F7MUX_EF_OUT),     .D6(F6LUT_O6), .D5(F5LUT_O5), .OUT(FMUX));
-	OUTMUX GOUTMUX (.F78(F8MUX_TOP_OUT),    .D6(G6LUT_O6), .D5(G5LUT_O5), .OUT(GMUX));
-	OUTMUX HOUTMUX (.F78(F7MUX_GH_OUT),     .D6(H6LUT_O6), .D5(H5LUT_O5), .OUT(HMUX));
+	OUTMUXA OUTMUXA (/*.F78(1'b0),*/         .D6(A6LUT_O6), .D5(A5LUT_O5), .OUT(AMUX));
+	OUTMUXB OUTMUXB (.F78(F7MUX_AB_OUT),     .D6(B6LUT_O6), .D5(B5LUT_O5), .OUT(BMUX));
+	OUTMUXC OUTMUXC (.F78(F8MUX_BOT_OUT),    .D6(C6LUT_O6), .D5(C5LUT_O5), .OUT(CMUX));
+	OUTMUXD OUTMUXD (.F78(F7MUX_CD_OUT),     .D6(D6LUT_O6), .D5(D5LUT_O5), .OUT(DMUX));
+	OUTMUXE OUTMUXE (.F78(F9MUX_OUT),        .D6(E6LUT_O6), .D5(E5LUT_O5), .OUT(EMUX));
+	OUTMUXF OUTMUXF (.F78(F7MUX_EF_OUT),     .D6(F6LUT_O6), .D5(F5LUT_O5), .OUT(FMUX));
+	OUTMUXG OUTMUXG (.F78(F8MUX_TOP_OUT),    .D6(G6LUT_O6), .D5(G5LUT_O5), .OUT(GMUX));
+	OUTMUXH OUTMUXH (.F78(F7MUX_GH_OUT),     .D6(H6LUT_O6), .D5(H5LUT_O5), .OUT(HMUX));
 
 	wire FFMUXA1_OUT1;
 	wire FFMUXA2_OUT2;
