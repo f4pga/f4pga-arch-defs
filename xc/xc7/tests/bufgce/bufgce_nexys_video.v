@@ -18,4 +18,5 @@ module top (
 
    assign tx = rx;
    assign led[0] = counter[25];
+   assign led[1] = sw[1];
 endmodule
