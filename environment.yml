@@ -2,6 +2,7 @@ name: symbiflow_arch_def_base
 channels:
   - defaults
   - symbiflow
+  - conda-forge
 dependencies:
   - symbiflow-yosys=0.8_6021_gd8b2d1a2=20200708_083630
   - symbiflow-yosys-plugins=1.0.0.7_0060_g7454cd6=20200902_114536
@@ -16,6 +17,7 @@ dependencies:
   - iverilog
   - libxml2=2.9.10=20200629_180127
   - icestorm
+  - capnproto-java
   - pip
   - pip:
     - -r file:requirements.txt
