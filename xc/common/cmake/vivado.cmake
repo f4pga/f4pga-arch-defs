@@ -275,8 +275,22 @@ function(ADD_VIVADO_TARGET)
       BITSTREAM ${BITSTREAM}
       MAKE_DIFF_FASM)
 
+  get_target_property_required(RAPIDWRIGHT_INSTALLED rapidwright RAPIDWRIGHT_INSTALLED)
+  if(${RAPIDWRIGHT_INSTALLED})
+    CREATE_DCP_BY_INTERCHANGE(
+        NAME ${NAME}_interchange
+        PARENT_NAME ${ADD_VIVADO_TARGET_PARENT_NAME}
+        WORK_DIR ${WORK_DIR}/interchange
+        )
+  endif()
+
   if(NOT ${ADD_VIVADO_TARGET_DISABLE_DIFF_TEST})
-    add_dependencies(all_${ARCH}_diff_fasm ${NAME}_diff_fasm)
+    if(${ALL_XC7_DIFF_FASM_VERILOG})
+      add_dependencies(all_${ARCH}_diff_fasm ${NAME}_diff_fasm)
+    endif()
+    if(${RAPIDWRIGHT_INSTALLED} AND ${ALL_XC7_DIFF_FASM_INTERCHANGE})
+      add_dependencies(all_${ARCH}_diff_fasm ${NAME}_interchange_diff_fasm)
+    endif()
   endif()
 
 endfunction()
@@ -296,7 +310,7 @@ function(ADD_VIVADO_PNR_TARGET)
   # ADD_VIVADO_PNR_TARGET generates a Vivado project and design checkpoint from
   # the output of 7-series synthesis.
   #
-    # Inputs to Vivado are the output verilog from the synthesis tool.
+  # Inputs to Vivado are the output verilog from the synthesis tool.
   #
   # PARENT_NAME is the name of the FPGA target being used as input for these
   # targets.
@@ -463,4 +477,200 @@ function(ADD_VIVADO_PNR_TARGET)
       WORK_DIR ${WORK_DIR}
       DEPS ${DEPS}
       BITSTREAM ${BITSTREAM})
+endfunction()
+
+function(PREPARE_RAPIDWRIGHT)
+  # Creates a target rapidwright with the following envirnoment variables:
+  #  RAPIDWRIGHT_INSTALLED - True if a valid RapidWright installation is
+  #                          found at the variable RAPIDWRIGHT_PATH.
+  #  RAPIDWRIGHT_PATH - If RAPIDWRIGHT_INSTALLED=TRUE, this points to the
+  #                     directory where RapidWright is located.
+  #  JAVA - If RAPIDWRIGHT_INSTALLED=TRUE, this points to the location of
+  #         the Java runtime executable needed invoke RapidWright entry
+  #         points.
+  #  INVOKE_RAPIDWRIGHT - If RAPIDWRIGHT_INSTALLED=TRUE, this points to the
+  #         location of the invoke_rapidwright.sh script which can be used to
+  #         invoke RapidWright.
+  add_custom_target(rapidwright)
+  set_target_properties(rapidwright PROPERTIES RAPIDWRIGHT_INSTALLED FALSE)
+
+  set(HAVE_RAPIDWRIGHT FALSE)
+  set(HAVE_JAVA FALSE)
+  set(HAVE_URAY_VIVADO FALSE)
+  if(EXISTS "${RAPIDWRIGHT_PATH}" AND EXISTS ${RAPIDWRIGHT_PATH}/interchange AND EXISTS ${RAPIDWRIGHT_PATH}/scripts/invoke_rapidwright.sh)
+    set(HAVE_RAPIDWRIGHT TRUE)
+  endif()
+
+  if(${HAVE_RAPIDWRIGHT})
+    find_program(JAVA java)
+    if(EXISTS ${JAVA})
+      set(HAVE_JAVA TRUE)
+    endif()
+  endif()
+
+  if(DEFINED ENV{URAY_VIVADO_SETTINGS} AND EXISTS "$ENV{URAY_VIVADO_SETTINGS}")
+      set(HAVE_URAY_VIVADO TRUE)
+  endif()
+
+  if(${HAVE_RAPIDWRIGHT} AND ${HAVE_JAVA} AND ${HAVE_URAY_VIVADO})
+    set_target_properties(rapidwright PROPERTIES
+      RAPIDWRIGHT_INSTALLED TRUE
+      RAPIDWRIGHT_PATH "${RAPIDWRIGHT_PATH}"
+      INVOKE_RAPIDWRIGHT "${RAPIDWRIGHT_PATH}/scripts/invoke_rapidwright.sh"
+      JAVA ${JAVA})
+  elseif(NOT ${HAVE_RAPIDWRIGHT})
+    message(STATUS "RAPIDWRIGHT_PATH not defined. Interchange support not enabled.")
+  elseif(NOT ${HAVE_JAVA})
+    message(WARNING "RAPIDWRIGHT_PATH defined, but JAVA not found. Interchange support not enabled.")
+  elseif(NOT ${HAVE_URAY_VIVADO})
+    message(WARNING "RAPIDWRIGHT_PATH defined, but URAY_VIVADO_SETTINGS not found. Interchange support not enabled.")
+  endif()
+
+  get_target_property_required(RAPIDWRIGHT_INSTALLED rapidwright RAPIDWRIGHT_INSTALLED)
+  if(NOT ${ALL_XC7_DIFF_FASM_VERILOG} AND ${ALL_XC7_DIFF_FASM_INTERCHANGE} AND NOT ${RAPIDWRIGHT_INSTALLED})
+    message(SEND_ERROR "all_xc7_diff_fasm is set to only include interchange, but interchange support is not enabled.")
+  endif()
+endfunction()
+
+function(CREATE_DCP_BY_INTERCHANGE)
+  # ~~~
+  # CREATE_DCP_BY_INTERCHANGE(
+  #   NAME <name>
+  #   PARENT_NAME <parent name>
+  #   WORK_DIR <work directory>
+  #   )
+  # ~~~
+  #
+  # Creates a DCP of parent target using the FPGA interchange and RapidWright.
+  #
+  # PARENT_NAME is the name of the FPGA target being used as input for these
+  # new targets.
+  #
+  # New targets:
+  #  <NAME> - Create the DCP and output a bitstream based on the DCP.
+  #  <NAME>_diff_fasm - Diff the FASM between the PARENT_NAME bitstream and
+  #     the bitstream generated from the DCP.
+
+  set(options)
+  set(oneValueArgs NAME PARENT_NAME WORK_DIR)
+  set(multiValueArgs)
+  cmake_parse_arguments(
+      CREATE_DCP
+    "${options}"
+    "${oneValueArgs}"
+    "${multiValueArgs}"
+    ${ARGN}
+  )
+
+  set(NAME ${CREATE_DCP_NAME})
+  set(WORK_DIR ${CREATE_DCP_WORK_DIR})
+
+  get_target_property_required(BITSTREAM ${CREATE_DCP_PARENT_NAME} BIT)
+  get_target_property_required(BIT_VERILOG ${CREATE_DCP_PARENT_NAME} BIT_V)
+  get_target_property_required(BOARD ${CREATE_DCP_PARENT_NAME} BOARD)
+  get_target_property_required(DEVICE ${BOARD} DEVICE)
+  get_target_property_required(ARCH ${DEVICE} ARCH)
+  get_target_property_required(PRJRAY_ARCH ${ARCH} PRJRAY_ARCH)
+  get_target_property_required(PART ${BOARD} PART)
+  get_target_property_required(PRJRAY_DIR ${ARCH} DOC_PRJ)
+  get_target_property_required(PRJRAY_DB_DIR ${ARCH} DOC_PRJ_DB)
+
+  set(DEPS)
+  append_file_dependency(DEPS ${BIT_VERILOG})
+  get_file_location(BIT_VERILOG_LOCATION ${BIT_VERILOG})
+
+  get_target_property_required(JAVA rapidwright JAVA)
+  get_target_property_required(RAPIDWRIGHT_PATH rapidwright RAPIDWRIGHT_PATH)
+  get_target_property_required(INVOKE_RAPIDWRIGHT rapidwright INVOKE_RAPIDWRIGHT)
+
+  add_custom_command(
+      OUTPUT ${WORK_DIR}/${NAME}.dcp
+      COMMAND ${CMAKE_COMMAND} -E env
+        JAVA=${JAVA}
+        RAPIDWRIGHT_PATH=${RAPIDWRIGHT_PATH}
+          ${INVOKE_RAPIDWRIGHT}
+            com.xilinx.rapidwright.interchange.PhysicalNetlistToDcp
+              ${BIT_VERILOG_LOCATION}.netlist
+              ${BIT_VERILOG_LOCATION}.phys
+              ${BIT_VERILOG_LOCATION}.inter.xdc
+              ${WORK_DIR}/${NAME}.dcp
+      DEPENDS ${DEPS}
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+      )
+
+  add_file_target(FILE ${WORK_DIR}/${NAME}.dcp GENERATED)
+  get_file_target(DCP_TARGET ${WORK_DIR}/${NAME}.dcp)
+
+  add_custom_target(${NAME})
+  add_dependencies(${NAME} ${DCP_TARGET})
+
+  set(RUNME ${CMAKE_CURRENT_BINARY_DIR}/${WORK_DIR}/${NAME}_runme.tcl)
+  set(RUNME_DEPS)
+  append_file_dependency(RUNME_DEPS ${WORK_DIR}/${NAME}.dcp)
+
+  add_custom_command(
+    OUTPUT ${WORK_DIR}/${NAME}_runme.tcl
+    COMMAND ${CMAKE_COMMAND} -E echo "open_checkpoint ${NAME}.dcp"                                     >  ${RUNME}
+    COMMAND ${CMAKE_COMMAND} -E echo "set_property CFGBVS VCCO [current_design]"                       >> ${RUNME}
+    COMMAND ${CMAKE_COMMAND} -E echo "set_property CONFIG_VOLTAGE 3.3 [current_design]"                >> ${RUNME}
+    COMMAND ${CMAKE_COMMAND} -E echo "set_property BITSTREAM.GENERAL.PERFRAMECRC YES [current_design]" >> ${RUNME}
+    COMMAND ${CMAKE_COMMAND} -E echo "set_property IS_ENABLED 0 [get_drc_checks {LUTLP-1}]"            >> ${RUNME}
+    COMMAND ${CMAKE_COMMAND} -E echo "report_utilization -file ${NAME}_utilization.rpt"                >> ${RUNME}
+    COMMAND ${CMAKE_COMMAND} -E echo "report_clock_utilization -file ${NAME}_clock_utilization.rpt"    >> ${RUNME}
+    COMMAND ${CMAKE_COMMAND} -E echo "report_timing_summary -datasheet -max_paths 10 -file ${NAME}_timing_summary.rpt" >> ${RUNME}
+    COMMAND ${CMAKE_COMMAND} -E echo "report_power -file ${NAME}_power.rpt"                            >> ${RUNME}
+    COMMAND ${CMAKE_COMMAND} -E echo "report_route_status -file ${NAME}_route_status.rpt"              >> ${RUNME}
+    COMMAND ${CMAKE_COMMAND} -E echo "write_bitstream -force ${NAME}.bit"                              >> ${RUNME}
+    )
+  add_file_target(FILE ${WORK_DIR}/${NAME}_runme.tcl GENERATED)
+  append_file_dependency(RUNME_DEPS ${WORK_DIR}/${NAME}_runme.tcl)
+
+  add_custom_command(
+    OUTPUT
+        ${WORK_DIR}/${NAME}.bit
+        ${WORK_DIR}/${NAME}_utilization.rpt
+        ${WORK_DIR}/${NAME}_clock_utilization.rpt
+        ${WORK_DIR}/${NAME}_power.rpt
+        ${WORK_DIR}/${NAME}_timing_summary.rpt
+        ${WORK_DIR}/${NAME}_route_status.rpt
+    COMMAND ${CMAKE_COMMAND} -E env XRAY_VIVADO_SETTINGS=$ENV{URAY_VIVADO_SETTINGS} ${PRJRAY_DIR}/utils/vivado.sh -mode batch -source ${RUNME}
+        > ${CMAKE_CURRENT_BINARY_DIR}/${WORK_DIR}/vivado.stdout.log
+    WORKING_DIRECTORY ${WORK_DIR}
+    DEPENDS ${RUNME_DEPS}
+    )
+
+  add_file_target(FILE ${WORK_DIR}/${NAME}.bit GENERATED)
+
+  set(BIT2FASM_DEPS)
+  append_file_dependency(BIT2FASM_DEPS ${WORK_DIR}/${NAME}.bit)
+  add_custom_command(
+      OUTPUT ${WORK_DIR}/${NAME}.bit.fasm
+      COMMAND
+      ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJRAY_DIR}:${PRJRAY_DIR}/third_party/fasm
+        ${PYTHON3} ${PRJRAY_DIR}/utils/bit2fasm.py
+          --part ${PART}
+          --db-root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}
+          --bitread $<TARGET_FILE:bitread>
+          ${CMAKE_CURRENT_BINARY_DIR}/${WORK_DIR}/${NAME}.bit
+          > ${CMAKE_CURRENT_BINARY_DIR}/${WORK_DIR}/${NAME}.bit.fasm
+      WORKING_DIRECTORY ${WORK_DIR}
+      DEPENDS
+        ${BIT2FASM_DEPS}
+      )
+
+  add_file_target(FILE ${WORK_DIR}/${NAME}.bit.fasm GENERATED)
+
+  set(DIFF_FASM_DEPS)
+  append_file_dependency(DIFF_FASM_DEPS ${WORK_DIR}/${NAME}.bit.fasm)
+  append_file_dependency(DIFF_FASM_DEPS ${BITSTREAM})
+
+  get_file_location(BITSTREAM_LOCATION ${BITSTREAM})
+
+  add_custom_target(${NAME}_diff_fasm
+      COMMAND diff -u
+          ${BITSTREAM_LOCATION}.fasm
+          ${CMAKE_CURRENT_BINARY_DIR}/${WORK_DIR}/${NAME}.bit.fasm
+      DEPENDS
+          ${DIFF_FASM_DEPS}
+      )
 endfunction()
