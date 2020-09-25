@@ -214,6 +214,7 @@ def main():
     with DatabaseCache(args.connection_database, read_only=True) as conn:
         tile_in_use = set()
         num_synth_tiles = 0
+
         for roi, j in rois.items():
             if args.overlay:
                 synth_tiles['info'].append(j['info'])
@@ -261,6 +262,7 @@ def main():
                         'pins': [],
                         'loc': vpr_loc,
                         'tile_name': tile_name,
+                        'wires_outside_roi': {},
                     }
                     num_synth_tiles += 1
                     tile_pin_count[tile] = 0
@@ -281,6 +283,18 @@ def main():
                             tile_pin_count[tile],
                     }
                 )
+
+                if 'wires_outside_roi' in port:
+                    outside_roi = synth_tiles['tiles'][tile
+                                                       ]['wires_outside_roi']
+
+                    for tile_wire in port['wires_outside_roi']:
+
+                        tile_name, wire_name = tile_wire.split('/')
+                        if tile_name in outside_roi.keys():
+                            outside_roi[tile_name].append(wire_name)
+                        else:
+                            outside_roi[tile_name] = [wire_name]
 
                 tile_pin_count[tile] += 1
 
