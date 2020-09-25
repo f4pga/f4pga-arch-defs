@@ -22,7 +22,7 @@ fi
 OUT_NOISY_WARNINGS=noisy_warnings-${DEVICE}_place.log
 
 echo "Generating coinstrains ..."
-generate_constraints $PCF $EBLIF $NET $PART $DEVICE $ARCH_DEF
+symbiflow_generate_constraints $PCF $EBLIF $NET $PART $DEVICE $ARCH_DEF
 
 PROJECT=$(basename -- "$EBLIF")
 

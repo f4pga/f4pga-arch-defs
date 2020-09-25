@@ -381,35 +381,35 @@ BUILDDIR := build\n\n\
 all: \${BUILDDIR}/\${TOP}.bit\n\
 \n\
 \${BUILDDIR}/\${TOP}.eblif: \${VERILOG}\n\
-	cd \${BUILDDIR} && synth -t \${TOP} -v \${VERILOG} -d \${DEVICE} -p \${PCF} -P \${PART} 2>&1 > $LOG_FILE\n\
+	cd \${BUILDDIR} && symbiflow_synth -t \${TOP} -v \${VERILOG} -d \${DEVICE} -p \${PCF} -P \${PART} 2>&1 > $LOG_FILE\n\
 \n\
 \${BUILDDIR}/\${TOP}.net: \${BUILDDIR}/\${TOP}.eblif\n\
-	cd \${BUILDDIR} && pack -e \${TOP}.eblif -d \${DEVICE} -s \${SDC} 2>&1 > $LOG_FILE\n\
+	cd \${BUILDDIR} && symbiflow_pack -e \${TOP}.eblif -d \${DEVICE} -s \${SDC} 2>&1 > $LOG_FILE\n\
 \n\
 \${BUILDDIR}/\${TOP}.place: \${BUILDDIR}/\${TOP}.net\n\
-	cd \${BUILDDIR} && place -e \${TOP}.eblif -d \${DEVICE} -p \${PCF} -n \${TOP}.net -P \${PARTNAME} -s \${SDC} 2>&1 > $LOG_FILE\n\
+	cd \${BUILDDIR} && symbiflow_place -e \${TOP}.eblif -d \${DEVICE} -p \${PCF} -n \${TOP}.net -P \${PARTNAME} -s \${SDC} 2>&1 > $LOG_FILE\n\
 \n\
 \${BUILDDIR}/\${TOP}.route: \${BUILDDIR}/\${TOP}.place\n\
-	cd \${BUILDDIR} && route -e \${TOP}.eblif -d \${DEVICE} -s \${SDC} 2>&1 > $LOG_FILE\n\
+	cd \${BUILDDIR} && symbiflow_route -e \${TOP}.eblif -d \${DEVICE} -s \${SDC} 2>&1 > $LOG_FILE\n\
 \n\
 \${BUILDDIR}/\${TOP}.fasm: \${BUILDDIR}/\${TOP}.route\n\
-	cd \${BUILDDIR} && write_fasm -e \${TOP}.eblif -d \${DEVICE}\n\
+	cd \${BUILDDIR} && symbiflo_write_fasm -e \${TOP}.eblif -d \${DEVICE}\n\
 \n\
 \${BUILDDIR}/\${TOP}.bit: \${BUILDDIR}/\${TOP}.fasm\n\
-	cd \${BUILDDIR} && write_bitstream -d \${DEVICE} -f \${TOP}.fasm -P \${PARTNAME} -b \${TOP}.bit\n\
+	cd \${BUILDDIR} && symbiflow_write_bitstream -d \${DEVICE} -f \${TOP}.fasm -P \${PARTNAME} -b \${TOP}.bit\n\
 \n\
 \${BUILDDIR}/\${TOP}_bit.h: \${BUILDDIR}/\${TOP}.bit\n\
-	cd \${BUILDDIR} && write_bitheader -b \${TOP}.bit\n\
+	cd \${BUILDDIR} && symbiflow_write_bitheader -b \${TOP}.bit\n\
 \n\
 \${BUILDDIR}/\${TOP}.jlink: \${BUILDDIR}/\${TOP}.bit\n\
-	cd \${BUILDDIR} && write_jlink -f \${TOP}.fasm -P \${PACKAGENAME} -b \${TOP}.bit\n\
+	cd \${BUILDDIR} && symbiflow_write_jlink -f \${TOP}.fasm -P \${PACKAGENAME} -b \${TOP}.bit\n\
 \n\
 \${BUILDDIR}/\${TOP}_jlink.h: \${BUILDDIR}/\${TOP}.jlink\n\
-	cd \${BUILDDIR} && write_jlinkheader\n\
+	cd \${BUILDDIR} && symbiflow_write_jlinkheader\n\
 \n\
 \${BUILDDIR}/\${TOP}.post_v: \${BUILDDIR}/\${TOP}.bit\n\
-	cd \${BUILDDIR} && write_fasm2bels -e \${TOP}.eblif -d \${DEVICE} -p \${PCF} -n \${TOP}.net -P \${PARTNAME}\n\
-	cd \${BUILDDIR} && analysis -e \${TOP}.eblif -d \${DEVICE} -s \${SDC} 2>&1 > $LOG_FILE\n\
+	cd \${BUILDDIR} && symbiflow_write_fasm2bels -e \${TOP}.eblif -d \${DEVICE} -p \${PCF} -n \${TOP}.net -P \${PARTNAME}\n\
+	cd \${BUILDDIR} && symbiflow_analysis -e \${TOP}.eblif -d \${DEVICE} -s \${SDC} 2>&1 > $LOG_FILE\n\
 \n\
 clean:\n\
 	rm -rf \${BUILDDIR}\n\
