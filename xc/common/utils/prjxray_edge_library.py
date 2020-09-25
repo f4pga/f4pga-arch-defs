@@ -2271,10 +2271,10 @@ def create_edges(args):
 
                         if is_input:
                             # This track can be used as a sink.
-                            input_only_nodes |= set((node_pkey, ))
+                            input_only_nodes.add(node_pkey)
                         elif is_output:
                             # This track can be used as a src.
-                            output_only_nodes |= set((node_pkey, ))
+                            output_only_nodes.add(node_pkey)
 
                         # Adding all wires outside of the ROI relative to this synth tile
                         # to the input/output only nodes, so that the corresponding nodes
@@ -2292,10 +2292,10 @@ def create_edges(args):
 
                                 if is_input:
                                     # This track can be used as a sink.
-                                    input_only_nodes |= set((node_pkey, ))
+                                    input_only_nodes.add(node_pkey)
                                 elif is_output:
                                     # This track can be used as a src.
-                                    output_only_nodes |= set((node_pkey, ))
+                                    output_only_nodes.add(node_pkey)
 
         create_and_insert_edges(
             db=db,
