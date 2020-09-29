@@ -7,7 +7,7 @@ MYPATH=`dirname ${MYPATH}`
 source ${MYPATH}/env
 source ${VPRPATH}/vpr_common
 
-parse_args $@
+parse_args "$@"
 
 TOP="${EBLIF%.*}"
 FASM_EXTRA=${TOP}_fasm_extra.fasm
