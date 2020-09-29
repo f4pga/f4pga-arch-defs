@@ -17,36 +17,8 @@
 `include "../common_slice/muxes/f8mux_bot/f8mux_bot.sim.v"
 `include "../common_slice/muxes/f9mux/f9mux.sim.v"
 
-// OUTMUX
-`include "../common_slice/routing/outmux/outmuxa.sim.v"
-`include "../common_slice/routing/outmux/outmuxb.sim.v"
-`include "../common_slice/routing/outmux/outmuxc.sim.v"
-`include "../common_slice/routing/outmux/outmuxd.sim.v"
-`include "../common_slice/routing/outmux/outmuxe.sim.v"
-`include "../common_slice/routing/outmux/outmuxf.sim.v"
-`include "../common_slice/routing/outmux/outmuxg.sim.v"
-`include "../common_slice/routing/outmux/outmuxh.sim.v"
-
-// FFMUX
-`include "../common_slice/routing/ffmux/ffmuxa1.sim.v"
-`include "../common_slice/routing/ffmux/ffmuxa2.sim.v"
-`include "../common_slice/routing/ffmux/ffmuxb1.sim.v"
-`include "../common_slice/routing/ffmux/ffmuxb2.sim.v"
-`include "../common_slice/routing/ffmux/ffmuxc1.sim.v"
-`include "../common_slice/routing/ffmux/ffmuxc2.sim.v"
-`include "../common_slice/routing/ffmux/ffmuxd1.sim.v"
-`include "../common_slice/routing/ffmux/ffmuxd2.sim.v"
-`include "../common_slice/routing/ffmux/ffmuxe1.sim.v"
-`include "../common_slice/routing/ffmux/ffmuxe2.sim.v"
-`include "../common_slice/routing/ffmux/ffmuxf1.sim.v"
-`include "../common_slice/routing/ffmux/ffmuxf2.sim.v"
-`include "../common_slice/routing/ffmux/ffmuxg1.sim.v"
-`include "../common_slice/routing/ffmux/ffmuxg2.sim.v"
-`include "../common_slice/routing/ffmux/ffmuxh1.sim.v"
-`include "../common_slice/routing/ffmux/ffmuxh2.sim.v"
-
-// Flip-Flop
-`include "../ff/ff.sim.v"
+// Common Slice
+`include "../common_slice/common_slice.sim.v"
 
 (* whitebox *)
 module SLICEL(
@@ -236,77 +208,20 @@ module SLICEL(
 	wire F9MUX_OUT;
 	F9MUX f9mux (.I0(F8MUX_TOP_OUT), .I1(F8MUX_BOT_OUT), .O(F9MUX_OUT), .S(DX));
 
-	OUTMUXA OUTMUXA (/*.F78(1'b0),*/         .D6(A6LUT_O6), .D5(A5LUT_O5), .OUT(AMUX));
-	OUTMUXB OUTMUXB (.F78(F7MUX_AB_OUT),     .D6(B6LUT_O6), .D5(B5LUT_O5), .OUT(BMUX));
-	OUTMUXC OUTMUXC (.F78(F8MUX_BOT_OUT),    .D6(C6LUT_O6), .D5(C5LUT_O5), .OUT(CMUX));
-	OUTMUXD OUTMUXD (.F78(F7MUX_CD_OUT),     .D6(D6LUT_O6), .D5(D5LUT_O5), .OUT(DMUX));
-	OUTMUXE OUTMUXE (.F78(F9MUX_OUT),        .D6(E6LUT_O6), .D5(E5LUT_O5), .OUT(EMUX));
-	OUTMUXF OUTMUXF (.F78(F7MUX_EF_OUT),     .D6(F6LUT_O6), .D5(F5LUT_O5), .OUT(FMUX));
-	OUTMUXG OUTMUXG (.F78(F8MUX_TOP_OUT),    .D6(G6LUT_O6), .D5(G5LUT_O5), .OUT(GMUX));
-	OUTMUXH OUTMUXH (.F78(F7MUX_GH_OUT),     .D6(H6LUT_O6), .D5(H5LUT_O5), .OUT(HMUX));
-
-	wire FFMUXA1_OUT1;
-	wire FFMUXA2_OUT2;
-	FFMUXA1 AFFMUX1 (/*.F78(),*/ .D6(A6LUT_O6), .D5(A5LUT_O5), .BYP(AX), .OUT(FFMUXA1_OUT1));
-	FFMUXA2 AFFMUX2 (/*.F78(),*/ .D6(A6LUT_O6), .D5(A5LUT_O5), .BYP(A_I), .OUT(FFMUXA2_OUT2));
-
-	wire FFMUXB1_OUT1;
-	wire FFMUXB2_OUT2;
-	FFMUXB1 BFFMUX1 (.F78(F7MUX_AB_OUT), .D6(B6LUT_O6), .D5(B5LUT_O5), .BYP(BX), .OUT(FFMUXB1_OUT1));
-	FFMUXB2 BFFMUX2 (.F78(F7MUX_AB_OUT), .D6(B6LUT_O6), .D5(B5LUT_O5), .BYP(B_I), .OUT(FFMUXB2_OUT2));
-
-	wire FFMUXC1_OUT1;
-	wire FFMUXC2_OUT2;
-	FFMUXC1 CFFMUX1 (.F78(F8MUX_BOT_OUT), .D6(C6LUT_O6), .D5(C5LUT_O5), .BYP(CX), .OUT(FFMUXC1_OUT1));
-	FFMUXC2 CFFMUX2 (.F78(F8MUX_BOT_OUT), .D6(C6LUT_O6), .D5(C5LUT_O5), .BYP(C_I), .OUT(FFMUXC2_OUT2));
-
-	wire FFMUXD1_OUT1;
-	wire FFMUXD2_OUT2;
-	FFMUXD1 DFFMUX1 (.F78(F7MUX_CD_OUT), .D6(D6LUT_O6), .D5(D5LUT_O5), .BYP(DX), .OUT(FFMUXD1_OUT1));
-	FFMUXD2 DFFMUX2 (.F78(F7MUX_CD_OUT), .D6(D6LUT_O6), .D5(D5LUT_O5), .BYP(D_I), .OUT(FFMUXD2_OUT2));
-
-	wire FFMUXE1_OUT1;
-	wire FFMUXE2_OUT2;
-	FFMUXE1 EFFMUX1 (.F78(F9MUX_OUT), .D6(E6LUT_O6), .D5(E5LUT_O5), .BYP(EX), .OUT(FFMUXE1_OUT1));
-	FFMUXE2 EFFMUX2 (.F78(F9MUX_OUT), .D6(E6LUT_O6), .D5(E5LUT_O5), .BYP(E_I), .OUT(FFMUXE2_OUT2));
-
-	wire FFMUXF1_OUT1;
-	wire FFMUXF2_OUT2;
-	FFMUXF1 FFFMUX1 (.F78(F7MUX_EF_OUT), .D6(F6LUT_O6), .D5(F5LUT_O5), .BYP(FX), .OUT(FFMUXF1_OUT1));
-	FFMUXF2 FFFMUX2 (.F78(F7MUX_EF_OUT), .D6(F6LUT_O6), .D5(F5LUT_O5), .BYP(F_I), .OUT(FFMUXF2_OUT2));
-
-	wire FFMUXG1_OUT1;
-	wire FFMUXG2_OUT2;
-	FFMUXG1 GFFMUX1 (.F78(F8MUX_TOP_OUT), .D6(G6LUT_O6), .D5(G5LUT_O5), .BYP(GX), .OUT(FFMUXG1_OUT1));
-	FFMUXG2 GFFMUX2 (.F78(F8MUX_TOP_OUT), .D6(G6LUT_O6), .D5(G5LUT_O5), .BYP(G_I), .OUT(FFMUXG2_OUT2));
-
-	wire FFMUXH1_OUT1;
-	wire FFMUXH2_OUT2;
-	FFMUXH1 HFFMUX1 (.F78(F7MUX_GH_OUT), .D6(H6LUT_O6), .D5(H5LUT_O5), .BYP(HX),  .OUT(FFMUXH1_OUT1));
-	FFMUXH2 HFFMUX2 (.F78(F7MUX_GH_OUT), .D6(H6LUT_O6), .D5(H5LUT_O5), .BYP(H_I), .OUT(FFMUXH2_OUT2));
-
-	FF AFF1 (.D(FFMUXA1_OUT1), .SR(SRST1), .CE(CKEN1), .CLK(CLK1), .Q(AQ));
-	FF AFF2 (.D(FFMUXA2_OUT2), .SR(SRST1), .CE(CKEN2), .CLK(CLK1), .Q(AQ2));
-
-	FF BFF1 (.D(FFMUXB1_OUT1), .SR(SRST1), .CE(CKEN1), .CLK(CLK1), .Q(BQ));
-	FF BFF2 (.D(FFMUXB2_OUT2), .SR(SRST1), .CE(CKEN2), .CLK(CLK1), .Q(BQ2));
-
-	FF CFF1 (.D(FFMUXC1_OUT1), .SR(SRST1), .CE(CKEN1), .CLK(CLK1), .Q(CQ));
-	FF CFF2 (.D(FFMUXC2_OUT2), .SR(SRST1), .CE(CKEN2), .CLK(CLK1), .Q(CQ2));
-
-	FF DFF1 (.D(FFMUXD1_OUT1), .SR(SRST1), .CE(CKEN1), .CLK(CLK1), .Q(DQ));
-	FF DFF2 (.D(FFMUXD2_OUT2), .SR(SRST1), .CE(CKEN2), .CLK(CLK1), .Q(DQ2));
-
-	FF EFF1 (.D(FFMUXE1_OUT1), .SR(SRST2), .CE(CKEN3), .CLK(CLK2), .Q(EQ));
-	FF EFF2 (.D(FFMUXE2_OUT2), .SR(SRST2), .CE(CKEN4), .CLK(CLK2), .Q(EQ2));
-
-	FF FFF1 (.D(FFMUXF1_OUT1), .SR(SRST2), .CE(CKEN3), .CLK(CLK2), .Q(FQ));
-	FF FFF2 (.D(FFMUXF2_OUT2), .SR(SRST2), .CE(CKEN4), .CLK(CLK2), .Q(FQ2));
-
-	FF GFF1 (.D(FFMUXG1_OUT1), .SR(SRST2), .CE(CKEN3), .CLK(CLK2), .Q(GQ));
-	FF GFF2 (.D(FFMUXG2_OUT2), .SR(SRST2), .CE(CKEN4), .CLK(CLK2), .Q(GQ2));
-
-	FF HFF1 (.D(FFMUXH1_OUT1), .SR(SRST2), .CE(CKEN3), .CLK(CLK2), .Q(HQ));
-	FF HFF2 (.D(FFMUXH2_OUT2), .SR(SRST2), .CE(CKEN4), .CLK(CLK2), .Q(HQ2));
+	COMMON_SLICE COMMON_SLICE(
+		A5LUT_O5, A6LUT_O6, AMUX, AQ, AQ2, AX, A_I, A_O, // A port
+		B5LUT_O5, B6LUT_O6, BMUX, BQ, BQ2, BX, B_I, B_O, // B port
+		C5LUT_O5, C6LUT_O6, CMUX, CQ, CQ2, CX, C_I, C_O, // C port
+		D5LUT_O5, D6LUT_O6, DMUX, DQ, DQ2, DX, D_I, D_O, // D port
+		E5LUT_O5, E6LUT_O6, EMUX, EQ, EQ2, EX, E_I, E_O, // E port
+		F5LUT_O5, F6LUT_O6, FMUX, FQ, FQ2, FX, F_I, F_O, // F port
+		G5LUT_O5, G6LUT_O6, GMUX, GQ, GQ2, GX, G_I, G_O, // G port
+		H5LUT_O5, H6LUT_O6, HMUX, HQ, HQ2, HX, H_I, H_O, // H port
+		F7MUX_AB_OUT, F7MUX_CD_OUT, F7MUX_EF_OUT, F7MUX_GH_OUT,	// F7 Muxes
+		F8MUX_TOP_OUT, F8MUX_BOT_OUT, // F8 Muxes
+		F9MUX_OUT, // F9 Mux
+		SRST1, SRST2, CKEN1, CKEN2, CKEN3, CKEN4, CLK1,	CLK2, // Flip-Flop signals
+		CIN, COUT // Carry to/from signals
+	);
 
 endmodule
