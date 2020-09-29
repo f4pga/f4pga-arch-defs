@@ -2,7 +2,6 @@
 `include "fdre.sim.v"
 
 (* MODES="FDSE;FDRE" *)
-(* whitebox *)
 module FDSE_OR_FDRE(D, SR, CE, CLK, Q);
     input D;
     input SR;
@@ -13,8 +12,8 @@ module FDSE_OR_FDRE(D, SR, CE, CLK, Q);
     parameter MODE = "";
 
     if (MODE == "FDSE") begin
-        FDSE FDSE(D, SR, CE, CLK, Q);
+        FDSE FDSE(.D(D), .SR(SR), .CE(CE), .CLK(CLK), .Q(Q));
     end else if (MODE == "FDRE") begin
-        FDRE FDRE(D, SR, CE, CLK, Q);
+        FDRE FDRE(.D(D), .SR(SR), .CE(CE), .CLK(CLK), .Q(Q));
     end
 endmodule
