@@ -4,7 +4,8 @@ add_file_target(FILE fdpe.sim.v SCANNER_TYPE verilog)
 add_file_target(FILE fdce.sim.v SCANNER_TYPE verilog)
 add_file_target(FILE fdse_or_fdre.sim.v SCANNER_TYPE verilog)
 add_file_target(FILE fdpe_or_fdce.sim.v SCANNER_TYPE verilog)
-add_file_target(FILE slice_ff_half.sim.v SCANNER_TYPE verilog)
+add_file_target(FILE slice_ff_bot.sim.v SCANNER_TYPE verilog)
+add_file_target(FILE slice_ff_top.sim.v SCANNER_TYPE verilog)
 add_file_target(FILE slice_ff.sim.v SCANNER_TYPE verilog)
 
 v2x(
@@ -38,8 +39,13 @@ v2x(
 )
 
 v2x(
-    NAME slice_ff_half
-    SRCS slice_ff_half.sim.v
+    NAME slice_ff_bot
+    SRCS slice_ff_bot.sim.v
+)
+
+v2x(
+    NAME slice_ff_top
+    SRCS slice_ff_top.sim.v
 )
 
 v2x(

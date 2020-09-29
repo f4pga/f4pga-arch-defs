@@ -1,3 +1,6 @@
+`ifndef FDSE_OR_FDRE
+`define FDSE_OR_FDRE
+
 `include "fdse.sim.v"
 `include "fdre.sim.v"
 
@@ -17,3 +20,4 @@ module FDSE_OR_FDRE(D, SR, CE, CLK, Q);
         FDRE FDRE(.D(D), .SR(SR), .CE(CE), .CLK(CLK), .Q(Q));
     end
 endmodule
+`endif

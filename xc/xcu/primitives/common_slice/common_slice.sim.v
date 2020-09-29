@@ -227,7 +227,7 @@ module COMMON_SLICE(
 			EQ, EQ2,
 			FQ, FQ2,
 			GQ, GQ2,
-			HQ, HQ2}),
+			HQ, HQ2})
 	);
 
 endmodule
