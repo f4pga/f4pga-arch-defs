@@ -7,7 +7,7 @@ MYPATH=`dirname ${MYPATH}`
 source ${MYPATH}/env
 source ${VPRPATH}/vpr_common
 
-parse_args $@
+parse_args "$@"
 
 export OUR_NOISY_WARNINGS=noisy_warnings-${DEVICE}_pack.log
 

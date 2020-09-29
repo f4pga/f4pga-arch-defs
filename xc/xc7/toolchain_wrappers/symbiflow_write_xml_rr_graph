@@ -7,7 +7,7 @@ MYPATH=`dirname ${MYPATH}`
 source ${MYPATH}/env
 source ${MYPATH}/vpr_common
 
-parse_args $@
+parse_args "$@"
 
 OUT_NOISY_WARNINGS=noisy_warnings-${DEVICE}_place.log
 

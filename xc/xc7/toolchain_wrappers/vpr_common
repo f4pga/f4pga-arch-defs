@@ -7,11 +7,11 @@ fi
 
 function parse_args {
 
-     OPTS=d:e:p:n:P:s:
-     LONGOPTS=device:,eblif:,pcf:,net:,part:,sdc:
+     OPTS=d:e:p:n:P:s:a:
+     LONGOPTS=device:,eblif:,pcf:,net:,part:,sdc:,additional_vpr_options:
 
-     PARSED_OPTS=`getopt --options=${OPTS} --longoptions=${LONGOPTS} --name $0 -- $@`
-     eval set -- ${PARSED_OPTS}
+     PARSED_OPTS=`getopt --options=${OPTS} --longoptions=${LONGOPTS} --name $0 -- "$@"`
+     eval set -- "${PARSED_OPTS}"
 
      DEVICE=""
      DEVICE_NAME=""
@@ -20,6 +20,7 @@ function parse_args {
      PCF=""
      NET=""
      SDC=""
+     ADDITIONAL_VPR_OPTIONS=""
 
      while true; do
           case "$1" in
@@ -47,6 +48,10 @@ function parse_args {
                     SDC=$2
                     shift 2
                     ;;
+               -a|--additional_vpr_options)
+                    ADDITIONAL_VPR_OPTIONS="$2"
+                    shift 2
+		    ;;
                --)
                     break
                     ;;
@@ -75,6 +80,7 @@ function parse_args {
      export PCF=$PCF
      export NET=$NET
      export SDC=$SDC
+     export VPR_OPTIONS="$VPR_OPTIONS $ADDITIONAL_VPR_OPTIONS"
 
      export ARCH_DIR=`realpath ${MYPATH}/../share/symbiflow/arch/$DEVICE`
      export ARCH_DEF=${ARCH_DIR}/arch.timing.xml
@@ -98,7 +104,6 @@ function run_vpr {
          ${EBLIF} \
          --device ${DEVICE_NAME} \
          ${VPR_OPTIONS} \
-         ${VPR_SEED} \
          --read_rr_graph ${RR_GRAPH} \
          --read_router_lookahead ${LOOKAHEAD} \
          --read_placement_delay_lookup ${PLACE_DELAY} \
