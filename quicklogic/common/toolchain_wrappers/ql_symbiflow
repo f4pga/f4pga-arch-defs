@@ -393,7 +393,7 @@ all: \${BUILDDIR}/\${TOP}.bit\n\
 	cd \${BUILDDIR} && symbiflow_route -e \${TOP}.eblif -d \${DEVICE} -s \${SDC} 2>&1 > $LOG_FILE\n\
 \n\
 \${BUILDDIR}/\${TOP}.fasm: \${BUILDDIR}/\${TOP}.route\n\
-	cd \${BUILDDIR} && symbiflo_write_fasm -e \${TOP}.eblif -d \${DEVICE}\n\
+	cd \${BUILDDIR} && symbiflow_write_fasm -e \${TOP}.eblif -d \${DEVICE}\n\
 \n\
 \${BUILDDIR}/\${TOP}.bit: \${BUILDDIR}/\${TOP}.fasm\n\
 	cd \${BUILDDIR} && symbiflow_write_bitstream -d \${DEVICE} -f \${TOP}.fasm -P \${PARTNAME} -b \${TOP}.bit\n\
