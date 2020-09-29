@@ -194,6 +194,13 @@ function(ADD_XC_ARCH_DEFINE)
   set_target_properties(${ARCH} PROPERTIES DOC_PRJ_NAME ${PRJRAY_NAME})
 
   add_custom_target(all_${ARCH}_diff_fasm)
+
+  # FIXME: Disable installation of all US/US+ devices for now.
+  if(${PROTOTYPE_PART} MATCHES "xczu.*")
+    message(WARNING "FIXME: Skipping arch files installation for arch ${ARCH}, family ${FAMILY}")
+    return()
+  endif()
+
   define_xc_toolchain_target(
       ARCH ${ARCH}
       ROUTE_CHAN_WIDTH 500
