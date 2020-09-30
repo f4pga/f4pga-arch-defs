@@ -7,6 +7,7 @@ dependencies:
   - symbiflow-yosys-plugins=1.0.0.7_0060_g7454cd6=20200902_114536
   - symbiflow-vtr=8.0.0.rc2_5097_gf1a3bcc2a=20200916_072439
   - zachjs-sv2v=0.0.5_0018_ga170536
+  - surelog=0.0_1568_ga91fb8ce
   - cmake
   - make
   - openocd
