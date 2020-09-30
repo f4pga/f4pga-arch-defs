@@ -15,11 +15,15 @@ include ../third_party/make-env/conda.mk
 # Makefile for Sphinx documentation ------------------------------------------
 
 # You can set these variables from the command line.
-SPHINXOPTS    =
-SPHINXBUILD   = python -msphinx
-SPHINXPROJ    = symbiflow-arch-defs
-SOURCEDIR     = source
-BUILDDIR      = build
+SPHINXOPTS      =
+SPHINXBUILD     = python -msphinx
+SPHINXAUTOBUILD = sphinx-autobuild
+SOURCEDIR       = source
+BUILDDIR        = build
+
+LIVEHTML_HOST   = 127.0.0.1
+LIVEHTML_PORT   = 8000
+LIVEHTMLOPTS    = --host $(LIVEHTML_HOST) --port $(LIVEHTML_PORT) --open-browser
 
 # Put it first so that "make" without argument is like "make help".
 help:
@@ -35,3 +39,6 @@ sphinx_formats = html dirhtml singlehtml pickle json htmlhelp qthelp devhelp \
 
 $(sphinx_formats): | $(CONDA_ENV_PYTHON)
 	@$(IN_CONDA_ENV) $(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
+livehtml: | $(CONDA_ENV_PYTHON)
+	@$(IN_CONDA_ENV) $(SPHINXAUTOBUILD) $(LIVEHTMLOPTS) "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
