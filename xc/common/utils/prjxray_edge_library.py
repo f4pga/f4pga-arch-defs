@@ -2255,7 +2255,8 @@ def create_edges(args):
                 tile_name = grid.tilename_at_loc(loc)
 
                 if tile_name in synth_tiles['tiles']:
-                    for pin in synth_tiles['tiles'][tile_name]['pins']:
+                    synth_tile = synth_tiles['tiles'][tile_name]
+                    for pin in synth_tile['pins']:
                         if pin['port_type'] not in ['input', 'output']:
                             continue
 
@@ -2263,14 +2264,38 @@ def create_edges(args):
                             tile_name, gridinfo.tile_type, pin['wire']
                         )
 
-                        if pin['port_type'] == 'input':
-                            # This track can output be used as a sink.
-                            input_only_nodes |= set((node_pkey, ))
-                        elif pin['port_type'] == 'output':
-                            # This track can output be used as a src.
-                            output_only_nodes |= set((node_pkey, ))
-                        else:
-                            assert False, pin
+                        is_input = pin['port_type'] == 'input'
+                        is_output = pin['port_type'] == 'output'
+
+                        assert is_input or is_output, pin
+
+                        if is_input:
+                            # This track can be used as a sink.
+                            input_only_nodes.add(node_pkey)
+                        elif is_output:
+                            # This track can be used as a src.
+                            output_only_nodes.add(node_pkey)
+
+                        # Adding all wires outside of the ROI relative to this synth tile
+                        # to the input/output only nodes, so that the corresponding nodes
+                        # have only outgoing or incoming edges
+                        for tile, wires in synth_tile['wires_outside_roi'
+                                                      ].items():
+                            tile_type = grid.gridinfo_at_tilename(
+                                tile
+                            ).tile_type
+
+                            for wire in wires:
+                                _, _, _, node_pkey = find_wire(
+                                    tile, tile_type, wire
+                                )
+
+                                if is_input:
+                                    # This track can be used as a sink.
+                                    input_only_nodes.add(node_pkey)
+                                elif is_output:
+                                    # This track can be used as a src.
+                                    output_only_nodes.add(node_pkey)
 
         create_and_insert_edges(
             db=db,
