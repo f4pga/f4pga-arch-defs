@@ -1386,6 +1386,7 @@ function(ADD_FPGA_TARGET)
           USE_ROI=${USE_ROI}
           PCF_FILE=${INPUT_IO_FILE}
           PINMAP_FILE=${PINMAP}
+          PYTHON3=${PYTHON3}
           ${ADD_FPGA_TARGET_DEFINES}
           ${QUIET_CMD} ${YOSYS} -p "${COMPLETE_YOSYS_SYNTH_SCRIPT}" -l ${OUT_JSON_SYNTH}.log ${SOURCE_FILES}
       COMMAND
