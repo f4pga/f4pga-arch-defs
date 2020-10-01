@@ -25,7 +25,7 @@ add_custom_target(
   DEPENDS
     conda_pytest all_pip
   COMMAND ${CMAKE_COMMAND} -E env
-    PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/third_party/prjuray-tools:${symbiflow-arch-defs_SOURCE_DIR}/utils#:${symbiflow-arch-defs_SOURCE_DIR}/third_party/prjuray/third_party/fasm
+    PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils
      ${PYTEST} --doctest-modules -vv
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
