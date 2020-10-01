@@ -6,8 +6,11 @@ SCRIPT_DIR="$(dirname "${SCRIPT_SRC}")"
 export CMAKE_FLAGS=-GNinja
 export BUILD_TOOL=ninja
 export XRAY_VIVADO_SETTINGS=/opt/Xilinx/Vivado/2017.2/settings64.sh
+export URAY_VIVADO_SETTINGS=/image/Xilinx/Vivado/2019.2/settings64.sh
+source ${SCRIPT_DIR}/steps/rapidwright.sh
 source ${SCRIPT_DIR}/common.sh
 source third_party/prjxray/.github/kokoro/steps/xilinx.sh
+source third_party/prjuray/.github/kokoro/steps/xilinx.sh
 echo
 echo "========================================"
 echo "Vivado version"
