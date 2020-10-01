@@ -202,19 +202,6 @@ VALUES
                 # milliOhms -> Ohms
                 drive_resistance = pip_timing.drive_resistance / 1e3
 
-        if "GCLK" in pip.net_from and "GFAN" in pip.net_to:
-            penalty_cost = 1e-6
-
-        # HCLK_CMT_CK_BUFHCLK -> HCLK_CMT_CK_IN and -> HCLK_CMT_MUX_CLK_
-        # are both BUFH -> BUFH edges.  In general it doesn't make sense for
-        # the router to follow these paths unless required, so make them more
-        # undesirable.
-        if 'HCLK_CMT_CK_BUFHCLK' in pip.net_from and 'HCLK_CMT_CK_IN' in pip.net_to:
-            penalty_cost = 1e-6
-
-        if 'HCLK_CMT_CK_BUFHCLK' in pip.net_from and 'HCLK_CMT_MUX_CLK_' in pip.net_to:
-            penalty_cost = 1e-6
-
         return get_switch_timing(
             pip.is_pass_transistor, delay, internal_capacitance,
             drive_resistance, penalty_cost
