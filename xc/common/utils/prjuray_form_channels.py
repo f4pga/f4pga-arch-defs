@@ -59,7 +59,7 @@ from prjuray_define_segments import SegmentWireMap
 
 def yield_downstream_nodes(conn, node_pkey):
     """
-    For the given node pkey yields pkeys of all its downstream nodes
+    For the given node pkey yields pkeys of all its immediate downstream nodes.
     """
 
     c = conn.cursor()
@@ -165,14 +165,19 @@ def get_site_pin_timing(site_pin):
 
 def check_pip_for_direct(pip_name):
     """
-    Returns true when the given pip should be modeled as a direct connection
+    Returns true when the given pip should be modeled as a direct connection.
+    Returns false otherwise.
     """
     return False
 
 
 def connect_hardpins_to_constant_network(conn, vcc_track_pkey, gnd_track_pkey):
     """
-    Connect all GND_WIRE* and VCC_WIRE* nodes to VCC or GND track.
+    Connect all const source nodes to global VCC or GND tracks.
+
+    This function identifies const nodes by looking for wires name "GND_WIRE*"
+    and "VCC_WIRE*" that belong to them. All identified nodes are assigned
+    a new track pkey that correspond to either global VCC or GND signal track.
     """
 
     cur = conn.cursor()
@@ -225,8 +230,12 @@ UPDATE node SET track_pkey = ? WHERE pkey IN (
 
 def identify_const_nodes(conn):
     """
-    Creates a new table for const nodes, identifies them and inserts their
-    pkeys along with const signal name to the table.
+    Creates a new table for const nodes named "const _nodes". Identifies them
+    and inserts their pkeys along with const signal name to the table.
+
+    The identification is based on specific wire membership. Constant 0 source
+    nodes have at least one wire named "GND_WIRE*" while constant 1 nodes have
+    at leas one "VCC_WIRE*" wire.
     """
 
     # Create table to hold const nodes
@@ -273,6 +282,20 @@ WHERE
 def classify_const_nodes(conn):
     """
     Fixes classification of constant nodes.
+
+    In US/US+ const source nodes are not attached to TIEOFF sites as in
+    7-series. This causes them to be classified incorrectly as NULL  because
+    they appear disconnected. The algorithm implemented in this function
+    re-evaluates classification of these nodes.
+
+    Const nodes pkeys are stored in "const_nodes" table created and populated
+    in identify_const_nodes() function. The algorithm is based on recursive
+    node tree traversal which begins on a const node and finishes either on
+    a CHANNEL node or a node that connects to a site. Only const nodes that
+    don't connect to any site directly and have at least 1 PIP are considered
+    to be valid begin points. As the result all nodes in the tree get CHANNEL
+    classification except nodes that connect to sites which get classified as
+    EDGES_TO_CHANNEL. Node classification is updated in the "node" table.
     """
 
     # Const nodes that have no PIPs should already be classified as NULL.
@@ -387,13 +410,26 @@ WHERE
 # =============================================================================
 
 # A set of synthetic tiles to be added
-SYNTHETIC_TILES = {}
+SYNTHETIC_TILES = {
+    #    'SLICEL',
+    #    'SLICEM',
+    #    'HDIO_TOP_M',
+    #    'HDIO_TOP_S',
+    #    'HDIO_BOT_M',
+    #    'HDIO_BOT_S',
+}
 
 TILES_TO_MERGE = {}
 
-TILES_TO_SPLIT = {}
+TILES_TO_SPLIT = {
+    #    'HDIO_TOP_RIGHT': tile_splitter.grid.NORTH,
+    #    'HDIO_BOT_RIGHT': tile_splitter.grid.NORTH,
+}
 
-TILE_SPLIT_STYLES = {}
+TILE_SPLIT_STYLES = {
+    #    'HDIO_TOP_RIGHT': ('y_split': HDIO_TOP_SPLIT),
+    #    'HDIO_BOT_RIGHT': ('y_split': HDIO_BOT_SPLIT),
+}
 
 # =============================================================================
 
