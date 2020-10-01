@@ -61,7 +61,9 @@
           </metadata>
         </pb_type>
         <interconnect>
-          <direct name="D"  input="FF_FDSE_or_FDRE.D"  output="FDSE.D" />
+          <direct name="D"  input="FF_FDSE_or_FDRE.D"  output="FDSE.D">
+            <pack_pattern name="LUT_to_FF_FDSE" />
+          </direct>
           <direct name="CE" input="FF_FDSE_or_FDRE.CE" output="FDSE.CE">
             <pack_pattern name="CE_FF_FDSE"/>
             <pack_pattern name="CESR_FF_FDSE"/>
@@ -99,7 +101,9 @@
           </metadata>
         </pb_type>
         <interconnect>
-          <direct name="D"  input="FF_FDSE_or_FDRE.D"  output="FDRE.D" />
+          <direct name="D"  input="FF_FDSE_or_FDRE.D"  output="FDRE.D" >
+            <pack_pattern name="LUT_to_FF_FDRE" />
+          </direct>
           <direct name="CE" input="FF_FDSE_or_FDRE.CE" output="FDRE.CE">
             <pack_pattern name="CE_FF_FDRE"/>
             <pack_pattern name="CESR_FF_FDRE"/>
@@ -150,7 +154,10 @@
           </metadata>
         </pb_type>
         <interconnect>
-          <direct name="D"  input="REG_FDSE_or_FDRE.D"  output="FDSE.D" />
+          <direct name="D"  input="REG_FDSE_or_FDRE.D"  output="FDSE.D" >
+            <pack_pattern name="LUT_to_FF_FDSE" />
+            <pack_pattern name="F6MUX_to_FF_FDSE" />
+          </direct>
           <direct name="CE" input="REG_FDSE_or_FDRE.CE" output="FDSE.CE">
             <pack_pattern name="CE_FF_FDSE"/>
             <pack_pattern name="CESR_FF_FDSE"/>
@@ -188,7 +195,10 @@
           </metadata>
         </pb_type>
         <interconnect>
-          <direct name="D"  input="REG_FDSE_or_FDRE.D"  output="FDRE.D" />
+          <direct name="D"  input="REG_FDSE_or_FDRE.D"  output="FDRE.D" >
+            <pack_pattern name="LUT_to_FF_FDRE" />
+            <pack_pattern name="F6MUX_to_FF_FDRE" />
+          </direct>
           <direct name="CE" input="REG_FDSE_or_FDRE.CE" output="FDRE.CE">
             <pack_pattern name="CE_FF_FDRE"/>
             <pack_pattern name="CESR_FF_FDRE"/>
@@ -258,7 +268,9 @@
           </metadata>
         </pb_type>
         <interconnect>
-          <direct name="D"   input="FF_FDPE_or_FDCE.D"  output="FDPE.D" />
+          <direct name="D"   input="FF_FDPE_or_FDCE.D"  output="FDPE.D" >
+            <pack_pattern name="LUT_to_FF_FDPE" />
+          </direct>
           <direct name="CE"  input="FF_FDPE_or_FDCE.CE" output="FDPE.CE">
             <pack_pattern name="CE_FF_FDPE"/>
             <pack_pattern name="CESR_FF_FDPE"/>
@@ -296,7 +308,9 @@
           </metadata>
         </pb_type>
         <interconnect>
-          <direct name="D"   input="FF_FDPE_or_FDCE.D"  output="FDCE.D" />
+          <direct name="D"   input="FF_FDPE_or_FDCE.D"  output="FDCE.D" >
+            <pack_pattern name="LUT_to_FF_FDCE" />
+          </direct>
           <direct name="CE"  input="FF_FDPE_or_FDCE.CE" output="FDCE.CE">
             <pack_pattern name="CE_FF_FDCE"/>
             <pack_pattern name="CESR_FF_FDCE"/>
@@ -347,7 +361,10 @@
           </metadata>
         </pb_type>
         <interconnect>
-          <direct name="D"   input="REG_FDPE_or_FDCE.D"  output="FDPE.D" />
+          <direct name="D"   input="REG_FDPE_or_FDCE.D"  output="FDPE.D" >
+            <pack_pattern name="LUT_to_FF_FDPE" />
+            <pack_pattern name="F6MUX_to_FF_FDPE" />
+          </direct>
           <direct name="CE"  input="REG_FDPE_or_FDCE.CE" output="FDPE.CE">
             <pack_pattern name="CE_FF_FDPE"/>
             <pack_pattern name="CESR_FF_FDPE"/>
@@ -385,7 +402,10 @@
           </metadata>
         </pb_type>
         <interconnect>
-          <direct name="D"   input="REG_FDPE_or_FDCE.D"  output="FDCE.D" />
+          <direct name="D"   input="REG_FDPE_or_FDCE.D"  output="FDCE.D" >
+            <pack_pattern name="LUT_to_FF_FDCE" />
+            <pack_pattern name="F6MUX_to_FF_FDCE" />
+          </direct>
           <direct name="CE"  input="REG_FDPE_or_FDCE.CE" output="FDCE.CE">
             <pack_pattern name="CE_FF_FDCE"/>
             <pack_pattern name="CESR_FF_FDCE"/>
