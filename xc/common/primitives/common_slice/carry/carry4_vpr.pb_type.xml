@@ -1,11 +1,10 @@
 <?xml version='1.0' encoding='utf-8'?>
 <pb_type xmlns:xi="http://www.w3.org/2001/XInclude" blif_model=".subckt CARRY4_VPR" name="CARRY4_VPR" num_pb="1">
   <input  name="CIN"        num_pins="1"/>
-  <output name="CO_CHAIN"   num_pins="1"/>
-  <output name="CO_FABRIC0" num_pins="1"/>
-  <output name="CO_FABRIC1" num_pins="1"/>
-  <output name="CO_FABRIC2" num_pins="1"/>
-  <output name="CO_FABRIC3" num_pins="1"/>
+  <output name="CO0" num_pins="1"/>
+  <output name="CO1" num_pins="1"/>
+  <output name="CO2" num_pins="1"/>
+  <output name="CO3" num_pins="1"/>
   <input  name="CYINIT"     num_pins="1"/>
   <input  name="DI0"        num_pins="1"/>
   <input  name="DI1"        num_pins="1"/>
@@ -19,44 +18,34 @@
   <input  name="S1"         num_pins="1"/>
   <input  name="S2"         num_pins="1"/>
   <input  name="S3"         num_pins="1"/>
-  <delay_constant in_port="CIN"    max="{iopath_CIN_CO3}"    out_port="CO_CHAIN"/>
-  <delay_constant in_port="CYINIT" max="{iopath_CYINIT_CO3}" out_port="CO_CHAIN"/>
-  <delay_constant in_port="DI0"    max="{iopath_DI0_CO3}"    out_port="CO_CHAIN"/>
-  <delay_constant in_port="DI1"    max="{iopath_DI1_CO3}"    out_port="CO_CHAIN"/>
-  <delay_constant in_port="DI2"    max="{iopath_DI2_CO3}"    out_port="CO_CHAIN"/>
-  <delay_constant in_port="DI3"    max="{iopath_DI3_CO3}"    out_port="CO_CHAIN"/>
-  <delay_constant in_port="S0"     max="{iopath_S0_CO3}"     out_port="CO_CHAIN"/>
-  <delay_constant in_port="S1"     max="{iopath_S1_CO3}"     out_port="CO_CHAIN"/>
-  <delay_constant in_port="S2"     max="{iopath_S2_CO3}"     out_port="CO_CHAIN"/>
-  <delay_constant in_port="S3"     max="{iopath_S3_CO3}"     out_port="CO_CHAIN"/>
-  <delay_constant in_port="CIN"    max="{iopath_CIN_CO0}"    out_port="CO_FABRIC0"/>
-  <delay_constant in_port="CYINIT" max="{iopath_CYINIT_CO0}" out_port="CO_FABRIC0"/>
-  <delay_constant in_port="DI0"    max="{iopath_DI0_CO0}"    out_port="CO_FABRIC0"/>
-  <delay_constant in_port="S0"     max="{iopath_S0_CO0}"     out_port="CO_FABRIC0"/>
-  <delay_constant in_port="CIN"    max="{iopath_CIN_CO1}"    out_port="CO_FABRIC1"/>
-  <delay_constant in_port="CYINIT" max="{iopath_CYINIT_CO1}" out_port="CO_FABRIC1"/>
-  <delay_constant in_port="DI0"    max="{iopath_DI0_CO1}"    out_port="CO_FABRIC1"/>
-  <delay_constant in_port="DI1"    max="{iopath_DI1_CO1}"    out_port="CO_FABRIC1"/>
-  <delay_constant in_port="S0"     max="{iopath_S0_CO1}"     out_port="CO_FABRIC1"/>
-  <delay_constant in_port="S1"     max="{iopath_S1_CO1}"     out_port="CO_FABRIC1"/>
-  <delay_constant in_port="CIN"    max="{iopath_CIN_CO2}"    out_port="CO_FABRIC2"/>
-  <delay_constant in_port="CYINIT" max="{iopath_CYINIT_CO2}" out_port="CO_FABRIC2"/>
-  <delay_constant in_port="DI0"    max="{iopath_DI0_CO2}"    out_port="CO_FABRIC2"/>
-  <delay_constant in_port="DI1"    max="{iopath_DI1_CO2}"    out_port="CO_FABRIC2"/>
-  <delay_constant in_port="DI2"    max="{iopath_DI2_CO2}"    out_port="CO_FABRIC2"/>
-  <delay_constant in_port="S0"     max="{iopath_S0_CO2}"     out_port="CO_FABRIC2"/>
-  <delay_constant in_port="S1"     max="{iopath_S1_CO2}"     out_port="CO_FABRIC2"/>
-  <delay_constant in_port="S2"     max="{iopath_S2_CO2}"     out_port="CO_FABRIC2"/>
-  <delay_constant in_port="CIN"    max="{iopath_CIN_CO3}"    out_port="CO_FABRIC3"/>
-  <delay_constant in_port="CYINIT" max="{iopath_CYINIT_CO3}" out_port="CO_FABRIC3"/>
-  <delay_constant in_port="DI0"    max="{iopath_DI0_CO3}"    out_port="CO_FABRIC3"/>
-  <delay_constant in_port="DI1"    max="{iopath_DI0_CO3}"    out_port="CO_FABRIC3"/>
-  <delay_constant in_port="DI2"    max="{iopath_DI0_CO3}"    out_port="CO_FABRIC3"/>
-  <delay_constant in_port="DI3"    max="{iopath_DI0_CO3}"    out_port="CO_FABRIC3"/>
-  <delay_constant in_port="S0"     max="{iopath_S0_CO3}"     out_port="CO_FABRIC3"/>
-  <delay_constant in_port="S1"     max="{iopath_S1_CO3}"     out_port="CO_FABRIC3"/>
-  <delay_constant in_port="S2"     max="{iopath_S2_CO3}"     out_port="CO_FABRIC3"/>
-  <delay_constant in_port="S3"     max="{iopath_S3_CO3}"     out_port="CO_FABRIC3"/>
+  <delay_constant in_port="CIN"    max="{iopath_CIN_CO0}"    out_port="CO0"/>
+  <delay_constant in_port="CYINIT" max="{iopath_CYINIT_CO0}" out_port="CO0"/>
+  <delay_constant in_port="DI0"    max="{iopath_DI0_CO0}"    out_port="CO0"/>
+  <delay_constant in_port="S0"     max="{iopath_S0_CO0}"     out_port="CO0"/>
+  <delay_constant in_port="CIN"    max="{iopath_CIN_CO1}"    out_port="CO1"/>
+  <delay_constant in_port="CYINIT" max="{iopath_CYINIT_CO1}" out_port="CO1"/>
+  <delay_constant in_port="DI0"    max="{iopath_DI0_CO1}"    out_port="CO1"/>
+  <delay_constant in_port="DI1"    max="{iopath_DI1_CO1}"    out_port="CO1"/>
+  <delay_constant in_port="S0"     max="{iopath_S0_CO1}"     out_port="CO1"/>
+  <delay_constant in_port="S1"     max="{iopath_S1_CO1}"     out_port="CO1"/>
+  <delay_constant in_port="CIN"    max="{iopath_CIN_CO2}"    out_port="CO2"/>
+  <delay_constant in_port="CYINIT" max="{iopath_CYINIT_CO2}" out_port="CO2"/>
+  <delay_constant in_port="DI0"    max="{iopath_DI0_CO2}"    out_port="CO2"/>
+  <delay_constant in_port="DI1"    max="{iopath_DI1_CO2}"    out_port="CO2"/>
+  <delay_constant in_port="DI2"    max="{iopath_DI2_CO2}"    out_port="CO2"/>
+  <delay_constant in_port="S0"     max="{iopath_S0_CO2}"     out_port="CO2"/>
+  <delay_constant in_port="S1"     max="{iopath_S1_CO2}"     out_port="CO2"/>
+  <delay_constant in_port="S2"     max="{iopath_S2_CO2}"     out_port="CO2"/>
+  <delay_constant in_port="CIN"    max="{iopath_CIN_CO3}"    out_port="CO3"/>
+  <delay_constant in_port="CYINIT" max="{iopath_CYINIT_CO3}" out_port="CO3"/>
+  <delay_constant in_port="DI0"    max="{iopath_DI0_CO3}"    out_port="CO3"/>
+  <delay_constant in_port="DI1"    max="{iopath_DI0_CO3}"    out_port="CO3"/>
+  <delay_constant in_port="DI2"    max="{iopath_DI0_CO3}"    out_port="CO3"/>
+  <delay_constant in_port="DI3"    max="{iopath_DI0_CO3}"    out_port="CO3"/>
+  <delay_constant in_port="S0"     max="{iopath_S0_CO3}"     out_port="CO3"/>
+  <delay_constant in_port="S1"     max="{iopath_S1_CO3}"     out_port="CO3"/>
+  <delay_constant in_port="S2"     max="{iopath_S2_CO3}"     out_port="CO3"/>
+  <delay_constant in_port="S3"     max="{iopath_S3_CO3}"     out_port="CO3"/>
   <delay_constant in_port="CIN"    max="{iopath_CIN_O0}"     out_port="O0"/>
   <delay_constant in_port="CYINIT" max="{iopath_CYINIT_O0}"  out_port="O0"/>
   <delay_constant in_port="S0"     max="{iopath_S0_O0}"      out_port="O0"/>
