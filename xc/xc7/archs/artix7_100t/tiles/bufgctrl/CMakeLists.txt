@@ -1,6 +1,6 @@
 set(DEPS "")
-append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/primitives/bufgctrl/bufgctrl.pb_type.xml)
-get_file_location(BUFGCTRL_PB_TYPE ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/primitives/bufgctrl/bufgctrl.pb_type.xml)
+append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc/xc7/primitives/bufgctrl/bufgctrl.pb_type.xml)
+get_file_location(BUFGCTRL_PB_TYPE ${symbiflow-arch-defs_SOURCE_DIR}/xc/xc7/primitives/bufgctrl/bufgctrl.pb_type.xml)
 
 add_custom_command(
   OUTPUT bufgctrl.pb_type.xml
@@ -10,8 +10,8 @@ add_custom_command(
 add_file_target(FILE bufgctrl.pb_type.xml GENERATED)
 
 set(DEPS "")
-append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/primitives/bufgctrl/bufgctrl.model.xml)
-get_file_location(BUFGCTRL_MODEL ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/primitives/bufgctrl/bufgctrl.model.xml)
+append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc/xc7/primitives/bufgctrl/bufgctrl.model.xml)
+get_file_location(BUFGCTRL_MODEL ${symbiflow-arch-defs_SOURCE_DIR}/xc/xc7/primitives/bufgctrl/bufgctrl.model.xml)
 
 add_custom_command(
   OUTPUT bufgctrl.model.xml
