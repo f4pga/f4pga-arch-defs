@@ -5,7 +5,7 @@ channels:
   - conda-forge
 dependencies:
   - symbiflow-yosys=0.8_6021_gd8b2d1a2=20200708_083630
-  - symbiflow-yosys-plugins=1.0.0.7_0117_g160b309=20200916_091654
+  - symbiflow-yosys-plugins=1.0.0.7_0159_g4243dae=20201002_094407
   - symbiflow-vtr=8.0.0.rc2_5097_gf1a3bcc2a=20200916_072439
   - zachjs-sv2v=0.0.5_0018_ga170536
   - cmake
