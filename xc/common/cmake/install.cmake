@@ -48,27 +48,14 @@ function(DEFINE_XC_TOOLCHAIN_TARGET)
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
   # install python scripts
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/split_inouts.py
-          DESTINATION bin/python
-          PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
-
-        install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/prjxray_create_ioplace.py
-          DESTINATION bin/python
-          PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
-
-        install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/prjxray_create_place_constraints.py
-          DESTINATION bin/python
-          PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
-
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_io_place.py
-          DESTINATION bin/python
-          PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
-
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_place_constraints.py
-          DESTINATION bin/python
-          PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
-
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/eblif.py
+  install(FILES
+            ${symbiflow-arch-defs_SOURCE_DIR}/utils/split_inouts.py
+            ${symbiflow-arch-defs_SOURCE_DIR}/utils/fix_xc7_carry.py
+            ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/prjxray_create_ioplace.py
+            ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/prjxray_create_place_constraints.py
+            ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_io_place.py
+            ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_place_constraints.py
+            ${symbiflow-arch-defs_SOURCE_DIR}/utils/eblif.py
           DESTINATION bin/python
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 

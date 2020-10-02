@@ -1375,8 +1375,7 @@ function(ADD_FPGA_TARGET)
       COMMAND
         ${CMAKE_COMMAND} -E env
           TECHMAP_PATH=${YOSYS_TECHMAP}
-          symbiflow-arch-defs_SOURCE_DIR=${symbiflow-arch-defs_SOURCE_DIR}
-          symbiflow-arch-defs_BINARY_DIR=${symbiflow-arch-defs_BINARY_DIR}
+          UTILS_PATH=${symbiflow-arch-defs_SOURCE_DIR}/utils
           OUT_JSON=${OUT_JSON_SYNTH}
           OUT_SYNTH_V=${OUT_SYNTH_V}
           OUT_FASM_EXTRA=${OUT_FASM_EXTRA}
