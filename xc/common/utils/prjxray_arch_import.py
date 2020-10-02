@@ -1319,27 +1319,31 @@ WHERE
         if direct['x_offset'] == 0 and direct['y_offset'] == 0:
             continue
 
-        ET.SubElement(
-            directlist_xml, 'direct', {
-                'name':
-                    '{}_to_{}_dx_{}_dy_{}'.format(
-                        direct['from_pin'], direct['to_pin'],
-                        direct['x_offset'], direct['y_offset']
-                    ),
-                'from_pin':
-                    add_vpr_tile_prefix(direct['from_pin']),
-                'to_pin':
-                    add_vpr_tile_prefix(direct['to_pin']),
-                'x_offset':
-                    str(direct['x_offset']),
-                'y_offset':
-                    str(direct['y_offset']),
-                'z_offset':
-                    '0',
-                'switch_name':
-                    direct['switch_name'],
-            }
-        )
+        direct_dict = {
+            'name':
+                '{}_to_{}_dx_{}_dy_{}'.format(
+                    direct['from_pin'], direct['to_pin'], direct['x_offset'],
+                    direct['y_offset']
+                ),
+            'from_pin':
+                add_vpr_tile_prefix(direct['from_pin']),
+            'to_pin':
+                add_vpr_tile_prefix(direct['to_pin']),
+            'x_offset':
+                str(direct['x_offset']),
+            'y_offset':
+                str(direct['y_offset']),
+            'z_offset':
+                '0',
+        }
+
+        # If the switch is a delayless_switch, the switch name
+        # needs to be avoided as VPR automatically assigns
+        # the delayless switch to this direct connection
+        if direct['switch_name'] != '__vpr_delayless_switch__':
+            direct_dict['switch_name'] = direct['switch_name']
+
+        ET.SubElement(directlist_xml, 'direct', direct_dict)
 
     arch_xml_str = ET.tostring(arch_xml, pretty_print=True).decode('utf-8')
     args.output_arch.write(arch_xml_str)
