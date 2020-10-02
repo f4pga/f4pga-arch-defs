@@ -260,6 +260,11 @@
   <interconnect>
     <!-- 5FF MUXs -->
     <mux name="D5FFMUX" input="COMMON_SLICE.DX COMMON_SLICE.DO5" output="SLICE_FF.D5[3]" >
+      <pack_pattern in_port="COMMON_SLICE.DO5" name="LUT_to_FF_FDSE" out_port="SLICE_FF.D5[3]" />
+      <pack_pattern in_port="COMMON_SLICE.DO5" name="LUT_to_FF_FDRE" out_port="SLICE_FF.D5[3]" />
+      <pack_pattern in_port="COMMON_SLICE.DO5" name="LUT_to_FF_FDPE" out_port="SLICE_FF.D5[3]" />
+      <pack_pattern in_port="COMMON_SLICE.DO5" name="LUT_to_FF_FDCE" out_port="SLICE_FF.D5[3]" />
+
       <delay_constant in_port="COMMON_SLICE.DX"  max="{interconnect_dx_d5ffl}" out_port="SLICE_FF.D5[3]" />
       <delay_constant in_port="COMMON_SLICE.DO5" max="{interconnect_d5lut_d5ffl}"    out_port="SLICE_FF.D5[3]" />
       <metadata>
@@ -270,6 +275,11 @@
       </metadata>
     </mux>
     <mux name="C5FFMUX" input="COMMON_SLICE.CX COMMON_SLICE.CO5" output="SLICE_FF.D5[2]" >
+      <pack_pattern in_port="COMMON_SLICE.CO5" name="LUT_to_FF_FDSE" out_port="SLICE_FF.D5[2]" />
+      <pack_pattern in_port="COMMON_SLICE.CO5" name="LUT_to_FF_FDRE" out_port="SLICE_FF.D5[2]" />
+      <pack_pattern in_port="COMMON_SLICE.CO5" name="LUT_to_FF_FDPE" out_port="SLICE_FF.D5[2]" />
+      <pack_pattern in_port="COMMON_SLICE.CO5" name="LUT_to_FF_FDCE" out_port="SLICE_FF.D5[2]" />
+
       <delay_constant in_port="COMMON_SLICE.CX"  max="{interconnect_cx_c5ffl}" out_port="SLICE_FF.D5[2]" />
       <delay_constant in_port="COMMON_SLICE.CO5" max="{interconnect_c5lut_c5ffl}"    out_port="SLICE_FF.D5[2]" />
       <metadata>
@@ -280,6 +290,11 @@
       </metadata>
     </mux>
     <mux name="B5FFMUX" input="COMMON_SLICE.BX COMMON_SLICE.BO5" output="SLICE_FF.D5[1]" >
+      <pack_pattern in_port="COMMON_SLICE.BO5" name="LUT_to_FF_FDSE" out_port="SLICE_FF.D5[1]" />
+      <pack_pattern in_port="COMMON_SLICE.BO5" name="LUT_to_FF_FDRE" out_port="SLICE_FF.D5[1]" />
+      <pack_pattern in_port="COMMON_SLICE.BO5" name="LUT_to_FF_FDPE" out_port="SLICE_FF.D5[1]" />
+      <pack_pattern in_port="COMMON_SLICE.BO5" name="LUT_to_FF_FDCE" out_port="SLICE_FF.D5[1]" />
+
       <delay_constant in_port="COMMON_SLICE.BX"  max="{interconnect_bx_b5ffl}" out_port="SLICE_FF.D5[1]" />
       <delay_constant in_port="COMMON_SLICE.BO5" max="{interconnect_b5lut_b5ffl}"    out_port="SLICE_FF.D5[1]" />
       <metadata>
@@ -290,6 +305,11 @@
       </metadata>
     </mux>
     <mux name="A5FFMUX" input="COMMON_SLICE.AX COMMON_SLICE.AO5" output="SLICE_FF.D5[0]" >
+      <pack_pattern in_port="COMMON_SLICE.AO5" name="LUT_to_FF_FDSE" out_port="SLICE_FF.D5[0]" />
+      <pack_pattern in_port="COMMON_SLICE.AO5" name="LUT_to_FF_FDRE" out_port="SLICE_FF.D5[0]" />
+      <pack_pattern in_port="COMMON_SLICE.AO5" name="LUT_to_FF_FDPE" out_port="SLICE_FF.D5[0]" />
+      <pack_pattern in_port="COMMON_SLICE.AO5" name="LUT_to_FF_FDCE" out_port="SLICE_FF.D5[0]" />
+
       <delay_constant in_port="COMMON_SLICE.AX"  max="{interconnect_ax_a5ffl}" out_port="SLICE_FF.D5[0]" />
       <delay_constant in_port="COMMON_SLICE.AO5" max="{interconnect_a5lut_a5ffl}"    out_port="SLICE_FF.D5[0]" />
       <metadata>
@@ -382,6 +402,16 @@
     <mux name="DFFMUX"
       input="COMMON_SLICE.AMC31 CARRY4_VPR.O3 CARRY4_VPR.CO_FABRIC3 COMMON_SLICE.DO6 COMMON_SLICE.DO5 COMMON_SLICE.DX"
       output="SLICE_FF.D[3]" >
+      <pack_pattern in_port="COMMON_SLICE.DO6" name="LUT_to_FF_FDSE" out_port="SLICE_FF.D[3]" />
+      <pack_pattern in_port="COMMON_SLICE.DO6" name="LUT_to_FF_FDRE" out_port="SLICE_FF.D[3]" />
+      <pack_pattern in_port="COMMON_SLICE.DO6" name="LUT_to_FF_FDPE" out_port="SLICE_FF.D[3]" />
+      <pack_pattern in_port="COMMON_SLICE.DO6" name="LUT_to_FF_FDCE" out_port="SLICE_FF.D[3]" />
+
+      <pack_pattern in_port="COMMON_SLICE.DO6" name="F6MUX_to_FF_FDSE" out_port="SLICE_FF.D[3]" />
+      <pack_pattern in_port="COMMON_SLICE.DO6" name="F6MUX_to_FF_FDRE" out_port="SLICE_FF.D[3]" />
+      <pack_pattern in_port="COMMON_SLICE.DO6" name="F6MUX_to_FF_FDPE" out_port="SLICE_FF.D[3]" />
+      <pack_pattern in_port="COMMON_SLICE.DO6" name="F6MUX_to_FF_FDCE" out_port="SLICE_FF.D[3]" />
+
       <delay_constant in_port="COMMON_SLICE.DX" max="{interconnect_dx_dff}" out_port="SLICE_FF.D[3]" />
       <delay_constant in_port="COMMON_SLICE.DO5" max="{interconnect_d5lut_dff}" out_port="SLICE_FF.D[3]" />
       <delay_constant in_port="COMMON_SLICE.DO6" max="{interconnect_d6lut_dff}" out_port="SLICE_FF.D[3]" />
@@ -401,6 +431,16 @@
     <mux name="CFFMUX"
       input="CARRY4_VPR.O2 CARRY4_VPR.CO_FABRIC2 COMMON_SLICE.CO6 COMMON_SLICE.CO5 COMMON_SLICE.CX COMMON_SLICE.F7BMUX_O"
       output="SLICE_FF.D[2]" >
+      <pack_pattern in_port="COMMON_SLICE.CO6" name="LUT_to_FF_FDSE" out_port="SLICE_FF.D[2]" />
+      <pack_pattern in_port="COMMON_SLICE.CO6" name="LUT_to_FF_FDRE" out_port="SLICE_FF.D[2]" />
+      <pack_pattern in_port="COMMON_SLICE.CO6" name="LUT_to_FF_FDPE" out_port="SLICE_FF.D[2]" />
+      <pack_pattern in_port="COMMON_SLICE.CO6" name="LUT_to_FF_FDCE" out_port="SLICE_FF.D[2]" />
+
+      <pack_pattern in_port="COMMON_SLICE.CO6" name="F6MUX_to_FF_FDSE" out_port="SLICE_FF.D[2]" />
+      <pack_pattern in_port="COMMON_SLICE.CO6" name="F6MUX_to_FF_FDRE" out_port="SLICE_FF.D[2]" />
+      <pack_pattern in_port="COMMON_SLICE.CO6" name="F6MUX_to_FF_FDPE" out_port="SLICE_FF.D[2]" />
+      <pack_pattern in_port="COMMON_SLICE.CO6" name="F6MUX_to_FF_FDCE" out_port="SLICE_FF.D[2]" />
+
       <delay_constant in_port="COMMON_SLICE.CX" max="{interconnect_cx_cff}" out_port="SLICE_FF.D[2]" />
       <delay_constant in_port="COMMON_SLICE.F7BMUX_O" max="{interconnect_f7bmux_cff}" out_port="SLICE_FF.D[2]" />
       <delay_constant in_port="COMMON_SLICE.CO5" max="{interconnect_c5lut_cff}" out_port="SLICE_FF.D[2]" />
@@ -421,6 +461,16 @@
     <mux name="BFFMUX"
       input="CARRY4_VPR.O1 CARRY4_VPR.CO_FABRIC1 COMMON_SLICE.BO6 COMMON_SLICE.BO5 COMMON_SLICE.BX COMMON_SLICE.F8MUX_O"
       output="SLICE_FF.D[1]" >
+      <pack_pattern in_port="COMMON_SLICE.BO6" name="LUT_to_FF_FDSE" out_port="SLICE_FF.D[1]" />
+      <pack_pattern in_port="COMMON_SLICE.BO6" name="LUT_to_FF_FDRE" out_port="SLICE_FF.D[1]" />
+      <pack_pattern in_port="COMMON_SLICE.BO6" name="LUT_to_FF_FDPE" out_port="SLICE_FF.D[1]" />
+      <pack_pattern in_port="COMMON_SLICE.BO6" name="LUT_to_FF_FDCE" out_port="SLICE_FF.D[1]" />
+
+      <pack_pattern in_port="COMMON_SLICE.BO6" name="F6MUX_to_FF_FDSE" out_port="SLICE_FF.D[1]" />
+      <pack_pattern in_port="COMMON_SLICE.BO6" name="F6MUX_to_FF_FDRE" out_port="SLICE_FF.D[1]" />
+      <pack_pattern in_port="COMMON_SLICE.BO6" name="F6MUX_to_FF_FDPE" out_port="SLICE_FF.D[1]" />
+      <pack_pattern in_port="COMMON_SLICE.BO6" name="F6MUX_to_FF_FDCE" out_port="SLICE_FF.D[1]" />
+
       <delay_constant in_port="COMMON_SLICE.BX" max="{interconnect_bx_bff}" out_port="SLICE_FF.D[1]" />
       <delay_constant in_port="COMMON_SLICE.F8MUX_O" max="{interconnect_f8mux_bff}" out_port="SLICE_FF.D[1]" />
       <delay_constant in_port="COMMON_SLICE.BO5" max="{interconnect_b5lut_bff}" out_port="SLICE_FF.D[1]" />
@@ -441,6 +491,16 @@
     <mux name="AFFMUX"
       input="CARRY4_VPR.O0 CARRY4_VPR.CO_FABRIC0 COMMON_SLICE.AO6 COMMON_SLICE.AO5 COMMON_SLICE.AX COMMON_SLICE.F7AMUX_O"
       output="SLICE_FF.D[0]" >
+      <pack_pattern in_port="COMMON_SLICE.AO6" name="LUT_to_FF_FDSE" out_port="SLICE_FF.D[0]" />
+      <pack_pattern in_port="COMMON_SLICE.AO6" name="LUT_to_FF_FDRE" out_port="SLICE_FF.D[0]" />
+      <pack_pattern in_port="COMMON_SLICE.AO6" name="LUT_to_FF_FDPE" out_port="SLICE_FF.D[0]" />
+      <pack_pattern in_port="COMMON_SLICE.AO6" name="LUT_to_FF_FDCE" out_port="SLICE_FF.D[0]" />
+
+      <pack_pattern in_port="COMMON_SLICE.AO6" name="F6MUX_to_FF_FDSE" out_port="SLICE_FF.D[0]" />
+      <pack_pattern in_port="COMMON_SLICE.AO6" name="F6MUX_to_FF_FDRE" out_port="SLICE_FF.D[0]" />
+      <pack_pattern in_port="COMMON_SLICE.AO6" name="F6MUX_to_FF_FDPE" out_port="SLICE_FF.D[0]" />
+      <pack_pattern in_port="COMMON_SLICE.AO6" name="F6MUX_to_FF_FDCE" out_port="SLICE_FF.D[0]" />
+
       <delay_constant in_port="COMMON_SLICE.AX" max="{interconnect_ax_aff}" out_port="SLICE_FF.D[0]" />
       <delay_constant in_port="COMMON_SLICE.F7AMUX_O" max="{interconnect_f7amux_aff}" out_port="SLICE_FF.D[0]" />
       <delay_constant in_port="COMMON_SLICE.AO5" max="{interconnect_a5lut_aff}" out_port="SLICE_FF.D[0]" />
