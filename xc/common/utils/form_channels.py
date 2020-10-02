@@ -1768,14 +1768,40 @@ SELECT site_pkey FROM wire_in_tile WHERE tile_type_pkey = ? AND site_pkey IS NOT
 
     # Merge tiles first, so any splits account for sites the show up after a
     # merge.
+    merged_sites = {}
     for tile_type, merge_direction in progressbar_utils.progressbar(
             tiles_to_merge.items()):
         if tile_type in tile_types:
-            vpr_grid.merge_tile_type(
+            merged_sites.update(vpr_grid.merge_tile_type(
                 tile_type_pkey=tile_types[tile_type],
                 merge_direction=merge_direction,
-            )
+            ))
 
+    # New sites were added to some tiles. Check whether these tiles are to be
+    # split. If so and their "split style" is "y_split" then add these new
+    # sites to their split maps.
+    for tile_type_pkey, sites in merged_sites.items():
+
+        # Get tile type name
+        cur.execute('SELECT name FROM tile_type WHERE pkey = ?', 
+            (tile_type_pkey, )
+        )
+        tile_type_name = cur.fetchone()[0]
+
+        # Update the split map
+        if tile_type_name in tiles_to_split and \
+           split_styles[tile_type_name][0] == "y_split":
+
+            all_sites = set(sites) | set(split_map[tile_type_name].keys())
+
+            ys = set([s[2] for s in all_sites])
+            ys = sorted(ys)
+
+            split_map[tile_type_name] = {}
+            for name, x, y in all_sites:
+                split_map[tile_type_name][(name, x, y)] = ys.index(y)
+
+    # Split tiles
     for tile_type, split_direction in progressbar_utils.progressbar(
             tiles_to_split.items()):
         if tile_type in tile_types:
