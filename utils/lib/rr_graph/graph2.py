@@ -68,7 +68,7 @@ class Channels(namedtuple(
 
 
 class SwitchTiming(namedtuple('SwitchTiming',
-                              'r c_in c_out c_internal t_del p_cost')):
+                              'r c_in c_out c_internal t_del')):
     """Encapsulation for timing attributes of a VPR switch
     see: https://vtr-verilog-to-routing.readthedocs.io/en/latest/arch/reference.html#switches
     """

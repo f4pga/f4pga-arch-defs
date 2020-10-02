@@ -12,7 +12,7 @@ from ..tracks import Track, Direction
 class Graph2Tests(unittest.TestCase):
     def setUp(self):
         switch_timing = SwitchTiming(
-            r=0, c_in=1, c_out=2, t_del=0, c_internal=0, p_cost=0
+            r=0, c_in=1, c_out=2, t_del=0, c_internal=0
         )
         switch_sizing = SwitchSizing(mux_trans_size=0, buf_size=1)
         delayless = Switch(
@@ -27,7 +27,7 @@ class Graph2Tests(unittest.TestCase):
 
     def test_init(self):
         switch_timing = SwitchTiming(
-            r=0, c_in=1, c_out=2, t_del=0, c_internal=0, p_cost=0
+            r=0, c_in=1, c_out=2, t_del=0, c_internal=0
         )
         switch_sizing = SwitchSizing(mux_trans_size=0, buf_size=1)
         self.switches = [
@@ -244,7 +244,7 @@ class Graph2Tests(unittest.TestCase):
 class Graph2MediumTests(unittest.TestCase):
     def setUp(self):
         switch_timing = SwitchTiming(
-            r=0, c_in=1, c_out=2, t_del=0, c_internal=0, p_cost=0
+            r=0, c_in=1, c_out=2, t_del=0, c_internal=0
         )
         switch_sizing = SwitchSizing(mux_trans_size=0, buf_size=1)
         self.switches = [
