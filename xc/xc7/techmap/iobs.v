@@ -118,7 +118,7 @@ module OBUFT (
     input T
 );
     parameter CAPACITANCE = "DONT_CARE";
-    parameter integer DRIVE = 12;
+    parameter DRIVE = 12;
     parameter IOSTANDARD = "DEFAULT";
     parameter SLEW = "SLOW";
     parameter IO_LOC_PAIRS = ""; // Used by read_xdc.
