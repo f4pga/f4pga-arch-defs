@@ -41,6 +41,8 @@ from prjuray_timing import PvtCorner
 from lib.connection_database import create_tables
 from lib.connection_database import NodeClassification
 
+import tile_splitter.grid
+
 from form_channels import create_get_switch
 from form_channels import import_phy_grid
 from form_channels import import_segments
@@ -411,25 +413,80 @@ WHERE
 
 # A set of synthetic tiles to be added
 SYNTHETIC_TILES = {
-    #    'SLICEL',
-    #    'SLICEM',
-    #    'HDIO_TOP_M',
-    #    'HDIO_TOP_S',
-    #    'HDIO_BOT_M',
-    #    'HDIO_BOT_S',
+    'HDIO_TOP_M',
+    'HDIO_TOP_S',
+    'HDIO_BOT_M',
+    'HDIO_BOT_S',
 }
 
 TILES_TO_MERGE = {}
 
 TILES_TO_SPLIT = {
-    #    'HDIO_TOP_RIGHT': tile_splitter.grid.NORTH,
-    #    'HDIO_BOT_RIGHT': tile_splitter.grid.NORTH,
 }
 
 TILE_SPLIT_STYLES = {
-    #    'HDIO_TOP_RIGHT': ('y_split': HDIO_TOP_SPLIT),
-    #    'HDIO_BOT_RIGHT': ('y_split': HDIO_BOT_SPLIT),
+    'HDIO_TOP_RIGHT': tile_splitter.grid.NORTH,
+    'HDIO_BOT_RIGHT': tile_splitter.grid.NORTH,
 }
+
+HDIO_TOP_SPLIT = {
+   2:
+    ('HDIO_TOP_M', ('HDIOB_M_X0Y0', 'HDIOLOGIC_M_X0Y0', 'HDIOBDIFFINBUF_X0Y0')),
+   4:
+    ('HDIO_TOP_S', ('HDIOB_S_X0Y1', 'HDIOLOGIC_S_X0Y0')),
+   6:
+    ('HDIO_TOP_M', ('HDIOB_M_X0Y2', 'HDIOLOGIC_M_X0Y1', 'HDIOBDIFFINBUF_X0Y1')),
+   8:
+    ('HDIO_TOP_S', ('HDIOB_S_X0Y3', 'HDIOLOGIC_S_X0Y1')),
+   10:
+    ('HDIO_TOP_M', ('HDIOB_M_X0Y4', 'HDIOLOGIC_M_X0Y2', 'HDIOBDIFFINBUF_X0Y2')),
+   12:
+    ('HDIO_TOP_S', ('HDIOB_S_X0Y5', 'HDIOLOGIC_S_X0Y2')),
+   14:
+    ('HDIO_TOP_M', ('HDIOB_M_X0Y6', 'HDIOLOGIC_M_X0Y3', 'HDIOBDIFFINBUF_X0Y3')),
+   16:
+    ('HDIO_TOP_S', ('HDIOB_S_X0Y7', 'HDIOLOGIC_S_X0Y3')),
+   18:
+    ('HDIO_TOP_M', ('HDIOB_M_X0Y8', 'HDIOLOGIC_M_X0Y4', 'HDIOBDIFFINBUF_X0Y4')),
+   20:
+    ('HDIO_TOP_S', ('HDIOB_S_X0Y9', 'HDIOLOGIC_S_X0Y4')),
+   22:
+    ('HDIO_TOP_M', ('HDIOB_M_X0Y10', 'HDIOLOGIC_M_X0Y5', 'HDIOBDIFFINBUF_X0Y5')),
+   24:
+    ('HDIO_TOP_S', ('HDIOB_S_X0Y11', 'HDIOLOGIC_S_X0Y5')),
+}
+
+HDIO_BOT_SPLIT = {
+   2:
+    ('HDIO_BOT_M', ('HDIOB_M_X0Y0', 'HDIOLOGIC_M_X0Y0', 'HDIOBDIFFINBUF_X0Y0')),
+   4:
+    ('HDIO_BOT_S', ('HDIOB_S_X0Y1', 'HDIOLOGIC_S_X0Y0')),
+   6:
+    ('HDIO_BOT_M', ('HDIOB_M_X0Y2', 'HDIOLOGIC_M_X0Y1', 'HDIOBDIFFINBUF_X0Y1')),
+   8:
+    ('HDIO_BOT_S', ('HDIOB_S_X0Y3', 'HDIOLOGIC_S_X0Y1')),
+   10:
+    ('HDIO_BOT_M', ('HDIOB_M_X0Y4', 'HDIOLOGIC_M_X0Y2', 'HDIOBDIFFINBUF_X0Y2')),
+   12:
+    ('HDIO_BOT_S', ('HDIOB_S_X0Y5', 'HDIOLOGIC_S_X0Y2')),
+   14:
+    ('HDIO_BOT_M', ('HDIOB_M_X0Y6', 'HDIOLOGIC_M_X0Y3', 'HDIOBDIFFINBUF_X0Y3')),
+   16:
+    ('HDIO_BOT_S', ('HDIOB_S_X0Y7', 'HDIOLOGIC_S_X0Y3')),
+   18:
+    ('HDIO_BOT_M', ('HDIOB_M_X0Y8', 'HDIOLOGIC_M_X0Y4', 'HDIOBDIFFINBUF_X0Y4')),
+   20:
+    ('HDIO_BOT_S', ('HDIOB_S_X0Y9', 'HDIOLOGIC_S_X0Y4')),
+   22:
+    ('HDIO_BOT_M', ('HDIOB_M_X0Y10', 'HDIOLOGIC_M_X0Y5', 'HDIOBDIFFINBUF_X0Y5')),
+   24:
+    ('HDIO_BOT_S', ('HDIOB_S_X0Y11', 'HDIOLOGIC_S_X0Y5')),
+}
+
+TILE_SPLIT_STYLES = {
+    'HDIO_TOP_RIGHT': ('explicit', HDIO_TOP_SPLIT),
+    'HDIO_BOT_RIGHT': ('explicit', HDIO_BOT_SPLIT),
+            }
 
 # =============================================================================
 
