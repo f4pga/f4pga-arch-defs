@@ -55,9 +55,72 @@ setparam -set HAS_OSERDES 1 @obufds
 read_verilog -specify -lib $::env(TECHMAP_PATH)/cells_sim.v
 
 # Convert congested CARRY4 outputs to LUTs.
+#
+# This is required because VPR cannot reliably resolve SLICE[LM] output
+# congestion when both O and CO outputs are used. For this reason if both O
+# and CO outputs are used, the CO output is computed using a LUT.
+#
+# Ideally VPR would resolve the congestion in one of the following ways:
+#
+#  - If either O or CO are registered in a FF, then no output 
+#    congestion exists if the O or CO FF is packed into the same cluster.  
+#    The register output will used the [ABCD]Q output, and the unregistered 
+#    output will used the [ABCD]MUX.
+#
+#  - If neither the O or CO are registered in a FF, then the [ABCD]Q output 
+#    can still be used if the FF is placed into "transparent latch" mode.
+#    VPR can express this edge, but because using a FF in "transparent latch"
+#    mode requires running specific CE and SR signals connected to constants,
+#    VPR cannot easily (or at all) express this packing situation.
+#
+#    VPR's packer in theory could be expanded to express this kind of 
+#    situation.
+#
+#                                   CLE Row
+#
+# +--------------------------------------------------------------------------+
+# |                                                                          |
+# |                                                                          |
+# |                                               +---+                      |
+# |                                               |    +                     |
+# |                                               |     +                    |
+# |                                     +-------->+ O    +                   |
+# |              CO CHAIN               |         |       +                  |
+# |                                     |         |       +---------------------> xMUX
+# |                 ^                   |   +---->+ CO    +                  |
+# |                 |                   |   |     |      +                   |
+# |                 |                   |   |     |     +                    |
+# |       +---------+----------+        |   |     |    +                     |
+# |       |                    |        |   |     +---+                      |
+# |       |     CARRY ROW      |        |   |                                |
+# |  +--->+ S              O   +--------+   |       xOUTMUX                  |
+# |       |                    |        |   |                                |
+# |       |                    |        +   |                                |
+# |  +--->+ DI             CO  +-------+o+--+                                |
+# |       |      CI CHAIN      |        +   |                                |
+# |       |                    |        |   |                                |
+# |       +---------+----------+        |   |       xFFMUX                   |
+# |                 ^                   |   |                                |
+# |                 |                   |   |     +---+                      |
+# |                 +                   |   |     |    +                     |
+# |                                     |   +     |     +    +-----------+   |
+# |                                     +--+o+--->+ O    +   |           |   |
+# |                                         +     |       +  |    xFF    |   |
+# |                                         |     |       +->--D----   Q +------> xQ
+# |                                         |     |       +  |           |   |
+# |                                         +---->+ CO   +   |           |   |
+# |                                               |     +    +-----------+   |
+# |                                               |    +                     |
+# |                                               +---+                      |
+# |                                                                          |
+# |                                                                          |
+# +--------------------------------------------------------------------------+
+#
+
+
 techmap -map  $::env(TECHMAP_PATH)/carry_map.v
 write_json $::env(OUT_JSON).carry_fixup.json
-exec $::env(PYTHON3) $::env(TECHMAP_PATH)/fix_carry.py < $::env(OUT_JSON).carry_fixup.json > $::env(OUT_JSON).carry_fixup_out.json
+exec $::env(PYTHON3) $::env(UTILS_PATH)/fix_xc7_carry.py < $::env(OUT_JSON).carry_fixup.json > $::env(OUT_JSON).carry_fixup_out.json
 design -push
 read_json $::env(OUT_JSON).carry_fixup_out.json
 
@@ -72,7 +135,7 @@ if { $::env(USE_ROI) != "TRUE" } {
 }
 
 # Re-run optimization flow to absorb carry modifications
-hierarchy -check -auto-top
+hierarchy -check
 
 write_ilang $::env(OUT_JSON).pre_abc9.ilang
 if { $::env(USE_ROI) == "TRUE" } {

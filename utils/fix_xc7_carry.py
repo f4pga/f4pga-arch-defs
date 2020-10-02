@@ -21,6 +21,221 @@ Description:
     changing CARRY_CO_DIRECT (e.g. directly use the CO port) to CARRY_CO_LUT
     (compute the CO value using a LUT equation).
 
+
+Diagram showing one row of the 7-series CLE, focusing on O/CO congestion.
+
+                                      CLE Row
+
++--------------------------------------------------------------------------+
+|                                                                          |
+|                                                                          |
+|                                               +---+                      |
+|                                               |    +                     |
+|                                               |     +                    |
+|                                     +-------->+ O    +                   |
+|              CO CHAIN               |         |       +                  |
+|                                     |         |       +---------------------> xMUX
+|                 ^                   |   +---->+ CO    +                  |
+|                 |                   |   |     |      +                   |
+|                 |                   |   |     |     +                    |
+|       +---------+----------+        |   |     |    +                     |
+|       |                    |        |   |     +---+                      |
+|       |     CARRY ROW      |        |   |                                |
+|  +--->+ S              O   +--------+   |       xOUTMUX                  |
+|       |                    |        |   |                                |
+|       |                    |        +   |                                |
+|  +--->+ DI             CO  +-------+o+--+                                |
+|       |      CI CHAIN      |        +   |                                |
+|       |                    |        |   |                                |
+|       +---------+----------+        |   |       xFFMUX                   |
+|                 ^                   |   |                                |
+|                 |                   |   |     +---+                      |
+|                 +                   |   |     |    +                     |
+|                                     |   +     |     +    +-----------+   |
+|                                     +--+o+--->+ O    +   |           |   |
+|                                         +     |       +  |    xFF    |   |
+|                                         |     |       +->--D----   Q +------> xQ
+|                                         |     |       +  |           |   |
+|                                         +---->+ CO   +   |           |   |
+|                                               |     +    +-----------+   |
+|                                               |    +                     |
+|                                               +---+                      |
+|                                                                          |
+|                                                                          |
++--------------------------------------------------------------------------+
+
+
+This script operates on a slightly different cell structure than a plain CARRY4.
+carry_map.v converts the CARRY4 into:
+
+                                              +------------------+  +-----------------+
+                                              |                  |  |                 |
+                                              |              CO3 +->+ CARRY_CO_DIRECT |
+                                              |                  |  |                 |
+                                              | DI3              |  +-----------------+
+                                              |                  |
+                                              | S3           O3  |
+                                              |                  |
+                                              | DI2              |  +-----------------+
+                                              |                  |  |                 |
+                                              | S2           CO2 +->+ CARRY_CO_DIRECT |
+                                              |                  |  |                 |
+                                              | DI1              |  +-----------------+
+                                              |                  |
+                                              | S1           O2  |
+                                              |      CARRY4      |
+                                              | DI0 (chained)    |  +-----------------+
+                                              |                  |  |                 |
+                                              | S0           CO1 +->+ CARRY_CO_DIRECT |
+                                              |                  |  |                 |
+                                              | CYINIT           |  +-----------------+
+                                              |                  |
+                         +-----------------+  |              O1  |
+                         |                 |  |                  |
+                      +->+ CARRY_COUT_PLUG +->+ CI               |  +-----------------+
+                      |  |                 |  |                  |  |                 |
+                      |  +-----------------+  |              CO0 +->+ CARRY_CO_DIRECT |
+                      |                       |                  |  |                 |
+                      |                       |                  |  +-----------------+
+                      +-------------------+   |                  |
+                                          |   |              O0  |
++------------------+  +-----------------+ |   |                  |
+|                  |  |                 | |   +------------------+
+|              CO3 +->+ CARRY_CO_DIRECT +-+
+|                  |  |                 |
+| DI3              |  +-----------------+
+|                  |
+| S3           O3  |
+|                  |
+| DI2              |  +-----------------+
+|                  |  |                 |
+| S2           CO2 +->+ CARRY_CO_DIRECT |
+|                  |  |                 |
+| DI1              |  +-----------------+
+|                  |
+| S1           O2  |
+|       CARRY4     |
+| DI0   (root)     |  +-----------------+
+|                  |  |                 |
+| S0           CO1 +->+ CARRY_CO_DIRECT |
+|                  |  |                 |
+| CYINIT           |  +-----------------+
+|                  |
+|              O1  |
+|                  |
+| CI               |  +-----------------+
+|                  |  |                 |
+|              CO0 +->+ CARRY_CO_DIRECT |
+|                  |  |                 |
+|                  |  +-----------------+
+|                  |
+|              O0  |
+|                  |
++------------------+
+
+
+So there are five cases the script has to handle:
+
+ - No congestion is present between O and CO ->
+
+    Do nothing.
+
+ - Congestion is present on rows 0-2 and row above is in use ->
+
+    Change CARRY_CO_DIRECT to CARRY_CO_LUT.
+
+    Routing and LUT delays are incurred in this case.
+
+ - Congestion is present on rows 0-2 and row above is not in use ->
+
+    Remap CO to O from the row above, and set S on the next row to 0 to
+    ensure O outputs CI from the row below.
+
+    No additional delays for this change.
+
+ - Congestion is present on row 3 and CO3 is not connected to another CARRY ->
+
+    Change CARRY_CO_DIRECT to CARRY_CO_TOP_POP.  This adds 1 dummy layer to
+    the carry chain to output the CO.
+
+    No additional delays for this change.
+
+ - Congestion is present on row 3 and CO3 is connected directly to another
+   CARRY4 ->
+
+    Change CARRY_CO_DIRECT to CARRY_CO_LUT *and* change the chained
+    CARRY_COUT_PLUG to be directly connected to the previous CO3.
+
+    Routing and LUT delays are incurred in this case.
+
+    Diagram for this case:
+
+                                                 +-------------------+  +-----------------+
+                                                 |                   |  |                 |
+                                                 |               CO3 +->+ CARRY_CO_DIRECT |
+                                                 |                   |  |                 |
+                                                 |  DI3              |  +-----------------+
+                                                 |                   |
+                                                 |  S3           O3  |
+                                                 |                   |
+                                                 |  DI2              |  +-----------------+
+                                                 |                   |  |                 |
+                                                 |  S2           CO2 +->+ CARRY_CO_DIRECT |
+                                                 |                   |  |                 |
+                                                 |  DI1              |  +-----------------+
+                                                 |                   |
+                                                 |  S1           O2  |
+                                                 |       CARRY4      |
+                                                 |  DI0 (chained)    |  +-----------------+
+                                                 |                   |  |                 |
+                                                 |  S0           CO1 +->+ CARRY_CO_DIRECT |
+                                                 |                   |  |                 |
+                                                 |  CYINIT           |  +-----------------+
+                                                 |                   |
+                          +-----------------+    |               O1  |
+                          |                 |    |                   |
+                       +->+ CARRY_COUT_PLUG +--->+  CI               |  +-----------------+
+                       |  |                 |    |                   |  |                 |
+                       |  +-----------------+    |               CO0 +->+ CARRY_CO_DIRECT |
+                       |                         |                   |  |                 |
++-------------------+  |  +-----------------+    |                   |  +-----------------+
+|                   |  |  |                 |    |                   |
+|               CO3 +--+->+ CARRY_CO_LUT    +-+  |               O0  |
+|                   |     |                 | |  |                   |
+|  DI3              |     +-----------------+ |  +-------------------+
+|                   |                         |
+|  S3           O3  |                         +------>
+|                   |
+|  DI2              |     +-----------------+
+|                   |     |                 |
+|  S2           CO2 +---->+ CARRY_CO_DIRECT |
+|                   |     |                 |
+|  DI1              |     +-----------------+
+|                   |
+|  S1           O2  |
+|        CARRY4     |
+|  DI0   (root)     |     +-----------------+
+|                   |     |                 |
+|  S0           CO1 +---->+ CARRY_CO_DIRECT |
+|                   |     |                 |
+|  CYINIT           |     +-----------------+
+|                   |
+|               O1  |
+|                   |
+|  CI               |     +-----------------+
+|                   |     |                 |
+|               CO0 +---->+ CARRY_CO_DIRECT |
+|                   |     |                 |
+|                   |     +-----------------+
+|                   |
+|               O0  |
+|                   |
++-------------------+
+
+After this script is run, clean_carry_map.v is used to convert CARRY_CO_DIRECT
+into a direct connection, and CARRY_CO_LUT is mapped to a LUT to compute the
+carry output.
+
 """
 import json
 import sys
