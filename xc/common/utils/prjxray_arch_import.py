@@ -1154,14 +1154,13 @@ def main():
 
         switchlist_xml = ET.SubElement(arch_xml, 'switchlist')
 
-        for name, internal_capacitance, drive_resistance, intrinsic_delay, penalty_cost, \
+        for name, internal_capacitance, drive_resistance, intrinsic_delay, \
                 switch_type in c.execute("""
 SELECT
     name,
     internal_capacitance,
     drive_resistance,
     intrinsic_delay,
-    penalty_cost,
     switch_type
 FROM
     switch
@@ -1174,7 +1173,6 @@ WHERE
                 "R": str(drive_resistance),
                 "Cin": str(0),
                 "Cout": str(0),
-                "penalty_cost": str(penalty_cost),
                 "Tdel": str(intrinsic_delay),
             }
 
