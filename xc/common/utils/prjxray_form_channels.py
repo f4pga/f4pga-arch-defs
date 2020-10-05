@@ -99,11 +99,7 @@ def create_get_switch(conn):
     pip_cache[(False, 0.0, 0.0, 0.0)] = write_cur.fetchone()[0]
 
     def get_switch_timing(
-            is_pass_transistor,
-            delay,
-            internal_capacitance,
-            drive_resistance,
-            penalty_cost=0.0
+            is_pass_transistor, delay, internal_capacitance, drive_resistance
     ):
         """ Return a switch that matches provided timing.
 
@@ -121,9 +117,6 @@ def create_get_switch(conn):
         drive_resistance : float or convertable to float
             Drive resistance from switch (Ohms).
 
-        penalty_cost : float or convertable to float
-            Penalty Cost assigned through this switch
-
         Returns
         -------
         switch_pkey : int
@@ -132,7 +125,7 @@ def create_get_switch(conn):
         """
         key = (
             bool(is_pass_transistor), float(delay), float(drive_resistance),
-            float(internal_capacitance), float(penalty_cost)
+            float(internal_capacitance)
         )
 
         if key not in pip_cache:
@@ -142,21 +135,20 @@ def create_get_switch(conn):
                 name = 'pass_transistor'
                 switch_type = 'pass_gate'
 
-            name = '{}_R{}_C{}_Tdel{}_Pcost{}'.format(
-                name, drive_resistance, internal_capacitance, delay,
-                penalty_cost
+            name = '{}_R{}_C{}_Tdel{}'.format(
+                name, drive_resistance, internal_capacitance, delay
             )
 
             write_cur.execute(
                 """
 INSERT INTO
     switch(
-        name, internal_capacitance, drive_resistance, intrinsic_delay, penalty_cost, switch_type
+        name, internal_capacitance, drive_resistance, intrinsic_delay, switch_type
     )
 VALUES
-    (?, ?, ?, ?, ?, ?)""", (
+    (?, ?, ?, ?, ?)""", (
                     name, internal_capacitance, drive_resistance, delay,
-                    penalty_cost, switch_type
+                    switch_type
                 )
             )
             pip_cache[key] = write_cur.lastrowid
@@ -184,7 +176,6 @@ VALUES
         delay = 0.0
         drive_resistance = 0.0
         internal_capacitance = 0.0
-        penalty_cost = 0.0
 
         if pip_timing is not None:
             if pip_timing.delays is not None:
@@ -202,22 +193,9 @@ VALUES
                 # milliOhms -> Ohms
                 drive_resistance = pip_timing.drive_resistance / 1e3
 
-        if "GCLK" in pip.net_from and "GFAN" in pip.net_to:
-            penalty_cost = 1e-6
-
-        # HCLK_CMT_CK_BUFHCLK -> HCLK_CMT_CK_IN and -> HCLK_CMT_MUX_CLK_
-        # are both BUFH -> BUFH edges.  In general it doesn't make sense for
-        # the router to follow these paths unless required, so make them more
-        # undesirable.
-        if 'HCLK_CMT_CK_BUFHCLK' in pip.net_from and 'HCLK_CMT_CK_IN' in pip.net_to:
-            penalty_cost = 1e-6
-
-        if 'HCLK_CMT_CK_BUFHCLK' in pip.net_from and 'HCLK_CMT_MUX_CLK_' in pip.net_to:
-            penalty_cost = 1e-6
-
         return get_switch_timing(
             pip.is_pass_transistor, delay, internal_capacitance,
-            drive_resistance, penalty_cost
+            drive_resistance
         )
 
     return get_switch, get_switch_timing

@@ -107,7 +107,6 @@ def read_switch(sw):
             c_out=timing.cout,
             c_internal=timing.cinternal,
             t_del=timing.tdel,
-            p_cost=timing.penaltyCost,
         ),
         sizing=graph2.SwitchSizing(
             buf_size=sizing.bufSize,
@@ -488,7 +487,6 @@ class Graph(object):
                 timing.cout = switch.timing.c_out
                 timing.r = switch.timing.r
                 timing.tdel = switch.timing.t_del
-                timing.penaltyCost = switch.timing.p_cost
 
             if switch.sizing:
                 sizing = out_switch.sizing
