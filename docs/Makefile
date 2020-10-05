@@ -18,7 +18,7 @@ include ../third_party/make-env/conda.mk
 SPHINXOPTS      =
 SPHINXBUILD     = python -msphinx
 SPHINXAUTOBUILD = sphinx-autobuild
-SOURCEDIR       = source
+SOURCEDIR       = .
 BUILDDIR        = build
 GENERATEDDIR    = $(SOURCEDIR)/generated
 
