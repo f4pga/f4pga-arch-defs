@@ -1,4 +1,4 @@
-set_io clk      A1
+set_io clk      A3
 set_io led(0)   A2
 set_io led(1)   A3
 set_io led(2)   B1

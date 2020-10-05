@@ -221,6 +221,8 @@ def main():
                 alias = pin_map_entry['alias']
                 pad_alias_map[alias] = name
                 pad_map[name] = alias
+            else:
+                pad_map[name] = name
 
         # Read and parse PCF
         with open(args.pcf, "r") as fp:
