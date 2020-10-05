@@ -30,6 +30,10 @@ if { $::env(USE_ROI) == "TRUE" } {
     # Start flow after library reading
     synth_xilinx -vpr -flatten -abc9 -nosrl -noclkbuf -nodsp -iopad -nowidelut -run prepare:check
 }
+
+# Check that post-synthesis cells match libraries.
+hierarchy -check
+
 if { [info exists ::env(INPUT_XDC_FILE)] && $::env(INPUT_XDC_FILE) != "" } {
   read_xdc -part_json $::env(PART_JSON) $::env(INPUT_XDC_FILE)
   write_fasm -part_json $::env(PART_JSON)  $::env(OUT_FASM_EXTRA)
