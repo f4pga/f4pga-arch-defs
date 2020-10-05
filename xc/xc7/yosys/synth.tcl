@@ -28,7 +28,7 @@ if { $::env(USE_ROI) == "TRUE" } {
     hierarchy -check -auto-top
 
     # Start flow after library reading
-    synth_xilinx -vpr -flatten -abc9 -nosrl -nodsp -iopad -nowidelut -run prepare:check
+    synth_xilinx -vpr -flatten -abc9 -nosrl -nodsp -iopad -nowidelut -noclkbuf -run prepare:check
 }
 
 # Check that post-synthesis cells match libraries.
