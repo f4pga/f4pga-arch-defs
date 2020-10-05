@@ -189,7 +189,6 @@ CREATE TABLE switch(
   internal_capacitance REAL,
   drive_resistance REAL,
   intrinsic_delay REAL,
-  penalty_cost REAL,
   switch_type TEXT
 );
 

@@ -98,7 +98,6 @@ def graph_from_xml(
                 c_out=float(element.attrib.get('Cout', 0)),
                 c_internal=float(element.attrib.get('Cinternal', 0)),
                 t_del=float(element.attrib.get('Tdel', 0)),
-                p_cost=float(element.attrib.get('penalty_cost', 0)),
             )
 
         # Switch sizing
@@ -556,7 +555,6 @@ class Graph(object):
                     "Cin": switch.timing.c_in,
                     "Cout": switch.timing.c_out,
                     "Tdel": switch.timing.t_del,
-                    "penalty_cost": switch.timing.p_cost,
                 }
 
                 if VPR_HAS_C_INTERNAL_SUPPORT:
