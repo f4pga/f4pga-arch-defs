@@ -740,6 +740,8 @@ def create_equiv_tiles(args, conn, pin_assignments, normalized_tile_types, norma
     site_remaps = {}
     site_name_remaps = {}
 
+    synthetic_sites = {}
+
     if args.site_equivilances is not None:
         for site_remap in args.site_equivilances.split(','):
             general_site, specific_site = site_remap.split('=')
@@ -756,13 +758,27 @@ def create_equiv_tiles(args, conn, pin_assignments, normalized_tile_types, norma
                 "SELECT pkey FROM site_type WHERE name = ?",
                 (specific_site, )
             )
-            specific_site_type_pkey = cur.fetchone()[0]
+            res = cur.fetchone()
 
-            site_remaps[general_site_type_pkey] = specific_site_type_pkey
+            if res is None:
+                site_remaps[general_site_type_pkey] = specific_site
 
-            check_site_equiv(
-                conn, general_site_type_pkey, specific_site_type_pkey
-            )
+                if specific_site not in synthetic_sites:
+                    synthetic_sites[specific_site] = set()
+                synthetic_sites[specific_site].add(general_site)
+
+            else:
+
+                specific_site_type_pkey = res[0]
+                site_remaps[general_site_type_pkey] = specific_site_type_pkey
+
+                check_site_equiv(
+                    conn, general_site_type_pkey, specific_site_type_pkey
+                )
+
+    # DEBUG #
+    print(site_remaps)
+    print(synthetic_sites)
 
     site_collections_to_pb_type = {}
 
@@ -828,6 +844,8 @@ def create_equiv_tiles(args, conn, pin_assignments, normalized_tile_types, norma
                 tiles_that_instance_pb_type[pb_type] = []
 
             tiles_that_instance_pb_type[pb_type].append(tile_type_pkey)
+
+    exit(-1)
 
     tile_connections = {}
 
