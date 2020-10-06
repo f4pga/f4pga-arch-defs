@@ -19,6 +19,11 @@ add_jlink_output(
   PARENT fifo_test-ql-chandalar
 )
 
+add_openocd_output(
+  PARENT fifo_test-ql-chandalar
+)
+
 add_dependencies(all_ql_tests fifo_test-ql-chandalar_bit)
 add_dependencies(all_ql_tests fifo_test-ql-chandalar_jlink)
+add_dependencies(all_ql_tests fifo_test-ql-chandalar_openocd)
 

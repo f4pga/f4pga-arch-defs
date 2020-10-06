@@ -14,8 +14,17 @@ add_jlink_output(
   PARENT counter-ql-chandalar
 )
 
+add_openocd_output(
+  PARENT counter-ql-chandalar
+)
+
+add_dependencies(all_quick_tests counter-ql-chandalar_bit)
+add_dependencies(all_quick_tests counter-ql-chandalar_jlink)
+add_dependencies(all_quick_tests counter-ql-chandalar_openocd)
+
 add_dependencies(all_ql_tests counter-ql-chandalar_bit)
 add_dependencies(all_ql_tests counter-ql-chandalar_jlink)
+add_dependencies(all_ql_tests counter-ql-chandalar_openocd)
 
 
 add_fpga_target(
@@ -30,6 +39,11 @@ add_jlink_output(
   PARENT counter-ql-quickfeather
 )
 
+add_openocd_output(
+  PARENT counter-ql-quickfeather
+)
+
 add_dependencies(all_ql_tests counter-ql-quickfeather_bit)
 add_dependencies(all_ql_tests counter-ql-quickfeather_jlink)
+add_dependencies(all_ql_tests counter-ql-quickfeather_openocd)
 

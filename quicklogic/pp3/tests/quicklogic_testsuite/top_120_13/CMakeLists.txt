@@ -13,6 +13,11 @@ add_jlink_output(
   PARENT top-120-13-ql-chandalar
 )
 
+add_openocd_output(
+  PARENT top-120-13-ql-chandalar
+)
+
 add_dependencies(all_ql_tests top-120-13-ql-chandalar_bit)
 add_dependencies(all_ql_tests top-120-13-ql-chandalar_jlink)
+add_dependencies(all_ql_tests top-120-13-ql-chandalar_openocd)
 

@@ -23,7 +23,12 @@ add_jlink_output(
   PARENT design4-ql-chandalar
 )
 
+add_openocd_output(
+  PARENT design4-ql-chandalar
+)
+
 # FIXME: Temporarily disable due to not enough resources after packing
 #add_dependencies(all_ql_tests design4-ql-chandalar_bit)
 #add_dependencies(all_ql_tests design4-ql-chandalar_jlink)
+#add_dependencies(all_ql_tests design4-ql-chandalar_openocd)
 

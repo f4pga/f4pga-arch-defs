@@ -13,5 +13,10 @@ add_jlink_output(
   PARENT bin2seven-ql-chandalar
 )
 
+add_openocd_output(
+  PARENT bin2seven-ql-chandalar
+)
+
 add_dependencies(all_ql_tests bin2seven-ql-chandalar_bit)
 add_dependencies(all_ql_tests bin2seven-ql-chandalar_jlink)
+add_dependencies(all_ql_tests bin2seven-ql-chandalar_openocd)

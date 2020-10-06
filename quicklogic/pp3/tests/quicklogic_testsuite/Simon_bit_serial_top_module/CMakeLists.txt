@@ -17,7 +17,12 @@ add_jlink_output(
   PARENT simon-bit-serial-ql-chandalar
 )
 
+add_openocd_output(
+  PARENT simon-bit-serial-ql-chandalar
+)
+
 add_dependencies(all_ql_tests simon-bit-serial-ql-chandalar_bit)
 add_dependencies(all_ql_tests simon-bit-serial-ql-chandalar_jlink)
+add_dependencies(all_ql_tests simon-bit-serial-ql-chandalar_openocd)
 add_dependencies(all_quick_tests simon-bit-serial-ql-chandalar_analysis)
 add_dependencies(all_quick_tests testbench_Simon_bit_serial_tb)

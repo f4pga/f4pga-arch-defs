@@ -18,5 +18,10 @@ add_jlink_output(
   PARENT spi_master_top-ql-chandalar
 )
 
+add_openocd_output(
+  PARENT spi_master_top-ql-chandalar
+)
+
 add_dependencies(all_ql_tests spi_master_top-ql-chandalar_bit)
 add_dependencies(all_ql_tests spi_master_top-ql-chandalar_jlink)
+add_dependencies(all_ql_tests spi_master_top-ql-chandalar_openocd)

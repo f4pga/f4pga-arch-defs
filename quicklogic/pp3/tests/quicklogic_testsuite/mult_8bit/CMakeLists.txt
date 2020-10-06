@@ -15,8 +15,13 @@ add_jlink_output(
   PARENT mult_8bit-ql-chandalar
 )
 
+add_openocd_output(
+  PARENT mult_8bit-ql-chandalar
+)
+
 add_dependencies(all_ql_tests mult_8bit-ql-chandalar_bit)
 add_dependencies(all_ql_tests mult_8bit-ql-chandalar_jlink)
+add_dependencies(all_ql_tests mult_8bit-ql-chandalar_openocd)
 add_dependencies(all_quick_tests mult_8bit-ql-chandalar_analysis)
 add_dependencies(mult_8bit-ql-chandalar_analysis mult_8bit-ql-chandalar_bit_v)
 add_dependencies(all_quick_tests testbench_mult_8bit_tb)

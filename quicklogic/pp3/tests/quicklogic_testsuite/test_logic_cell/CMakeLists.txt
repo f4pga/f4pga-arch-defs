@@ -13,5 +13,10 @@ add_jlink_output(
   PARENT test_logic_cell-ql-chandalar
 )
 
+add_openocd_output(
+  PARENT test_logic_cell-ql-chandalar
+)
+
 add_dependencies(all_ql_tests test_logic_cell-ql-chandalar_bit)
 add_dependencies(all_ql_tests test_logic_cell-ql-chandalar_jlink)
+add_dependencies(all_ql_tests test_logic_cell-ql-chandalar_openocd)

@@ -13,6 +13,11 @@ add_jlink_output(
   PARENT counter_32bit-ql-chandalar
 )
 
+add_openocd_output(
+  PARENT counter_32bit-ql-chandalar
+)
+
 add_dependencies(all_ql_tests counter_32bit-ql-chandalar_bit)
 add_dependencies(all_ql_tests counter_32bit-ql-chandalar_jlink)
+add_dependencies(all_ql_tests counter_32bit-ql-chandalar_openocd)
 

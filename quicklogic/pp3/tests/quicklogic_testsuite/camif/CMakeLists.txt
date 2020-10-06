@@ -14,7 +14,12 @@ add_jlink_output(
   PARENT camif-ql-chandalar
 )
 
+add_openocd_output(
+  PARENT camif-ql-chandalar
+)
+
 add_dependencies(all_ql_tests camif-ql-chandalar_bit)
 add_dependencies(all_ql_tests camif-ql-chandalar_jlink)
+add_dependencies(all_ql_tests camif-ql-chandalar_openocd)
 add_dependencies(all_quick_tests camif-ql-chandalar_analysis)
 add_dependencies(camif-ql-chandalar_analysis camif-ql-chandalar_bit_v)

@@ -13,5 +13,10 @@ add_jlink_output(
   PARENT clock-tree-design-ql-chandalar
 )
 
+add_openocd_output(
+  PARENT clock-tree-design-ql-chandalar
+)
+
 add_dependencies(all_ql_tests clock-tree-design-ql-chandalar_bit)
 add_dependencies(all_ql_tests clock-tree-design-ql-chandalar_jlink)
+add_dependencies(all_ql_tests clock-tree-design-ql-chandalar_openocd)
