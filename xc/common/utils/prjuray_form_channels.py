@@ -412,7 +412,7 @@ WHERE
 # =============================================================================
 
 # A set of synthetic tiles to be added
-SYNTHETIC_TILES = {
+SYNTHETIC_TILES = {    
     'HDIO_TOP_M',
     'HDIO_TOP_S',
     'HDIO_BOT_M',
