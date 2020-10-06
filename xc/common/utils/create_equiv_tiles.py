@@ -11,13 +11,10 @@ connects those tile pins to each site within the tile.
 """
 
 from __future__ import print_function
-import argparse
 import os
 import sys
-import prjxray.db
 import prjxray.site_type
 import os.path
-import simplejson as json
 import re
 import sqlite3
 
@@ -181,153 +178,7 @@ WHERE pkey IN (
     return unique_node_sets.values()
 
 
-def find_connections(conn, input_wires, output_wires, tile_type_pkey):
-    """ Remove top-level ports only connected to internal sources and generates
-    tile internal connections."""
-
-    # Create connected node sets
-    node_sets = list(expand_nodes_in_tile_type(conn, tile_type_pkey))
-
-    # Number of site external connections for ports
-    is_top_level_pin_external = {}
-    for wire in input_wires:
-        is_top_level_pin_external[wire] = False
-
-    for wire in output_wires:
-        is_top_level_pin_external[wire] = False
-
-    internal_connections = {}
-    top_level_connections = {}
-
-    wire_to_site_pin = {}
-
-    cur = conn.cursor()
-    for node_set in node_sets:
-        ipin_count = 0
-        opin_count = 0
-        node_set_has_external = False
-
-        pins_used_in_node_sets = set()
-        input_pins = set()
-        output_pins = set()
-
-        for node_pkey in node_set:
-            cur.execute(
-                """
-SELECT
-    tile.tile_type_pkey,
-    wire_in_tile.name,
-    site_type.name,
-    site_pin.name,
-    site_pin.direction,
-    count()
-FROM wire
-INNER JOIN wire_in_tile
-ON wire.wire_in_tile_pkey = wire_in_tile.pkey
-INNER JOIN site_pin
-ON site_pin.pkey = wire_in_tile.site_pin_pkey
-INNER JOIN tile
-ON wire.tile_pkey = tile.pkey
-INNER JOIN site_type
-ON site_type.pkey = site_pin.site_type_pkey
-WHERE
-    wire.node_pkey = ?
-AND
-    wire_in_tile.site_pin_pkey IS NOT NULL
-GROUP BY site_pin.direction;
-        """, (node_pkey, )
-            )
-            for (wire_tile_type_pkey, wire_name, site_type_name, site_pin_name,
-                 direction, count) in cur:
-                if wire_tile_type_pkey == tile_type_pkey:
-                    value = (site_type_name, site_pin_name)
-                    if wire_name in wire_to_site_pin:
-                        assert value == wire_to_site_pin[wire_name], (
-                            wire_name, value, wire_to_site_pin[wire_name]
-                        )
-                    else:
-                        wire_to_site_pin[wire_name] = value
-
-                    pins_used_in_node_sets.add(wire_name)
-                    direction = prjxray.site_type.SitePinDirection(direction)
-
-                    if direction == prjxray.site_type.SitePinDirection.IN:
-                        output_pins.add(wire_name)
-                        opin_count += count
-                    elif direction == prjxray.site_type.SitePinDirection.OUT:
-                        input_pins.add(wire_name)
-                        ipin_count += count
-                    else:
-                        assert False, (node_pkey, direction)
-                else:
-                    node_set_has_external = True
-
-        assert len(input_pins) in [0, 1], input_pins
-
-        if ipin_count == 0 or opin_count == 0 or node_set_has_external:
-            # This node set is connected externally, mark as such
-            for wire_name in pins_used_in_node_sets:
-                is_top_level_pin_external[wire_name] = True
-
-        if ipin_count > 0 and opin_count > 0:
-            # TODO: Add check that pips and site pins on these internal
-            # connections are 0 delay.
-            assert len(input_pins) == 1
-            input_wire = input_pins.pop()
-
-            for wire_name in output_pins:
-                if wire_name in internal_connections:
-                    assert input_wire == internal_connections[wire_name]
-                else:
-                    internal_connections[wire_name] = input_wire
-
-    for wire in sorted(is_top_level_pin_external):
-        if not is_top_level_pin_external[wire]:
-            if wire in input_wires:
-                input_wires.remove(wire)
-            elif wire in output_wires:
-                output_wires.remove(wire)
-            else:
-                assert False, wire
-        else:
-            top_level_connections[wire] = wire_to_site_pin[wire]
-
-    output_internal_connections = {}
-    for output_wire in internal_connections:
-        output_internal_connections[wire_to_site_pin[output_wire]] = \
-            wire_to_site_pin[internal_connections[output_wire]]
-
-    return top_level_connections, output_internal_connections
-
-
-NORMALIZED_TILE_TYPES = {
-    "RIOI3": "IOI3_TILE",
-    "RIOI3_SING": "IOI3_TILE",
-    "RIOI3_TBYTESRC": "IOI3_TILE",
-    "RIOI3_TBYTETERM": "IOI3_TILE",
-    "LIOI3": "IOI3_TILE",
-    "LIOI3_SING": "IOI3_TILE",
-    "LIOI3_TBYTESRC": "IOI3_TILE",
-    "LIOI3_TBYTETERM": "IOI3_TILE",
-    "LIOB33": "IOB_TILE",
-    "LIOB33_SING": "IOB_TILE",
-    "RIOB33": "IOB_TILE",
-    "RIOB33_SING": "IOB_TILE",
-    "CMT_TOP_R_UPPER_T": "CMT_TOP_UPPER_T",
-    "CMT_TOP_L_UPPER_T": "CMT_TOP_UPPER_T",
-}
-
-NORMALIZED_SITE_TYPES = {
-    "IOB33M": "IOB",
-    "IOB33S": "IOB",
-    "IOB33": "IOB",
-    "ILOGICE3": "ILOGIC",
-    "OLOGICE3": "OLOGIC",
-    "IDELAYE2": "IDELAY",
-}
-
-
-def get_tile_prefixes(conn, tile_type_pkeys, site_types, site_remap):
+def get_tile_prefixes(conn, tile_type_pkeys, site_types, site_remap, normalized_tile_types, normalized_site_types):
     cur = conn.cursor()
 
     tile_prefixes = {}
@@ -348,7 +199,7 @@ WHERE
 """, (tile_type_pkey, )
         )
         for tile_type_name, site_type_pkey, site_type_name in cur:
-            norm_tile = NORMALIZED_TILE_TYPES.get(
+            norm_tile = normalized_tile_types.get(
                 tile_type_name, tile_type_name
             )
             if site_type_pkey not in site_types:
@@ -356,7 +207,7 @@ WHERE
                 assert new_site_type_pkey in site_types
                 site_type_pkey = new_site_type_pkey
 
-            norm_site = NORMALIZED_SITE_TYPES.get(
+            norm_site = normalized_site_types.get(
                 site_type_name, site_type_name
             )
 
@@ -443,7 +294,8 @@ def check_site_equiv(conn, general_site_type_pkey, specific_site_type_pkey):
 def create_pb_type(
         conn, pin_assignments, site_directory, output_directory, pb_type,
         site_type_pkeys, tile_type_pkeys, site_remaps, site_name_remaps,
-        node_tile_map
+        node_tile_map, normalized_tile_types, normalized_site_types,
+        SitePinDirection
 ):
     cur = conn.cursor()
     cur2 = conn.cursor()
@@ -516,7 +368,7 @@ GROUP BY site_pin.direction;
                                 site_type_pkeys, site_type_name
                             )
 
-                        direction = prjxray.site_type.SitePinDirection(
+                        direction = SitePinDirection(
                             direction
                         )
                         value = (site_type_name, site_pin_name, direction)
@@ -531,13 +383,13 @@ GROUP BY site_pin.direction;
                             (wire_name, site_type_name, site_pin_name)
                         )
 
-                        if direction == prjxray.site_type.SitePinDirection.IN:
+                        if direction == SitePinDirection.IN:
                             output_pins.add(wire_name)
                             pb_type_output_pins.add(
                                 (site_type_name, site_pin_name)
                             )
                             opin_count += count
-                        elif direction == prjxray.site_type.SitePinDirection.OUT:
+                        elif direction == SitePinDirection.OUT:
                             input_pins.add(wire_name)
                             pb_type_input_pins.add(
                                 (site_type_name, site_pin_name)
@@ -625,7 +477,8 @@ GROUP BY site_pin.direction;
     site_pbtype = site_directory + "/{0}/{1}.pb_type.xml"
 
     site_prefixes = get_tile_prefixes(
-        conn, tile_type_pkeys, site_type_pkeys, site_remaps
+        conn, tile_type_pkeys, site_type_pkeys, site_remaps,
+        normalized_tile_types, normalized_site_types
     )
 
     cell_names = {}
@@ -792,7 +645,7 @@ GROUP BY site_pin.direction;
 
 def create_tile(
         conn, tile_type, tile_type_pkey, tile_connections, pb_types,
-        pin_assignments, output_directory
+        pin_assignments, output_directory, SitePinDirection
 ):
     cur = conn.cursor()
 
@@ -815,9 +668,9 @@ AND
                 site_type_name, site_pin_name, direction = tile_connections[
                     pb_type][wire_name]
 
-                if direction == prjxray.site_type.SitePinDirection.IN:
+                if direction == SitePinDirection.IN:
                     input_wires.add(wire_name)
-                elif direction == prjxray.site_type.SitePinDirection.OUT:
+                elif direction == SitePinDirection.OUT:
                     output_wires.add(wire_name)
                 else:
                     assert False, (wire_name, direction)
@@ -869,189 +722,141 @@ AND
         ), tile_xml
     )
 
+# =============================================================================
 
-def main():
-    parser = argparse.ArgumentParser(
-        description=__doc__, fromfile_prefix_chars='@', prefix_chars='-~'
-    )
 
-    parser.add_argument(
-        '--site_directory',
-        required=True,
-        help="""Diretory where sites are defined"""
-    )
-
-    parser.add_argument(
-        '--output_directory',
-        required=True,
-        help="Directory to write output XML too.",
-    )
-
-    parser.add_argument(
-        '--pin_assignments',
-        required=True,
-    )
-
-    parser.add_argument(
-        '--connection_database',
-        required=True,
-        help=(
-            "Location of connection database to define this tile type.  " +
-            "The tile will be defined by the sites and wires from the " +
-            "connection database in lue of Project X-Ray."
-        )
-    )
-
-    parser.add_argument(
-        '--tile_types',
-        required=True,
-        help="Comma seperated list of tiles to create equivilance between."
-    )
-
-    parser.add_argument('--pb_types', nargs='+', required=True, help="")
-
-    parser.add_argument(
-        '--site_equivilances',
-        help="Comma seperated list of site equivilances to apply."
-    )
-
-    args = parser.parse_args()
-
-    with open(args.pin_assignments) as f:
-        pin_assignments = json.load(f)
+def create_equiv_tiles(args, conn, pin_assignments, normalized_tile_types, normalized_site_types, SitePinDirection):
 
     ET.register_namespace('xi', XI_URL)
-    with sqlite3.connect("file:{}?mode=ro".format(args.connection_database),
-                         uri=True) as conn:
 
-        cur = conn.cursor()
-        tile_types = {}
-        node_tile_map = {}
-        sites = {}
-        sites_in_tiles = {}
+    cur = conn.cursor()
+    tile_types = {}
+    node_tile_map = {}
+    sites = {}
+    sites_in_tiles = {}
 
-        pb_types = {}
+    pb_types = {}
 
-        site_remaps = {}
-        site_name_remaps = {}
+    site_remaps = {}
+    site_name_remaps = {}
 
-        if args.site_equivilances is not None:
-            for site_remap in args.site_equivilances.split(','):
-                general_site, specific_site = site_remap.split('=')
-                assert general_site not in site_name_remaps, general_site
-                site_name_remaps[general_site] = specific_site
+    if args.site_equivilances is not None:
+        for site_remap in args.site_equivilances.split(','):
+            general_site, specific_site = site_remap.split('=')
+            assert general_site not in site_name_remaps, general_site
+            site_name_remaps[general_site] = specific_site
 
-                cur.execute(
-                    "SELECT pkey FROM site_type WHERE name = ?",
-                    (general_site, )
-                )
-                general_site_type_pkey = cur.fetchone()[0]
-
-                cur.execute(
-                    "SELECT pkey FROM site_type WHERE name = ?",
-                    (specific_site, )
-                )
-                specific_site_type_pkey = cur.fetchone()[0]
-
-                site_remaps[general_site_type_pkey] = specific_site_type_pkey
-
-                check_site_equiv(
-                    conn, general_site_type_pkey, specific_site_type_pkey
-                )
-
-        site_collections_to_pb_type = {}
-
-        for pb_type_def_string in args.pb_types:
-            pb_type_name, pb_type_sites = pb_type_def_string.split('=')
-            pb_type_sites = pb_type_sites.split(',')
-
-            assert pb_type_name not in pb_types, pb_type_name
-            pb_types[pb_type_name] = []
-
-            for site in pb_type_sites:
-                cur.execute(
-                    "SELECT pkey FROM site_type WHERE name = ?", (site, )
-                )
-                result = cur.fetchone()
-                assert result is not None, site
-                site_type_pkey = result[0]
-                pb_types[pb_type_name].append(site_type_pkey)
-
-            pb_types[pb_type_name] = frozenset(pb_types[pb_type_name])
-
-            assert pb_types[pb_type_name] not in site_collections_to_pb_type, (
-                pb_type_name, pb_types[pb_type_name]
-            )
-
-            site_collections_to_pb_type[pb_types[pb_type_name]] = pb_type_name
-
-        pb_types_in_tile = {}
-
-        tiles_that_instance_pb_type = {}
-
-        for tile_type in args.tile_types.split(','):
             cur.execute(
-                "SELECT pkey FROM tile_type WHERE name = ?", (tile_type, )
+                "SELECT pkey FROM site_type WHERE name = ?",
+                (general_site, )
             )
-            tile_type_pkey = cur.fetchone()[0]
-            tile_types[tile_type] = tile_type_pkey
-            node_tile_map[tile_type_pkey] = expand_nodes_in_tile_type(
-                conn, tile_type_pkey
+            general_site_type_pkey = cur.fetchone()[0]
+
+            cur.execute(
+                "SELECT pkey FROM site_type WHERE name = ?",
+                (specific_site, )
             )
-            sites[tile_type_pkey], sites_in_tiles[
-                tile_type_pkey] = sites_in_tile_type(conn, tile_type_pkey)
+            specific_site_type_pkey = cur.fetchone()[0]
 
-            seen_sets = set()
-            site_type_pkeys = frozenset(sites[tile_type_pkey].keys())
-            seen_sets.add(site_type_pkeys)
+            site_remaps[general_site_type_pkey] = specific_site_type_pkey
 
-            pb_types_in_tile[tile_type_pkey] = [
-                site_collections_to_pb_type[site_type_pkeys]
-            ]
-
-            for site_set in yield_mapped_site_sets(site_remaps,
-                                                   site_type_pkeys):
-                if site_set in seen_sets:
-                    continue
-
-                pb_types_in_tile[tile_type_pkey].append(
-                    site_collections_to_pb_type[site_set]
-                )
-
-            for pb_type in pb_types_in_tile[tile_type_pkey]:
-                if pb_type not in tiles_that_instance_pb_type:
-                    tiles_that_instance_pb_type[pb_type] = []
-
-                tiles_that_instance_pb_type[pb_type].append(tile_type_pkey)
-
-        tile_connections = {}
-
-        for pb_type in tiles_that_instance_pb_type:
-            tile_connections[pb_type] = create_pb_type(
-                conn=conn,
-                pin_assignments=pin_assignments,
-                site_directory=args.site_directory,
-                output_directory=args.output_directory,
-                pb_type=pb_type,
-                site_type_pkeys=pb_types[pb_type],
-                tile_type_pkeys=tiles_that_instance_pb_type[pb_type],
-                site_remaps=site_remaps,
-                site_name_remaps=site_name_remaps,
-                node_tile_map=node_tile_map
+            check_site_equiv(
+                conn, general_site_type_pkey, specific_site_type_pkey
             )
 
-        for tile_type in tile_types:
-            tile_type_pkey = tile_types[tile_type]
-            create_tile(
-                conn=conn,
-                tile_type=tile_type,
-                tile_type_pkey=tile_type_pkey,
-                tile_connections=tile_connections,
-                pb_types=pb_types_in_tile[tile_type_pkey],
-                output_directory=args.output_directory,
-                pin_assignments=pin_assignments,
+    site_collections_to_pb_type = {}
+
+    for pb_type_def_string in args.pb_types:
+        pb_type_name, pb_type_sites = pb_type_def_string.split('=')
+        pb_type_sites = pb_type_sites.split(',')
+
+        assert pb_type_name not in pb_types, pb_type_name
+        pb_types[pb_type_name] = []
+
+        for site in pb_type_sites:
+            cur.execute(
+                "SELECT pkey FROM site_type WHERE name = ?", (site, )
+            )
+            result = cur.fetchone()
+            assert result is not None, site
+            site_type_pkey = result[0]
+            pb_types[pb_type_name].append(site_type_pkey)
+
+        pb_types[pb_type_name] = frozenset(pb_types[pb_type_name])
+
+        assert pb_types[pb_type_name] not in site_collections_to_pb_type, (
+            pb_type_name, pb_types[pb_type_name]
+        )
+
+        site_collections_to_pb_type[pb_types[pb_type_name]] = pb_type_name
+
+    pb_types_in_tile = {}
+
+    tiles_that_instance_pb_type = {}
+
+    for tile_type in args.tile_types.split(','):
+        cur.execute(
+            "SELECT pkey FROM tile_type WHERE name = ?", (tile_type, )
+        )
+        tile_type_pkey = cur.fetchone()[0]
+        tile_types[tile_type] = tile_type_pkey
+        node_tile_map[tile_type_pkey] = expand_nodes_in_tile_type(
+            conn, tile_type_pkey
+        )
+        sites[tile_type_pkey], sites_in_tiles[
+            tile_type_pkey] = sites_in_tile_type(conn, tile_type_pkey)
+
+        seen_sets = set()
+        site_type_pkeys = frozenset(sites[tile_type_pkey].keys())
+        seen_sets.add(site_type_pkeys)
+
+        pb_types_in_tile[tile_type_pkey] = [
+            site_collections_to_pb_type[site_type_pkeys]
+        ]
+
+        for site_set in yield_mapped_site_sets(site_remaps,
+                                               site_type_pkeys):
+            if site_set in seen_sets:
+                continue
+
+            pb_types_in_tile[tile_type_pkey].append(
+                site_collections_to_pb_type[site_set]
             )
 
+        for pb_type in pb_types_in_tile[tile_type_pkey]:
+            if pb_type not in tiles_that_instance_pb_type:
+                tiles_that_instance_pb_type[pb_type] = []
 
-if __name__ == '__main__':
-    main()
+            tiles_that_instance_pb_type[pb_type].append(tile_type_pkey)
+
+    tile_connections = {}
+
+    for pb_type in tiles_that_instance_pb_type:
+        tile_connections[pb_type] = create_pb_type(
+            conn=conn,
+            pin_assignments=pin_assignments,
+            site_directory=args.site_directory,
+            output_directory=args.output_directory,
+            pb_type=pb_type,
+            site_type_pkeys=pb_types[pb_type],
+            tile_type_pkeys=tiles_that_instance_pb_type[pb_type],
+            site_remaps=site_remaps,
+            site_name_remaps=site_name_remaps,
+            node_tile_map=node_tile_map,
+            normalized_tile_types=normalized_tile_types,
+            normalized_site_types=normalized_site_types,
+            SitePinDirection=SitePinDirection
+        )
+
+    for tile_type in tile_types:
+        tile_type_pkey = tile_types[tile_type]
+        create_tile(
+            conn=conn,
+            tile_type=tile_type,
+            tile_type_pkey=tile_type_pkey,
+            tile_connections=tile_connections,
+            pb_types=pb_types_in_tile[tile_type_pkey],
+            output_directory=args.output_directory,
+            pin_assignments=pin_assignments,
+            SitePinDirection=SitePinDirection
+        )
