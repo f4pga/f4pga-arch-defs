@@ -1,0 +1,7 @@
+project_ray_tile(
+  ARCH zynqusp
+  TILE SLICEL
+  SITE_AS_TILE
+  SITE_TYPES SLICEL/SLICEL
+  EQUIVALENT_SITES SLICEL
+)

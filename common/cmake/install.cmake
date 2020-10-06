@@ -36,6 +36,12 @@ function(INSTALL_DEVICE_FILES)
 
   set(INSTALL_FILES)
 
+  # FIXME: Disable installation of all US/US+ devices for now.
+  if(${DEVICE} MATCHES "xczu.*")
+    message(WARNING "FIXME: Skipping device files installation for ${DEVICE}-${PACKAGE} type: ${DEVICE_TYPE}")
+    return()
+  endif()
+
   if("small_devices" STREQUAL ${INSTALL_DEVICE})
     if(${DEVICE} STREQUAL "xc7a200t")
       return()

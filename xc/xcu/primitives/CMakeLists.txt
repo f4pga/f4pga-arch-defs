@@ -1,0 +1,8 @@
+add_subdirectory(slicel)
+add_subdirectory(hdiob)
+add_subdirectory(hdiob_m)
+add_subdirectory(hdiob_s)
+add_subdirectory(hdiologic)
+add_subdirectory(hdiologic_m)
+add_subdirectory(hdiologic_s)
+add_subdirectory(hdiobdiffinbuf)

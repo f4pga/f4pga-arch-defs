@@ -2,6 +2,7 @@ project_ray_prepare_database(
   PRJRAY_ARCH artix7
   PRJRAY_DIR ${PRJXRAY_DIR}
   PRJRAY_DB_DIR ${PRJXRAY_DB_DIR}
+  PRJRAY_NAME prjxray
   PROTOTYPE_PART xc7a200tffg1156-1
   PARTS xc7a200tffg1156-1 xc7a200tsbg484-1
 )

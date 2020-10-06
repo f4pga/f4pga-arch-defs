@@ -121,7 +121,7 @@ function(ADD_XC_ARCH_DEFINE)
     CELLS_SIM ${YOSYS_CELLS_SIM} ${VPR_CELLS_SIM}
     VPR_ARCH_ARGS ${VPR_ARCH_ARGS}
     RR_PATCH_TOOL
-      ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/prjxray_routing_import.py
+      ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/${PRJRAY_NAME}_routing_import.py
     RR_PATCH_CMD "${CMAKE_COMMAND} -E env \
     PYTHONPATH=${PRJRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils:${symbiflow-arch-defs_BINARY_DIR}/utils \
         \${PYTHON3} \${RR_PATCH_TOOL} \
@@ -133,7 +133,7 @@ function(ADD_XC_ARCH_DEFINE)
         --vpr_capnp_schema_dir ${VPR_CAPNP_SCHEMA_DIR}
         "
     PLACE_TOOL
-      ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/prjxray_create_ioplace.py
+      ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/${PRJRAY_NAME}_create_ioplace.py
     PLACE_TOOL_CMD "${CMAKE_COMMAND} -E env \
     PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils \
     \${PYTHON3} \${PLACE_TOOL} \
@@ -142,7 +142,7 @@ function(ADD_XC_ARCH_DEFINE)
         \${PCF_INPUT_IO_FILE} \
         --net \${OUT_NET}"
     PLACE_CONSTR_TOOL
-      ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/prjxray_create_place_constraints.py
+      ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/${PRJRAY_NAME}_create_place_constraints.py
     PLACE_CONSTR_TOOL_CMD "${CMAKE_COMMAND} -E env \
     PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils \
     \${PYTHON3} \${PLACE_CONSTR_TOOL} \
@@ -191,7 +191,16 @@ function(ADD_XC_ARCH_DEFINE)
   )
 
   set_target_properties(${ARCH} PROPERTIES PRJRAY_ARCH ${PRJRAY_ARCH})
+  set_target_properties(${ARCH} PROPERTIES DOC_PRJ_NAME ${PRJRAY_NAME})
+
   add_custom_target(all_${ARCH}_diff_fasm)
+
+  # FIXME: Disable installation of all US/US+ devices for now.
+  if(${PROTOTYPE_PART} MATCHES "xczu.*")
+    message(WARNING "FIXME: Skipping arch files installation for arch ${ARCH}, family ${FAMILY}")
+    return()
+  endif()
+
   define_xc_toolchain_target(
       ARCH ${ARCH}
       ROUTE_CHAN_WIDTH 500
@@ -199,5 +208,6 @@ function(ADD_XC_ARCH_DEFINE)
       CONV_SCRIPT ${YOSYS_CONV_SCRIPT}
       SYNTH_SCRIPT ${YOSYS_SYNTH_SCRIPT}
       UTILS_SCRIPT ${YOSYS_UTILS_SCRIPT})
+
 
 endfunction()

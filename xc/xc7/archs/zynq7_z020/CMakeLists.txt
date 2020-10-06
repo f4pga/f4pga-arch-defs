@@ -2,7 +2,8 @@ project_ray_prepare_database(
   PRJRAY_ARCH zynq7
   PRJRAY_DIR ${PRJXRAY_DIR}
   PRJRAY_DB_DIR ${PRJXRAY_DB_DIR}
-  PROTOTYPE_PART xc7z020clg484-1
+  PRJRAY_NAME prjxray
+  PROTOTYPE_PART xc7z020clg484-1  
   PARTS xc7z020clg484-1
 )
 

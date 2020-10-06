@@ -248,6 +248,52 @@ FROM
         yield tile_type, wire
 
 
+def yield_tiles_and_wires_for_node(conn, node_pkey):
+
+    c2 = conn.cursor()
+    for tile_type, tile_name, wire in c2.execute("""
+WITH wires_in_node(phy_tile_pkey, wire_in_tile_pkey) AS (
+  SELECT
+    phy_tile_pkey,
+    wire_in_tile_pkey
+  FROM
+    wire
+  WHERE
+    node_pkey = ?
+),
+tile_for_wire(
+  wire_in_tile_pkey, tile_type_pkey, tile_name
+) AS (
+  SELECT
+    wires_in_node.wire_in_tile_pkey,
+    phy_tile.tile_type_pkey,
+    phy_tile.name
+  FROM
+    phy_tile
+    INNER JOIN wires_in_node ON phy_tile.pkey = wires_in_node.phy_tile_pkey
+),
+tile_type_for_wire(
+  wire_in_tile_pkey, tile_type, tile_name
+) AS (
+  SELECT
+    tile_for_wire.wire_in_tile_pkey,
+    tile_type.name,
+    tile_for_wire.tile_name
+  FROM
+    tile_type
+    INNER JOIN tile_for_wire ON tile_type.pkey = tile_for_wire.tile_type_pkey
+)
+SELECT
+  tile_type_for_wire.tile_type,
+  tile_type_for_wire.tile_name,
+  wire_in_tile.name
+FROM
+  wire_in_tile
+  INNER JOIN tile_type_for_wire ON tile_type_for_wire.wire_in_tile_pkey = wire_in_tile.pkey;
+    """, (node_pkey, )):
+        yield tile_type, tile_name, wire
+
+
 def node_to_site_pins(conn, node_pkey):
     FIND_WIRE_WITH_SITE_PIN = """
 WITH wires_in_node(
