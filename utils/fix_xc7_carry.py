@@ -7,14 +7,19 @@ Usage:
 Description:
 
     In the 7-series SLICEL (and SLICEM) sites, there can be output congestion
-    if both the CO and O of the CARRY4 are used.  This congestion can be
-    avoided if transparent/open latches or registers on the output of the
+    if both the CO and O of the CARRY4 are used. This congestion can be
+    avoided by using a transparent/open latch or register on the output of the
     CARRY4.
 
     VPR does not currently support either of those options, so for now, if
     both CO and O are used, the CO output is converted into a LUT equation to
     recompute the CO output from O, DI and S.  See carry_map.v and
     clean_carry_map.v for details.
+
+    If VPR could emit the transparent/open latch on output congestion, this
+    would no longer be required.  The major problem with transparent latch
+    support is that it requires constants to be routed to the G/GE/CLR/PRE
+    ports, which VPR cannot express as a result of packing.
 
     This script identifies CARRY4 chains in the netlist, identifies if there
     is output congestion on the O and CO ports, and marks the congestion by
@@ -23,6 +28,8 @@ Description:
 
 
 Diagram showing one row of the 7-series CLE, focusing on O/CO congestion.
+This diagram shows that if both the O and CO outputs are needed, once must
+pass through the flip flop (xFF in the diagram).
 
                                       CLE Row
 
@@ -133,6 +140,8 @@ carry_map.v converts the CARRY4 into:
 |                  |
 +------------------+
 
+Each CARRY4 spans the 4 rows of the SLICEL/SLICEM.
+Row 0 is the S0/DI0/O0/CO0 ports, row 1 is S1/DI1/O1/CO1 ports, etc.
 
 So there are five cases the script has to handle:
 
