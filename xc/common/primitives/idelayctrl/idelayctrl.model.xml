@@ -1,5 +1,5 @@
 <models>
-  <model name="IDELAYCTRL">
+  <model name="IDELAYCTRL" never_prune="true">
     <input_ports>
       <!-- synchronous control inputs -->
       <port is_clock="1" name="REFCLK"/>
