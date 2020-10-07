@@ -16,7 +16,6 @@ add_fpga_target(
     VexRiscv_Linux.v
   INPUT_IO_FILE arty.pcf
   INPUT_XDC_FILE baselitex_arty.xdc
-  SDC_FILE arty.sdc
   EXPLICIT_ADD_FILE_TARGET
 )
 
@@ -35,7 +34,6 @@ add_fpga_target(
     VexRiscv_Linux.v
   INPUT_IO_FILE arty.pcf
   INPUT_XDC_FILE baselitex_arty.xdc
-  SDC_FILE arty.sdc
   EXPLICIT_ADD_FILE_TARGET
 )
 
