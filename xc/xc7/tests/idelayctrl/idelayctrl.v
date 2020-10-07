@@ -81,21 +81,16 @@ BUFG bufg_clk(.I(PRE_BUFG_SYSCLK), .O(SYSCLK));
 BUFG bufg_clkdiv(.I(PRE_BUFG_CLKDIV), .O(CLKDIV));
 BUFG bufg_refclk(.I(PRE_BUFG_REFCLK), .O(REFCLK));
 
-wire RDY_1;
-wire RDY_2;
-
 IDELAYCTRL idelayctrl_1 (
-    .REFCLK(REFCLK),
-    .RDY(RDY_1)
+    .REFCLK(REFCLK)
 );
 
 IDELAYCTRL idelayctrl_2 (
-    .REFCLK(REFCLK),
-    .RDY(RDY_2)
+    .REFCLK(REFCLK)
 );
 
-assign led[0] = RDY_1;
-assign led[1] = RDY_2;
+assign led[0] = 0;
+assign led[1] = 0;
 
 wire OUTPUTS[7:0];
 
