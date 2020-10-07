@@ -14,7 +14,8 @@ dependencies:
   - nodejs
   - libiconv
   - iverilog
-  - libxml2=2.9.10=20200629_180127
+  # libxml2 2.9.10 contains an integer overflow fix required for arch-defs.
+  - libxml2>=2.9.10
   - icestorm
   - capnproto-java
   - pip
