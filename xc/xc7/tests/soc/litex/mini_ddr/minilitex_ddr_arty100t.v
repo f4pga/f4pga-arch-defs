@@ -27,7 +27,7 @@ module top(
 wire [3:0] led;
 
 assign led[0] = main_locked;
-assign led[1] = idelayctl_rdy;
+assign led[1] = 0;
 assign led[2] = 0;
 assign led[3] = 0;
 
@@ -76,7 +76,6 @@ OBUF #(.IOSTANDARD("SSTL135"), .SLEW("FAST")) obuf_rst (.I(ddram_reset_n_iob),.O
 
 // End manually inserted OBUFs
 
-wire idelayctl_rdy;
 reg main_minsoc_ctrl_reset_storage = 1'd0;
 reg main_minsoc_ctrl_reset_re = 1'd0;
 reg [31:0] main_minsoc_ctrl_scratch_storage = 32'd305419896;
@@ -10149,8 +10148,7 @@ BUFG BUFG_4(
 
 IDELAYCTRL IDELAYCTRL(
 	.REFCLK(clk200_clk),
-	.RST(main_ic_reset),
-	.RDY(idelayctl_rdy)
+	.RST(main_ic_reset)
 );
 
 wire tq;
