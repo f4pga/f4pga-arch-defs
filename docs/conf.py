@@ -19,9 +19,7 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('.'))
-
-from collectors import ArchsCollector, ModelsCollector  # Noqa: E402
+sys.path.append(os.path.abspath("./_ext"))
 
 # -- General configuration ------------------------------------------------
 
@@ -32,10 +30,16 @@ needs_sphinx = '3.0'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
+
+# yapf: disable
 extensions = [
-    'sphinx.ext.autodoc', 'sphinxcontrib.images', 'symbolator_sphinx',
-    'sphinxcontrib_hdl_diagrams'
+    'sphinx.ext.autodoc',
+    'sphinxcontrib.images',
+    'symbolator_sphinx',
+    'sphinxcontrib_hdl_diagrams',
+    'arch_def_collectors'
 ]
+# yapf: enable
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
@@ -213,25 +217,48 @@ hdl_diagram_yosys = "system"
 
 # --- Generated Sources ------------------------------------------------------
 
-repo_root = os.path.realpath("..")
+# Model collector setup
 
-mc = ModelsCollector(repo_root)
-ac = ArchsCollector(repo_root)
+prjxray_model_collector_config = {
+    "generatedir": os.path.realpath("generated/prjxray/models"),
+    "searchdirs": ["xc/common/primitives"],
+}
 
-prjxray_generatedir = os.path.realpath("generated/prjxray/models")
-prjxray_search = ["xc/common/primitives"]
-mc.generate_docs(prjxray_generatedir, prjxray_search)
+icestorm_model_collector_config = {
+    "generatedir": os.path.realpath("generated/ice40/models"),
+    "searchdirs": ["ice40"],
+    "skip_diagrams": ["sb_pio"]
+}
 
-icestorm_model_generatedir = os.path.realpath("generated/ice40/models")
-icestorm_arch_generatedir = os.path.realpath("generated/ice40/arch")
-icestorm_search = ["ice40"]
-icestorm_skip_diagrams = ["sb_pio"]
-mc.generate_docs(
-    icestorm_model_generatedir, icestorm_search, icestorm_skip_diagrams
-)
-ac.generate_docs(icestorm_arch_generatedir, icestorm_search)
+ecp5_model_collector_config = {
+    "generatedir": os.path.realpath("generated/ecp5/models"),
+    "searchdirs": ["ecp5/primitives"],
+    "skip_diagrams": ["BB", "CCU2C", "OBZ", "TRELLIS_IO", "sb_pio"],
+}
 
-ecp5_generatedir = os.path.realpath("generated/ecp5/models")
-ecp5_search = ["ecp5/primitives"]
-ecp5_skip_diagrams = ["BB", "CCU2C", "OBZ", "TRELLIS_IO", "sb_pio"]
-mc.generate_docs(ecp5_generatedir, ecp5_search, ecp5_skip_diagrams)
+model_collector_config = {
+    "repository_root":
+        os.path.realpath(".."),
+    "projects":
+        [
+            prjxray_model_collector_config, icestorm_model_collector_config,
+            ecp5_model_collector_config
+        ]
+}
+
+# Architecture collector setup
+
+icestorm_arch_collector_config = {
+    "generatedir": os.path.realpath("generated/ice40/arch"),
+    "searchdirs": ["ice40"],
+}
+
+arch_collector_config = {
+    "repository_root": os.path.realpath(".."),
+    "projects": [icestorm_arch_collector_config, ]
+}
+
+
+def setup(app):
+    app.emit("collectors_generate_arch", arch_collector_config)
+    app.emit("collectors_generate_model", model_collector_config)

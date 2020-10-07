@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import os
 import glob
 import shlex
@@ -7,36 +5,26 @@ import shlex
 from jinja2 import Environment, FileSystemLoader
 
 
-class ArchsCollector:
-    """Used to generate Sphinx RST files from architecture XML files"""
+class SymbiflowArchDefCollector:
+    """Base class for symbiflow-arch-defs collectors. The collectors are
+       used for generating indexes of primitives or architecture models."""
 
-    ARCH_PATTERN = "*arch.xml"
-    RST_TEMPLATE_PATH = "templates/arch.rst.template"
-
-    def __init__(self, rootdir):
-        """ArchsCollector constructor
+    def __init__(self, rootdir, generatedir, searchdirs):
+        """Collector constructor
 
         Args:
             rootdir (str): The repository root
+            generatedir (str): An output directory for the generated RST files
+            searchdirs (list): Directories to be searched for input files.
+                The directory paths should be relative to the repository root
+                given in the class constructor.
         """
+
         assert os.path.exists(
             rootdir
         ), "Repository root does not exist! {}".format(rootdir)
-
-        self.archs = dict()
         self.rootdir = rootdir
 
-    def generate_docs(self, generatedir, searchdirs):
-        """Generate RST files with architecture XML description
-
-        Args:
-            generatedir (str): An output directory for the generated RST files
-            searchdirs (str or list): A list of directories to be searched for
-                input files. The directory paths should be relative to
-                the repository root given in the class constructor.
-        """
-
-        # Convert relative paths to absolute (using repository root)
         new_searchdirs = list()
         if isinstance(searchdirs, list):
             for d in searchdirs:
@@ -44,24 +32,34 @@ class ArchsCollector:
                 new_searchdirs.append(new_dir)
                 assert os.path.exists(
                     new_dir
-                ), "Search directory does not exist! {}".format(searchdirs)
-        else:
-            new_dir = os.path.join(self.rootdir, d)
-            new_searchdirs.append(new_dir)
-            assert os.path.exists(
-                new_dir
-            ), "Search directory does not exist! {}".format(searchdirs)
+                ), "Search directory does not exist! {}".format(new_dir)
 
-        # Find architecture XML files
-        self.archs = dict()
-        for d in new_searchdirs:
+        self.searchdirs = new_searchdirs
+        self.generatedir = generatedir
+
+        self.elements = dict()
+        for d in self.searchdirs:
             self._find_files(d)
 
-        # Generate RST documentation
-        self._generate_rst_files(generatedir)
+    def _find_files(self, searchdir):
+        raise NotImplementedError(
+            "A child collector should implement this method"
+        )
+
+    def generate_docs(self, *args):
+        raise NotImplementedError(
+            "A child collector should implement this method"
+        )
+
+
+class ArchsCollector(SymbiflowArchDefCollector):
+    """Used to generate Sphinx RST files from architecture XML files"""
+
+    ARCH_PATTERN = "*arch.xml"
+    RST_TEMPLATE_PATH = "templates/arch.rst.template"
 
     def _find_files(self, searchdir):
-        """Search for arch files recursively
+        """Search for architecture files recursively
 
         Args:
             searchdir (str): A directory to be searched for input files.
@@ -74,29 +72,26 @@ class ArchsCollector:
             # Select the name of the directory that contains the file
             # as a new dictionary key
             name = (f.split(os.sep))[-2]
-            if name not in self.archs.keys():
-                self.archs.update({name: f})
+            if name not in self.elements.keys():
+                self.elements.update({name: f})
 
-    def _generate_rst_files(self, generatedir):
+    def generate_docs(self):
         """Generate RST files from all the found architecture XMLs
 
         The method uses the Jinja template stored in a
         self.RST_TEMPLATE_PATH directory.
-
-        Args:
-            generatedir (str): An output directory for the generated RST files
         """
 
-        os.makedirs(generatedir, exist_ok=True)
+        os.makedirs(self.generatedir, exist_ok=True)
 
-        for name, path in self.archs.items():
+        for name, path in self.elements.items():
             if os.path.exists(path):
-                arch_path = os.path.relpath(path, generatedir)
+                arch_path = os.path.relpath(path, self.generatedir)
             else:
                 arch_path = None
 
             out_name = "{}.rst".format(name)
-            out_file = os.path.join(generatedir, out_name)
+            out_file = os.path.join(self.generatedir, out_name)
 
             jinja_dict = {"arch_name": name, "arch_path": arch_path}
 
@@ -106,60 +101,14 @@ class ArchsCollector:
                 template.stream(**jinja_dict).dump(fd)
 
 
-class ModelsCollector:
-    """Used to generate Sphinx RST files from models of primitives"""
+class ModelsCollector(SymbiflowArchDefCollector):
+    """Used to generate Sphinx RST files from primitive models"""
 
     PB_TYPE_PATTERN = "*.pb_type.xml"
     MODEL_PATTERN = "*model.xml"
     SIM_PATTERN = "*sim.v"
 
     RST_TEMPLATE_PATH = "templates/model.rst.template"
-
-    def __init__(self, rootdir):
-        """ModelsCollector constructor
-
-        Args:
-            rootdir (str): The repository root
-        """
-        assert os.path.exists(
-            rootdir
-        ), "Repository root does not exist! {}".format(rootdir)
-
-        self.models = dict()
-        self.rootdir = rootdir
-
-    def generate_docs(self, generatedir, searchdirs, skip_diagrams=list()):
-        """Generate RST files with architecture XML description
-
-        Args:
-            generatedir (str): An output directory for the generated RST files
-            searchdirs (str or list): A list of directories to be searched for
-                input files. The directory paths should be relative to
-                the repository root given in the class constructor.
-            skip_diagrams (list): A list of models whose diagrams should
-                not be generated. In particular, the list should contain files
-                that are problematic for Yosys or netlistsvg.
-        """
-        assert isinstance(
-            searchdirs, list
-        ), "searchdirs argument should be a list!"
-
-        new_searchdirs = list()
-        if isinstance(searchdirs, list):
-            for d in searchdirs:
-                new_dir = os.path.join(self.rootdir, d)
-                new_searchdirs.append(new_dir)
-                assert os.path.exists(
-                    new_dir
-                ), "Search directory does not exist! {}".format(d)
-
-        # Find all the models
-        self.models = dict()
-        for d in new_searchdirs:
-            self._find_files(d)
-
-        # Generate RST documentation
-        self._generate_rst_files(generatedir, skip_diagrams)
 
     def _update_models(self, file_list, model_type):
         """Update the dictionary of models
@@ -181,8 +130,8 @@ class ModelsCollector:
             if base == "ntemplate":
                 continue
 
-            if base not in self.models.keys():
-                self.models.update(
+            if base not in self.elements.keys():
+                self.elements.update(
                     {base: {
                         "pb_type": None,
                         "model": None,
@@ -190,7 +139,7 @@ class ModelsCollector:
                     }}
                 )
 
-            self.models[base][model_type] = f
+            self.elements[base][model_type] = f
 
     def _find_files(self, searchdir):
         """Find the model files
@@ -210,37 +159,36 @@ class ModelsCollector:
         sim_files = glob.glob(sim_search, recursive=True)
         self._update_models(sim_files, "sim")
 
-    def _generate_rst_files(self, generatedir, skip_diagrams):
+    def generate_docs(self, skip_diagrams=list()):
         """Generate RST files from all the found models
 
         The method uses the Jinja template stored in a
         self.RST_TEMPLATE_PATH directory.
 
         Args:
-            generatedir (str): An output directory for the generated RST files
             skip_diagrams (list): A list of models whose diagrams should
                 not be generated. In particular, the list should contain files
                 that are problematic for Yosys or netlistsvg.
         """
 
         # Ensure that output directory exists
-        os.makedirs(generatedir, exist_ok=True)
+        os.makedirs(self.generatedir, exist_ok=True)
 
         # Get input file paths relative to the docs source directory
-        for name, abs_paths in self.models.items():
+        for name, abs_paths in self.elements.items():
             model_paths = dict()
             for model_type in ["pb_type", "model", "sim"]:
                 if abs_paths[model_type] is not None and os.path.exists(
                         abs_paths[model_type]):
                     model_paths[model_type] = os.path.relpath(
-                        abs_paths[model_type], generatedir
+                        abs_paths[model_type], self.generatedir
                     )
                 else:
                     model_paths[model_type] = None
 
             # Create an output file name
             out_name = "{}.rst".format(name)
-            out_file = os.path.join(generatedir, out_name)
+            out_file = os.path.join(self.generatedir, out_name)
 
             # Open the input file and check the module name and whether
             # a HDL diagram can be generated
@@ -288,3 +236,47 @@ class ModelsCollector:
                 env = Environment(loader=FileSystemLoader('.'))
                 template = env.get_template(self.RST_TEMPLATE_PATH)
                 template.stream(**jinja_dict).dump(fd)
+
+
+# Sphinx Extension part
+
+
+def generate_archs(app, config):
+    assert "repository_root" in config, "'repository_root' should be an element of the ArchCollector config"  # noqa: E501
+    assert "projects" in config, "'projects' should be an element of the ArchCollector config"
+
+    root = config["repository_root"]
+    for prj in config["projects"]:
+        assert "generatedir" in prj, "'generatedir' should be an element of the project setting"
+        assert "searchdirs" in prj, "'searchdirs' should be an element of the project setting"
+
+        ac = ArchsCollector(root, prj["generatedir"], prj["searchdirs"])
+        ac.generate_docs()
+
+
+def generate_models(app, config):
+    assert "repository_root" in config, "'repository_root' should be an element of the ModelCollector config"  # noqa: E501
+    assert "projects" in config, "'projects' should be an element of the ModelCollector config"
+
+    for prj in config["projects"]:
+        assert "generatedir" in prj, "'generatedir' should be an element of the project setting"
+        assert "searchdirs" in prj, "'searchdirs' should be an element of the project setting"
+
+        mc = ModelsCollector(
+            config["repository_root"], prj["generatedir"], prj["searchdirs"]
+        )
+        skip_diagrams = prj["skip_diagrams"] if "skip_diagrams" in prj else []
+        mc.generate_docs(skip_diagrams)
+
+
+def setup(app):
+    app.add_event("collectors_generate_arch")
+    app.add_event("collectors_generate_model")
+    app.connect('collectors_generate_arch', generate_archs)
+    app.connect("collectors_generate_model", generate_models)
+
+    return {
+        'version': '0.1',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

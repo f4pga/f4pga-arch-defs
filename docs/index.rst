@@ -26,6 +26,6 @@ Contents
 
    getting-started
    development/development
+   ice40/index
    prjxray/index
    ecp5/index
-   ice40/index
