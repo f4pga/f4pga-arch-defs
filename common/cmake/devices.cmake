@@ -1294,6 +1294,9 @@ function(ADD_FPGA_TARGET)
     if(NOT "${ADD_FPGA_TARGET_INPUT_XDC_FILE}" STREQUAL "")
       add_file_target(FILE ${ADD_FPGA_TARGET_INPUT_XDC_FILE})
     endif()
+    if(NOT "${ADD_FPGA_TARGET_INPUT_SDC_FILE}" STREQUAL "")
+      add_file_target(FILE ${ADD_FPGA_TARGET_INPUT_SDC_FILE})
+    endif()
   endif()
 
   if(NOT "${ADD_FPGA_TARGET_INPUT_XDC_FILE}" STREQUAL "")
@@ -1439,13 +1442,17 @@ function(ADD_FPGA_TARGET)
   set(VPR_DEPS "")
 
   set(SDC_ARG "")
+  if(NOT "${ADD_FPGA_TARGET_INPUT_XDC_FILE}" STREQUAL "" AND
+     NOT "${ADD_FPGA_TARGET_INPUT_SDC_FILE}" STREQUAL "")
+    message(FATAL_ERROR "SDC and XDC constraint files cannot be provided simultaneously!")
+  endif()
+
   if(NOT "${ADD_FPGA_TARGET_INPUT_XDC_FILE}" STREQUAL "")
     append_file_dependency(VPR_DEPS ${OUT_SDC_REL})
     get_file_location(SDC_LOCATION ${OUT_SDC_REL})
     set(SDC_ARG --sdc_file ${SDC_LOCATION})
   endif()
 
-  # Overrides the SDC if the INPUT_SDC_FILE parameter is set
   if(NOT "${ADD_FPGA_TARGET_INPUT_SDC_FILE}" STREQUAL "")
     append_file_dependency(VPR_DEPS ${ADD_FPGA_TARGET_INPUT_SDC_FILE})
     get_file_location(SDC_LOCATION ${ADD_FPGA_TARGET_INPUT_SDC_FILE})
