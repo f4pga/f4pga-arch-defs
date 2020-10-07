@@ -20,5 +20,3 @@ set_property IOSTANDARD LVCMOS12 [get_ports {sw[7]}]
 
 set_property IOSTANDARD LVCMOS33 [get_ports tx]
 set_property IOSTANDARD LVCMOS33 [get_ports rx]
-
-create_clock -period 10.0 clk
