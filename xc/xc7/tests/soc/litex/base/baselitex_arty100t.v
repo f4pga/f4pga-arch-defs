@@ -39,8 +39,8 @@ module top(
 
 wire [3:0] led;
 
-assign led[0] = idelayctl_rdy;
-assign led[1] = soc_pll_locked;
+assign led[0] = soc_pll_locked;
+assign led[1] = 0;
 assign led[2] = 0;
 assign led[3] = 0;
 
@@ -89,7 +89,6 @@ OBUF #(.IOSTANDARD("SSTL135"), .SLEW("FAST")) obuf_rst (.I(ddram_reset_n_iob),.O
 
 // End manually inserted OBUFs
 
-wire idelayctl_rdy;
 wire soc_netsoc_ctrl_reset_reset_re;
 wire soc_netsoc_ctrl_reset_reset_r;
 wire soc_netsoc_ctrl_reset_reset_we;
@@ -13457,8 +13456,7 @@ OBUF clk_eth_buf(.I(eth_ref_clk_obuf), .O(eth_ref_clk));
 
 IDELAYCTRL IDELAYCTRL(
 	.REFCLK(clk200_clk),
-	.RST(soc_ic_reset),
-	.RDY(idelayctl_rdy)
+	.RST(soc_ic_reset)
 );
 
 reg [31:0] mem_3[0:4095];

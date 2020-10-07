@@ -110,7 +110,6 @@ wire [7:0] MASKED_INPUTS = INPUTS & MASK;
 wire I_DAT;
 wire O_DAT;
 wire T_DAT;
-wire RDY;
 
 IOBUF iobuf(.I(O_DAT), .O(I_DAT), .T(T_DAT), .IO(io));
 
@@ -131,8 +130,7 @@ serdes_test
 
 .I_DAT      (I_DAT),
 .O_DAT      (O_DAT),
-.T_DAT      (T_DAT),
-.RDY        (RDY)
+.T_DAT      (T_DAT)
 );
 
 wire [7:0] MASKED_OUTPUTS = OUTPUTS & MASK;
@@ -148,6 +146,5 @@ always @(posedge SYSCLK)
 
 assign led[0] = heartbeat_cnt[22];
 assign led[8:1] = MASKED_OUTPUTS;
-assign led[9] = RDY;
 
 endmodule

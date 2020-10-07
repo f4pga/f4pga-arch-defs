@@ -27,7 +27,7 @@ module top(
 wire [3:0] led;
 
 assign led[0] = main_locked;
-assign led[1] = idelayctl_rdy;
+assign led[1] = 0;
 assign led[2] = 0;
 assign led[3] = 0;
 
@@ -9734,8 +9734,7 @@ BUFG BUFG_5(
 
 IDELAYCTRL IDELAYCTRL(
 	.REFCLK(clk200_clk),
-	.RST(main_ic_reset),
-	.RDY(idelayctl_rdy)
+	.RST(main_ic_reset)
 );
 
 wire tq;
