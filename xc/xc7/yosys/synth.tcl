@@ -53,7 +53,9 @@ setparam -set HAS_OSERDES 1 @obufds
 
 # Map Xilinx tech library to 7-series VPR tech library.
 read_verilog -lib $::env(TECHMAP_PATH)/cells_sim.v
+write_json $::env(OUT_JSON).carry_fixup.json
 techmap -map  $::env(TECHMAP_PATH)/cells_map.v
+write_json $::env(OUT_JSON).carry_fixup.json
 
 # opt_expr -undriven makes sure all nets are driven, if only by the $undef
 # net.
