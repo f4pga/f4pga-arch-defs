@@ -31,28 +31,20 @@ def add_segment_wires(db, tile, wires, segments):
             wires.add(pip.net_from)
 
 
-def reduce_wires_to_segments(wires, segments):
-    """ Reduce wire names to segment definitions.
-
-    For purposes of creating the routing heuristic, it is assumed that if two
-    source wires share a prefix, they can be considered segments for the
-    purposes of the routing heuristic.
-
-    This is definitely true for wires like SR1BEG1 or LV18.
-    This may apply to the local fanout wires like GFAN0 or FAN_BOUNCE0.
-
-    """
-    WIRE_PARTS = re.compile('^(.*?)([0-9]+)$')
-
+def add_wires_to_segments(wires, segments):
+    """ Adds wire names to segment definitions."""
     for wire in wires:
-        m = WIRE_PARTS.match(wire)
-        assert m is not None
+        if wire.startswith('LH'):
+            wire = "LH12"
+        elif wire.startswith('LVB'):
+            wire = "LVB12"
+        elif wire.startswith('LV'):
+            wire = "LV18"
 
-        segment = m.group(1)
-        if segment not in segments:
-            segments[segment] = set()
+        if wire not in segments:
+            segments[wire] = set()
 
-        segments[segment].add(wire)
+        segments[wire].add(wire)
 
 
 def get_segments(db):
@@ -93,7 +85,7 @@ def get_segments(db):
     for tile in ['INT_L', 'INT_R']:
         add_segment_wires(db, tile, wires, segments)
 
-    reduce_wires_to_segments(wires, segments)
+    add_wires_to_segments(wires, segments)
 
     return segments
 
