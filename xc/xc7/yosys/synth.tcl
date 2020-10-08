@@ -44,6 +44,13 @@ if { [info exists ::env(INPUT_XDC_FILE)] && $::env(INPUT_XDC_FILE) != "" } {
 
 update_pll_params
 
+# Write the SDC file
+#
+# Note that write_sdc and the SDC plugin holds live pointers to RTLIL objects.
+# If Yosys mutates those objects (e.g. destroys them), the SDC plugin will
+# segfault.
+write_sdc $::env(OUT_SDC)
+
 write_verilog $::env(OUT_SYNTH_V).premap.v
 
 # Look for connections OSERDESE2.OQ -> OBUFDS.I. Annotate OBUFDS with a parameter
@@ -62,18 +69,18 @@ read_verilog -specify -lib $::env(TECHMAP_PATH)/cells_sim.v
 #
 # Ideally VPR would resolve the congestion in one of the following ways:
 #
-#  - If either O or CO are registered in a FF, then no output 
-#    congestion exists if the O or CO FF is packed into the same cluster.  
-#    The register output will used the [ABCD]Q output, and the unregistered 
+#  - If either O or CO are registered in a FF, then no output
+#    congestion exists if the O or CO FF is packed into the same cluster.
+#    The register output will used the [ABCD]Q output, and the unregistered
 #    output will used the [ABCD]MUX.
 #
-#  - If neither the O or CO are registered in a FF, then the [ABCD]Q output 
+#  - If neither the O or CO are registered in a FF, then the [ABCD]Q output
 #    can still be used if the FF is placed into "transparent latch" mode.
 #    VPR can express this edge, but because using a FF in "transparent latch"
 #    mode requires running specific CE and SR signals connected to constants,
 #    VPR cannot easily (or at all) express this packing situation.
 #
-#    VPR's packer in theory could be expanded to express this kind of 
+#    VPR's packer in theory could be expanded to express this kind of
 #    situation.
 #
 #                                   CLE Row
@@ -116,7 +123,6 @@ read_verilog -specify -lib $::env(TECHMAP_PATH)/cells_sim.v
 # |                                                                          |
 # +--------------------------------------------------------------------------+
 #
-
 
 techmap -map  $::env(TECHMAP_PATH)/carry_map.v
 write_json $::env(OUT_JSON).carry_fixup.json
@@ -171,5 +177,3 @@ attrmap -remove hdlname
 write_json $::env(OUT_JSON)
 # Write the design in Verilog format.
 write_verilog $::env(OUT_SYNTH_V)
-#Write the SDC file
-write_sdc $::env(OUT_SDC)
