@@ -22,6 +22,7 @@ find -name "*result*.xml" \
     -o -name "place.log" \
     -o -name "route.log" \
     -o -name "*_sv2v.v.log" \
+    -o -name "core" \
     -o -name "*.bit" \
     -o -name "*_qor.csv" \
     -o -name "vivado.log" \
