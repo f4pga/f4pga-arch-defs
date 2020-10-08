@@ -90,3 +90,11 @@ echo "----------------------------------------"
 	conda info
 	conda config --show
 )
+
+
+echo "========================================"
+echo "Check core dump config"
+echo "----------------------------------------"
+ulimit -c unlimited
+cat /proc/sys/kernel/core_pattern
+sysctl kernel.core_pattern
