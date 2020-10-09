@@ -667,9 +667,9 @@ def add_track_chain(graph, direction, u, v0, v1, segment_id, switch_id):
 
 def add_tracks_for_const_network(graph, const, tile_grid):
     """
-    Builds a network of CHANX/CHANY and edges to propagate signal from a 
+    Builds a network of CHANX/CHANY and edges to propagate signal from a
     const source.
-    
+
     The const network is purely artificial and does not correspond to any
     physical routing resources.
 
@@ -1025,7 +1025,7 @@ def populate_const_connections(graph, switchbox_models, tile_types, tile_grid,
         tile_type = tile_types[tile.type]
         if tile_type.fake_const_pin:
             tile_node = tile_pin_to_node[loc]["FAKE_CONST"]
-            
+
             for const in ["GND", "VCC"]:
                 const_node = const_node_map[const][loc]
                 connect(
@@ -1333,7 +1333,6 @@ def main():
                         c_out=switch.c_out,
                         c_internal=switch.c_int,
                         t_del=switch.t_del,
-                        p_cost=0.0
                     ),
                     sizing=rr.SwitchSizing(
                         mux_trans_size=0,
