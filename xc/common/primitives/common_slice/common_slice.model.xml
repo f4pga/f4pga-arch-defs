@@ -10,5 +10,6 @@
     </output_ports>
   </model>
   <xi:include href="carry/carry4_vpr.model.xml"    xpointer="xpointer(models/child::node())" />
+  <xi:include href="carry/carry_cout_plug.model.xml"    xpointer="xpointer(models/child::node())" />
   <xi:include href="../ff/ff.model.xml"            xpointer="xpointer(models/child::node())" />
 </models>
