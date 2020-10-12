@@ -1,60 +1,52 @@
-set(LITEX ${CMAKE_CURRENT_BINARY_DIR}/soc_minsoc_arty/gateware)
-
-add_custom_command(
-  OUTPUT top.v mem.init mem_1.init top.xdc
-  DEPENDS ${PYTHON3} min_arty.py
-  COMMAND
-    ${CMAKE_COMMAND} -E env PYTHON=${PYTHON3}
-    ${PYTHON3} ${CMAKE_CURRENT_SOURCE_DIR}/min_arty.py --no-compile-gateware
-  COMMAND
-    ${CMAKE_COMMAND} -E copy ${LITEX}/top.v ${LITEX}/mem.init ${LITEX}/mem_1.init ${LITEX}/top.xdc ${CMAKE_CURRENT_BINARY_DIR}/
-)
-
-add_file_target(FILE top.v GENERATED)
-add_file_target(FILE top.xdc GENERATED)
-add_file_target(FILE mem.init GENERATED)
-add_file_target(FILE mem_1.init GENERATED)
-
-add_file_target(FILE arty.pcf)
 add_file_target(FILE arty_clocks.xdc)
-add_file_target(FILE minilitex_ddr_arty.xdc)
 
-set(VEXRISCV ${symbiflow-arch-defs_SOURCE_DIR}/third_party/litex/litex/soc/cores/cpu/vexriscv/verilog/VexRiscv_Lite.v)
+function(litex_test litex_dir board device test_name)
+  set(LITEX ${CMAKE_CURRENT_BINARY_DIR}/${litex_dir}/gateware)
 
-add_file_target(FILE ${VEXRISCV} ABSOLUTE)
-add_file_target(FILE minilitex_ddr_arty100t.v SCANNER_TYPE verilog)
+  get_file_location(GENERATE_LITEX_LOC ${GENERATE_LITEX})
+  get_file_location(FIXUP_XDC_LOC ${FIXUP_XDC})
+  add_custom_command(
+    OUTPUT
+      ${LITEX}/arty.v
+      ${LITEX}/arty.xdc
+      ${LITEX}/arty.pcf
+      ${LITEX}/arty.sdc
+      ${LITEX}/mem.init
+      ${LITEX}/mem_1.init
+      ${LITEX}/mem_2.init
+    DEPENDS ${PYTHON3} ${GENERATE_LITEX_LOC} ${FIXUP_XDC_LOC}
+    COMMAND
+      ${CMAKE_COMMAND} -E env PYTHON=${PYTHON3}
+      ${PYTHON3} ${GENERATE_LITEX} --with-ram --board ${board} --builddir ${litex_dir} --integrated-rom-size 0x10000 --uart-baudrate 1000000
+    COMMAND
+      ${PYTHON3} ${FIXUP_XDC} --xdc ${LITEX}/arty.xdc
+  )
 
-get_target_property_required(PYTHON3 env PYTHON3)
+  add_file_target(FILE ${LITEX}/arty.v     GENERATED ABSOLUTE)
+  add_file_target(FILE ${LITEX}/arty.xdc   GENERATED ABSOLUTE)
+  add_file_target(FILE ${LITEX}/arty.sdc   GENERATED ABSOLUTE)
+  add_file_target(FILE ${LITEX}/arty.pcf   GENERATED ABSOLUTE)
+  add_file_target(FILE ${LITEX}/mem.init   GENERATED ABSOLUTE)
+  add_file_target(FILE ${LITEX}/mem_1.init GENERATED ABSOLUTE)
+  add_file_target(FILE ${LITEX}/mem_2.init GENERATED ABSOLUTE)
 
-add_fpga_target(
-  NAME minilitex_ddr_arty
-  BOARD arty-full
-  SOURCES
-    top.v
-    ${VEXRISCV}
-  INPUT_XDC_FILE top.xdc
-  EXPLICIT_ADD_FILE_TARGET
-)
+  add_fpga_target(
+    NAME ${test_name}
+    BOARD ${device}
+    SOURCES
+      ${LITEX}/arty.v
+      ${VEXRISCV}
+    INPUT_XDC_FILE ${LITEX}/arty.xdc
+    EXPLICIT_ADD_FILE_TARGET
+  )
 
-add_vivado_target(
-    NAME minilitex_ddr_arty_vivado
-    PARENT_NAME minilitex_ddr_arty
-    XDC arty_clocks.xdc
-)
+  add_vivado_target(
+      NAME ${test_name}_vivado
+      PARENT_NAME ${test_name}
+      XDC arty_clocks.xdc
+  )
 
-add_fpga_target(
-  NAME minilitex_ddr_arty100t
-  BOARD arty100t-full
-  SOURCES
-    minilitex_ddr_arty100t.v
-    ${VEXRISCV}
-  INPUT_IO_FILE arty.pcf
-  INPUT_XDC_FILE minilitex_ddr_arty.xdc
-  EXPLICIT_ADD_FILE_TARGET
-)
+endfunction()
 
-add_vivado_target(
-    NAME minilitex_ddr_arty100t_vivado
-    PARENT_NAME minilitex_ddr_arty100t
-    XDC arty_clocks.xdc
-)
+litex_test(arty_soc a7-35 arty-full minilitex_ddr_arty)
+litex_test(arty_a7_soc a7-100 arty100t-full minilitex_ddr_arty_a7)
