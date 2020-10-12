@@ -6,7 +6,6 @@ import argparse
 from litex.boards.targets.arty import _CRG
 from liteeth.phy.mii import LiteEthPHYMII
 from litex.soc.cores.led import LedChaser
-from litex.soc.cores.clock import S7IDELAYCTRL
 from litex.boards.platforms import arty
 from litex.soc.integration.soc_core import SoCCore
 from litex.soc.integration.builder import Builder
