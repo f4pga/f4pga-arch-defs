@@ -52,3 +52,15 @@
 [submodule "third_party/migen"]
 	path = third_party/migen
 	url = https://github.com/m-labs/migen
+[submodule "third_party/pythondata-cpu-vexriscv"]
+	path = third_party/pythondata-cpu-vexriscv
+	url = https://github.com/litex-hub/pythondata-cpu-vexriscv
+[submodule "third_party/liteiclink"]
+	path = third_party/liteiclink
+	url = https://github.com/enjoy-digital/liteiclink
+[submodule "third_party/litex-boards"]
+	path = third_party/litex-boards
+	url = https://github.com/litex-hub/litex-boards
+[submodule "third_party/pythondata-software-compiler_rt"]
+	path = third_party/pythondata-software-compiler_rt
+	url = https://github.com/litex-hub/pythondata-software-compiler_rt
