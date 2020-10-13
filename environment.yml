@@ -2,22 +2,24 @@ name: symbiflow_arch_def_base
 channels:
   - defaults
   - symbiflow
+  - litex-hub
 dependencies:
-  - symbiflow-yosys=0.8_6021_gd8b2d1a2=20200708_083630
-  - symbiflow-yosys-plugins=1.0.0.7_0174_g5e6370a=20201012_171341
-  - symbiflow-vtr=8.0.0.rc2_5097_gf1a3bcc2a=20200916_072439
-  - zachjs-sv2v=0.0.5_0018_ga170536
+  - symbiflow::symbiflow-yosys=0.8_6021_gd8b2d1a2=20200708_083630
+  - symbiflow::symbiflow-yosys-plugins=1.0.0.7_0174_g5e6370a=20201012_171341
+  - symbiflow::symbiflow-vtr=8.0.0.rc2_5097_gf1a3bcc2a=20200916_072439
+  - symbiflow::zachjs-sv2v=0.0.5_0018_ga170536
+  - symbiflow::openocd
+  - symbiflow::iverilog
+  - symbiflow::icestorm
+  - symbiflow::capnproto-java
+  - litex-hub::gcc-riscv64-elf-newlib
   - cmake
   - make
-  - openocd
   - flake8
   - nodejs
   - libiconv
-  - iverilog
   # libxml2 2.9.10 contains an integer overflow fix required for arch-defs.
   - libxml2>=2.9.10
-  - icestorm
-  - capnproto-java
   - pip
   - pip:
     - -r file:requirements.txt
