@@ -1490,6 +1490,212 @@ output [15:0] DO
 
 endmodule
 
+// MMCME2_ADV_VPR
+(* blackbox *)
+module MMCME2_ADV_VPR
+(
+input     CLKFBIN,
+input     CLKIN1,
+input     CLKIN2,
+input     CLKINSEL,
+
+output    CLKFBOUT,
+output    CLKFBOUTB,
+output    CLKOUT0,
+output    CLKOUT0B,
+output    CLKOUT1,
+output    CLKOUT1B,
+output    CLKOUT2,
+output    CLKOUT2B,
+output    CLKOUT3,
+output    CLKOUT3B,
+output    CLKOUT4,
+output    CLKOUT5,
+output    CLKOUT6,
+
+output    CLKINSTOPPED,
+output    CLKFBSTOPPED,
+
+input     PWRDWN,
+input     RST,
+output    LOCKED,
+
+input     PSCLK,
+input     PSEN,
+input     PSINCDEC,
+output    PSDONE,
+
+input     DCLK,
+input     DEN,
+input     DWE,
+output    DRDY,
+input     DADDR0,
+input     DADDR1,
+input     DADDR2,
+input     DADDR3,
+input     DADDR4,
+input     DADDR5,
+input     DADDR6,
+input     DI0,
+input     DI1,
+input     DI2,
+input     DI3,
+input     DI4,
+input     DI5,
+input     DI6,
+input     DI7,
+input     DI8,
+input     DI9,
+input     DI10,
+input     DI11,
+input     DI12,
+input     DI13,
+input     DI14,
+input     DI15,
+output    DO0,
+output    DO1,
+output    DO2,
+output    DO3,
+output    DO4,
+output    DO5,
+output    DO6,
+output    DO7,
+output    DO8,
+output    DO9,
+output    DO10,
+output    DO11,
+output    DO12,
+output    DO13,
+output    DO14,
+output    DO15
+);
+
+  parameter [0:0] INV_CLKINSEL = 1'd0;
+  parameter [0:0] ZINV_PWRDWN = 1'd0;
+  parameter [0:0] ZINV_RST = 1'd1;
+
+  parameter [0:0] STARTUP_WAIT = 1'd0;
+
+  // Tables
+  parameter [9:0] TABLE = 10'd0;
+  parameter [39:0] LKTABLE = 40'd0;
+  parameter [15:0] POWER_REG = 16'd0;
+  parameter [11:0] FILTREG1_RESERVED = 12'd0;
+  parameter [9:0] FILTREG2_RESERVED = 10'd0;
+  parameter [5:0] LOCKREG1_RESERVED = 6'd0;
+  parameter [0:0] LOCKREG2_RESERVED = 1'b0;
+  parameter [0:0] LOCKREG3_RESERVED = 1'b0;
+
+  // DIVCLK
+  parameter [5:0] DIVCLK_DIVCLK_HIGH_TIME = 6'd0;
+  parameter [5:0] DIVCLK_DIVCLK_LOW_TIME = 6'd0;
+  parameter [0:0] DIVCLK_DIVCLK_NO_COUNT = 1'b1;
+  parameter [0:0] DIVCLK_DIVCLK_EDGE = 1'b0;
+
+  // CLKFBOUT
+  parameter [5:0] CLKFBOUT_CLKOUT1_HIGH_TIME = 6'd0;
+  parameter [5:0] CLKFBOUT_CLKOUT1_LOW_TIME = 6'd0;
+  parameter [0:0] CLKFBOUT_CLKOUT1_OUTPUT_ENABLE = 1'b0;
+  parameter [2:0] CLKFBOUT_CLKOUT1_PHASE_MUX = 3'd0;
+  parameter [5:0] CLKFBOUT_CLKOUT2_DELAY_TIME = 6'd0;
+  parameter [0:0] CLKFBOUT_CLKOUT2_EDGE = 1'b0;
+  parameter [2:0] CLKFBOUT_CLKOUT2_FRAC = 3'd0;
+  parameter [0:0] CLKFBOUT_CLKOUT2_FRAC_EN = 1'b0;
+  parameter [0:0] CLKFBOUT_CLKOUT2_FRAC_WF_R = 1'b0;
+  parameter [1:0] CLKFBOUT_CLKOUT2_MX = 2'b0;
+  parameter [0:0] CLKFBOUT_CLKOUT2_NO_COUNT = 1'b1;
+
+  // CLKOUT0
+  parameter [5:0] CLKOUT0_CLKOUT1_HIGH_TIME = 6'd0;
+  parameter [5:0] CLKOUT0_CLKOUT1_LOW_TIME = 6'd0;
+  parameter [0:0] CLKOUT0_CLKOUT1_OUTPUT_ENABLE = 1'b0;
+  parameter [2:0] CLKOUT0_CLKOUT1_PHASE_MUX = 3'd0;
+  parameter [5:0] CLKOUT0_CLKOUT2_DELAY_TIME = 6'd0;
+  parameter [0:0] CLKOUT0_CLKOUT2_EDGE = 1'b0;
+  parameter [2:0] CLKOUT0_CLKOUT2_FRAC = 3'd0;
+  parameter [0:0] CLKOUT0_CLKOUT2_FRAC_EN = 1'b0;
+  parameter [0:0] CLKOUT0_CLKOUT2_FRAC_WF_R = 1'b0;
+  parameter [1:0] CLKOUT0_CLKOUT2_MX = 2'b0;
+  parameter [0:0] CLKOUT0_CLKOUT2_NO_COUNT = 1'b1;
+
+  // CLKOUT1
+  parameter [5:0] CLKOUT1_CLKOUT1_HIGH_TIME = 6'd0;
+  parameter [5:0] CLKOUT1_CLKOUT1_LOW_TIME = 6'd0;
+  parameter [0:0] CLKOUT1_CLKOUT1_OUTPUT_ENABLE = 1'b0;
+  parameter [2:0] CLKOUT1_CLKOUT1_PHASE_MUX = 3'd0;
+  parameter [5:0] CLKOUT1_CLKOUT2_DELAY_TIME = 6'd0;
+  parameter [0:0] CLKOUT1_CLKOUT2_EDGE = 1'b0;
+  parameter [2:0] CLKOUT1_CLKOUT2_FRAC = 3'd0;
+  parameter [0:0] CLKOUT1_CLKOUT2_FRAC_EN = 1'b0;
+  parameter [0:0] CLKOUT1_CLKOUT2_FRAC_WF_R = 1'b0;
+  parameter [1:0] CLKOUT1_CLKOUT2_MX = 2'b0;
+  parameter [0:0] CLKOUT1_CLKOUT2_NO_COUNT = 1'b1;
+
+  // CLKOUT2
+  parameter [5:0] CLKOUT2_CLKOUT1_HIGH_TIME = 6'd0;
+  parameter [5:0] CLKOUT2_CLKOUT1_LOW_TIME = 6'd0;
+  parameter [0:0] CLKOUT2_CLKOUT1_OUTPUT_ENABLE = 1'b0;
+  parameter [2:0] CLKOUT2_CLKOUT1_PHASE_MUX = 3'd0;
+  parameter [5:0] CLKOUT2_CLKOUT2_DELAY_TIME = 6'd0;
+  parameter [0:0] CLKOUT2_CLKOUT2_EDGE = 1'b0;
+  parameter [2:0] CLKOUT2_CLKOUT2_FRAC = 3'd0;
+  parameter [0:0] CLKOUT2_CLKOUT2_FRAC_EN = 1'b0;
+  parameter [0:0] CLKOUT2_CLKOUT2_FRAC_WF_R = 1'b0;
+  parameter [1:0] CLKOUT2_CLKOUT2_MX = 2'b0;
+  parameter [0:0] CLKOUT2_CLKOUT2_NO_COUNT = 1'b1;
+
+  // CLKOUT3
+  parameter [5:0] CLKOUT3_CLKOUT1_HIGH_TIME = 6'd0;
+  parameter [5:0] CLKOUT3_CLKOUT1_LOW_TIME = 6'd0;
+  parameter [0:0] CLKOUT3_CLKOUT1_OUTPUT_ENABLE = 1'b0;
+  parameter [2:0] CLKOUT3_CLKOUT1_PHASE_MUX = 3'd0;
+  parameter [5:0] CLKOUT3_CLKOUT2_DELAY_TIME = 6'd0;
+  parameter [0:0] CLKOUT3_CLKOUT2_EDGE = 1'b0;
+  parameter [2:0] CLKOUT3_CLKOUT2_FRAC = 3'd0;
+  parameter [0:0] CLKOUT3_CLKOUT2_FRAC_EN = 1'b0;
+  parameter [0:0] CLKOUT3_CLKOUT2_FRAC_WF_R = 1'b0;
+  parameter [1:0] CLKOUT3_CLKOUT2_MX = 2'b0;
+  parameter [0:0] CLKOUT3_CLKOUT2_NO_COUNT = 1'b1;
+
+  // CLKOUT4
+  parameter [5:0] CLKOUT4_CLKOUT1_HIGH_TIME = 6'd0;
+  parameter [5:0] CLKOUT4_CLKOUT1_LOW_TIME = 6'd0;
+  parameter [0:0] CLKOUT4_CLKOUT1_OUTPUT_ENABLE = 1'b0;
+  parameter [2:0] CLKOUT4_CLKOUT1_PHASE_MUX = 3'd0;
+  parameter [5:0] CLKOUT4_CLKOUT2_DELAY_TIME = 6'd0;
+  parameter [0:0] CLKOUT4_CLKOUT2_EDGE = 1'b0;
+  parameter [2:0] CLKOUT4_CLKOUT2_FRAC = 3'd0;
+  parameter [0:0] CLKOUT4_CLKOUT2_FRAC_EN = 1'b0;
+  parameter [0:0] CLKOUT4_CLKOUT2_FRAC_WF_R = 1'b0;
+  parameter [1:0] CLKOUT4_CLKOUT2_MX = 2'b0;
+  parameter [0:0] CLKOUT4_CLKOUT2_NO_COUNT = 1'b1;
+
+  // CLKOUT5
+  parameter [5:0] CLKOUT5_CLKOUT1_HIGH_TIME = 6'd0;
+  parameter [5:0] CLKOUT5_CLKOUT1_LOW_TIME = 6'd0;
+  parameter [0:0] CLKOUT5_CLKOUT1_OUTPUT_ENABLE = 1'b0;
+  parameter [2:0] CLKOUT5_CLKOUT1_PHASE_MUX = 3'd0;
+  parameter [5:0] CLKOUT5_CLKOUT2_FRACTIONAL_DELAY_TIME = 6'd0;
+  parameter [0:0] CLKOUT5_CLKOUT2_FRACTIONAL_EDGE = 1'b0;
+  parameter [0:0] CLKOUT5_CLKOUT2_FRACTIONAL_FRAC_WF_F = 1'd0;
+  parameter [1:0] CLKOUT5_CLKOUT2_FRACTIONAL_MX = 2'b0;
+  parameter [0:0] CLKOUT5_CLKOUT2_FRACTIONAL_NO_COUNT = 1'b0;
+  parameter [2:0] CLKOUT5_CLKOUT1_FRACTIONAL_PHASE_MUX_F = 3'd0;
+
+  // CLKOUT6
+  parameter [5:0] CLKOUT6_CLKOUT1_HIGH_TIME = 6'd0;
+  parameter [5:0] CLKOUT6_CLKOUT1_LOW_TIME = 6'd0;
+  parameter [0:0] CLKOUT6_CLKOUT1_OUTPUT_ENABLE = 1'b0;
+  parameter [2:0] CLKOUT6_CLKOUT1_PHASE_MUX = 3'd0;
+  parameter [5:0] CLKOUT6_CLKOUT2_FRACTIONAL_DELAY_TIME = 6'd0;
+  parameter [0:0] CLKOUT6_CLKOUT2_FRACTIONAL_EDGE = 1'b0;
+  parameter [0:0] CLKOUT6_CLKOUT2_FRACTIONAL_FRAC_WF_F = 1'd0;
+  parameter [1:0] CLKOUT6_CLKOUT2_FRACTIONAL_MX = 2'b0;
+  parameter [0:0] CLKOUT6_CLKOUT2_FRACTIONAL_NO_COUNT = 1'b0;
+  parameter [2:0] CLKOUT6_CLKOUT1_FRACTIONAL_PHASE_MUX_F = 3'd0;
+
+endmodule
+
 // ============================================================================
 // The Zynq PS7
 

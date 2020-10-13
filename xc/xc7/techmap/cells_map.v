@@ -4275,6 +4275,431 @@ output        LOCKED
 
 endmodule
 
+// ............................................................................
+// IMPORTANT NOTE: Due to lack of support for real type parameters in Yosys
+// the MMCM parameters that define duty cycles and phase shifts have to be
+// provided as integers! The DUTY_CYCLE is expressed as % of high time times
+// 1000 whereas the PHASE is expressed in degrees times 1000.
+
+// MMCME2_ADV
+module MMCME2_ADV
+(
+input         CLKFBIN,
+input         CLKIN1,
+input         CLKIN2,
+input         CLKINSEL,
+
+output        CLKFBOUT,
+output        CLKFBOUTB,
+output        CLKOUT0,
+output        CLKOUT0B,
+output        CLKOUT1,
+output        CLKOUT1B,
+output        CLKOUT2,
+output        CLKOUT2B,
+output        CLKOUT3,
+output        CLKOUT3B,
+output        CLKOUT4,
+output        CLKOUT5,
+output        CLKOUT6,
+
+output        CLKINSTOPPED,
+output        CLKFBSTOPPED,
+
+input         PWRDWN,
+input         RST,
+output        LOCKED,
+
+input         PSCLK,
+input         PSEN,
+input         PSINCDEC,
+output        PSDONE,
+
+input         DCLK,
+input         DEN,
+input         DWE,
+output        DRDY,
+input  [ 6:0] DADDR,
+input  [15:0] DI,
+output [15:0] DO
+);
+
+  parameter _TECHMAP_CONSTMSK_CLKINSEL_ = 0;
+  parameter _TECHMAP_CONSTVAL_CLKINSEL_ = 0;
+
+  parameter _TECHMAP_CONSTMSK_RST_      = 0;
+  parameter _TECHMAP_CONSTVAL_RST_      = 0;
+  parameter _TECHMAP_CONSTMSK_PWRDWN_   = 0;
+  parameter _TECHMAP_CONSTVAL_PWRDWN_   = 0;
+
+  parameter _TECHMAP_CONSTMSK_CLKFBOUT_ = 0;
+  parameter _TECHMAP_CONSTVAL_CLKFBOUT_ = 0;
+  parameter _TECHMAP_CONSTMSK_CLKFBOUTB_= 0;
+  parameter _TECHMAP_CONSTVAL_CLKFBOUTB_= 0;
+  parameter _TECHMAP_CONSTMSK_CLKOUT0_  = 0;
+  parameter _TECHMAP_CONSTVAL_CLKOUT0_  = 0;
+  parameter _TECHMAP_CONSTMSK_CLKOUT0B_ = 0;
+  parameter _TECHMAP_CONSTVAL_CLKOUT0B_ = 0;
+  parameter _TECHMAP_CONSTMSK_CLKOUT1_  = 0;
+  parameter _TECHMAP_CONSTVAL_CLKOUT1_  = 0;
+  parameter _TECHMAP_CONSTMSK_CLKOUT1B_ = 0;
+  parameter _TECHMAP_CONSTVAL_CLKOUT1B_ = 0;
+  parameter _TECHMAP_CONSTMSK_CLKOUT2_  = 0;
+  parameter _TECHMAP_CONSTVAL_CLKOUT2_  = 0;
+  parameter _TECHMAP_CONSTMSK_CLKOUT2B_ = 0;
+  parameter _TECHMAP_CONSTVAL_CLKOUT2B_ = 0;
+  parameter _TECHMAP_CONSTMSK_CLKOUT3_  = 0;
+  parameter _TECHMAP_CONSTVAL_CLKOUT3_  = 0;
+  parameter _TECHMAP_CONSTMSK_CLKOUT3B_ = 0;
+  parameter _TECHMAP_CONSTVAL_CLKOUT3B_ = 0;
+  parameter _TECHMAP_CONSTMSK_CLKOUT4_  = 0;
+  parameter _TECHMAP_CONSTVAL_CLKOUT4_  = 0;
+  parameter _TECHMAP_CONSTMSK_CLKOUT5_  = 0;
+  parameter _TECHMAP_CONSTVAL_CLKOUT5_  = 0;
+  parameter _TECHMAP_CONSTMSK_CLKOUT6_  = 0;
+  parameter _TECHMAP_CONSTVAL_CLKOUT6_  = 0;
+
+  parameter _TECHMAP_CONSTMSK_PSCLK_    = 0;
+  parameter _TECHMAP_CONSTVAL_PSCLK_    = 0;
+  parameter _TECHMAP_CONSTMSK_PSEN_     = 0;
+  parameter _TECHMAP_CONSTVAL_PSEN_     = 0;
+  parameter _TECHMAP_CONSTMSK_PSINCDEC_ = 0;
+  parameter _TECHMAP_CONSTVAL_PSINCDEC_ = 0;
+
+  parameter _TECHMAP_CONSTMSK_DCLK_     = 0;
+  parameter _TECHMAP_CONSTVAL_DCLK_     = 0;
+  parameter _TECHMAP_CONSTMSK_DEN_      = 0;
+  parameter _TECHMAP_CONSTVAL_DEN_      = 0;
+  parameter _TECHMAP_CONSTMSK_DWE_      = 0;
+  parameter _TECHMAP_CONSTVAL_DWE_      = 0;
+
+  parameter IS_CLKINSEL_INVERTED = 1'b0;
+  parameter IS_RST_INVERTED = 1'b0;
+  parameter IS_PWRDWN_INVERTED = 1'b0;
+
+  parameter BANDWIDTH = "OPTIMIZED";
+  parameter STARTUP_WAIT = "FALSE";
+  parameter COMPENSATION = "ZHOLD";
+
+  parameter CLKIN1_PERIOD = 0.0;
+  parameter REF_JITTER1 = 0.01;
+  parameter CLKIN2_PERIOD = 0.0;
+  parameter REF_JITTER2 = 0.01;
+
+  parameter [5:0] DIVCLK_DIVIDE = 1;
+
+  parameter CLKFBOUT_MULT_F = 1;
+  parameter CLKFBOUT_PHASE = 0;
+  parameter CLKFBOUT_USE_FINE_PS = "FALSE";
+
+  parameter CLKOUT0_DIVIDE_F = 1;
+  parameter CLKOUT0_DUTY_CYCLE = 50000;
+  parameter signed CLKOUT0_PHASE = 0;
+  parameter CLKOUT0_USE_FINE_PS = "FALSE";
+
+  parameter [6:0] CLKOUT1_DIVIDE = 1;
+  parameter CLKOUT1_DUTY_CYCLE = 50000;
+  parameter signed CLKOUT1_PHASE = 0;
+  parameter CLKOUT1_USE_FINE_PS = "FALSE";
+
+  parameter [6:0] CLKOUT2_DIVIDE = 1;
+  parameter CLKOUT2_DUTY_CYCLE = 50000;
+  parameter signed CLKOUT2_PHASE = 0;
+  parameter CLKOUT2_USE_FINE_PS = "FALSE";
+
+  parameter [6:0] CLKOUT3_DIVIDE = 1;
+  parameter CLKOUT3_DUTY_CYCLE = 50000;
+  parameter signed CLKOUT3_PHASE = 0;
+  parameter CLKOUT3_USE_FINE_PS = "FALSE";
+
+  parameter [6:0] CLKOUT4_DIVIDE = 1;
+  parameter CLKOUT4_DUTY_CYCLE = 50000;
+  parameter signed CLKOUT4_PHASE = 0;
+  parameter CLKOUT4_USE_FINE_PS = "FALSE";
+
+  parameter [6:0] CLKOUT5_DIVIDE = 1;
+  parameter CLKOUT5_DUTY_CYCLE = 50000;
+  parameter signed CLKOUT5_PHASE = 0;
+  parameter CLKOUT5_USE_FINE_PS = "FALSE";
+
+  parameter [6:0] CLKOUT6_DIVIDE = 1;
+  parameter CLKOUT6_DUTY_CYCLE = 50000;
+  parameter signed CLKOUT6_PHASE = 0;
+  parameter CLKOUT6_USE_FINE_PS = "FALSE";
+
+  parameter CLKOUT4_CASCADE = 0;
+
+  parameter SS_EN   = "FALSE";
+  parameter SS_MODE = "CENTER_HIGH";
+  parameter SS_MOD_PERIOD = 10000;
+
+  // Compute PLL's registers content
+  localparam CLKFBOUT_REGS = 0;//pll_clkregs(CLKFBOUT_MULT, 50000, CLKFBOUT_PHASE);
+  localparam DIVCLK_REGS   = 0;//pll_clkregs(DIVCLK_DIVIDE, 50000, 0);
+
+  localparam CLKOUT0_REGS  = 0;//pll_clkregs(CLKOUT0_DIVIDE, CLKOUT0_DUTY_CYCLE, CLKOUT0_PHASE);
+  localparam CLKOUT1_REGS  = 0;//pll_clkregs(CLKOUT1_DIVIDE, CLKOUT1_DUTY_CYCLE, CLKOUT1_PHASE);
+  localparam CLKOUT2_REGS  = 0;//pll_clkregs(CLKOUT2_DIVIDE, CLKOUT2_DUTY_CYCLE, CLKOUT2_PHASE);
+  localparam CLKOUT3_REGS  = 0;//pll_clkregs(CLKOUT3_DIVIDE, CLKOUT3_DUTY_CYCLE, CLKOUT3_PHASE);
+  localparam CLKOUT4_REGS  = 0;//pll_clkregs(CLKOUT4_DIVIDE, CLKOUT4_DUTY_CYCLE, CLKOUT4_PHASE);
+  localparam CLKOUT5_REGS  = 0;//pll_clkregs(CLKOUT5_DIVIDE, CLKOUT5_DUTY_CYCLE, CLKOUT5_PHASE);
+
+  // Handle inputs that should have certain logic levels when left unconnected
+  generate if (_TECHMAP_CONSTMSK_CLKINSEL_ == 1) begin
+    localparam INV_CLKINSEL = !_TECHMAP_CONSTVAL_CLKINSEL_;
+    wire clkinsel = 1'b1;
+  end else if (_TECHMAP_CONSTVAL_CLKINSEL_ == 0) begin
+    localparam INV_CLKINSEL = IS_CLKINSEL_INVERTED;
+    wire clkinsel = 1'b1;
+  end else begin
+    localparam INV_CLKINSEL = IS_CLKINSEL_INVERTED;
+    wire clkinsel = CLKINSEL;
+  end endgenerate
+
+  generate if (_TECHMAP_CONSTMSK_PWRDWN_ == 1) begin
+    localparam INV_PWRDWN =  !_TECHMAP_CONSTVAL_PWRDWN_;
+    wire pwrdwn = 1'b1;
+  end else if (_TECHMAP_CONSTVAL_PWRDWN_ == 0) begin
+    localparam INV_PWRDWN = ~IS_PWRDWN_INVERTED;
+    wire pwrdwn = 1'b1;
+  end else begin
+    localparam INV_PWRDWN =  IS_PWRDWN_INVERTED;
+    wire pwrdwn = PWRDWN;
+  end endgenerate
+
+  generate if (_TECHMAP_CONSTMSK_RST_ == 1) begin
+    localparam INV_RST =  !_TECHMAP_CONSTVAL_PWRDWN_;
+    wire rst = 1'b1;
+  end else if (_TECHMAP_CONSTVAL_RST_ == 0) begin
+    localparam INV_RST = ~IS_RST_INVERTED;
+    wire rst = 1'b1;
+  end else begin
+    localparam INV_RST =  IS_RST_INVERTED;
+    wire rst = RST;
+  end endgenerate
+
+  generate if (_TECHMAP_CONSTMSK_DCLK_ == 1)
+    wire dclk = _TECHMAP_CONSTVAL_DCLK_;
+  else if (_TECHMAP_CONSTVAL_DCLK_ == 0)
+    wire dclk = 1'b0;
+  else
+    wire dclk = DCLK;
+  endgenerate
+  
+  generate if (_TECHMAP_CONSTMSK_DEN_ == 1)
+    wire den = _TECHMAP_CONSTVAL_DEN_;
+  else if (_TECHMAP_CONSTVAL_DEN_ == 0)
+    wire den = 1'b0;
+  else
+    wire den = DEN;
+  endgenerate
+
+  generate if (_TECHMAP_CONSTMSK_DWE_ == 1)
+    wire dwe = _TECHMAP_CONSTVAL_DWE_;
+  else if (_TECHMAP_CONSTVAL_DWE_ == 0)
+    wire dwe = 1'b0;
+  else
+    wire dwe = DWE;
+  endgenerate
+
+  generate if (_TECHMAP_CONSTMSK_PSCLK_ == 1)
+    wire psclk = _TECHMAP_CONSTVAL_PSCLK_;
+  else if (_TECHMAP_CONSTVAL_PSCLK_ == 0)
+    wire psclk = 1'b0;
+  else
+    wire psclk = PSCLK;
+  endgenerate
+
+  generate if (_TECHMAP_CONSTMSK_PSEN_ == 1)
+    wire psen = _TECHMAP_CONSTVAL_PSEN_;
+  else if (_TECHMAP_CONSTVAL_PSEN_ == 0)
+    wire psen = 1'b0;
+  else
+    wire psen = PSEN;
+  endgenerate
+
+  generate if (_TECHMAP_CONSTMSK_PSINCDEC_ == 1)
+    wire psincdec = _TECHMAP_CONSTVAL_PSINCDEC_;
+  else if (_TECHMAP_CONSTVAL_DWE_ == 0)
+    wire psincdec = 1'b0;
+  else
+    wire psincdec = PSINCDEC;
+  endgenerate
+
+  // The substituted cell
+  MMCME2_ADV_VPR #
+  (
+  // Inverters
+  .INV_CLKINSEL(INV_CLKINSEL),
+  .ZINV_PWRDWN (INV_PWRDWN),
+  .ZINV_RST    (INV_RST),
+
+  // Straight mapped parameters
+  .STARTUP_WAIT(STARTUP_WAIT == "TRUE"),
+/*
+  // Lookup tables
+  .LKTABLE(pll_lktable_lookup(CLKFBOUT_MULT)),
+  .TABLE(pll_table_lookup(CLKFBOUT_MULT, BANDWIDTH)),
+
+  // FIXME: How to compute values the two below ?
+  .FILTREG1_RESERVED(12'b0000_00001000),
+  .LOCKREG3_RESERVED(1'b1),
+
+  // Clock feedback settings
+  .CLKFBOUT_CLKOUT1_HIGH_TIME   (CLKFBOUT_REGS[11:6]),
+  .CLKFBOUT_CLKOUT1_LOW_TIME    (CLKFBOUT_REGS[5:0]),
+  .CLKFBOUT_CLKOUT1_PHASE_MUX   (CLKFBOUT_REGS[15:13]),
+  .CLKFBOUT_CLKOUT2_DELAY_TIME  (CLKFBOUT_REGS[21:16]),
+  .CLKFBOUT_CLKOUT2_EDGE        (CLKFBOUT_REGS[23]),
+  .CLKFBOUT_CLKOUT2_NO_COUNT    (CLKFBOUT_REGS[22]),
+
+  // Internal VCO divider settings
+  .DIVCLK_DIVCLK_HIGH_TIME      (DIVCLK_REGS[11:6]),
+  .DIVCLK_DIVCLK_LOW_TIME       (DIVCLK_REGS[5:0]),
+  .DIVCLK_DIVCLK_NO_COUNT       (DIVCLK_REGS[22]),
+  .DIVCLK_DIVCLK_EDGE           (DIVCLK_REGS[23]),
+
+  // CLKOUT0
+  .CLKOUT0_CLKOUT1_HIGH_TIME    (CLKOUT0_REGS[11:6]),
+  .CLKOUT0_CLKOUT1_LOW_TIME     (CLKOUT0_REGS[5:0]),
+  .CLKOUT0_CLKOUT1_PHASE_MUX    (CLKOUT0_REGS[15:13]),
+  .CLKOUT0_CLKOUT2_DELAY_TIME   (CLKOUT0_REGS[21:16]),
+  .CLKOUT0_CLKOUT2_EDGE         (CLKOUT0_REGS[23]),
+  .CLKOUT0_CLKOUT2_NO_COUNT     (CLKOUT0_REGS[22]),
+
+  // CLKOUT1
+  .CLKOUT1_CLKOUT1_HIGH_TIME    (CLKOUT1_REGS[11:6]),
+  .CLKOUT1_CLKOUT1_LOW_TIME     (CLKOUT1_REGS[5:0]),
+  .CLKOUT1_CLKOUT1_PHASE_MUX    (CLKOUT1_REGS[15:13]),
+  .CLKOUT1_CLKOUT2_DELAY_TIME   (CLKOUT1_REGS[21:16]),
+  .CLKOUT1_CLKOUT2_EDGE         (CLKOUT1_REGS[23]),
+  .CLKOUT1_CLKOUT2_NO_COUNT     (CLKOUT1_REGS[22]),
+
+  // CLKOUT2
+  .CLKOUT2_CLKOUT1_HIGH_TIME    (CLKOUT2_REGS[11:6]),
+  .CLKOUT2_CLKOUT1_LOW_TIME     (CLKOUT2_REGS[5:0]),
+  .CLKOUT2_CLKOUT1_PHASE_MUX    (CLKOUT2_REGS[15:13]),
+  .CLKOUT2_CLKOUT2_DELAY_TIME   (CLKOUT2_REGS[21:16]),
+  .CLKOUT2_CLKOUT2_EDGE         (CLKOUT2_REGS[23]),
+  .CLKOUT2_CLKOUT2_NO_COUNT     (CLKOUT2_REGS[22]),
+
+  // CLKOUT3
+  .CLKOUT3_CLKOUT1_HIGH_TIME    (CLKOUT3_REGS[11:6]),
+  .CLKOUT3_CLKOUT1_LOW_TIME     (CLKOUT3_REGS[5:0]),
+  .CLKOUT3_CLKOUT1_PHASE_MUX    (CLKOUT3_REGS[15:13]),
+  .CLKOUT3_CLKOUT2_DELAY_TIME   (CLKOUT3_REGS[21:16]),
+  .CLKOUT3_CLKOUT2_EDGE         (CLKOUT3_REGS[23]),
+  .CLKOUT3_CLKOUT2_NO_COUNT     (CLKOUT3_REGS[22]),
+
+  // CLKOUT4
+  .CLKOUT4_CLKOUT1_HIGH_TIME    (CLKOUT4_REGS[11:6]),
+  .CLKOUT4_CLKOUT1_LOW_TIME     (CLKOUT4_REGS[5:0]),
+  .CLKOUT4_CLKOUT1_PHASE_MUX    (CLKOUT4_REGS[15:13]),
+  .CLKOUT4_CLKOUT2_DELAY_TIME   (CLKOUT4_REGS[21:16]),
+  .CLKOUT4_CLKOUT2_EDGE         (CLKOUT4_REGS[23]),
+  .CLKOUT4_CLKOUT2_NO_COUNT     (CLKOUT4_REGS[22]),
+
+  // CLKOUT5
+  .CLKOUT5_CLKOUT1_HIGH_TIME    (CLKOUT5_REGS[11:6]),
+  .CLKOUT5_CLKOUT1_LOW_TIME     (CLKOUT5_REGS[5:0]),
+  .CLKOUT5_CLKOUT1_PHASE_MUX    (CLKOUT5_REGS[15:13]),
+  .CLKOUT5_CLKOUT2_DELAY_TIME   (CLKOUT5_REGS[21:16]),
+  .CLKOUT5_CLKOUT2_EDGE         (CLKOUT5_REGS[23]),
+  .CLKOUT5_CLKOUT2_NO_COUNT     (CLKOUT5_REGS[22]),
+*/
+  // Clock output enable controls
+  .CLKFBOUT_CLKOUT1_OUTPUT_ENABLE(_TECHMAP_CONSTVAL_CLKFBOUT_ === 1'bX || _TECHMAP_CONSTVAL_CLKFBOUTB_ === 1'bX),
+
+  .CLKOUT0_CLKOUT1_OUTPUT_ENABLE(_TECHMAP_CONSTVAL_CLKOUT0_ === 1'bX || _TECHMAP_CONSTVAL_CLKOUT0B_ === 1'bX),
+  .CLKOUT1_CLKOUT1_OUTPUT_ENABLE(_TECHMAP_CONSTVAL_CLKOUT1_ === 1'bX || _TECHMAP_CONSTVAL_CLKOUT1B_ === 1'bX),
+  .CLKOUT2_CLKOUT1_OUTPUT_ENABLE(_TECHMAP_CONSTVAL_CLKOUT2_ === 1'bX || _TECHMAP_CONSTVAL_CLKOUT2B_ === 1'bX),
+  .CLKOUT3_CLKOUT1_OUTPUT_ENABLE(_TECHMAP_CONSTVAL_CLKOUT3_ === 1'bX || _TECHMAP_CONSTVAL_CLKOUT3B_ === 1'bX),
+  .CLKOUT4_CLKOUT1_OUTPUT_ENABLE(_TECHMAP_CONSTVAL_CLKOUT4_ === 1'bX),
+  .CLKOUT5_CLKOUT1_OUTPUT_ENABLE(_TECHMAP_CONSTVAL_CLKOUT5_ === 1'bX),
+  .CLKOUT6_CLKOUT1_OUTPUT_ENABLE(_TECHMAP_CONSTVAL_CLKOUT6_ === 1'bX)
+  )
+  _TECHMAP_REPLACE_
+  (
+  .CLKFBIN      (CLKFBIN),
+  .CLKIN1       (CLKIN1),
+  .CLKIN2       (CLKIN2),
+  .CLKINSEL     (clkinsel),
+
+  .CLKFBOUT     (CLKFBOUT),
+  .CLKFBOUTB    (CLKFBOUTB),
+  .CLKOUT0      (CLKOUT0),
+  .CLKOUT0B     (CLKOUT0B),
+  .CLKOUT1      (CLKOUT1),
+  .CLKOUT1B     (CLKOUT1B),
+  .CLKOUT2      (CLKOUT2),
+  .CLKOUT2B     (CLKOUT2B),
+  .CLKOUT3      (CLKOUT3),
+  .CLKOUT3B     (CLKOUT3B),
+  .CLKOUT4      (CLKOUT4),
+  .CLKOUT5      (CLKOUT5),
+  .CLKOUT6      (CLKOUT6),
+
+  .CLKINSTOPPED (CLKINSTOPPED),
+  .CLKFBSTOPPED (CLKFBSTOPPED),
+
+  .PWRDWN       (pwrdwn),
+  .RST          (rst),
+  .LOCKED       (LOCKED),
+
+  .PSCLK        (psclk),
+  .PSEN         (psen),
+  .PSINCDEC     (psincdec),
+  .PSDONE       (PSDONE),
+
+  .DCLK         (dclk),
+  .DEN          (den),
+  .DWE          (dwe),
+  .DRDY         (DRDY),
+  .DADDR0       (DADDR[0]),
+  .DADDR1       (DADDR[1]),
+  .DADDR2       (DADDR[2]),
+  .DADDR3       (DADDR[3]),
+  .DADDR4       (DADDR[4]),
+  .DADDR5       (DADDR[5]),
+  .DADDR6       (DADDR[6]),
+  .DI0          (DI[0]),
+  .DI1          (DI[1]),
+  .DI2          (DI[2]),
+  .DI3          (DI[3]),
+  .DI4          (DI[4]),
+  .DI5          (DI[5]),
+  .DI6          (DI[6]),
+  .DI7          (DI[7]),
+  .DI8          (DI[8]),
+  .DI9          (DI[9]),
+  .DI10         (DI[10]),
+  .DI11         (DI[11]),
+  .DI12         (DI[12]),
+  .DI13         (DI[13]),
+  .DI14         (DI[14]),
+  .DI15         (DI[15]),
+  .DO0          (DO[0]),
+  .DO1          (DO[1]),
+  .DO2          (DO[2]),
+  .DO3          (DO[3]),
+  .DO4          (DO[4]),
+  .DO5          (DO[5]),
+  .DO6          (DO[6]),
+  .DO7          (DO[7]),
+  .DO8          (DO[8]),
+  .DO9          (DO[9]),
+  .DO10         (DO[10]),
+  .DO11         (DO[11]),
+  .DO12         (DO[12]),
+  .DO13         (DO[13]),
+  .DO14         (DO[14]),
+  .DO15         (DO[15])
+  );
+
+endmodule
+
+// ============================================================================
+
 module INV(
     output O,
     input I
