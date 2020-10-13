@@ -3440,7 +3440,7 @@ module BUFHCE (
 endmodule
 
 // ============================================================================
-// CMT
+// PLL/MMCM
 
 `define PLL_FRAC_PRECISION  10
 `define PLL_FIXED_WIDTH     32
@@ -4276,10 +4276,341 @@ output        LOCKED
 endmodule
 
 // ............................................................................
+
+// Given PLL/MMCM divide, duty_cycle and phase calculates content of the
+// CLKREG1 and CLKREG2 when no fractional divide is used.
+function [37:0] mmcm_clkregs
+(
+input [7:0]         divide,     // Max divide is 128
+input [31:0]        duty_cycle, // Multiplied by 100,000
+input signed [31:0] phase       // Phase is given in degrees (-360,000 to 360,000)
+);
+
+  // Identical to the PLL one
+  mmcm_clkregs = pll_clkregs(divide, duty_cycle, phase);
+
+endfunction
+
+// This function takes the divide value and outputs the necessary lock values
+function [39:0] mmcm_lktable_lookup
+(
+input [6:0] divide // Max divide is 64
+);
+
+  // The look-up table is identical to the one for PLL
+  mmcm_lktable_lookup = pll_lktable_lookup(divide);
+
+endfunction
+
+// This function takes the divide value and the bandwidth setting of a MMCM
+// and outputs the digital filter settings necessary.
+function [9:0] mmcm_table_lookup
+(
+input [6:0]   divide, // Max divide is 64
+input [8*9:0] BANDWIDTH,
+input [0:0]   SS_EN
+);
+
+  reg [639:0] lookup_low;
+  reg [639:0] lookup_ss;
+  reg [639:0] lookup_high;
+  reg [639:0] lookup_optimized;
+
+  reg [9:0] lookup_entry;
+
+  lookup_low = {
+    // CP_RES_LFHF
+    10'b0010_1111_00,
+    10'b0010_1111_00,
+    10'b0010_1111_00,
+    10'b0010_1111_00,
+    10'b0010_0111_00,
+    10'b0010_1011_00,
+    10'b0010_1101_00,
+    10'b0010_0011_00,
+    10'b0010_0101_00,
+    10'b0010_0101_00,
+    10'b0010_1001_00,
+    10'b0010_1110_00,
+    10'b0010_1110_00,
+    10'b0010_1110_00,
+    10'b0010_1110_00,
+    10'b0010_0001_00,
+    10'b0010_0001_00,
+    10'b0010_0001_00,
+    10'b0010_0110_00,
+    10'b0010_0110_00,
+    10'b0010_0110_00,
+    10'b0010_0110_00,
+    10'b0010_0110_00,
+    10'b0010_0110_00,
+    10'b0010_0110_00,
+    10'b0010_1010_00,
+    10'b0010_1010_00,
+    10'b0010_1010_00,
+    10'b0010_1010_00,
+    10'b0010_1010_00,
+    10'b0010_1100_00,
+    10'b0010_1100_00,
+    10'b0010_1100_00,
+    10'b0010_1100_00,
+    10'b0010_1100_00,
+    10'b0010_1100_00,
+    10'b0010_1100_00,
+    10'b0010_1100_00,
+    10'b0010_1100_00,
+    10'b0010_1100_00,
+    10'b0010_1100_00,
+    10'b0010_1100_00,
+    10'b0010_1100_00,
+    10'b0010_1100_00,
+    10'b0010_1100_00,
+    10'b0010_1100_00,
+    10'b0010_1100_00,
+    10'b0010_0010_00,
+    10'b0010_0010_00,
+    10'b0010_0010_00,
+    10'b0010_0010_00,
+    10'b0010_0010_00,
+    10'b0010_0010_00,
+    10'b0010_0010_00,
+    10'b0010_0010_00,
+    10'b0010_0010_00,
+    10'b0010_0010_00,
+    10'b0010_0010_00,
+    10'b0010_0010_00,
+    10'b0010_0010_00,
+    10'b0010_0010_00,
+    10'b0010_0010_00,
+    10'b0010_0010_00,
+    10'b0010_0010_00 
+  };
+
+  lookup_ss = {
+    // CP_RES_LFHF
+    10'b0010_1111_11,
+    10'b0010_1111_11,
+    10'b0010_1111_11,
+    10'b0010_1111_11,
+    10'b0010_0111_11,
+    10'b0010_1011_11,
+    10'b0010_1101_11,
+    10'b0010_0011_11,
+    10'b0010_0101_11,
+    10'b0010_0101_11,
+    10'b0010_1001_11,
+    10'b0010_1110_11,
+    10'b0010_1110_11,
+    10'b0010_1110_11,
+    10'b0010_1110_11,
+    10'b0010_0001_11,
+    10'b0010_0001_11,
+    10'b0010_0001_11,
+    10'b0010_0110_11,
+    10'b0010_0110_11,
+    10'b0010_0110_11,
+    10'b0010_0110_11,
+    10'b0010_0110_11,
+    10'b0010_0110_11,
+    10'b0010_0110_11,
+    10'b0010_1010_11,
+    10'b0010_1010_11,
+    10'b0010_1010_11,
+    10'b0010_1010_11,
+    10'b0010_1010_11,
+    10'b0010_1100_11,
+    10'b0010_1100_11,
+    10'b0010_1100_11,
+    10'b0010_1100_11,
+    10'b0010_1100_11,
+    10'b0010_1100_11,
+    10'b0010_1100_11,
+    10'b0010_1100_11,
+    10'b0010_1100_11,
+    10'b0010_1100_11,
+    10'b0010_1100_11,
+    10'b0010_1100_11,
+    10'b0010_1100_11,
+    10'b0010_1100_11,
+    10'b0010_1100_11,
+    10'b0010_1100_11,
+    10'b0010_1100_11,
+    10'b0010_0010_11,
+    10'b0010_0010_11,
+    10'b0010_0010_11,
+    10'b0010_0010_11,
+    10'b0010_0010_11,
+    10'b0010_0010_11,
+    10'b0010_0010_11,
+    10'b0010_0010_11,
+    10'b0010_0010_11,
+    10'b0010_0010_11,
+    10'b0010_0010_11,
+    10'b0010_0010_11,
+    10'b0010_0010_11,
+    10'b0010_0010_11,
+    10'b0010_0010_11,
+    10'b0010_0010_11,
+    10'b0010_0010_11 
+  };
+
+  lookup_high = {
+    // CP_RES_LFHF
+    10'b0010_1111_00,
+    10'b0100_1111_00,
+    10'b0101_1011_00,
+    10'b0111_0111_00,
+    10'b1101_0111_00,
+    10'b1110_1011_00,
+    10'b1110_1101_00,
+    10'b1111_0011_00,
+    10'b1110_0101_00,
+    10'b1111_0101_00,
+    10'b1111_1001_00,
+    10'b1101_0001_00,
+    10'b1111_1001_00,
+    10'b1111_1001_00,
+    10'b1111_1001_00,
+    10'b1111_1001_00,
+    10'b1111_0101_00,
+    10'b1111_0101_00,
+    10'b1100_0001_00,
+    10'b1100_0001_00,
+    10'b1100_0001_00,
+    10'b0101_1100_00,
+    10'b0101_1100_00,
+    10'b0101_1100_00,
+    10'b0101_1100_00,
+    10'b0011_0100_00,
+    10'b0011_0100_00,
+    10'b0011_0100_00,
+    10'b0011_0100_00,
+    10'b0011_0100_00,
+    10'b0011_0100_00,
+    10'b0011_0100_00,
+    10'b0011_0100_00,
+    10'b0011_0100_00,
+    10'b0011_0100_00,
+    10'b0011_0100_00,
+    10'b0011_0100_00,
+    10'b0011_0100_00,
+    10'b0011_0100_00,
+    10'b0011_0100_00,
+    10'b0011_0100_00,
+    10'b0010_1000_00,
+    10'b0010_1000_00,
+    10'b0010_1000_00,
+    10'b0010_1000_00,
+    10'b0010_1000_00,
+    10'b0111_0001_00,
+    10'b0111_0001_00,
+    10'b0100_1100_00,
+    10'b0100_1100_00,
+    10'b0100_1100_00,
+    10'b0100_1100_00,
+    10'b0110_0001_00,
+    10'b0110_0001_00,
+    10'b0101_0110_00,
+    10'b0101_0110_00,
+    10'b0101_0110_00,
+    10'b0010_0100_00,
+    10'b0010_0100_00,
+    10'b0010_0100_00,
+    10'b0010_0100_00,
+    10'b0100_1010_00,
+    10'b0011_1100_00,
+    10'b0011_1100_00 
+  };
+
+  lookup_optimized = {
+    // CP_RES_LFHF
+    10'b0010_1111_00,
+    10'b0100_1111_00,
+    10'b0101_1011_00,
+    10'b0111_0111_00,
+    10'b1101_0111_00,
+    10'b1110_1011_00,
+    10'b1110_1101_00,
+    10'b1111_0011_00,
+    10'b1110_0101_00,
+    10'b1111_0101_00,
+    10'b1111_1001_00,
+    10'b1101_0001_00,
+    10'b1111_1001_00,
+    10'b1111_1001_00,
+    10'b1111_1001_00,
+    10'b1111_1001_00,
+    10'b1111_0101_00,
+    10'b1111_0101_00,
+    10'b1100_0001_00,
+    10'b1100_0001_00,
+    10'b1100_0001_00,
+    10'b0101_1100_00,
+    10'b0101_1100_00,
+    10'b0101_1100_00,
+    10'b0101_1100_00,
+    10'b0011_0100_00,
+    10'b0011_0100_00,
+    10'b0011_0100_00,
+    10'b0011_0100_00,
+    10'b0011_0100_00,
+    10'b0011_0100_00,
+    10'b0011_0100_00,
+    10'b0011_0100_00,
+    10'b0011_0100_00,
+    10'b0011_0100_00,
+    10'b0011_0100_00,
+    10'b0011_0100_00,
+    10'b0011_0100_00,
+    10'b0011_0100_00,
+    10'b0011_0100_00,
+    10'b0011_0100_00,
+    10'b0010_1000_00,
+    10'b0010_1000_00,
+    10'b0010_1000_00,
+    10'b0010_1000_00,
+    10'b0010_1000_00,
+    10'b0111_0001_00,
+    10'b0111_0001_00,
+    10'b0100_1100_00,
+    10'b0100_1100_00,
+    10'b0100_1100_00,
+    10'b0100_1100_00,
+    10'b0110_0001_00,
+    10'b0110_0001_00,
+    10'b0101_0110_00,
+    10'b0101_0110_00,
+    10'b0101_0110_00,
+    10'b0010_0100_00,
+    10'b0010_0100_00,
+    10'b0010_0100_00,
+    10'b0010_0100_00,
+    10'b0100_1010_00,
+    10'b0011_1100_00,
+    10'b0011_1100_00 
+  };
+
+  if (SS_EN == 1'b1) begin
+    mmcm_table_lookup = lookup_ss[((64-divide)*10) +: 10];
+  end else begin
+    if (BANDWIDTH == "LOW") begin
+      mmcm_table_lookup = lookup_low[((64-divide)*10) +: 10];
+    end else if (BANDWIDTH == "HIGH") begin
+      mmcm_table_lookup = lookup_high[((64-divide)*10) +: 10];
+    end else if (BANDWIDTH == "OPTIMIZED") begin
+      mmcm_table_lookup = lookup_optimized[((64-divide)*10) +: 10];
+    end
+  end
+
+endfunction
+
+// ............................................................................
 // IMPORTANT NOTE: Due to lack of support for real type parameters in Yosys
 // the MMCM parameters that define duty cycles and phase shifts have to be
 // provided as integers! The DUTY_CYCLE is expressed as % of high time times
-// 1000 whereas the PHASE is expressed in degrees times 1000.
+// 1000 whereas the PHASE is expressed in degrees times 1000. Fractional
+// dividers are also expressed as multiplied times 1000.
+
 
 // MMCME2_ADV
 module MMCME2_ADV
@@ -4388,11 +4719,11 @@ output [15:0] DO
 
   parameter [5:0] DIVCLK_DIVIDE = 1;
 
-  parameter CLKFBOUT_MULT_F = 1;
-  parameter CLKFBOUT_PHASE = 0;
+  parameter CLKFBOUT_MULT_F = 1000;
+  parameter signed CLKFBOUT_PHASE = 0;
   parameter CLKFBOUT_USE_FINE_PS = "FALSE";
 
-  parameter CLKOUT0_DIVIDE_F = 1;
+  parameter CLKOUT0_DIVIDE_F = 1000;
   parameter CLKOUT0_DUTY_CYCLE = 50000;
   parameter signed CLKOUT0_PHASE = 0;
   parameter CLKOUT0_USE_FINE_PS = "FALSE";
@@ -4433,16 +4764,149 @@ output [15:0] DO
   parameter SS_MODE = "CENTER_HIGH";
   parameter SS_MOD_PERIOD = 10000;
 
+  // Sanity check parameters
+  if (BANDWIDTH != "HIGH" && BANDWIDTH != "LOW" && BANDWIDTH != "OPTIMIZED") begin
+    wire _TECHMAP_FAIL_;
+    $error("BANDWIDTH must be one of: 'HIGH', 'LOW', 'OPTIMIZED'");
+  end
+
+  if (COMPENSATION != "ZHOLD" && COMPENSATION != "EXTERNAL" && COMPENSATION != "INTERNAL" && COMPENSATION != "BUF_IN") begin
+    wire _TECHMAP_FAIL_;
+    $error("COMPENSATION must be one of: 'ZHOLD', 'EXTERNAL', 'INTERNAL', 'BUF_IN'");
+  end  
+
+  if (DIVCLK_DIVIDE < 1 || DIVCLK_DIVIDE > 106) begin
+    wire _TECHMAP_FAIL_;
+    $error("DIVCLK_DIVIDE must range from 1 to 106");
+  end
+
+  if (CLKFBOUT_MULT_F < 2000 || CLKFBOUT_MULT_F > 64000) begin
+    wire _TECHMAP_FAIL_;
+    $error("CLKFBOUT_MULT_F must range from 2000 to 64000");
+  end
+
+  if (CLKFBOUT_PHASE < -360000 || CLKFBOUT_PHASE > 360000) begin
+    wire _TECHMAP_FAIL_;
+    $error("CLKFBOUT_PHASE must range from -360000 to 360000");
+  end
+
+  if (CLKOUT0_DIVIDE_F < 1000 || CLKOUT0_DIVIDE_F > 128000) begin
+    wire _TECHMAP_FAIL_;
+    $error("CLKOUT0_DIVIDE_F must range from 1000 to 128000");
+  end
+
+  if (CLKOUT1_DIVIDE < 1 || CLKOUT1_DIVIDE > 128) begin
+    wire _TECHMAP_FAIL_;
+    $error("CLKOUT1_DIVIDE must range from 1 to 128");
+  end
+  if (CLKOUT2_DIVIDE < 1 || CLKOUT2_DIVIDE > 128) begin
+    wire _TECHMAP_FAIL_;
+    $error("CLKOUT2_DIVIDE must range from 1 to 128");
+  end
+  if (CLKOUT3_DIVIDE < 1 || CLKOUT3_DIVIDE > 128) begin
+    wire _TECHMAP_FAIL_;
+    $error("CLKOUT3_DIVIDE must range from 1 to 128");
+  end
+  if (CLKOUT4_DIVIDE < 1 || CLKOUT4_DIVIDE > 128) begin
+    wire _TECHMAP_FAIL_;
+    $error("CLKOUT4_DIVIDE must range from 1 to 128");
+  end
+  if (CLKOUT5_DIVIDE < 1 || CLKOUT5_DIVIDE > 128) begin
+    wire _TECHMAP_FAIL_;
+    $error("CLKOUT5_DIVIDE must range from 1 to 128");
+  end
+  if (CLKOUT6_DIVIDE < 1 || CLKOUT6_DIVIDE > 128) begin
+    wire _TECHMAP_FAIL_;
+    $error("CLKOUT6_DIVIDE must range from 1 to 128");
+  end
+
+  if (CLKOUT0_PHASE < -360000 || CLKOUT0_PHASE > 360000) begin
+    wire _TECHMAP_FAIL_;
+    $error("CLKOUT0_PHASE must range from -360000 to 360000");
+  end
+  if (CLKOUT1_PHASE < -360000 || CLKOUT1_PHASE > 360000) begin
+    wire _TECHMAP_FAIL_;
+    $error("CLKOUT1_PHASE must range from -360000 to 360000");
+  end
+  if (CLKOUT2_PHASE < -360000 || CLKOUT2_PHASE > 360000) begin
+    wire _TECHMAP_FAIL_;
+    $error("CLKOUT2_PHASE must range from -360000 to 360000");
+  end
+  if (CLKOUT3_PHASE < -360000 || CLKOUT3_PHASE > 360000) begin
+    wire _TECHMAP_FAIL_;
+    $error("CLKOUT3_PHASE must range from -360000 to 360000");
+  end
+  if (CLKOUT4_PHASE < -360000 || CLKOUT4_PHASE > 360000) begin
+    wire _TECHMAP_FAIL_;
+    $error("CLKOUT4_PHASE must range from -360000 to 360000");
+  end
+  if (CLKOUT5_PHASE < -360000 || CLKOUT5_PHASE > 360000) begin
+    wire _TECHMAP_FAIL_;
+    $error("CLKOUT5_PHASE must range from -360000 to 360000");
+  end
+  if (CLKOUT6_PHASE < -360000 || CLKOUT6_PHASE > 360000) begin
+    wire _TECHMAP_FAIL_;
+    $error("CLKOUT6_PHASE must range from -360000 to 360000");
+  end
+
+  if (CLKOUT0_DUTY_CYCLE < 1000 || CLKOUT0_DUTY_CYCLE > 99000) begin
+    wire _TECHMAP_FAIL_;
+    $error("CLKOUT0_DUTY_CYCLE must range from 1000 to 99000");
+  end
+  if (CLKOUT1_DUTY_CYCLE < 1000 || CLKOUT1_DUTY_CYCLE > 99000) begin
+    wire _TECHMAP_FAIL_;
+    $error("CLKOUT1_DUTY_CYCLE must range from 1000 to 99000");
+  end
+  if (CLKOUT2_DUTY_CYCLE < 1000 || CLKOUT2_DUTY_CYCLE > 99000) begin
+    wire _TECHMAP_FAIL_;
+    $error("CLKOUT2_DUTY_CYCLE must range from 1000 to 99000");
+  end
+  if (CLKOUT3_DUTY_CYCLE < 1000 || CLKOUT3_DUTY_CYCLE > 99000) begin
+    wire _TECHMAP_FAIL_;
+    $error("CLKOUT3_DUTY_CYCLE must range from 1000 to 99000");
+  end
+  if (CLKOUT4_DUTY_CYCLE < 1000 || CLKOUT4_DUTY_CYCLE > 99000) begin
+    wire _TECHMAP_FAIL_;
+    $error("CLKOUT4_DUTY_CYCLE must range from 1000 to 99000");
+  end
+  if (CLKOUT5_DUTY_CYCLE < 1000 || CLKOUT5_DUTY_CYCLE > 99000) begin
+    wire _TECHMAP_FAIL_;
+    $error("CLKOUT5_DUTY_CYCLE must range from 1000 to 99000");
+  end
+  if (CLKOUT6_DUTY_CYCLE < 1000 || CLKOUT6_DUTY_CYCLE > 99000) begin
+    wire _TECHMAP_FAIL_;
+    $error("CLKOUT6_DUTY_CYCLE must range from 1000 to 99000");
+  end
+
+  if (SS_EN != "TRUE" && SS_EN != "FALSE") begin
+    wire _TECHMAP_FAIL_;
+    $error("SS_EN must be either 'TRUE' or 'FALSE'");
+  end
+
+  if (SS_MODE != "DOWN_LOW" && SS_MODE != "DOWN_HIGH" && SS_MODE != "CENTER_LOW" && SS_MODE != "CENTER_HIGH") begin
+    wire _TECHMAP_FAIL_;
+    $error("SS_MODE must be one of: 'DOWN_LOW', 'DOWN_HIGH', 'CENTER_LOW', 'CENTER_HIGH'");
+  end
+
+  if (SS_MOD_PERIOD < 4000 || SS_MOD_PERIOD > 40000) begin
+    wire _TECHMAP_FAIL_;
+    $error("SS_MOD_PERIOD must range from 4000 to 40000");
+  end
+
+  // Compute integer multipliers needed later for look-up tables
+  localparam CLKFBOUT_MULT = CLKFBOUT_MULT_F / 1000;
+
   // Compute PLL's registers content
   localparam CLKFBOUT_REGS = 0;//pll_clkregs(CLKFBOUT_MULT, 50000, CLKFBOUT_PHASE);
-  localparam DIVCLK_REGS   = 0;//pll_clkregs(DIVCLK_DIVIDE, 50000, 0);
+  localparam DIVCLK_REGS   = mmcm_clkregs(DIVCLK_DIVIDE, 50000, 0);
 
   localparam CLKOUT0_REGS  = 0;//pll_clkregs(CLKOUT0_DIVIDE, CLKOUT0_DUTY_CYCLE, CLKOUT0_PHASE);
-  localparam CLKOUT1_REGS  = 0;//pll_clkregs(CLKOUT1_DIVIDE, CLKOUT1_DUTY_CYCLE, CLKOUT1_PHASE);
-  localparam CLKOUT2_REGS  = 0;//pll_clkregs(CLKOUT2_DIVIDE, CLKOUT2_DUTY_CYCLE, CLKOUT2_PHASE);
-  localparam CLKOUT3_REGS  = 0;//pll_clkregs(CLKOUT3_DIVIDE, CLKOUT3_DUTY_CYCLE, CLKOUT3_PHASE);
-  localparam CLKOUT4_REGS  = 0;//pll_clkregs(CLKOUT4_DIVIDE, CLKOUT4_DUTY_CYCLE, CLKOUT4_PHASE);
+  localparam CLKOUT1_REGS  = mmcm_clkregs(CLKOUT1_DIVIDE, CLKOUT1_DUTY_CYCLE, CLKOUT1_PHASE);
+  localparam CLKOUT2_REGS  = mmcm_clkregs(CLKOUT2_DIVIDE, CLKOUT2_DUTY_CYCLE, CLKOUT2_PHASE);
+  localparam CLKOUT3_REGS  = mmcm_clkregs(CLKOUT3_DIVIDE, CLKOUT3_DUTY_CYCLE, CLKOUT3_PHASE);
+  localparam CLKOUT4_REGS  = mmcm_clkregs(CLKOUT4_DIVIDE, CLKOUT4_DUTY_CYCLE, CLKOUT4_PHASE);
   localparam CLKOUT5_REGS  = 0;//pll_clkregs(CLKOUT5_DIVIDE, CLKOUT5_DUTY_CYCLE, CLKOUT5_PHASE);
+  localparam CLKOUT6_REGS  = 0;//pll_clkregs(CLKOUT6_DIVIDE, CLKOUT6_DUTY_CYCLE, CLKOUT6_PHASE);
 
   // Handle inputs that should have certain logic levels when left unconnected
   generate if (_TECHMAP_CONSTMSK_CLKINSEL_ == 1) begin
@@ -4536,22 +5000,22 @@ output [15:0] DO
 
   // Straight mapped parameters
   .STARTUP_WAIT(STARTUP_WAIT == "TRUE"),
-/*
+
   // Lookup tables
-  .LKTABLE(pll_lktable_lookup(CLKFBOUT_MULT)),
-  .TABLE(pll_table_lookup(CLKFBOUT_MULT, BANDWIDTH)),
+  .LKTABLE(mmcm_lktable_lookup(CLKFBOUT_MULT)),
+  .TABLE(mmcm_table_lookup(CLKFBOUT_MULT, BANDWIDTH, (SS_EN == "TRUE"))),
 
   // FIXME: How to compute values the two below ?
   .FILTREG1_RESERVED(12'b0000_00001000),
   .LOCKREG3_RESERVED(1'b1),
 
-  // Clock feedback settings
-  .CLKFBOUT_CLKOUT1_HIGH_TIME   (CLKFBOUT_REGS[11:6]),
-  .CLKFBOUT_CLKOUT1_LOW_TIME    (CLKFBOUT_REGS[5:0]),
-  .CLKFBOUT_CLKOUT1_PHASE_MUX   (CLKFBOUT_REGS[15:13]),
-  .CLKFBOUT_CLKOUT2_DELAY_TIME  (CLKFBOUT_REGS[21:16]),
-  .CLKFBOUT_CLKOUT2_EDGE        (CLKFBOUT_REGS[23]),
-  .CLKFBOUT_CLKOUT2_NO_COUNT    (CLKFBOUT_REGS[22]),
+//  // Clock feedback settings
+//  .CLKFBOUT_CLKOUT1_HIGH_TIME   (CLKFBOUT_REGS[11:6]),
+//  .CLKFBOUT_CLKOUT1_LOW_TIME    (CLKFBOUT_REGS[5:0]),
+//  .CLKFBOUT_CLKOUT1_PHASE_MUX   (CLKFBOUT_REGS[15:13]),
+//  .CLKFBOUT_CLKOUT2_DELAY_TIME  (CLKFBOUT_REGS[21:16]),
+//  .CLKFBOUT_CLKOUT2_EDGE        (CLKFBOUT_REGS[23]),
+//  .CLKFBOUT_CLKOUT2_NO_COUNT    (CLKFBOUT_REGS[22]),
 
   // Internal VCO divider settings
   .DIVCLK_DIVCLK_HIGH_TIME      (DIVCLK_REGS[11:6]),
@@ -4559,13 +5023,13 @@ output [15:0] DO
   .DIVCLK_DIVCLK_NO_COUNT       (DIVCLK_REGS[22]),
   .DIVCLK_DIVCLK_EDGE           (DIVCLK_REGS[23]),
 
-  // CLKOUT0
-  .CLKOUT0_CLKOUT1_HIGH_TIME    (CLKOUT0_REGS[11:6]),
-  .CLKOUT0_CLKOUT1_LOW_TIME     (CLKOUT0_REGS[5:0]),
-  .CLKOUT0_CLKOUT1_PHASE_MUX    (CLKOUT0_REGS[15:13]),
-  .CLKOUT0_CLKOUT2_DELAY_TIME   (CLKOUT0_REGS[21:16]),
-  .CLKOUT0_CLKOUT2_EDGE         (CLKOUT0_REGS[23]),
-  .CLKOUT0_CLKOUT2_NO_COUNT     (CLKOUT0_REGS[22]),
+//  // CLKOUT0
+//  .CLKOUT0_CLKOUT1_HIGH_TIME    (CLKOUT0_REGS[11:6]),
+//  .CLKOUT0_CLKOUT1_LOW_TIME     (CLKOUT0_REGS[5:0]),
+//  .CLKOUT0_CLKOUT1_PHASE_MUX    (CLKOUT0_REGS[15:13]),
+//  .CLKOUT0_CLKOUT2_DELAY_TIME   (CLKOUT0_REGS[21:16]),
+//  .CLKOUT0_CLKOUT2_EDGE         (CLKOUT0_REGS[23]),
+//  .CLKOUT0_CLKOUT2_NO_COUNT     (CLKOUT0_REGS[22]),
 
   // CLKOUT1
   .CLKOUT1_CLKOUT1_HIGH_TIME    (CLKOUT1_REGS[11:6]),
@@ -4599,14 +5063,22 @@ output [15:0] DO
   .CLKOUT4_CLKOUT2_EDGE         (CLKOUT4_REGS[23]),
   .CLKOUT4_CLKOUT2_NO_COUNT     (CLKOUT4_REGS[22]),
 
-  // CLKOUT5
-  .CLKOUT5_CLKOUT1_HIGH_TIME    (CLKOUT5_REGS[11:6]),
-  .CLKOUT5_CLKOUT1_LOW_TIME     (CLKOUT5_REGS[5:0]),
-  .CLKOUT5_CLKOUT1_PHASE_MUX    (CLKOUT5_REGS[15:13]),
-  .CLKOUT5_CLKOUT2_DELAY_TIME   (CLKOUT5_REGS[21:16]),
-  .CLKOUT5_CLKOUT2_EDGE         (CLKOUT5_REGS[23]),
-  .CLKOUT5_CLKOUT2_NO_COUNT     (CLKOUT5_REGS[22]),
-*/
+//  // CLKOUT5
+//  .CLKOUT5_CLKOUT1_HIGH_TIME    (CLKOUT5_REGS[11:6]),
+//  .CLKOUT5_CLKOUT1_LOW_TIME     (CLKOUT5_REGS[5:0]),
+//  .CLKOUT5_CLKOUT1_PHASE_MUX    (CLKOUT5_REGS[15:13]),
+//  .CLKOUT5_CLKOUT2_DELAY_TIME   (CLKOUT5_REGS[21:16]),
+//  .CLKOUT5_CLKOUT2_EDGE         (CLKOUT5_REGS[23]),
+//  .CLKOUT5_CLKOUT2_NO_COUNT     (CLKOUT5_REGS[22]),
+
+//  // CLKOUT6
+//  .CLKOUT6_CLKOUT1_HIGH_TIME    (CLKOUT6_REGS[11:6]),
+//  .CLKOUT6_CLKOUT1_LOW_TIME     (CLKOUT6_REGS[5:0]),
+//  .CLKOUT6_CLKOUT1_PHASE_MUX    (CLKOUT6_REGS[15:13]),
+//  .CLKOUT6_CLKOUT2_DELAY_TIME   (CLKOUT6_REGS[21:16]),
+//  .CLKOUT6_CLKOUT2_EDGE         (CLKOUT6_REGS[23]),
+//  .CLKOUT6_CLKOUT2_NO_COUNT     (CLKOUT6_REGS[22]),
+
   // Clock output enable controls
   .CLKFBOUT_CLKOUT1_OUTPUT_ENABLE(_TECHMAP_CONSTVAL_CLKFBOUT_ === 1'bX || _TECHMAP_CONSTVAL_CLKFBOUTB_ === 1'bX),
 
