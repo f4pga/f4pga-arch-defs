@@ -1,0 +1,398 @@
+<!-- set: ai sw=1 ts=1 sta et -->
+<pb_type name="MMCME2_ADV" blif_model=".subckt MMCME2_ADV_VPR" num_pb="1">
+  <clock name="DCLK" num_pins="1"/>
+  <input name="DEN" num_pins="1"/>
+  <input name="DWE" num_pins="1"/>
+  <input name="DADDR0" num_pins="1"/>
+  <input name="DADDR1" num_pins="1"/>
+  <input name="DADDR2" num_pins="1"/>
+  <input name="DADDR3" num_pins="1"/>
+  <input name="DADDR4" num_pins="1"/>
+  <input name="DADDR5" num_pins="1"/>
+  <input name="DADDR6" num_pins="1"/>
+  <input name="DI0" num_pins="1"/>
+  <input name="DI1" num_pins="1"/>
+  <input name="DI2" num_pins="1"/>
+  <input name="DI3" num_pins="1"/>
+  <input name="DI4" num_pins="1"/>
+  <input name="DI5" num_pins="1"/>
+  <input name="DI6" num_pins="1"/>
+  <input name="DI7" num_pins="1"/>
+  <input name="DI8" num_pins="1"/>
+  <input name="DI9" num_pins="1"/>
+  <input name="DI10" num_pins="1"/>
+  <input name="DI11" num_pins="1"/>
+  <input name="DI12" num_pins="1"/>
+  <input name="DI13" num_pins="1"/>
+  <input name="DI14" num_pins="1"/>
+  <input name="DI15" num_pins="1"/>
+
+  <clock name="PSCLK" num_pins="1"/>
+  <input name="PSEN" num_pins="1"/>
+  <input name="PSINCDEC" num_pins="1"/>
+
+  <clock name="CLKFBIN" num_pins="1"/>
+  <clock name="CLKIN1" num_pins="1"/>
+  <clock name="CLKIN2" num_pins="1"/>
+
+  <input name="CLKINSEL" num_pins="1"/>
+  <input name="PWRDWN" num_pins="1"/>
+  <input name="RST" num_pins="1"/>
+
+  <output name="DO0" num_pins="1"/>
+  <output name="DO1" num_pins="1"/>
+  <output name="DO2" num_pins="1"/>
+  <output name="DO3" num_pins="1"/>
+  <output name="DO4" num_pins="1"/>
+  <output name="DO5" num_pins="1"/>
+  <output name="DO6" num_pins="1"/>
+  <output name="DO7" num_pins="1"/>
+  <output name="DO8" num_pins="1"/>
+  <output name="DO9" num_pins="1"/>
+  <output name="DO10" num_pins="1"/>
+  <output name="DO11" num_pins="1"/>
+  <output name="DO12" num_pins="1"/>
+  <output name="DO13" num_pins="1"/>
+  <output name="DO14" num_pins="1"/>
+  <output name="DO15" num_pins="1"/>
+  <output name="DRDY" num_pins="1"/>
+
+  <output name="PSDONE" num_pins="1"/>
+
+  <output name="CLKFBOUT" num_pins="1"/>
+  <output name="CLKFBOUTB" num_pins="1"/>
+  <output name="CLKOUT0" num_pins="1"/>
+  <output name="CLKOUT0B" num_pins="1"/>
+  <output name="CLKOUT1" num_pins="1"/>
+  <output name="CLKOUT1B" num_pins="1"/>
+  <output name="CLKOUT2" num_pins="1"/>
+  <output name="CLKOUT2B" num_pins="1"/>
+  <output name="CLKOUT3" num_pins="1"/>
+  <output name="CLKOUT3B" num_pins="1"/>
+  <output name="CLKOUT4" num_pins="1"/>
+  <output name="CLKOUT5" num_pins="1"/>
+  <output name="CLKOUT6" num_pins="1"/>
+
+  <output name="LOCKED" num_pins="1"/>
+
+  <output name="CLKINSTOPPED" num_pins="1"/>
+  <output name="CLKFBSTOPPED" num_pins="1"/>
+
+  <input name="TESTIN0" num_pins="1"/>
+  <input name="TESTIN1" num_pins="1"/>
+  <input name="TESTIN2" num_pins="1"/>
+  <input name="TESTIN3" num_pins="1"/>
+  <input name="TESTIN4" num_pins="1"/>
+  <input name="TESTIN5" num_pins="1"/>
+  <input name="TESTIN6" num_pins="1"/>
+  <input name="TESTIN7" num_pins="1"/>
+  <input name="TESTIN8" num_pins="1"/>
+  <input name="TESTIN9" num_pins="1"/>
+  <input name="TESTIN10" num_pins="1"/>
+  <input name="TESTIN11" num_pins="1"/>
+  <input name="TESTIN12" num_pins="1"/>
+  <input name="TESTIN13" num_pins="1"/>
+  <input name="TESTIN14" num_pins="1"/>
+  <input name="TESTIN15" num_pins="1"/>
+  <input name="TESTIN16" num_pins="1"/>
+  <input name="TESTIN17" num_pins="1"/>
+  <input name="TESTIN18" num_pins="1"/>
+  <input name="TESTIN19" num_pins="1"/>
+  <input name="TESTIN20" num_pins="1"/>
+  <input name="TESTIN21" num_pins="1"/>
+  <input name="TESTIN22" num_pins="1"/>
+  <input name="TESTIN23" num_pins="1"/>
+  <input name="TESTIN24" num_pins="1"/>
+  <input name="TESTIN25" num_pins="1"/>
+  <input name="TESTIN26" num_pins="1"/>
+  <input name="TESTIN27" num_pins="1"/>
+  <input name="TESTIN28" num_pins="1"/>
+  <input name="TESTIN29" num_pins="1"/>
+  <input name="TESTIN30" num_pins="1"/>
+  <input name="TESTIN31" num_pins="1"/>
+
+  <output name="TESTOUT0" num_pins="1"/>
+  <output name="TESTOUT1" num_pins="1"/>
+  <output name="TESTOUT2" num_pins="1"/>
+  <output name="TESTOUT3" num_pins="1"/>
+  <output name="TESTOUT4" num_pins="1"/>
+  <output name="TESTOUT5" num_pins="1"/>
+  <output name="TESTOUT6" num_pins="1"/>
+  <output name="TESTOUT7" num_pins="1"/>
+  <output name="TESTOUT8" num_pins="1"/>
+  <output name="TESTOUT9" num_pins="1"/>
+  <output name="TESTOUT10" num_pins="1"/>
+  <output name="TESTOUT11" num_pins="1"/>
+  <output name="TESTOUT12" num_pins="1"/>
+  <output name="TESTOUT13" num_pins="1"/>
+  <output name="TESTOUT14" num_pins="1"/>
+  <output name="TESTOUT15" num_pins="1"/>
+  <output name="TESTOUT16" num_pins="1"/>
+  <output name="TESTOUT17" num_pins="1"/>
+  <output name="TESTOUT18" num_pins="1"/>
+  <output name="TESTOUT19" num_pins="1"/>
+  <output name="TESTOUT20" num_pins="1"/>
+  <output name="TESTOUT21" num_pins="1"/>
+  <output name="TESTOUT22" num_pins="1"/>
+  <output name="TESTOUT23" num_pins="1"/>
+  <output name="TESTOUT24" num_pins="1"/>
+  <output name="TESTOUT25" num_pins="1"/>
+  <output name="TESTOUT26" num_pins="1"/>
+  <output name="TESTOUT27" num_pins="1"/>
+  <output name="TESTOUT28" num_pins="1"/>
+  <output name="TESTOUT29" num_pins="1"/>
+  <output name="TESTOUT30" num_pins="1"/>
+  <output name="TESTOUT31" num_pins="1"/>
+  <output name="TESTOUT32" num_pins="1"/>
+  <output name="TESTOUT33" num_pins="1"/>
+  <output name="TESTOUT34" num_pins="1"/>
+  <output name="TESTOUT35" num_pins="1"/>
+  <output name="TESTOUT36" num_pins="1"/>
+  <output name="TESTOUT37" num_pins="1"/>
+  <output name="TESTOUT38" num_pins="1"/>
+  <output name="TESTOUT39" num_pins="1"/>
+  <output name="TESTOUT40" num_pins="1"/>
+  <output name="TESTOUT41" num_pins="1"/>
+  <output name="TESTOUT42" num_pins="1"/>
+  <output name="TESTOUT43" num_pins="1"/>
+  <output name="TESTOUT44" num_pins="1"/>
+  <output name="TESTOUT45" num_pins="1"/>
+  <output name="TESTOUT46" num_pins="1"/>
+  <output name="TESTOUT47" num_pins="1"/>
+  <output name="TESTOUT48" num_pins="1"/>
+  <output name="TESTOUT49" num_pins="1"/>
+  <output name="TESTOUT50" num_pins="1"/>
+  <output name="TESTOUT51" num_pins="1"/>
+  <output name="TESTOUT52" num_pins="1"/>
+  <output name="TESTOUT53" num_pins="1"/>
+  <output name="TESTOUT54" num_pins="1"/>
+  <output name="TESTOUT55" num_pins="1"/>
+  <output name="TESTOUT56" num_pins="1"/>
+  <output name="TESTOUT57" num_pins="1"/>
+  <output name="TESTOUT58" num_pins="1"/>
+  <output name="TESTOUT59" num_pins="1"/>
+  <output name="TESTOUT60" num_pins="1"/>
+  <output name="TESTOUT61" num_pins="1"/>
+  <output name="TESTOUT62" num_pins="1"/>
+  <output name="TESTOUT63" num_pins="1"/>
+
+  <output name="TMUXOUT" num_pins="1"/>
+
+  <T_setup value="{setup_DCLK_DEN}" port="DEN" clock="DCLK"/>
+  <T_hold  value="{hold_DCLK_DEN}" port="DEN" clock="DCLK"/>
+  <T_setup value="{setup_DCLK_DWE}" port="DWE" clock="DCLK"/>
+  <T_hold  value="{hold_DCLK_DWE}" port="DWE" clock="DCLK"/>
+
+  <T_setup value="{setup_DCLK_DADDR}" port="DADDR0" clock="DCLK"/>
+  <T_hold  value="{hold_DCLK_DADDR}"  port="DADDR0" clock="DCLK"/>
+  <T_setup value="{setup_DCLK_DADDR}" port="DADDR1" clock="DCLK"/>
+  <T_hold  value="{hold_DCLK_DADDR}"  port="DADDR1" clock="DCLK"/>
+  <T_setup value="{setup_DCLK_DADDR}" port="DADDR2" clock="DCLK"/>
+  <T_hold  value="{hold_DCLK_DADDR}"  port="DADDR2" clock="DCLK"/>
+  <T_setup value="{setup_DCLK_DADDR}" port="DADDR3" clock="DCLK"/>
+  <T_hold  value="{hold_DCLK_DADDR}"  port="DADDR3" clock="DCLK"/>
+  <T_setup value="{setup_DCLK_DADDR}" port="DADDR4" clock="DCLK"/>
+  <T_hold  value="{hold_DCLK_DADDR}"  port="DADDR4" clock="DCLK"/>
+  <T_setup value="{setup_DCLK_DADDR}" port="DADDR5" clock="DCLK"/>
+  <T_hold  value="{hold_DCLK_DADDR}"  port="DADDR5" clock="DCLK"/>
+  <T_setup value="{setup_DCLK_DADDR}" port="DADDR6" clock="DCLK"/>
+  <T_hold  value="{hold_DCLK_DADDR}"  port="DADDR6" clock="DCLK"/>
+
+  <T_setup value="{setup_DCLK_DI}" port="DI0" clock="DCLK"/>
+  <T_hold  value="{hold_DCLK_DI}"  port="DI0" clock="DCLK"/>
+  <T_setup value="{setup_DCLK_DI}" port="DI1" clock="DCLK"/>
+  <T_hold  value="{hold_DCLK_DI}"  port="DI1" clock="DCLK"/>
+  <T_setup value="{setup_DCLK_DI}" port="DI2" clock="DCLK"/>
+  <T_hold  value="{hold_DCLK_DI}"  port="DI2" clock="DCLK"/>
+  <T_setup value="{setup_DCLK_DI}" port="DI3" clock="DCLK"/>
+  <T_hold  value="{hold_DCLK_DI}"  port="DI3" clock="DCLK"/>
+  <T_setup value="{setup_DCLK_DI}" port="DI4" clock="DCLK"/>
+  <T_hold  value="{hold_DCLK_DI}"  port="DI4" clock="DCLK"/>
+  <T_setup value="{setup_DCLK_DI}" port="DI5" clock="DCLK"/>
+  <T_hold  value="{hold_DCLK_DI}"  port="DI5" clock="DCLK"/>
+  <T_setup value="{setup_DCLK_DI}" port="DI6" clock="DCLK"/>
+  <T_hold  value="{hold_DCLK_DI}"  port="DI6" clock="DCLK"/>
+  <T_setup value="{setup_DCLK_DI}" port="DI7" clock="DCLK"/>
+  <T_hold  value="{hold_DCLK_DI}"  port="DI7" clock="DCLK"/>
+  <T_setup value="{setup_DCLK_DI}" port="DI8" clock="DCLK"/>
+  <T_hold  value="{hold_DCLK_DI}"  port="DI8" clock="DCLK"/>
+  <T_setup value="{setup_DCLK_DI}" port="DI9" clock="DCLK"/>
+  <T_hold  value="{hold_DCLK_DI}"  port="DI9" clock="DCLK"/>
+  <T_setup value="{setup_DCLK_DI}" port="DI10" clock="DCLK"/>
+  <T_hold  value="{hold_DCLK_DI}"  port="DI10" clock="DCLK"/>
+  <T_setup value="{setup_DCLK_DI}" port="DI11" clock="DCLK"/>
+  <T_hold  value="{hold_DCLK_DI}"  port="DI11" clock="DCLK"/>
+  <T_setup value="{setup_DCLK_DI}" port="DI12" clock="DCLK"/>
+  <T_hold  value="{hold_DCLK_DI}"  port="DI12" clock="DCLK"/>
+  <T_setup value="{setup_DCLK_DI}" port="DI13" clock="DCLK"/>
+  <T_hold  value="{hold_DCLK_DI}"  port="DI13" clock="DCLK"/>
+  <T_setup value="{setup_DCLK_DI}" port="DI14" clock="DCLK"/>
+  <T_hold  value="{hold_DCLK_DI}"  port="DI14" clock="DCLK"/>
+  <T_setup value="{setup_DCLK_DI}" port="DI15" clock="DCLK"/>
+  <T_hold  value="{hold_DCLK_DI}"  port="DI15" clock="DCLK"/>
+
+  <T_clock_to_Q max="{iopath_DCLK_DO}" port="DO0" clock="DCLK"/>
+  <T_clock_to_Q max="{iopath_DCLK_DO}" port="DO1" clock="DCLK"/>
+  <T_clock_to_Q max="{iopath_DCLK_DO}" port="DO2" clock="DCLK"/>
+  <T_clock_to_Q max="{iopath_DCLK_DO}" port="DO3" clock="DCLK"/>
+  <T_clock_to_Q max="{iopath_DCLK_DO}" port="DO4" clock="DCLK"/>
+  <T_clock_to_Q max="{iopath_DCLK_DO}" port="DO5" clock="DCLK"/>
+  <T_clock_to_Q max="{iopath_DCLK_DO}" port="DO6" clock="DCLK"/>
+  <T_clock_to_Q max="{iopath_DCLK_DO}" port="DO7" clock="DCLK"/>
+  <T_clock_to_Q max="{iopath_DCLK_DO}" port="DO8" clock="DCLK"/>
+  <T_clock_to_Q max="{iopath_DCLK_DO}" port="DO9" clock="DCLK"/>
+  <T_clock_to_Q max="{iopath_DCLK_DO}" port="DO10" clock="DCLK"/>
+  <T_clock_to_Q max="{iopath_DCLK_DO}" port="DO11" clock="DCLK"/>
+  <T_clock_to_Q max="{iopath_DCLK_DO}" port="DO12" clock="DCLK"/>
+  <T_clock_to_Q max="{iopath_DCLK_DO}" port="DO13" clock="DCLK"/>
+  <T_clock_to_Q max="{iopath_DCLK_DO}" port="DO14" clock="DCLK"/>
+  <T_clock_to_Q max="{iopath_DCLK_DO}" port="DO15" clock="DCLK"/>
+
+  <T_clock_to_Q max="{iopath_DCLK_DRDY}" port="DRDY" clock="DCLK"/>
+
+  <!-- FIXME: Use real timing data here -->
+  <T_setup value="1e-12" port="PSEN" clock="PSCLK"/>
+  <T_hold  value="1e-12" port="PSEN" clock="PSCLK"/>
+  <T_setup value="1e-12" port="PSINCDEC" clock="PSCLK"/>
+  <T_hold  value="1e-12" port="PSINCDEC" clock="PSCLK"/>
+
+  <T_clock_to_Q max="1e-12" port="PSDONE" clock="PSCLK"/>
+
+  <delay_constant max="{iopath_RST_LOCKED}" in_port="RST" out_port="LOCKED"/>
+
+  <!-- The following timings depend on the MMCM COMPENSATION setting.
+       For now the worst ones were chosen (for the "BUF_IN" mode). This may
+       be changed in the bels.json file -->
+  <!-- FIXME: delay constants are not allowed for clock generators as the combinational sink
+       cannot be used in the model
+  <delay_constant max="{iopath_CLKIN1_CLKFBOUT}" in_port="CLKIN1" out_port="CLKFBOUT"/>
+  <delay_constant max="{iopath_CLKIN1_CLKOUT0}" in_port="CLKIN1" out_port="CLKOUT0"/>
+  <delay_constant max="{iopath_CLKIN1_CLKOUT1}" in_port="CLKIN1" out_port="CLKOUT1"/>
+  <delay_constant max="{iopath_CLKIN1_CLKOUT2}" in_port="CLKIN1" out_port="CLKOUT2"/>
+  <delay_constant max="{iopath_CLKIN1_CLKOUT3}" in_port="CLKIN1" out_port="CLKOUT3"/>
+  <delay_constant max="{iopath_CLKIN1_CLKOUT4}" in_port="CLKIN1" out_port="CLKOUT4"/>
+  <delay_constant max="{iopath_CLKIN1_CLKOUT5}" in_port="CLKIN1" out_port="CLKOUT5"/>
+
+  <delay_constant max="{iopath_CLKIN2_CLKFBOUT}" in_port="CLKIN2" out_port="CLKFBOUT"/>
+  <delay_constant max="{iopath_CLKIN2_CLKOUT0}" in_port="CLKIN2" out_port="CLKOUT0"/>
+  <delay_constant max="{iopath_CLKIN2_CLKOUT1}" in_port="CLKIN2" out_port="CLKOUT1"/>
+  <delay_constant max="{iopath_CLKIN2_CLKOUT2}" in_port="CLKIN2" out_port="CLKOUT2"/>
+  <delay_constant max="{iopath_CLKIN2_CLKOUT3}" in_port="CLKIN2" out_port="CLKOUT3"/>
+  <delay_constant max="{iopath_CLKIN2_CLKOUT4}" in_port="CLKIN2" out_port="CLKOUT4"/>
+  <delay_constant max="{iopath_CLKIN2_CLKOUT5}" in_port="CLKIN2" out_port="CLKOUT5"/> -->
+
+  <!-- Metadata -->
+  <metadata>
+    <meta name="fasm_prefix">
+      MMCME2
+    </meta>
+    <meta name="fasm_features">
+      IN_USE
+    </meta>
+    <meta name="fasm_params">
+      INV_CLKINSEL = INV_CLKINSEL
+      ZINV_PWRDWN = ZINV_PWRDWN
+      ZINV_RST = ZINV_RST
+      STARTUP_WAIT = STARTUP_WAIT
+      DIVCLK_DIVCLK_HIGH_TIME[5:0] = DIVCLK_DIVCLK_HIGH_TIME
+      DIVCLK_DIVCLK_LOW_TIME[5:0] = DIVCLK_DIVCLK_LOW_TIME
+      DIVCLK_DIVCLK_NO_COUNT = DIVCLK_DIVCLK_NO_COUNT
+      DIVCLK_DIVCLK_EDGE = DIVCLK_DIVCLK_EDGE
+      TABLE[9:0] = TABLE
+      LKTABLE[39:0] = LKTABLE
+      POWER_REG_POWER_REG_POWER_REG[15:0] = POWER_REG
+      FILTREG1_RESERVED[11:0] = FILTREG1_RESERVED
+      FILTREG2_RESERVED[9:0] = FILTREG2_RESERVED
+      LOCKREG1_RESERVED[5:0] = LOCKREG1_RESERVED
+      LOCKREG2_RESERVED = LOCKREG2_RESERVED
+      LOCKREG3_RESERVED = LOCKREG3_RESERVED
+      CLKFBOUT_CLKOUT1_HIGH_TIME[5:0] = CLKFBOUT_CLKOUT1_HIGH_TIME
+      CLKFBOUT_CLKOUT1_LOW_TIME[5:0] = CLKFBOUT_CLKOUT1_LOW_TIME
+      CLKFBOUT_CLKOUT1_OUTPUT_ENABLE = CLKFBOUT_CLKOUT1_OUTPUT_ENABLE
+      CLKFBOUT_CLKOUT1_PHASE_MUX[2:0] = CLKFBOUT_CLKOUT1_PHASE_MUX
+      CLKFBOUT_CLKOUT2_DELAY_TIME[5:0] = CLKFBOUT_CLKOUT2_DELAY_TIME
+      CLKFBOUT_CLKOUT2_EDGE = CLKFBOUT_CLKOUT2_EDGE
+      CLKFBOUT_CLKOUT2_FRAC[2:0] = CLKFBOUT_CLKOUT2_FRAC
+      CLKFBOUT_CLKOUT2_FRAC_EN = CLKFBOUT_CLKOUT2_FRAC_EN
+      CLKFBOUT_CLKOUT2_FRAC_WF_R = CLKFBOUT_CLKOUT2_FRAC_WF_R
+      CLKFBOUT_CLKOUT2_MX[1:0] = CLKFBOUT_CLKOUT2_MX
+      CLKFBOUT_CLKOUT2_NO_COUNT = CLKFBOUT_CLKOUT2_NO_COUNT
+      CLKOUT0_CLKOUT1_HIGH_TIME[5:0] = CLKOUT0_CLKOUT1_HIGH_TIME
+      CLKOUT0_CLKOUT1_LOW_TIME[5:0] = CLKOUT0_CLKOUT1_LOW_TIME
+      CLKOUT0_CLKOUT1_OUTPUT_ENABLE = CLKOUT0_CLKOUT1_OUTPUT_ENABLE
+      CLKOUT0_CLKOUT1_PHASE_MUX[2:0] = CLKOUT0_CLKOUT1_PHASE_MUX
+      CLKOUT0_CLKOUT2_DELAY_TIME[5:0] = CLKOUT0_CLKOUT2_DELAY_TIME
+      CLKOUT0_CLKOUT2_EDGE = CLKOUT0_CLKOUT2_EDGE
+      CLKOUT0_CLKOUT2_FRAC[2:0] = CLKOUT0_CLKOUT2_FRAC
+      CLKOUT0_CLKOUT2_FRAC_EN = CLKOUT0_CLKOUT2_FRAC_EN
+      CLKOUT0_CLKOUT2_FRAC_WF_R = CLKOUT0_CLKOUT2_FRAC_WF_R
+      CLKOUT0_CLKOUT2_MX[1:0] = CLKOUT0_CLKOUT2_MX
+      CLKOUT0_CLKOUT2_NO_COUNT = CLKOUT0_CLKOUT2_NO_COUNT
+      CLKOUT1_CLKOUT1_HIGH_TIME[5:0] = CLKOUT1_CLKOUT1_HIGH_TIME
+      CLKOUT1_CLKOUT1_LOW_TIME[5:0] = CLKOUT1_CLKOUT1_LOW_TIME
+      CLKOUT1_CLKOUT1_OUTPUT_ENABLE = CLKOUT1_CLKOUT1_OUTPUT_ENABLE
+      CLKOUT1_CLKOUT1_PHASE_MUX[2:0] = CLKOUT1_CLKOUT1_PHASE_MUX
+      CLKOUT1_CLKOUT2_DELAY_TIME[5:0] = CLKOUT1_CLKOUT2_DELAY_TIME
+      CLKOUT1_CLKOUT2_EDGE = CLKOUT1_CLKOUT2_EDGE
+      CLKOUT1_CLKOUT2_FRAC[2:0] = CLKOUT1_CLKOUT2_FRAC
+      CLKOUT1_CLKOUT2_FRAC_EN = CLKOUT1_CLKOUT2_FRAC_EN
+      CLKOUT1_CLKOUT2_FRAC_WF_R = CLKOUT1_CLKOUT2_FRAC_WF_R
+      CLKOUT1_CLKOUT2_MX[1:0] = CLKOUT1_CLKOUT2_MX
+      CLKOUT1_CLKOUT2_NO_COUNT = CLKOUT1_CLKOUT2_NO_COUNT
+      CLKOUT2_CLKOUT1_HIGH_TIME[5:0] = CLKOUT2_CLKOUT1_HIGH_TIME
+      CLKOUT2_CLKOUT1_LOW_TIME[5:0] = CLKOUT2_CLKOUT1_LOW_TIME
+      CLKOUT2_CLKOUT1_OUTPUT_ENABLE = CLKOUT2_CLKOUT1_OUTPUT_ENABLE
+      CLKOUT2_CLKOUT1_PHASE_MUX[2:0] = CLKOUT2_CLKOUT1_PHASE_MUX
+      CLKOUT2_CLKOUT2_DELAY_TIME[5:0] = CLKOUT2_CLKOUT2_DELAY_TIME
+      CLKOUT2_CLKOUT2_EDGE = CLKOUT2_CLKOUT2_EDGE
+      CLKOUT2_CLKOUT2_FRAC[2:0] = CLKOUT2_CLKOUT2_FRAC
+      CLKOUT2_CLKOUT2_FRAC_EN = CLKOUT2_CLKOUT2_FRAC_EN
+      CLKOUT2_CLKOUT2_FRAC_WF_R = CLKOUT2_CLKOUT2_FRAC_WF_R
+      CLKOUT2_CLKOUT2_MX[1:0] = CLKOUT2_CLKOUT2_MX
+      CLKOUT2_CLKOUT2_NO_COUNT = CLKOUT2_CLKOUT2_NO_COUNT
+      CLKOUT3_CLKOUT1_HIGH_TIME[5:0] = CLKOUT3_CLKOUT1_HIGH_TIME
+      CLKOUT3_CLKOUT1_LOW_TIME[5:0] = CLKOUT3_CLKOUT1_LOW_TIME
+      CLKOUT3_CLKOUT1_OUTPUT_ENABLE = CLKOUT3_CLKOUT1_OUTPUT_ENABLE
+      CLKOUT3_CLKOUT1_PHASE_MUX[2:0] = CLKOUT3_CLKOUT1_PHASE_MUX
+      CLKOUT3_CLKOUT2_DELAY_TIME[5:0] = CLKOUT3_CLKOUT2_DELAY_TIME
+      CLKOUT3_CLKOUT2_EDGE = CLKOUT3_CLKOUT2_EDGE
+      CLKOUT3_CLKOUT2_FRAC[2:0] = CLKOUT3_CLKOUT2_FRAC
+      CLKOUT3_CLKOUT2_FRAC_EN = CLKOUT3_CLKOUT2_FRAC_EN
+      CLKOUT3_CLKOUT2_FRAC_WF_R = CLKOUT3_CLKOUT2_FRAC_WF_R
+      CLKOUT3_CLKOUT2_MX[1:0] = CLKOUT3_CLKOUT2_MX
+      CLKOUT3_CLKOUT2_NO_COUNT = CLKOUT3_CLKOUT2_NO_COUNT
+      CLKOUT4_CLKOUT1_HIGH_TIME[5:0] = CLKOUT4_CLKOUT1_HIGH_TIME
+      CLKOUT4_CLKOUT1_LOW_TIME[5:0] = CLKOUT4_CLKOUT1_LOW_TIME
+      CLKOUT4_CLKOUT1_OUTPUT_ENABLE = CLKOUT4_CLKOUT1_OUTPUT_ENABLE
+      CLKOUT4_CLKOUT1_PHASE_MUX[2:0] = CLKOUT4_CLKOUT1_PHASE_MUX
+      CLKOUT4_CLKOUT2_DELAY_TIME[5:0] = CLKOUT4_CLKOUT2_DELAY_TIME
+      CLKOUT4_CLKOUT2_EDGE = CLKOUT4_CLKOUT2_EDGE
+      CLKOUT4_CLKOUT2_FRAC[2:0] = CLKOUT4_CLKOUT2_FRAC
+      CLKOUT4_CLKOUT2_FRAC_EN = CLKOUT4_CLKOUT2_FRAC_EN
+      CLKOUT4_CLKOUT2_FRAC_WF_R = CLKOUT4_CLKOUT2_FRAC_WF_R
+      CLKOUT4_CLKOUT2_MX[1:0] = CLKOUT4_CLKOUT2_MX
+      CLKOUT4_CLKOUT2_NO_COUNT = CLKOUT4_CLKOUT2_NO_COUNT
+      CLKOUT5_CLKOUT1_HIGH_TIME[5:0] = CLKOUT5_CLKOUT1_HIGH_TIME
+      CLKOUT5_CLKOUT1_LOW_TIME[5:0] = CLKOUT5_CLKOUT1_LOW_TIME
+      CLKOUT5_CLKOUT1_OUTPUT_ENABLE = CLKOUT5_CLKOUT1_OUTPUT_ENABLE
+      CLKOUT5_CLKOUT1_PHASE_MUX[2:0] = CLKOUT5_CLKOUT1_PHASE_MUX
+      CLKOUT5_CLKOUT2_FRACTIONAL_DELAY_TIME[5:0] = CLKOUT5_CLKOUT2_FRACTIONAL_DELAY_TIME
+      CLKOUT5_CLKOUT2_FRACTIONAL_EDGE = CLKOUT5_CLKOUT2_FRACTIONAL_EDGE
+      CLKOUT5_CLKOUT2_FRACTIONAL_FRAC_WF_F = CLKOUT5_CLKOUT2_FRACTIONAL_FRAC_WF_F
+      CLKOUT5_CLKOUT2_FRACTIONAL_MX[1:0] = CLKOUT5_CLKOUT2_FRACTIONAL_MX
+      CLKOUT5_CLKOUT2_FRACTIONAL_NO_COUNT = CLKOUT5_CLKOUT2_NO_COUNT
+      CLKOUT5_CLKOUT2_FRACTIONAL_PHASE_MUX_F[2:0] = CLKOUT5_CLKOUT2_FRACTIONAL_PHASE_MUX_F
+      CLKOUT6_CLKOUT1_HIGH_TIME[5:0] = CLKOUT6_CLKOUT1_HIGH_TIME
+      CLKOUT6_CLKOUT1_LOW_TIME[5:0] = CLKOUT6_CLKOUT1_LOW_TIME
+      CLKOUT6_CLKOUT1_OUTPUT_ENABLE = CLKOUT6_CLKOUT1_OUTPUT_ENABLE
+      CLKOUT6_CLKOUT1_PHASE_MUX[2:0] = CLKOUT6_CLKOUT1_PHASE_MUX
+      CLKOUT6_CLKOUT2_FRACTIONAL_DELAY_TIME[5:0] = CLKOUT6_CLKOUT2_FRACTIONAL_DELAY_TIME
+      CLKOUT6_CLKOUT2_FRACTIONAL_EDGE = CLKOUT6_CLKOUT2_FRACTIONAL_EDGE
+      CLKOUT6_CLKOUT2_FRACTIONAL_FRAC_WF_F = CLKOUT6_CLKOUT2_FRACTIONAL_FRAC_WF_F
+      CLKOUT6_CLKOUT2_FRACTIONAL_MX[1:0] = CLKOUT6_CLKOUT2_FRACTIONAL_MX
+      CLKOUT6_CLKOUT2_FRACTIONAL_NO_COUNT = CLKOUT6_CLKOUT2_NO_COUNT
+      CLKOUT6_CLKOUT2_FRACTIONAL_PHASE_MUX_F[2:0] = CLKOUT6_CLKOUT2_FRACTIONAL_PHASE_MUX_F
+    </meta>
+  </metadata>
+
+</pb_type>

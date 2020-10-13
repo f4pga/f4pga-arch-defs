@@ -18,6 +18,8 @@ add_xc_device_define_type(
     CLK_BUFG_TOP_R
     CMT_TOP_L_UPPER_T
     CMT_TOP_R_UPPER_T
+    CMT_TOP_L_LOWER_B
+    CMT_TOP_R_LOWER_B
     HCLK_IOI3
   PB_TYPES
     SLICEL
@@ -28,5 +30,6 @@ add_xc_device_define_type(
     IOPAD_S
     BUFGCTRL
     PLLE2_ADV
+    MMCME2_ADV
     HCLK_IOI3
 )
