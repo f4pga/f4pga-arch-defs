@@ -7,7 +7,7 @@ add_fpga_target(
   NAME mmcm_int_basys3
   BOARD basys3-bottom
   SOURCES mmcm_int_basys3_bottom.v
-  INPUT_IO_FILE ${COMMON}/basys3_pmod.pcf
+  INPUT_IO_FILE ${COMMON}/basys3_bottom_pmod.pcf
   EXPLICIT_ADD_FILE_TARGET
   )
 
@@ -15,7 +15,7 @@ add_fpga_target(
   NAME mmcm_buf_basys3
   BOARD basys3-bottom
   SOURCES mmcm_buf_basys3_bottom.v
-  INPUT_IO_FILE ${COMMON}/basys3_pmod.pcf
+  INPUT_IO_FILE ${COMMON}/basys3_bottom_pmod.pcf
   EXPLICIT_ADD_FILE_TARGET
   )
 
@@ -23,7 +23,7 @@ add_fpga_target(
   NAME mmcm_ext_basys3
   BOARD basys3-bottom
   SOURCES mmcm_ext_basys3_bottom.v
-  INPUT_IO_FILE ${COMMON}/basys3_pmod.pcf
+  INPUT_IO_FILE ${COMMON}/basys3_bottom_pmod.pcf
   EXPLICIT_ADD_FILE_TARGET
   )
 
