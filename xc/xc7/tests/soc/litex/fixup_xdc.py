@@ -1,4 +1,5 @@
 import argparse
+import re
 """
 Currently, litex outputs XDC constraints in which the create_clock commands
 cannot be correctly parsed yet by the XDC yosys plugin.
@@ -14,6 +15,10 @@ into the working ones.
 
 This script is a temporary workaround and needs to be avoided.
 """
+
+CREATE_CLOCK_REGEX = re.compile(
+    '(create_clock) -name ([a-zA-Z0-9_]+) (-period) ([0-9.]*) .*'
+)
 
 
 def main():
@@ -35,15 +40,19 @@ def main():
 
             if processing:
                 if line.startswith('create_clock'):
-                    groups = line.split()
+                    m = CREATE_CLOCK_REGEX.match(line)
 
-                    # Old line: create_clock -name clk100 -period 10.0 [get_nets clk100]
-                    # New line: create_clock -period 10.0 clk100
-                    new_line = " ".join(
-                        [groups[0], groups[3], groups[4], groups[2], '\n']
-                    )
+                    if m:
+                        # Old line: create_clock -name clk100 -period 10.0 [get_nets clk100]
+                        # New line: create_clock -period 10.0 clk100
+                        new_line = " ".join(
+                            (
+                                m.group(1), m.group(3), m.group(4), m.group(2),
+                                '\n'
+                            )
+                        )
 
-                    lines_to_add.append(new_line)
+                        lines_to_add.append(new_line)
             else:
                 lines_to_add.append(line)
 
