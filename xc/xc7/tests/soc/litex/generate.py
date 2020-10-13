@@ -77,6 +77,7 @@ def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Arty A7")
     parser.add_argument("--load", action="store_true", help="Load bitstream")
     parser.add_argument("--build", action="store_true", help="Build bitstream")
+    parser.add_argument("--build-name", default="top", help="Build name")
     parser.add_argument(
         "--toolchain",
         default="vivado",
@@ -113,7 +114,7 @@ def main():
     builder_kwargs = vivado_build_argdict(
         args
     ) if args.toolchain == "vivado" else {}
-    builder.build(**builder_kwargs, run=args.build)
+    builder.build(**builder_kwargs, run=args.build, build_name=args.build_name)
 
     if args.load:
         prog = soc.platform.create_programmer()
