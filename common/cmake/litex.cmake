@@ -44,10 +44,6 @@ function(ADD_LITEX_TEST)
     "${ARGN}"
   )
 
-  # Create a dependency list
-
-  # sv2v conversion
-
   set(NAME ${ADD_LITEX_TEST_NAME})
   set(LITEX_DIR ${ADD_LITEX_TEST_LITEX_DIR})
   set(LITEX_BOARD ${ADD_LITEX_TEST_LITEX_BOARD})
@@ -63,8 +59,11 @@ function(ADD_LITEX_TEST)
 
   list(TRANSFORM LITEX_SOURCES PREPEND ${LITEX_GATEWARE})
 
+  set(DEPS "")
   append_file_dependency(DEPS ${GENERATE_SCRIPT})
   append_file_dependency(DEPS ${FIXUP_SCRIPT})
+
+  get_target_property_required(PYTHON3 env PYTHON3)
 
   add_custom_command(
     OUTPUT ${LITEX_SOURCES}
