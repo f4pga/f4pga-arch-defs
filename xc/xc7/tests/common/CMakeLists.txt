@@ -6,6 +6,9 @@ add_file_target(FILE basys3_pmod.pcf)
 add_file_target(FILE basys3_gtp_common.pcf)
 add_file_target(FILE basys3_gtp_channel.pcf)
 
+# BASYS3 (bottom clock regions: X0Y0, X1Y0) constraint files
+add_file_target(FILE basys3_bottom_pmod.pcf)
+
 # ARTY constraint files
 add_file_target(FILE arty_uart.pcf)
 add_file_target(FILE arty_swbut.pcf)

@@ -8,11 +8,8 @@ module top
 (
 input  wire clk,
 
-input  wire rx,
-output wire tx,
-
-input  wire [15:0] sw,
-output wire [15:0] led,
+input  wire [7:0] sw,
+output wire [7:0] led,
 
 input  wire jc1, // unused
 output wire jc2,
@@ -58,7 +55,7 @@ plle2_test
 .O_CNT      (led[5:0])
 );
 
-assign led [15:7] = sw[15:7];
+assign led [7] = sw[7];
 assign jc2 = jc4;
 
 endmodule
