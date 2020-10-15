@@ -20,4 +20,4 @@ if [ -z $DEVICE ]; then
 fi
 
 
-generate_fasm2bels $PCF $EBLIF $NET $PART $DEVICE $ARCH_DEF
+symbiflow_generate_fasm2bels $PCF $EBLIF $NET $PART $DEVICE $ARCH_DEF
