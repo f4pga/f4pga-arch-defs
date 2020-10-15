@@ -39,6 +39,6 @@ else
     VPR_PLACE_FILE=${IOPLACE_FILE}
 fi
 
-run_vpr --fix_pins ${VPR_PLACE_FILE} --place
+run_vpr --fix_clusters ${VPR_PLACE_FILE} --place
 
 mv vpr_stdout.log place.log
