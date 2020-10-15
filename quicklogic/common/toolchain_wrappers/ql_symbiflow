@@ -8,7 +8,7 @@ BUILDDIR=build
 
 source ${MYPATH}/env
 source ${VPRPATH}/vpr_common
-
+VERSION="v1.3.0"
 
 if [ ! -n $1 ]; then
 echo "Please enter a valid command: Refer help ql_symbiflow --help"
@@ -25,6 +25,9 @@ echo -e "\nBelow are the supported commands: \n\
 \t>ql_symbiflow -compile -src <source_dir path> -d <device> -P <package> -t <top> -v <verilog file/files> -p <pcf file> -dump <jlink/post_verilog/header> \n\
 Device supported:ql-eos-s3\n\
 Packages supported PD64,PU64,WR42 " || exit 1
+elif [[ $1 == "-v" || $1 == "--version" ]];then
+        echo "Symbiflow Tool Version : ${VERSION}"
+        exit
 else
 echo -e "Please provide a valid command : Refer -h/--help\n"
 exit
@@ -405,7 +408,7 @@ all: \${BUILDDIR}/\${TOP}.bit\n\
 	cd \${BUILDDIR} && symbiflow_write_jlink -f \${TOP}.fasm -P \${PACKAGENAME} -b \${TOP}.bit\n\
 \n\
 \${BUILDDIR}/\${TOP}.openocd: \${BUILDDIR}/\${TOP}.bit\n\
-	cd \${BUILDDIR} && write_openocd -f \${TOP}.fasm -P \${PACKAGENAME} -b \${TOP}.bit\n\
+	cd \${BUILDDIR} && symbiflow_write_openocd -f \${TOP}.fasm -P \${PACKAGENAME} -b \${TOP}.bit\n\
 \n\
 \${BUILDDIR}/\${TOP}_jlink.h: \${BUILDDIR}/\${TOP}.jlink\n\
 	cd \${BUILDDIR} && symbiflow_write_jlinkheader\n\
