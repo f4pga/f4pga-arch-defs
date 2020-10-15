@@ -1,3 +1,5 @@
+add_file_target(FILE arty_clocks.xdc)
+
 set(SOURCES
   top.v
   top.xdc
@@ -18,6 +20,7 @@ add_litex_test(
   FLAGS
     --with-ram
   USE_XDC
+  VIVADO_XDC arty_clocks.xdc
 )
 
 add_litex_test(
@@ -32,4 +35,5 @@ add_litex_test(
   FLAGS
     --with-ram
   USE_XDC
+  VIVADO_XDC arty_clocks.xdc
 )

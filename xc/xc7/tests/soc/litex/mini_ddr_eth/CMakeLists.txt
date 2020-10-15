@@ -1,3 +1,5 @@
+add_file_target(FILE arty_clocks.xdc)
+
 set(SOURCES
   top.v
   top.xdc
@@ -7,7 +9,7 @@ set(SOURCES
 )
 
 add_litex_test(
-  NAME baselitex_arty
+  NAME minilitex_ddr_eth_arty
   LITEX_DIR arty_soc
   LITEX_BOARD a7-35
   LITEX_SOURCES ${SOURCES}
@@ -19,10 +21,11 @@ add_litex_test(
     --with-ram
     --with-ethernet
   USE_XDC
+  VIVADO_XDC arty_clocks.xdc
 )
 
 add_litex_test(
-  NAME baselitex_arty_a7
+  NAME minilitex_ddr_eth_arty_100t
   LITEX_DIR arty_a7_soc
   LITEX_BOARD a7-100
   LITEX_SOURCES ${SOURCES}
@@ -34,4 +37,8 @@ add_litex_test(
     --with-ram
     --with-ethernet
   USE_XDC
+  VIVADO_XDC arty_clocks.xdc
+  # FIXME: Certain BRAMs do have issues with the bittools regarding the
+  # INIT configuration bits: https://github.com/SymbiFlow/prjxray/pull/1335
+  DISABLE_DIFF_TEST
 )
