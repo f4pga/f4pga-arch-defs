@@ -1,3 +1,5 @@
+add_file_target(FILE arty_clocks.xdc)
+
 set(SOURCES
   top.v
   top.pcf
@@ -18,6 +20,7 @@ add_litex_test(
   FIXUP_SCRIPT ${FIXUP_XDC}
   FLAGS
     --toolchain symbiflow
+  VIVADO_XDC arty_clocks.xdc
 )
 
 add_litex_test(
@@ -31,4 +34,5 @@ add_litex_test(
   FIXUP_SCRIPT ${FIXUP_XDC}
   FLAGS
     --toolchain symbiflow
+  VIVADO_XDC arty_clocks.xdc
 )
