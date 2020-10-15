@@ -188,6 +188,18 @@ function(DEFINE_QL_DEVICE_CELLS_INSTALL_TARGET)
   install(DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/primitives/ramfifo/
           DESTINATION "share/arch/${DEVICE}_${PACKAGE}/cells"
           FILES_MATCHING PATTERN "*.v")
+  # install RAMFIFO tutotrial examples
+  install(DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/tests/FIFO_Examples
+          DESTINATION "tests")
+  install(DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/tests/RAM_Examples
+          DESTINATION "tests")
+  install(DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/tests/quicklogic_testsuite/counter_16bit
+          DESTINATION "tests")
+  install(DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/tests/quicklogic_testsuite/fifo_test
+          DESTINATION "tests")
+  install(DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/tests/quicklogic_testsuite/ram_test
+          DESTINATION "tests")
+
 	  
 endfunction()
 
