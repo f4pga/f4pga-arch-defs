@@ -22,7 +22,7 @@ echo -e "\nBelow are the supported commands: \n\
  To run synthesis, pack, place and route, generate bitstream:\n\
 \t>ql_symbiflow -compile -src <source_dir path> -d <device> -P <package> -t <top> -v <verilog file/files> -p <pcf file>  \n\
  To dump the jlink/post_verilog/header file: \n\
-\t>ql_symbiflow -compile -src <source_dir path> -d <device> -P <package> -t <top> -v <verilog file/files> -p <pcf file> -dump <jlink/post_verilog/header> \n\
+\t>ql_symbiflow -compile -src <source_dir path> -d <device> -P <package> -t <top> -v <verilog file/files> -p <pcf file> -dump <jlink/post_verilog/header/openocd> \n\
 Device supported:ql-eos-s3\n\
 Packages supported PD64,PU64,WR42 " || exit 1
 elif [[ $1 == "-v" || $1 == "--version" ]];then
