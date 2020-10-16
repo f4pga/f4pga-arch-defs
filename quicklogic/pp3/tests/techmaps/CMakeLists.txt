@@ -1,3 +1,4 @@
+
 add_custom_target(all_quicklogic_lut_techmap_tests)
 
 # ~~~
@@ -25,8 +26,10 @@ function(lut_techmap_test N LUT_COUNT)
     get_target_property_required(VVP env VVP)
     get_target_property(VVP_TARGET env VVP_TARGET)
 
-    set(VPR_CELLS_MAP_FILE ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/techmap/cells_map.v)
-    set(VPR_CELLS_SIM_FILE ${symbiflow-arch-defs_BINARY_DIR}/quicklogic/techmap/cells_sim.v)
+    set(VPR_CELLS_MAP_FILE ${CMAKE_CURRENT_SOURCE_DIR}/../../techmap/cells_map.v)
+    get_filename_component(BASE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../.. ABSOLUTE)
+    get_filename_component(FAMILY_NAME ${BASE_PATH} NAME)
+    set(VPR_CELLS_SIM_FILE ${symbiflow-arch-defs_BINARY_DIR}/quicklogic/${FAMILY_NAME}/techmap/cells_sim.v)
     get_file_target(VPR_CELLS_SIM_FILE_DEP ${VPR_CELLS_SIM_FILE})
     get_file_location(VPR_CELLS_SIM_FILE ${VPR_CELLS_SIM_FILE})
 

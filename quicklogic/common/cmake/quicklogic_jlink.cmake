@@ -35,7 +35,7 @@ function(ADD_JLINK_OUTPUT)
   get_file_location(PCF_LOC ${PCF})
 
   # Generate a JLINK script that sets IOMUX configuration.
-  set(IOMUX_CONFIG_GEN ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/eos_s3_iomux_config.py)
+  set(IOMUX_CONFIG_GEN ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/eos_s3_iomux_config.py)
   set(IOMUX_CONFIG "top_iomux.jlink")
 
   add_custom_command(
@@ -51,7 +51,7 @@ function(ADD_JLINK_OUTPUT)
   add_file_target(FILE ${WORK_DIR_REL}/${IOMUX_CONFIG} GENERATED)
 
   # Convert the binary bitstream to a JLINK script
-  set(BIT_TO_JLINK ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/quicklogic-fasm/quicklogic_fasm/bitstream_to_jlink.py)
+  set(BIT_TO_JLINK ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/quicklogic-fasm/quicklogic_fasm/bitstream_to_jlink.py)
   set(BIT_AS_JLINK "top.bit.jlink")
 
   add_custom_command(

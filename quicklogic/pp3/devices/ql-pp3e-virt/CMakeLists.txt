@@ -2,6 +2,7 @@ set(LIB_TIMING_FILES "*_BC_120V.lib" "*_WC_120V.lib" "BIDIR_COM_BC_180V.lib")
 set(DONT_NORMALIZE_FILES "RAM_COM_BC_120V.lib" "RAM_COM_WC_120V.lib")
 
 quicklogic_define_device_type(
+  FAMILY pp3
   DEVICE ql-pp3e
   ARCH ql-s3
   PACKAGES wlcsp

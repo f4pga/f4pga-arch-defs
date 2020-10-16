@@ -1,6 +1,6 @@
 function(DEFINE_QL_TOOLCHAIN_TARGET)
   set(options)
-  set(oneValueArgs ARCH CONV_SCRIPT SYNTH_SCRIPT ROUTE_CHAN_WIDTH CELLS_SIM)
+  set(oneValueArgs FAMILY ARCH CONV_SCRIPT SYNTH_SCRIPT ROUTE_CHAN_WIDTH CELLS_SIM)
   set(multiValueArgs VPR_ARCH_ARGS)
 
   cmake_parse_arguments(
@@ -16,6 +16,7 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
   get_target_property_required(GENFASM env GENFASM)
   get_target_property(GENFASM_TARGET env GENFASM_TARGET)
 
+  set(FAMILY ${DEFINE_QL_TOOLCHAIN_TARGET_FAMILY})
   set(ARCH ${DEFINE_QL_TOOLCHAIN_TARGET_ARCH})
   set(VPR_ARCH_ARGS ${DEFINE_QL_TOOLCHAIN_TARGET_VPR_ARCH_ARGS})
   set(ROUTE_CHAN_WIDTH ${DEFINE_QL_TOOLCHAIN_TARGET_ROUTE_CHAN_WIDTH})
@@ -43,11 +44,11 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
   set(TOOLCHAIN_WRAPPERS)
 
   foreach(WRAPPER ${WRAPPERS})
-    set(WRAPPER_PATH "${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/toolchain_wrappers/${WRAPPER}")
+    set(WRAPPER_PATH "${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/toolchain_wrappers/${WRAPPER}")
     list(APPEND TOOLCHAIN_WRAPPERS ${WRAPPER_PATH})
   endforeach()
 
-  set(VPR_COMMON_TEMPLATE "${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/toolchain_wrappers/vpr_common")
+  set(VPR_COMMON_TEMPLATE "${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/toolchain_wrappers/vpr_common")
   set(VPR_COMMON "${CMAKE_CURRENT_BINARY_DIR}/vpr_common")
   configure_file(${VPR_COMMON_TEMPLATE} "${VPR_COMMON}" @ONLY)
 
@@ -67,55 +68,55 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
           DESTINATION bin/python
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/create_ioplace.py
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/create_ioplace.py
           DESTINATION bin/python
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/create_place_constraints.py
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/create_place_constraints.py
           DESTINATION bin/python
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/fasm2bels.py
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/fasm2bels.py
           DESTINATION bin/python
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/connections.py
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/connections.py
           DESTINATION bin/python
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/data_structs.py
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/data_structs.py
           DESTINATION bin/python
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/timing.py
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/timing.py
           DESTINATION bin/python
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/tile_import.py
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/tile_import.py
           DESTINATION bin/python
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/utils.py
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/utils.py
           DESTINATION bin/python
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/verilogmodule.py
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/verilogmodule.py
           DESTINATION bin/python
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/eos_s3_iomux_config.py
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/eos_s3_iomux_config.py
           DESTINATION bin/python
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/quicklogic-fasm/quicklogic_fasm/bitstream_to_jlink.py
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/quicklogic-fasm/quicklogic_fasm/bitstream_to_jlink.py
           DESTINATION bin/python
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/quicklogic-fasm/quicklogic_fasm/bitstream_to_header.py
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/quicklogic-fasm/quicklogic_fasm/bitstream_to_header.py
 	  DESTINATION bin/python
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/build/quicklogic/devices/ql-eos-s3-virt/db_phy.pickle
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/build/quicklogic/${FAMILY}/devices/ql-eos-s3-virt/db_phy.pickle
 	  DESTINATION share/arch/ql-eos-s3_wlcsp
           PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ )
 
@@ -135,11 +136,11 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
           DESTINATION bin/python/lib)
 
   # install techmap
-  install(DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/techmap
-          DESTINATION share/techmaps/quicklogic)
+  install(DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/techmap
+      DESTINATION share/techmaps/quicklogic/${FAMILY})
 
   install(FILES ${DEFINE_QL_TOOLCHAIN_TARGET_CELLS_SIM}
-          DESTINATION share/techmaps/quicklogic/techmap)
+          DESTINATION share/techmaps/quicklogic/${FAMILY}/techmap)
 
   # install Yosys scripts
   install(FILES  ${DEFINE_QL_TOOLCHAIN_TARGET_CONV_SCRIPT} ${DEFINE_QL_TOOLCHAIN_TARGET_SYNTH_SCRIPT}

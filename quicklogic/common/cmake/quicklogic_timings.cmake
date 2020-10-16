@@ -13,6 +13,6 @@ get_target_property_required(SDF_TIMING_TARGET env SDF_TIMING_TARGET)
 add_thirdparty_package(
   NAME quicklogic_timings_importer
   PROVIDES quicklogic_timings_importer
-  BUILD_INSTALL_COMMAND "cd ${CMAKE_CURRENT_SOURCE_DIR}/utils/quicklogic-timings-importer && ${PYTHON3} setup.py develop"
+  BUILD_INSTALL_COMMAND "cd ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/quicklogic-timings-importer && ${PYTHON3} setup.py develop"
   DEPENDS ${PYTHON3} ${PYTHON3_TARGET} ${TERMCOLOR_TARGET} ${SDF_TIMING_TARGET}
 )

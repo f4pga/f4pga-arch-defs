@@ -32,7 +32,7 @@ function(ADD_QUICKLOGIC_BOARD)
   get_file_location(VPR_DB_FILE_LOC ${VPR_DB_FILE})
 
   # Generate clock pad map CSV file
-  set(CREATE_CLKMAP_CSV ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/create_clkmap_csv.py)
+  set(CREATE_CLKMAP_CSV ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/create_clkmap_csv.py)
   set(CLKMAP_CSV ${BOARD}_clkmap.csv)
   set(CLKMAP_CSV_DEPS ${PYTHON3} ${PYTHON3_TARGET} ${CREATE_CLKMAP_CSV})
   append_file_dependency(CLKMAP_CSV_DEPS ${VPR_DB_FILE})
@@ -48,7 +48,7 @@ function(ADD_QUICKLOGIC_BOARD)
   add_file_target(FILE ${CLKMAP_CSV} GENERATED)
 
   # Generate pinmap CSV file
-  set(CREATE_PINMAP_CSV ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/create_pinmap_csv.py)
+  set(CREATE_PINMAP_CSV ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/create_pinmap_csv.py)
   set(PINMAP_CSV ${BOARD}_pinmap.csv)
   set(PINMAP_CSV_DEPS ${PYTHON3} ${PYTHON3_TARGET} ${CREATE_PINMAP_CSV})
   append_file_dependency(PINMAP_CSV_DEPS ${VPR_DB_FILE})

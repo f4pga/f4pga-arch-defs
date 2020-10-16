@@ -9,7 +9,7 @@ function(ADD_QUICKLOGIC_FASM_PACKAGE)
 
   add_thirdparty_package(
     NAME quicklogic_fasm_utils
-    BUILD_INSTALL_COMMAND "cd ${CMAKE_CURRENT_SOURCE_DIR}/utils/fasm-utils && ${PYTHON3} setup.py develop"
+    BUILD_INSTALL_COMMAND "cd ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/fasm-utils && ${PYTHON3} setup.py develop"
     NO_EXE
     DEPENDS ${PYTHON3} ${PYTHON3_TARGET} ${FASM_TARGET}
     )
@@ -18,7 +18,7 @@ function(ADD_QUICKLOGIC_FASM_PACKAGE)
 
   add_thirdparty_package(
     NAME quicklogic_fasm
-    BUILD_INSTALL_COMMAND "cd ${CMAKE_CURRENT_SOURCE_DIR}/utils/quicklogic-fasm && ${PYTHON3} setup.py develop"
+    BUILD_INSTALL_COMMAND "cd ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/quicklogic-fasm && ${PYTHON3} setup.py develop"
     PROVIDES qlfasm
     DEPENDS ${PYTHON3} ${PYTHON3_TARGET} ${QUICKLOGIC_FASM_UTILS_TARGET}
     )

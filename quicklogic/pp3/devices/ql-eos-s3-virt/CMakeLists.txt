@@ -1,11 +1,13 @@
 set(LIB_TIMING_FILES "*_ss_0p990v_m040c.lib" "*_ss_0p990v_m040c_Cmax_2P97V.lib")
 set(DONT_NORMALIZE_FILES "RAM_ss_0p990v_m040c.lib" "RAM_ff_0p990v_m040c.lib")
 
+set(FAMILY "pp3")
 set(DEVICE "ql-eos-s3")
 set(PACKAGES "wlcsp")
 set(DEVICE_TYPE "ql-eos-s3-virt")
 
 quicklogic_define_device_type(
+  FAMILY ${FAMILY}
   DEVICE ${DEVICE}
   ARCH ql-s3
   PACKAGES wlcsp
