@@ -39,7 +39,18 @@ module top (
                     for (i=0; i<2; i=i+1) begin
                         localparam idx = sa*12 + e*6 + sr*2 + i;
 
-                        wire t;
+                        wire [0:0] t;
+                        wire [0:0] i_sig;
+
+                        ODDR # (
+                          .SRTYPE       (SRTYPE),
+                          .INIT         (i == 1),
+                          .DDR_CLK_EDGE (EDGE)
+                        ) tddr (
+                          .C(clk), .CE(i_ce), .D1(i_d1), .D2(i_d2),
+                          .R(r), .S(s),
+                          .Q(t)
+                        );
 
                         ODDR # (
                           .SRTYPE       (SRTYPE),
@@ -48,12 +59,12 @@ module top (
                         ) oddr (
                           .C(clk), .CE(i_ce), .D1(i_d1), .D2(i_d2),
                           .R(r), .S(s),
-                          .Q(t)
+                          .Q(i_sig)
                         );
 
                         // Cannot instance OBUFT because Yosys infers IOBs and
                         // inserts an inferred OBUF after the OBUFT...
-                        assign io[idx] = (t == 1'b0) ? 1'b1 : 1'bz;
+                        assign io[idx] = (t == 1'b0) ? i_sig : 1'bz;
                     end
                  end
             end

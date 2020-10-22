@@ -99,13 +99,13 @@
           <metadata>
             <meta name="fasm_features">
               OSERDES.DATA_RATE_TQ.DDR
+              TDDR.SRUSED
             </meta>
             <meta name="fasm_params">
               ZINV_CLK = ZINV_CLK
               ZINV_T1 = ZINV_D1
               ZINV_T2 = ZINV_D2
               OSERDES.TSRTYPE.SYNC = SRTYPE_SYNC
-              ODDR.DDR_CLK_EDGE.SAME_EDGE = SAME_EDGE
               ZINIT_TQ = ZINIT_Q
               ZSRVAL_TQ = ZSRVAL_Q
             </meta>
@@ -167,6 +167,7 @@
             <meta name="fasm_features">
               OQUSED
               OSERDES.DATA_RATE_OQ.DDR
+              ODDR.SRUSED
             </meta>
             <meta name="fasm_params">
               ZINV_CLK = ZINV_CLK
@@ -296,6 +297,7 @@
           OSERDES.TSRTYPE.SYNC
           ODDR.DDR_CLK_EDGE.SAME_EDGE
           OQUSED
+          ODDR.SRUSED
         </meta>
         <meta name="fasm_params">
           OSERDES.SERDES_MODE.SLAVE = SERDES_MODE_SLAVE
@@ -307,17 +309,19 @@
           OSERDES.DATA_RATE_TQ.BUF = DATA_RATE_TQ_BUF
           OSERDES.DATA_RATE_TQ.DDR = DATA_RATE_TQ_DDR
           OSERDES.DATA_RATE_TQ.SDR = DATA_RATE_TQ_SDR
+          TDDR.SRUSED = TQ_USED
 
-          OSERDES.DATA_WIDTH.DDR.W6_8 = DATA_WIDTH_DDR_W6_8
-          OSERDES.DATA_WIDTH.SDR.W2_4_5_6 = DATA_WIDTH_SDR_W2_4_5_6
+          OSERDES.DATA_WIDTH.SDR.W2 = DATA_WIDTH_SDR_W2
+          OSERDES.DATA_WIDTH.SDR.W3 = DATA_WIDTH_SDR_W3
+          OSERDES.DATA_WIDTH.SDR.W4 = DATA_WIDTH_SDR_W4
+          OSERDES.DATA_WIDTH.SDR.W5 = DATA_WIDTH_SDR_W5
+          OSERDES.DATA_WIDTH.SDR.W6 = DATA_WIDTH_SDR_W6
+          OSERDES.DATA_WIDTH.SDR.W7 = DATA_WIDTH_SDR_W7
+          OSERDES.DATA_WIDTH.SDR.W8 = DATA_WIDTH_SDR_W8
 
-          OSERDES.DATA_WIDTH.W2 = DATA_WIDTH_W2
-          OSERDES.DATA_WIDTH.W3 = DATA_WIDTH_W3
-          OSERDES.DATA_WIDTH.W4 = DATA_WIDTH_W4
-          OSERDES.DATA_WIDTH.W5 = DATA_WIDTH_W5
-          OSERDES.DATA_WIDTH.W6 = DATA_WIDTH_W6
-          OSERDES.DATA_WIDTH.W7 = DATA_WIDTH_W7
-          OSERDES.DATA_WIDTH.W8 = DATA_WIDTH_W8
+          OSERDES.DATA_WIDTH.DDR.W4 = DATA_WIDTH_DDR_W4
+          OSERDES.DATA_WIDTH.DDR.W6 = DATA_WIDTH_DDR_W6
+          OSERDES.DATA_WIDTH.DDR.W8 = DATA_WIDTH_DDR_W8
 
           ZINIT_OQ = ZINIT_OQ
           ZINIT_TQ = ZINIT_TQ
