@@ -2496,8 +2496,7 @@ module OSERDESE2 (
   parameter IO_LOC_PAIRS = "NONE";
 
   if (DATA_RATE_OQ == "DDR" &&
-      !(DATA_WIDTH == 2 || DATA_WIDTH == 4 ||
-        DATA_WIDTH == 6 || DATA_WIDTH == 8)) begin
+      !(DATA_WIDTH == 4 || DATA_WIDTH == 6 || DATA_WIDTH == 8)) begin
     wire _TECHMAP_FAIL_;
   end
 
@@ -2518,16 +2517,6 @@ module OSERDESE2 (
   if (TRISTATE_WIDTH != 1 && TRISTATE_WIDTH != 4) begin
     wire _TECHMAP_FAIL_;
   end
-
-  // TODO: the following params behave in a weird way.
-  // Prjxray should be fixed to better assign a better meaning to these features.
-  localparam [0:0] DATA_WIDTH_DDR_W6_8 = DATA_RATE_OQ == "DDR" && (DATA_WIDTH == 6 || DATA_WIDTH == 8) ? 1'b1 :
-                                         DATA_RATE_OQ == "SDR" && (DATA_WIDTH == 3 || DATA_WIDTH == 4) ? 1'b1 : 1'b0;
-
-  localparam [0:0] DATA_WIDTH_SDR_W2_4_5_6 = DATA_RATE_OQ == "SDR" &&
-                                             (DATA_WIDTH == 2 || DATA_WIDTH == 4 ||
-                                              DATA_WIDTH == 5 || DATA_WIDTH == 6)     ? 1'b1 :
-                                             DATA_RATE_OQ == "DDR" && DATA_WIDTH != 6 ? 1'b1 : 1'b0;
 
   // Inverter parameters
   parameter [0:0] IS_D1_INVERTED = 1'b0;
@@ -2567,6 +2556,8 @@ module OSERDESE2 (
   parameter _TECHMAP_CONSTVAL_D7_ = 0;
   parameter _TECHMAP_CONSTMSK_D8_ = 0;
   parameter _TECHMAP_CONSTVAL_D8_ = 0;
+  parameter _TECHMAP_CONSTMSK_TQ_ = 1'bx;
+  parameter _TECHMAP_CONSTVAL_TQ_ = 1'bx;
 
   generate if (_TECHMAP_CONSTMSK_D1_ == 1) begin
     localparam INV_D1 = !_TECHMAP_CONSTVAL_D1_ ^ IS_D1_INVERTED;
@@ -2656,6 +2647,12 @@ module OSERDESE2 (
     wire d8 = D8;
   end endgenerate
 
+  generate if (_TECHMAP_CONSTVAL_TQ_ === 1'bx && (DATA_RATE_TQ == "DDR" || DATA_RATE_TQ == "SDR")) begin
+      localparam TQ_USED = 1'b1;
+  end else begin
+      localparam TQ_USED = 1'b0;
+  end endgenerate
+
   parameter _TECHMAP_CONSTMSK_T1_ = 0;
   parameter _TECHMAP_CONSTVAL_T1_ = 0;
   parameter _TECHMAP_CONSTMSK_T2_ = 0;
@@ -2717,15 +2714,16 @@ module OSERDESE2 (
       .DATA_RATE_TQ_BUF             (DATA_RATE_TQ == "BUF"),
       .DATA_RATE_TQ_DDR             (DATA_RATE_TQ == "DDR"),
       .DATA_RATE_TQ_SDR             (DATA_RATE_TQ == "SDR"),
-      .DATA_WIDTH_DDR_W6_8          (DATA_WIDTH_DDR_W6_8),
-      .DATA_WIDTH_SDR_W2_4_5_6      (DATA_WIDTH_SDR_W2_4_5_6),
-      .DATA_WIDTH_W2                (DATA_WIDTH == 2),
-      .DATA_WIDTH_W3                (DATA_WIDTH == 3),
-      .DATA_WIDTH_W4                (DATA_WIDTH == 4),
-      .DATA_WIDTH_W5                (DATA_WIDTH == 5),
-      .DATA_WIDTH_W6                (DATA_WIDTH == 6),
-      .DATA_WIDTH_W7                (DATA_WIDTH == 7),
-      .DATA_WIDTH_W8                (DATA_WIDTH == 8),
+      .DATA_WIDTH_DDR_W4            (DATA_RATE_OQ == "DDR" && DATA_WIDTH == 4),
+      .DATA_WIDTH_DDR_W6            (DATA_RATE_OQ == "DDR" && DATA_WIDTH == 6),
+      .DATA_WIDTH_DDR_W8            (DATA_RATE_OQ == "DDR" && DATA_WIDTH == 8),
+      .DATA_WIDTH_SDR_W2            (DATA_RATE_OQ == "SDR" && DATA_WIDTH == 2),
+      .DATA_WIDTH_SDR_W3            (DATA_RATE_OQ == "SDR" && DATA_WIDTH == 3),
+      .DATA_WIDTH_SDR_W4            (DATA_RATE_OQ == "SDR" && DATA_WIDTH == 4),
+      .DATA_WIDTH_SDR_W5            (DATA_RATE_OQ == "SDR" && DATA_WIDTH == 5),
+      .DATA_WIDTH_SDR_W6            (DATA_RATE_OQ == "SDR" && DATA_WIDTH == 6),
+      .DATA_WIDTH_SDR_W7            (DATA_RATE_OQ == "SDR" && DATA_WIDTH == 7),
+      .DATA_WIDTH_SDR_W8            (DATA_RATE_OQ == "SDR" && DATA_WIDTH == 8),
       .ZINIT_OQ                     (!INIT_OQ),
       .ZINIT_TQ                     (!INIT_TQ),
       .ZSRVAL_OQ                    (!SRVAL_OQ),
@@ -2743,7 +2741,8 @@ module OSERDESE2 (
       .ZINV_T1                      (!INV_T1),
       .ZINV_T2                      (!INV_T2),
       .ZINV_T3                      (!INV_T3),
-      .ZINV_T4                      (!INV_T4)
+      .ZINV_T4                      (!INV_T4),
+      .TQ_USED                      (TQ_USED)
   ) _TECHMAP_REPLACE_ (
     .CLK    (CLK),
     .CLKDIV (CLKDIV),
@@ -3185,7 +3184,7 @@ module ODDR (
     .INV_D1         ( IS_D1_INVERTED),
     .INV_D1         ( IS_D2_INVERTED),
     .SRTYPE_SYNC    ( SRTYPE == "SYNC"),
-    .SAME_EDGE      ( DDR_CLK_EDGE != "OPPOSITE_EDGE"),
+    .SAME_EDGE      ( (DDR_CLK_EDGE != "OPPOSITE_EDGE") ^ IS_C_INVERTED),
     .ZINIT_Q        (!INIT),
     .ZSRVAL_Q       (!SRVAL)
 
