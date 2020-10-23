@@ -12,13 +12,17 @@ input  wire         I_PWRDWN,
 input  wire         I_CLKINSEL,
 output wire         O_LOCKED,
 
-output wire [5:0]   O_CNT
+output wire [6:0]   O_CNT
 );
 
 // "INTERNAL" - MMCM's internal feedback
 // "BUF"      - Feedback through a BUFG
 // "EXTERNAL" - Feedback external to the FPGA chip (use CLKFB* ports)
 parameter FEEDBACK = "INTERNAL";
+
+// CLKFBOUT multiplier and CLKOUT0 divider (can be fractional)
+parameter CLKFBOUT_MULT_F  = 16000;
+parameter CLKOUT0_DIVIDE_F = 16000;
 
 // ============================================================================
 // Input clock divider (to get different clkins)
@@ -36,8 +40,8 @@ BUFGCE bufg50 (.I(clk100), .CE(clk50_ce), .O(clk50));
 wire clk_fb_o;
 wire clk_fb_i;
 
-wire [5:0] clk;
-wire [5:0] gclk;
+wire [6:0] clk;
+wire [6:0] gclk;
 
 MMCME2_ADV #
 (
@@ -47,43 +51,14 @@ MMCME2_ADV #
 .CLKIN1_PERIOD      (20.0),  // 50MHz
 .CLKIN2_PERIOD      (10.0),  // 100MHz
 
-/*
-.CLKFBOUT_MULT      (16),
-.CLKFBOUT_PHASE     (0.0),
-
-.CLKOUT0_DIVIDE     (16),
-.CLKOUT0_DUTY_CYCLE (0.53125),
-.CLKOUT0_PHASE      (45.0),
-
-.CLKOUT1_DIVIDE     (32),
-.CLKOUT1_DUTY_CYCLE (0.5),
-.CLKOUT1_PHASE      (90.0),
-
-.CLKOUT2_DIVIDE     (48),
-.CLKOUT2_DUTY_CYCLE (0.5),
-.CLKOUT2_PHASE      (135.0),
-
-.CLKOUT3_DIVIDE     (64),
-.CLKOUT3_DUTY_CYCLE (0.5),
-.CLKOUT3_PHASE      (-45.0),
-
-.CLKOUT4_DIVIDE     (80),
-.CLKOUT4_DUTY_CYCLE (0.5),
-.CLKOUT4_PHASE      (-90.0),
-
-.CLKOUT5_DIVIDE     (96),
-.CLKOUT5_DUTY_CYCLE (0.5),
-.CLKOUT5_PHASE      (-135.0),
-*/
-
-.CLKFBOUT_MULT_F    (16.0),
+.CLKFBOUT_MULT_F    (CLKFBOUT_MULT_F),
 .CLKFBOUT_PHASE     (0),
 
-.CLKOUT0_DIVIDE_F   (16),
+.CLKOUT0_DIVIDE_F   (CLKOUT0_DIVIDE_F),
 .CLKOUT0_DUTY_CYCLE (53125),
 .CLKOUT0_PHASE      (45000),
 
-.CLKOUT1_DIVIDE     (32.0),
+.CLKOUT1_DIVIDE     (32),
 .CLKOUT1_DUTY_CYCLE (50000),
 .CLKOUT1_PHASE      (90000),
 
@@ -102,6 +77,10 @@ MMCME2_ADV #
 .CLKOUT5_DIVIDE     (96),
 .CLKOUT5_DUTY_CYCLE (50000),
 .CLKOUT5_PHASE      (-135000),
+
+.CLKOUT6_DIVIDE     (112),
+.CLKOUT6_DUTY_CYCLE (50000),
+.CLKOUT6_PHASE      (-270000),
 
 .STARTUP_WAIT       ("FALSE")
 )
@@ -123,7 +102,8 @@ mmcm
 .CLKOUT2    (clk[2]),
 .CLKOUT3    (clk[3]),
 .CLKOUT4    (clk[4]),
-.CLKOUT5    (clk[5])
+.CLKOUT5    (clk[5]),
+.CLKOUT6    (clk[6])
 );
 
 generate if (FEEDBACK == "INTERNAL") begin
@@ -144,7 +124,7 @@ end endgenerate
 wire rst = RST || !O_LOCKED;
 
 genvar i;
-generate for (i=0; i<6; i=i+1) begin
+generate for (i=0; i<7; i=i+1) begin
   BUFG bufg(.I(clk[i]), .O(gclk[i]));
 
   reg [23:0] counter;
