@@ -3552,7 +3552,7 @@ endfunction
 
 // Given PLL/MMCM divide, duty_cycle and phase calculates content of the
 // CLKREG1 and CLKREG2.
-function [37:0] pll_clkregs
+function [31:0] pll_clkregs
 (
 input [7:0]         divide,     // Max divide is 128
 input [31:0]        duty_cycle, // Multiplied by 100,000
@@ -4277,9 +4277,9 @@ endmodule
 
 // ............................................................................
 
-// Given PLL/MMCM divide, duty_cycle and phase calculates content of the
+// Given MMCM divide, duty_cycle and phase calculates content of the
 // CLKREG1 and CLKREG2 when no fractional divide is used.
-function [37:0] mmcm_clkregs
+function [31:0] mmcm_clkregs
 (
 input [7:0]         divide,     // Max divide is 128
 input [31:0]        duty_cycle, // Multiplied by 100,000
@@ -4288,6 +4288,92 @@ input signed [31:0] phase       // Phase is given in degrees (-360,000 to 360,00
 
   // Identical to the PLL one
   mmcm_clkregs = pll_clkregs(divide, duty_cycle, phase);
+
+endfunction
+
+// Computes content of CLKREG1 and CLKREG2 plus the shared part for fractional
+// divider.
+function [37:0] mmcm_clkregs_frac
+(
+input [17:0]        divide,     // Max divide is 128000 (int + 1000 * frac)
+input [31:0]        duty_cycle, // Multiplied by 100,000
+input signed [31:0] phase       // Phase is given in degrees (-360,000 to 360,000)
+);
+
+  // Decompose the fractional divider
+  reg [7:0] divide_int;  
+  reg [9:0] divide_frac;
+
+  divide_int  = (divide / 1000);
+  divide_frac = (divide % 1000) / 125;
+
+  // Calculate wf_fall_time and wf_rise_time
+  reg [7:0] even_part_high;
+  reg [7:0] even_part_low;
+
+  reg [7:0] odd;
+  reg [7:0] odd_and_frac;
+
+  reg [7:0] lt_frac;
+  reg [7:0] ht_frac;
+
+  reg [7:0] pm_fall;
+  reg [7:0] pm_rise;
+
+  reg [0:0] wf_fall_frac;
+  reg [0:0] wf_rise_frac;
+
+  even_part_high = divide_int >> 1;
+  even_part_low  = even_part_high;
+
+  odd = divide_int - even_part_high - even_part_low;
+  odd_and_frac = (8 * odd) + divide_frac;
+
+  lt_frac = even_part_high - (odd_and_frac <= 9);
+  ht_frac = even_part_low  - (odd_and_frac <= 8);
+
+  pm_fall = {odd[6:0], 2'b00} + {6'h00, divide_frac[2:1]};
+  pm_rise = 0;
+
+  wf_fall_frac = ((odd_and_frac >= 2) && (odd_and_frac <= 9)) || ((divide_frac == 1) && (divide_int == 2));
+  wf_rise_frac =  (odd_and_frac >= 1) && (odd_and_frac <= 8);
+
+  // Calculate phase shift in fractional cycles
+  reg [31:0] a_per_in_octets;
+  reg [31:0] a_phase_in_cycles;
+  reg [ 7:0] pm_rise_frac;
+
+  reg [63:0] dt_calc;
+  reg [ 7:0] dt;
+
+  reg [ 7:0] pm_rise_frac_filtered;
+  
+  reg [ 7:0] dt_int;
+  reg [ 7:0] pm_fall_frac;
+  reg [ 7:0] pm_fall_frac_filtered;
+
+  a_per_in_octets   = (8 * divide_int) + divide_frac;
+  a_phase_in_cycles = (phase + 10) * a_per_in_octets / 360000;
+  pm_rise_frac      = (a_phase_in_cycles[7:0] == 8'h00) ? 8'h00 : (a_phase_in_cycles[7:0] - {a_phase_in_cycles[7:3], 3'b000});
+
+  dt_calc = ((phase + 10) * a_per_in_octets / 8 ) / 360000;
+  dt      = dt_calc[7:0];
+
+  pm_rise_frac_filtered = (pm_rise_frac >= 8) ? (pm_rise_frac - 8) : pm_rise_frac;
+  
+  dt_int                = dt + (& pm_rise_frac[7:4]);
+  pm_fall_frac          = pm_fall + pm_rise_frac;
+  pm_fall_frac_filtered = pm_fall + pm_rise_frac - {pm_fall_frac[7:3], 3'b000};
+  
+  // Pack output data
+  mmcm_clkregs_frac = {
+    // Shared:  RESERVED[1:0], FRAC_TIME[2:0], FRAC_WF_FALL
+    2'b11, pm_fall_frac_filtered[2:0], wf_fall_frac,
+    // CLKREG2: RESERVED[0:0], FRAC[2:0], FRAC_EN[0:0], FRAC_WF_R[0:0], MX[1:0], EDGE, NO_COUNT, DELAY_TIME[5:0]
+    1'b0, divide_frac[2:0], 1'b1, wf_rise_frac, 4'h0, dt[5:0],
+    // CLKREG1: PHASE_MUX[3:0], RESERVED, HIGH_TIME[5:0], LOW_TIME[5:0]
+    pm_rise_frac_filtered[2:0], 1'b0, ht_frac[5:0], lt_frac[5:0]
+  };
 
 endfunction
 
@@ -4719,7 +4805,7 @@ output [15:0] DO
 
   parameter [5:0] DIVCLK_DIVIDE = 1;
 
-  parameter CLKFBOUT_MULT_F = 1000;
+  parameter CLKFBOUT_MULT_F = 5000;
   parameter signed CLKFBOUT_PHASE = 0;
   parameter CLKFBOUT_USE_FINE_PS = "FALSE";
 
@@ -4728,32 +4814,32 @@ output [15:0] DO
   parameter signed CLKOUT0_PHASE = 0;
   parameter CLKOUT0_USE_FINE_PS = "FALSE";
 
-  parameter [6:0] CLKOUT1_DIVIDE = 1;
+  parameter CLKOUT1_DIVIDE = 1;
   parameter CLKOUT1_DUTY_CYCLE = 50000;
   parameter signed CLKOUT1_PHASE = 0;
   parameter CLKOUT1_USE_FINE_PS = "FALSE";
 
-  parameter [6:0] CLKOUT2_DIVIDE = 1;
+  parameter CLKOUT2_DIVIDE = 1;
   parameter CLKOUT2_DUTY_CYCLE = 50000;
   parameter signed CLKOUT2_PHASE = 0;
   parameter CLKOUT2_USE_FINE_PS = "FALSE";
 
-  parameter [6:0] CLKOUT3_DIVIDE = 1;
+  parameter CLKOUT3_DIVIDE = 1;
   parameter CLKOUT3_DUTY_CYCLE = 50000;
   parameter signed CLKOUT3_PHASE = 0;
   parameter CLKOUT3_USE_FINE_PS = "FALSE";
 
-  parameter [6:0] CLKOUT4_DIVIDE = 1;
+  parameter CLKOUT4_DIVIDE = 1;
   parameter CLKOUT4_DUTY_CYCLE = 50000;
   parameter signed CLKOUT4_PHASE = 0;
   parameter CLKOUT4_USE_FINE_PS = "FALSE";
 
-  parameter [6:0] CLKOUT5_DIVIDE = 1;
+  parameter CLKOUT5_DIVIDE = 1;
   parameter CLKOUT5_DUTY_CYCLE = 50000;
   parameter signed CLKOUT5_PHASE = 0;
   parameter CLKOUT5_USE_FINE_PS = "FALSE";
 
-  parameter [6:0] CLKOUT6_DIVIDE = 1;
+  parameter CLKOUT6_DIVIDE = 1;
   parameter CLKOUT6_DUTY_CYCLE = 50000;
   parameter signed CLKOUT6_PHASE = 0;
   parameter CLKOUT6_USE_FINE_PS = "FALSE";
@@ -4894,19 +4980,34 @@ output [15:0] DO
   end
 
   // Compute integer multipliers needed later for look-up tables
-  localparam CLKFBOUT_MULT = CLKFBOUT_MULT_F / 1000;
+  localparam CLKFBOUT_MULT  = CLKFBOUT_MULT_F  / 1000;
+  localparam CLKOUT0_DIVIDE = CLKOUT0_DIVIDE_F / 1000;
+
+  // Check whether fractional divider needs to be enabled on CLKFBOUT and
+  // CLKOUT0
+  localparam CLKFBOUT_FRAC_EN = (CLKFBOUT_MULT_F  % 1000) != 0;
+  localparam CLKOUT0_FRAC_EN  = (CLKOUT0_DIVIDE_F % 1000) != 0;
+
+  // Handle registers controling fractional dividers
+  localparam CLKFBOUT_CALC = mmcm_clkregs(CLKFBOUT_MULT, 50000, CLKFBOUT_PHASE);
+  localparam CLKOUT0_CALC  = mmcm_clkregs(CLKOUT0_DIVIDE, CLKOUT0_DUTY_CYCLE, CLKOUT0_PHASE);
+  localparam CLKOUT5_CALC  = mmcm_clkregs(CLKOUT5_DIVIDE, CLKOUT5_DUTY_CYCLE, CLKOUT5_PHASE);
+  localparam CLKOUT6_CALC  = mmcm_clkregs(CLKOUT6_DIVIDE, CLKOUT6_DUTY_CYCLE, CLKOUT6_PHASE);
+
+  localparam CLKFBOUT_FRAC_CALC = mmcm_clkregs_frac(CLKFBOUT_MULT_F,  50000, CLKFBOUT_PHASE);
+  localparam CLKOUT0_FRAC_CALC  = mmcm_clkregs_frac(CLKOUT0_DIVIDE_F, CLKOUT0_DUTY_CYCLE, CLKOUT0_PHASE);
 
   // Compute PLL's registers content
-  localparam CLKFBOUT_REGS = 0;//pll_clkregs(CLKFBOUT_MULT, 50000, CLKFBOUT_PHASE);
+  localparam CLKFBOUT_REGS = (CLKFBOUT_FRAC_EN) ? CLKFBOUT_FRAC_CALC : CLKFBOUT_CALC;
   localparam DIVCLK_REGS   = mmcm_clkregs(DIVCLK_DIVIDE, 50000, 0);
 
-  localparam CLKOUT0_REGS  = 0;//pll_clkregs(CLKOUT0_DIVIDE, CLKOUT0_DUTY_CYCLE, CLKOUT0_PHASE);
+  localparam CLKOUT0_REGS  = (CLKOUT0_FRAC_EN) ? CLKOUT0_FRAC_CALC : CLKOUT0_CALC; 
   localparam CLKOUT1_REGS  = mmcm_clkregs(CLKOUT1_DIVIDE, CLKOUT1_DUTY_CYCLE, CLKOUT1_PHASE);
   localparam CLKOUT2_REGS  = mmcm_clkregs(CLKOUT2_DIVIDE, CLKOUT2_DUTY_CYCLE, CLKOUT2_PHASE);
   localparam CLKOUT3_REGS  = mmcm_clkregs(CLKOUT3_DIVIDE, CLKOUT3_DUTY_CYCLE, CLKOUT3_PHASE);
   localparam CLKOUT4_REGS  = mmcm_clkregs(CLKOUT4_DIVIDE, CLKOUT4_DUTY_CYCLE, CLKOUT4_PHASE);
-  localparam CLKOUT5_REGS  = 0;//pll_clkregs(CLKOUT5_DIVIDE, CLKOUT5_DUTY_CYCLE, CLKOUT5_PHASE);
-  localparam CLKOUT6_REGS  = 0;//pll_clkregs(CLKOUT6_DIVIDE, CLKOUT6_DUTY_CYCLE, CLKOUT6_PHASE);
+  localparam CLKOUT5_REGS  = (CLKOUT0_FRAC_EN)  ? {CLKOUT5_CALC[31:30], CLKOUT0_FRAC_CALC[35:32],  CLKOUT5_CALC[25:0]} : CLKOUT5_CALC;
+  localparam CLKOUT6_REGS  = (CLKFBOUT_FRAC_EN) ? {CLKOUT6_CALC[31:30], CLKFBOUT_FRAC_CALC[35:32], CLKOUT6_CALC[25:0]} : CLKOUT6_CALC;
 
   // Handle inputs that should have certain logic levels when left unconnected
   generate if (_TECHMAP_CONSTMSK_CLKINSEL_ == 1) begin
@@ -5009,13 +5110,16 @@ output [15:0] DO
   .FILTREG1_RESERVED(12'b0000_00001000),
   .LOCKREG3_RESERVED(1'b1),
 
-//  // Clock feedback settings
-//  .CLKFBOUT_CLKOUT1_HIGH_TIME   (CLKFBOUT_REGS[11:6]),
-//  .CLKFBOUT_CLKOUT1_LOW_TIME    (CLKFBOUT_REGS[5:0]),
-//  .CLKFBOUT_CLKOUT1_PHASE_MUX   (CLKFBOUT_REGS[15:13]),
-//  .CLKFBOUT_CLKOUT2_DELAY_TIME  (CLKFBOUT_REGS[21:16]),
-//  .CLKFBOUT_CLKOUT2_EDGE        (CLKFBOUT_REGS[23]),
-//  .CLKFBOUT_CLKOUT2_NO_COUNT    (CLKFBOUT_REGS[22]),
+  // Clock feedback settings
+  .CLKFBOUT_CLKOUT1_HIGH_TIME   (CLKFBOUT_REGS[11:6]),
+  .CLKFBOUT_CLKOUT1_LOW_TIME    (CLKFBOUT_REGS[5:0]),
+  .CLKFBOUT_CLKOUT1_PHASE_MUX   (CLKFBOUT_REGS[15:13]),
+  .CLKFBOUT_CLKOUT2_DELAY_TIME  (CLKFBOUT_REGS[21:16]),
+  .CLKFBOUT_CLKOUT2_EDGE        (CLKFBOUT_REGS[23]),
+  .CLKFBOUT_CLKOUT2_FRAC        (CLKFBOUT_REGS[30:28]),
+  .CLKFBOUT_CLKOUT2_FRAC_EN     (CLKFBOUT_REGS[27]),
+  .CLKFBOUT_CLKOUT2_FRAC_WF_R   (CLKFBOUT_REGS[26]),
+  .CLKFBOUT_CLKOUT2_NO_COUNT    (CLKFBOUT_REGS[22]),
 
   // Internal VCO divider settings
   .DIVCLK_DIVCLK_HIGH_TIME      (DIVCLK_REGS[11:6]),
@@ -5023,13 +5127,16 @@ output [15:0] DO
   .DIVCLK_DIVCLK_NO_COUNT       (DIVCLK_REGS[22]),
   .DIVCLK_DIVCLK_EDGE           (DIVCLK_REGS[23]),
 
-//  // CLKOUT0
-//  .CLKOUT0_CLKOUT1_HIGH_TIME    (CLKOUT0_REGS[11:6]),
-//  .CLKOUT0_CLKOUT1_LOW_TIME     (CLKOUT0_REGS[5:0]),
-//  .CLKOUT0_CLKOUT1_PHASE_MUX    (CLKOUT0_REGS[15:13]),
-//  .CLKOUT0_CLKOUT2_DELAY_TIME   (CLKOUT0_REGS[21:16]),
-//  .CLKOUT0_CLKOUT2_EDGE         (CLKOUT0_REGS[23]),
-//  .CLKOUT0_CLKOUT2_NO_COUNT     (CLKOUT0_REGS[22]),
+  // CLKOUT0
+  .CLKOUT0_CLKOUT1_HIGH_TIME    (CLKOUT0_REGS[11:6]),
+  .CLKOUT0_CLKOUT1_LOW_TIME     (CLKOUT0_REGS[5:0]),
+  .CLKOUT0_CLKOUT1_PHASE_MUX    (CLKOUT0_REGS[15:13]),
+  .CLKOUT0_CLKOUT2_DELAY_TIME   (CLKOUT0_REGS[21:16]),
+  .CLKOUT0_CLKOUT2_EDGE         (CLKOUT0_REGS[23]),
+  .CLKOUT0_CLKOUT2_FRAC         (CLKOUT0_REGS[30:28]),
+  .CLKOUT0_CLKOUT2_FRAC_EN      (CLKOUT0_REGS[27]),
+  .CLKOUT0_CLKOUT2_FRAC_WF_R    (CLKOUT0_REGS[26]),
+  .CLKOUT0_CLKOUT2_NO_COUNT     (CLKOUT0_REGS[22]),
 
   // CLKOUT1
   .CLKOUT1_CLKOUT1_HIGH_TIME    (CLKOUT1_REGS[11:6]),
@@ -5063,21 +5170,25 @@ output [15:0] DO
   .CLKOUT4_CLKOUT2_EDGE         (CLKOUT4_REGS[23]),
   .CLKOUT4_CLKOUT2_NO_COUNT     (CLKOUT4_REGS[22]),
 
-//  // CLKOUT5
-//  .CLKOUT5_CLKOUT1_HIGH_TIME    (CLKOUT5_REGS[11:6]),
-//  .CLKOUT5_CLKOUT1_LOW_TIME     (CLKOUT5_REGS[5:0]),
-//  .CLKOUT5_CLKOUT1_PHASE_MUX    (CLKOUT5_REGS[15:13]),
-//  .CLKOUT5_CLKOUT2_DELAY_TIME   (CLKOUT5_REGS[21:16]),
-//  .CLKOUT5_CLKOUT2_EDGE         (CLKOUT5_REGS[23]),
-//  .CLKOUT5_CLKOUT2_NO_COUNT     (CLKOUT5_REGS[22]),
+  // CLKOUT5
+  .CLKOUT5_CLKOUT1_HIGH_TIME                (CLKOUT5_REGS[11:6]),
+  .CLKOUT5_CLKOUT1_LOW_TIME                 (CLKOUT5_REGS[5:0]),
+  .CLKOUT5_CLKOUT1_PHASE_MUX                (CLKOUT5_REGS[15:13]),
+  .CLKOUT5_CLKOUT2_FRACTIONAL_DELAY_TIME    (CLKOUT5_REGS[21:16]),
+  .CLKOUT5_CLKOUT2_FRACTIONAL_EDGE          (CLKOUT5_REGS[23]),
+  .CLKOUT5_CLKOUT2_FRACTIONAL_NO_COUNT      (CLKOUT5_REGS[22]),
+  .CLKOUT5_CLKOUT2_FRACTIONAL_PHASE_MUX_F   (CLKOUT5_REGS[29:27]),
+  .CLKOUT5_CLKOUT2_FRACTIONAL_FRAC_WF_F     (CLKOUT5_REGS[26]),
 
-//  // CLKOUT6
-//  .CLKOUT6_CLKOUT1_HIGH_TIME    (CLKOUT6_REGS[11:6]),
-//  .CLKOUT6_CLKOUT1_LOW_TIME     (CLKOUT6_REGS[5:0]),
-//  .CLKOUT6_CLKOUT1_PHASE_MUX    (CLKOUT6_REGS[15:13]),
-//  .CLKOUT6_CLKOUT2_DELAY_TIME   (CLKOUT6_REGS[21:16]),
-//  .CLKOUT6_CLKOUT2_EDGE         (CLKOUT6_REGS[23]),
-//  .CLKOUT6_CLKOUT2_NO_COUNT     (CLKOUT6_REGS[22]),
+  // CLKOUT6
+  .CLKOUT6_CLKOUT1_HIGH_TIME                (CLKOUT6_REGS[11:6]),
+  .CLKOUT6_CLKOUT1_LOW_TIME                 (CLKOUT6_REGS[5:0]),
+  .CLKOUT6_CLKOUT1_PHASE_MUX                (CLKOUT6_REGS[15:13]),
+  .CLKOUT6_CLKOUT2_FRACTIONAL_DELAY_TIME    (CLKOUT6_REGS[21:16]),
+  .CLKOUT6_CLKOUT2_FRACTIONAL_EDGE          (CLKOUT6_REGS[23]),
+  .CLKOUT6_CLKOUT2_FRACTIONAL_NO_COUNT      (CLKOUT6_REGS[22]),
+  .CLKOUT6_CLKOUT2_FRACTIONAL_PHASE_MUX_F   (CLKOUT6_REGS[29:27]),
+  .CLKOUT6_CLKOUT2_FRACTIONAL_FRAC_WF_F     (CLKOUT6_REGS[26]),
 
   // Clock output enable controls
   .CLKFBOUT_CLKOUT1_OUTPUT_ENABLE(_TECHMAP_CONSTVAL_CLKFBOUT_ === 1'bX || _TECHMAP_CONSTVAL_CLKFBOUTB_ === 1'bX),
