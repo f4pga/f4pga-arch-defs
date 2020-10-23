@@ -64,21 +64,18 @@
 [submodule "third_party/pythondata-software-compiler_rt"]
 	path = third_party/pythondata-software-compiler_rt
 	url = https://github.com/litex-hub/pythondata-software-compiler_rt
-[submodule "third_party/quicklogic-fasm-utils"]
-	path = quicklogic/utils/fasm-utils
-	url = https://github.com/QuickLogic-Corp/quicklogic-fasm-utils.git
-[submodule "third_party/quicklogic-quicklogic-fasm"]
-	path = quicklogic/utils/quicklogic-fasm
-	url = https://github.com/QuickLogic-Corp/quicklogic-fasm.git
 [submodule "third_party/ql-eos-s3"]
 	path = third_party/ql-eos-s3
 	url = https://github.com/QuickLogic-Corp/EOS-S3
 [submodule "third_party/ql-pp3e"]
 	path = third_party/ql-pp3e
 	url = https://github.com/QuickLogic-Corp/PolarPro3E.git
-[submodule "quicklogic-timings-importer"]
-	path = quicklogic/utils/quicklogic-timings-importer
-	url = ../quicklogic-timings-importer.git
+[submodule "quicklogic/common/utils/fasm-utils"]
+	path = quicklogic/common/utils/fasm-utils
+	url = https://github.com/QuickLogic-Corp/quicklogic-fasm-utils.git
+[submodule "quicklogic/common/utils/quicklogic-fasm"]
+	path = quicklogic/common/utils/quicklogic-fasm
+	url = https://github.com/QuickLogic-Corp/quicklogic-fasm.git
 [submodule "quicklogic/common/utils/quicklogic-timings-importer"]
 	path = quicklogic/common/utils/quicklogic-timings-importer
-	url = ../quicklogic-timings-importer.git
+	url = https://github.com/QuickLogic-Corp/quicklogic-timings-importer.git
