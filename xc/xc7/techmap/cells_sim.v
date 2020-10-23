@@ -1602,7 +1602,6 @@ output    DO15
   parameter [2:0] CLKFBOUT_CLKOUT2_FRAC = 3'd0;
   parameter [0:0] CLKFBOUT_CLKOUT2_FRAC_EN = 1'b0;
   parameter [0:0] CLKFBOUT_CLKOUT2_FRAC_WF_R = 1'b0;
-  parameter [1:0] CLKFBOUT_CLKOUT2_MX = 2'b0;
   parameter [0:0] CLKFBOUT_CLKOUT2_NO_COUNT = 1'b1;
 
   // CLKOUT0
@@ -1615,7 +1614,6 @@ output    DO15
   parameter [2:0] CLKOUT0_CLKOUT2_FRAC = 3'd0;
   parameter [0:0] CLKOUT0_CLKOUT2_FRAC_EN = 1'b0;
   parameter [0:0] CLKOUT0_CLKOUT2_FRAC_WF_R = 1'b0;
-  parameter [1:0] CLKOUT0_CLKOUT2_MX = 2'b0;
   parameter [0:0] CLKOUT0_CLKOUT2_NO_COUNT = 1'b1;
 
   // CLKOUT1
@@ -1625,10 +1623,6 @@ output    DO15
   parameter [2:0] CLKOUT1_CLKOUT1_PHASE_MUX = 3'd0;
   parameter [5:0] CLKOUT1_CLKOUT2_DELAY_TIME = 6'd0;
   parameter [0:0] CLKOUT1_CLKOUT2_EDGE = 1'b0;
-  parameter [2:0] CLKOUT1_CLKOUT2_FRAC = 3'd0;
-  parameter [0:0] CLKOUT1_CLKOUT2_FRAC_EN = 1'b0;
-  parameter [0:0] CLKOUT1_CLKOUT2_FRAC_WF_R = 1'b0;
-  parameter [1:0] CLKOUT1_CLKOUT2_MX = 2'b0;
   parameter [0:0] CLKOUT1_CLKOUT2_NO_COUNT = 1'b1;
 
   // CLKOUT2
@@ -1638,10 +1632,6 @@ output    DO15
   parameter [2:0] CLKOUT2_CLKOUT1_PHASE_MUX = 3'd0;
   parameter [5:0] CLKOUT2_CLKOUT2_DELAY_TIME = 6'd0;
   parameter [0:0] CLKOUT2_CLKOUT2_EDGE = 1'b0;
-  parameter [2:0] CLKOUT2_CLKOUT2_FRAC = 3'd0;
-  parameter [0:0] CLKOUT2_CLKOUT2_FRAC_EN = 1'b0;
-  parameter [0:0] CLKOUT2_CLKOUT2_FRAC_WF_R = 1'b0;
-  parameter [1:0] CLKOUT2_CLKOUT2_MX = 2'b0;
   parameter [0:0] CLKOUT2_CLKOUT2_NO_COUNT = 1'b1;
 
   // CLKOUT3
@@ -1651,10 +1641,6 @@ output    DO15
   parameter [2:0] CLKOUT3_CLKOUT1_PHASE_MUX = 3'd0;
   parameter [5:0] CLKOUT3_CLKOUT2_DELAY_TIME = 6'd0;
   parameter [0:0] CLKOUT3_CLKOUT2_EDGE = 1'b0;
-  parameter [2:0] CLKOUT3_CLKOUT2_FRAC = 3'd0;
-  parameter [0:0] CLKOUT3_CLKOUT2_FRAC_EN = 1'b0;
-  parameter [0:0] CLKOUT3_CLKOUT2_FRAC_WF_R = 1'b0;
-  parameter [1:0] CLKOUT3_CLKOUT2_MX = 2'b0;
   parameter [0:0] CLKOUT3_CLKOUT2_NO_COUNT = 1'b1;
 
   // CLKOUT4
@@ -1664,10 +1650,6 @@ output    DO15
   parameter [2:0] CLKOUT4_CLKOUT1_PHASE_MUX = 3'd0;
   parameter [5:0] CLKOUT4_CLKOUT2_DELAY_TIME = 6'd0;
   parameter [0:0] CLKOUT4_CLKOUT2_EDGE = 1'b0;
-  parameter [2:0] CLKOUT4_CLKOUT2_FRAC = 3'd0;
-  parameter [0:0] CLKOUT4_CLKOUT2_FRAC_EN = 1'b0;
-  parameter [0:0] CLKOUT4_CLKOUT2_FRAC_WF_R = 1'b0;
-  parameter [1:0] CLKOUT4_CLKOUT2_MX = 2'b0;
   parameter [0:0] CLKOUT4_CLKOUT2_NO_COUNT = 1'b1;
 
   // CLKOUT5
@@ -1678,7 +1660,6 @@ output    DO15
   parameter [5:0] CLKOUT5_CLKOUT2_FRACTIONAL_DELAY_TIME = 6'd0;
   parameter [0:0] CLKOUT5_CLKOUT2_FRACTIONAL_EDGE = 1'b0;
   parameter [0:0] CLKOUT5_CLKOUT2_FRACTIONAL_FRAC_WF_F = 1'd0;
-  parameter [1:0] CLKOUT5_CLKOUT2_FRACTIONAL_MX = 2'b0;
   parameter [0:0] CLKOUT5_CLKOUT2_FRACTIONAL_NO_COUNT = 1'b0;
   parameter [2:0] CLKOUT5_CLKOUT1_FRACTIONAL_PHASE_MUX_F = 3'd0;
 
@@ -1690,7 +1671,6 @@ output    DO15
   parameter [5:0] CLKOUT6_CLKOUT2_FRACTIONAL_DELAY_TIME = 6'd0;
   parameter [0:0] CLKOUT6_CLKOUT2_FRACTIONAL_EDGE = 1'b0;
   parameter [0:0] CLKOUT6_CLKOUT2_FRACTIONAL_FRAC_WF_F = 1'd0;
-  parameter [1:0] CLKOUT6_CLKOUT2_FRACTIONAL_MX = 2'b0;
   parameter [0:0] CLKOUT6_CLKOUT2_FRACTIONAL_NO_COUNT = 1'b0;
   parameter [2:0] CLKOUT6_CLKOUT1_FRACTIONAL_PHASE_MUX_F = 3'd0;
 
