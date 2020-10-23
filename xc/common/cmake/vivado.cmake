@@ -112,7 +112,6 @@ function(COMMON_VIVADO_TARGETS)
           --part ${PART}
           --db-root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}
           --bitread $<TARGET_FILE:bitread>
-          --verbose
           ${CMAKE_CURRENT_BINARY_DIR}/${WORK_DIR}/design_${NAME}.bit
           > ${CMAKE_CURRENT_BINARY_DIR}/${WORK_DIR}/design_${NAME}.bit.fasm
       WORKING_DIRECTORY ${WORK_DIR}
@@ -658,7 +657,6 @@ function(CREATE_DCP_BY_INTERCHANGE)
           --part ${PART}
           --db-root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}
           --bitread $<TARGET_FILE:bitread>
-          --verbose
           ${CMAKE_CURRENT_BINARY_DIR}/${WORK_DIR}/${NAME}.bit
           > ${CMAKE_CURRENT_BINARY_DIR}/${WORK_DIR}/${NAME}.bit.fasm
       WORKING_DIRECTORY ${WORK_DIR}
