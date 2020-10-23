@@ -95,6 +95,7 @@ def reduce_connection_box(box):
 
     return box
 
+
 class ExtraFeatures():
     def __init__(self):
         self.wires_to_nodes = {}
@@ -112,10 +113,12 @@ class ExtraFeatures():
     def add_feature_to_wire_for_node(self, conn, wire_pkey, feature):
         cur = conn.cursor()
 
-        cur.execute("""
+        cur.execute(
+            """
 SELECT node_pkey FROM wire WHERE pkey = ?;
-            """, (wire_pkey,))
-        (node_pkey,) = cur.fetchone()
+            """, (wire_pkey, )
+        )
+        (node_pkey, ) = cur.fetchone()
 
         if node_pkey not in self.nodes_to_features:
             self.nodes_to_features[node_pkey] = set()
@@ -128,32 +131,39 @@ FROM wire
 INNER JOIN wire_in_tile ON wire.wire_in_tile_pkey = wire_in_tile.pkey
 INNER JOIN phy_tile ON wire.phy_tile_pkey = phy_tile.pkey
 WHERE wire.node_pkey = ?;
-            """, (node_pkey,)):
+            """, (node_pkey, )):
             self.wires_to_nodes[tile_name, wire_name] = node_pkey
+
 
 def populate_freq_bb_features(conn, extra_features):
     cur = conn.cursor()
 
-    cur.execute("""
+    cur.execute(
+        """
 SELECT wire.pkey, phy_tile.name, wire_in_tile.name
 FROM wire_in_tile
 INNER JOIN wire ON wire.wire_in_tile_pkey = wire_in_tile.pkey
 INNER JOIN phy_tile ON wire.phy_tile_pkey = phy_tile.pkey
-WHERE wire_in_tile.name LIKE "MMCM_CLK_FREQ_BB_NS%";""")
+WHERE wire_in_tile.name LIKE "MMCM_CLK_FREQ_BB_NS%";"""
+    )
     for wire_pkey, tile_name, wire_name in cur:
-        extra_features.add_feature_to_wire_for_node(conn, wire_pkey,
-                '{}.{}_ACTIVE'.format(tile_name, wire_name))
+        extra_features.add_feature_to_wire_for_node(
+            conn, wire_pkey, '{}.{}_ACTIVE'.format(tile_name, wire_name)
+        )
 
-
-    cur.execute("""
+    cur.execute(
+        """
 SELECT wire.pkey, phy_tile.name, wire_in_tile.name
 FROM wire_in_tile
 INNER JOIN wire ON wire.wire_in_tile_pkey = wire_in_tile.pkey
 INNER JOIN phy_tile ON wire.phy_tile_pkey = phy_tile.pkey
-WHERE wire_in_tile.name LIKE "PLL_CLK_FREQ_BB%_NS";""")
+WHERE wire_in_tile.name LIKE "PLL_CLK_FREQ_BB%_NS";"""
+    )
     for wire_pkey, tile_name, wire_name in cur:
-        extra_features.add_feature_to_wire_for_node(conn, wire_pkey,
-                '{}.{}_ACTIVE'.format(tile_name, wire_name))
+        extra_features.add_feature_to_wire_for_node(
+            conn, wire_pkey, '{}.{}_ACTIVE'.format(tile_name, wire_name)
+        )
+
 
 REBUF_NODES = {}
 REBUF_SOURCES = {}
@@ -531,10 +541,9 @@ def check_feature(extra_features, feature):
 
         return ' '.join((feature, enable_cascout))
 
-
     extras = extra_features.extra_features(feature_path)
     if extras is not None:
-        return ' '.join((feature,) + tuple(extras))
+        return ' '.join((feature, ) + tuple(extras))
 
     parts = feature.split('.')
 
@@ -1538,7 +1547,9 @@ FROM
             num_nodes=len(capnp_graph.graph.nodes),
             nodes_obj=yield_nodes(capnp_graph.graph.nodes),
             num_edges=num_edges,
-            edges_obj=import_graph_edges(conn, graph, extra_features, node_mapping),
+            edges_obj=import_graph_edges(
+                conn, graph, extra_features, node_mapping
+            ),
             node_remap=node_remap,
         )
 
