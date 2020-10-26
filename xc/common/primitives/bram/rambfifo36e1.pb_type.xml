@@ -222,6 +222,7 @@ The RAM has extra bits that can be used for parity (DIP / DOP).
      <meta name="fasm_params">
        RAMB18_Y0.IN_USE = IN_USE
        RAMB18_Y1.IN_USE = IN_USE
+       RAMB36.BRAM36_IN_USE = IN_USE
 
        RAMB18_Y0.ZINIT_A[17:0] = ZINIT_A[17:0]
        RAMB18_Y0.ZINIT_B[17:0] = ZINIT_B[17:0]
