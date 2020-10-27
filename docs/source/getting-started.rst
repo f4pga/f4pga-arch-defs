@@ -2,10 +2,13 @@
 Getting Started
 ===============
 
-This section provides an introduction on how to get started with using the SymbiFlow toolchain.
-In order to generate a bitstream (or any intermediate file format),
-you can use one of the toolchain tests. Following steps describe the whole
-process:
+.. note::
+
+   If you are looking for user documentation, please look at https://github.com/SymbiFlow/symbiflow-examples instead.
+
+This section provides an introduction on how to get started with the development of the SymbiFlow toolchain.
+In order to generate a bitstream (or any intermediate file format), you can use one of the toolchain tests.
+The following steps describe the whole process:
 
 Clone repository
 ----------------
@@ -17,8 +20,7 @@ Clone repository
 Prepare environment
 -------------------
 
-Download all needed packages and databases content
-into the separated environment
+Download all the necessary packages and databases into an isolated environment:
 
 .. code-block:: bash
 
@@ -28,20 +30,16 @@ into the separated environment
 Build example
 -------------
 
-Enter the appropriate test build directory, depending on your target
-architecture and invoke the appropriate make target.
+Enter the appropriate test build directory, depending on your target architecture and invoke the appropriate make target.
 
-Build directories depend on the architecture. Because of that,
-depending on the chosen target, a different toolchain backend will be used.
+Build directories depend on the architecture.
+Because of that, depending on the chosen target, a different toolchain backend will be used.
 (See `Project X-Ray <https://prjxray.readthedocs.io/en/latest/>`_
-and `Project Trellis <https://prjtrellis.readthedocs.io/en/latest/>`_
-for more information)
+and `Project Trellis <https://prjtrellis.readthedocs.io/en/latest/>`_ for more information)
 
 Moreover, it is worth to note that target names have the form <*testname_platform_outputformat*>.
 
-Assuming that you would like to generate bitstream ``.bit`` file with
-the counter example for the arty board, which uses Xilinx Artix-7 FPGA,
-you will type:
+Assuming that you would like to generate bitstream ``.bit`` file with the counter example for the Arty board, which uses Xilinx Artix-7 FPGA, you will type:
 
 .. code-block:: bash
 
@@ -67,11 +65,9 @@ However, this can be done with any tool of your choice, such as `Vivado` or `xc3
 Vivado
 ++++++
 
-For programming the Arty Board with ``Vivado``, open the program in GUI mode
-and choose the ``Open Target`` option from
-``Flow Navigator \ Program and Debug \ Open Hardware Manager``. After
-right-clicking on the chip icon in the newly-opened ``Hardware`` window,
-you will see the ``Program Device`` option in the context menu.
+For programming the Arty Board with ``Vivado``, open the program in GUI mode and choose the ``Open Target`` option from
+``Flow Navigator \ Program and Debug \ Open Hardware Manager``.
+After right-clicking on the chip icon in the newly-opened ``Hardware`` window, you will see the ``Program Device`` option in the context menu.
 The option  will open an appropriate Manager for programming the chip.
 Select the location of the bitstream file and click ``Program``.
 
