@@ -15,7 +15,7 @@ jobs:
         --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' | head -n 2 | tail -n 1 | grep "success"
     - name: Set up Python
       if: ${{ success() }}
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v2
       with:
         python-version: 3.8
     - name: Install STPM
@@ -23,5 +23,12 @@ jobs:
       run: pip install git+https://github.com/SymbiFlow/symbiflow-tools-package-manager#egg=stpm
     - name: Get latest artifact name
       if: ${{ success() }}
-      run: mkdir output && symbiflow_get_latest_artifact_url > output/latest
+      run: mkdir install && symbiflow_get_latest_artifact_url > install/latest
+    - name: Upload artifact URL file
+      if: ${{ success()  }}
+      uses: weslenng/gcp-storage-sync@master
+      env:
+        GCP_SERVICE_ACCOUNT_KEY_FILE: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY_FILE  }}
+        GCP_STORAGE_BUCKET: ${{ secrets.GCP_STORAGE_BUCKET  }}
+        SOURCE_DIR: "install"
 
