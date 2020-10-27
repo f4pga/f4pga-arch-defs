@@ -39,6 +39,6 @@ add_litex_test(
   USE_XDC
   VIVADO_XDC arty_clocks.xdc
   # FIXME: Certain BRAMs do have issues with the bittools regarding the
-  # INIT configuration bits: https://github.com/SymbiFlow/prjxray/pull/1335
+  # INIT configuration bit. https://github.com/SymbiFlow/symbiflow-arch-defs/issues/1730
   DISABLE_DIFF_TEST
 )
