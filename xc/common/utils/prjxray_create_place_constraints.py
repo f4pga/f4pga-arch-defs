@@ -32,9 +32,18 @@ CLOCKS = {
             "sources":
                 frozenset(
                     (
-                        "CLKFBOUT", "CLKFBOUTB", "CLKOUT0", "CLKOUT0B",
-                        "CLKOUT1", "CLKOUT1B", "CLKOUT2", "CLKOUT2B",
-                        "CLKOUT3", "CLKOUT3B", "CLKOUT4", "CLKOUT5",
+                        "CLKFBOUT",
+                        "CLKFBOUTB",
+                        "CLKOUT0",
+                        "CLKOUT0B",
+                        "CLKOUT1",
+                        "CLKOUT1B",
+                        "CLKOUT2",
+                        "CLKOUT2B",
+                        "CLKOUT3",
+                        "CLKOUT3B",
+                        "CLKOUT4",
+                        "CLKOUT5",
                         "CLKOUT6",
                     )
                 ),
