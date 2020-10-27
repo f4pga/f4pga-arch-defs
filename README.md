@@ -1,6 +1,6 @@
 # SymbiFlow Architecture Definitions
 
-**If you are looking for instructions how to use SymbiFlow, take a look at the [symbiflow-examples repository](https://github.com/SymbiFlow/symbiflow-examples).**
+**This repository is used during the development of architecture support in SymbiFlow, if you are looking to use the toolchain you should start with the [symbiflow-examples repository](https://github.com/SymbiFlow/symbiflow-examples).**
 
 ![License status](https://img.shields.io/github/license/SymbiFlow/symbiflow-arch-defs)
 [![Build Status](https://travis-ci.org/SymbiFlow/symbiflow-arch-defs.svg?branch=master)](https://travis-ci.org/SymbiFlow/symbiflow-arch-defs)
