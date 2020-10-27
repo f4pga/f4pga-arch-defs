@@ -48,7 +48,7 @@ def generate_case():
 
         # The phase shift requires to be quantized into 45 / mult steps.
         quant = 45.0 / mult
-        phase = int((phase + quant/2) / quant) * quant
+        phase = int((phase + quant / 2) / quant) * quant
 
         return mult, phase
 
@@ -76,14 +76,18 @@ def generate_case():
 
         # The phase shift requires to be quantized into 45 / mult steps.
         quant = 45.0 / divide
-        phase = int((phase + quant/2) / quant) * quant
+        phase = int((phase + quant / 2) / quant) * quant
 
         return divide, phase
 
     params = {}
 
     # Other settings
-    params["bandwidth"] = random.choice(("LOW", "HIGH", "OPTIMIZED",))
+    params["bandwidth"] = random.choice((
+        "LOW",
+        "HIGH",
+        "OPTIMIZED",
+    ))
 
     # Input clock divider (1 to 106)
     params["divclk_divide"] = random.randint(1, 106)
@@ -107,17 +111,19 @@ def generate_case():
         divide, phase = gen_div_and_phase(frac_en)
 
         # Duty cycle must be 50% when fractional divider is enabled
-        duty = 0.5#random.uniform(0.10, 0.90)
+        duty = 0.5  # random.uniform(0.10, 0.90)
         if frac_en:
             duty = 0.5
 
-        params["clkout"].append(ClkOut(
-            index = i,
-            enabled = random.random() > 0.20,
-            divide = divide,
-            duty = duty,
-            phase = phase 
-        ))
+        params["clkout"].append(
+            ClkOut(
+                index=i,
+                enabled=random.random() > 0.20,
+                divide=divide,
+                duty=duty,
+                phase=phase
+            )
+        )
 
     return params
 
@@ -136,7 +142,7 @@ def validate_params(params):
 
     # It is impossible to meet VCO freq. constraints both for 100MHz and 50Mhz
     # input. Hence we check only for 100.
-    for f_clkin in (100.0,):
+    for f_clkin in (100.0, ):
 
         f_vco = f_clkin * mul / div
 
@@ -176,12 +182,16 @@ def make_integers(params):
 
     return params
 
+
 # =============================================================================
 
 
 def main():
 
-    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
 
     parser.add_argument(
         "--template",
@@ -196,21 +206,16 @@ def main():
         help="Output file name pattern to be used with str.format()"
     )
     parser.add_argument(
-        "--count",
-        type=int,
-        default=10,
-        help="Number of cases to generate"
+        "--count", type=int, default=10, help="Number of cases to generate"
     )
     parser.add_argument(
         "--vpr",
         action="store_true",
-        help="Convert fractional MMCM parameters to integers (as required by the techmap for VPR)"
+        help="Convert fractional MMCM parameters to integers"
+        " (as required by the techmap for VPR)"
     )
     parser.add_argument(
-        "--seed",
-        type=int,
-        default=1,
-        help="Random generator seed"
+        "--seed", type=int, default=1, help="Random generator seed"
     )
 
     args = parser.parse_args()
@@ -245,8 +250,8 @@ def main():
         with open(fname, "w") as fp:
             fp.write(vlog)
 
-# =============================================================================
 
+# =============================================================================
 
 if __name__ == "__main__":
     main()
