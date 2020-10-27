@@ -57,20 +57,20 @@ MMCME2_ADV #
 .CLKIN1_PERIOD      (10.0),  // 100MHz, actually 50MHz
 .CLKIN2_PERIOD      (10.0),  // 100MHz
 
-.CLKFBOUT_MULT_F    ({{ clkfbout_mult }}),
-.CLKFBOUT_PHASE     ({{ clkfbout_phase }}),
+.CLKFBOUT_MULT_F    ({{ clkfbout_mult |round(3) }}),
+.CLKFBOUT_PHASE     ({{ clkfbout_phase|round(3) }}),
 
 .DIVCLK_DIVIDE      ({{ divclk_divide }}),
 
-.CLKOUT0_DIVIDE_F   ({{ clkout[0].divide }}),
-.CLKOUT0_DUTY_CYCLE ({{ clkout[0].duty }}),
-.CLKOUT0_PHASE      ({{ clkout[0].phase }}),
+.CLKOUT0_DIVIDE_F   ({{ clkout[0].divide|round(3) }}),
+.CLKOUT0_DUTY_CYCLE ({{ clkout[0].duty  |round(3) }}),
+.CLKOUT0_PHASE      ({{ clkout[0].phase |round(3) }}),
 
 {%- for clk in clkout %}
 {%- if clk.enabled and clk.index != 0 %}
-.CLKOUT{{ clk.index }}_DIVIDE     ({{ clk.divide }}),
-.CLKOUT{{ clk.index }}_DUTY_CYCLE ({{ clk.duty }}),
-.CLKOUT{{ clk.index }}_PHASE      ({{ clk.phase }}),
+.CLKOUT{{ clk.index }}_DIVIDE     ({{ clk.divide|round(3) }}),
+.CLKOUT{{ clk.index }}_DUTY_CYCLE ({{ clk.duty  |round(3) }}),
+.CLKOUT{{ clk.index }}_PHASE      ({{ clk.phase |round(3) }}),
 {%- endif %}
 {%- endfor %}
 

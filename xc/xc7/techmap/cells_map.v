@@ -4301,11 +4301,17 @@ input signed [31:0] phase       // Phase is given in degrees (-360,000 to 360,00
 );
 
   // Decompose the fractional divider
-  reg [7:0] divide_int;  
+  reg [17:0] divide_int_calc;
+  reg [19:0] divide_frac_calc;
+
+  divide_int_calc  = (divide / 1000);
+  divide_frac_calc = (divide % 1000) / 125;
+
+  reg [7:0] divide_int;
   reg [9:0] divide_frac;
 
-  divide_int  = (divide / 1000);
-  divide_frac = (divide % 1000) / 125;
+  divide_int  = divide_int_calc[7:0];
+  divide_frac = divide_frac_calc[8:0];
 
   // Calculate wf_fall_time and wf_rise_time
   reg [7:0] even_part_high;
@@ -4979,14 +4985,24 @@ output [15:0] DO
     $error("SS_MOD_PERIOD must range from 4000 to 40000");
   end
 
+  // Round fractional dividers to multiples of 1/8.
+  // (125 / 2 = 62.5)
+  localparam CLKFBOUT_MULT_R  = ((CLKFBOUT_MULT_F  + 62) / 125) * 125;
+  localparam CLKOUT0_DIVIDE_R = ((CLKOUT0_DIVIDE_F + 62) / 125) * 125;
+
   // Compute integer multipliers needed later for look-up tables
-  localparam CLKFBOUT_MULT  = CLKFBOUT_MULT_F  / 1000;
-  localparam CLKOUT0_DIVIDE = CLKOUT0_DIVIDE_F / 1000;
+  localparam CLKFBOUT_MULT    =  CLKFBOUT_MULT_R  / 1000;
+  localparam CLKOUT0_DIVIDE   =  CLKOUT0_DIVIDE_R / 1000;
 
   // Check whether fractional divider needs to be enabled on CLKFBOUT and
   // CLKOUT0
-  localparam CLKFBOUT_FRAC_EN = (CLKFBOUT_MULT_F  % 1000) != 0;
-  localparam CLKOUT0_FRAC_EN  = (CLKOUT0_DIVIDE_F % 1000) != 0;
+  localparam CLKFBOUT_FRAC_EN = (CLKFBOUT_MULT_R  % 1000) != 0;
+  localparam CLKOUT0_FRAC_EN  = (CLKOUT0_DIVIDE_R % 1000) != 0;
+
+  if (CLKOUT0_FRAC_EN && CLKOUT0_DUTY_CYCLE != 50000) begin
+    wire _TECHMAP_FAIL_;
+    $error("When CLKOUT0 uses fractional divider the duty cycle must be 50%");
+  end
 
   // Handle registers controling fractional dividers
   localparam CLKFBOUT_CALC = mmcm_clkregs(CLKFBOUT_MULT, 50000, CLKFBOUT_PHASE);
@@ -4994,14 +5010,22 @@ output [15:0] DO
   localparam CLKOUT5_CALC  = mmcm_clkregs(CLKOUT5_DIVIDE, CLKOUT5_DUTY_CYCLE, CLKOUT5_PHASE);
   localparam CLKOUT6_CALC  = mmcm_clkregs(CLKOUT6_DIVIDE, CLKOUT6_DUTY_CYCLE, CLKOUT6_PHASE);
 
-  localparam CLKFBOUT_FRAC_CALC = mmcm_clkregs_frac(CLKFBOUT_MULT_F,  50000, CLKFBOUT_PHASE);
-  localparam CLKOUT0_FRAC_CALC  = mmcm_clkregs_frac(CLKOUT0_DIVIDE_F, CLKOUT0_DUTY_CYCLE, CLKOUT0_PHASE);
+  localparam CLKFBOUT_FRAC_CALC = mmcm_clkregs_frac(CLKFBOUT_MULT_R,  50000, CLKFBOUT_PHASE);
+  localparam CLKOUT0_FRAC_CALC  = mmcm_clkregs_frac(CLKOUT0_DIVIDE_R, 50000,  CLKOUT0_PHASE);
 
   // Compute PLL's registers content
-  localparam CLKFBOUT_REGS = (CLKFBOUT_FRAC_EN) ? CLKFBOUT_FRAC_CALC : CLKFBOUT_CALC;
+  //
+  // When no fractional divider is enabled use the *_CALC content directly.
+  // For fractional divider use *_FRAC_CALC content but taje the "EDGE" bit
+  // from *_CALC. This is not documented in XAPP888 but has been observed in
+  // vendor tools.
+  //
+  // Additionally part of *_FRAC_CALC data needs to end up in bits of
+  // CLKOUT5_REGS and CLKOUT6_REGS.
+  localparam CLKFBOUT_REGS = (CLKFBOUT_FRAC_EN) ? (CLKFBOUT_FRAC_CALC[31:0] | (CLKFBOUT_CALC[23] << 23)): CLKFBOUT_CALC;
   localparam DIVCLK_REGS   = mmcm_clkregs(DIVCLK_DIVIDE, 50000, 0);
 
-  localparam CLKOUT0_REGS  = (CLKOUT0_FRAC_EN) ? CLKOUT0_FRAC_CALC : CLKOUT0_CALC; 
+  localparam CLKOUT0_REGS  = (CLKOUT0_FRAC_EN)  ? (CLKOUT0_FRAC_CALC[31:0]  | (CLKOUT0_CALC[23]  << 23)): CLKOUT0_CALC;
   localparam CLKOUT1_REGS  = mmcm_clkregs(CLKOUT1_DIVIDE, CLKOUT1_DUTY_CYCLE, CLKOUT1_PHASE);
   localparam CLKOUT2_REGS  = mmcm_clkregs(CLKOUT2_DIVIDE, CLKOUT2_DUTY_CYCLE, CLKOUT2_PHASE);
   localparam CLKOUT3_REGS  = mmcm_clkregs(CLKOUT3_DIVIDE, CLKOUT3_DUTY_CYCLE, CLKOUT3_PHASE);
@@ -5189,6 +5213,12 @@ output [15:0] DO
   .CLKOUT6_CLKOUT2_FRACTIONAL_NO_COUNT      (CLKOUT6_REGS[22]),
   .CLKOUT6_CLKOUT2_FRACTIONAL_PHASE_MUX_F   (CLKOUT6_REGS[29:27]),
   .CLKOUT6_CLKOUT2_FRACTIONAL_FRAC_WF_F     (CLKOUT6_REGS[26]),
+
+  // POWER_REG
+  // FIXME: Check whether this is always thar same content. XAPP888 says that
+  // "all the bits should be set when performing DRP". The values below has
+  // been observed to be used by vendor tools in some circumstances.
+  .POWER_REG ((CLKFBOUT_FRAC_EN || CLKOUT0_FRAC_EN) ? 16'b10011001_00000000 : 16'b00000001_00000000),
 
   // Clock output enable controls
   .CLKFBOUT_CLKOUT1_OUTPUT_ENABLE(_TECHMAP_CONSTVAL_CLKFBOUT_ === 1'bX || _TECHMAP_CONSTVAL_CLKFBOUTB_ === 1'bX),

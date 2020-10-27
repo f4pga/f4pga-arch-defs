@@ -37,7 +37,7 @@ foreach(VERILOG_FILE ${VERILOG_FILES})
     EXPLICIT_ADD_FILE_TARGET
     )
 
-  add_dependencies(all_xc7_mmcm_random_case ${DESIGN}_fasm)
+  add_dependencies(all_xc7_mmcm_random_case ${DESIGN}_bit)
 
 endforeach()
 

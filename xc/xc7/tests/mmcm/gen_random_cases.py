@@ -29,14 +29,26 @@ def generate_case():
         For CLKFBOUT
         """
 
+        # Fractional multiplier ranges from 2.0 to 64.0. The step is 1/8.
         if frac_en:
-            mult = random.uniform(2.0, 64.0)
+
+            # Make sure to generate a fractional value
+            while True:
+                mult = random.uniform(2.0, 64.0)
+                mult = int(mult * 8.0 + 0.5) / 8.0
+
+                if mult != int(mult):
+                    break
+
+        # Integer divider ranges from 2 to 64
         else:
             mult = random.randint(2, 64)
 
         phase = random.uniform(0.0, +180.0)
+
+        # The phase shift requires to be quantized into 45 / mult steps.
         quant = 45.0 / mult
-        phase = int(phase / quant) * quant
+        phase = int((phase + quant/2) / quant) * quant
 
         return mult, phase
 
@@ -45,14 +57,26 @@ def generate_case():
         For CLKOUTn
         """
 
+        # Fractional multiplier ranges from 2.0 to 128.0. The step is 1/8.
         if frac_en:
-            divide = random.uniform(2.0, 128.0)
+
+            # Make sure to generate a fractional value
+            while True:
+                divide = random.uniform(2.0, 128.0)
+                divide = int(divide * 8.0 + 0.5) / 8.0
+
+                if divide != int(divide):
+                    break
+
+        # Integer divider ranges from 2 to 128
         else:
             divide = random.randint(1, 128)
 
         phase = random.uniform(0.0, +180.0)
+
+        # The phase shift requires to be quantized into 45 / mult steps.
         quant = 45.0 / divide
-        phase = int(phase / quant) * quant
+        phase = int((phase + quant/2) / quant) * quant
 
         return divide, phase
 
@@ -61,7 +85,7 @@ def generate_case():
     # Other settings
     params["bandwidth"] = random.choice(("LOW", "HIGH", "OPTIMIZED",))
 
-    # Input clock divider
+    # Input clock divider (1 to 106)
     params["divclk_divide"] = random.randint(1, 106)
 
     # Feedback clock
@@ -75,13 +99,15 @@ def generate_case():
     params["clkout"] = []
     for i in range(7):
 
+        # Fractional divider is only available for CLKOUT0
         frac_en = random.random() > 0.5
         if i > 0:
             frac_en = False
 
         divide, phase = gen_div_and_phase(frac_en)
-        duty = random.uniform(0.01, 0.99)
 
+        # Duty cycle must be 50% when fractional divider is enabled
+        duty = 0.5#random.uniform(0.10, 0.90)
         if frac_en:
             duty = 0.5
 
@@ -102,7 +128,7 @@ def validate_params(params):
     don't complain.
     """
 
-    # VCO operating ranges [MHz] (for speed grade -1)
+    # VCO operating ranges [MHz] (for xc7a35tcsg324-1 speed grade -1)
     vco_range = (600.0, 1200.0)
 
     mul = params["clkfbout_mult"]
@@ -119,14 +145,19 @@ def validate_params(params):
         if f_vco > vco_range[1]:
             return False
 
-    print(mul, div, f_vco)
     return True
 
 
 def make_integers(params):
     """
     Convert fractional parameter to integers by multiplying by the required
-    constant and truncating.
+    constant and rounding.
+
+    - Multipliers, dividers and phases need to be multiplied by 1000
+
+    - Duty cycle needs to be expressed in % times 1000 hence the ratio is
+      multiplied by 100000
+
     """
 
     for key in ["clkfbout_mult", "clkfbout_phase"]:
@@ -202,6 +233,10 @@ def main():
         # Convert floating point parameters to intergers
         if args.vpr:
             params = make_integers(params)
+
+        ks = sorted(list(params.keys()))
+        for k in ks:
+            print(k, params[k])
 
         # Render and save the template
         vlog = template.render(**params)
