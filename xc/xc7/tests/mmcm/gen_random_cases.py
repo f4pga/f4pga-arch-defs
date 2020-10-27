@@ -35,7 +35,7 @@ def generate_case():
             # Make sure to generate a fractional value
             while True:
                 mult = random.uniform(2.0, 64.0)
-                mult = int(mult * 8.0 + 0.5) / 8.0
+                mult = int(mult * 8.0) / 8.0
 
                 if mult != int(mult):
                     break
@@ -63,7 +63,7 @@ def generate_case():
             # Make sure to generate a fractional value
             while True:
                 divide = random.uniform(2.0, 128.0)
-                divide = int(divide * 8.0 + 0.5) / 8.0
+                divide = int(divide * 8.0) / 8.0
 
                 if divide != int(divide):
                     break

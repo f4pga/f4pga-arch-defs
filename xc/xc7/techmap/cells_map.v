@@ -4301,17 +4301,11 @@ input signed [31:0] phase       // Phase is given in degrees (-360,000 to 360,00
 );
 
   // Decompose the fractional divider
-  reg [17:0] divide_int_calc;
-  reg [19:0] divide_frac_calc;
-
-  divide_int_calc  = (divide / 1000);
-  divide_frac_calc = (divide % 1000) / 125;
-
   reg [7:0] divide_int;
   reg [9:0] divide_frac;
 
-  divide_int  = divide_int_calc[7:0];
-  divide_frac = divide_frac_calc[8:0];
+  divide_int  = (divide / 1000);
+  divide_frac = (divide % 1000) / 125;
 
   // Calculate wf_fall_time and wf_rise_time
   reg [7:0] even_part_high;
@@ -4347,30 +4341,22 @@ input signed [31:0] phase       // Phase is given in degrees (-360,000 to 360,00
   // Calculate phase shift in fractional cycles
   reg [31:0] a_per_in_octets;
   reg [31:0] a_phase_in_cycles;
-  reg [ 7:0] pm_rise_frac;
 
   reg [63:0] dt_calc;
   reg [ 7:0] dt;
 
   reg [ 7:0] pm_rise_frac_filtered;
-  
-  reg [ 7:0] dt_int;
-  reg [ 7:0] pm_fall_frac;
   reg [ 7:0] pm_fall_frac_filtered;
 
   a_per_in_octets   = (8 * divide_int) + divide_frac;
   a_phase_in_cycles = (phase + 10) * a_per_in_octets / 360000;
-  pm_rise_frac      = (a_phase_in_cycles[7:0] == 8'h00) ? 8'h00 : (a_phase_in_cycles[7:0] - {a_phase_in_cycles[7:3], 3'b000});
 
   dt_calc = ((phase + 10) * a_per_in_octets / 8 ) / 360000;
   dt      = dt_calc[7:0];
 
-  pm_rise_frac_filtered = (pm_rise_frac >= 8) ? (pm_rise_frac - 8) : pm_rise_frac;
-  
-  dt_int                = dt + (& pm_rise_frac[7:4]);
-  pm_fall_frac          = pm_fall + pm_rise_frac;
-  pm_fall_frac_filtered = pm_fall + pm_rise_frac - {pm_fall_frac[7:3], 3'b000};
-  
+  pm_rise_frac_filtered = a_phase_in_cycles % 8;
+  pm_fall_frac_filtered = (pm_fall + pm_rise_frac_filtered) % 8;
+
   // Pack output data
   mmcm_clkregs_frac = {
     // Shared:  RESERVED[1:0], FRAC_TIME[2:0], FRAC_WF_FALL
