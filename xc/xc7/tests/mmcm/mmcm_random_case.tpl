@@ -49,6 +49,7 @@ wire clkinsel = sw[2];
 
 wire locked;
 
+(* LOC="MMCME2_ADV_X1Y0" *)
 MMCME2_ADV #
 (
 .BANDWIDTH          ("{{ bandwidth }}"),
