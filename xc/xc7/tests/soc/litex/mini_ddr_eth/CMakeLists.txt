@@ -18,6 +18,8 @@ add_litex_test(
   GENERATE_SCRIPT ${GENERATE_LITEX}
   FIXUP_SCRIPT ${FIXUP_XDC}
   FLAGS
+    --integrated-rom-size 0x10000
+    --uart-baudrate 1000000
     --with-ram
     --with-ethernet
   USE_XDC
@@ -34,6 +36,8 @@ add_litex_test(
   GENERATE_SCRIPT ${GENERATE_LITEX}
   FIXUP_SCRIPT ${FIXUP_XDC}
   FLAGS
+    --integrated-rom-size 0x10000
+    --uart-baudrate 1000000
     --with-ram
     --with-ethernet
   USE_XDC
