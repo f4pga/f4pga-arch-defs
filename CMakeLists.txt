@@ -30,7 +30,6 @@ set(ENV_DIR ${symbiflow-arch-defs_SOURCE_DIR}/env/conda/envs/symbiflow_arch_def_
 set(YOSYS_DATADIR ${ENV_DIR}/share/yosys CACHE PATH "Path to yosys data directory")
 set(OPENOCD_DATADIR ${ENV_DIR}/share/openocd CACHE PATH "Path to openocd data directory")
 set(VPR_CAPNP_SCHEMA_DIR ${ENV_DIR}/capnp CACHE PATH "Path to VPR schema directory")
-set(INSTALL_DEVICE "small_devices" CACHE STRING "The device to install, or 'small_devices', which includes all devices except xc7a200t.")
 
 
 setup_env()
