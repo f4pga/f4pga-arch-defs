@@ -1,7 +1,6 @@
 set(INSTALLATION_DIR_BIN "${CMAKE_INSTALL_PREFIX}/bin")
 
-if(${INSTALL_DEVICE} STREQUAL "xc7a200t")
-add_test(NAME binary_toolchain_test
+add_test(NAME binary_toolchain_test_200t
 	COMMAND ${CMAKE_COMMAND} -E env
 	PATH=${INSTALLATION_DIR_BIN}:$ENV{PATH}
 	${CMAKE_COMMAND} -E env
@@ -10,8 +9,8 @@ add_test(NAME binary_toolchain_test
 	FRAMES2BIT=$<TARGET_FILE:xc7frames2bit>
 	make PARTNAME=xc7a200tsbg484-1 DEVICE=xc7a200t_test BOARD=nexys_video
 	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-else()
-add_test(NAME binary_toolchain_test
+
+add_test(NAME binary_toolchain_test_50t
 	COMMAND ${CMAKE_COMMAND} -E env
 	PATH=${INSTALLATION_DIR_BIN}:$ENV{PATH}
 	${CMAKE_COMMAND} -E env
@@ -20,4 +19,3 @@ add_test(NAME binary_toolchain_test
 	FRAMES2BIT=$<TARGET_FILE:xc7frames2bit>
 	make
 	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-endif()
