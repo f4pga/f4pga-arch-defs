@@ -1531,6 +1531,24 @@ end
   wire [3:0] WEA_WIDE;
   wire [3:0] DIPADIP_MAPPED;
   wire [3:0] DIPBDIP_MAPPED;
+  wire [31:0] DIADI_MAPPED;
+  wire [31:0] DIBDI_MAPPED;
+
+  if(WRITE_WIDTH_A == 1) begin
+      assign DIADI_MAPPED[31:2] = DIADI[31:2];
+      assign DIADI_MAPPED[1] = DIADI[0];
+      assign DIADI_MAPPED[0] = DIADI[0];
+  end else begin
+      assign DIADI_MAPPED = DIADI;
+  end
+
+  if(WRITE_WIDTH_B == 1) begin
+      assign DIBDI_MAPPED[31:2] = DIBDI[31:2];
+      assign DIBDI_MAPPED[1] = DIBDI[0];
+      assign DIBDI_MAPPED[0] = DIBDI[0];
+  end else begin
+      assign DIBDI_MAPPED = DIBDI;
+  end
 
   if(WRITE_WIDTH_A < 18) begin
       assign WEA_WIDE = {4{WEA[0]}};
@@ -1686,8 +1704,8 @@ end
     .ADDRARDADDRL({1'b1, ADDRARDADDR}),
     .ADDRBWRADDRU(ADDRBWRADDR),
     .ADDRBWRADDRL({1'b1, ADDRBWRADDR}),
-    .DIADI(DIADI),
-    .DIBDI(DIBDI),
+    .DIADI(DIADI_MAPPED),
+    .DIBDI(DIBDI_MAPPED),
     .DIPADIP(DIPADIP_MAPPED),
     .DIPBDIP(DIPBDIP_MAPPED),
     `DUP(WEA, WEA_WIDE),
