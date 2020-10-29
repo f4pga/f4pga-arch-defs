@@ -1529,32 +1529,49 @@ end
 
   wire [7:0] WEBWE_WIDE;
   wire [3:0] WEA_WIDE;
+  wire [3:0] DIPADIP_MAPPED;
+  wire [3:0] DIPBDIP_MAPPED;
 
   if(WRITE_WIDTH_A < 18) begin
       assign WEA_WIDE = {4{WEA[0]}};
+
+      assign DIPADIP_MAPPED[3:2] = DIPADIP[3:2];
+      assign DIPADIP_MAPPED[1] = DIPADIP[0];
+      assign DIPADIP_MAPPED[0] = DIPADIP[0];
   end else if(WRITE_WIDTH_A == 18) begin
       assign WEA_WIDE[3] = WEA[1];
       assign WEA_WIDE[1] = WEA[1];
       assign WEA_WIDE[2] = WEA[0];
       assign WEA_WIDE[0] = WEA[0];
+
+      assign DIPADIP_MAPPED = DIPADIP;
   end else if(WRITE_WIDTH_A == 36) begin
       assign WEA_WIDE = WEA;
+      assign DIPADIP_MAPPED = DIPADIP;
   end
 
   if(WRITE_WIDTH_B < 18) begin
       assign WEBWE_WIDE[7:4] = 4'b0;
       assign WEBWE_WIDE[3:0] = {4{WEBWE[0]}};
+
+      assign DIPBDIP_MAPPED[3:2] = DIPBDIP[3:2];
+      assign DIPBDIP_MAPPED[1] = DIPBDIP[0];
+      assign DIPBDIP_MAPPED[0] = DIPBDIP[0];
   end else if(WRITE_WIDTH_B == 18) begin
       assign WEBWE_WIDE[7:4] = 4'b0;
       assign WEBWE_WIDE[3] = WEBWE[1];
       assign WEBWE_WIDE[1] = WEBWE[1];
       assign WEBWE_WIDE[2] = WEBWE[0];
       assign WEBWE_WIDE[0] = WEBWE[0];
+
+      assign DIPBDIP_MAPPED = DIPBDIP;
   end else if(WRITE_WIDTH_B == 36) begin
       assign WEBWE_WIDE = WEBWE;
+      assign DIPBDIP_MAPPED = DIPBDIP;
   end else if(WRITE_WIDTH_B == 72) begin
       assign WEA_WIDE = 4'b0;
       assign WEBWE_WIDE = WEBWE;
+      assign DIPBDIP_MAPPED = DIPBDIP;
   end
 
   RAMB36E1_PRIM #(
@@ -1633,6 +1650,11 @@ end
       `WIDTH_PARAM(WRITE_WIDTH_B),
       `undef WIDTH_PARAM
 
+      .BRAM36_READ_WIDTH_A_1(EFF_READ_WIDTH_A == 1 || EFF_READ_WIDTH_A == 9),
+      .BRAM36_READ_WIDTH_B_1(EFF_READ_WIDTH_B == 1 || EFF_READ_WIDTH_B == 9),
+      .BRAM36_WRITE_WIDTH_A_1(EFF_WRITE_WIDTH_A == 1 || EFF_WRITE_WIDTH_A == 9),
+      .BRAM36_WRITE_WIDTH_B_1(EFF_WRITE_WIDTH_B == 1 || EFF_WRITE_WIDTH_B == 9),
+
       .SDP_WRITE_WIDTH_36(WRITE_WIDTH_B > 36),
       .WRITE_MODE_A_NO_CHANGE(WRITE_MODE_A == "NO_CHANGE" || (WRITE_MODE_A == "WRITE_FIRST" && RAM_MODE == "SDP")),
       .WRITE_MODE_A_READ_FIRST(WRITE_MODE_A == "READ_FIRST"),
@@ -1666,8 +1688,8 @@ end
     .ADDRBWRADDRL({1'b1, ADDRBWRADDR}),
     .DIADI(DIADI),
     .DIBDI(DIBDI),
-    .DIPADIP(DIPADIP),
-    .DIPBDIP(DIPBDIP),
+    .DIPADIP(DIPADIP_MAPPED),
+    .DIPBDIP(DIPBDIP_MAPPED),
     `DUP(WEA, WEA_WIDE),
     `DUP(WEBWE, WEBWE_WIDE),
 
