@@ -32,20 +32,21 @@ endmodule
 BramConfig = namedtuple('BramConfig', 'data_width addr_width depth')
 
 BRAM_TYPE_WIDTH = {
-        # UG473 Table 1-11
-        (18, 1): BramConfig(1, 14, 16384),
-        (18, 2): BramConfig(2, 13, 8192),
-        (18, 4): BramConfig(4, 12, 4096),
-        (18, 9): BramConfig(9, 11, 2048),
-        (18, 18): BramConfig(18, 10, 1024),
-        # UG473 Table 1-13
-        (36, 1): BramConfig(1, 15, 32768),
-        (36, 2): BramConfig(2, 14, 16384),
-        (36, 4): BramConfig(4, 13, 8192),
-        (36, 9): BramConfig(9, 12, 4096),
-        (36, 18): BramConfig(18, 11, 2048),
-        (36, 36): BramConfig(18, 10, 1024),
-        }
+    # UG473 Table 1-11
+    (18, 1): BramConfig(1, 14, 16384),
+    (18, 2): BramConfig(2, 13, 8192),
+    (18, 4): BramConfig(4, 12, 4096),
+    (18, 9): BramConfig(9, 11, 2048),
+    (18, 18): BramConfig(18, 10, 1024),
+    # UG473 Table 1-13
+    (36, 1): BramConfig(1, 15, 32768),
+    (36, 2): BramConfig(2, 14, 16384),
+    (36, 4): BramConfig(4, 13, 8192),
+    (36, 9): BramConfig(9, 12, 4096),
+    (36, 18): BramConfig(18, 11, 2048),
+    (36, 36): BramConfig(18, 10, 1024),
+}
+
 
 def main():
     parser = argparse.ArgumentParser(description="")
@@ -57,12 +58,15 @@ def main():
 
     bram_config = BRAM_TYPE_WIDTH[args.type, args.width]
 
-    print(TEMPLATE.format(
-        ADDR_WIDTH=bram_config.addr_width,
-        DATA_WIDTH=bram_config.data_width,
-        ADDRESS_STEP=1,
-        MAX_ADDRESS=bram_config.depth-1,
-        ))
+    print(
+        TEMPLATE.format(
+            ADDR_WIDTH=bram_config.addr_width,
+            DATA_WIDTH=bram_config.data_width,
+            ADDRESS_STEP=1,
+            MAX_ADDRESS=bram_config.depth - 1,
+        )
+    )
+
 
 if __name__ == "__main__":
     main()
