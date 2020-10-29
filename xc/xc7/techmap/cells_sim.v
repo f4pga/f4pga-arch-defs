@@ -610,30 +610,38 @@ module RAMB36E1_PRIM (
         parameter DOB_REG = 1'b0;
 
         parameter integer SDP_READ_WIDTH_72 = 1'b0;
+
         parameter integer READ_WIDTH_A_36 = 1'b0;
         parameter integer READ_WIDTH_A_18 = 1'b0;
         parameter integer READ_WIDTH_A_9 = 1'b0;
         parameter integer READ_WIDTH_A_4 = 1'b0;
         parameter integer READ_WIDTH_A_2 = 1'b0;
         parameter integer READ_WIDTH_A_1 = 1'b1;
+        parameter integer BRAM36_READ_WIDTH_A_1 = 1'b0;
+
         parameter integer READ_WIDTH_B_18 = 1'b0;
         parameter integer READ_WIDTH_B_9 = 1'b0;
         parameter integer READ_WIDTH_B_4 = 1'b0;
         parameter integer READ_WIDTH_B_2 = 1'b0;
         parameter integer READ_WIDTH_B_1 = 1'b1;
+        parameter integer BRAM36_READ_WIDTH_B_1 = 1'b0;
 
         parameter integer SDP_WRITE_WIDTH_72 = 1'b0;
+
         parameter integer WRITE_WIDTH_A_36 = 1'b0;
         parameter integer WRITE_WIDTH_A_18 = 1'b0;
         parameter integer WRITE_WIDTH_A_9 = 1'b0;
         parameter integer WRITE_WIDTH_A_4 = 1'b0;
         parameter integer WRITE_WIDTH_A_2 = 1'b0;
         parameter integer WRITE_WIDTH_A_1 = 1'b1;
+        parameter integer BRAM36_WRITE_WIDTH_A_1 = 1'b0;
+
         parameter integer WRITE_WIDTH_B_18 = 1'b0;
         parameter integer WRITE_WIDTH_B_9 = 1'b0;
         parameter integer WRITE_WIDTH_B_4 = 1'b0;
         parameter integer WRITE_WIDTH_B_2 = 1'b0;
         parameter integer WRITE_WIDTH_B_1 = 1'b1;
+        parameter integer BRAM36_WRITE_WIDTH_B_1 = 1'b0;
 
         parameter WRITE_MODE_A_NO_CHANGE = 1'b0;
         parameter WRITE_MODE_A_READ_FIRST = 1'b0;
