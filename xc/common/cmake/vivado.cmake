@@ -112,6 +112,7 @@ function(COMMON_VIVADO_TARGETS)
           --part ${PART}
           --db-root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}
           --bitread $<TARGET_FILE:bitread>
+          --verbose
           ${CMAKE_CURRENT_BINARY_DIR}/${WORK_DIR}/design_${NAME}.bit
           > ${CMAKE_CURRENT_BINARY_DIR}/${WORK_DIR}/design_${NAME}.bit.fasm
       WORKING_DIRECTORY ${WORK_DIR}
@@ -226,8 +227,10 @@ function(ADD_VIVADO_TARGET)
       append_file_dependency(DEPS ${ADD_VIVADO_TARGET_XDC})
       get_file_location(XDC_LOCATION ${ADD_VIVADO_TARGET_XDC})
       set(XDC_ARGS --additional_xdc "${XDC_LOCATION}")
+      set(CREATE_DCP_ARGS XDC ${ADD_VIVADO_TARGET_XDC})
   elseif()
       set(XDC_ARGS "")
+      set(CREATE_DCP_ARGS "")
   endif()
 
   get_target_property_required(PYTHON3 env PYTHON3)
@@ -281,6 +284,7 @@ function(ADD_VIVADO_TARGET)
         NAME ${NAME}_interchange
         PARENT_NAME ${ADD_VIVADO_TARGET_PARENT_NAME}
         WORK_DIR ${WORK_DIR}/interchange
+        ${CREATE_DCP_ARGS}
         )
   endif()
 
@@ -558,7 +562,7 @@ function(CREATE_DCP_BY_INTERCHANGE)
   #     the bitstream generated from the DCP.
 
   set(options)
-  set(oneValueArgs NAME PARENT_NAME WORK_DIR)
+  set(oneValueArgs NAME PARENT_NAME WORK_DIR XDC)
   set(multiValueArgs)
   cmake_parse_arguments(
       CREATE_DCP
@@ -614,9 +618,17 @@ function(CREATE_DCP_BY_INTERCHANGE)
   set(RUNME_DEPS)
   append_file_dependency(RUNME_DEPS ${WORK_DIR}/${NAME}.dcp)
 
+  set(XDC_EXTRA_ARGS "")
+  if(NOT "${CREATE_DCP_XDC}" STREQUAL "")
+      get_file_location(XDC_LOCATION ${CREATE_DCP_XDC})
+      set(XDC_EXTRA_ARGS "source ${XDC_LOCATION}")
+      append_file_dependency(RUNME_DEPS ${CREATE_DCP_XDC})
+  endif()
+
   add_custom_command(
     OUTPUT ${WORK_DIR}/${NAME}_runme.tcl
     COMMAND ${CMAKE_COMMAND} -E echo "open_checkpoint ${NAME}.dcp"                                     >  ${RUNME}
+    COMMAND ${CMAKE_COMMAND} -E echo "${XDC_EXTRA_ARGS}"                                               >> ${RUNME}
     COMMAND ${CMAKE_COMMAND} -E echo "set_property CFGBVS VCCO [current_design]"                       >> ${RUNME}
     COMMAND ${CMAKE_COMMAND} -E echo "set_property CONFIG_VOLTAGE 3.3 [current_design]"                >> ${RUNME}
     COMMAND ${CMAKE_COMMAND} -E echo "set_property BITSTREAM.GENERAL.PERFRAMECRC YES [current_design]" >> ${RUNME}
@@ -657,6 +669,7 @@ function(CREATE_DCP_BY_INTERCHANGE)
           --part ${PART}
           --db-root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}
           --bitread $<TARGET_FILE:bitread>
+          --verbose
           ${CMAKE_CURRENT_BINARY_DIR}/${WORK_DIR}/${NAME}.bit
           > ${CMAKE_CURRENT_BINARY_DIR}/${WORK_DIR}/${NAME}.bit.fasm
       WORKING_DIRECTORY ${WORK_DIR}

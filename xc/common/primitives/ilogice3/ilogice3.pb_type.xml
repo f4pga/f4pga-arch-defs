@@ -362,7 +362,7 @@
 
       <metadata>
         <meta name="fasm_features">
-          IDDR_OR_ISERDES.IN_USE
+          IDDR.IN_USE
         </meta>
         <meta name="fasm_params">
           ZINV_D = ZINV_D

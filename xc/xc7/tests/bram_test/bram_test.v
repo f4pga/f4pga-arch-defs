@@ -1,16 +1,20 @@
-module ram0(
+module ram0 #(
+    parameter ADDR_WIDTH = 10,
+    parameter DATA_WIDTH = 8,
+    parameter MAX_ADDRESS = 1023
+) (
     // Write port
     input wrclk,
-    input [31:0] di,
+    input [DATA_WIDTH-1:0] di,
     input wren,
-    input [9:0] wraddr,
+    input [ADDR_WIDTH-1:0] wraddr,
     // Read port
     input rdclk,
     input rden,
-    input [9:0] rdaddr,
-    output reg [31:0] do);
+    input [ADDR_WIDTH-1:0] rdaddr,
+    output reg [DATA_WIDTH-1:0] do);
 
-    (* ram_style = "block" *) reg [31:0] ram[0:1023];
+    (* ram_style = "block" *) reg [DATA_WIDTH-1:0] ram[0:MAX_ADDRESS];
 
     always @ (posedge wrclk) begin
         if (wren == 1) begin
@@ -26,7 +30,12 @@ module ram0(
 
 endmodule
 
-module top (
+module bram_test #(
+    parameter ADDR_WIDTH = 10,
+    parameter DATA_WIDTH = 8,
+    parameter ADDRESS_STEP = 1,
+    parameter MAX_ADDRESS = 1023
+) (
     input  wire clk,
 
     input  wire rx,
@@ -66,33 +75,31 @@ module top (
         .rx_data_ready(rx_data_ready_wire)
     );
 
-    wire [9:0] write_address;
-    wire [9:0] read_address;
-    wire [31:0] read_data;
-    wire [31:0] write_data;
+    wire [ADDR_WIDTH-1:0] write_address;
+    wire [ADDR_WIDTH-1:0] read_address;
+    wire [DATA_WIDTH-1:0] read_data;
+    wire [DATA_WIDTH-1:0] write_data;
     wire write_enable;
     wire read_enable = !write_enable;
 
-    wire [9:0] rom_read_address;
-    wire [31:0] rom_read_data = 32'b0;
+    wire [ADDR_WIDTH-1:0] rom_read_address;
+    wire [DATA_WIDTH-1:0] rom_read_data = 16'b0;
 
     //assign rom_read_data[9:0] = rom_read_address;
 
     wire loop_complete;
     wire error_detected;
     wire [7:0] error_state;
-    wire [9:0] error_address;
-    wire [31:0] expected_data;
-    wire [31:0] actual_data;
+    wire [ADDR_WIDTH-1:0] error_address;
+    wire [DATA_WIDTH-1:0] expected_data;
+    wire [DATA_WIDTH-1:0] actual_data;
 
     RAM_TEST #(
-        .ADDR_WIDTH(10),
-        .DATA_WIDTH(32),
+        .ADDR_WIDTH(ADDR_WIDTH),
+        .DATA_WIDTH(DATA_WIDTH),
         .IS_DUAL_PORT(1),
-        .ADDRESS_STEP(2),
-        .MAX_ADDRESS(1023),
-        .LFSR_WIDTH(32),
-        .LFSR_POLY(32'h80000803) // from Xilinx XAPP52 pg.5
+        .ADDRESS_STEP(ADDRESS_STEP),
+        .MAX_ADDRESS(MAX_ADDRESS)
     ) dram_test (
         .rst(!nrst),
         .clk(clk),
@@ -115,6 +122,9 @@ module top (
     );
 
     ram0 #(
+        .ADDR_WIDTH(ADDR_WIDTH),
+        .DATA_WIDTH(DATA_WIDTH),
+        .MAX_ADDRESS(MAX_ADDRESS)
     ) bram (
         // Write port
         .wrclk(clk),
@@ -129,8 +139,8 @@ module top (
     );
 
     ERROR_OUTPUT_LOGIC #(
-        .DATA_WIDTH(32),
-        .ADDR_WIDTH(10)
+        .DATA_WIDTH(DATA_WIDTH),
+        .ADDR_WIDTH(ADDR_WIDTH)
     ) output_logic (
         .clk(clk),
         .rst(!nrst),
@@ -149,3 +159,4 @@ module top (
         nrst <= 1;
     end
 endmodule
+
