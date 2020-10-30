@@ -1529,32 +1529,67 @@ end
 
   wire [7:0] WEBWE_WIDE;
   wire [3:0] WEA_WIDE;
+  wire [3:0] DIPADIP_MAPPED;
+  wire [3:0] DIPBDIP_MAPPED;
+  wire [31:0] DIADI_MAPPED;
+  wire [31:0] DIBDI_MAPPED;
+
+  if(WRITE_WIDTH_A == 1) begin
+      assign DIADI_MAPPED[31:2] = DIADI[31:2];
+      assign DIADI_MAPPED[1] = DIADI[0];
+      assign DIADI_MAPPED[0] = DIADI[0];
+  end else begin
+      assign DIADI_MAPPED = DIADI;
+  end
+
+  if(WRITE_WIDTH_B == 1) begin
+      assign DIBDI_MAPPED[31:2] = DIBDI[31:2];
+      assign DIBDI_MAPPED[1] = DIBDI[0];
+      assign DIBDI_MAPPED[0] = DIBDI[0];
+  end else begin
+      assign DIBDI_MAPPED = DIBDI;
+  end
 
   if(WRITE_WIDTH_A < 18) begin
       assign WEA_WIDE = {4{WEA[0]}};
+
+      assign DIPADIP_MAPPED[3:2] = DIPADIP[3:2];
+      assign DIPADIP_MAPPED[1] = DIPADIP[0];
+      assign DIPADIP_MAPPED[0] = DIPADIP[0];
   end else if(WRITE_WIDTH_A == 18) begin
       assign WEA_WIDE[3] = WEA[1];
       assign WEA_WIDE[1] = WEA[1];
       assign WEA_WIDE[2] = WEA[0];
       assign WEA_WIDE[0] = WEA[0];
+
+      assign DIPADIP_MAPPED = DIPADIP;
   end else if(WRITE_WIDTH_A == 36) begin
       assign WEA_WIDE = WEA;
+      assign DIPADIP_MAPPED = DIPADIP;
   end
 
   if(WRITE_WIDTH_B < 18) begin
       assign WEBWE_WIDE[7:4] = 4'b0;
       assign WEBWE_WIDE[3:0] = {4{WEBWE[0]}};
+
+      assign DIPBDIP_MAPPED[3:2] = DIPBDIP[3:2];
+      assign DIPBDIP_MAPPED[1] = DIPBDIP[0];
+      assign DIPBDIP_MAPPED[0] = DIPBDIP[0];
   end else if(WRITE_WIDTH_B == 18) begin
       assign WEBWE_WIDE[7:4] = 4'b0;
       assign WEBWE_WIDE[3] = WEBWE[1];
       assign WEBWE_WIDE[1] = WEBWE[1];
       assign WEBWE_WIDE[2] = WEBWE[0];
       assign WEBWE_WIDE[0] = WEBWE[0];
+
+      assign DIPBDIP_MAPPED = DIPBDIP;
   end else if(WRITE_WIDTH_B == 36) begin
       assign WEBWE_WIDE = WEBWE;
+      assign DIPBDIP_MAPPED = DIPBDIP;
   end else if(WRITE_WIDTH_B == 72) begin
       assign WEA_WIDE = 4'b0;
       assign WEBWE_WIDE = WEBWE;
+      assign DIPBDIP_MAPPED = DIPBDIP;
   end
 
   RAMB36E1_PRIM #(
@@ -1633,6 +1668,11 @@ end
       `WIDTH_PARAM(WRITE_WIDTH_B),
       `undef WIDTH_PARAM
 
+      .BRAM36_READ_WIDTH_A_1(EFF_READ_WIDTH_A == 1 || EFF_READ_WIDTH_A == 9),
+      .BRAM36_READ_WIDTH_B_1(EFF_READ_WIDTH_B == 1 || EFF_READ_WIDTH_B == 9),
+      .BRAM36_WRITE_WIDTH_A_1(EFF_WRITE_WIDTH_A == 1 || EFF_WRITE_WIDTH_A == 9),
+      .BRAM36_WRITE_WIDTH_B_1(EFF_WRITE_WIDTH_B == 1 || EFF_WRITE_WIDTH_B == 9),
+
       .SDP_WRITE_WIDTH_36(WRITE_WIDTH_B > 36),
       .WRITE_MODE_A_NO_CHANGE(WRITE_MODE_A == "NO_CHANGE" || (WRITE_MODE_A == "WRITE_FIRST" && RAM_MODE == "SDP")),
       .WRITE_MODE_A_READ_FIRST(WRITE_MODE_A == "READ_FIRST"),
@@ -1664,10 +1704,10 @@ end
     .ADDRARDADDRL({1'b1, ADDRARDADDR}),
     .ADDRBWRADDRU(ADDRBWRADDR),
     .ADDRBWRADDRL({1'b1, ADDRBWRADDR}),
-    .DIADI(DIADI),
-    .DIBDI(DIBDI),
-    .DIPADIP(DIPADIP),
-    .DIPBDIP(DIPBDIP),
+    .DIADI(DIADI_MAPPED),
+    .DIBDI(DIBDI_MAPPED),
+    .DIPADIP(DIPADIP_MAPPED),
+    .DIPBDIP(DIPBDIP_MAPPED),
     `DUP(WEA, WEA_WIDE),
     `DUP(WEBWE, WEBWE_WIDE),
 
@@ -2496,8 +2536,7 @@ module OSERDESE2 (
   parameter IO_LOC_PAIRS = "NONE";
 
   if (DATA_RATE_OQ == "DDR" &&
-      !(DATA_WIDTH == 2 || DATA_WIDTH == 4 ||
-        DATA_WIDTH == 6 || DATA_WIDTH == 8)) begin
+      !(DATA_WIDTH == 4 || DATA_WIDTH == 6 || DATA_WIDTH == 8)) begin
     wire _TECHMAP_FAIL_;
   end
 
@@ -2518,16 +2557,6 @@ module OSERDESE2 (
   if (TRISTATE_WIDTH != 1 && TRISTATE_WIDTH != 4) begin
     wire _TECHMAP_FAIL_;
   end
-
-  // TODO: the following params behave in a weird way.
-  // Prjxray should be fixed to better assign a better meaning to these features.
-  localparam [0:0] DATA_WIDTH_DDR_W6_8 = DATA_RATE_OQ == "DDR" && (DATA_WIDTH == 6 || DATA_WIDTH == 8) ? 1'b1 :
-                                         DATA_RATE_OQ == "SDR" && (DATA_WIDTH == 3 || DATA_WIDTH == 4) ? 1'b1 : 1'b0;
-
-  localparam [0:0] DATA_WIDTH_SDR_W2_4_5_6 = DATA_RATE_OQ == "SDR" &&
-                                             (DATA_WIDTH == 2 || DATA_WIDTH == 4 ||
-                                              DATA_WIDTH == 5 || DATA_WIDTH == 6)     ? 1'b1 :
-                                             DATA_RATE_OQ == "DDR" && DATA_WIDTH != 6 ? 1'b1 : 1'b0;
 
   // Inverter parameters
   parameter [0:0] IS_D1_INVERTED = 1'b0;
@@ -2567,6 +2596,8 @@ module OSERDESE2 (
   parameter _TECHMAP_CONSTVAL_D7_ = 0;
   parameter _TECHMAP_CONSTMSK_D8_ = 0;
   parameter _TECHMAP_CONSTVAL_D8_ = 0;
+  parameter _TECHMAP_CONSTMSK_TQ_ = 1'bx;
+  parameter _TECHMAP_CONSTVAL_TQ_ = 1'bx;
 
   generate if (_TECHMAP_CONSTMSK_D1_ == 1) begin
     localparam INV_D1 = !_TECHMAP_CONSTVAL_D1_ ^ IS_D1_INVERTED;
@@ -2656,6 +2687,12 @@ module OSERDESE2 (
     wire d8 = D8;
   end endgenerate
 
+  generate if (_TECHMAP_CONSTVAL_TQ_ === 1'bx && (DATA_RATE_TQ == "DDR" || DATA_RATE_TQ == "SDR")) begin
+      localparam TQ_USED = 1'b1;
+  end else begin
+      localparam TQ_USED = 1'b0;
+  end endgenerate
+
   parameter _TECHMAP_CONSTMSK_T1_ = 0;
   parameter _TECHMAP_CONSTVAL_T1_ = 0;
   parameter _TECHMAP_CONSTMSK_T2_ = 0;
@@ -2717,15 +2754,16 @@ module OSERDESE2 (
       .DATA_RATE_TQ_BUF             (DATA_RATE_TQ == "BUF"),
       .DATA_RATE_TQ_DDR             (DATA_RATE_TQ == "DDR"),
       .DATA_RATE_TQ_SDR             (DATA_RATE_TQ == "SDR"),
-      .DATA_WIDTH_DDR_W6_8          (DATA_WIDTH_DDR_W6_8),
-      .DATA_WIDTH_SDR_W2_4_5_6      (DATA_WIDTH_SDR_W2_4_5_6),
-      .DATA_WIDTH_W2                (DATA_WIDTH == 2),
-      .DATA_WIDTH_W3                (DATA_WIDTH == 3),
-      .DATA_WIDTH_W4                (DATA_WIDTH == 4),
-      .DATA_WIDTH_W5                (DATA_WIDTH == 5),
-      .DATA_WIDTH_W6                (DATA_WIDTH == 6),
-      .DATA_WIDTH_W7                (DATA_WIDTH == 7),
-      .DATA_WIDTH_W8                (DATA_WIDTH == 8),
+      .DATA_WIDTH_DDR_W4            (DATA_RATE_OQ == "DDR" && DATA_WIDTH == 4),
+      .DATA_WIDTH_DDR_W6            (DATA_RATE_OQ == "DDR" && DATA_WIDTH == 6),
+      .DATA_WIDTH_DDR_W8            (DATA_RATE_OQ == "DDR" && DATA_WIDTH == 8),
+      .DATA_WIDTH_SDR_W2            (DATA_RATE_OQ == "SDR" && DATA_WIDTH == 2),
+      .DATA_WIDTH_SDR_W3            (DATA_RATE_OQ == "SDR" && DATA_WIDTH == 3),
+      .DATA_WIDTH_SDR_W4            (DATA_RATE_OQ == "SDR" && DATA_WIDTH == 4),
+      .DATA_WIDTH_SDR_W5            (DATA_RATE_OQ == "SDR" && DATA_WIDTH == 5),
+      .DATA_WIDTH_SDR_W6            (DATA_RATE_OQ == "SDR" && DATA_WIDTH == 6),
+      .DATA_WIDTH_SDR_W7            (DATA_RATE_OQ == "SDR" && DATA_WIDTH == 7),
+      .DATA_WIDTH_SDR_W8            (DATA_RATE_OQ == "SDR" && DATA_WIDTH == 8),
       .ZINIT_OQ                     (!INIT_OQ),
       .ZINIT_TQ                     (!INIT_TQ),
       .ZSRVAL_OQ                    (!SRVAL_OQ),
@@ -2743,7 +2781,8 @@ module OSERDESE2 (
       .ZINV_T1                      (!INV_T1),
       .ZINV_T2                      (!INV_T2),
       .ZINV_T3                      (!INV_T3),
-      .ZINV_T4                      (!INV_T4)
+      .ZINV_T4                      (!INV_T4),
+      .TQ_USED                      (TQ_USED)
   ) _TECHMAP_REPLACE_ (
     .CLK    (CLK),
     .CLKDIV (CLKDIV),
@@ -3185,7 +3224,7 @@ module ODDR (
     .INV_D1         ( IS_D1_INVERTED),
     .INV_D1         ( IS_D2_INVERTED),
     .SRTYPE_SYNC    ( SRTYPE == "SYNC"),
-    .SAME_EDGE      ( DDR_CLK_EDGE != "OPPOSITE_EDGE"),
+    .SAME_EDGE      ( (DDR_CLK_EDGE != "OPPOSITE_EDGE") ^ IS_C_INVERTED),
     .ZINIT_Q        (!INIT),
     .ZSRVAL_Q       (!SRVAL)
 

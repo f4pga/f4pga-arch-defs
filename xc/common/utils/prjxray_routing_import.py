@@ -96,6 +96,75 @@ def reduce_connection_box(box):
     return box
 
 
+class ExtraFeatures():
+    def __init__(self):
+        self.wires_to_nodes = {}
+        self.nodes_to_features = {}
+
+    def extra_features(self, feature_path):
+        if len(feature_path) != 3:
+            return
+
+        key = (feature_path[0], feature_path[1])
+
+        if key in self.wires_to_nodes:
+            return self.nodes_to_features[self.wires_to_nodes[key]]
+
+    def add_feature_to_wire_for_node(self, conn, wire_pkey, feature):
+        cur = conn.cursor()
+
+        cur.execute(
+            """
+SELECT node_pkey FROM wire WHERE pkey = ?;
+            """, (wire_pkey, )
+        )
+        (node_pkey, ) = cur.fetchone()
+
+        if node_pkey not in self.nodes_to_features:
+            self.nodes_to_features[node_pkey] = set()
+
+        self.nodes_to_features[node_pkey].add(feature)
+
+        for (tile_name, wire_name) in cur.execute("""
+SELECT phy_tile.name, wire_in_tile.name
+FROM wire
+INNER JOIN wire_in_tile ON wire.wire_in_tile_pkey = wire_in_tile.pkey
+INNER JOIN phy_tile ON wire.phy_tile_pkey = phy_tile.pkey
+WHERE wire.node_pkey = ?;
+            """, (node_pkey, )):
+            self.wires_to_nodes[tile_name, wire_name] = node_pkey
+
+
+def populate_freq_bb_features(conn, extra_features):
+    cur = conn.cursor()
+
+    cur.execute(
+        """
+SELECT wire.pkey, phy_tile.name, wire_in_tile.name
+FROM wire_in_tile
+INNER JOIN wire ON wire.wire_in_tile_pkey = wire_in_tile.pkey
+INNER JOIN phy_tile ON wire.phy_tile_pkey = phy_tile.pkey
+WHERE wire_in_tile.name LIKE "MMCM_CLK_FREQ_BB_NS%";"""
+    )
+    for wire_pkey, tile_name, wire_name in cur:
+        extra_features.add_feature_to_wire_for_node(
+            conn, wire_pkey, '{}.{}_ACTIVE'.format(tile_name, wire_name)
+        )
+
+    cur.execute(
+        """
+SELECT wire.pkey, phy_tile.name, wire_in_tile.name
+FROM wire_in_tile
+INNER JOIN wire ON wire.wire_in_tile_pkey = wire_in_tile.pkey
+INNER JOIN phy_tile ON wire.phy_tile_pkey = phy_tile.pkey
+WHERE wire_in_tile.name LIKE "PLL_CLK_FREQ_BB%_NS";"""
+    )
+    for wire_pkey, tile_name, wire_name in cur:
+        extra_features.add_feature_to_wire_for_node(
+            conn, wire_pkey, '{}.{}_ACTIVE'.format(tile_name, wire_name)
+        )
+
+
 REBUF_NODES = {}
 REBUF_SOURCES = {}
 
@@ -290,7 +359,7 @@ def find_hclk_cmt_hclk_feature(hclk_tile, lr, hclk_number):
     return ['{}.HCLK_CMT_CK_BUFHCLK{}_USED'.format(hclk_cmt_tile, hclk_number)]
 
 
-def check_feature(feature):
+def check_feature(extra_features, feature):
     """ Check if enabling this feature requires other features to be enabled.
 
     Some pips imply other features.  Example:
@@ -471,6 +540,10 @@ def check_feature(feature):
         )
 
         return ' '.join((feature, enable_cascout))
+
+    extras = extra_features.extra_features(feature_path)
+    if extras is not None:
+        return ' '.join((feature, ) + tuple(extras))
 
     parts = feature.split('.')
 
@@ -1024,7 +1097,7 @@ FROM
     return num_edges
 
 
-def import_graph_edges(conn, graph, node_mapping):
+def import_graph_edges(conn, graph, extra_features, node_mapping):
     # First yield existing edges
     print('{} Importing existing edges.'.format(now()))
     for edge in graph.edges:
@@ -1080,7 +1153,7 @@ FROM
             sink_node = node_mapping[dest_graph_node]
 
             if pip_name is not None:
-                feature = check_feature(pip_name)
+                feature = check_feature(extra_features, pip_name)
                 if feature:
                     yield (
                         src_node, sink_node, switch_id,
@@ -1386,6 +1459,8 @@ def main():
     with sqlite3.connect("file:{}?mode=ro".format(args.connection_database),
                          uri=True) as conn:
 
+        extra_features = ExtraFeatures()
+        populate_freq_bb_features(conn, extra_features)
         populate_bufg_rebuf_map(conn)
 
         cur = conn.cursor()
@@ -1472,7 +1547,9 @@ FROM
             num_nodes=len(capnp_graph.graph.nodes),
             nodes_obj=yield_nodes(capnp_graph.graph.nodes),
             num_edges=num_edges,
-            edges_obj=import_graph_edges(conn, graph, node_mapping),
+            edges_obj=import_graph_edges(
+                conn, graph, extra_features, node_mapping
+            ),
             node_remap=node_remap,
         )
 
