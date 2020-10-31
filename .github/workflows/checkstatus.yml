@@ -19,7 +19,7 @@ jobs:
     - name: Install STDM
       run: pip install git+https://github.com/SymbiFlow/symbiflow-tools-data-manager#egg=stdm
     - name: Get latest artifact name
-      run: mkdir install && symbiflow_get_latest_artifact_url > install/latest
+      run: mkdir install && get_latest_artifact_url > install/latest
     - name: Upload artifact URL file
       uses: weslenng/gcp-storage-sync@master
       env:
