@@ -1,5 +1,7 @@
 # SymbiFlow Architecture Definitions
 
+**This repository is used during the development of architecture support in SymbiFlow, if you are looking to use the toolchain you should start with the [symbiflow-examples repository](https://github.com/SymbiFlow/symbiflow-examples).**
+
 ![License status](https://img.shields.io/github/license/SymbiFlow/symbiflow-arch-defs)
 [![Build Status](https://travis-ci.org/SymbiFlow/symbiflow-arch-defs.svg?branch=master)](https://travis-ci.org/SymbiFlow/symbiflow-arch-defs)
 [![Documentation Status](https://readthedocs.org/projects/symbiflow-arch-defs/badge/?version=latest)](https://symbiflow.readthedocs.io/projects/arch-defs/en/latest/?badge=latest)
@@ -21,9 +23,8 @@ concentrating on;
      [![Xilinx XC7A200T Status](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/xc7a200t.svg)](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/xc7a200t.html) ||
      [![Xilinx XC7A200T - Vendor Tool Tests Status](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/xc7a200t_vendor.svg)](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/xc7a200t_vendor.html)
 
-The aim is to include useful documentation (both human and machine readable) on
-the primitives and routing infrastructure for these architectures. We hope this
-enables growth in the open source FPGA tools space.
+The aim is to include useful documentation (both human and machine readable) on the primitives and routing infrastructure for these architectures.
+We hope this enables growth in the open source FPGA tools space.
 
 The repo includes;
 
@@ -36,14 +37,13 @@ The documentation can be generated using Sphinx.
 
 # Getting Started
 
-To initialize submodule and setup the CMake build system, from the root of the
-`symbiflow-arch-defs` directory run:
+To initialize submodules and setup the CMake build system, from the root of the `symbiflow-arch-defs` directory run:
 
 ```
 make env
 ```
 
-To build all demo bitstreams there are 3 useful targets
+To build all demo bitstreams there are 3 useful targets:
 
 ```
 # Build all demo bitstreams, targetting all architectures
@@ -56,9 +56,9 @@ make all_xc7
 make all_ice40
 ```
 
-Specific bitstreams can be built by specifying their target name, followed by
-a suffix specifying the desired output. For example, the LUT-RAM test for the
-RAM64X1D primative is called `dram_test_64x1d`.  Example targets are:
+Specific bitstreams can be built by specifying their target name, followed by a suffix specifying the desired output.
+For example, the LUT-RAM test for the RAM64X1D primative is called `dram_test_64x1d`.
+Example targets are:
 
 
 ```
@@ -128,18 +128,14 @@ To run examples provided, please make sure these resources are available:
 
 ## Development notes
 
-Because symbiflow-arch-defs relies on yosys and VPR, it may be useful to
-override the default packaged binaries with locally supplied binaries.  The
-build system allows this via environment variables matching the executable name.
-Here is a list of common environment variables to defined when doing local yosys
-and VPR development.
+Because symbiflow-arch-defs relies on yosys and VPR, it may be useful to override the default packaged binaries with locally supplied binaries.
+The build system allows this via environment variables matching the executable name.
+Here is a list of common environment variables to defined when doing local yosys and VPR development.
 
  - YOSYS : Path to yosys executable to use.
  - VPR : Path to VPR executable to use.
  - GENFASM : Path genfasm executable to use.
 
-There are more binaries that are packaged (e.g. VVP), but the packaged versions
-are typically good enough for most use cases.
+There are more binaries that are packaged (e.g. VVP), but the packaged versions are typically good enough for most use cases.
 
-After setting or clearing one of these environment variables, CMake needs to be
-re-run.
+After setting or clearing one of these environment variables, CMake needs to be re-run.
