@@ -11,7 +11,7 @@ jobs:
 
     - uses: actions/checkout@v2
 
-    - uses: ./.github/CheckStatus
+    - uses: ./.github/check-status
       with:
         token: ${{ github.token }}
         sha: ${{ github.event.sha }}

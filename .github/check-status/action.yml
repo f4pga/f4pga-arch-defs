@@ -1,4 +1,4 @@
-name: 'CheckStatus'
+name: 'check-status'
 
 description: "Check the combined status of a commit and get latest artifact URL"
 
