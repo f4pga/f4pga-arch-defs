@@ -17,8 +17,8 @@ fi
 
 VPR_GRID_MAP=`realpath ${MYPATH}/../share/symbiflow/arch/${DEVICE}/vpr_grid_map.csv`
 PINMAP=`realpath ${MYPATH}/../share/symbiflow/arch/${DEVICE}/${PART}/pinmap.csv`
-IOGEN=`realpath ${MYPATH}/python/prjxray_create_ioplace.py`
-CONSTR_GEN=`realpath ${MYPATH}/python/prjxray_create_place_constraints.py`
+IOGEN=`realpath ${MYPATH}/python-utils/prjxray_create_ioplace.py`
+CONSTR_GEN=`realpath ${MYPATH}/python-utils/prjxray_create_place_constraints.py`
 PROJECT=$(basename -- "$EBLIF")
 IOPLACE_FILE="${PROJECT%.*}.ioplace"
 
