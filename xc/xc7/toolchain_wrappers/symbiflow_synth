@@ -8,7 +8,7 @@ export TECHMAP_PATH=`realpath ${MYPATH}/../share/symbiflow/techmaps/xc7_vpr/tech
 
 SYNTH_TCL_PATH=`realpath ${MYPATH}/../share/symbiflow/scripts/xc7/synth.tcl`
 CONV_TCL_PATH=`realpath ${MYPATH}/../share/symbiflow/scripts/xc7/conv.tcl`
-export UTILS_PATH=`realpath ${MYPATH}/python`
+export UTILS_PATH=`realpath ${MYPATH}/python-utils`
 SPLIT_INOUTS=${UTILS_PATH}/split_inouts.py
 
 VERILOG_FILES=()
