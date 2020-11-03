@@ -21,6 +21,7 @@ echo "----------------------------------------"
 	export VPR_NUM_WORKERS=${CORES}
 	ninja -j${MAX_CORES} install
 	popd
+	cp environment.yml install/
 )
 echo "----------------------------------------"
 
