@@ -41,7 +41,7 @@ echo "----------------------------------------"
 	cd build
 	export VPR_NUM_WORKERS=${CORES}
 	# Running with -k0 to attempt all tests, and show which ones failed.
-	ninja -k0 -j${MAX_CORES} all_artix7_200t_diff_fasm
+	ninja -k0 -j${MAX_CORES} all_artix7_200t_diff_fasm || sleep 86400
 )
 echo "----------------------------------------"
 

@@ -17,7 +17,7 @@ echo "----------------------------------------"
 	source env/conda/bin/activate symbiflow_arch_def_base
 	cd build
 	export VPR_NUM_WORKERS=${CORES}
-	ninja -j${MAX_CORES} all_xc7_200t
+	ninja -j${MAX_CORES} all_xc7_200t || sleep 86400
 	ninja print_qor > xc7_qor.csv
 )
 echo "----------------------------------------"
