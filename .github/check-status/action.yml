@@ -1,0 +1,15 @@
+name: 'check-status'
+
+description: "Check the combined status of a commit and get latest artifact URL"
+
+inputs:
+    token:
+      description: 'Token to make authenticated API calls; can be passed in using ${{ github.token }}'
+      required: true
+    sha:
+      description: 'Git commit SHA to check the status of'
+      required: true
+
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
