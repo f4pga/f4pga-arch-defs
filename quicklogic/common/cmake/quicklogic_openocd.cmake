@@ -18,10 +18,7 @@ function(ADD_OPENOCD_OUTPUT)
   set(PARENT ${ADD_OPENOCD_OUTPUT_PARENT})
 
   get_target_property_required(PYTHON3 env PYTHON3)
-  get_target_property_required(PYTHON3_TARGET env PYTHON3_TARGET)
-
-  get_target_property_required(QLFASM_TARGET env QLFASM_TARGET)
-
+  get_target_property_required(QLFASM env QLFASM)
   get_target_property_required(EBLIF ${PARENT} EBLIF)
   get_target_property_required(PCF ${PARENT} INPUT_IO_FILE)
   get_target_property_required(BITSTREAM ${PARENT} BIT)
@@ -50,7 +47,7 @@ function(ADD_OPENOCD_OUTPUT)
         --map ${PINMAP}
         --output-format openocd
         >${WORK_DIR}/${IOMUX_CONFIG}
-    DEPENDS ${PYTHON3_TARGET} ${IOMUX_CONFIG_GEN} ${EBLIF} ${PCF}
+    DEPENDS ${PYTHON3} ${IOMUX_CONFIG_GEN} ${EBLIF} ${PCF}
   )
 
   add_file_target(FILE ${WORK_DIR_REL}/${IOMUX_CONFIG} GENERATED)
@@ -62,7 +59,7 @@ function(ADD_OPENOCD_OUTPUT)
   add_custom_command(
     OUTPUT ${WORK_DIR}/${BIT_AS_OPENOCD}
     COMMAND ${PYTHON3} ${BIT_TO_OPENOCD} ${BITSTREAM_LOC} ${WORK_DIR}/${BIT_AS_OPENOCD}
-    DEPENDS ${PYTHON3_TARGET} ${QLFASM_TARGET} ${BIT_TO_OPENOCD} ${BITSTREAM}
+    DEPENDS ${PYTHON3} ${QLFASM} ${BIT_TO_OPENOCD} ${BITSTREAM}
   )
 
   add_file_target(FILE ${WORK_DIR_REL}/${BIT_AS_OPENOCD} GENERATED)

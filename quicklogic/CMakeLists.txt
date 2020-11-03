@@ -1,11 +1,7 @@
 include(common/cmake/quicklogic_fasm.cmake)
-add_quicklogic_fasm_package()
-
-include(common/cmake/quicklogic_timings.cmake)
+include(common/cmake/cells_sim_gen.cmake)
 
 add_custom_target(QL_CELLS_SIM_DEPS)
-
-include(common/cmake/cells_sim_gen.cmake)
 
 set(VPR_ARCH_ARGS "\
     --clock_modeling route \

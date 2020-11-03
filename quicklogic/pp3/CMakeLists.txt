@@ -24,10 +24,7 @@ include(../common/cmake/quicklogic_openocd.cmake)
 set(SDF_TIMING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/timings)
 #set(BELS_MAP ${CMAKE_CURRENT_SOURCE_DIR}/bels.json)
 
-get_target_property_required(PYTHON3 env PYTHON3)
 get_target_property_required(QLFASM env QLFASM)
-
-get_target_property_required(QLFASM_TARGET env QLFASM_TARGET)
 
 # Add the below option in the above variable to enable detailed timing report with routing delay information
 #--timing_report_detail detailed
@@ -84,7 +81,7 @@ define_arch(
         \${OUT_BITSTREAM}
         \${FASM_TO_BIT_EXTRA_ARGS}"
   FASM_TO_BIT_DEPS
-    ${QLFASM_TARGET}
+    ${QLFASM}
   BITSTREAM_EXTENSION bit
 
   CELLS_SIM

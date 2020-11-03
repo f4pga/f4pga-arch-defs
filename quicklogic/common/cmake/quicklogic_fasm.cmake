@@ -1,30 +1,3 @@
-function(ADD_QUICKLOGIC_FASM_PACKAGE)
-  # ~~~
-  # ADD_QUICKLOGIC_FASM_PACKAGE()
-  #
-  # Adds targets for installing packages required by quicklogic_fasm function.
-  get_target_property_required(PYTHON3 env PYTHON3)
-  get_target_property_required(PYTHON3_TARGET env PYTHON3_TARGET)
-  get_target_property_required(FASM_TARGET env FASM_TARGET)
-
-  add_thirdparty_package(
-    NAME quicklogic_fasm_utils
-    BUILD_INSTALL_COMMAND "cd ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/fasm-utils && ${PYTHON3} setup.py develop"
-    NO_EXE
-    DEPENDS ${PYTHON3} ${PYTHON3_TARGET} ${FASM_TARGET}
-    )
-
-  get_target_property_required(QUICKLOGIC_FASM_UTILS_TARGET env QUICKLOGIC_FASM_UTILS_TARGET)
-
-  add_thirdparty_package(
-    NAME quicklogic_fasm
-    BUILD_INSTALL_COMMAND "cd ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/quicklogic-fasm && ${PYTHON3} setup.py develop"
-    PROVIDES qlfasm
-    DEPENDS ${PYTHON3} ${PYTHON3_TARGET} ${QUICKLOGIC_FASM_UTILS_TARGET}
-    )
-endfunction(ADD_QUICKLOGIC_FASM_PACKAGE)
-
-
 function(QUICKLOGIC_FASM)
   # ~~~
   # QUICKLOGIC_FASM(

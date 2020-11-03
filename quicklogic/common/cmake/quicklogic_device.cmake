@@ -40,7 +40,6 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   set(DEVICE_TYPE ${DEVICE}-virt)
 
   get_target_property_required(PYTHON3 env PYTHON3)
-  get_target_property_required(PYTHON3_TARGET env PYTHON3_TARGET)
 
   set(PHY_DB_FILE "db_phy.pickle")
   set(VPR_DB_FILE "db_vpr.pickle")
@@ -58,7 +57,7 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
       --techfile ${TECHFILE}
       --routing-timing ${ROUTING_TIMING}
       --db ${PHY_DB_FILE}
-    DEPENDS ${TECHFILE} ${ROUTING_TIMING} ${DATA_IMPORT} ${PYTHON3_TARGET}
+    DEPENDS ${TECHFILE} ${ROUTING_TIMING} ${DATA_IMPORT}
   )
   add_file_target(FILE ${PHY_DB_FILE} GENERATED)
 
@@ -67,7 +66,6 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   set(SDF_TIMING_DIR "sdf")
 
   get_target_property_required(QUICKLOGIC_TIMINGS_IMPORTER env QUICKLOGIC_TIMINGS_IMPORTER)
-  get_target_property_required(QUICKLOGIC_TIMINGS_IMPORTER_TARGET env QUICKLOGIC_TIMINGS_IMPORTER_TARGET)
   
   # TODO: How to handle different timing cases that depend on a cell config?
   # For example BIDIR cells have different timings for different voltages.
@@ -105,7 +103,7 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
         ${LIB_TIMING_FILE}
         ${SDF_TIMING_FILE}
         ${IMPORTER_OPTS}
-      DEPENDS ${PYTHON3} ${PYTHON3_TARGET} ${QUICKLOGIC_TIMINGS_IMPORTER_TARGET} ${LIB_TIMING_FILE}
+      DEPENDS ${PYTHON3} ${QUICKLOGIC_TIMINGS_IMPORTER_TARGET} ${LIB_TIMING_FILE}
     )
 
     add_file_target(FILE ${SDF_TIMING_FILE} GENERATED)
@@ -130,7 +128,7 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
       --vpr-db ${VPR_DB_FILE}
       --sdf-dir ${SDF_TIMING_DIR} 
       ${GRID_LIMIT_ARGS}
-    DEPENDS ${PHY_DB_FILE} sdf_timing ${SDF_FILE_TARGETS} ${PREPARE_VPR_DATABASE} ${PYTHON3_TARGET}
+    DEPENDS ${PHY_DB_FILE} ${SDF_FILE_TARGETS} ${PREPARE_VPR_DATABASE}
   )
   add_file_target(FILE ${VPR_DB_FILE} GENERATED)
 
@@ -168,7 +166,7 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
           --xml-path ${CMAKE_CURRENT_BINARY_DIR}
           --vlog-path ${CMAKE_CURRENT_BINARY_DIR}
       COMMAND ${CMAKE_COMMAND} -E copy ${RAM_PBTYPE_COPY} ${RAM_PBTYPE_XML}
-      DEPENDS ${PYTHON3} ${PYTHON3_TARGET} ${RAM_GENERATOR} ${RAM_MODE_DEFS} ${RAM_SDF_FILE_TARGET}
+      DEPENDS ${PYTHON3} ${RAM_GENERATOR} ${RAM_MODE_DEFS} ${RAM_SDF_FILE_TARGET}
   )
 
   add_file_target(FILE ${RAM_MODEL_XML} GENERATED)
@@ -188,14 +186,13 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
       --vpr-db ${VPR_DB_FILE}
       --arch-out ${ARCH_XML}
       --device ${DEVICE}
-    DEPENDS ${VPR_DB_FILE} ${XML_DEPS} ${ARCH_IMPORT} ${PYTHON3_TARGET} ${RAM_MODEL_XML_TARGET} ${RAM_PBTYPE_XML_TARGET}
+    DEPENDS ${VPR_DB_FILE} ${XML_DEPS} ${ARCH_IMPORT} ${RAM_MODEL_XML_TARGET} ${RAM_PBTYPE_XML_TARGET}
   )
   add_file_target(FILE ${ARCH_XML} GENERATED)
 
   # Timing import stuff
   set(UPDATE_ARCH_TIMINGS ${symbiflow-arch-defs_SOURCE_DIR}/utils/update_arch_timings.py)
   set(PYTHON_SDF_TIMING_DIR ${symbiflow-arch-defs_SOURCE_DIR}/third_party/python-sdf-timing)
-  get_target_property(SDF_TIMING_TARGET env SDF_TIMING_TARGET)
 
   set(BELS_MAP ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/${DEVICE}-bels.json)
 
@@ -208,7 +205,7 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
         --input_arch /dev/stdin \
     ")
 
-  set(TIMING_DEPS ${SDF_TIMING_TARGET} sdf_timing ${SDF_FILE_TARGETS} ${BELS_MAP})
+  set(TIMING_DEPS ${SDF_FILE_TARGETS} ${BELS_MAP})
 
   # Define the device type
   define_device_type(

@@ -13,18 +13,12 @@ add_custom_target(all_quicklogic_lut_techmap_tests)
 function(lut_techmap_test N LUT_COUNT)
 
     get_target_property_required(QUIET_CMD env QUIET_CMD)
-    get_target_property(QUIET_CMD_TARGET env QUIET_CMD_TARGET)
-
     get_target_property_required(PYTHON3 env PYTHON3)
-    get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
 
     get_target_property_required(YOSYS env YOSYS)
-    get_target_property(YOSYS_TARGET env YOSYS_TARGET)
 
     get_target_property_required(IVERILOG env IVERILOG)
-    get_target_property(IVERILOG_TARGET env IVERILOG_TARGET)
     get_target_property_required(VVP env VVP)
-    get_target_property(VVP_TARGET env VVP_TARGET)
 
     set(VPR_CELLS_MAP_FILE ${CMAKE_CURRENT_SOURCE_DIR}/../../techmap/cells_map.v)
     get_filename_component(BASE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../.. ABSOLUTE)
@@ -50,7 +44,7 @@ function(lut_techmap_test N LUT_COUNT)
         OUTPUT ${LUT_DUT_FILE}
         COMMAND ${PYTHON3} ${CMAKE_CURRENT_SOURCE_DIR}/lut_testgen.py
             -n ${N} --lut-count ${LUT_COUNT} >${CMAKE_CURRENT_BINARY_DIR}/${LUT_DUT_FILE}
-        DEPENDS ${PYTHON3} ${PYTHON3_TARGET} lut_testgen.py
+        DEPENDS ${PYTHON3} lut_testgen.py
         )
     add_file_target(FILE ${LUT_DUT_FILE} GENERATED)
 
@@ -66,7 +60,7 @@ function(lut_techmap_test N LUT_COUNT)
     add_custom_command(
         OUTPUT ${MUX_DUT_FILE}
         COMMAND ${QUIET_CMD} ${YOSYS} -p "${YOSYS_LUT2MUX_CMDS}"
-        DEPENDS ${YOSYS} ${YOSYS_TARGET} ${LUT_DUT_FILE} ${VPR_CELLS_MAP_FILE}
+        DEPENDS ${YOSYS} ${LUT_DUT_FILE} ${VPR_CELLS_MAP_FILE}
         VERBATIM
         )
     add_file_target(FILE ${MUX_DUT_FILE} GENERATED)
@@ -85,7 +79,7 @@ function(lut_techmap_test N LUT_COUNT)
     add_custom_command(
         OUTPUT ${DUT_MITER_FILE}
         COMMAND ${QUIET_CMD} ${YOSYS} -p "${YOSYS_MITER_CMDS}"
-        DEPENDS ${YOSYS} ${YOSYS_TARGET} ${LUT_DUT_FILE} ${MUX_DUT_FILE} ${VPR_CELLS_SIM_FILE_DEP}
+        DEPENDS ${YOSYS} ${LUT_DUT_FILE} ${MUX_DUT_FILE} ${VPR_CELLS_SIM_FILE_DEP}
         VERBATIM
         )
     add_file_target(FILE ${DUT_MITER_FILE} GENERATED)
@@ -104,7 +98,7 @@ function(lut_techmap_test N LUT_COUNT)
             ${CMAKE_CURRENT_BINARY_DIR}/${MUX_DUT_FILE}
             ${CMAKE_CURRENT_BINARY_DIR}/${DUT_MITER_FILE}
             ${CMAKE_CURRENT_SOURCE_DIR}/${TESTBENCH_FILE}
-        DEPENDS ${IVERILOG} ${IVERILOG_TARGET} ${DUT_MITER_FILE} ${TESTBENCH_FILE_DEP} ${VPR_CELLS_SIM_FILE_DEP} ${VPR_CELLS_SIM_FILE}
+        DEPENDS ${IVERILOG} ${DUT_MITER_FILE} ${TESTBENCH_FILE_DEP} ${VPR_CELLS_SIM_FILE_DEP} ${VPR_CELLS_SIM_FILE}
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         VERBATIM
         )
@@ -113,7 +107,7 @@ function(lut_techmap_test N LUT_COUNT)
     add_custom_target(
         ${BASENAME}
         COMMAND ${QUIET_CMD} ${VVP} -v -N ${VPP_FILE}
-        DEPENDS ${VVP} ${VVP_TARGET} ${VPP_FILE}
+        DEPENDS ${VVP} ${VPP_FILE}
         )
 
     # Add dependency to the "all" test target.

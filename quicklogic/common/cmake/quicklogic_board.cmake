@@ -12,7 +12,6 @@ function(ADD_QUICKLOGIC_BOARD)
     )
 
   get_target_property_required(PYTHON3 env PYTHON3)
-  get_target_property_required(PYTHON3_TARGET env PYTHON3_TARGET)
 
   # Define the board
   define_board(
@@ -34,7 +33,7 @@ function(ADD_QUICKLOGIC_BOARD)
   # Generate clock pad map CSV file
   set(CREATE_CLKMAP_CSV ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/create_clkmap_csv.py)
   set(CLKMAP_CSV ${BOARD}_clkmap.csv)
-  set(CLKMAP_CSV_DEPS ${PYTHON3} ${PYTHON3_TARGET} ${CREATE_CLKMAP_CSV})
+  set(CLKMAP_CSV_DEPS ${PYTHON3} ${CREATE_CLKMAP_CSV})
   append_file_dependency(CLKMAP_CSV_DEPS ${VPR_DB_FILE})
 
   add_custom_command(
@@ -50,7 +49,7 @@ function(ADD_QUICKLOGIC_BOARD)
   # Generate pinmap CSV file
   set(CREATE_PINMAP_CSV ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/create_pinmap_csv.py)
   set(PINMAP_CSV ${BOARD}_pinmap.csv)
-  set(PINMAP_CSV_DEPS ${PYTHON3} ${PYTHON3_TARGET} ${CREATE_PINMAP_CSV})
+  set(PINMAP_CSV_DEPS ${PYTHON3} ${CREATE_PINMAP_CSV})
   append_file_dependency(PINMAP_CSV_DEPS ${VPR_DB_FILE})
 
   # Make the pinmap depend on clkmap. This way it is build without the need for

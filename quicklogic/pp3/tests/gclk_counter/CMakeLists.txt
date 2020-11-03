@@ -6,7 +6,7 @@ add_fpga_target(
   NAME gclk_counter-ql-chandalar
   BOARD chandalar
   SOURCES gclk_counter.v
-  SDC_FILE gclk_counter.sdc
+  INPUT_SDC_FILE gclk_counter.sdc
   INPUT_IO_FILE chandalar.pcf
   EXPLICIT_ADD_FILE_TARGET
   )
