@@ -4,12 +4,12 @@ set -e
 MYPATH=`realpath $0`
 MYPATH=`dirname ${MYPATH}`
 
-export TECHMAP_PATH=`realpath ${MYPATH}/../share/symbiflow/techmaps/xc7_vpr/techmap`
+export SHARE_DIR_PATH=`realpath ${MYPATH}/../share/symbiflow`
+export TECHMAP_PATH=${SHARE_DIR}/techmaps/xc7_vpr/techmap
 
-SYNTH_TCL_PATH=`realpath ${MYPATH}/../share/symbiflow/scripts/xc7/synth.tcl`
-CONV_TCL_PATH=`realpath ${MYPATH}/../share/symbiflow/scripts/xc7/conv.tcl`
-export UTILS_PATH=`realpath ${MYPATH}/python-utils`
-SPLIT_INOUTS=${UTILS_PATH}/split_inouts.py
+SYNTH_TCL_PATH=${SHARE_DIR_PATH}/scripts/xc7/synth.tcl
+CONV_TCL_PATH=${SHARE_DIR_PATH}/scripts/xc7/conv.tcl
+SPLIT_INOUTS=${SHARE_DIR_PATH}/scripts/split_inouts.py
 
 VERILOG_FILES=()
 XDC_FILES=()
