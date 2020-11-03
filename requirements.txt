@@ -15,6 +15,7 @@ pyyaml
 scipy
 simplejson
 svgwrite
+termcolor
 textx
 tinyfpgab
 tinyprog
@@ -33,3 +34,6 @@ yapf==0.26.0
 -e third_party/migen
 -e third_party/pythondata-cpu-vexriscv
 -e third_party/pythondata-software-compiler_rt
+-e quicklogic/common/utils/quicklogic-timings-importer
+-e quicklogic/common/utils/fasm-utils
+-e quicklogic/common/utils/quicklogic-fasm

@@ -54,6 +54,8 @@ add_env_executable(EXE flake8 REQUIRED)
 add_env_executable(EXE vvp REQUIRED)
 add_env_executable(EXE iverilog REQUIRED)
 add_env_executable(EXE xcfasm REQUIRED)
+add_env_executable(EXE qlfasm REQUIRED)
+add_env_executable(EXE quicklogic_timings_importer REQUIRED)
 
 get_target_property_required(PYTHON3 env PYTHON3)
 
