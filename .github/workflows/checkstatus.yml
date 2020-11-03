@@ -6,12 +6,14 @@ on:
 jobs:
 
   Check-statuses:
+    if: ${{ contains(github.event.branches.*.name, 'master') == 1 }}
     runs-on: ubuntu-latest
     steps:
 
     - uses: actions/checkout@v2
 
     - uses: ./.github/check-status
+      id: check
       with:
         token: ${{ github.token }}
         sha: ${{ github.event.sha }}
