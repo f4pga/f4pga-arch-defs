@@ -11,8 +11,11 @@ module top (
     localparam BITS = 4;
     localparam LOG2DELAY = 22;
 
+    wire clk_to_bufg;
+    IBUF clk_ibuf(.I(clk), .O(clk_to_bufg));
+
     wire bufg;
-    BUFG bufgctrl(.I(clk), .O(bufg));
+    BUFG bufgctrl(.I(clk_to_bufg), .O(bufg));
 
     reg [BITS+LOG2DELAY-1:0] counter = 0;
 
