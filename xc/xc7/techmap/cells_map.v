@@ -4785,6 +4785,8 @@ output [15:0] DO
   parameter IS_CLKINSEL_INVERTED = 1'b0;
   parameter IS_RST_INVERTED = 1'b0;
   parameter IS_PWRDWN_INVERTED = 1'b0;
+  parameter IS_PSEN_INVERTED = 1'b0;
+  parameter IS_PSINCDEC_INVERTED = 1'b0;
 
   parameter BANDWIDTH = "OPTIMIZED";
   parameter STARTUP_WAIT = "FALSE";
@@ -5085,29 +5087,37 @@ output [15:0] DO
     wire psclk = PSCLK;
   endgenerate
 
-  generate if (_TECHMAP_CONSTMSK_PSEN_ == 1)
-    wire psen = _TECHMAP_CONSTVAL_PSEN_;
-  else if (_TECHMAP_CONSTVAL_PSEN_ == 0)
-    wire psen = 1'b0;
-  else
+  generate if (_TECHMAP_CONSTMSK_PSEN_ == 1) begin
+    localparam INV_PSEN =  !_TECHMAP_CONSTVAL_PSEN_;
+    wire psen = 1'b1;
+  end else if (_TECHMAP_CONSTVAL_PSEN_ == 0) begin
+    localparam INV_PSEN = ~IS_PSEN_INVERTED;
+    wire psen = 1'b1;
+  end else begin
+    localparam INV_PSEN =  IS_PSEN_INVERTED;
     wire psen = PSEN;
-  endgenerate
+  end endgenerate
 
-  generate if (_TECHMAP_CONSTMSK_PSINCDEC_ == 1)
-    wire psincdec = _TECHMAP_CONSTVAL_PSINCDEC_;
-  else if (_TECHMAP_CONSTVAL_DWE_ == 0)
-    wire psincdec = 1'b0;
-  else
+  generate if (_TECHMAP_CONSTMSK_PSINCDEC_ == 1) begin
+    localparam INV_PSINCDEC =  !_TECHMAP_CONSTVAL_PSINCDEC_;
+    wire psincdec = 1'b1;
+  end else if (_TECHMAP_CONSTVAL_DWE_ == 0) begin
+    localparam INV_PSINCDEC = ~IS_PSINCDEC_INVERTED;
+    wire psincdec = 1'b1;
+  end else begin
+    localparam INV_PSINCDEC =  IS_PSINCDEC_INVERTED;
     wire psincdec = PSINCDEC;
-  endgenerate
+  end endgenerate
 
   // The substituted cell
   MMCME2_ADV_VPR #
   (
   // Inverters
-  .INV_CLKINSEL(INV_CLKINSEL),
-  .ZINV_PWRDWN (INV_PWRDWN),
-  .ZINV_RST    (INV_RST),
+  .INV_CLKINSEL  (INV_CLKINSEL),
+  .ZINV_PWRDWN   (INV_PWRDWN),
+  .ZINV_RST      (INV_RST),
+  .ZINV_PSEN     (INV_PSEN),
+  .ZINV_PSINCDEC (INV_PSINCDEC),
 
   // Straight mapped parameters
   .STARTUP_WAIT(STARTUP_WAIT == "TRUE"),
