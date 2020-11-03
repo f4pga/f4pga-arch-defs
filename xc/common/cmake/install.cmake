@@ -56,11 +56,11 @@ function(DEFINE_XC_TOOLCHAIN_TARGET)
             ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_io_place.py
             ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_place_constraints.py
             ${symbiflow-arch-defs_SOURCE_DIR}/utils/eblif.py
-          DESTINATION bin/python-utils
+          DESTINATION share/symbiflow/scripts
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/lib/parse_pcf.py
-          DESTINATION bin/python-utils/lib)
+          DESTINATION share/symbiflow/scripts/lib)
 
 
   # install prjxray techmap
