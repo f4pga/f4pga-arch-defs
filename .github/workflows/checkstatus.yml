@@ -6,7 +6,6 @@ on:
 jobs:
 
   Check-statuses:
-    if: ${{ contains(github.event.branches.*.name, 'master') == 1 }}
     runs-on: ubuntu-latest
     steps:
 
@@ -19,7 +18,7 @@ jobs:
         sha: ${{ github.event.sha }}
 
     - name: Upload artifact URL file
-      if: steps.check.outputs.skip != 'true'
+      if: (steps.check.outputs.skip != 'true') && contains(github.event.branches.*.name, 'master')
       uses: weslenng/gcp-storage-sync@master
       env:
         GCP_SERVICE_ACCOUNT_KEY_FILE: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY_FILE }}
