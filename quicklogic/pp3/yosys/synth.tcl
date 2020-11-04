@@ -1,5 +1,15 @@
 yosys -import
 
+plugin -i xdc
+plugin -i get_count
+plugin -i fasm
+plugin -i params
+plugin -i selection
+plugin -i sdc
+plugin -i ql-iob
+
+yosys -import
+
 # Read VPR cells library
 read_verilog -lib $::env(TECHMAP_PATH)/cells_sim.v
 # Read device specific cells library
@@ -18,9 +28,15 @@ stat
 
 # Assing parameters to IO cells basing on constraints and package pinmap
 if { $::env(PCF_FILE) != "" && $::env(PINMAP_FILE) != ""} {
-    plugin -i ql-iob
     quicklogic_iob $::env(PCF_FILE) $::env(PINMAP_FILE)
 }
+
+# Write the SDC file
+#
+# Note that write_sdc and the SDC plugin holds live pointers to RTLIL objects.
+# If Yosys mutates those objects (e.g. destroys them), the SDC plugin will
+# segfault.
+write_sdc $::env(OUT_SDC)
 
 # Write a pre-mapped design
 write_verilog $::env(OUT_SYNTH_V).premap.v
