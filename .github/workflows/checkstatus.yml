@@ -11,6 +11,9 @@ jobs:
 
     - uses: actions/checkout@v2
 
+    - name: Print GitHub event
+      run: echo '${{ toJson(github.event) }}'
+
     - uses: ./.github/check-status
       id: check
       with:
