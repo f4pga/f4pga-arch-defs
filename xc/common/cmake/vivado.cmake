@@ -290,7 +290,11 @@ function(ADD_VIVADO_TARGET)
 
   if(NOT ${ADD_VIVADO_TARGET_DISABLE_DIFF_TEST})
     if(${ALL_XC7_DIFF_FASM_VERILOG})
-      add_dependencies(all_${ARCH}_diff_fasm ${NAME}_diff_fasm)
+      if(${ALL_XC7_DIFF_FASM_CHECK_VERILOG})
+        add_dependencies(all_${ARCH}_diff_fasm ${NAME}_diff_fasm)
+      else()
+        add_dependencies(all_${ARCH}_diff_fasm ${NAME}_fasm)
+      endif()
     endif()
     if(${RAPIDWRIGHT_INSTALLED} AND ${ALL_XC7_DIFF_FASM_INTERCHANGE})
       add_dependencies(all_${ARCH}_diff_fasm ${NAME}_interchange_diff_fasm)
@@ -565,7 +569,7 @@ function(CREATE_DCP_BY_INTERCHANGE)
   set(oneValueArgs NAME PARENT_NAME WORK_DIR XDC)
   set(multiValueArgs)
   cmake_parse_arguments(
-      CREATE_DCP
+    CREATE_DCP
     "${options}"
     "${oneValueArgs}"
     "${multiValueArgs}"
