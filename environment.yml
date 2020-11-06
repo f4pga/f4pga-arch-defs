@@ -13,6 +13,7 @@ dependencies:
   - symbiflow::icestorm
   - symbiflow::capnproto-java
   - litex-hub::gcc-riscv64-elf-newlib
+  - python=3.7
   - cmake
   - make
   - flake8
