@@ -1,0 +1,6 @@
+set_io CSn_o B3
+set_io SCLK_o C3
+set_io SDATA_i B5
+set_io spi_ss_i B2
+set_io spi_sck_i D6
+set_io spi_miso_o A4

@@ -1,0 +1,41 @@
+set_io clk        A3
+set_io ena        A1
+
+set_io r(0)     B2
+set_io r(1)     C3
+set_io r(2)     B3
+set_io r(3)     B1
+set_io r(4)     C1
+set_io r(5)     B4
+set_io r(6)     A4
+set_io r(7)     C5
+set_io r(8)     B5
+set_io r(9)     D6
+
+set_io g(0)     E7
+set_io g(1)     D7
+set_io g(2)     E8
+set_io g(3)     H8
+set_io g(4)     G8
+set_io g(5)     H7
+set_io g(6)     G7
+set_io g(7)     G6
+set_io g(8)    F7
+set_io g(9)    F6
+
+set_io b(0)     H4
+set_io b(1)     E3
+set_io b(2)     F3
+set_io b(3)     F2
+set_io b(4)     H3
+set_io b(5)     G2
+set_io b(6)     E2
+set_io b(7)     H2
+set_io b(8)     D2
+set_io b(9)     F1
+
+set_io y_out    H6
+set_io cr_out   A5
+set_io cb_out   C6
+
+

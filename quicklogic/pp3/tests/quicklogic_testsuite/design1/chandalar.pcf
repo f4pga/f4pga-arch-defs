@@ -1,0 +1,19 @@
+set_io GPIO_PIN(0) E8
+set_io GPIO_PIN(1) H7
+set_io GPIO_PIN(2) G7
+set_io GPIO_PIN(3) F6
+
+set_io CSn_o  B3
+set_io SCLK_o C3
+set_io SDATA_i B5
+
+set_io spi_ss_i B2
+set_io spi_sck_i D6
+set_io spi_miso_o A4
+
+set_io dbg_sdma_req  D2
+set_io dbg_sdma_active F1
+set_io dbg_sdma_done  H1
+
+set_io SIN_i G1
+set_io SOUT_o E1

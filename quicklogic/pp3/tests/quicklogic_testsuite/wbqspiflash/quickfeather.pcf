@@ -1,0 +1,51 @@
+set_io i_clk_100mhz        63
+set_io i_wb_cyc        4
+set_io i_wb_data_stb        5
+set_io i_wb_ctrl_stb      6
+set_io i_wb_we 2
+
+set_io i_wb_addr(0)     3
+set_io i_wb_addr(1)     64
+set_io i_wb_addr(2)     62
+set_io i_wb_addr(3)     61
+set_io i_wb_addr(4)     60
+set_io i_wb_addr(5)     59
+set_io i_wb_addr(6)     57
+set_io i_wb_addr(7)     56
+set_io i_wb_addr(8)     55
+set_io i_wb_addr(9)     54
+set_io i_wb_addr(10)    53
+set_io i_wb_addr(11)    40
+set_io i_wb_addr(12)     42
+set_io i_wb_addr(13)     38
+set_io i_wb_addr(14)     36
+set_io i_wb_addr(15)     37
+set_io i_wb_addr(16)     39
+set_io i_wb_addr(17)     34
+set_io i_wb_addr(18)     33
+set_io i_wb_addr(19)     32
+
+set_io i_wb_data_in(0)     31
+set_io i_wb_data_in(1)     30
+set_io i_wb_data_in(2)     28
+set_io i_wb_data_in(3)     27
+
+set_io o_wb_ack     26
+set_io o_wb_stall     23
+set_io o_wb_data_out 25     
+set_io o_qspi_sck        22
+
+set_io o_qspi_cs_n     21
+set_io o_qspi_mod(0)     20
+set_io o_qspi_mod(1)     18
+set_io o_qspi_dat(0)     17
+set_io o_qspi_dat(1)     16
+set_io o_qspi_dat(2)     15
+set_io o_qspi_dat(3)     13
+
+set_io i_qspi_dat(0)     11
+set_io i_qspi_dat(1)     10
+set_io i_qspi_dat(2)     9
+set_io i_qspi_dat(3)    8
+
+set_io o_interrupt 7

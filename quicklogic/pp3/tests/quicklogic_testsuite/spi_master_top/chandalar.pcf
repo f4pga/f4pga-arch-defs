@@ -1,0 +1,11 @@
+set_io MISO_i A2
+set_io MOSI_o B2
+set_io SCLK_o B3
+set_io SSn0_o C3
+set_io SSn1_o A3
+set_io SSn2_o C4
+set_io SSn3_o B4
+set_io SSn4_o A4
+set_io SSn5_o C5
+set_io SSn6_o B5
+set_io SSn7_o D6

@@ -1,0 +1,70 @@
+SEGGER J-Link Commander V6.82d (Compiled Aug 13 2020 18:17:57)
+DLL version V6.82d, compiled Aug 13 2020 18:17:45
+
+
+J-Link Command File read successfully.
+Processing script file...
+
+Sleep(100)
+
+J-Link connection not established yet but required for command.
+Connecting to J-Link via USB...O.K.
+Firmware: J-Link V10 compiled Jul 17 2020 16:23:38
+Hardware version: V10.10
+S/N: 50102279
+License(s): GDB
+Target connection not established yet but required for command.
+Device "CORTEX-M4" selected.
+
+
+Connecting to target via SWD
+Found SW-DP with ID 0x2BA01477
+DPIDR: 0x2BA01477
+Scanning AP map to find all available APs
+AP[1]: Stopped AP scan as end of AP map has been reached
+AP[0]: AHB-AP (IDR: 0x24770011)
+Iterating through AP map to find AHB-AP to use
+AP[0]: Core found
+AP[0]: AHB-AP ROM base: 0xE00FF000
+CPUID register: 0x410FC241. Implementer code: 0x41 (ARM)
+Found Cortex-M4 r0p1, Little endian.
+FPUnit: 6 code (BP) slots and 2 literal slots
+CoreSight components:
+ROMTbl[0] @ E00FF000
+ROMTbl[0][0]: E000E000, CID: B105E00D, PID: 000BB00C SCS-M7
+ROMTbl[0][1]: E0001000, CID: B105E00D, PID: 003BB002 DWT
+ROMTbl[0][2]: E0002000, CID: B105E00D, PID: 002BB003 FPB
+ROMTbl[0][3]: E0000000, CID: B105E00D, PID: 003BB001 ITM
+ROMTbl[0][4]: E0040000, CID: B105900D, PID: 000BB9A1 TPIU
+Cortex-M4 identified.
+Writing 000008C7 -> 40005484
+
+40005484 = 000008C7 
+
+Writing 00000206 -> 40004020
+
+40004020 = 00000206 
+
+Writing 00000001 -> 40004064
+
+40004064 = 00000001 
+
+40020000 = 12340C16 00000100 
+
+Writing 00000010 -> 40020008
+
+40020014 = 0000FFFF 
+
+Writing 00000001 -> 40020008
+
+40020014 = 00000000 
+
+Writing 00000003 -> 4002000C
+
+40020010 = 00000000 
+
+40020010 = 00000000 
+
+
+Script processing completed.
+

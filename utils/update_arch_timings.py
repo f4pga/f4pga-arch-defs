@@ -13,6 +13,10 @@ import sys
 DEBUG = False
 
 
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
+
+
 def mergedicts(source, destination):
     """This function recursively merges two dictionaries:
        `source` into `destination"""
@@ -70,10 +74,28 @@ def get_cell_types_and_instances(bel, location, site, bels):
        is found a list of celltypes and bel instances is returned,
        None otherwise"""
     if site not in bels:
+        if DEBUG:
+            eprint(
+                "Site '{}' not found among '{}'".format(
+                    site, ", ".join(bels.keys())
+                )
+            )
         return None
     if bel not in bels[site]:
+        if DEBUG:
+            eprint(
+                "Bel '{}' not found among '{}'".format(
+                    bel, ", ".join(bels[site].keys())
+                )
+            )
         return None
     if location not in bels[site][bel]:
+        if DEBUG:
+            eprint(
+                "Location '{}' not found among '{}'".format(
+                    location, ", ".join(bels[site][bel].keys())
+                )
+            )
         return None
 
     # Generate a list of tuples (celltype, instance)
@@ -89,6 +111,39 @@ def find_timings(timings, bel, location, site, bels, corner, speed_type):
     """This function returns all the timings associated with
        the selected `bel` in `location` and `site`. If timings
        are not found, empty dict is returned"""
+
+    def get_timing(cell, delay, corner, speed_type):
+        """
+        Gets timing for a particular cornet case. If not fount then chooses
+        the next best one.
+        """
+        entries = cell[delay]['delay_paths'][corner.lower()]
+        entry = entries.get(speed_type, None)
+
+        if speed_type == 'min':
+            if entry is None:
+                entry = entries.get('avg', None)
+            if entry is None:
+                entry = entries.get('max', None)
+
+        elif speed_type == 'avg':
+            if entry is None:
+                entry = entries.get('max', None)
+            if entry is None:
+                entry = entries.get('min', None)
+
+        elif speed_type == 'max':
+            if entry is None:
+                entry = entries.get('avg', None)
+            if entry is None:
+                entry = entries.get('min', None)
+
+        if entry is None:
+            # if we failed with desired corner, try the opposite
+            newcorner = 'FAST' if corner == 'SLOW' else 'SLOW'
+            entry = get_timing(cell, delay, newcorner, speed_type)
+            assert entry is not None, (delay, corner, speed_type)
+        return entry
 
     # Get cells, reverse the list so former timings will be overwritten by
     # latter ones.
@@ -107,9 +162,13 @@ def find_timings(timings, bel, location, site, bels, corner, speed_type):
     bel_timings = dict()
     for delay in cell:
         if cell[delay]['is_absolute']:
-            entry = cell[delay]['delay_paths'][corner.lower()][speed_type]
+            entry = get_timing(cell, delay, corner.lower(), speed_type)
         elif cell[delay]['is_timing_check']:
-            entry = cell[delay]['delay_paths']['nominal'][speed_type]
+            if cell[delay]['type'] == "setuphold":
+                # 'setup' and 'hold' are identical
+                entry = get_timing(cell, delay, 'setup', speed_type)
+            else:
+                entry = get_timing(cell, delay, 'nominal', speed_type)
         bel_timings[delay] = float(entry) * get_scale_seconds('1 ns')
 
     return bel_timings
@@ -173,11 +232,17 @@ def main():
         if not f.endswith('.sdf'):
             continue
         with open(args.sdf_dir + '/' + f, 'r') as fp:
-            tmp = sdfparse.parse(fp.read())
+            try:
+                tmp = sdfparse.parse(fp.read())
+            except Exception as ex:
+                print("{}:".format(args.sdf_dir + '/' + f), file=sys.stderr)
+                print(repr(ex), file=sys.stderr)
+                raise
             mergedicts(tmp, timings)
 
-    with open("/tmp/dump.json", 'w') as fp:
-        json.dump(timings, fp, indent=4)
+    if DEBUG:
+        with open("/tmp/dump.json", 'w') as fp:
+            json.dump(timings, fp, indent=4)
 
     for dm in root_element.iter('delay_matrix'):
         if dm.attrib['type'] == 'max':
