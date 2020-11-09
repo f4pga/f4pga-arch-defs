@@ -10,4 +10,4 @@ echo "========================================"
 echo "Running quicklogic CI script"
 echo "----------------------------------------"
 
-source ${SCRIPT_DIR}/package_results.sh
+echo "Nothing yet!"
