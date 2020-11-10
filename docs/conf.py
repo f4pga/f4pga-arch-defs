@@ -219,6 +219,9 @@ hdl_diagram_yosys = "system"
 
 # Model collector setup
 
+# NOTE: Diagram generation for some models is skipped using due to
+#       netlistSVG limitation: https://github.com/nturley/netlistsvg/issues/82
+
 prjxray_model_collector_config = {
     "generatedir": os.path.realpath("generated/prjxray/models"),
     "searchdirs": ["xc/common/primitives"],
@@ -255,7 +258,7 @@ icestorm_arch_collector_config = {
 
 arch_collector_config = {
     "repository_root": os.path.realpath(".."),
-    "projects": [icestorm_arch_collector_config, ]
+    "projects": [icestorm_arch_collector_config]
 }
 
 

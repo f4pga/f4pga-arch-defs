@@ -1,3 +1,11 @@
+# Copyright (C) 2020  The Symbiflow Authors.
+#
+# Use of this source code is governed by a ISC-style
+# license that can be found in the LICENSE file or at
+# https://opensource.org/licenses/ISC
+#
+# SPDX-License-Identifier: ISC
+
 import os
 import glob
 import shlex
@@ -93,7 +101,11 @@ class ArchsCollector(SymbiflowArchDefCollector):
             out_name = "{}.rst".format(name)
             out_file = os.path.join(self.generatedir, out_name)
 
-            jinja_dict = {"arch_name": name, "arch_path": arch_path}
+            jinja_dict = {
+                "arch_name": name,
+                "arch_path": arch_path,
+                "title_underline": '=' * len(name)
+            }
 
             with open(out_file, "w") as fd:
                 env = Environment(loader=FileSystemLoader('.'))
@@ -225,6 +237,7 @@ class ModelsCollector(SymbiflowArchDefCollector):
 
             jinja_dict = {
                 "model_name": name,
+                "title_underline": '=' * len(name),
                 "module_name": module_name,
                 "generate_diagrams": generate_diagrams,
                 "sim_path": model_paths["sim"],
