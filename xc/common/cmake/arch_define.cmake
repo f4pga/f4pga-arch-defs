@@ -73,6 +73,7 @@ function(ADD_XC_ARCH_DEFINE)
   # Based on analysis performed on hydra.vtr.tools for the ibex, baselitex, and bram-n3 designs.
   # These changes did not have a measurable effect on QoR for these designs.
   # More details can be found in the report: https://colab.research.google.com/drive/1X91RGZnvlC7dBjJJUbS7JfqCbPCzJ3Xb
+  # Also checked in at: utils/ipynb/Parameter_Sweep_using_fpga_tool_perf.ipynb
   set(VPR_ARCH_ARGS "\
       --router_heap bucket \
       --clock_modeling route \
