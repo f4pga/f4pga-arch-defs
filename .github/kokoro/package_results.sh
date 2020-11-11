@@ -17,6 +17,7 @@ find -name "*result*.xml" \
     -o -name "*_sv2v.v.log" \
     -o -name "*.bit" \
     -o -name "*_qor.csv" \
+    -o -name "vivado.log" \
     | xargs tar -cvf ../results.tar
 cd ..
 rm -r build
