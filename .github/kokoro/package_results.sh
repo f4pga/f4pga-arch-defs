@@ -7,7 +7,7 @@ echo "========================================"
 echo "Packing results"
 echo "----------------------------------------"
 date
-cd build
+pushd build
 find -name "*result*.xml" \
     -o -name "*sponge_log.xml" \
     -o -name ".ninja_log" \
@@ -19,9 +19,22 @@ find -name "*result*.xml" \
     -o -name "*_qor.csv" \
     -o -name "vivado.log" \
     | xargs tar -cvf ../results.tar
-cd ..
+popd
 rm -r build
 mkdir build
-cd build
+pushd build
 tar -xf ../results.tar
 rm ../results.tar
+
+popd
+# Cleanup conda/RapidWright/etc.
+rm -r env
+# Cleanup .git and third_party before artifact collection.
+rm -r third_party .git
+
+# Make sure working directory doesn't exceed disk space limit!
+echo "Working directory size: $(du -sh)"
+if [[ $(du -s | cut -d $'\t' -f 1) -gt $(expr 1024 \* 1024 \* 45) ]]; then
+    echo "Working directory too large!"
+    exit 1
+fi
