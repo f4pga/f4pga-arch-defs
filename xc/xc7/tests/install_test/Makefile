@@ -9,7 +9,7 @@ VERILOG:=${current_dir}/counter_${BOARD}.v
 PCF=${current_dir}/${BOARD}.pcf
 XDC=${current_dir}/counter_${BOARD}.xdc
 BUILDDIR:=build
-ADDITIONAL_VPR_OPTIONS="--seed 1024 --astar_fac 1.3"
+ADDITIONAL_VPR_OPTIONS="--seed 1024"
 
 all: ${BUILDDIR}/${TOP}.bit
 
