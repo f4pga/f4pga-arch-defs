@@ -49,7 +49,10 @@ echo "----------------------------------------"
 	rm -rf build
 	du -ah install
 	export GIT_HASH=$(git rev-parse --short HEAD)
-	tar cfJv symbiflow-arch-defs-install-200t-${GIT_HASH}.tar.xz -C install bin share environment.yml
-	tar cfJv symbiflow-arch-defs-benchmarks-200t-${GIT_HASH}.tar.xz -C install benchmarks
+	tar cfJv symbiflow-arch-defs-install-${GIT_HASH}.tar.xz -C install bin share/symbiflow/techmaps share/symbiflow/scripts environment.yml
+	for device in $(ls install/share/symbiflow/arch)
+	do
+		tar cfJv $device.tar.xz -C install/share/symbiflow/arch $device
+	done
 )
 echo "----------------------------------------"
