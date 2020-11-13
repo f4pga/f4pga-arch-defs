@@ -64,12 +64,12 @@ function(ADD_XC_ARCH_DEFINE)
 
   # Notes on optimized flag settings:
   # These flags have been optimized for the ibex and baselitex designs.
+  # - place_delay_model: delta is ~5% faster than delta_override (default: delta)
   # - acc_fac: Lowering this to 0.7 slightly improves runtime 1-4% (default: 1)
-  # - astar_fac: Increasing this to 2 reduces runtime 2-15% (default: 1.2)
-  # - first_iter_pres_fac: Increasing this to 0.5 reduces runtime 3-4% (default: 0)
-  # - initial_pres_fac: Setting this to 2 reduces runtime 10-20% from the default,
+  # - astar_fac: Increasing this to 1.8 reduces runtime 2-15% (default: 1.2)
+  # - initial_pres_fac: Setting this to 2.828 reduces runtime 10-20% from the default,
   #   and about 3% faster than the previous value of 4 (default: 0.5)
-  # - pres_fac_mult: A lower value of 1.2 performs better given the other parameters by 15% (default: 1.3)
+  # - pres_fac_mult: A lower value of 1.2 performs better given the other parameters (default: 1.3)
   # Based on analysis performed on hydra.vtr.tools for the ibex, baselitex, and bram-n3 designs.
   # These changes did not have a measurable effect on QoR for these designs.
   # More details can be found in the report: https://colab.research.google.com/drive/1X91RGZnvlC7dBjJJUbS7JfqCbPCzJ3Xb
@@ -78,7 +78,7 @@ function(ADD_XC_ARCH_DEFINE)
       --router_heap bucket \
       --clock_modeling route \
       --place_delta_delay_matrix_calculation_method dijkstra \
-      --place_delay_model delta_override \
+      --place_delay_model delta \
       --router_lookahead extended_map \
       --check_route quick \
       --strict_checks off \
@@ -89,9 +89,8 @@ function(ADD_XC_ARCH_DEFINE)
       --base_cost_type delay_normalized_length_bounded \
       --bb_factor 10 \
       --acc_fac 0.7 \
-      --astar_fac 2 \
-      --first_iter_pres_fac 0.5 \
-      --initial_pres_fac 2 \
+      --astar_fac 1.8 \
+      --initial_pres_fac 2.828 \
       --pres_fac_mult 1.2 \
       --check_rr_graph off \
       --suppress_warnings \${OUT_NOISY_WARNINGS},sum_pin_class:check_unbuffered_edges:load_rr_indexed_data_T_values:check_rr_node:trans_per_R:check_route:set_rr_graph_tool_comment:calculate_average_switch"
