@@ -1,6 +1,6 @@
 cairosvg
 gitpython
-hilbertcurve
+hilbertcurve==1.0.5
 intervaltree
 matplotlib
 numpy
