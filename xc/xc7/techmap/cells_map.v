@@ -5119,6 +5119,13 @@ output [15:0] DO
   .ZINV_PSEN     (INV_PSEN),
   .ZINV_PSINCDEC (INV_PSINCDEC),
 
+  // Compensation
+  .COMP_ZHOLD    (COMPENSATION == "ZHOLD"),
+  .COMP_Z_ZHOLD  (COMPENSATION != "ZHOLD"),
+
+  // Spread spectrum
+  .SS_EN         (1'b0), // TODO: Disable for now
+
   // Straight mapped parameters
   .STARTUP_WAIT(STARTUP_WAIT == "TRUE"),
 

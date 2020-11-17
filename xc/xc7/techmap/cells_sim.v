@@ -1578,6 +1578,14 @@ output    DO15
 
   parameter [0:0] STARTUP_WAIT = 1'd0;
 
+  // Compensation
+  parameter [0:0] COMP_ZHOLD = 1'd0;
+  parameter [0:0] COMP_Z_ZHOLD = 1'd0;
+
+  // Spread spectrum
+  parameter [0:0] SS_EN = 1'd0;
+  // TODO: Fuzz and add more
+
   // Tables
   parameter [9:0] TABLE = 10'd0;
   parameter [39:0] LKTABLE = 40'd0;
