@@ -35,6 +35,8 @@ foreach(VERILOG_FILE ${VERILOG_FILES})
     SOURCES ${VERILOG_FILE}
     INPUT_IO_FILE ${COMMON}/basys3_bottom.pcf
     EXPLICIT_ADD_FILE_TARGET
+    # TODO: https://github.com/SymbiFlow/symbiflow-xc-fasm2bels/issues/34
+    DISABLE_DIFF_TEST
     )
 
   add_dependencies(all_xc7_mmcm_random_case ${DESIGN}_bit)
@@ -86,7 +88,7 @@ add_vivado_target(
   PARENT_NAME mmcm_int_basys3
   CLOCK_PINS clk
   CLOCK_PERIODS 10.0
-  # TODO: https://github.com/SymbiFlow/symbiflow-arch-defs/issues/1018
+  # TODO: https://github.com/SymbiFlow/symbiflow-xc-fasm2bels/issues/34
   DISABLE_DIFF_TEST
   )
 
@@ -95,7 +97,7 @@ add_vivado_target(
   PARENT_NAME mmcm_buf_basys3
   CLOCK_PINS clk
   CLOCK_PERIODS 10.0
-  # TODO: https://github.com/SymbiFlow/symbiflow-arch-defs/issues/1018
+  # TODO: https://github.com/SymbiFlow/symbiflow-xc-fasm2bels/issues/34
   DISABLE_DIFF_TEST
   )
 
@@ -104,7 +106,7 @@ add_vivado_target(
   PARENT_NAME mmcm_ext_basys3
   CLOCK_PINS clk
   CLOCK_PERIODS 10.0
-  # TODO: https://github.com/SymbiFlow/symbiflow-arch-defs/issues/1018
+  # TODO: https://github.com/SymbiFlow/symbiflow-xc-fasm2bels/issues/34
   DISABLE_DIFF_TEST
   )
 
@@ -113,7 +115,7 @@ add_vivado_target(
   PARENT_NAME mmcm_int_frac_basys3
   CLOCK_PINS clk
   CLOCK_PERIODS 10.0
-  # TODO: https://github.com/SymbiFlow/symbiflow-arch-defs/issues/1018
+  # TODO: https://github.com/SymbiFlow/symbiflow-xc-fasm2bels/issues/34
   DISABLE_DIFF_TEST
   )
 
