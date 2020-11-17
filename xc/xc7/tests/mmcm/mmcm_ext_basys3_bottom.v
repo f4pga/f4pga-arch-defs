@@ -40,7 +40,7 @@ mmcme2_test #
 (
 .FEEDBACK   ("EXTERNAL")
 )
-plle2_test
+mmcme2_test
 (
 .CLK        (CLK),
 .RST        (RST),

@@ -40,7 +40,7 @@ mmcme2_test #
 (
 .FEEDBACK   ("BUFG")
 )
-plle2_test
+mmcme2_test
 (
 .CLK        (CLK),
 .RST        (RST),
