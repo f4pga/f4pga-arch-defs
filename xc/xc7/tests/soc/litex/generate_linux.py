@@ -74,6 +74,7 @@ class ArtyA7(Arty):
 supported_boards = {
     # Xilinx
     "a7-35": ArtyA7,
+    "a7-100": ArtyA7,
 }
 
 

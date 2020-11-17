@@ -14,8 +14,6 @@ from litex.soc.cores.pwm import PWM
 from litex.soc.cores.icap import ICAPBitstream
 from litex.soc.cores.clock import S7MMCM
 
-# from litevideo.output import VideoOut
-# from migen.build.generic_platform import Pins, IOStandard, Subsignal
 from litex.build.generic_platform import Cat
 
 from litex.tools.litex_json2dts import generate_dts
@@ -169,51 +167,6 @@ def SoCLinux(soc_cls, **kwargs):
         def add_xadc(self):
             self.submodules.xadc = XADC()
             self.add_csr("xadc")
-
-        # Framebuffer (Xilinx only) ----------------------------------------------------------------
-        # def add_framebuffer(self, video_settings):
-        #     platform = self.platform
-        #     assert platform.device[:4] == "xc7a"
-        #     dram_port = self.sdram.crossbar.get_port(
-        #         mode="read", data_width=32, clock_domain="pix", reverse=True
-        #     )
-        #     framebuffer = VideoOut(
-        #         device=platform.device,
-        #         pads=platform.request("hdmi_out"),
-        #         dram_port=dram_port
-        #     )
-        #     self.submodules.framebuffer = framebuffer
-        #     self.add_csr("framebuffer")
-
-        #     clocking = framebuffer.driver.clocking
-        #     platform.add_period_constraint(
-        #         clocking.cd_pix.clk, 1e9 / video_settings["pix_clk"]
-        #     )
-        #     platform.add_period_constraint(
-        #         clocking.cd_pix5x.clk, 1e9 / (5 * video_settings["pix_clk"])
-        #     )
-        #     platform.add_false_path_constraints(
-        #         self.crg.cd_sys.clk, framebuffer.driver.clocking.cd_pix.clk,
-        #         framebuffer.driver.clocking.cd_pix5x.clk
-        #     )
-
-        #     self.add_constant("litevideo_pix_clk", video_settings["pix_clk"])
-        #     self.add_constant("litevideo_h_active", video_settings["h-active"])
-        #     self.add_constant(
-        #         "litevideo_h_blanking", video_settings["h-blanking"]
-        #     )
-        #     self.add_constant("litevideo_h_sync", video_settings["h-sync"])
-        #     self.add_constant(
-        #         "litevideo_h_front_porch", video_settings["h-front-porch"]
-        #     )
-        #     self.add_constant("litevideo_v_active", video_settings["v-active"])
-        #     self.add_constant(
-        #         "litevideo_v_blanking", video_settings["v-blanking"]
-        #     )
-        #     self.add_constant("litevideo_v_sync", video_settings["v-sync"])
-        #     self.add_constant(
-        #         "litevideo_v_front_porch", video_settings["v-front-porch"]
-        #     )
 
         # ICAP Bitstream (Xilinx only) -------------------------------------------------------------
         def add_icap_bitstream(self):
