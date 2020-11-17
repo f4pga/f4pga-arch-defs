@@ -771,39 +771,38 @@ AND
             right_graph_node_pkey
         ) = result
 
-        side = node.loc.side
-        if side == tracks.Direction.LEFT:
-            assert left_graph_node_pkey is not None, (tile_type, pin_name)
-            node_mapping[left_graph_node_pkey] = node.id
+        # VPR emits only one node for each site pin, instead of one node for each
+        # side location of a pin.
+        #
+        # If the directional graph nodes are present for a specific tile wire,
+        # the same node ID is assigned to the directional graph node to prevent
+        # VPR failing to find a route.
+        if left_graph_node_pkey is not None:
+            node_mapping[left_graph_node_pkey] = (node.id, node.type)
 
             update_connection_box(
                 conn, graph, left_graph_node_pkey, node_idx, connection_box_map
             )
-        elif side == tracks.Direction.RIGHT:
-            assert right_graph_node_pkey is not None, (tile_type, pin_name)
-            node_mapping[right_graph_node_pkey] = node.id
+        if right_graph_node_pkey is not None:
+            node_mapping[right_graph_node_pkey] = (node.id, node.type)
 
             update_connection_box(
                 conn, graph, right_graph_node_pkey, node_idx,
                 connection_box_map
             )
-        elif side == tracks.Direction.TOP:
-            assert top_graph_node_pkey is not None, (tile_type, pin_name)
-            node_mapping[top_graph_node_pkey] = node.id
+        if top_graph_node_pkey is not None:
+            node_mapping[top_graph_node_pkey] = (node.id, node.type)
 
             update_connection_box(
                 conn, graph, top_graph_node_pkey, node_idx, connection_box_map
             )
-        elif side == tracks.Direction.BOTTOM:
-            assert bottom_graph_node_pkey is not None, (tile_type, pin_name)
-            node_mapping[bottom_graph_node_pkey] = node.id
+        if bottom_graph_node_pkey is not None:
+            node_mapping[bottom_graph_node_pkey] = (node.id, node.type)
 
             update_connection_box(
                 conn, graph, bottom_graph_node_pkey, node_idx,
                 connection_box_map
             )
-        else:
-            assert False, side
 
 
 def import_tracks(conn, alive_tracks, node_mapping, graph, default_segment_id):
@@ -871,15 +870,17 @@ SELECT grid_x, grid_y FROM phy_tile WHERE pkey = (
             y_high=y_high,
         )
         assert graph_node_pkey not in node_mapping
-        node_mapping[graph_node_pkey] = graph.add_track(
-            track=track,
-            segment_id=segment_id,
-            ptc=ptc,
-            timing=graph2.NodeTiming(
-                r=resistance,
-                c=capacitance,
-            ),
-            canonical_loc=canonical_loc
+        node_mapping[graph_node_pkey] = (
+            graph.add_track(
+                track=track,
+                segment_id=segment_id,
+                ptc=ptc,
+                timing=graph2.NodeTiming(
+                    r=resistance,
+                    c=capacitance,
+                ),
+                canonical_loc=canonical_loc
+            ), node_type
         )
 
 
@@ -995,9 +996,10 @@ WHERE
                 tuple(synth_tile['loc']), pin_name
             )
 
+            track_node_id, _ = node_mapping[track_node]
             if pin['port_type'] == 'input':
                 graph.add_edge(
-                    src_node=node_mapping[track_node],
+                    src_node=track_node_id,
                     sink_node=pin_node[0][0],
                     switch_id=delayless_switch,
                     name='synth_{}_{}'.format(tile_name, pin['wire']),
@@ -1005,7 +1007,7 @@ WHERE
             elif pin['port_type'] in ['VCC', 'GND', 'output']:
                 graph.add_edge(
                     src_node=pin_node[0][0],
-                    sink_node=node_mapping[track_node],
+                    sink_node=track_node_id,
                     switch_id=delayless_switch,
                     name='synth_{}_{}'.format(tile_name, pin['wire']),
                 )
@@ -1079,6 +1081,8 @@ def get_number_graph_edges(conn, graph, node_mapping):
     cur = conn.cursor()
     cur.execute("SELECT count() FROM graph_edge;" "")
 
+    nodes_set = set()
+
     for src_graph_node, dest_graph_node in cur.execute("""
 SELECT
   src_graph_node_pkey,
@@ -1091,6 +1095,20 @@ FROM
 
         if dest_graph_node not in node_mapping:
             continue
+
+        src_node, src_node_type = node_mapping[src_graph_node]
+        sink_node, sink_node_type = node_mapping[dest_graph_node]
+
+        pin_node_types = [graph2.NodeType.IPIN, graph2.NodeType.OPIN]
+
+        src_node_is_site_pin = src_node_type in pin_node_types
+        sink_node_is_site_pin = sink_node_type in pin_node_types
+
+        if src_node_is_site_pin ^ sink_node_is_site_pin:
+            if (src_node, sink_node) in nodes_set:
+                continue
+            else:
+                nodes_set.add((src_node, sink_node))
 
         num_edges += 1
 
@@ -1114,6 +1132,8 @@ def import_graph_edges(conn, graph, extra_features, node_mapping):
 
     switch_name_map = {}
 
+    nodes_set = set()
+
     print('{} Importing edges from database.'.format(now()))
     with progressbar_utils.ProgressBar(max_value=num_edges) as bar:
         for idx, (src_graph_node, dest_graph_node, switch_pkey, phy_tile_pkey,
@@ -1134,6 +1154,24 @@ FROM
             if dest_graph_node not in node_mapping:
                 continue
 
+            src_node, src_node_type = node_mapping[src_graph_node]
+            sink_node, sink_node_type = node_mapping[dest_graph_node]
+
+            pin_node_types = [graph2.NodeType.IPIN, graph2.NodeType.OPIN]
+
+            src_node_is_site_pin = src_node_type in pin_node_types
+            sink_node_is_site_pin = sink_node_type in pin_node_types
+
+            # It may happen that a same CHAN <-> PIN edge is generated and this is unaccepted
+            # by VPR, as it allows only multiple edges between CHAN nodes.
+            # If a src_node, sink_node CHAN <-> PIN pair has already an edge, no new edge gets
+            # added
+            if src_node_is_site_pin ^ sink_node_is_site_pin:
+                if (src_node, sink_node) in nodes_set:
+                    continue
+                else:
+                    nodes_set.add((src_node, sink_node))
+
             if pip_pkey is not None:
                 tile_name = get_tile_name(phy_tile_pkey)
                 src_net, dest_net = get_pip_wire_names(pip_pkey)
@@ -1148,9 +1186,6 @@ FROM
             switch_id = get_switch_name(
                 conn, graph, switch_name_map, switch_pkey
             )
-
-            src_node = node_mapping[src_graph_node]
-            sink_node = node_mapping[dest_graph_node]
 
             if pip_name is not None:
                 feature = check_feature(extra_features, pip_name)
@@ -1554,7 +1589,8 @@ FROM
         )
 
         for k in node_mapping:
-            node_mapping[k] = node_remap(node_mapping[k])
+            node_id, node_type = node_mapping[k]
+            node_mapping[k] = (node_remap(node_id), node_type)
 
         print('{} Writing node map.'.format(now()))
         with open(args.write_rr_node_map, 'wb') as f:
