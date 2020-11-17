@@ -65,7 +65,7 @@ def get_fusesoc_sources(root_dir, eda_yaml_path, f_log):
         eda_yaml_path=eda_yaml_path
     )
 
-    return set(
+    return list(
         s.decode() for s in
         subprocess.check_output(get_sources_invocation, shell=True).split()
     )
