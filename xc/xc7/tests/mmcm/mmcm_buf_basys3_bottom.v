@@ -8,8 +8,8 @@ module top
 (
 input  wire clk,
 
-input  wire [15:0] sw,
-output wire [15:0] led,
+input  wire [7:0] sw,
+output wire [7:0] led,
 
 input  wire jc1, // unused
 output wire jc2,
