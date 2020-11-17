@@ -203,6 +203,7 @@ def main():
         )
         builder.build(build_name="top", run=args.build)
 
+        # Don't build the devicetree or emulator in arch-defs
         # DTS --------------------------------------------------------------------------------------
         # soc.generate_dts(build_dir, board_name)
         # soc.compile_dts(build_dir, board_name)
