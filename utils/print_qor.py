@@ -7,17 +7,16 @@ import sys
 import subprocess
 
 
-def scan_runtime(fname):
+def scan_runtime(step, fname):
     """ Find runtime of VPR log (if any), else returns empty str. """
     try:
         with open(fname, 'r') as f:
+            runtime = ""
             for line in f:
-                pass
+                if line.startswith("# {} took".format(step)):
+                    runtime = str(float(line.split()[3]))
 
-            if not line.startswith('The entire flow of VPR took'):
-                return ""
-
-            return str(float(line.split()[6]))
+            return runtime
     except FileNotFoundError:
         return ""
 
@@ -78,23 +77,32 @@ def main():
     )
     w = csv.DictWriter(sys.stdout, fields)
     w.writeheader()
+    rows = list()
     for root, dirs, files in os.walk(args.build_dir):
         if 'pack.log' in files:
             d = {}
 
-            d['path'] = root
-            d['pack time (sec)'] = scan_runtime(os.path.join(root, 'pack.log'))
+            path = root.split('/')
+            d['path'] = path[-2] + '/' + path[-1]
+            d['pack time (sec)'] = scan_runtime(
+                "Packing", os.path.join(root, 'pack.log')
+            )
             d['place time (sec)'] = scan_runtime(
-                os.path.join(root, 'place.log')
+                "Placement", os.path.join(root, 'place.log')
             )
             d['route time (sec)'] = scan_runtime(
-                os.path.join(root, 'route.log')
+                "Routing", os.path.join(root, 'route.log')
             )
             d['t_crit (ns)'], d['Fmax (MHz)'] = scan_critical(
                 os.path.join(root, 'route.log')
             )
 
-            w.writerow(d)
+            rows.append(d)
+
+    rows = sorted(rows, key=lambda row: row['path'])
+
+    for row in rows:
+        w.writerow(row)
 
 
 if __name__ == "__main__":
