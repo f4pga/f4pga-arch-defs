@@ -4800,42 +4800,42 @@ output [15:0] DO
   parameter [5:0] DIVCLK_DIVIDE = 1;
 
   parameter CLKFBOUT_MULT_F = 5000;
-  parameter signed CLKFBOUT_PHASE = 0;
+  parameter signed [31:0] CLKFBOUT_PHASE = 0;
   parameter CLKFBOUT_USE_FINE_PS = "FALSE";
 
   parameter CLKOUT0_DIVIDE_F = 1000;
   parameter CLKOUT0_DUTY_CYCLE = 50000;
-  parameter signed CLKOUT0_PHASE = 0;
+  parameter signed [31:0] CLKOUT0_PHASE = 0;
   parameter CLKOUT0_USE_FINE_PS = "FALSE";
 
   parameter CLKOUT1_DIVIDE = 1;
   parameter CLKOUT1_DUTY_CYCLE = 50000;
-  parameter signed CLKOUT1_PHASE = 0;
+  parameter signed [31:0] CLKOUT1_PHASE = 0;
   parameter CLKOUT1_USE_FINE_PS = "FALSE";
 
   parameter CLKOUT2_DIVIDE = 1;
   parameter CLKOUT2_DUTY_CYCLE = 50000;
-  parameter signed CLKOUT2_PHASE = 0;
+  parameter signed [31:0] CLKOUT2_PHASE = 0;
   parameter CLKOUT2_USE_FINE_PS = "FALSE";
 
   parameter CLKOUT3_DIVIDE = 1;
   parameter CLKOUT3_DUTY_CYCLE = 50000;
-  parameter signed CLKOUT3_PHASE = 0;
+  parameter signed [31:0] CLKOUT3_PHASE = 0;
   parameter CLKOUT3_USE_FINE_PS = "FALSE";
 
   parameter CLKOUT4_DIVIDE = 1;
   parameter CLKOUT4_DUTY_CYCLE = 50000;
-  parameter signed CLKOUT4_PHASE = 0;
+  parameter signed [31:0] CLKOUT4_PHASE = 0;
   parameter CLKOUT4_USE_FINE_PS = "FALSE";
 
   parameter CLKOUT5_DIVIDE = 1;
   parameter CLKOUT5_DUTY_CYCLE = 50000;
-  parameter signed CLKOUT5_PHASE = 0;
+  parameter signed [31:0] CLKOUT5_PHASE = 0;
   parameter CLKOUT5_USE_FINE_PS = "FALSE";
 
   parameter CLKOUT6_DIVIDE = 1;
   parameter CLKOUT6_DUTY_CYCLE = 50000;
-  parameter signed CLKOUT6_PHASE = 0;
+  parameter signed [31:0] CLKOUT6_PHASE = 0;
   parameter CLKOUT6_USE_FINE_PS = "FALSE";
 
   parameter CLKOUT4_CASCADE = 0;
@@ -4865,7 +4865,7 @@ output [15:0] DO
     $error("CLKFBOUT_MULT_F must range from 2000 to 64000");
   end
 
-  if (CLKFBOUT_PHASE < -360000 || CLKFBOUT_PHASE > 360000) begin
+  if (CLKFBOUT_PHASE < -32'sd360000 || CLKFBOUT_PHASE > 32'sd360000) begin
     wire _TECHMAP_FAIL_;
     $error("CLKFBOUT_PHASE must range from -360000 to 360000");
   end
@@ -4900,31 +4900,31 @@ output [15:0] DO
     $error("CLKOUT6_DIVIDE must range from 1 to 128");
   end
 
-  if (CLKOUT0_PHASE < -360000 || CLKOUT0_PHASE > 360000) begin
+  if (CLKOUT0_PHASE < -'sd360000 || CLKOUT0_PHASE > 'sd360000) begin
     wire _TECHMAP_FAIL_;
     $error("CLKOUT0_PHASE must range from -360000 to 360000");
   end
-  if (CLKOUT1_PHASE < -360000 || CLKOUT1_PHASE > 360000) begin
+  if (CLKOUT1_PHASE < -'sd360000 || CLKOUT1_PHASE > 'sd360000) begin
     wire _TECHMAP_FAIL_;
     $error("CLKOUT1_PHASE must range from -360000 to 360000");
   end
-  if (CLKOUT2_PHASE < -360000 || CLKOUT2_PHASE > 360000) begin
+  if (CLKOUT2_PHASE < -'sd360000 || CLKOUT2_PHASE > 'sd360000) begin
     wire _TECHMAP_FAIL_;
     $error("CLKOUT2_PHASE must range from -360000 to 360000");
   end
-  if (CLKOUT3_PHASE < -360000 || CLKOUT3_PHASE > 360000) begin
+  if (CLKOUT3_PHASE < -'sd360000 || CLKOUT3_PHASE > 'sd360000) begin
     wire _TECHMAP_FAIL_;
     $error("CLKOUT3_PHASE must range from -360000 to 360000");
   end
-  if (CLKOUT4_PHASE < -360000 || CLKOUT4_PHASE > 360000) begin
+  if (CLKOUT4_PHASE < -'sd360000 || CLKOUT4_PHASE > 'sd360000) begin
     wire _TECHMAP_FAIL_;
     $error("CLKOUT4_PHASE must range from -360000 to 360000");
   end
-  if (CLKOUT5_PHASE < -360000 || CLKOUT5_PHASE > 360000) begin
+  if (CLKOUT5_PHASE < -'sd360000 || CLKOUT5_PHASE > 'sd360000) begin
     wire _TECHMAP_FAIL_;
     $error("CLKOUT5_PHASE must range from -360000 to 360000");
   end
-  if (CLKOUT6_PHASE < -360000 || CLKOUT6_PHASE > 360000) begin
+  if (CLKOUT6_PHASE < -'sd360000 || CLKOUT6_PHASE > 'sd360000) begin
     wire _TECHMAP_FAIL_;
     $error("CLKOUT6_PHASE must range from -360000 to 360000");
   end
