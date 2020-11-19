@@ -1,9 +1,14 @@
 set(XC7_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(PRJXRAY_DIR ${symbiflow-arch-defs_SOURCE_DIR}/third_party/prjxray
   CACHE PATH "Path to prjxray library")
-set(PRJXRAY_DB_DIR
-  ${symbiflow-arch-defs_SOURCE_DIR}/third_party/prjxray-db
-  CACHE PATH "Path to prjxray database files")
+
+execute_process(
+  COMMAND
+    prjxray-config
+  OUTPUT_VARIABLE PRJXRAY_DB_DIR
+)
+
+string(STRIP "${PRJXRAY_DB_DIR}" PRJXRAY_DB_DIR)
 
 set(ARCH_IMPORT_TIMING ${symbiflow-arch-defs_SOURCE_DIR}/utils/update_arch_timings.py)
 add_custom_target(
