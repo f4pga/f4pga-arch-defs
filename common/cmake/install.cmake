@@ -36,16 +36,6 @@ function(INSTALL_DEVICE_FILES)
 
   set(INSTALL_FILES)
 
-  if("small_devices" STREQUAL ${INSTALL_DEVICE})
-    if(${DEVICE} STREQUAL "xc7a200t")
-      return()
-    endif()
-  else()
-    if(NOT ${DEVICE} STREQUAL ${INSTALL_DEVICE})
-      return()
-    endif()
-  endif()
-
   # Get files to be installed
   get_target_property_required(HAS_LOOKAHEAD ${DEVICE} "${PACKAGE}_HAS_LOOKAHEAD_CACHE")
   get_target_property_required(HAS_PLACE_DELAY ${DEVICE} "${PACKAGE}_HAS_PLACE_DELAY_CACHE")
