@@ -5,6 +5,7 @@ plugin -i fasm
 plugin -i params
 plugin -i selection
 plugin -i sdc
+plugin -i design_introspection
 
 # Import the commands from the plugins to the tcl interpreter
 yosys -import
