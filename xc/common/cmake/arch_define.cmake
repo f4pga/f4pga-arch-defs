@@ -110,6 +110,8 @@ function(ADD_XC_ARCH_DEFINE)
   endif ()
 
   get_target_property_required(XCFASM env XCFASM)
+  get_target_property_required(XC7FRAMES2BIT env XC7FRAMES2BIT)
+  get_target_property_required(BITREAD env BITREAD)
 
 
   get_target_property_required(RAPIDWRIGHT_INSTALLED rapidwright RAPIDWRIGHT_INSTALLED)
@@ -178,9 +180,9 @@ function(ADD_XC_ARCH_DEFINE)
         --emit_pudc_b_pullup \
         --fn_in \${OUT_FASM} \
         --bit_out \${OUT_BITSTREAM} \
-        --frm2bit $<TARGET_FILE:xc7frames2bit> \
+        --frm2bit ${XC7FRAMES2BIT} \
         \${FASM_TO_BIT_EXTRA_ARGS}"
-    BIT_TO_V bitread
+    BIT_TO_V ${BITREAD}
     BIT_TO_V_CMD "${CMAKE_COMMAND} -E env \
     PYTHONPATH=${symbiflow-arch-defs_BINARY_DIR}/env/conda/lib/python3.7/site-packages:${PRJRAY_DIR}:${PRJRAY_DIR}/third_party/fasm:${symbiflow-arch-defs_SOURCE_DIR}/utils \
         \${PYTHON3} -mfasm2bels \
@@ -189,7 +191,7 @@ function(ADD_XC_ARCH_DEFINE)
         --rr_graph \${OUT_RRBIN_REAL_LOCATION} \
         --vpr_capnp_schema_dir ${VPR_CAPNP_SCHEMA_DIR} \
         --route \${OUT_ROUTE} \
-        --bitread $<TARGET_FILE:bitread> \
+        --bitread ${BITREAD} \
         --bit_file \${OUT_BITSTREAM} \
         --fasm_file \${OUT_BITSTREAM}.fasm \
         --iostandard ${DEFAULT_IOSTANDARD} \
