@@ -25,6 +25,9 @@ if { $::env(USE_ROI) == "TRUE" } {
     # Overwrite some models (e.g. IBUF with more parameters)
     read_verilog -lib $::env(TECHMAP_PATH)/iobs.v
 
+    # Re-targetting FD to FDREs
+    techmap -map  $::env(TECHMAP_PATH)/retarget.v
+
     hierarchy -check -auto-top
 
     # Start flow after library reading
