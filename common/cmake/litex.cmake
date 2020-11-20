@@ -92,6 +92,7 @@ function(ADD_LITEX_TEST)
         ${EXTERNAL_SOURCES}
       INPUT_XDC_FILE ${LITEX_GATEWARE}/top.xdc
       EXPLICIT_ADD_FILE_TARGET
+      INSTALL_CIRCUIT
     )
   else()
     add_fpga_target(
@@ -103,6 +104,7 @@ function(ADD_LITEX_TEST)
       INPUT_IO_FILE ${LITEX_GATEWARE}/top.pcf
       INPUT_SDC_FILE ${LITEX_GATEWARE}/top.sdc
       EXPLICIT_ADD_FILE_TARGET
+      INSTALL_CIRCUIT
     )
   endif()
 

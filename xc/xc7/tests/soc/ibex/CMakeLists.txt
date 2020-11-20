@@ -75,6 +75,7 @@ add_fpga_target(
   INPUT_IO_FILE pins_artya7.pcf
   INPUT_SDC_FILE pins_artya7.sdc
   EXPLICIT_ADD_FILE_TARGET
+  INSTALL_CIRCUIT
 )
 
 add_vivado_target(
