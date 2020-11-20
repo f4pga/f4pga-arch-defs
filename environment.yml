@@ -1,18 +1,17 @@
 name: symbiflow_arch_def_base
 channels:
   - defaults
-  - symbiflow
   - litex-hub
 dependencies:
-  - symbiflow::symbiflow-yosys=0.8_6021_gd8b2d1a2=20200708_083630
-  - symbiflow::symbiflow-yosys-plugins=1.0.0.7_0174_g5e6370a=20201012_171341
-  - symbiflow::symbiflow-vtr=8.0.0.rc2_5415_gd6d69ff92=20201120_180018
-  - symbiflow::zachjs-sv2v=0.0.5_0018_ga170536
-  - symbiflow::openocd
-  - symbiflow::iverilog
-  - symbiflow::icestorm
-  - symbiflow::capnproto-java
-  - litex-hub::gcc-riscv64-elf-newlib
+  - litex-hub::capnproto-java=0.1.5_0012_g44a8c1e=20201104_165332
+  - litex-hub::gcc-riscv64-elf-newlib=9.2.0=20201119_154229
+  - litex-hub::icestorm=0.0_0719_g792cef0=20201120_145821
+  - litex-hub::iverilog=s20150603_0957_gad862020=20201120_145821
+  - litex-hub::openocd=0.10.0_1514_ga8edbd020=20201119_154304
+  - litex-hub::symbiflow-yosys=0.8_6021_gd8b2d1a2=20201120_145821_libffi33
+  - litex-hub::symbiflow-yosys-plugins=1.0.0_7_g59ff1e6_23_g3a95697_17_g00b887b_0194_g40efa51=20201120_145821
+  - litex-hub::symbiflow-vtr=8.0.0rc2_5400_gd6d69ff92=20201120_145821
+  - litex-hub::zachjs-sv2v=0.0.5_0025_ge9f9696=20201120_205532
   - cmake
   - make
   - flake8
