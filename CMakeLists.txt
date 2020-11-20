@@ -53,6 +53,9 @@ add_env_executable(EXE flake8 REQUIRED)
 add_env_executable(EXE vvp REQUIRED)
 add_env_executable(EXE iverilog REQUIRED)
 add_env_executable(EXE xcfasm REQUIRED)
+add_env_executable(EXE xc7frames2bit REQUIRED)
+add_env_executable(EXE bitread REQUIRED)
+add_env_executable(EXE prjxray-config)
 
 get_target_property_required(PYTHON3 env PYTHON3)
 

@@ -76,6 +76,7 @@ function(ADD_ENV_EXECUTABLE)
 
   set(binary ${ADD_ENV_EXECUTABLE_EXE})
   string(TOUPPER ${binary} binary_upper)
+  string(REPLACE "-" "_" binary_upper ${binary_upper})
   if(DEFINED ENV{${binary_upper}})
     set(${binary_upper} $ENV{${binary_upper}})
   else()
