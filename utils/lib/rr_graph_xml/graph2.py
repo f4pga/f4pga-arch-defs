@@ -245,8 +245,6 @@ def graph_from_xml(
                     timing=node_timing,
                     metadata=metadata,
                     segment=node_segment,
-                    canonical_loc=None,
-                    connection_box=None,
                 )
             )
 
@@ -404,25 +402,6 @@ class Graph(object):
 
         self._end_xml_tag()
 
-    def _write_connection_box(self, connection_box):
-        """
-        Writes the RR graph connection box.
-        """
-        attrib = {
-            "x_dim": connection_box.x_dim,
-            "y_dim": connection_box.y_dim,
-            "num_boxes": len(connection_box.boxes)
-        }
-
-        self._begin_xml_tag("connection_boxes", attrib)
-
-        for idx, box in enumerate(connection_box.boxes):
-            self._write_xml_tag("connection_box", {"id": idx, "name": box})
-            if DEBUG >= 2:
-                break
-
-        self._end_xml_tag()
-
     def _write_nodes(self, nodes, node_remap):
         """ Serialize list of Node objects to XML.
 
@@ -477,22 +456,6 @@ class Graph(object):
             if node.segment is not None:
                 attrib = {"segment_id": node.segment.segment_id}
                 self._write_xml_tag("segment", attrib)
-
-            if node.connection_box is not None:
-                attrib = {
-                    "x": node.connection_box.x,
-                    "y": node.connection_box.y,
-                    "id": node.connection_box.id,
-                    "site_pin_delay": node.connection_box.site_pin_delay,
-                }
-                self._write_xml_tag("connection_box", attrib)
-
-            if node.canonical_loc is not None:
-                attrib = {
-                    "x": node.canonical_loc.x,
-                    "y": node.canonical_loc.y,
-                }
-                self._write_xml_tag("canonical_loc", attrib)
 
             self._end_xml_tag()
             if DEBUG >= 2:
@@ -657,12 +620,7 @@ class Graph(object):
         self._end_xml_tag()
 
     def serialize_to_xml(
-            self,
-            channels_obj,
-            connection_box_obj,
-            nodes_obj,
-            edges_obj,
-            node_remap=lambda x: x
+            self, channels_obj, nodes_obj, edges_obj, node_remap=lambda x: x
     ):
         """
         Writes the routing graph to the XML file.
@@ -679,9 +637,6 @@ class Graph(object):
             self._write_xml_header()
 
             self._write_channels(channels_obj)
-
-            if connection_box_obj is not None:
-                self._write_connection_box(connection_box_obj)
 
             self._write_switches()
             self._write_segments()
