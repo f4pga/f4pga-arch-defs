@@ -17,7 +17,7 @@ DEFAULT_ARTIFACTS = """\
 """
 
 INSTALL = """\
-    regex: "**/symbiflow-arch-defs-*.tar.xz"\
+    regex: "**/symbiflow-*.tar.xz"\
 """
 
 DB_FULL = """\
