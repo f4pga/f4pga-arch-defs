@@ -84,8 +84,6 @@ class Graph2Tests(unittest.TestCase):
                 timing=node_timing,
                 metadata=None,
                 segment=NodeSegment(segment_id=0),
-                canonical_loc=None,
-                connection_box=None,
             ),
             Node(
                 id=1,
@@ -103,8 +101,6 @@ class Graph2Tests(unittest.TestCase):
                 timing=node_timing,
                 metadata=None,
                 segment=NodeSegment(segment_id=0),
-                canonical_loc=None,
-                connection_box=None,
             ),
             Node(
                 id=2,
@@ -122,8 +118,6 @@ class Graph2Tests(unittest.TestCase):
                 timing=node_timing,
                 metadata=None,
                 segment=NodeSegment(segment_id=0),
-                canonical_loc=None,
-                connection_box=None,
             ),
             Node(
                 id=3,
@@ -141,8 +135,6 @@ class Graph2Tests(unittest.TestCase):
                 timing=node_timing,
                 metadata=None,
                 segment=NodeSegment(segment_id=0),
-                canonical_loc=None,
-                connection_box=None,
             ),
         ]
 
@@ -307,8 +299,6 @@ class Graph2MediumTests(unittest.TestCase):
                 timing=node_timing,
                 metadata=None,
                 segment=NodeSegment(segment_id=0),
-                canonical_loc=None,
-                connection_box=None,
             ),
             Node(
                 id=1,
@@ -326,8 +316,6 @@ class Graph2MediumTests(unittest.TestCase):
                 timing=node_timing,
                 metadata=None,
                 segment=NodeSegment(segment_id=0),
-                canonical_loc=None,
-                connection_box=None,
             ),
             Node(
                 id=2,
@@ -345,8 +333,6 @@ class Graph2MediumTests(unittest.TestCase):
                 timing=node_timing,
                 metadata=None,
                 segment=NodeSegment(segment_id=0),
-                canonical_loc=None,
-                connection_box=None,
             ),
             Node(
                 id=3,
@@ -364,8 +350,6 @@ class Graph2MediumTests(unittest.TestCase):
                 timing=node_timing,
                 metadata=None,
                 segment=NodeSegment(segment_id=0),
-                canonical_loc=None,
-                connection_box=None,
             ),
         ]
 

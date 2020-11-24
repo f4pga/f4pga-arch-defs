@@ -376,7 +376,6 @@ def rebuild_graph(fn, fn_out, rcw=6, verbose=False):
 
     xml_graph.serialize_to_xml(
         channels_obj=channels_obj,
-        connection_box_obj=None,
         nodes_obj=graph.nodes,
         edges_obj=graph.edges
     )
