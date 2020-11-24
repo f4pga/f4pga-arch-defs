@@ -42,7 +42,7 @@ def remove_vpr_tile_prefix(name):
     ------
     Assert error if name does not start with VPR_TILE_PREFIX
     """
-    assert name.startswith(VPR_TILE_PREFIX)
+    assert name.startswith(VPR_TILE_PREFIX), name
     return name[len(VPR_TILE_PREFIX):]
 
 

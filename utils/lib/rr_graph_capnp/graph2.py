@@ -190,8 +190,6 @@ def read_node(node, new_node_id=None):
         timing=graph2.NodeTiming(r=node_timing.r, c=node_timing.c),
         metadata=None,
         segment=graph2.NodeSegment(segment_id=node.segment.segmentId),
-        canonical_loc=None,
-        connection_box=None
     )
 
 
@@ -335,24 +333,6 @@ class Graph(object):
             out_y_list.index = y_list.index
             out_y_list.info = y_list.info
 
-    def _write_connection_box(self, rr_graph, connection_box):
-        """
-        Writes the RR graph connection box.
-        """
-
-        rr_graph.connectionBoxes.xDim = connection_box.x_dim
-        rr_graph.connectionBoxes.yDim = connection_box.y_dim
-        rr_graph.connectionBoxes.numBoxes = len(connection_box.boxes)
-
-        connection_boxes = rr_graph.connectionBoxes.init(
-            'connectionBoxes', len(connection_box.boxes)
-        )
-
-        for idx, (out_box, box) in enumerate(zip(connection_boxes,
-                                                 connection_box.boxes)):
-            out_box.id = idx
-            out_box.name = box
-
     def _write_nodes(self, rr_graph, num_nodes, nodes, node_remap):
         """ Serialize list of Node objects to capnp.
 
@@ -408,18 +388,6 @@ class Graph(object):
                 for out_meta, meta in zip(metas, node.metadata):
                     out_meta.name = meta.name
                     out_meta.value = meta.value
-
-            if node.canonical_loc is not None:
-                canonical_loc = out_node.canonicalLoc
-                canonical_loc.x = node.canonical_loc.x
-                canonical_loc.y = node.canonical_loc.y
-
-            if node.connection_box is not None:
-                connection_box = out_node.connectionBox
-                connection_box.id = node.connection_box.id
-                connection_box.x = node.connection_box.x
-                connection_box.y = node.connection_box.y
-                connection_box.sitePinDelay = node.connection_box.site_pin_delay
 
         assert nodes_written == num_nodes, 'Unwritten nodes!'
 
@@ -553,7 +521,6 @@ class Graph(object):
     def serialize_to_capnp(
             self,
             channels_obj,
-            connection_box_obj,
             num_nodes,
             nodes_obj,
             num_edges,
@@ -576,7 +543,6 @@ class Graph(object):
         self._write_segments(rr_graph)
         self._write_block_types(rr_graph)
         self._write_grid(rr_graph)
-        self._write_connection_box(rr_graph, connection_box_obj)
         self._write_nodes(rr_graph, num_nodes, nodes_obj, node_remap)
         self._write_edges(rr_graph, num_edges, edges_obj, node_remap)
 
