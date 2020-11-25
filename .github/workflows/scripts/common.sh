@@ -17,30 +17,30 @@ NC='\033[0m' # No Color
 
 SPACER="echo -e ${GRAY} - ${NC}"
 
-if ! declare -F travis_nanoseconds &>/dev/null; then
-function travis_nanoseconds() {
+if ! declare -F action_nanoseconds &>/dev/null; then
+function action_nanoseconds() {
 	return 0;
 }
 fi
-export -f travis_nanoseconds
-if ! declare -F travis_fold &>/dev/null; then
-function travis_fold() {
+export -f action_nanoseconds
+if ! declare -F action_fold &>/dev/null; then
+function action_fold() {
 	return 0;
 }
 fi
-export -f travis_fold
-if ! declare -F travis_time_start &>/dev/null; then
-function travis_time_start() {
+export -f action_fold
+if ! declare -F action_time_start &>/dev/null; then
+function action_time_start() {
 	return 0;
 }
 fi
-export -f travis_time_start
-if ! declare -F travis_time_finish &>/dev/null; then
-function travis_time_finish() {
+export -f action_time_start
+if ! declare -F action_time_finish &>/dev/null; then
+function action_time_finish() {
 	return 0;
 }
 fi
-export -f travis_time_finish
+export -f action_time_finish
 if [ -z "$DATESTR" ]; then
 	if [ -z "$DATESHORT" ]; then
 		export DATESTR=$(date -u +%Y%m%d%H%M%S)
@@ -84,16 +84,16 @@ function run_section() {
 }
 
 function start_section() {
-	travis_fold start "$1"
-	travis_time_start
+	action_fold start "$1"
+	action_time_start
 	echo -e "${PURPLE}SymbiFlow Arch Defs${NC}: - $2${NC}"
 	echo -e "${GRAY}-------------------------------------------------------------------${NC}"
 }
 
 function end_section() {
 	echo -e "${GRAY}-------------------------------------------------------------------${NC}"
-	travis_time_finish
-	travis_fold end "$1"
+	action_time_finish
+	action_fold end "$1"
 }
 
 export PATH=$PWD/env/conda/bin:$PATH
