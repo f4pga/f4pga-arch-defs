@@ -1,0 +1,22 @@
+name: CI tests
+
+on: [push, pull_request]
+
+jobs:
+
+  Run-tests:
+    runs-on: ubuntu-latest
+    steps:
+
+    - uses: actions/checkout@v2
+
+    - name: Run common script
+      run: source ./.github/workflows/scripts/common.sh
+
+    - name: Install
+      run: |
+        sudo apt-get update
+        sudo apt-get install git g++-6 colordiff coreutils graphviz inkscape make cmake
+
+    - name: Execute test script
+      run: stdbuf -i0 -o0 -e0 ./.github/workflows/scripts/script.sh
