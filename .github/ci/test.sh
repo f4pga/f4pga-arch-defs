@@ -26,9 +26,8 @@ make_target test_python "Run Python unit tests"
 
 make_target all_merged_arch_xmls "Build all arch XMLs"
 
-echo "Suppressing all_rrgraph_xmls generation, as the 8k parts cannot be built on GH actions."
 start_section "symbiflow.build_all_rrgraph_xmls" "Build all rrgraph XMLs."
-#make all_rrgraph_xmls
+make all_rrgraph_xmls
 end_section "symbiflow.build_all_rrgraph_xmls"
 
 make_target all_route_tests "Complete all routing tests"
