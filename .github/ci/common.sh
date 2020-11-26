@@ -8,7 +8,7 @@ exec 2>&1
 
 # Some colors, use it like following;
 # echo -e "Hello ${YELLOW}yellow${NC}"
-GRAY='\033[0;30m'
+GRAY='\033[0;90m'
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
