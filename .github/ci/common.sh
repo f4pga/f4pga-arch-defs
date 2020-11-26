@@ -15,8 +15,6 @@ YELLOW='\033[0;33m'
 PURPLE='\033[0;35m'
 NC='\033[0m' # No Color
 
-SPACER="echo -e ${GRAY} - ${NC}"
-
 if ! declare -F action_nanoseconds &>/dev/null; then
 function action_nanoseconds() {
 	return 0;
