@@ -12,9 +12,6 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Run common script
-      run: source ./.github/ci/common.sh
-
     - name: Install
       run: |
         sudo apt-get update
