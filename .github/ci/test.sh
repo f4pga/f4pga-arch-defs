@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source .github/workflows/scripts/common.sh
+source $(dirname "$0")/common.sh
 set -e
 
 $SPACER
