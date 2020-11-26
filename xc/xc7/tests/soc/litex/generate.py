@@ -33,7 +33,7 @@ class BaseSoC(SoCCore):
             platform,
             sys_clk_freq,
             ident="LiteX SoC on Arty A7",
-            ident_version=True,
+            ident_version=False,
             **kwargs
         )
 
