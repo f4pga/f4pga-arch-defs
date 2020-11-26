@@ -52,7 +52,7 @@ echo "----------------------------------------"
 	tar cfJv symbiflow-arch-defs-install-${GIT_HASH}.tar.xz -C install bin share/symbiflow/techmaps share/symbiflow/scripts environment.yml
 	for device in $(ls install/share/symbiflow/arch)
 	do
-		tar cfJv symbiflow-$device.tar.xz -C install/share/symbiflow/arch $device
+		tar cfJv symbiflow-$device.tar.xz -C install share/symbiflow/arch/$device
 	done
 )
 echo "----------------------------------------"
