@@ -9,6 +9,8 @@ jobs:
     steps:
 
     - uses: actions/checkout@v2
+      with:
+        submodules: recursive
 
     - name: Run common script
       run: source ./.github/workflows/scripts/common.sh
