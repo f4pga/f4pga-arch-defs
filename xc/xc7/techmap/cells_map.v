@@ -3108,11 +3108,19 @@ module IDDR_2CLK (
 
   end endgenerate
 
+  parameter _TECHMAP_CONSTMSK_D_ = 0;
+  parameter _TECHMAP_CONSTVAL_D_ = 0;
+
+  localparam [0:0] INV_D = (
+      _TECHMAP_CONSTMSK_D_ == 1 &&
+      _TECHMAP_CONSTVAL_D_ == 0 &&
+      IS_D_INVERTED == 0);
+  
   IDDR_VPR #(
-    .ZINV_D         (!IS_D_INVERTED),
+    .ZINV_D         (!IS_D_INVERTED ^ INV_D),
     .ZINV_C         (!IS_C_INVERTED),
     .SRTYPE_SYNC    (SRTYPE == "SYNC"),
-    .SAME_EDGE      (DDR_CLK_EDGE != "OPPOSITE_EDGE"),
+    .SAME_EDGE      (DDR_CLK_EDGE == "SAME_EDGE"),
     .OPPOSITE_EDGE  (DDR_CLK_EDGE == "OPPOSITE_EDGE"),
     .ZINIT_Q1       (!INIT_Q1),
     .ZINIT_Q2       (!INIT_Q2),
@@ -3126,7 +3134,7 @@ module IDDR_2CLK (
     .CKB (CB),
     .CE  (CE),
     .SR  (SR),
-    .D   (D),
+    .D   (D ^ INV_D),
     .Q1  (Q1),
     .Q2  (Q2)
   );
@@ -3215,15 +3223,29 @@ module ODDR (
     assign SR = 1'bx;
     localparam SRVAL = 1'bx;
 
-    error Cannot_have_both_S_and_R_connected();
+    $error("Both S and R cannot be used simultaneously");
   end endgenerate
+
+  parameter _TECHMAP_CONSTMSK_D1_ = 0;
+  parameter _TECHMAP_CONSTVAL_D1_ = 0;
+  parameter _TECHMAP_CONSTMSK_D2_ = 0;
+  parameter _TECHMAP_CONSTVAL_D2_ = 0;
+
+  localparam [0:0] INV_D1 = (
+      _TECHMAP_CONSTMSK_D1_ == 1 &&
+      _TECHMAP_CONSTVAL_D1_ == 0 &&
+      IS_D1_INVERTED == 0);
+  localparam [0:0] INV_D2 = (
+      _TECHMAP_CONSTMSK_D2_ == 1 &&
+      _TECHMAP_CONSTVAL_D2_ == 0 &&
+      IS_D2_INVERTED == 0);
 
   ODDR_VPR # (
     .ZINV_CLK       (!IS_C_INVERTED),
-    .ZINV_D1        (!IS_D1_INVERTED),
-    .ZINV_D1        (!IS_D2_INVERTED),
-    .INV_D1         ( IS_D1_INVERTED),
-    .INV_D1         ( IS_D2_INVERTED),
+    .ZINV_D1        (!IS_D1_INVERTED ^ INV_D1),
+    .ZINV_D2        (!IS_D2_INVERTED ^ INV_D2),
+    .INV_D1         ( INV_D1),
+    .INV_D2         ( INV_D2),
     .SRTYPE_SYNC    ( SRTYPE == "SYNC"),
     .SAME_EDGE      ( (DDR_CLK_EDGE != "OPPOSITE_EDGE") ^ IS_C_INVERTED),
     .ZINIT_Q        (!INIT),
@@ -3233,8 +3255,8 @@ module ODDR (
     .CK (C),
     .CE (CE),
     .SR (SR),
-    .D1 (D1),
-    .D2 (D2),
+    .D1 (D1 ^ INV_D1),
+    .D2 (D2 ^ INV_D2),
     .Q  (Q)
   );
 
