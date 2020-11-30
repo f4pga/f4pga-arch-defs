@@ -21,6 +21,8 @@ echo "----------------------------------------"
 )
 echo "----------------------------------------"
 
+source ${SCRIPT_DIR}/steps/start_monitor.sh
+
 echo
 echo "========================================"
 echo "Running xc7 vendor tests (make all_xc7_diff_fasm)"
@@ -34,4 +36,5 @@ echo "----------------------------------------"
 )
 echo "----------------------------------------"
 
+source ${SCRIPT_DIR}/steps/stop_monitor.sh
 source ${SCRIPT_DIR}/package_results.sh

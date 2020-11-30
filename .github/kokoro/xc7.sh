@@ -7,6 +7,8 @@ export CMAKE_FLAGS="-GNinja"
 export BUILD_TOOL=ninja
 source ${SCRIPT_DIR}/common.sh
 
+source ${SCRIPT_DIR}/steps/start_monitor.sh
+
 echo
 echo "========================================"
 echo "Running xc7 tests (make all_xc7)"
@@ -21,4 +23,5 @@ echo "----------------------------------------"
 )
 echo "----------------------------------------"
 
+source ${SCRIPT_DIR}/steps/stop_monitor.sh
 source ${SCRIPT_DIR}/package_results.sh
