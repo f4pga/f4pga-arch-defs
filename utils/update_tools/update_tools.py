@@ -201,8 +201,11 @@ def main():
 
     revert_to_master(g, repo, remote)
 
-    branches_string = ' '.join(branches)
-    result = merge_branches(location, branches_string)
+    if branches:
+        branches_string = ' '.join(branches)
+        result = merge_branches(location, branches_string)
+    else:
+        result = True
 
     if not result:
         revert_to_master(g, repo, remote)
