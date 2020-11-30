@@ -1,5 +1,7 @@
 set(INSTALLATION_DIR_BIN "${CMAKE_INSTALL_PREFIX}/bin")
 
+get_target_property_required(XC7FRAMES2BIT env XC7FRAMES2BIT)
+
 function(add_binary_test test_name part_name device board)
 	add_test(NAME ${test_name}
 		COMMAND ${CMAKE_COMMAND} -E env
@@ -7,7 +9,7 @@ function(add_binary_test test_name part_name device board)
 		${CMAKE_COMMAND} -E env
 		PYTHONPATH=${PRJXRAY_DIR}:${PRJXRAY_DIR}/third_party/fasm
 		DATABASE_DIR=${PRJXRAY_DB_DIR}
-		FRAMES2BIT=$<TARGET_FILE:xc7frames2bit>
+		FRAMES2BIT=${XC7FRAMES2BIT}
 		make PARTNAME=${part_name} DEVICE=${device} BOARD=${board}
 		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 endfunction()
