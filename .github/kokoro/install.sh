@@ -8,6 +8,8 @@ export CMAKE_FLAGS="-GNinja -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}"
 export BUILD_TOOL=ninja
 source ${SCRIPT_DIR}/common.sh
 
+source ${SCRIPT_DIR}/steps/start_monitor.sh
+
 echo
 echo "========================================"
 echo "Running install tests (make install)"
@@ -51,3 +53,5 @@ echo "----------------------------------------"
 	popd
 )
 echo "----------------------------------------"
+
+source ${SCRIPT_DIR}/steps/stop_monitor.sh
