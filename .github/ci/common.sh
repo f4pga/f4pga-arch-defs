@@ -8,14 +8,12 @@ exec 2>&1
 
 # Some colors, use it like following;
 # echo -e "Hello ${YELLOW}yellow${NC}"
-GRAY='\033[0;30m'
+GRAY='\033[0;90m'
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 PURPLE='\033[0;35m'
 NC='\033[0m' # No Color
-
-SPACER="echo -e ${GRAY} - ${NC}"
 
 if ! declare -F action_nanoseconds &>/dev/null; then
 function action_nanoseconds() {
@@ -23,24 +21,22 @@ function action_nanoseconds() {
 }
 fi
 export -f action_nanoseconds
+
 if ! declare -F action_fold &>/dev/null; then
 function action_fold() {
+	if [ "$1" = "start" ]; then
+		echo "::group::$2"
+		SECONDS=0
+	else
+		duration=$SECONDS
+		echo "::endgroup::"
+		printf "${GRAY}took $(($duration / 60)) min $(($duration % 60)) sec.${NC}\n"
+	fi
 	return 0;
 }
 fi
 export -f action_fold
-if ! declare -F action_time_start &>/dev/null; then
-function action_time_start() {
-	return 0;
-}
-fi
-export -f action_time_start
-if ! declare -F action_time_finish &>/dev/null; then
-function action_time_finish() {
-	return 0;
-}
-fi
-export -f action_time_finish
+
 if [ -z "$DATESTR" ]; then
 	if [ -z "$DATESHORT" ]; then
 		export DATESTR=$(date -u +%Y%m%d%H%M%S)
@@ -85,14 +81,12 @@ function run_section() {
 
 function start_section() {
 	action_fold start "$1"
-	action_time_start
 	echo -e "${PURPLE}SymbiFlow Arch Defs${NC}: - $2${NC}"
 	echo -e "${GRAY}-------------------------------------------------------------------${NC}"
 }
 
 function end_section() {
 	echo -e "${GRAY}-------------------------------------------------------------------${NC}"
-	action_time_finish
 	action_fold end "$1"
 }
 
