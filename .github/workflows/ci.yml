@@ -9,9 +9,8 @@ jobs:
     steps:
 
     - uses: actions/checkout@v2
-
-    - name: Run common script
-      run: source ./.github/workflows/scripts/common.sh
+      with:
+        submodules: recursive
 
     - name: Install
       run: |
@@ -19,4 +18,4 @@ jobs:
         sudo apt-get install git g++-6 colordiff coreutils graphviz inkscape make cmake
 
     - name: Execute test script
-      run: stdbuf -i0 -o0 -e0 ./.github/workflows/scripts/script.sh
+      run: stdbuf -i0 -o0 -e0 ./.github/ci/test.sh
