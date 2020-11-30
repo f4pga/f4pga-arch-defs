@@ -104,6 +104,41 @@ FDPE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|0))
 
 endmodule
 
+module LDCE (output reg Q, input G, GE, D, CLR);
+parameter [0:0] INIT = 1'b1;
+
+wire GE_SIG;
+wire SR_SIG;
+
+CESR_MUX cesr_mux(
+    .CE(GE),
+    .SR(CLR),
+    .CE_OUT(GE_SIG),
+    .SR_OUT(SR_SIG)
+);
+
+LDCE_ZINI #(.ZINI(!|INIT), .IS_G_INVERTED(|0))
+  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .G(G), .GE(GE_SIG), .CLR(SR_SIG));
+
+endmodule
+
+module LDPE (output reg Q, input G, GE, D, PRE);
+parameter [0:0] INIT = 1'b1;
+
+wire GE_SIG;
+wire SR_SIG;
+
+CESR_MUX cesr_mux(
+    .CE(GE),
+    .SR(PRE),
+    .CE_OUT(GE_SIG),
+    .SR_OUT(SR_SIG)
+);
+
+LDPE_ZINI #(.ZINI(!|INIT), .IS_G_INVERTED(|0))
+  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .G(G), .GE(GE_SIG), .PRE(SR_SIG));
+
+endmodule
 
 module FDRE_1 (output reg Q, input C, CE, D, R);
 

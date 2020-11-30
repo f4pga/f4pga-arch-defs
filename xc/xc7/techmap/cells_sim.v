@@ -57,6 +57,26 @@ module FDPE_ZINI (output reg Q, input C, CE, D, PRE);
   endcase endgenerate
 endmodule
 
+module LDCE_ZINI (output reg Q, input G, GE, D, CLR);
+  parameter [0:0] ZINI = 1'b0;
+  parameter [0:0] IS_G_INVERTED = 1'b0;
+  initial Q <= !ZINI;
+  wire g = G ^ IS_G_INVERTED;
+  always @*
+    if (CLR) Q <= 1'b0;
+    else if (GE && g) Q <= D;
+endmodule
+
+module LDPE_ZINI (output reg Q, input G, GE, D, PRE);
+  parameter [0:0] ZINI = 1'b0;
+  parameter [0:0] IS_G_INVERTED = 1'b0;
+  initial Q <= !ZINI;
+  wire g = G ^ IS_G_INVERTED;
+  always @*
+    if (PRE) Q <= 1'b1;
+    else if (GE && g) Q <= D;
+endmodule
+
 // ============================================================================
 // Carry chain primitives
 
