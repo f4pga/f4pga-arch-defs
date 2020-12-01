@@ -17,11 +17,7 @@ DEFAULT_ARTIFACTS = """\
 """
 
 INSTALL = """\
-    regex: "**/symbiflow-arch-defs-install*.tar.xz"\
-"""
-
-INSTALL_200T = """\
-    regex: "**/symbiflow-arch-defs-install-200t*.tar.xz"\
+    regex: "**/symbiflow-arch-defs-*.tar.xz"\
 """
 
 DB_FULL = """\
@@ -61,10 +57,8 @@ env_vars {
 
 for type in ['tests', 'docs', 'ice40', 'testarch', 'xc7', 'xc7-vendor',
              'xc7a200t', 'xc7a200t-vendor', 'ql', 'install', 'install-200t']:
-    if type == 'install':
+    if 'install' in type:
         artifacts = INSTALL
-    elif type == 'install-200t':
-        artifacts = INSTALL_200T
     else:
         artifacts = DEFAULT_ARTIFACTS
 
