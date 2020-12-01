@@ -70,6 +70,7 @@ foreach(FREQ ${BASYS_FREQS})
         Murax.v
       INPUT_IO_FILE basys3-full.pcf
       EXPLICIT_ADD_FILE_TARGET
+      INSTALL_CIRCUIT
     )
 
     math(EXPR PERIOD "1000 / ${FREQ}" OUTPUT_FORMAT DECIMAL)

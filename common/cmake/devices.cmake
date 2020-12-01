@@ -1153,6 +1153,7 @@ function(ADD_FPGA_TARGET)
   #   [ASSERT_USAGE <usage_spec>]
   #   [DEFINES <definitions>]
   #   [BIT_TO_V_EXTRA_ARGS]
+  #   [INSTALL_CIRCUIT]
   #   )
   # ~~~
   #
@@ -1179,6 +1180,14 @@ function(ADD_FPGA_TARGET)
   # DEFINES is a list of environment variables to be defined during Yosys
   # invocation.
   #
+  # INSTALL_CIRCUIT is an option that enables installing the generated eblif circuit
+  # file in the install destination directory. Also the generates/user-provided SDC
+  # (if present), gets installed as well.
+  #     - eblif destination: <install_directory>/benchmarks/circuits
+  #     - sdc destination: <install_directory>/benchmarks/sdc
+  # To avoid name conflicts, the eblif file name, as well as the SDC name, are replaced
+  # with the NAME of the FPGA test target
+  #
   # Targets generated:
   #
   # * <name>_eblif - Generated eblif file.
@@ -1197,7 +1206,7 @@ function(ADD_FPGA_TARGET)
   # * ${TOP}.route - Place and routed design (http://docs.verilogtorouting.org/en/latest/vpr/file_formats/#routing-file-format-route)
   # * ${TOP}.${BITSTREAM_EXTENSION} - Bitstream for target.
   #
-  set(options EXPLICIT_ADD_FILE_TARGET EMIT_CHECK_TESTS NO_SYNTHESIS ROUTE_ONLY)
+  set(options EXPLICIT_ADD_FILE_TARGET EMIT_CHECK_TESTS NO_SYNTHESIS ROUTE_ONLY INSTALL_CIRCUIT)
   set(oneValueArgs NAME TOP BOARD INPUT_IO_FILE EQUIV_CHECK_SCRIPT AUTOSIM_CYCLES ASSERT_USAGE INPUT_XDC_FILE INPUT_SDC_FILE)
   set(multiValueArgs SOURCES TESTBENCH_SOURCES DEFINES BIT_TO_V_EXTRA_ARGS)
   cmake_parse_arguments(
@@ -1447,16 +1456,48 @@ function(ADD_FPGA_TARGET)
     message(FATAL_ERROR "SDC and XDC constraint files cannot be provided simultaneously!")
   endif()
 
+  set(SDC_FILE "")
+  set(SDC_DEPS "")
   if(NOT "${ADD_FPGA_TARGET_INPUT_XDC_FILE}" STREQUAL "")
     append_file_dependency(VPR_DEPS ${OUT_SDC_REL})
     get_file_location(SDC_LOCATION ${OUT_SDC_REL})
     set(SDC_ARG --sdc_file ${SDC_LOCATION})
+    set(SDC_FILE ${SDC_LOCATION})
+    set(SDC_DEPS ${OUT_SDC_REL})
   endif()
 
   if(NOT "${ADD_FPGA_TARGET_INPUT_SDC_FILE}" STREQUAL "")
     append_file_dependency(VPR_DEPS ${ADD_FPGA_TARGET_INPUT_SDC_FILE})
     get_file_location(SDC_LOCATION ${ADD_FPGA_TARGET_INPUT_SDC_FILE})
     set(SDC_ARG --sdc_file ${SDC_LOCATION})
+    set(SDC_FILE ${SDC_LOCATION})
+    set(SDC_DEPS ${ADD_FPGA_TARGET_INPUT_SDC_FILE})
+  endif()
+
+  if (${ADD_FPGA_TARGET_INSTALL_CIRCUIT})
+    set(INSTALL_DEPS "")
+    append_file_dependency(INSTALL_DEPS ${OUT_EBLIF_REL})
+
+    install(
+      FILES ${OUT_EBLIF}
+      RENAME ${NAME}.eblif
+      DESTINATION "benchmarks/circuits"
+    )
+
+    if (NOT SDC_FILE STREQUAL "")
+      install(
+        FILES ${SDC_FILE}
+        RENAME ${NAME}.sdc
+        DESTINATION "benchmarks/sdc"
+      )
+      append_file_dependency(INSTALL_DEPS ${SDC_DEPS})
+    endif()
+    
+    add_custom_target(
+      "INSTALL_${NAME}_CIRCUIT"
+      ALL
+      DEPENDS ${INSTALL_DEPS}
+    )
   endif()
 
   # Generate routing and generate HLC.

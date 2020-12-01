@@ -23,6 +23,7 @@ add_fpga_target(
   SOURCES counter_basys3.v
   INPUT_IO_FILE ${COMMON}/basys3.pcf
   EXPLICIT_ADD_FILE_TARGET
+  INSTALL_CIRCUIT
   )
 
 add_vivado_target(

@@ -47,10 +47,9 @@ echo "----------------------------------------"
 (
 	rm -rf build
 	du -ah install
-	pushd install
 	export GIT_HASH=$(git rev-parse --short HEAD)
-	tar vcf - * | xz -9 -T${MAX_CORES} - > ../symbiflow-arch-defs-install-${GIT_HASH}.tar.xz
-	popd
+	tar cfJv symbiflow-arch-defs-install-${GIT_HASH}.tar.xz -C install bin share environment.yml
+	tar cfJv symbiflow-arch-defs-benchmarks-${GIT_HASH}.tar.xz -C install benchmarks
 )
 echo "----------------------------------------"
 
