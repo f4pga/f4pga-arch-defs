@@ -21,6 +21,8 @@ echo "----------------------------------------"
 )
 echo "----------------------------------------"
 
+source ${SCRIPT_DIR}/steps/start_monitor.sh
+
 echo
 echo "========================================"
 echo "Running artix7_200t_vendor tests (make all_artix7_200t_diff_fasm)"
@@ -34,4 +36,5 @@ echo "----------------------------------------"
 )
 echo "----------------------------------------"
 
+source ${SCRIPT_DIR}/steps/stop_monitor.sh
 source ${SCRIPT_DIR}/package_results.sh
