@@ -5,7 +5,7 @@ channels:
   - litex-hub
 dependencies:
   - symbiflow::symbiflow-yosys=0.8_6021_gd8b2d1a2=20200708_083630
-  - symbiflow::symbiflow-yosys-plugins=1.0.0.7_0174_g5e6370a=20201012_171341
+  - symbiflow::symbiflow-yosys-plugins=1.0.0.7_0234_g40efa51=20201105_181012
   - symbiflow::symbiflow-vtr=8.0.0.rc2_5415_gd6d69ff92=20201120_180018
   - symbiflow::prjxray-tools=0.1_2697_g0f939808=20201120_091524
   - symbiflow::prjxray-db=0.0_0236_g2ddf99b=20201105_181012

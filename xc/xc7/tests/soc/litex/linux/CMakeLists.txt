@@ -9,35 +9,30 @@ set(SOURCES
 )
 
 add_litex_test(
-  NAME minilitex_ddr_arty
-  LITEX_DIR arty_soc
+  NAME linux_arty
+  LITEX_DIR arty_linux_soc
   LITEX_BOARD a7-35
   LITEX_SOURCES ${SOURCES}
-  EXTERNAL_SOURCES ${VEXRISCV}
+  EXTERNAL_SOURCES ${VEXRISCV_LINUX}
   BOARD arty-full
-  GENERATE_SCRIPT ${GENERATE_LITEX}
+  GENERATE_SCRIPT ${GENERATE_LINUX_LITEX}
   FIXUP_SCRIPT ${FIXUP_XDC}
-  FLAGS
-    --integrated-rom-size 0x10000
-    --uart-baudrate 1000000
-    --with-ram
   USE_XDC
   VIVADO_XDC arty_clocks.xdc
 )
 
 add_litex_test(
-  NAME minilitex_ddr_arty_a7
+  NAME linux_arty_100t
   LITEX_DIR arty_a7_soc
   LITEX_BOARD a7-100
   LITEX_SOURCES ${SOURCES}
-  EXTERNAL_SOURCES ${VEXRISCV}
+  EXTERNAL_SOURCES ${VEXRISCV_LINUX}
   BOARD arty100t-full
-  GENERATE_SCRIPT ${GENERATE_LITEX}
+  GENERATE_SCRIPT ${GENERATE_LINUX_LITEX}
   FIXUP_SCRIPT ${FIXUP_XDC}
-  FLAGS
-    --integrated-rom-size 0x10000
-    --uart-baudrate 1000000
-    --with-ram
   USE_XDC
   VIVADO_XDC arty_clocks.xdc
+  # FIXME: Certain BRAMs do have issues with the bittools regarding the
+  # INIT configuration bits: https://github.com/SymbiFlow/prjxray/pull/1335
+  DISABLE_DIFF_TEST
 )
