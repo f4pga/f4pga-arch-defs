@@ -3108,16 +3108,8 @@ module IDDR_2CLK (
 
   end endgenerate
 
-  parameter _TECHMAP_CONSTMSK_D_ = 0;
-  parameter _TECHMAP_CONSTVAL_D_ = 0;
-
-  localparam [0:0] INV_D = (
-      _TECHMAP_CONSTMSK_D_ == 1 &&
-      _TECHMAP_CONSTVAL_D_ == 0 &&
-      IS_D_INVERTED == 0);
-  
   IDDR_VPR #(
-    .ZINV_D         (!IS_D_INVERTED ^ INV_D),
+    .ZINV_D         (!IS_D_INVERTED),
     .ZINV_C         (!IS_C_INVERTED),
     .SRTYPE_SYNC    (SRTYPE == "SYNC"),
     .SAME_EDGE      (DDR_CLK_EDGE == "SAME_EDGE"),
@@ -3134,7 +3126,7 @@ module IDDR_2CLK (
     .CKB (CB),
     .CE  (CE),
     .SR  (SR),
-    .D   (D ^ INV_D),
+    .D   (D),
     .Q1  (Q1),
     .Q2  (Q2)
   );
