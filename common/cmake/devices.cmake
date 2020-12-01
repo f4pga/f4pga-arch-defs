@@ -1457,11 +1457,13 @@ function(ADD_FPGA_TARGET)
   endif()
 
   set(SDC_FILE "")
+  set(SDC_DEPS "")
   if(NOT "${ADD_FPGA_TARGET_INPUT_XDC_FILE}" STREQUAL "")
     append_file_dependency(VPR_DEPS ${OUT_SDC_REL})
     get_file_location(SDC_LOCATION ${OUT_SDC_REL})
     set(SDC_ARG --sdc_file ${SDC_LOCATION})
     set(SDC_FILE ${SDC_LOCATION})
+    set(SDC_DEPS ${OUT_SDC_REL})
   endif()
 
   if(NOT "${ADD_FPGA_TARGET_INPUT_SDC_FILE}" STREQUAL "")
@@ -1469,14 +1471,13 @@ function(ADD_FPGA_TARGET)
     get_file_location(SDC_LOCATION ${ADD_FPGA_TARGET_INPUT_SDC_FILE})
     set(SDC_ARG --sdc_file ${SDC_LOCATION})
     set(SDC_FILE ${SDC_LOCATION})
+    set(SDC_DEPS ${ADD_FPGA_TARGET_INPUT_SDC_FILE})
   endif()
 
   if (${ADD_FPGA_TARGET_INSTALL_CIRCUIT})
-    add_custom_target(
-      "INSTALL_${NAME}_CIRCUIT"
-      ALL
-      DEPENDS ${OUT_EBLIF}
-    )
+    set(INSTALL_DEPS "")
+    append_file_dependency(INSTALL_DEPS ${OUT_EBLIF_REL})
+
     install(
       FILES ${OUT_EBLIF}
       RENAME ${NAME}.eblif
@@ -1489,7 +1490,14 @@ function(ADD_FPGA_TARGET)
         RENAME ${NAME}.sdc
         DESTINATION "benchmarks/sdc"
       )
+      append_file_dependency(INSTALL_DEPS ${SDC_DEPS})
     endif()
+    
+    add_custom_target(
+      "INSTALL_${NAME}_CIRCUIT"
+      ALL
+      DEPENDS ${INSTALL_DEPS}
+    )
   endif()
 
   # Generate routing and generate HLC.
