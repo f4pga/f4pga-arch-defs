@@ -25,7 +25,3 @@ dependencies:
   - pip
   - pip:
     - -r file:requirements.txt
-    # Ibex dependencies
-    - git+https://github.com/lowRISC/edalize.git@ot
-    - git+https://github.com/lowRISC/fusesoc.git@ot
-    - mako
