@@ -73,8 +73,8 @@ function(ADD_LITEX_TEST)
     OUTPUT ${LITEX_SOURCES}
     DEPENDS ${PYTHON3} ${DEPS}
     COMMAND
-      ${CMAKE_COMMAND} -E env PYTHON=${PYTHON3}
-      ${PYTHON3} ${GENERATE_SCRIPT} --board ${LITEX_BOARD} --builddir ${LITEX_DIR} --integrated-rom-size 0x10000 --uart-baudrate 1000000 ${FLAGS}
+    ${CMAKE_COMMAND} -E env PYTHON=${PYTHON3}
+      ${PYTHON3} ${GENERATE_SCRIPT} --board ${LITEX_BOARD} --builddir ${LITEX_DIR} ${FLAGS}
     COMMAND
       ${PYTHON3} ${FIXUP_SCRIPT} --xdc ${LITEX_GATEWARE}/top.xdc
   )
