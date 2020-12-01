@@ -45,10 +45,8 @@ echo "----------------------------------------"
 (
 	rm -rf build
 	du -ah install
-	pushd install
 	export GIT_HASH=$(git rev-parse --short HEAD)
 	tar cfJv symbiflow-arch-defs-install-${GIT_HASH}.tar.xz -C install bin share environment.yml
 	tar cfJv symbiflow-arch-defs-benchmarks-${GIT_HASH}.tar.xz -C install benchmarks
-	popd
 )
 echo "----------------------------------------"
