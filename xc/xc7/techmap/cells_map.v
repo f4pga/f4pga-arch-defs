@@ -3112,7 +3112,7 @@ module IDDR_2CLK (
     .ZINV_D         (!IS_D_INVERTED),
     .ZINV_C         (!IS_C_INVERTED),
     .SRTYPE_SYNC    (SRTYPE == "SYNC"),
-    .SAME_EDGE      (DDR_CLK_EDGE != "OPPOSITE_EDGE"),
+    .SAME_EDGE      (DDR_CLK_EDGE == "SAME_EDGE"),
     .OPPOSITE_EDGE  (DDR_CLK_EDGE == "OPPOSITE_EDGE"),
     .ZINIT_Q1       (!INIT_Q1),
     .ZINIT_Q2       (!INIT_Q2),
@@ -3215,26 +3215,50 @@ module ODDR (
     assign SR = 1'bx;
     localparam SRVAL = 1'bx;
 
-    error Cannot_have_both_S_and_R_connected();
+    $error("Both S and R cannot be used simultaneously");
+  end endgenerate
+
+  parameter _TECHMAP_CONSTMSK_D1_ = 0;
+  parameter _TECHMAP_CONSTVAL_D1_ = 0;
+  parameter _TECHMAP_CONSTMSK_D2_ = 0;
+  parameter _TECHMAP_CONSTVAL_D2_ = 0;
+
+  generate if (_TECHMAP_CONSTMSK_D1_ == 1) begin
+    localparam ZINV_D1 = _TECHMAP_CONSTVAL_D1_ ^ IS_D1_INVERTED;
+    wire d1 = 1'b1;
+  end else if (_TECHMAP_CONSTVAL_D1_ == 0) begin
+    localparam ZINV_D1 = IS_D1_INVERTED;
+    wire d1 = 1'b1;
+  end else begin
+    localparam ZINV_D1 = !IS_D1_INVERTED;
+    wire d1 = D1;
+  end endgenerate
+
+  generate if (_TECHMAP_CONSTMSK_D2_ == 1) begin
+    localparam ZINV_D2 = _TECHMAP_CONSTVAL_D2_ ^ IS_D2_INVERTED;
+    wire d2 = 1'b1;
+  end else if (_TECHMAP_CONSTVAL_D2_ == 0) begin
+    localparam ZINV_D2 = IS_D2_INVERTED;
+    wire d2 = 1'b1;
+  end else begin
+    localparam ZINV_D2 = !IS_D2_INVERTED;
+    wire d2 = D2;
   end endgenerate
 
   ODDR_VPR # (
     .ZINV_CLK       (!IS_C_INVERTED),
-    .ZINV_D1        (!IS_D1_INVERTED),
-    .ZINV_D1        (!IS_D2_INVERTED),
-    .INV_D1         ( IS_D1_INVERTED),
-    .INV_D1         ( IS_D2_INVERTED),
+    .ZINV_D1        (ZINV_D1),
+    .ZINV_D2        (ZINV_D2),
     .SRTYPE_SYNC    ( SRTYPE == "SYNC"),
     .SAME_EDGE      ( (DDR_CLK_EDGE != "OPPOSITE_EDGE") ^ IS_C_INVERTED),
     .ZINIT_Q        (!INIT),
     .ZSRVAL_Q       (!SRVAL)
-
   ) _TECHMAP_REPLACE_ (
     .CK (C),
     .CE (CE),
     .SR (SR),
-    .D1 (D1),
-    .D2 (D2),
+    .D1 (d1),
+    .D2 (d2),
     .Q  (Q)
   );
 
