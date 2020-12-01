@@ -34,6 +34,7 @@ function(COMMON_VIVADO_TARGETS)
   )
 
   get_target_property_required(PYTHON3 env PYTHON3)
+  get_target_property_required(BITREAD env BITREAD)
 
   set(NAME ${COMMON_VIVADO_TARGETS_NAME})
   set(WORK_DIR ${COMMON_VIVADO_TARGETS_WORK_DIR})
@@ -111,7 +112,7 @@ function(COMMON_VIVADO_TARGETS)
         ${PYTHON3} ${PRJRAY_DIR}/utils/bit2fasm.py
           --part ${PART}
           --db-root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}
-          --bitread $<TARGET_FILE:bitread>
+          --bitread ${BITREAD}
           --verbose
           ${CMAKE_CURRENT_BINARY_DIR}/${WORK_DIR}/design_${NAME}.bit
           > ${CMAKE_CURRENT_BINARY_DIR}/${WORK_DIR}/design_${NAME}.bit.fasm
@@ -579,6 +580,8 @@ function(CREATE_DCP_BY_INTERCHANGE)
   set(NAME ${CREATE_DCP_NAME})
   set(WORK_DIR ${CREATE_DCP_WORK_DIR})
 
+  get_target_property_required(BITREAD env BITREAD)
+
   get_target_property_required(BITSTREAM ${CREATE_DCP_PARENT_NAME} BIT)
   get_target_property_required(BIT_VERILOG ${CREATE_DCP_PARENT_NAME} BIT_V)
   get_target_property_required(BOARD ${CREATE_DCP_PARENT_NAME} BOARD)
@@ -672,7 +675,7 @@ function(CREATE_DCP_BY_INTERCHANGE)
         ${PYTHON3} ${PRJRAY_DIR}/utils/bit2fasm.py
           --part ${PART}
           --db-root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}
-          --bitread $<TARGET_FILE:bitread>
+          --bitread ${BITREAD}
           --verbose
           ${CMAKE_CURRENT_BINARY_DIR}/${WORK_DIR}/${NAME}.bit
           > ${CMAKE_CURRENT_BINARY_DIR}/${WORK_DIR}/${NAME}.bit.fasm
