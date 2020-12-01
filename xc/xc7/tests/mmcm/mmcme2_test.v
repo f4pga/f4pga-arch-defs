@@ -12,7 +12,7 @@ input  wire         I_PWRDWN,
 input  wire         I_CLKINSEL,
 output wire         O_LOCKED,
 
-output wire [6:0]   O_CNT
+output wire [5:0]   O_CNT
 );
 
 // "INTERNAL" - MMCM's internal feedback
@@ -21,8 +21,8 @@ output wire [6:0]   O_CNT
 parameter FEEDBACK = "INTERNAL";
 
 // CLKFBOUT multiplier and CLKOUT0 divider (can be fractional)
-parameter CLKFBOUT_MULT_F  = 16.000;
-parameter CLKOUT0_DIVIDE_F = 16.000;
+parameter CLKFBOUT_MULT_F  = 12.000;
+parameter CLKOUT0_DIVIDE_F = 12.000;
 
 // ============================================================================
 // Input clock divider (to get different clkins)
@@ -78,9 +78,9 @@ MMCME2_ADV #
 .CLKOUT5_DUTY_CYCLE (0.50),
 .CLKOUT5_PHASE      (135.0),
 
-.CLKOUT6_DIVIDE     (112),
+.CLKOUT6_DIVIDE     (1),
 .CLKOUT6_DUTY_CYCLE (0.50),
-.CLKOUT6_PHASE      (270.0),
+.CLKOUT6_PHASE      (0.0),
 
 .STARTUP_WAIT       ("FALSE")
 )
@@ -103,7 +103,7 @@ mmcm
 .CLKOUT3    (clk[3]),
 .CLKOUT4    (clk[4]),
 .CLKOUT5    (clk[5]),
-.CLKOUT6    (clk[6])
+.CLKOUT6    () // Deliberately disconnected
 );
 
 generate if (FEEDBACK == "INTERNAL") begin
@@ -124,7 +124,7 @@ end endgenerate
 wire rst = RST || !O_LOCKED;
 
 genvar i;
-generate for (i=0; i<7; i=i+1) begin
+generate for (i=0; i<6; i=i+1) begin
   BUFG bufg(.I(clk[i]), .O(gclk[i]));
 
   reg [23:0] counter;

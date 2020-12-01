@@ -35,11 +35,17 @@ foreach(VERILOG_FILE ${VERILOG_FILES})
     SOURCES ${VERILOG_FILE}
     INPUT_IO_FILE ${COMMON}/basys3_bottom.pcf
     EXPLICIT_ADD_FILE_TARGET
-    # TODO: https://github.com/SymbiFlow/symbiflow-xc-fasm2bels/issues/34
-    DISABLE_DIFF_TEST
+    )
+
+  add_vivado_target(
+    NAME ${DESIGN}_vivado
+    PARENT_NAME ${DESIGN}
+    CLOCK_PINS clk
+    CLOCK_PERIODS 10.0
     )
 
   add_dependencies(all_xc7_mmcm_random_case ${DESIGN}_bit)
+  add_dependencies(all_xc7_tests ${DESIGN}_vivado_diff_fasm)
 
 endforeach()
 
@@ -88,8 +94,6 @@ add_vivado_target(
   PARENT_NAME mmcm_int_basys3
   CLOCK_PINS clk
   CLOCK_PERIODS 10.0
-  # TODO: https://github.com/SymbiFlow/symbiflow-xc-fasm2bels/issues/34
-  DISABLE_DIFF_TEST
   )
 
 add_vivado_target(
@@ -97,8 +101,6 @@ add_vivado_target(
   PARENT_NAME mmcm_buf_basys3
   CLOCK_PINS clk
   CLOCK_PERIODS 10.0
-  # TODO: https://github.com/SymbiFlow/symbiflow-xc-fasm2bels/issues/34
-  DISABLE_DIFF_TEST
   )
 
 add_vivado_target(
@@ -106,8 +108,6 @@ add_vivado_target(
   PARENT_NAME mmcm_ext_basys3
   CLOCK_PINS clk
   CLOCK_PERIODS 10.0
-  # TODO: https://github.com/SymbiFlow/symbiflow-xc-fasm2bels/issues/34
-  DISABLE_DIFF_TEST
   )
 
 add_vivado_target(
@@ -115,14 +115,13 @@ add_vivado_target(
   PARENT_NAME mmcm_int_frac_basys3
   CLOCK_PINS clk
   CLOCK_PERIODS 10.0
-  # TODO: https://github.com/SymbiFlow/symbiflow-xc-fasm2bels/issues/34
-  DISABLE_DIFF_TEST
   )
 
 
 add_dependencies(all_xc7_tests
-  mmcm_int_basys3
-  mmcm_buf_basys3
-#  mmcm_ext_basys3_full  # Vivado import crashes as the feedback net does not have the CLOCK_DEDICATED_ROUTE=FALSE set.
+  mmcm_int_basys3_vivado_diff_fasm
+  mmcm_int_frac_basys3_vivado_diff_fasm
+  mmcm_buf_basys3_vivado_diff_fasm
+  mmcm_ext_basys3_vivado_diff_fasm  # Vivado import crashes as the feedback net does not have the CLOCK_DEDICATED_ROUTE=FALSE set.
 )
 
