@@ -19,6 +19,9 @@ textx
 tinyfpgab
 tinyprog
 yapf==0.26.0
+git+https://github.com/SymbiFlow/symbiflow-rr-graph.git#egg=rr-graph
+git+https://github.com/SymbiFlow/python-fpga-interchange.git#egg=python-fpga-interchange
+-e third_party/prjxray
 -e third_party/fasm
 -e third_party/xc-fasm
 -e third_party/python-sdf-timing
@@ -33,3 +36,7 @@ yapf==0.26.0
 -e third_party/migen
 -e third_party/pythondata-cpu-vexriscv
 -e third_party/pythondata-software-compiler_rt
+# Ibex dependencies
+git+https://github.com/lowRISC/edalize.git@ot
+git+https://github.com/lowRISC/fusesoc.git@ot
+mako
