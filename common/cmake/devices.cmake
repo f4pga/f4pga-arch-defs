@@ -1474,32 +1474,6 @@ function(ADD_FPGA_TARGET)
     set(SDC_DEPS ${ADD_FPGA_TARGET_INPUT_SDC_FILE})
   endif()
 
-  if (${ADD_FPGA_TARGET_INSTALL_CIRCUIT})
-    set(INSTALL_DEPS "")
-    append_file_dependency(INSTALL_DEPS ${OUT_EBLIF_REL})
-
-    install(
-      FILES ${OUT_EBLIF}
-      RENAME ${NAME}.eblif
-      DESTINATION "benchmarks/circuits"
-    )
-
-    if (NOT SDC_FILE STREQUAL "")
-      install(
-        FILES ${SDC_FILE}
-        RENAME ${NAME}.sdc
-        DESTINATION "benchmarks/sdc"
-      )
-      append_file_dependency(INSTALL_DEPS ${SDC_DEPS})
-    endif()
-    
-    add_custom_target(
-      "INSTALL_${NAME}_CIRCUIT"
-      ALL
-      DEPENDS ${INSTALL_DEPS}
-    )
-  endif()
-
   # Generate routing and generate HLC.
   set(OUT_ROUTE ${OUT_LOCAL}/${TOP}.route)
 
@@ -1706,6 +1680,51 @@ function(ADD_FPGA_TARGET)
       set(FIX_CLUSTERS_ARG --fix_clusters ${OUT_IO})
     endif()
 
+  endif()
+
+  if (${ADD_FPGA_TARGET_INSTALL_CIRCUIT})
+    set(INSTALL_DEPS "")
+
+    # Install circuit
+    append_file_dependency(INSTALL_DEPS ${OUT_EBLIF_REL})
+
+    install(
+      FILES ${OUT_EBLIF}
+      RENAME ${NAME}.eblif
+      DESTINATION "benchmarks/circuits"
+    )
+
+    # Install place constraints
+    set(CONSTR_FILE "")
+    if (NOT ${NO_PLACE_CONSTR})
+      append_file_dependency(INSTALL_DEPS ${OUT_CONSTR_REL})
+      set(CONSTR_FILE ${OUT_CONSTR})
+    else()
+      append_file_dependency(INSTALL_DEPS ${OUT_IO_REL})
+      set(CONSTR_FILE ${OUT_IO})
+    endif()
+
+    install(
+      FILES ${CONSTR_FILE}
+      RENAME ${NAME}.place
+      DESTINATION "benchmarks/place_constr"
+    )
+
+    # Install SDC constraints
+    if (NOT SDC_FILE STREQUAL "")
+      install(
+        FILES ${SDC_FILE}
+        RENAME ${NAME}.sdc
+        DESTINATION "benchmarks/sdc"
+      )
+      append_file_dependency(INSTALL_DEPS ${SDC_DEPS})
+    endif()
+
+    add_custom_target(
+      "INSTALL_${NAME}_CIRCUIT"
+      ALL
+      DEPENDS ${INSTALL_DEPS}
+    )
   endif()
 
   # Generate placement.
