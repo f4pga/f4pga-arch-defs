@@ -34,8 +34,8 @@ git+https://github.com/SymbiFlow/python-fpga-interchange.git#egg=python-fpga-int
 -e third_party/liteeth
 -e third_party/liteiclink
 -e third_party/migen
--e third_party/pythondata-cpu-vexriscv
--e third_party/pythondata-software-compiler_rt
+third_party/pythondata-cpu-vexriscv
+third_party/pythondata-software-compiler_rt
 # Ibex dependencies
 git+https://github.com/lowRISC/edalize.git@ot
 git+https://github.com/lowRISC/fusesoc.git@ot
