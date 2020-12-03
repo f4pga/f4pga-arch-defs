@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import re
 from os import environ, path
 from github import Github
 from stdm import get_latest_artifact_url
@@ -21,16 +22,23 @@ if status.state != 'success':
 
 artifacts, _ = get_latest_artifact_url()
 
+PACKAGE_RE = re.compile("symbiflow-arch-defs-([a-zA-Z0-9_-]+)-([a-z0-9])")
+
 for artifact in artifacts:
     name = artifact["name"].split(".")[0]
     url = artifact["url"]
 
-    if name.startswith("symbiflow-arch-defs-install"):
+    m = PACKAGE_RE.match(name)
+    assert m, "Package name not recognized! {}".format(name)
+
+    package_name = m.group(1)
+
+    if package_name == "install":
         file_name = "symbiflow-toolchain-latest"
-    elif name.startswith("symbiflow-arch-defs-benchmarks"):
+    elif package_name == "benchmarks":
         file_name = "symbiflow-benchmarks-latest"
     else:
-        file_name = name + "-latest"
+        file_name = "symbiflow-{}-latest".format(package_name)
 
     with open(path.join("install", file_name), "w") as f:
         f.write(url)
