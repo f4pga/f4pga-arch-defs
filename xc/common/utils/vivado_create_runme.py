@@ -14,7 +14,7 @@ synth_design -top {top}
 
 write_checkpoint -force design_{name}_pre_source.dcp
 
-read_xdc {bit_xdc}
+read_xdc -no_add {bit_xdc}
 """.format(
             name=args.name,
             bit_v=args.verilog,

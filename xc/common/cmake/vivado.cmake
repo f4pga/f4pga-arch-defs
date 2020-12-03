@@ -628,7 +628,7 @@ function(CREATE_DCP_BY_INTERCHANGE)
   set(XDC_EXTRA_ARGS "")
   if(NOT "${CREATE_DCP_XDC}" STREQUAL "")
       get_file_location(XDC_LOCATION ${CREATE_DCP_XDC})
-      set(XDC_EXTRA_ARGS "source ${XDC_LOCATION}")
+      set(XDC_EXTRA_ARGS "read_xdc -no_add ${XDC_LOCATION}")
       append_file_dependency(RUNME_DEPS ${CREATE_DCP_XDC})
   endif()
 
