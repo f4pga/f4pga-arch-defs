@@ -52,7 +52,7 @@ echo "----------------------------------------"
 	tar cfJv symbiflow-arch-defs-benchmarks-${GIT_HASH}.tar.xz -C install benchmarks
 	for device in $(ls install/share/symbiflow/arch)
 	do
-		tar cfJv symbiflow-arch-defs-$device-${GITH_HASH}.tar.xz -C install share/symbiflow/arch/$device
+		tar cfJv symbiflow-arch-defs-$device-${GIT_HASH}.tar.xz -C install share/symbiflow/arch/$device
 	done
 )
 echo "----------------------------------------"
