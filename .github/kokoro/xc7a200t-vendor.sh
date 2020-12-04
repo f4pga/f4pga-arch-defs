@@ -13,11 +13,20 @@ source third_party/prjxray/.github/kokoro/steps/xilinx.sh
 source third_party/prjuray/.github/kokoro/steps/xilinx.sh
 echo
 echo "========================================"
-echo "Vivado version"
+echo "prjxray Vivado version"
 echo "----------------------------------------"
 (
     source third_party/prjxray/utils/environment.sh
     $XRAY_VIVADO -version
+)
+echo "----------------------------------------"
+echo
+echo "========================================"
+echo "prjuray Vivado version"
+echo "----------------------------------------"
+(
+    source third_party/prjuray/utils/environment.sh
+    $URAY_VIVADO -version
 )
 echo "----------------------------------------"
 
