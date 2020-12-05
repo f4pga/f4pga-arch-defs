@@ -28,3 +28,10 @@ echo "Simultaneous runs ($MEM_PER_RUN GB each): $MEM_CORES"
 export MAX_CORES_NO_MIN=$(($MEM_CORES>$CORES?$CORES:$MEM_CORES))
 export MAX_CORES=$(($MAX_CORES_NO_MIN<1?1:$MAX_CORES_NO_MIN))
 echo "Max cores: $MAX_CORES"
+
+echo
+echo "========================================"
+echo "Disk usage"
+echo "----------------------------------------"
+df -h
+echo "----------------------------------------"
