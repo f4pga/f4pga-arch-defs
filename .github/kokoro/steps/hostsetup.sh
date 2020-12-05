@@ -64,6 +64,7 @@ sudo apt-get install -y \
         python3-yaml \
         virtualenv \
         ninja-build \
+        pixz
 
 if [ -z "${BUILD_TOOL}" ]; then
     export BUILD_TOOL=make
