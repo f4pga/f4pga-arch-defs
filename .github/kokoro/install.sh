@@ -54,6 +54,7 @@ echo "----------------------------------------"
 	do
 		tar -I "pixz" -cvf symbiflow-arch-defs-$device-${GIT_HASH}.tar.xz -C install share/symbiflow/arch/$device
 	done
+	rm -rf install
 )
 echo "----------------------------------------"
 
