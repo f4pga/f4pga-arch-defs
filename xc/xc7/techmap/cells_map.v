@@ -4312,7 +4312,7 @@ input signed [31:0] phase       // Phase is given in degrees (-360,000 to 360,00
   reg [7:0] even_part_low;
 
   reg [7:0] odd;
-  reg [7:0] odd_and_frac;
+  reg [9:0] odd_and_frac;
 
   reg [7:0] lt_frac;
   reg [7:0] ht_frac;
@@ -4363,7 +4363,7 @@ input signed [31:0] phase       // Phase is given in degrees (-360,000 to 360,00
     2'b11, pm_fall_frac_filtered[2:0], wf_fall_frac,
     // CLKREG2: RESERVED[0:0], FRAC[2:0], FRAC_EN[0:0], FRAC_WF_R[0:0], MX[1:0], EDGE, NO_COUNT, DELAY_TIME[5:0]
     1'b0, divide_frac[2:0], 1'b1, wf_rise_frac, 4'h0, dt[5:0],
-    // CLKREG1: PHASE_MUX[3:0], RESERVED, HIGH_TIME[5:0], LOW_TIME[5:0]
+    // CLKREG1: PHASE_MUX[2:0], RESERVED, HIGH_TIME[5:0], LOW_TIME[5:0]
     pm_rise_frac_filtered[2:0], 1'b0, ht_frac[5:0], lt_frac[5:0]
   };
 
@@ -5003,12 +5003,12 @@ output [15:0] DO
 
   // Compute PLL's registers content
   //
-  // When no fractional divider is enabled use the *_CALC content directly.
-  // For fractional divider use *_FRAC_CALC content but taje the "EDGE" bit
+  // When no fractional divider is enabled use the *_CALC content.
+  // For fractional divider use *_FRAC_CALC content but tak the "EDGE" bit
   // from *_CALC. This is not documented in XAPP888 but has been observed in
   // vendor tools.
   //
-  // Additionally part of *_FRAC_CALC data needs to end up in bits of
+  // Additional part of *_FRAC_CALC data needs to end up in bits of
   // CLKOUT5_REGS and CLKOUT6_REGS.
   localparam CLKFBOUT_REGS = (CLKFBOUT_FRAC_EN) ? (CLKFBOUT_FRAC_CALC[31:0] | (CLKFBOUT_CALC[23] << 23)): CLKFBOUT_CALC;
   localparam DIVCLK_REGS   = mmcm_clkregs(DIVCLK_DIVIDE, 50000, 0);
@@ -5018,6 +5018,7 @@ output [15:0] DO
   localparam CLKOUT2_REGS  = mmcm_clkregs(CLKOUT2_DIVIDE, CLKOUT2_DUTY_CYCLE, CLKOUT2_PHASE);
   localparam CLKOUT3_REGS  = mmcm_clkregs(CLKOUT3_DIVIDE, CLKOUT3_DUTY_CYCLE, CLKOUT3_PHASE);
   localparam CLKOUT4_REGS  = mmcm_clkregs(CLKOUT4_DIVIDE, CLKOUT4_DUTY_CYCLE, CLKOUT4_PHASE);
+
   localparam CLKOUT5_REGS  = (CLKOUT0_FRAC_EN)  ? {CLKOUT5_CALC[31:30], CLKOUT0_FRAC_CALC[35:32],  CLKOUT5_CALC[25:0]} : CLKOUT5_CALC;
   localparam CLKOUT6_REGS  = (CLKFBOUT_FRAC_EN) ? {CLKOUT6_CALC[31:30], CLKFBOUT_FRAC_CALC[35:32], CLKOUT6_CALC[25:0]} : CLKOUT6_CALC;
 
