@@ -3,7 +3,7 @@ set(MMCM_DESIGN_COUNT 10)
 set(MMCM_DESIGN_NAME "mmcm_random_case")
 set(MMCM_DESIGN_TEMPLATE "mmcm_random_case.tpl")
 
-add_custom_target(all_xc7_mmcm_random_case)
+add_custom_target(all_xc7_mmcm_vivado_diff_fasm)
 
 # Generate designs
 set(VERILOG_FILES )
@@ -20,7 +20,6 @@ add_custom_command(
     --template ${CMAKE_CURRENT_SOURCE_DIR}/${MMCM_DESIGN_TEMPLATE}
     --output ${MMCM_DESIGN_NAME}{:d}.v
     --count ${MMCM_DESIGN_COUNT}
-    --vpr
   DEPENDS ${PYTHON3} ${PYTHON3_TARGET} ${MMCM_GENERATE_SCRIPT} ${MMCM_DESIGN_TEMPLATE}
 )
 
@@ -44,8 +43,7 @@ foreach(VERILOG_FILE ${VERILOG_FILES})
     CLOCK_PERIODS 10.0
     )
 
-  add_dependencies(all_xc7_mmcm_random_case ${DESIGN}_bit)
-  add_dependencies(all_xc7_tests ${DESIGN}_vivado_diff_fasm)
+  add_dependencies(all_xc7_mmcm_vivado_diff_fasm ${DESIGN}_vivado_diff_fasm)
 
 endforeach()
 
@@ -118,10 +116,13 @@ add_vivado_target(
   )
 
 
-add_dependencies(all_xc7_tests
+add_dependencies(all_xc7_mmcm_vivado_diff_fasm
   mmcm_int_basys3_vivado_diff_fasm
   mmcm_int_frac_basys3_vivado_diff_fasm
   mmcm_buf_basys3_vivado_diff_fasm
   mmcm_ext_basys3_vivado_diff_fasm  # Vivado import crashes as the feedback net does not have the CLOCK_DEDICATED_ROUTE=FALSE set.
 )
 
+add_dependencies(all_xc7_tests
+  all_xc7_mmcm_vivado_diff_fasm
+)
