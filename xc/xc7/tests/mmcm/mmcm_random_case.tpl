@@ -63,9 +63,11 @@ MMCME2_ADV #
 
 .DIVCLK_DIVIDE      ({{ divclk_divide }}),
 
+{%- if clkout[0].enabled %}
 .CLKOUT0_DIVIDE_F   ({{ clkout[0].divide|round(3) }}),
 .CLKOUT0_DUTY_CYCLE ({{ clkout[0].duty  |round(3) }}),
 .CLKOUT0_PHASE      ({{ clkout[0].phase |round(3) }}),
+{%- endif %}
 
 {%- for clk in clkout %}
 {%- if clk.enabled and clk.index != 0 %}
