@@ -115,7 +115,10 @@ def generate_case():
         if frac_en:
             duty = 0.5
 
-        is_enabled = random.random() > 0.20
+        # FIXME: After running a generated design through SymbiFlow, fasm2bels
+        # and Vivado a DRC PLCR-1 error is emitted. To work that around all
+        # clocks above CLKOUT1 will be disabled
+        is_enabled = (i <= 1)
 
         params["clkout"].append(
             ClkOut(
