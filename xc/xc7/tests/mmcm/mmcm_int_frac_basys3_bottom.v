@@ -39,8 +39,8 @@ wire RST = rst_sr[0];
 mmcme2_test #
 (
 .FEEDBACK           ("INTERNAL"),
-.CLKFBOUT_MULT_F    (16.750),
-.CLKOUT0_DIVIDE_F   (16.250)
+.CLKFBOUT_MULT_F    (10.750),
+.CLKOUT0_DIVIDE_F   (10.250)
 )
 mmcme2_test
 (
