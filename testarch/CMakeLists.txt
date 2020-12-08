@@ -6,6 +6,7 @@ define_arch(
   ARCH testarch
   YOSYS_SYNTH_SCRIPT ${symbiflow-arch-defs_SOURCE_DIR}/testarch/yosys/synth.tcl
   YOSYS_CONV_SCRIPT ${symbiflow-arch-defs_SOURCE_DIR}/testarch/yosys/conv.tcl
+  YOSYS_TECHMAP ${symbiflow-arch-defs_SOURCE_DIR}/testarch/techmap
   DEVICE_FULL_TEMPLATE \${DEVICE}
   VPR_ARCH_ARGS " \
     --router_init_wirelength_abort_threshold 20 \
