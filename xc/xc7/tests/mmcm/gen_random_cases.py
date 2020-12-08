@@ -70,7 +70,7 @@ def generate_case():
 
         # Integer divider ranges from 2 to 128
         else:
-            divide = random.randint(1, 128)
+            divide = random.randint(2, 128)
 
         phase = random.uniform(0.0, +180.0)
 
@@ -115,10 +115,12 @@ def generate_case():
         if frac_en:
             duty = 0.5
 
+        is_enabled = random.random() > 0.20
+
         params["clkout"].append(
             ClkOut(
                 index=i,
-                enabled=random.random() > 0.20,
+                enabled=is_enabled,
                 divide=divide,
                 duty=duty,
                 phase=phase
@@ -154,35 +156,6 @@ def validate_params(params):
     return True
 
 
-def make_integers(params):
-    """
-    Convert fractional parameter to integers by multiplying by the required
-    constant and rounding.
-
-    - Multipliers, dividers and phases need to be multiplied by 1000
-
-    - Duty cycle needs to be expressed in % times 1000 hence the ratio is
-      multiplied by 100000
-
-    """
-
-    for key in ["clkfbout_mult", "clkfbout_phase"]:
-        params[key] = int(params[key] * 1000)
-
-    for i, clkout in enumerate(params["clkout"]):
-        fields = clkout._asdict()
-
-        if i == 0:
-            fields["divide"] = int(fields["divide"] * 1000)
-
-        fields["duty"] = int(fields["duty"] * 100000)
-        fields["phase"] = int(fields["phase"] * 1000)
-
-        params["clkout"][i] = ClkOut(**fields)
-
-    return params
-
-
 # =============================================================================
 
 
@@ -209,12 +182,6 @@ def main():
         "--count", type=int, default=10, help="Number of cases to generate"
     )
     parser.add_argument(
-        "--vpr",
-        action="store_true",
-        help="Convert fractional MMCM parameters to integers"
-        " (as required by the techmap for VPR)"
-    )
-    parser.add_argument(
         "--seed", type=int, default=1, help="Random generator seed"
     )
 
@@ -234,10 +201,6 @@ def main():
             params = generate_case()
             if validate_params(params):
                 break
-
-        # Convert floating point parameters to intergers
-        if args.vpr:
-            params = make_integers(params)
 
         ks = sorted(list(params.keys()))
         for k in ks:
