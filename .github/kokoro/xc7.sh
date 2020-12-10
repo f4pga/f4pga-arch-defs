@@ -13,15 +13,24 @@ echo
 echo "========================================"
 echo "Running xc7 tests (make all_xc7)"
 echo "----------------------------------------"
+set +e
 (
+	set -e
 	source env/conda/bin/activate symbiflow_arch_def_base
 	pushd build
 	export VPR_NUM_WORKERS=${CORES}
+	set +e
 	ninja -j${MAX_CORES} all_xc7
+	BUILD_RESULT=$?
 	ninja print_qor > xc7_qor.csv
 	popd
+	exit ${BUILD_RESULT}
 )
+BUILD_RESULT=$?
+set -e
+
 echo "----------------------------------------"
 
 source ${SCRIPT_DIR}/steps/stop_monitor.sh
 source ${SCRIPT_DIR}/package_results.sh
+exit $BUILD_RESULT
