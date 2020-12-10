@@ -3252,6 +3252,8 @@ module ODDR (
 
   ODDR_VPR # (
     .ZINV_CLK       (!IS_C_INVERTED),
+    .INV_D1         (!ZINV_D1),
+    .INV_D2         (!ZINV_D2),
     .ZINV_D1        (ZINV_D1),
     .ZINV_D2        (ZINV_D2),
     .SRTYPE_SYNC    ( SRTYPE == "SYNC"),
