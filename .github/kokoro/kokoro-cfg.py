@@ -13,6 +13,7 @@ DEFAULT_ARTIFACTS = """\
     regex: "**/*_sv2v.v.log"
     regex: "**/*_qor.csv"
     regex: "**/vivado.log"
+    regex: "**/core"
     regex: "**/*.bit"\
 """
 
