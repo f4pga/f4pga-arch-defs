@@ -49,22 +49,25 @@ sudo apt-get install -y \
         colordiff \
         coreutils \
         curl \
+        default-jre-headless \
         flex \
         git \
         graphviz \
         inkscape \
         jq \
+        libantlr4-runtime-dev \
         make \
+        ninja-build \
         nodejs \
+        pixz \
         psmisc \
         python \
         python3 \
         python3-dev \
         python3-virtualenv \
         python3-yaml \
-        virtualenv \
-        ninja-build \
-        pixz
+        uuid-dev \
+        virtualenv
 
 if [ -z "${BUILD_TOOL}" ]; then
     export BUILD_TOOL=make
