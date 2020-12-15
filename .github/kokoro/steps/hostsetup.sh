@@ -55,7 +55,6 @@ sudo apt-get install -y \
         graphviz \
         inkscape \
         jq \
-        libantlr4-runtime-dev \
         make \
         ninja-build \
         nodejs \

@@ -29,5 +29,6 @@ cd github/$KOKORO_DIR/
 # Run the common setup steps
 source ./.github/kokoro/steps/movehome.sh
 source ./.github/kokoro/steps/hostsetup.sh
+source ./.github/kokoro/steps/install_antlr4_runtime.sh
 source ./.github/kokoro/steps/hostinfo.sh
 source ./.github/kokoro/steps/git.sh
