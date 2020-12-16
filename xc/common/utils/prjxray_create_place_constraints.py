@@ -786,9 +786,9 @@ def main():
 
     idelayctrl_instances = place_constraints.get_used_instances("IDELAYCTRL")
 
-    assert len(idelayctrl_cmts) == len(
+    assert len(idelayctrl_cmts) <= len(
         idelayctrl_instances
-    ), "The number of IDELAYCTRL blocks and IO banks with IDELAYs used do not match."
+    ), "Not enough IDELAYCTRL blocks to cover all the IO banks with IDELAYs."
 
     idelayctrl_sites = dict()
     for site_name, _, clk_region in vpr_grid.get_site_type_dict(

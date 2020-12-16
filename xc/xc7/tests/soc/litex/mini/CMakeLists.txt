@@ -2,8 +2,7 @@ add_file_target(FILE arty_clocks.xdc)
 
 set(SOURCES
   top.v
-  top.pcf
-  top.sdc
+  top.xdc
   mem.init
   mem_1.init
   mem_2.init
@@ -18,10 +17,10 @@ add_litex_test(
   BOARD arty-full
   GENERATE_SCRIPT ${GENERATE_LITEX}
   FIXUP_SCRIPT ${FIXUP_XDC}
+  USE_XDC
   FLAGS
     --integrated-rom-size 0x10000
     --uart-baudrate 1000000
-    --toolchain symbiflow
   VIVADO_XDC arty_clocks.xdc
 )
 
@@ -34,9 +33,9 @@ add_litex_test(
   BOARD arty100t-full
   GENERATE_SCRIPT ${GENERATE_LITEX}
   FIXUP_SCRIPT ${FIXUP_XDC}
+  USE_XDC
   FLAGS
     --integrated-rom-size 0x10000
     --uart-baudrate 1000000
-    --toolchain symbiflow
   VIVADO_XDC arty_clocks.xdc
 )
