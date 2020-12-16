@@ -30,7 +30,7 @@ DB_FULL = """\
 
 build_file: "symbiflow-arch-defs-%(kokoro_type)s-%(arch)s/.github/kokoro/%(arch)s.sh"
 
-timeout_mins: 4320
+timeout_mins: 1200
 
 action {
   define_artifacts {
