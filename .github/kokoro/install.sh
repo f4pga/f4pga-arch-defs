@@ -46,6 +46,12 @@ echo "Compressing and uploading install dir"
 echo "----------------------------------------"
 (
 	rm -rf build
+
+	# Remove symbolic links and copy content of the linked files
+	for file in $(find install -type l)
+		do cp --remove-destination $(readlink $file) $file
+	done
+
 	du -ah install
 	export GIT_HASH=$(git rev-parse --short HEAD)
 	tar -I "pixz" -cvf symbiflow-arch-defs-install-${GIT_HASH}.tar.xz -C install bin share/symbiflow/techmaps share/symbiflow/scripts environment.yml
