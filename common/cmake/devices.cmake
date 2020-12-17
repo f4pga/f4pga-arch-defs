@@ -1626,6 +1626,12 @@ function(ADD_FPGA_TARGET)
       set(PCF_INPUT_IO_FILE "--pcf ${INPUT_IO_FILE}")
     endif()
 
+    if(NOT ${ADD_FPGA_TARGET_INPUT_XDC_FILE} STREQUAL "")
+      set_target_properties(${NAME} PROPERTIES
+	  INPUT_XDC_FILE ${ADD_FPGA_TARGET_INPUT_XDC_FILE})
+      set(XDC_INPUT_IO_FILE "--xdc ${INPUT_XDC_FILE}")
+    endif()
+
     # Set variables for the string(CONFIGURE) below.
     set(OUT_IO ${OUT_LOCAL}/${TOP}_io.place)
     set(OUT_IO_REL ${OUT_LOCAL_REL}/${TOP}_io.place)
