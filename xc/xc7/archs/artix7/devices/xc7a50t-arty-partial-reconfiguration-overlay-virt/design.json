@@ -1,0 +1,698 @@
+[
+    {
+        "info": {
+            "name": "pr",
+            "GRID_X_MAX": 58,
+            "GRID_X_MIN": 10,
+            "GRID_Y_MAX": 51,
+            "GRID_Y_MIN": 1
+        },
+        "ports": [
+            {
+                "name": "prm_clk",
+                "type": "clk",
+                "node": "CLK_HROW_TOP_R_X60Y130/CLK_HROW_CK_BUFHCLK_L0",
+                "wire": "HCLK_L_X53Y130/HCLK_CK_BUFHCLK0",
+                "pin": "SYN0"
+            },
+            {
+                "name": "prm_rst",
+                "type": "in",
+                "node": "INT_L_X24Y100/WW4BEG0",
+                "pin": "SYN1"
+            },
+            {
+                "name": "wb_adr0",
+                "type": "in",
+                "node": "INT_L_X24Y100/WW4BEG1",
+                "pin": "SYN2"
+            },
+            {
+                "name": "wb_adr1",
+                "type": "in",
+                "node": "INT_L_X24Y100/WW4BEG2",
+                "pin": "SYN3"
+            },
+            {
+                "name": "wb_adr2",
+                "type": "in",
+                "node": "INT_L_X24Y100/WW4BEG3",
+                "pin": "SYN4"
+            },
+            {
+                "name": "wb_adr3",
+                "type": "in",
+                "node": "INT_L_X24Y101/WW4BEG0",
+                "pin": "SYN5"
+            },
+            {
+                "name": "wb_adr4",
+                "type": "in",
+                "node": "INT_L_X24Y101/WW4BEG1",
+                "pin": "SYN6"
+            },
+            {
+                "name": "wb_adr5",
+                "type": "in",
+                "node": "INT_L_X24Y101/WW4BEG2",
+                "pin": "SYN7"
+            },
+            {
+                "name": "wb_adr6",
+                "type": "in",
+                "node": "INT_L_X24Y101/WW4BEG3",
+                "pin": "SYN8"
+            },
+            {
+                "name": "wb_adr7",
+                "type": "in",
+                "node": "INT_L_X24Y102/WW4BEG0",
+                "pin": "SYN9"
+            },
+            {
+                "name": "wb_adr8",
+                "type": "in",
+                "node": "INT_L_X24Y102/WW4BEG1",
+                "pin": "SYN10"
+            },
+            {
+                "name": "wb_adr9",
+                "type": "in",
+                "node": "INT_L_X24Y102/WW4BEG2",
+                "pin": "SYN11"
+            },
+            {
+                "name": "wb_adr10",
+                "type": "in",
+                "node": "INT_L_X24Y102/WW4BEG3",
+                "pin": "SYN12"
+            },
+            {
+                "name": "wb_adr11",
+                "type": "in",
+                "node": "INT_L_X24Y103/WW4BEG0",
+                "pin": "SYN13"
+            },
+            {
+                "name": "wb_adr12",
+                "type": "in",
+                "node": "INT_L_X24Y103/WW4BEG1",
+                "pin": "SYN14"
+            },
+            {
+                "name": "wb_adr13",
+                "type": "in",
+                "node": "INT_L_X24Y103/WW4BEG2",
+                "pin": "SYN15"
+            },
+            {
+                "name": "wb_adr14",
+                "type": "in",
+                "node": "INT_L_X24Y103/WW4BEG3",
+                "pin": "SYN16"
+            },
+            {
+                "name": "wb_adr15",
+                "type": "in",
+                "node": "INT_L_X24Y104/WW4BEG0",
+                "pin": "SYN17"
+            },
+            {
+                "name": "wb_adr16",
+                "type": "in",
+                "node": "INT_L_X24Y104/WW4BEG1",
+                "pin": "SYN18"
+            },
+            {
+                "name": "wb_adr17",
+                "type": "in",
+                "node": "INT_L_X24Y104/WW4BEG2",
+                "pin": "SYN19"
+            },
+            {
+                "name": "wb_adr18",
+                "type": "in",
+                "node": "INT_L_X24Y104/WW4BEG3",
+                "pin": "SYN20"
+            },
+            {
+                "name": "wb_adr19",
+                "type": "in",
+                "node": "INT_L_X24Y105/WW4BEG0",
+                "pin": "SYN21"
+            },
+            {
+                "name": "wb_adr20",
+                "type": "in",
+                "node": "INT_L_X24Y105/WW4BEG1",
+                "pin": "SYN22"
+            },
+            {
+                "name": "wb_adr21",
+                "type": "in",
+                "node": "INT_L_X24Y105/WW4BEG2",
+                "pin": "SYN23"
+            },
+            {
+                "name": "wb_adr22",
+                "type": "in",
+                "node": "INT_L_X24Y105/WW4BEG3",
+                "pin": "SYN24"
+            },
+            {
+                "name": "wb_adr23",
+                "type": "in",
+                "node": "INT_L_X24Y106/WW4BEG0",
+                "pin": "SYN25"
+            },
+            {
+                "name": "wb_adr24",
+                "type": "in",
+                "node": "INT_L_X24Y106/WW4BEG1",
+                "pin": "SYN26"
+            },
+            {
+                "name": "wb_adr25",
+                "type": "in",
+                "node": "INT_L_X24Y106/WW4BEG2",
+                "pin": "SYN27"
+            },
+            {
+                "name": "wb_adr26",
+                "type": "in",
+                "node": "INT_L_X24Y106/WW4BEG3",
+                "pin": "SYN28"
+            },
+            {
+                "name": "wb_adr27",
+                "type": "in",
+                "node": "INT_L_X24Y107/WW4BEG0",
+                "pin": "SYN29"
+            },
+            {
+                "name": "wb_adr28",
+                "type": "in",
+                "node": "INT_L_X24Y107/WW4BEG1",
+                "pin": "SYN30"
+            },
+            {
+                "name": "wb_adr29",
+                "type": "in",
+                "node": "INT_L_X24Y107/WW4BEG2",
+                "pin": "SYN31"
+            },
+            {
+                "name": "wb_dat_w0",
+                "type": "in",
+                "node": "INT_L_X24Y107/WW4BEG3",
+                "pin": "SYN32"
+            },
+            {
+                "name": "wb_dat_w1",
+                "type": "in",
+                "node": "INT_L_X24Y108/WW4BEG0",
+                "pin": "SYN33"
+            },
+            {
+                "name": "wb_dat_w2",
+                "type": "in",
+                "node": "INT_L_X24Y108/WW4BEG1",
+                "pin": "SYN34"
+            },
+            {
+                "name": "wb_dat_w3",
+                "type": "in",
+                "node": "INT_L_X24Y108/WW4BEG2",
+                "pin": "SYN35"
+            },
+            {
+                "name": "wb_dat_w4",
+                "type": "in",
+                "node": "INT_L_X24Y108/WW4BEG3",
+                "pin": "SYN36"
+            },
+            {
+                "name": "wb_dat_w5",
+                "type": "in",
+                "node": "INT_L_X24Y109/WW4BEG0",
+                "pin": "SYN37"
+            },
+            {
+                "name": "wb_dat_w6",
+                "type": "in",
+                "node": "INT_L_X24Y109/WW4BEG1",
+                "pin": "SYN38"
+            },
+            {
+                "name": "wb_dat_w7",
+                "type": "in",
+                "node": "INT_L_X24Y109/WW4BEG2",
+                "pin": "SYN39"
+            },
+            {
+                "name": "wb_dat_w8",
+                "type": "in",
+                "node": "INT_L_X24Y109/WW4BEG3",
+                "pin": "SYN40"
+            },
+            {
+                "name": "wb_dat_w9",
+                "type": "in",
+                "node": "INT_L_X24Y110/WW4BEG0",
+                "pin": "SYN41"
+            },
+            {
+                "name": "wb_dat_w10",
+                "type": "in",
+                "node": "INT_L_X24Y110/WW4BEG1",
+                "pin": "SYN42"
+            },
+            {
+                "name": "wb_dat_w11",
+                "type": "in",
+                "node": "INT_L_X24Y110/WW4BEG2",
+                "pin": "SYN43"
+            },
+            {
+                "name": "wb_dat_w12",
+                "type": "in",
+                "node": "INT_L_X24Y110/WW4BEG3",
+                "pin": "SYN44"
+            },
+            {
+                "name": "wb_dat_w13",
+                "type": "in",
+                "node": "INT_L_X24Y111/WW4BEG0",
+                "pin": "SYN45"
+            },
+            {
+                "name": "wb_dat_w14",
+                "type": "in",
+                "node": "INT_L_X24Y111/WW4BEG1",
+                "pin": "SYN46"
+            },
+            {
+                "name": "wb_dat_w15",
+                "type": "in",
+                "node": "INT_L_X24Y111/WW4BEG2",
+                "pin": "SYN47"
+            },
+            {
+                "name": "wb_dat_w16",
+                "type": "in",
+                "node": "INT_L_X24Y111/WW4BEG3",
+                "pin": "SYN48"
+            },
+            {
+                "name": "wb_dat_w17",
+                "type": "in",
+                "node": "INT_L_X24Y112/WW4BEG0",
+                "pin": "SYN49"
+            },
+            {
+                "name": "wb_dat_w18",
+                "type": "in",
+                "node": "INT_L_X24Y112/WW4BEG1",
+                "pin": "SYN50"
+            },
+            {
+                "name": "wb_dat_w19",
+                "type": "in",
+                "node": "INT_L_X24Y112/WW4BEG2",
+                "pin": "SYN51"
+            },
+            {
+                "name": "wb_dat_w20",
+                "type": "in",
+                "node": "INT_L_X24Y112/WW4BEG3",
+                "pin": "SYN52"
+            },
+            {
+                "name": "wb_dat_w21",
+                "type": "in",
+                "node": "INT_L_X24Y113/WW4BEG0",
+                "pin": "SYN53"
+            },
+            {
+                "name": "wb_dat_w22",
+                "type": "in",
+                "node": "INT_L_X24Y113/WW4BEG1",
+                "pin": "SYN54"
+            },
+            {
+                "name": "wb_dat_w23",
+                "type": "in",
+                "node": "INT_L_X24Y113/WW4BEG2",
+                "pin": "SYN55"
+            },
+            {
+                "name": "wb_dat_w24",
+                "type": "in",
+                "node": "INT_L_X24Y113/WW4BEG3",
+                "pin": "SYN56"
+            },
+            {
+                "name": "wb_dat_w25",
+                "type": "in",
+                "node": "INT_L_X24Y114/WW4BEG0",
+                "pin": "SYN57"
+            },
+            {
+                "name": "wb_dat_w26",
+                "type": "in",
+                "node": "INT_L_X24Y114/WW4BEG1",
+                "pin": "SYN58"
+            },
+            {
+                "name": "wb_dat_w27",
+                "type": "in",
+                "node": "INT_L_X24Y114/WW4BEG2",
+                "pin": "SYN59"
+            },
+            {
+                "name": "wb_dat_w28",
+                "type": "in",
+                "node": "INT_L_X24Y114/WW4BEG3",
+                "pin": "SYN60"
+            },
+            {
+                "name": "wb_dat_w29",
+                "type": "in",
+                "node": "INT_L_X24Y115/WW4BEG0",
+                "pin": "SYN61"
+            },
+            {
+                "name": "wb_dat_w30",
+                "type": "in",
+                "node": "INT_L_X24Y115/WW4BEG1",
+                "pin": "SYN62"
+            },
+            {
+                "name": "wb_dat_w31",
+                "type": "in",
+                "node": "INT_L_X24Y115/WW4BEG2",
+                "pin": "SYN63"
+            },
+            {
+                "name": "wb_dat_r0",
+                "type": "out",
+                "node": "INT_L_X22Y100/EE4BEG0",
+                "pin": "SYN64"
+            },
+            {
+                "name": "wb_dat_r1",
+                "type": "out",
+                "node": "INT_L_X22Y100/EE4BEG1",
+                "pin": "SYN65"
+            },
+            {
+                "name": "wb_dat_r2",
+                "type": "out",
+                "node": "INT_L_X22Y100/EE4BEG2",
+                "pin": "SYN66"
+            },
+            {
+                "name": "wb_dat_r3",
+                "type": "out",
+                "node": "INT_L_X22Y100/EE4BEG3",
+                "pin": "SYN67"
+            },
+            {
+                "name": "wb_dat_r4",
+                "type": "out",
+                "node": "INT_L_X22Y101/EE4BEG0",
+                "pin": "SYN68"
+            },
+            {
+                "name": "wb_dat_r5",
+                "type": "out",
+                "node": "INT_L_X22Y101/EE4BEG1",
+                "pin": "SYN69"
+            },
+            {
+                "name": "wb_dat_r6",
+                "type": "out",
+                "node": "INT_L_X22Y101/EE4BEG2",
+                "pin": "SYN70"
+            },
+            {
+                "name": "wb_dat_r7",
+                "type": "out",
+                "node": "INT_L_X22Y101/EE4BEG3",
+                "pin": "SYN71"
+            },
+            {
+                "name": "wb_dat_r8",
+                "type": "out",
+                "node": "INT_L_X22Y102/EE4BEG0",
+                "pin": "SYN72"
+            },
+            {
+                "name": "wb_dat_r9",
+                "type": "out",
+                "node": "INT_L_X22Y102/EE4BEG1",
+                "pin": "SYN73"
+            },
+            {
+                "name": "wb_dat_r10",
+                "type": "out",
+                "node": "INT_L_X22Y102/EE4BEG2",
+                "pin": "SYN74"
+            },
+            {
+                "name": "wb_dat_r11",
+                "type": "out",
+                "node": "INT_L_X22Y102/EE4BEG3",
+                "pin": "SYN75"
+            },
+            {
+                "name": "wb_dat_r12",
+                "type": "out",
+                "node": "INT_L_X22Y103/EE4BEG0",
+                "pin": "SYN76"
+            },
+            {
+                "name": "wb_dat_r13",
+                "type": "out",
+                "node": "INT_L_X22Y103/EE4BEG1",
+                "pin": "SYN77"
+            },
+            {
+                "name": "wb_dat_r14",
+                "type": "out",
+                "node": "INT_L_X22Y103/EE4BEG2",
+                "pin": "SYN78"
+            },
+            {
+                "name": "wb_dat_r15",
+                "type": "out",
+                "node": "INT_L_X22Y103/EE4BEG3",
+                "pin": "SYN79"
+            },
+            {
+                "name": "wb_dat_r16",
+                "type": "out",
+                "node": "INT_L_X22Y104/EE4BEG0",
+                "pin": "SYN80"
+            },
+            {
+                "name": "wb_dat_r17",
+                "type": "out",
+                "node": "INT_L_X22Y104/EE4BEG1",
+                "pin": "SYN81"
+            },
+            {
+                "name": "wb_dat_r18",
+                "type": "out",
+                "node": "INT_L_X22Y104/EE4BEG2",
+                "pin": "SYN82"
+            },
+            {
+                "name": "wb_dat_r19",
+                "type": "out",
+                "node": "INT_L_X22Y104/EE4BEG3",
+                "pin": "SYN83"
+            },
+            {
+                "name": "wb_dat_r20",
+                "type": "out",
+                "node": "INT_L_X22Y105/EE4BEG0",
+                "pin": "SYN84"
+            },
+            {
+                "name": "wb_dat_r21",
+                "type": "out",
+                "node": "INT_L_X22Y105/EE4BEG1",
+                "pin": "SYN85"
+            },
+            {
+                "name": "wb_dat_r22",
+                "type": "out",
+                "node": "INT_L_X22Y105/EE4BEG2",
+                "pin": "SYN86"
+            },
+            {
+                "name": "wb_dat_r23",
+                "type": "out",
+                "node": "INT_L_X22Y105/EE4BEG3",
+                "pin": "SYN87"
+            },
+            {
+                "name": "wb_dat_r24",
+                "type": "out",
+                "node": "INT_L_X22Y106/EE4BEG0",
+                "pin": "SYN88"
+            },
+            {
+                "name": "wb_dat_r25",
+                "type": "out",
+                "node": "INT_L_X22Y106/EE4BEG1",
+                "pin": "SYN89"
+            },
+            {
+                "name": "wb_dat_r26",
+                "type": "out",
+                "node": "INT_L_X22Y106/EE4BEG2",
+                "pin": "SYN90"
+            },
+            {
+                "name": "wb_dat_r27",
+                "type": "out",
+                "node": "INT_L_X22Y106/EE4BEG3",
+                "pin": "SYN91"
+            },
+            {
+                "name": "wb_dat_r28",
+                "type": "out",
+                "node": "INT_L_X22Y107/EE4BEG0",
+                "pin": "SYN92"
+            },
+            {
+                "name": "wb_dat_r29",
+                "type": "out",
+                "node": "INT_L_X22Y107/EE4BEG1",
+                "pin": "SYN93"
+            },
+            {
+                "name": "wb_dat_r30",
+                "type": "out",
+                "node": "INT_L_X22Y107/EE4BEG2",
+                "pin": "SYN94"
+            },
+            {
+                "name": "wb_dat_r31",
+                "type": "out",
+                "node": "INT_L_X22Y107/EE4BEG3",
+                "pin": "SYN95"
+            },
+            {
+                "name": "wb_sel0",
+                "type": "in",
+                "node": "INT_L_X24Y115/WW4BEG3",
+                "pin": "SYN96"
+            },
+            {
+                "name": "wb_sel1",
+                "type": "in",
+                "node": "INT_L_X24Y116/WW4BEG0",
+                "pin": "SYN97"
+            },
+            {
+                "name": "wb_sel2",
+                "type": "in",
+                "node": "INT_L_X24Y116/WW4BEG1",
+                "pin": "SYN98"
+            },
+            {
+                "name": "wb_sel3",
+                "type": "in",
+                "node": "INT_L_X24Y116/WW4BEG2",
+                "pin": "SYN99"
+            },
+            {
+                "name": "wb_cyc0",
+                "type": "in",
+                "node": "INT_L_X24Y116/WW4BEG3",
+                "pin": "SYN100"
+            },
+            {
+                "name": "wb_stb0",
+                "type": "in",
+                "node": "INT_L_X24Y117/WW4BEG0",
+                "pin": "SYN101"
+            },
+            {
+                "name": "wb_ack0",
+                "type": "out",
+                "node": "INT_L_X22Y108/EE4BEG0",
+                "pin": "SYN102"
+            },
+            {
+                "name": "wb_we0",
+                "type": "in",
+                "node": "INT_L_X24Y117/WW4BEG1",
+                "pin": "SYN103"
+            },
+            {
+                "name": "wb_cti0",
+                "type": "in",
+                "node": "INT_L_X24Y117/WW4BEG2",
+                "pin": "SYN104"
+            },
+            {
+                "name": "wb_cti1",
+                "type": "in",
+                "node": "INT_L_X24Y117/WW4BEG3",
+                "pin": "SYN105"
+            },
+            {
+                "name": "wb_cti2",
+                "type": "in",
+                "node": "INT_L_X24Y118/WW4BEG0",
+                "pin": "SYN106"
+            },
+            {
+                "name": "wb_bte0",
+                "type": "in",
+                "node": "INT_L_X24Y118/WW4BEG1",
+                "pin": "SYN107"
+            },
+            {
+                "name": "wb_bte1",
+                "type": "in",
+                "node": "INT_L_X24Y118/WW4BEG2",
+                "pin": "SYN108"
+            },
+            {
+                "name": "wb_err0",
+                "type": "out",
+                "node": "INT_L_X22Y108/EE4BEG1",
+                "pin": "SYN109"
+            },
+            {
+                "name": "leds0",
+                "type": "out",
+                "node": "INT_L_X22Y108/EE4BEG2",
+                "pin": "SYN110"
+            },
+            {
+                "name": "leds1",
+                "type": "out",
+                "node": "INT_L_X22Y108/EE4BEG3",
+                "pin": "SYN111"
+            },
+            {
+                "name": "leds2",
+                "type": "out",
+                "node": "INT_L_X22Y109/EE4BEG0",
+                "pin": "SYN112"
+            },
+            {
+                "name": "leds3",
+                "type": "out",
+                "node": "INT_L_X22Y109/EE4BEG1",
+                "pin": "SYN113"
+            }
+        ]
+    }
+]
