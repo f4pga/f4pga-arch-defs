@@ -12,6 +12,9 @@ yosys -import
 
 source [file join [file normalize [info script]] .. utils.tcl]
 
+# Re-targetting FD to FDREs
+techmap -map  $::env(TECHMAP_PATH)/retarget.v
+
 # -flatten is used to ensure that the output eblif has only one module.
 # Some of symbiflow expects eblifs with only one module.
 #
@@ -25,9 +28,6 @@ if { $::env(USE_ROI) == "TRUE" } {
 
     # Overwrite some models (e.g. IBUF with more parameters)
     read_verilog -lib $::env(TECHMAP_PATH)/iobs.v
-
-    # Re-targetting FD to FDREs
-    techmap -map  $::env(TECHMAP_PATH)/retarget.v
 
     hierarchy -check -auto-top
 
