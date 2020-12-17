@@ -2,8 +2,6 @@
 Xilinx 7 Series SymbiFlow Partial Reconfiguration Flow
 =================
 
-Note: SymbiFlow currently does not support partial bitstream generation. This is a goal in the future, but at the moment partial FASM must be concatenated with an overlay to generate a full bitstream.
-
 Background
 =================
 
@@ -39,6 +37,8 @@ A simplified view of the partition region flow is as follows:
 
 -  Concatenate FASM for each architecture together and generate final bitstream
 
+-  Generate bitstreams for each partition region architecture
+
 Partition Region Example (switch_processing)
 ============================================
 This example contains two partition regions that are each about the size of one clock region.
@@ -55,7 +55,7 @@ Define the first partition region:
 	    "info":
 		{
 		"name": "pr1",
-		"GRID_X_MAX": 55,
+		"GRID_X_MAX": 57,
 		"GRID_X_MIN": 10,
 		"GRID_Y_MAX": 51,
 		"GRID_Y_MIN": 0
@@ -531,6 +531,7 @@ All of the following snippets are from `xc/xc7/tests/switch_processing/CMakeList
 	  BOARD arty-switch-processing-pr1
 	  SOURCES switch_processing_add_1.v
 	  INPUT_IO_FILE ${COMMON}/arty_switch_processing_pr1.pcf
+          GEN_PARTIAL_BIT
 	  EXPLICIT_ADD_FILE_TARGET
 	  )
 
@@ -540,6 +541,7 @@ All of the following snippets are from `xc/xc7/tests/switch_processing/CMakeList
 	  BOARD arty-switch-processing-pr2
 	  SOURCES switch_processing_blink.v
 	  INPUT_IO_FILE ${COMMON}/arty_switch_processing_pr2.pcf
+          GEN_PARTIAL_BIT
 	  EXPLICIT_ADD_FILE_TARGET
 	  )
 
@@ -549,6 +551,7 @@ All of the following snippets are from `xc/xc7/tests/switch_processing/CMakeList
 	  BOARD arty-switch-processing-pr1
 	  SOURCES switch_processing_identity.v
 	  INPUT_IO_FILE ${COMMON}/arty_switch_processing_pr1.pcf
+          GEN_PARTIAL_BIT
 	  EXPLICIT_ADD_FILE_TARGET
 	  )
 
@@ -557,10 +560,11 @@ All of the following snippets are from `xc/xc7/tests/switch_processing/CMakeList
 	  BOARD arty-switch-processing-pr2
 	  SOURCES switch_processing_identity.v
 	  INPUT_IO_FILE ${COMMON}/arty_switch_processing_pr2.pcf
+          GEN_PARTIAL_BIT
 	  EXPLICIT_ADD_FILE_TARGET
 	  )
 
-Here the add_1 and blink modules are mapped to pr1 and pr2 respectively. The identity function is then also mapped to each partition region.
+Here the add_1 and blink modules are mapped to pr1 and pr2 respectively. The identity function is then also mapped to each partition region. Please note that in order to generate a partial bitstream for each fpga_target the ``GEN_PARTIAL_BIT`` option must be set.
 
 .. code-block:: RST
 	add_file_target(FILE switch_processing_arty_overlay.v SCANNER_TYPE verilog)
@@ -611,6 +615,29 @@ Currently the ``SYN_IBUF`` and ``SYN_OBUF`` must be explicitly defined for each 
 
 The overlay pcf file can then be written to constrain real IOs to chip IOs and synthetic IOs to synthetic IOs.
 
+Paritial bitstream generation rule set
+======================================
+
+In order to partially reconfigure an FPGA there are some rules which must be considered when creating a design:
+
+1. It is assumed that partition regions are not intersecting and overlaping across configuration column.
+   It means partition regions cannot share any of the configuration columns.
+
+2. Inputs and outputs of the parition region should be defined as follows:
+
+   * Each output tile must be within the ROI and a corresponding node must route the signal outside the ROI
+   * Each input tile must be outside the ROI and a corresponding node must route the signal to the insides of the ROI
+
+3. Define explicitly ``SYN_BUFs`` for inputs and outputs in an overlay design. ``SYN_BUFs`` are not needed inside the ROI design.
+
+4. Each SYN-IO signal should be routed through an active logic (e.g. FD) if signals are set to global constant like GND.
+   In case of an overlay design, signals are the ones which are connected to ``SYN_OBUF`` and vice versa for a ROI design.
+
+5. If all above rules are met, the ``GEN_PARTIAL_BIT`` option can be safely set to an fpga_target in a cmake.
+
+To define parition region architecture it can be done either by hand or with **artix7_partial_arch_gen** tool. It is recomended to use **artix7_partial_arch_gen** tool which generates an architecture assuming that the ROI corresponds to a one whole clock domain, which can be chosen by a user.
+
+`utils/artix7_partial_arch_gen.py`_
 
 Frequently Encountered Errors
 =============================
