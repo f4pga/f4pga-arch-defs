@@ -35,17 +35,27 @@ module OBUF (
 endmodule
 
 module SYN_OBUF(
-    input I,
-    (* iopad_external_pin *)
-    output O);
+  input I,
+  (* iopad_external_pin *)
+  output O
+);
+
+  parameter IO_LOC_PAIRS = ""; // Used by read_xdc.
+
   assign O = I;
+
 endmodule
 
 module SYN_IBUF(
-    output O,
-    (* iopad_external_pin *)
-    input I);
+  output O,
+  (* iopad_external_pin *)
+  input I
+);
+
+  parameter IO_LOC_PAIRS = ""; // Used by read_xdc.
+
   assign O = I;
+
 endmodule
 
 module OBUFDS (
