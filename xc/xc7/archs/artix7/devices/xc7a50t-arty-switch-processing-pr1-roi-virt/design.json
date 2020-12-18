@@ -2,7 +2,7 @@
     "info":
         {
         "name": "pr1",
-        "GRID_X_MAX": 55,
+        "GRID_X_MAX": 57,
         "GRID_X_MIN": 10,
         "GRID_Y_MAX": 51,
         "GRID_Y_MIN": 0
@@ -66,7 +66,7 @@
         {
             "name": "rst",
             "type": "in",
-            "node": "INT_R_X21Y119/EE4BEG2",
+            "node": "INT_L_X0Y119/EE4BEG2",
             "pin": "SYN9"
         }
     ]

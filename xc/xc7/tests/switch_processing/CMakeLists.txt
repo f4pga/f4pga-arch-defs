@@ -13,6 +13,7 @@ add_fpga_target(
   BOARD arty-switch-processing-pr1
   SOURCES switch_processing_add_1.v
   INPUT_IO_FILE ${COMMON}/arty_switch_processing_pr1.pcf
+  GEN_PARTIAL_BIT
   EXPLICIT_ADD_FILE_TARGET
   )
 
@@ -22,6 +23,7 @@ add_fpga_target(
   BOARD arty-switch-processing-pr2
   SOURCES switch_processing_blink.v
   INPUT_IO_FILE ${COMMON}/arty_switch_processing_pr2.pcf
+  GEN_PARTIAL_BIT
   EXPLICIT_ADD_FILE_TARGET
   )
 
@@ -31,6 +33,7 @@ add_fpga_target(
   BOARD arty-switch-processing-pr1
   SOURCES switch_processing_identity.v
   INPUT_IO_FILE ${COMMON}/arty_switch_processing_pr1.pcf
+  GEN_PARTIAL_BIT
   EXPLICIT_ADD_FILE_TARGET
   )
 
@@ -39,6 +42,7 @@ add_fpga_target(
   BOARD arty-switch-processing-pr2
   SOURCES switch_processing_identity.v
   INPUT_IO_FILE ${COMMON}/arty_switch_processing_pr2.pcf
+  GEN_PARTIAL_BIT
   EXPLICIT_ADD_FILE_TARGET
   )
 

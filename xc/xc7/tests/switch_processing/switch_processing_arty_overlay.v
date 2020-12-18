@@ -16,7 +16,7 @@ module top (
     wire [3:0] inter;
     genvar i;
     generate
-        for (i=0; i < 8; i=i+1) begin
+        for (i=0; i < 4; i=i+1) begin
             SYN_OBUF in_obuf_pr1(.I(sw[i]), .O(in_pr1[i]));
             SYN_IBUF out_ibuf_pr1(.I(out_pr1[i]), .O(inter[i]));
             SYN_OBUF in_obuf_pr2(.I(inter[i]), .O(in_pr2[i]));
