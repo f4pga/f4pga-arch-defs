@@ -1,4 +1,4 @@
-""" Convert a PCF file into a VPR io.place file. """
+""" Convert a PCF/XDC file into a VPR io.place file. """
 from __future__ import print_function
 import argparse
 import csv
@@ -7,11 +7,12 @@ import sys
 import os
 import vpr_io_place
 from lib.parse_pcf import parse_simple_pcf
+from lib.parse_xdc import parse_simple_xdc
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Convert a PCF file into a VPR io.place file.'
+        description='Convert a PCF/XDC file into a VPR io.place file.'
     )
     parser.add_argument(
         "--pcf",
@@ -20,6 +21,14 @@ def main():
         type=argparse.FileType('r'),
         required=False,
         help='PCF input file'
+    )
+    parser.add_argument(
+        "--xdc",
+        '-x',
+        "-X",
+        type=argparse.FileType('r'),
+        required=False,
+        help='XDC input file'
     )
     parser.add_argument(
         "--blif",
@@ -102,11 +111,21 @@ def main():
         if os.path.isfile(fname):
             with open(fname, "r") as fp:
                 iostandard_constraints = json.load(fp)
+    elif args.xdc:
+        fname = args.xdc.name.replace(".xdc", ".json")
+        if os.path.isfile(fname):
+            with open(fname, "r") as fp:
+                iostandard_constraints = json.load(fp)
     net_to_pad = io_place.net_to_pad
     if args.pcf:
         pcf_constraints = parse_simple_pcf(args.pcf)
         net_to_pad |= set(
             (constr.net, constr.pad) for constr in pcf_constraints
+        )
+    elif args.xdc:
+        xdc_constraints = parse_simple_xdc(args.xdc)
+        net_to_pad |= set(
+            (constr.net, constr.pad) for constr in xdc_constraints
         )
     # Check for conflicting pad constraints
     net_to_pad_map = dict()

@@ -59,8 +59,10 @@ function(DEFINE_XC_TOOLCHAIN_TARGET)
           DESTINATION share/symbiflow/scripts
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/lib/parse_pcf.py
-          DESTINATION share/symbiflow/scripts/lib)
+  install(FILES
+	    ${symbiflow-arch-defs_SOURCE_DIR}/utils/lib/parse_pcf.py
+	    ${symbiflow-arch-defs_SOURCE_DIR}/utils/lib/parse_xdc.py
+          DESTINATION bin/python/lib)
 
 
   # install prjxray techmap
