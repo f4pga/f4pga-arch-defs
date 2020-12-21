@@ -29,7 +29,11 @@ if { $::env(USE_ROI) == "TRUE" } {
     # Re-targetting FD to FDREs
     techmap -map  $::env(TECHMAP_PATH)/retarget.v
 
-    hierarchy -check -auto-top
+    if { [info exists ::env(TOP)] && $::env(TOP) != "" } {
+        hierarchy -check -top $::env(TOP)
+    } else {
+        hierarchy -check -auto-top
+    }
 
     # Start flow after library reading
     synth_xilinx -flatten -abc9 -nosrl -noclkbuf -nodsp -iopad -nowidelut -run prepare:check
