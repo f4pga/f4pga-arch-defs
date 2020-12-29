@@ -4992,6 +4992,11 @@ output [15:0] DO
     $error("When CLKOUT0 uses fractional divider the duty cycle must be 50%");
   end
 
+  // Check whether phase shift of CLKFBOUT and CLKOUT0 is a multiple of 45 deg.
+  // This is needed for determining content of POWER_REG.
+  localparam CLKFBOUT_PHASE_45 = (CLKFBOUT_PHASE % 45000) == 0;
+  localparam CLKOUT0_PHASE_45  = (CLKOUT0_PHASE  % 45000) == 0;
+
   // Handle registers controling fractional dividers
   localparam CLKFBOUT_CALC = mmcm_clkregs(CLKFBOUT_MULT, 50000, CLKFBOUT_PHASE);
   localparam CLKOUT0_CALC  = mmcm_clkregs(CLKOUT0_DIVIDE, CLKOUT0_DUTY_CYCLE, CLKOUT0_PHASE);
@@ -5231,7 +5236,8 @@ output [15:0] DO
   // FIXME: Check whether this is always thar same content. XAPP888 says that
   // "all the bits should be set when performing DRP". The values below has
   // been observed to be used by vendor tools in some circumstances.
-  .POWER_REG ((CLKFBOUT_FRAC_EN || CLKOUT0_FRAC_EN) ? 16'b10011001_00000000 : 16'b00000001_00000000),
+  .POWER_REG ((CLKFBOUT_FRAC_EN || CLKOUT0_FRAC_EN || !CLKOUT0_PHASE_45) ? 16'b10011001_00000000 :
+                                                                           16'b00000001_00000000),
 
   // Clock output enable controls
   .CLKFBOUT_CLKOUT1_OUTPUT_ENABLE(_TECHMAP_CONSTVAL_CLKFBOUT_ === 1'bX || _TECHMAP_CONSTVAL_CLKFBOUTB_ === 1'bX),
