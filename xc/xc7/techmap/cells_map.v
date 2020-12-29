@@ -5019,8 +5019,17 @@ output [15:0] DO
   localparam CLKOUT3_REGS  = mmcm_clkregs(CLKOUT3_DIVIDE, CLKOUT3_DUTY_CYCLE, CLKOUT3_PHASE);
   localparam CLKOUT4_REGS  = mmcm_clkregs(CLKOUT4_DIVIDE, CLKOUT4_DUTY_CYCLE, CLKOUT4_PHASE);
 
-  localparam CLKOUT5_REGS  = (CLKOUT0_FRAC_EN)  ? {CLKOUT5_CALC[31:30], CLKOUT0_FRAC_CALC[35:32],  CLKOUT5_CALC[25:0]} : CLKOUT5_CALC;
-  localparam CLKOUT6_REGS  = (CLKFBOUT_FRAC_EN) ? {CLKOUT6_CALC[31:30], CLKFBOUT_FRAC_CALC[35:32], CLKOUT6_CALC[25:0]} : CLKOUT6_CALC;
+  // Substitute the shared part of CLKOUT5 and CLKOUT6 regs with data for
+  // CLKOUT0 and CLKFBOUT when factional divider is used for either of them.
+  //
+  // Additionaly copy the PHASE_MUX field to the PHASE_MUX_F fiels when
+  // fractional divider is not used. This behavior is not documented in
+  // XAPP888 but has been observed.
+  localparam CLKOUT5_REGS  = (CLKOUT0_FRAC_EN)  ? {CLKOUT5_CALC[31:30], CLKOUT0_FRAC_CALC[35:32],  CLKOUT5_CALC[25:0]} : 
+                                                  {CLKOUT5_CALC[31:30], CLKOUT0_CALC[15:13],       CLKOUT5_CALC[26:0]};
+
+  localparam CLKOUT6_REGS  = (CLKFBOUT_FRAC_EN) ? {CLKOUT6_CALC[31:30], CLKFBOUT_FRAC_CALC[35:32], CLKOUT6_CALC[25:0]} :
+                                                  {CLKOUT6_CALC[31:30], CLKFBOUT_CALC[15:13],      CLKOUT6_CALC[26:0]};
 
   // Handle inputs that should have certain logic levels when left unconnected
   generate if (_TECHMAP_CONSTMSK_CLKINSEL_ == 1) begin
