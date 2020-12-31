@@ -43,7 +43,11 @@ foreach(VERILOG_FILE ${VERILOG_FILES})
     CLOCK_PERIODS 10.0
     )
 
-  add_dependencies(all_xc7_mmcm_vivado_diff_fasm ${DESIGN}_vivado_diff_fasm)
+  if(TARGET ${DESIGN}_vivado_diff_fasm)
+      add_dependencies(all_xc7_mmcm_vivado_diff_fasm ${DESIGN}_vivado_diff_fasm)
+  endif()
+
+  add_dependencies(all_xc7_tests ${DESIGN}_bit)
 
 endforeach()
 
@@ -99,6 +103,8 @@ add_vivado_target(
   PARENT_NAME mmcm_buf_basys3
   CLOCK_PINS clk
   CLOCK_PERIODS 10.0
+  # Diff test disabled due to https://github.com/SymbiFlow/symbiflow-arch-defs/issues/1862
+  DISABLE_DIFF_TEST
   )
 
 add_vivado_target(
@@ -106,6 +112,8 @@ add_vivado_target(
   PARENT_NAME mmcm_ext_basys3
   CLOCK_PINS clk
   CLOCK_PERIODS 10.0
+  # Diff test disabled due to https://github.com/SymbiFlow/symbiflow-arch-defs/issues/1925
+  DISABLE_DIFF_TEST
   )
 
 add_vivado_target(
@@ -115,14 +123,18 @@ add_vivado_target(
   CLOCK_PERIODS 10.0
   )
 
+# =============================================================================
 
-add_dependencies(all_xc7_mmcm_vivado_diff_fasm
-  mmcm_int_basys3_vivado_diff_fasm
-  mmcm_int_frac_basys3_vivado_diff_fasm
-  mmcm_buf_basys3_vivado_diff_fasm
-  mmcm_ext_basys3_vivado_diff_fasm  # Vivado import crashes as the feedback net does not have the CLOCK_DEDICATED_ROUTE=FALSE set.
+set(TEST_TARGETS
+  mmcm_int_basys3
+  mmcm_int_frac_basys3
+  mmcm_buf_basys3
+  mmcm_ext_basys3
 )
 
-add_dependencies(all_xc7_tests
-  all_xc7_mmcm_vivado_diff_fasm
-)
+foreach(TEST_TARGET ${TEST_TARGETS})
+  if(TARGET ${TEST_TARGET}_vivado_diff_fasm)
+    add_dependencies(all_xc7_mmcm_vivado_diff_fasm ${TEST_TARGET}_vivado_diff_fasm)
+  endif()
+  add_dependencies(all_xc7_tests ${TEST_TARGET}_bit)
+endforeach()

@@ -57,7 +57,7 @@ mmcme2_test
 .O_CNT      (led[5:0])
 );
 
-assign led [7] = sw[7];
+assign led [7] = |sw[7:3];
 assign jc2 = jc4;
 
 endmodule
