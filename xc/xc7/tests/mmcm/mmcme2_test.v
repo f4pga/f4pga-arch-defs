@@ -40,8 +40,8 @@ BUFGCE bufg50 (.I(clk100), .CE(clk50_ce), .O(clk50));
 wire clk_fb_o;
 wire clk_fb_i;
 
-wire [6:0] clk;
-wire [6:0] gclk;
+wire [5:0] clk;
+wire [5:0] gclk;
 
 MMCME2_ADV #
 (
