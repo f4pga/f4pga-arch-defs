@@ -92,6 +92,7 @@ fi
 
 DATABASE_DIR=${DATABASE_DIR:=$(prjxray-config)}
 
+export TOP=${TOP}
 export USE_ROI="FALSE"
 export INPUT_XDC_FILE=${XDC_FILES[*]}
 export OUT_JSON=$TOP.json
