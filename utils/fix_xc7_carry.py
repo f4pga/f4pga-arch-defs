@@ -504,7 +504,7 @@ def fixup_congested_rows(design, top_module, bit_to_cells, bit_to_nets, chain):
     CO_ports = ["CO0", "CO1", "CO2", "CO3"]
 
     def check_if_rest_of_carry4_is_unused(cellname, cell_idx):
-        assert cell_idx < len(O_ports) - 1
+        assert cell_idx < len(O_ports)
 
         cell = cells[cellname]
         connections = cell["connections"]
