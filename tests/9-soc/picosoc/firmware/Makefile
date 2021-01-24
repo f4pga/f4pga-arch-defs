@@ -2,7 +2,7 @@ CC = ${RISCV}/bin/riscv32-unknown-elf-gcc
 OC = ${RISCV}/bin/riscv32-unknown-elf-objcopy
 OD = ${RISCV}/bin/riscv32-unknown-elf-objdump
 
-CFLAGS = -march=rv32im -Wl,-Bstatic,-T,sections.lds,--strip-debug -ffreestanding -nostdlib -mstrict-align -O0  
+CFLAGS = -march=rv32im -mabi=ilp32 -Wl,-Bstatic,-T,sections.lds,--strip-debug -ffreestanding -nostdlib -mstrict-align -O0
 
 all: firmware_noflash_25.hex firmware_noflash_50.hex firmware_noflash_100.hex firmware_25.hex firmware_50.hex firmware_100.hex
 
