@@ -36,7 +36,17 @@ function(PROJECT_RAY_ARCH)
   set(ARCH_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/prjxray_arch_import.py)
   set(CREATE_SYNTH_TILES ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/prjxray_create_synth_tiles.py)
   set(CREATE_EDGES ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/prjxray_create_edges.py)
-  set(DEPS ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/${PART}/tilegrid.json)
+  set(GET_FABRIC ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/prjxray_get_fabric.py)
+  execute_process(
+    COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
+    ${PYTHON3} ${GET_FABRIC}
+      --db_root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/
+      --part ${PART}
+      -cmake
+    OUTPUT_VARIABLE FABRIC
+    )
+  string(REPLACE "\n" "" FABRIC "${FABRIC}")
+  set(DEPS ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/${FABRIC}/tilegrid.json)
 
   if("${PROJECT_RAY_ARCH_PB_TYPES}" STREQUAL "")
     set(PROJECT_RAY_ARCH_PB_TYPES ${PROJECT_RAY_ARCH_TILE_TYPES})
@@ -150,8 +160,8 @@ function(PROJECT_RAY_ARCH)
   append_file_dependency(CHANNELS_DEPS ${GENERIC_CHANNELS})
   append_file_dependency(CHANNELS_DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc/${FAMILY}/archs/${ARCH}/pin_assignments.json)
   get_file_location(PIN_ASSIGNMENTS ${symbiflow-arch-defs_SOURCE_DIR}/xc/${FAMILY}/archs/${ARCH}/pin_assignments.json)
-  list(APPEND CHANNELS_DEPS ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/${PART}/tilegrid.json)
-  list(APPEND CHANNELS_DEPS ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/${PART}/tileconn.json)
+  list(APPEND CHANNELS_DEPS ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/${FABRIC}/tilegrid.json)
+  list(APPEND CHANNELS_DEPS ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/${FABRIC}/tileconn.json)
 
   add_custom_command(
     OUTPUT channels.db vpr_grid_map.csv
