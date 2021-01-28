@@ -602,6 +602,7 @@ function(CREATE_DCP_BY_INTERCHANGE)
 
   add_custom_command(
       OUTPUT ${WORK_DIR}/${NAME}.dcp
+      COMMAND ${CMAKE_COMMAND} -E make_directory ${WORK_DIR}
       COMMAND ${CMAKE_COMMAND} -E env
         JAVA=${JAVA}
         RAPIDWRIGHT_PATH=${RAPIDWRIGHT_PATH}
@@ -634,6 +635,7 @@ function(CREATE_DCP_BY_INTERCHANGE)
 
   add_custom_command(
     OUTPUT ${WORK_DIR}/${NAME}_runme.tcl
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${WORK_DIR}
     COMMAND ${CMAKE_COMMAND} -E echo "open_checkpoint ${NAME}.dcp"                                     >  ${RUNME}
     COMMAND ${CMAKE_COMMAND} -E echo "${XDC_EXTRA_ARGS}"                                               >> ${RUNME}
     COMMAND ${CMAKE_COMMAND} -E echo "set_property CFGBVS VCCO [current_design]"                       >> ${RUNME}
