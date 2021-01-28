@@ -20,6 +20,8 @@ tinyfpgab
 tinyprog
 yapf==0.26.0
 git+https://github.com/SymbiFlow/symbiflow-rr-graph.git#egg=rr-graph
+# TODO: https://github.com/SymbiFlow/python-fpga-interchange/issues/11
+git+https://github.com/litghost/rapidyaml.git@fixup_python_packaging#egg=rapidyaml&subdirectory=api/python
 git+https://github.com/SymbiFlow/python-fpga-interchange.git#egg=python-fpga-interchange
 -e third_party/prjxray
 -e third_party/fasm
