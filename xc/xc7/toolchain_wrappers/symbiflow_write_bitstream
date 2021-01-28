@@ -48,7 +48,6 @@ while true; do
 done
 
 DATABASE_DIR=${DATABASE_DIR:=$(prjxray-config)}
-DBROOT=`realpath ${DATABASE_DIR}/${DEVICE}`
 
 if [ -z $DEVICE ]; then
 	# Try to find device name. Accept only when exactly one is found
@@ -60,6 +59,8 @@ if [ -z $DEVICE ]; then
 		exit 1
 	fi
 fi
+
+DBROOT=`realpath ${DATABASE_DIR}/${DEVICE}`
 
 if [ -z $FASM ]; then
 	echo "Please provide fasm file name"
