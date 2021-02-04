@@ -1,0 +1,12 @@
+#!/bin/bash
+set -e
+
+MYPATH=$(dirname "$(readlink -f "$BASH_SOURCE")")
+
+
+source ${MYPATH}/env
+
+BIT2JLINK=`readlink -f ${MYPATH}/../bin/python/bitstream_to_jlink.py`
+
+echo "Generating bit.jlink"
+python3 ${BIT2JLINK} ${TOP_F}.bit ../${TOP_F}.jlink

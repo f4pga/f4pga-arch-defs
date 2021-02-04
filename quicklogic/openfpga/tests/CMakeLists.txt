@@ -1,0 +1,3 @@
+add_subdirectory(counter)
+add_subdirectory(adder_8)
+add_subdirectory(quicklogic_testsuite)

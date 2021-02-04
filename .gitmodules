@@ -61,3 +61,6 @@
 [submodule "third_party/pythondata-software-compiler_rt"]
 	path = third_party/pythondata-software-compiler_rt
 	url = https://github.com/litex-hub/pythondata-software-compiler_rt
+[submodule "third_party/SOFA"]
+	path = third_party/SOFA
+	url = https://github.com/lnis-uofu/SOFA.git

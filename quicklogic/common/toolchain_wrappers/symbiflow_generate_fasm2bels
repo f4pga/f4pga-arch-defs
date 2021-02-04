@@ -1,0 +1,18 @@
+#!/bin/bash
+set -e
+
+MYPATH=$(dirname "$(readlink -f "$BASH_SOURCE")")
+
+PCF=$1
+EBLIF=$2
+NET=$3
+PKG=$4
+DEVICE=$5
+ARCH_DEF=$6
+
+VPR_DB=`readlink -f ${MYPATH}/../share/arch/${DEVICE}/db_phy.pickle`
+FASM2BEL=`readlink -f ${MYPATH}/../bin/python/fasm2bels.py`
+VERILOG_FILE="${TOP_F}_bit.v"
+
+echo "Generating post verilog file ..."
+python3 ${FASM2BEL} ${TOP_F}.bit --vpr-db ${VPR_DB} --package-name ${PKG} --input-type bitstream --output-verilog ../${VERILOG_FILE} --input-pcf $PCF

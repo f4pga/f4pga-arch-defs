@@ -25,6 +25,7 @@ add_custom_target(clean_locks)
 # Add dummy targets for attaching test targets too.
 add_custom_target(all_xc7_tests)
 add_custom_target(all_ice40_tests)
+add_custom_target(all_quicklogic_tests)
 
 set(ENV_DIR ${symbiflow-arch-defs_SOURCE_DIR}/env/conda/envs/symbiflow_arch_def_base/ CACHE PATH "Path to environment")
 set(YOSYS_DATADIR ${ENV_DIR}/share/yosys CACHE PATH "Path to yosys data directory")
@@ -89,6 +90,7 @@ if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
 add_subdirectory(xc)
 endif (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
 add_subdirectory(ice40)
+add_subdirectory(quicklogic)
 add_subdirectory(testarch)
 add_subdirectory(tests)
 
@@ -141,6 +143,11 @@ add_dependencies(all_ice40
     all_ice40_demos
     all_ice40_tests
     all_ice40_route_tests
+    )
+
+add_custom_target(all_quicklogic)
+add_dependencies(all_quicklogic
+    all_quicklogic_tests
     )
 
 add_custom_target(all_xc7_route_tests)
@@ -217,6 +224,7 @@ add_custom_target(all_tests)
 add_dependencies(all_tests
     all_testarch
     all_ice40_tests
+    all_quicklogic_tests
     all_xc7_tests
     )
 
