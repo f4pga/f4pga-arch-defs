@@ -35,6 +35,7 @@ git+https://github.com/SymbiFlow/python-fpga-interchange.git#egg=python-fpga-int
 -e third_party/litedram
 -e third_party/liteeth
 -e third_party/liteiclink
+-e third_party/litesata
 -e third_party/migen
 third_party/pythondata-cpu-vexriscv
 third_party/pythondata-software-compiler_rt
