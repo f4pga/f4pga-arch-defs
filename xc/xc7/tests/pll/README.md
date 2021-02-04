@@ -1,11 +1,11 @@
-# PLLE2_ADV tests
+# PLLE2_ADV and PLLE2_BASE tests
 
-Allows to vrify PLLE2_ADV functionality in hardware
+Allows to vrify PLLE2_ADV and PLLE2_BASE functionality in hardware
 
 Switches:
 - SW0: Reset (active high)
 - SW1: PLL PWRDWN port (active high)
-- SW2: CLKINSEL. When low CLKIN=100MHz, when high CLLKIN=50MHz.
+- SW2: CLKINSEL. When low CLKIN=100MHz, when high CLLKIN=50MHz. (only for PLLE2_ADV)
 
 LEDs:
 - LED0: blinks at 23.841Hz / 11.920Hz
@@ -17,6 +17,6 @@ LEDs:
 - LED6: PLL LOCK indicator (lit when locked)
 
 There are 3 test variants:
-- `pll_int_basys3_x1y0` - Internal feedback
-- `pll_buf_basys3_x1y0` - Feedback through a BUFG
-- `pll_ext_basys3_x1y0` - External feedback. Need to short `JC.1` and `JC.2` on the Basys3 board.
+- `pll_[base|adv]_int_basys3_bottom` - Internal feedback
+- `pll_[base|adv]_buf_basys3_bottom` - Feedback through a BUFG
+- `pll_[base|adv]_ext_basys3_bottom` - External feedback. Need to short `JC.1` and `JC.2` on the Basys3 board.
