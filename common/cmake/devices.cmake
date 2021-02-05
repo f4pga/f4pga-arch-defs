@@ -1659,7 +1659,10 @@ function(ADD_FPGA_TARGET)
     VPR_CMD
     ${QUIET_CMD} ${VPR}
     ${DEVICE_MERGED_FILE_LOCATION}
-    ${OUT_EBLIF}
+  )
+
+  set(
+    VPR_ARGS
     --device ${DEVICE_FULL}
     --read_rr_graph ${OUT_RRBIN_REAL_LOCATION}
     ${VPR_BASE_ARGS_LIST}
@@ -1678,7 +1681,7 @@ function(ADD_FPGA_TARGET)
       )
     append_file_dependency(VPR_DEPS ${LOOKAHEAD_FILE})
     get_file_location(LOOKAHEAD_LOCATION ${LOOKAHEAD_FILE})
-    list(APPEND VPR_CMD --read_router_lookahead ${LOOKAHEAD_LOCATION})
+    list(APPEND VPR_ARGS --read_router_lookahead ${LOOKAHEAD_LOCATION})
   endif()
 
   get_target_property_required(
@@ -1690,7 +1693,7 @@ function(ADD_FPGA_TARGET)
       )
     append_file_dependency(VPR_DEPS ${PLACE_DELAY_FILE})
     get_file_location(PLACE_DELAY_LOCATION ${PLACE_DELAY_FILE})
-    list(APPEND VPR_CMD --read_placement_delay_lookup ${PLACE_DELAY_LOCATION})
+    list(APPEND VPR_ARGS --read_placement_delay_lookup ${PLACE_DELAY_LOCATION})
   endif()
 
   list(APPEND VPR_DEPS ${VPR} ${QUIET_CMD})
@@ -1704,7 +1707,7 @@ function(ADD_FPGA_TARGET)
   add_custom_command(
     OUTPUT ${OUT_NET} ${OUT_LOCAL}/pack.log
     DEPENDS ${VPR_DEPS}
-    COMMAND ${VPR_CMD} --pack
+    COMMAND ${VPR_CMD} ${OUT_EBLIF} ${VPR_ARGS} --pack
     COMMAND
       ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log ${OUT_LOCAL}/pack.log
     WORKING_DIRECTORY ${OUT_LOCAL}
@@ -1728,7 +1731,7 @@ function(ADD_FPGA_TARGET)
     OUTPUT ${ECHO_OUT_NET}
     DEPENDS ${VPR_DEPS}
     COMMAND ${CMAKE_COMMAND} -E make_directory ${OUT_LOCAL}/echo
-    COMMAND cd ${OUT_LOCAL}/echo && ${VPR_CMD} --pack_verbosity 3 --echo_file on --pack
+    COMMAND cd ${OUT_LOCAL}/echo && ${VPR_CMD} ${OUT_EBLIF} ${VPR_ARGS} --pack_verbosity 3 --echo_file on --pack
     COMMAND
       ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/echo/vpr_stdout.log ${OUT_LOCAL}/echo/pack.log
     )
@@ -1884,7 +1887,7 @@ function(ADD_FPGA_TARGET)
   add_custom_command(
     OUTPUT ${OUT_PLACE}
     DEPENDS ${OUT_NET} ${VPR_DEPS}
-    COMMAND ${VPR_CMD} ${FIX_CLUSTERS_ARG} --place
+    COMMAND ${VPR_CMD} ${OUT_EBLIF} ${VPR_ARGS} ${FIX_CLUSTERS_ARG} --place
     COMMAND
       ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log
       ${OUT_LOCAL}/place.log
@@ -1895,7 +1898,7 @@ function(ADD_FPGA_TARGET)
   add_custom_command(
     OUTPUT ${ECHO_OUT_PLACE}
     DEPENDS ${ECHO_OUT_NET} ${VPR_DEPS}
-    COMMAND ${VPR_CMD} ${FIX_CLUSTERS_ARG} --echo_file on --place
+    COMMAND ${VPR_CMD} ${OUT_EBLIF} ${VPR_ARGS} ${FIX_CLUSTERS_ARG} --echo_file on --place
     COMMAND
       ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/echo/vpr_stdout.log
         ${OUT_LOCAL}/echo/place.log
@@ -1905,13 +1908,75 @@ function(ADD_FPGA_TARGET)
   add_custom_target(${NAME}_place DEPENDS ${OUT_PLACE})
   add_dependencies(all_${BOARD}_place ${NAME}_place)
 
+  # Process packed netlist and circuit netlist
+  # -------------------------------------------------------------------------
+  get_target_property(NET_PATCH_TOOL     ${ARCH} NET_PATCH_TOOL)
+  get_target_property(NET_PATCH_TOOL_CMD ${ARCH} NET_PATCH_TOOL_CMD)
+
+  if (NOT "${NET_PATCH_TOOL}" MATCHES ".*NOTFOUND")
+
+    # Set variables for the configure statement below
+    set(VPR_ARCH ${DEVICE_MERGED_FILE_LOCATION})
+
+    set(IN_NET ${OUT_NET})
+    set(IN_EBLIF ${OUT_EBLIF})
+    set(IN_PLACE ${OUT_PLACE})
+
+    set(OUT_NET ${OUT_LOCAL}/${TOP}.patched.net)
+    set(OUT_NET_REL ${OUT_LOCAL_REL}/${TOP}.patched.net)
+
+    set(OUT_EBLIF ${OUT_LOCAL}/${TOP}.patched.eblif)
+    set(OUT_EBLIF_REL ${OUT_LOCAL_REL}/${TOP}.patched.eblif)
+
+    set(OUT_PLACE ${OUT_LOCAL}/${TOP}.patched.place)
+    set(OUT_PLACE_REL ${OUT_LOCAL_REL}/${TOP}.patched.place)
+
+    # Configure the base command
+    string(CONFIGURE ${NET_PATCH_TOOL_CMD} NET_PATCH_TOOL_CMD_FOR_TARGET)
+    separate_arguments(
+      NET_PATCH_TOOL_CMD_FOR_TARGET_LIST UNIX_COMMAND ${NET_PATCH_TOOL_CMD_FOR_TARGET}
+    )
+
+    # Configure and append extra args
+    get_target_property(NET_PATCH_EXTRA_ARGS ${DEVICE} NET_PATCH_EXTRA_ARGS)
+    if (NOT "${NET_PATCH_EXTRA_ARGS}" MATCHES ".*NOTFOUND")
+      string(CONFIGURE ${NET_PATCH_EXTRA_ARGS} NET_PATCH_EXTRA_ARGS_FOR_TARGET)
+      separate_arguments(
+        NET_PATCH_EXTRA_ARGS_FOR_TARGET_LIST UNIX_COMMAND ${NET_PATCH_EXTRA_ARGS_FOR_TARGET}
+      )
+    else()
+      set(NET_PATCH_EXTRA_ARGS_FOR_TARGET_LIST)
+    endif()
+
+    # Extra dependencies
+    get_target_property(NET_PATCH_DEPS ${DEVICE} NET_PATCH_DEPS)
+    if ("${NET_PATCH_DEPS}" MATCHES ".*NOTFOUND")
+      set(NET_PATCH_DEPS)
+    endif ()
+
+    # Add targets for patched EBLIF and .net
+    add_custom_command(
+      OUTPUT ${OUT_NET} ${OUT_EBLIF} ${OUT_PLACE}
+      DEPENDS ${IN_NET} ${IN_EBLIF} ${IN_PLACE} ${NET_PATCH_TOOL} ${NET_PATCH_DEPS}
+      COMMAND ${NET_PATCH_TOOL_CMD_FOR_TARGET_LIST} ${NET_PATCH_EXTRA_ARGS_FOR_TARGET_LIST}
+      WORKING_DIRECTORY ${OUT_LOCAL}
+    )
+
+    add_output_to_fpga_target(${NAME} PATCHED_NET ${OUT_NET_REL})
+    add_output_to_fpga_target(${NAME} PATCHED_EBLIF ${OUT_EBLIF_REL})
+    add_output_to_fpga_target(${NAME} PATCHED_PLACE ${OUT_PLACE_REL})
+
+    add_custom_target(${NAME}_patch_net DEPENDS ${OUT_NET} ${OUT_EBLIF} ${OUT_PLACE})
+
+  endif ()
+
 
   # Generate routing.
   # -------------------------------------------------------------------------
   add_custom_command(
     OUTPUT ${OUT_ROUTE}
-    DEPENDS ${OUT_PLACE} ${VPR_DEPS}
-    COMMAND ${VPR_CMD} --route
+    DEPENDS ${OUT_NET} ${OUT_PLACE} ${VPR_DEPS}
+    COMMAND ${VPR_CMD} ${OUT_EBLIF} ${VPR_ARGS} --route
     COMMAND
       ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log
         ${OUT_LOCAL}/route.log
@@ -1925,7 +1990,7 @@ function(ADD_FPGA_TARGET)
   add_custom_command(
     OUTPUT ${ECHO_ATOM_NETLIST_ORIG} ${ECHO_ATOM_NETLIST_CLEANED}
     DEPENDS ${ECHO_OUT_PLACE} ${VPR_DEPS} ${ECHO_DIRECTORY_TARGET}
-    COMMAND ${VPR_CMD} --echo_file on --route
+    COMMAND ${VPR_CMD} ${OUT_EBLIF} ${VPR_ARGS} --echo_file on --route
     COMMAND
       ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/echo/vpr_stdout.log
         ${OUT_LOCAL}/echo/route.log
@@ -2015,7 +2080,7 @@ function(ADD_FPGA_TARGET)
   add_custom_command(
     OUTPUT ${OUT_ANALYSIS} ${OUT_POST_SYNTHESIS_V} ${OUT_POST_SYNTHESIS_BLIF}
     DEPENDS ${OUT_ROUTE} ${VPR_DEPS}
-    COMMAND ${VPR_CMD} --analysis --gen_post_synthesis_netlist on
+    COMMAND ${VPR_CMD} ${OUT_EBLIF} ${VPR_ARGS} --analysis --gen_post_synthesis_netlist on
     COMMAND ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log
         ${OUT_LOCAL}/analysis.log
     WORKING_DIRECTORY ${OUT_LOCAL}
