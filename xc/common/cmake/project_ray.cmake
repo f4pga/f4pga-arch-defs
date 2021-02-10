@@ -306,6 +306,7 @@ function(PROJECT_RAY_TILE)
   #     definition, instead of using the project X-Ray database.
   # FILTER_X can be supplied to filter to sites that have the given X
   #     coordinate.
+  # UNUSED_WIRES: contains a list of wires in site to be dropped
   #
   # Usage:
   # ~~~
@@ -320,12 +321,13 @@ function(PROJECT_RAY_TILE)
   #   SITE_COORDS (option)
   #   NO_FASM_PREFIX (option)
   #   [FILTER_X <x_coord>]
+  #   UNUSED_WIRES <unused wires>
   #   )
   # ~~~
 
   set(options FUSED_SITES SITE_AS_TILE USE_DATABASE NO_FASM_PREFIX)
   set(oneValueArgs ARCH TILE FILTER_X SITE_COORDS)
-  set(multiValueArgs SITE_TYPES EQUIVALENT_SITES)
+  set(multiValueArgs SITE_TYPES EQUIVALENT_SITES UNUSED_WIRES)
   cmake_parse_arguments(
     PROJECT_RAY_TILE
     "${options}"
@@ -395,6 +397,12 @@ function(PROJECT_RAY_TILE)
     set(FASM_ARGS "--no_fasm_prefix")
   endif()
 
+  set(UNUSED_WIRES "")
+  if(PROJECT_RAY_TILE_UNUSED_WIRES)
+    string(REPLACE ";" "," UNUSED_WIRES_COMMA "${PROJECT_RAY_TILE_UNUSED_WIRES}")
+    set(UNUSED_WIRES "--unused_wires" ${UNUSED_WIRES_COMMA})
+  endif()
+
   string(TOUPPER ${TILE} TILE_UPPER)
 
   add_custom_command(
@@ -409,6 +417,7 @@ function(PROJECT_RAY_TILE)
     --pin_assignments ${PIN_ASSIGNMENTS}
     --output-pb-type ${CMAKE_CURRENT_BINARY_DIR}/${TILE}.pb_type.xml
     --output-model ${CMAKE_CURRENT_BINARY_DIR}/${TILE}.model.xml
+    ${UNUSED_WIRES}
     ${FUSED_SITES_ARGS}
     ${SITE_COORDS_ARGS}
     ${FASM_ARGS}
@@ -662,15 +671,17 @@ function(PROJECT_RAY_TILE_CAPACITY)
   #   ARCH <arch>
   #   TILE <tile>
   #   SITE_TYPES <site types>
+  #   UNUSED_WIRES <unused wires>
   #   )
   # ~~~
   #
   # SITE_TYPES: contains a list of sites that are used as sub tiles for the specified tile.
   #             The total number of instances of a site type appears as the capacity of the sub tile
+  # UNUSED_WIRES: contains a list of wires in site to be dropped
 
   set(options)
   set(oneValueArgs ARCH TILE)
-  set(multiValueArgs SITE_TYPES)
+  set(multiValueArgs SITE_TYPES UNUSED_WIRES)
   cmake_parse_arguments(
     PROJECT_RAY_TILE_CAPACITY
     "${options}"
@@ -702,6 +713,12 @@ function(PROJECT_RAY_TILE_CAPACITY)
 
   string(TOLOWER ${TILE} TILE_LOWER)
 
+  set(UNUSED_WIRES "")
+  if(PROJECT_RAY_TILE_CAPACITY_UNUSED_WIRES)
+    string(REPLACE ";" "," UNUSED_WIRES_COMMA "${PROJECT_RAY_TILE_CAPACITY_UNUSED_WIRES}")
+    set(UNUSED_WIRES "--unused_wires" ${UNUSED_WIRES_COMMA})
+  endif()
+
   add_custom_command(
     OUTPUT ${TILE_LOWER}.tile.xml
     COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
@@ -713,6 +730,7 @@ function(PROJECT_RAY_TILE_CAPACITY)
       --tile_type ${TILE}
       --pb_types ${SITE_TYPES_COMMA}
       --pin_assignments ${PIN_ASSIGNMENTS}
+      ${UNUSED_WIRES}
     DEPENDS
       ${TILE_CAPACITY_IMPORT}
       ${DEPS}
