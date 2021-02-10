@@ -36,6 +36,7 @@ git+https://github.com/SymbiFlow/python-fpga-interchange.git#egg=python-fpga-int
 -e third_party/litedram
 -e third_party/liteeth
 -e third_party/liteiclink
+-e third_party/litesata
 -e third_party/migen
 -e quicklogic/common/utils/quicklogic-timings-importer
 third_party/pythondata-cpu-vexriscv

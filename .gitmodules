@@ -52,6 +52,9 @@
 [submodule "third_party/liteiclink"]
 	path = third_party/liteiclink
 	url = https://github.com/enjoy-digital/liteiclink
+[submodule "third_party/litesata"]
+	path = third_party/litesata
+	url = https://github.com/enjoy-digital/litesata.git
 [submodule "third_party/litex-boards"]
 	path = third_party/litex-boards
 	url = https://github.com/litex-hub/litex-boards

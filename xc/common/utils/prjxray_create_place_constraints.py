@@ -991,7 +991,7 @@ def main():
 
     idelayctrl_instances = place_constraints.get_used_instances("IDELAYCTRL")
 
-    assert len(idelayctrl_cmts) == len(
+    assert len(idelayctrl_cmts) <= len(
         idelayctrl_instances
     ), "The number of IDELAYCTRL blocks and IO banks with IDELAYs used do not match."
 
