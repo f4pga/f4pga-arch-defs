@@ -1,0 +1,6 @@
+set_io clk_n_0 A8
+set_io clk_p_0 B8
+set_io clk_n_1 A10
+set_io clk_p_1 B10
+set_io test_in V17
+set_io test_out U16
