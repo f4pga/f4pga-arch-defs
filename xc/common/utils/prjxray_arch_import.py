@@ -515,6 +515,7 @@ PREFIX_REQUIRED = {
     "SLICEM": ("X", 2),
     "SLICEL": ("X", 2),
     "GTPE2_COMMON": ("XY", (0, 0)),
+    "GTPE2_CHANNEL": ("XY", (0, 0)),
     "IBUFDS_GTE2": ("XY", (0, 0)),
     "IPAD": ("XY", (0, 0)),
     "OPAD": ("XY", (0, 0)),
