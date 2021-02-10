@@ -2108,14 +2108,75 @@ parameter NUMBER = "";
 
 endmodule
 
-module IPAD_VPR (
+module IPAD_GTP_VPR (
+  input I,
   output O
   );
-  parameter LOC = "UNPLACED";
+  assign O = I;
 endmodule
 
 module OPAD_VPR (
   input I
   );
   parameter LOC = "UNPLACED";
+endmodule
+
+module IBUFDS_GTE2_VPR (
+  output O,
+  output ODIV2,
+  input CEB,
+  input I,
+  input IB
+  );
+
+  parameter CLKCM_CFG = "TRUE";
+  parameter CLKRCV_TRST = "TRUE";
+  parameter [1:0] CLKSWING_CFG = 2'b11;
+
+  reg O_out=0;
+  reg ODIV2_out=0;
+  reg [2:0] ce_count = 1;
+  reg [2:0] edge_count = 0;
+  reg allEqual;
+  reg clkcm_cfg_int = 0;
+  reg clkrcv_trst_int = 0;
+  reg clkswing_cfg_int = 0;
+  reg [1:0] CLKSWING_CFG_BINARY;
+  reg notifier;
+
+  initial begin
+      allEqual = 0;
+      case (CLKCM_CFG)
+        "FALSE" : clkcm_cfg_int <= 1'b0;
+        "TRUE"  : clkcm_cfg_int <= 1'b1;
+      endcase
+      case (CLKRCV_TRST)
+        "FALSE" : clkrcv_trst_int <= 1'b0;
+        "TRUE"  : clkrcv_trst_int <= 1'b1;
+      endcase
+  end
+
+  always @(posedge I) begin
+    if(allEqual)
+      edge_count <= 3'b000;
+    else
+      if (CEB == 1'b0)
+        edge_count <= edge_count + 1;
+  end
+
+  always @(edge_count)
+    if (edge_count == ce_count)
+      allEqual = 1;
+    else
+      allEqual = 0;
+
+  always @(posedge I)
+    ODIV2_out <= allEqual;
+
+  always @(I)
+    O_out <= I & ~CEB;
+
+  assign O = O_out;
+  assign ODIV2 = ODIV2_out;
+
 endmodule

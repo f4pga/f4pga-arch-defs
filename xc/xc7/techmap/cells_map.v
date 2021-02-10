@@ -6886,26 +6886,40 @@ module CARRY4_FIX(output O0, O1, O2, O3, CO0, CO1, CO2, CO3, input CYINIT, CIN, 
   end
 endmodule
 
-module IPAD (
-  output O
+module IBUFDS_GTE2 (
+  output O,
+  output ODIV2,
+  input CEB,
+  input I,
+  input IB
   );
-  parameter LOC = "UNPLACED";
 
-  IPAD_VPR #(
-    .LOC(LOC)
-  ) _TECHMAP_REPLACE_ (
-    .O(O)
-  );
-endmodule
+  parameter CLKCM_CFG = "TRUE";
+  parameter CLKRCV_TRST = "TRUE";
+  parameter [1:0] CLKSWING_CFG = 2'b11;
 
-module OPAD (
-  input I
-  );
-  parameter LOC = "UNPLACED";
+  wire ipad_p_O, ipad_n_O;
 
-  OPAD_VPR #(
-    .LOC(LOC)
-  ) _TECHMAP_REPLACE_ (
-    .I(I)
+  IPAD_GTP_VPR IPAD_P (
+    .I(I),
+    .O(ipad_p_O)
   );
+
+  IPAD_GTP_VPR IPAD_N (
+    .I(IB),
+    .O(ipad_n_O)
+  );
+
+  IBUFDS_GTE2_VPR #(
+    .CLKCM_CFG(CLKCM_CFG),
+    .CLKRCV_TRST(CLKRCV_TRST),
+    .CLKSWING_CFG(CLKSWING_CFG)
+  ) IBUFDS_GTE2_INST (
+    .O(O),
+    .ODIV2(ODIV2),
+    .CEB(CEB),
+    .I(ipad_p_O),
+    .IB(ipad_n_O)
+  );
+
 endmodule
