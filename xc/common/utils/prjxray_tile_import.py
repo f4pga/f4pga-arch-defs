@@ -62,6 +62,14 @@ def find_port(pin_name, ports):
     prefix = pin_name[:-len(m.group(1))]
     prefix_pin_idx = int(m.group(1))
 
+    # check if signal name ends with number and has num_pins > 1
+    # e.g. RXOSINTID0 which has num_pins=4, the real prefix is
+    # RXOSINTID0 not RXOSINTID
+    for p in ports.keys():
+        if prefix in p and p.strip(prefix).isnumeric():
+            prefix = p
+            prefix_pin_idx = int(pin_name.replace(prefix, ""))
+
     if prefix in ports and prefix_pin_idx < ports[prefix]:
         return {
             'pin_name': prefix,
