@@ -110,6 +110,20 @@ def main():
                 )
 
     if not args.synth_tiles or args.overlay:
+        # If there are pads with the same XY coords, add Z coord
+        # e.g. IPADs and OPADs
+        pins_by_loc = dict()
+        pins_on_same_coord = dict()
+        for pin_name, (io, loc) in pin_to_iob.items():
+            pins_by_loc.setdefault(loc, []).append(pin_name)
+        for loc, pins in pins_by_loc.items():
+            if len(pins) > 1:
+                pins_on_same_coord[loc] = pins
+        for loc, pins in pins_on_same_coord.items():
+            for z, (pin_name) in enumerate(pins):
+                io, loc = pin_to_iob[pin_name]
+                pin_to_iob[pin_name] = (io, (loc[0], loc[1], z))
+
         for line in csv.DictReader(args.package_pins):
 
             # Skip PS7 MIO and DDR pads as they are not routable
@@ -121,12 +135,13 @@ def main():
 
             loc = pin_to_iob[line['pin']][1]
             if loc is not None:
+                z = 0 if len(loc) == 2 else loc[2]
                 writer.writerow(
                     dict(
                         name=line['pin'],
                         x=loc[0],
                         y=loc[1],
-                        z=0,
+                        z=z,
                         is_clock=1,
                         is_input=1,
                         is_output=1,
