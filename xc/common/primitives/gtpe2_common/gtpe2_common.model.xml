@@ -1,0 +1,50 @@
+<models>
+  <model name="GTPE2_COMMON_VPR" never_prune="true">
+    <input_ports>
+      <port name="BGBYPASSB"/>
+      <port name="BGMONITORENB"/>
+      <port name="BGPDB"/>
+      <port name="BGRCALOVRDENB"/>
+      <port name="DRPCLK" is_clock="1"/>
+      <port name="DRPEN"/>
+      <port name="DRPWE"/>
+      <port name="GTGREFCLK0" is_clock="1"/>
+      <port name="GTGREFCLK1" is_clock="1"/>
+      <port name="GTREFCLK0" is_clock="1"/>
+      <port name="GTREFCLK1" is_clock="1"/>
+      <port name="PLL0LOCKDETCLK" is_clock="1"/>
+      <port name="PLL0LOCKEN"/>
+      <port name="PLL0PD"/>
+      <port name="PLL0RESET"/>
+      <port name="PLL1LOCKDETCLK" is_clock="1"/>
+      <port name="PLL1LOCKEN"/>
+      <port name="PLL1PD"/>
+      <port name="PLL1RESET"/>
+      <port name="RCALENB"/>
+      <port name="DRPDI"/>
+      <port name="PLL0REFCLKSEL"/>
+      <port name="PLL1REFCLKSEL"/>
+      <port name="BGRCALOVRD"/>
+      <port name="DRPADDR"/>
+      <port name ="PMARSVD"/>
+    </input_ports>
+    <output_ports>
+      <port name="DRPRDY"/>
+      <port name="PLL0FBCLKLOST"/>
+      <port name="PLL0LOCK"/>
+      <port name="PLL0OUTCLK"/>
+      <port name="PLL0OUTREFCLK"/>
+      <port name="PLL0REFCLKLOST"/>
+      <port name="PLL1FBCLKLOST"/>
+      <port name="PLL1LOCK"/>
+      <port name="PLL1OUTCLK"/>
+      <port name="PLL1OUTREFCLK"/>
+      <port name="PLL1REFCLKLOST"/>
+      <port name="REFCLKOUTMONITOR0"/>
+      <port name="REFCLKOUTMONITOR1"/>
+      <port name="DRPDO"/>
+      <port name="PMARSVDOUT"/>
+      <port name="DMONITOROUT"/>
+    </output_ports>
+  </model>
+</models>

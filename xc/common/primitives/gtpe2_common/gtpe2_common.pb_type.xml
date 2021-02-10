@@ -1,0 +1,80 @@
+<pb_type name="GTPE2_COMMON" num_pb="1" blif_model=".subckt GTPE2_COMMON_VPR">
+  <output name="DRPRDY" num_pins="1"/>
+  <output name="PLL0FBCLKLOST" num_pins="1"/>
+  <output name="PLL0LOCK" num_pins="1"/>
+  <output name="PLL0OUTCLK" num_pins="1"/>
+  <output name="PLL0OUTREFCLK" num_pins="1"/>
+  <output name="PLL0REFCLKLOST" num_pins="1"/>
+  <output name="PLL1FBCLKLOST" num_pins="1"/>
+  <output name="PLL1LOCK" num_pins="1"/>
+  <output name="PLL1OUTCLK" num_pins="1"/>
+  <output name="PLL1OUTREFCLK" num_pins="1"/>
+  <output name="PLL1REFCLKLOST" num_pins="1"/>
+  <output name="REFCLKOUTMONITOR0" num_pins="1"/>
+  <output name="REFCLKOUTMONITOR1" num_pins="1"/>
+  <output name="DRPDO" num_pins="16"/>
+  <output name="PMARSVDOUT" num_pins="16"/>
+  <output name="DMONITOROUT" num_pins="8"/>
+  <input name="BGBYPASSB" num_pins="1"/>
+  <input name="BGMONITORENB" num_pins="1"/>
+  <input name="BGPDB" num_pins="1"/>
+  <input name="BGRCALOVRDENB" num_pins="1"/>
+  <clock name="DRPCLK" num_pins="1"/>
+  <input name="DRPEN" num_pins="1"/>
+  <input name="DRPWE" num_pins="1"/>
+  <clock name="GTGREFCLK0" num_pins="1"/>
+  <clock name="GTGREFCLK1" num_pins="1"/>
+  <clock name="GTREFCLK0" num_pins="1"/>
+  <clock name="GTREFCLK1" num_pins="1"/>
+  <clock name="PLL0LOCKDETCLK" num_pins="1"/>
+  <input name="PLL0LOCKEN" num_pins="1"/>
+  <input name="PLL0PD" num_pins="1"/>
+  <input name="PLL0RESET" num_pins="1"/>
+  <clock name="PLL1LOCKDETCLK" num_pins="1"/>
+  <input name="PLL1LOCKEN" num_pins="1"/>
+  <input name="PLL1PD" num_pins="1"/>
+  <input name="PLL1RESET" num_pins="1"/>
+  <input name="RCALENB" num_pins="1"/>
+  <input name="DRPDI" num_pins="16"/>
+  <input name="PLL0REFCLKSEL" num_pins="3"/>
+  <input name="PLL1REFCLKSEL" num_pins="3"/>
+  <input name="BGRCALOVRD" num_pins="5"/>
+  <input name="DRPADDR" num_pins="8"/>
+  <input name ="PMARSVD" num_pins="8"/>
+  <metadata>
+    <meta name="fasm_features">
+      IN_USE
+    </meta>
+    <meta name="fasm_params">
+      BIAS_CFG[63:0] = BIAS_CFG
+      COMMON_CFG[31:0] = COMMON_CFG
+      PLL0_CFG[26:0] = PLL0_CFG
+      PLL0_DMON_CFG[0:0] = PLL0_DMON_CFG
+      PLL0_FBDIV[4:0] = PLL0_FBDIV
+      PLL0_FBDIV_45[0:0] = PLL0_FBDIV_45
+      PLL0_INIT_CFG[23:0] = PLL0_INIT_CFG
+      PLL0_LOCK_CFG[8:0] = PLL0_LOCK_CFG
+      PLL0_REFCLK_DIV[4:0] = PLL0_REFCLK_DIV
+      PLL1_CFG[26:0] = PLL1_CFG
+      PLL1_DMON_CFG[0:0] = PLL1_DMON_CFG
+      PLL1_FBDIV[4:0] = PLL1_FBDIV
+      PLL1_FBDIV_45[0:0] = PLL1_FBDIV_45
+      PLL1_INIT_CFG[23:0] = PLL1_INIT_CFG
+      PLL1_LOCK_CFG[8:0] = PLL1_LOCK_CFG
+      PLL1_REFCLK_DIV[4:0] = PLL1_REFCLK_DIV
+      PLL_CLKOUT_CFG[7:0] = PLL_CLKOUT_CFG
+      RSVD_ATTR0[15:0] = RSVD_ATTR0
+      RSVD_ATTR1[15:0] = RSVD_ATTR1
+      IS_DRPCLK_INVERTED = IS_DRPCLK_INVERTED
+      IS_PLL0LOCKDETCLK_INVERTED = IS_PLL0LOCKDETCLK_INVERTED
+      IS_PLL1LOCKDETCLK_INVERTED = IS_PLL1LOCKDETCLK_INVERTED
+      IS_GTGREFCLK0_INVERTED = IS_GTGREFCLK0_INVERTED
+      IS_GTGREFCLK1_INVERTED = IS_GTGREFCLK1_INVERTED
+      ZINV_DRPCLK = ZINV_DRPCLK
+      ZINV_PLL1LOCKDETCLK = ZINV_PLL1LOCKDETCLK
+      ZINV_PLL1LOCKDETCLK = ZINV_PLL1LOCKDETCLK
+      INV_GTGREFCLK0 = INV_GTGREFCLK0
+      INV_GTGREFCLK1 = INV_GTGREFCLK1
+    </meta>
+  </metadata>
+</pb_type>
