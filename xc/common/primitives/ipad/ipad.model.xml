@@ -1,0 +1,10 @@
+<models>
+  <model name="IPAD_GTP_VPR" never_prune="true">
+    <input_ports>
+      <port name="I"/>
+    </input_ports>
+    <output_ports>
+      <port name="O"/>
+    </output_ports>
+  </model>
+</models>

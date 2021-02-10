@@ -2107,3 +2107,15 @@ parameter INTERNAL_VREF = "";
 parameter NUMBER = "";
 
 endmodule
+
+module IPAD_VPR (
+  output O
+  );
+  parameter LOC = "UNPLACED";
+endmodule
+
+module OPAD_VPR (
+  input I
+  );
+  parameter LOC = "UNPLACED";
+endmodule

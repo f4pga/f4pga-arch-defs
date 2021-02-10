@@ -1,0 +1,7 @@
+<models>
+  <model name="OPAD_VPR" never_prune="true">
+    <input_ports>
+      <port name="I"/>
+    </input_ports>
+  </model>
+</models>

@@ -1,0 +1,7 @@
+<pb_type name="OPAD" num_pb="1" blif_model=".subckt OPAD_VPR">
+  <input name="I" num_pins="1"/>
+  <metadata>
+    <meta name="type">bel</meta>
+    <meta name="subtype">output</meta>
+  </metadata>
+</pb_type>

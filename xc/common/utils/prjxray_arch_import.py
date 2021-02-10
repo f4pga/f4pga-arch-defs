@@ -514,6 +514,8 @@ PREFIX_REQUIRED = {
     "BUFGCTRL": ("XY", (2, 16)),
     "SLICEM": ("X", 2),
     "SLICEL": ("X", 2),
+    "IPAD": ("XY", (0, 0)),
+    "OPAD": ("XY", (0, 0)),
 }
 
 
