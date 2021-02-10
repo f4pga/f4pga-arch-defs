@@ -1,0 +1,4 @@
+set_io tx_n D1
+set_io tx_p D2
+set_io rx_n A4
+set_io rx_p B4

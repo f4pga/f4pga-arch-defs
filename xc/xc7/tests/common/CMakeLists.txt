@@ -4,6 +4,7 @@ add_file_target(FILE basys3.sdc)
 add_file_target(FILE basys3.xdc)
 add_file_target(FILE basys3_pmod.pcf)
 add_file_target(FILE basys3_gtp_common.pcf)
+add_file_target(FILE basys3_gtp_channel.pcf)
 
 # ARTY constraint files
 add_file_target(FILE arty_uart.pcf)
