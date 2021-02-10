@@ -1,0 +1,5 @@
+project_ray_tile_capacity(
+  ARCH artix7_200t
+  TILE GTP_CHANNEL_1_MID_LEFT
+  SITE_TYPES GTPE2_CHANNEL IPAD OPAD
+  )
