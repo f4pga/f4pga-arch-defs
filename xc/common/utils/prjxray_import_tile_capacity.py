@@ -1,18 +1,27 @@
 """ Generates project xray. """
 import argparse
 import json
+import sys
 import prjxray.db
 from prjxray.site_type import SitePinDirection
 from lib.pb_type_xml import start_heterogeneous_tile, add_switchblock_locations
 import lxml.etree as ET
 
 
-def get_wires(site, site_type):
+def get_wires(site, site_type, unused_wires=None):
     """Get wires related to a site"""
     input_wires = set()
     output_wires = set()
 
+    drop_wires = list()
+    wires_to_drop = list()
+    if unused_wires:
+        wires_to_drop = unused_wires.split(",")
+
     for site_pin in site.site_pins:
+        if site_pin.name in wires_to_drop:
+            drop_wires.append(site_pin)
+            continue
         if site_type.get_site_pin(
                 site_pin.name).direction == SitePinDirection.IN:
             input_wires.add(site_pin.wire)
@@ -21,6 +30,9 @@ def get_wires(site, site_type):
             output_wires.add(site_pin.wire)
         else:
             assert False, site_pin
+
+    for wire in drop_wires:
+        site.site_pins.remove(wire)
 
     return input_wires, output_wires
 
@@ -35,6 +47,10 @@ def main():
     parser.add_argument('--tile_type', required=True)
     parser.add_argument('--pb_types', required=True)
     parser.add_argument('--pin_assignments', required=True)
+    parser.add_argument(
+        '--unused_wires',
+        help="Comma seperated list of site wires to exclude in this tile."
+    )
 
     args = parser.parse_args()
 
@@ -67,7 +83,7 @@ def main():
             continue
 
         site_type = db.get_site_type(site.type)
-        input_wires, output_wires = get_wires(site, site_type)
+        input_wires, output_wires = get_wires(site, site_type, args.unused_wires)
 
         sites[site.type].append((site, input_wires, output_wires))
 
