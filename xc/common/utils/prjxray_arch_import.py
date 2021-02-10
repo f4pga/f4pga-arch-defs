@@ -505,6 +505,7 @@ def is_in_roi(conn, roi, tile_pkey):
 #
 # For example, IO sites only need the Y coordinate, use a modulus of 2.
 # So IOB_X1Y10 becomes IOB_Y0, IOB_X1Y11 becomes IOB_Y1, etc.
+# Setting modulo to 0 results in omitting modulo operation.
 PREFIX_REQUIRED = {
     "IOB": ("Y", 2),
     "IDELAY": ("Y", 2),
@@ -526,12 +527,19 @@ def make_prefix(site, x, y, from_site_name=False):
     prefix_required = PREFIX_REQUIRED[site_type]
 
     if prefix_required[0] == 'Y':
-        return site_type, '{}_Y{}'.format(site_type, y % prefix_required[1])
+        mod_y = prefix_required[1]
+        y_formula = "y{}".format(" % mod_y") if mod_y else "y"
+        return site_type, '{}_Y{}'.format(site_type, eval(y_formula))
     elif prefix_required[0] == 'X':
-        return site_type, '{}_X{}'.format(site_type, x % prefix_required[1])
+        mod_x = prefix_required[1]
+        x_formula = "x{}".format(" % mod_x") if mod_x else "x"
+        return site_type, '{}_X{}'.format(site_type, eval(x_formula))
     elif prefix_required[0] == 'XY':
         mod_x, mod_y = prefix_required[1]
-        return site_type, '{}_X{}Y{}'.format(site_type, x % mod_x, y % mod_y)
+        x_formula = "x{}".format(" % mod_x") if mod_x else "x"
+        y_formula = "y{}".format(" % mod_y") if mod_y else "y"
+        return site_type, '{}_X{}Y{}'.format(site_type, eval(x_formula),
+                                             eval(y_formula))
     else:
         assert False, (site_type, prefix_required)
 
