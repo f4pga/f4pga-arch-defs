@@ -586,6 +586,12 @@ def import_site_as_tile(db, args):
     # Wires source from a site within the tile are output wires.
     output_wires = set()
 
+    # Wires unused for this tile (arch specific)
+    unused_wires = list()
+    drop_wires = list()
+    if args.unused_wires:
+        unused_wires = args.unused_wires.split(",")
+
     site_type_instances = parse_site_type_instance(args.site_types)
     assert len(site_type_instances) == 1
     assert args.tile in site_type_instances
@@ -594,12 +600,18 @@ def import_site_as_tile(db, args):
     for site_pin in site_type.get_site_pins():
         site_type_pin = site_type.get_site_pin(site_pin)
 
+        if site_type_pin.name in unused_wires:
+            drop_wires.append(site_pin)
+            continue
         if site_type_pin.direction == prjxray.site_type.SitePinDirection.IN:
             input_wires.add(site_type_pin.name)
         elif site_type_pin.direction == prjxray.site_type.SitePinDirection.OUT:
             output_wires.add(site_type_pin.name)
         else:
             assert False, site_type_pin.direction
+
+    for wire in drop_wires:
+        del site_type.site_pins[wire]
 
     ##########################################################################
     # Generate the model.xml file                                            #
@@ -1408,6 +1420,11 @@ connection database in lue of Project X-Ray."""
         '--no_fasm_prefix',
         action="store_true",
         help="""Do not insert fasm prefix to the metadata."""
+    )
+
+    parser.add_argument(
+        '--unused_wires',
+        help="Comma seperated list of site wires to exclude in this tile."
     )
 
     args = parser.parse_args()
