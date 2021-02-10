@@ -642,16 +642,36 @@ def import_site_as_tile(db, args):
     root_element = cell_pb_type.parse(site_type_path)
     site_name = root_element.attrib['name']
 
+    ports = {}
+    for inputs in root_element.iter('input'):
+        ports[inputs.attrib['name']] = int(inputs.attrib['num_pins'])
+
+    for clocks in root_element.iter('clock'):
+        ports[clocks.attrib['name']] = int(clocks.attrib['num_pins'])
+
+    for outputs in root_element.iter('output'):
+        ports[outputs.attrib['name']] = int(outputs.attrib['num_pins'])
+
     interconnect_xml = ET.Element('interconnect')
 
     interconnect_xml.append(ET.Comment(" Tile->Site "))
     for site_pin in sorted(site_type.get_site_pins()):
         site_type_pin = site_type.get_site_pin(site_pin)
+
+        port = find_port(site_type_pin.name, ports)
+        if port is None:
+            print(
+                "*** WARNING *** Didn't find port for name {} for site type {}"
+                .format(site_type_pin.name, site_type.type),
+                file=sys.stderr
+            )
+            continue
+
         if site_type_pin.direction == prjxray.site_type.SitePinDirection.IN:
             add_direct(
                 interconnect_xml,
                 input=object_ref(add_vpr_tile_prefix(tile_name), site_pin),
-                output=object_ref(site_name, site_pin)
+                output=object_ref(site_name, **port)
             )
         elif site_type_pin.direction == prjxray.site_type.SitePinDirection.OUT:
             pass
@@ -661,12 +681,22 @@ def import_site_as_tile(db, args):
     interconnect_xml.append(ET.Comment(" Site->Tile "))
     for site_pin in sorted(site_type.get_site_pins()):
         site_type_pin = site_type.get_site_pin(site_pin)
+
+        port = find_port(site_type_pin.name, ports)
+        if port is None:
+            print(
+                "*** WARNING *** Didn't find port for name {} for site type {}"
+                .format(site_type_pin.name, site_type),
+                file=sys.stderr
+            )
+            continue
+
         if site_type_pin.direction == prjxray.site_type.SitePinDirection.IN:
             pass
         elif site_type_pin.direction == prjxray.site_type.SitePinDirection.OUT:
             add_direct(
                 interconnect_xml,
-                input=object_ref(site_name, site_pin),
+                input=object_ref(site_name, **port),
                 output=object_ref(add_vpr_tile_prefix(tile_name), site_pin),
             )
         else:
