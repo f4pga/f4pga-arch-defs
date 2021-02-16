@@ -1374,6 +1374,11 @@ function(ADD_FPGA_TARGET)
     # as targets not defining it should not use TECHMAP_PATH ENV variable
     get_target_property(YOSYS_TECHMAP ${ARCH} YOSYS_TECHMAP)
 
+    get_target_property(PRIMITIVES_WITH_DIRECT_IO ${DEVICE_TYPE} PRIMITIVES_WITH_DIRECT_IO)
+    if("${PRIMITIVES_WITH_DIRECT_IO}" STREQUAL "NOTFOUND")
+        set(PRIMITIVES_WITH_DIRECT_IO "")
+    endif()
+
     add_custom_command(
       OUTPUT ${OUT_JSON_SYNTH} ${OUT_SYNTH_V} ${OUT_FASM_EXTRA} ${OUT_SDC}
       DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS} ${INPUT_XDC_FILE} ${CELLS_SIM_DEPS}
@@ -1392,6 +1397,7 @@ function(ADD_FPGA_TARGET)
           INPUT_XDC_FILE=${INPUT_XDC_FILE}
           OUT_SDC=${OUT_SDC}
           USE_ROI=${USE_ROI}
+          PRIMITIVES_WITH_DIRECT_IO=${PRIMITIVES_WITH_DIRECT_IO}
           PCF_FILE=${INPUT_IO_FILE}
           PINMAP_FILE=${PINMAP}
           PYTHON3=${PYTHON3}

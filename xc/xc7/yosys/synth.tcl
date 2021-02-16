@@ -139,6 +139,12 @@ read_json $::env(OUT_JSON).carry_fixup_out.json
 
 techmap -map  $::env(TECHMAP_PATH)/clean_carry_map.v
 
+# Handle direct IO primitives
+write_json $::env(OUT_JSON).direct_io_fixup.json
+exec $::env(PYTHON3) $::env(UTILS_PATH)/direct_io_connect.py -p $::env(PRIMITIVES_WITH_DIRECT_IO) < $::env(OUT_JSON).direct_io_fixup.json > $::env(OUT_JSON).direct_io_fixup_out.json
+design -push
+read_json $::env(OUT_JSON).direct_io_fixup_out.json
+
 # Re-read baseline libraries
 read_verilog -lib -specify +/xilinx/cells_sim.v
 read_verilog -lib +/xilinx/cells_xtra.v
