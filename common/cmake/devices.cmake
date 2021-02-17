@@ -825,6 +825,9 @@ function(DEFINE_BOARD)
   endforeach()
 
   # Target for gathering all targets for a particular board.
+
+  add_custom_target(all_${DEFINE_BOARD_BOARD}_pack)
+  add_custom_target(all_${DEFINE_BOARD_BOARD}_place)
   add_custom_target(all_${DEFINE_BOARD_BOARD}_route)
   add_custom_target(all_${DEFINE_BOARD_BOARD}_bin)
 endfunction()
@@ -1611,6 +1614,9 @@ function(ADD_FPGA_TARGET)
       ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/echo/vpr_stdout.log ${OUT_LOCAL}/echo/pack.log
     )
 
+  add_custom_target(${NAME}_pack DEPENDS ${OUT_NET})
+  add_dependencies(all_${BOARD}_pack ${NAME}_pack)
+
   # Generate placement constraints.
   # -------------------------------------------------------------------------
   set(FIX_CLUSTERS_ARG "")
@@ -1770,6 +1776,10 @@ function(ADD_FPGA_TARGET)
         ${OUT_LOCAL}/echo/place.log
     WORKING_DIRECTORY ${OUT_LOCAL}/echo
   )
+
+  add_custom_target(${NAME}_place DEPENDS ${OUT_PLACE})
+  add_dependencies(all_${BOARD}_place ${NAME}_place)
+
 
   # Generate routing.
   # -------------------------------------------------------------------------
