@@ -490,6 +490,7 @@ function(DEFINE_DEVICE)
   #   [CACHE_PLACE_DELAY]
   #   [CACHE_LOOKAHEAD]
   #   [CACHE_ARGS <args>]
+  #   [ROUTE_CHAN_WIDTH]
   #   )
   # ~~~
   #
@@ -547,8 +548,12 @@ function(DEFINE_DEVICE)
     RR_PATCH_TOOL ${DEFINE_DEVICE_ARCH} RR_PATCH_TOOL
   )
   get_target_property_required(RR_PATCH_CMD ${DEFINE_DEVICE_ARCH} RR_PATCH_CMD)
-  get_target_property_required(ROUTE_CHAN_WIDTH ${DEFINE_DEVICE_ARCH}
-    ROUTE_CHAN_WIDTH)
+
+  if("${DEFINE_DEVICE_ROUTE_CHAN_WIDTH}" STREQUAL "")
+    get_target_property_required(ROUTE_CHAN_WIDTH ${DEFINE_DEVICE_ARCH} ROUTE_CHAN_WIDTH)
+  else()
+    set(ROUTE_CHAN_WIDTH ${DEFINE_DEVICE_ROUTE_CHAN_WIDTH})
+  endif()
 
   get_target_property_required(
     VIRT_DEVICE_MERGED_FILE ${DEFINE_DEVICE_DEVICE_TYPE} DEVICE_MERGED_FILE
@@ -586,6 +591,15 @@ function(DEFINE_DEVICE)
     # Generate a rr_graph for a device.
     #
 
+    # Use the device specific channel with for the virtual graph if provided.
+    # If not use a dummy value (assuming that the graph will get patched
+    # anyways).
+    if("${DEFINE_DEVICE_ROUTE_CHAN_WIDTH}" STREQUAL "")
+      set(RRXML_VIRT_ROUTE_CHAN_WIDTH 6) # FIXME: Where did the number come from?
+    else()
+      set(RRXML_VIRT_ROUTE_CHAN_WIDTH ${DEFINE_DEVICE_ROUTE_CHAN_WIDTH})
+    endif()
+
     # Generate the "default" rr_graph.xml we are going to patch using wire.
     add_custom_command(
       OUTPUT ${OUT_RRXML_VIRT} rr_graph_${DEVICE}_${PACKAGE}.virt.out
@@ -599,7 +613,7 @@ function(DEFINE_DEVICE)
         --device ${DEVICE_FULL}
         ${WIRE_EBLIF}
         --place_algorithm bounding_box
-        --route_chan_width 6
+        --route_chan_width ${RRXML_VIRT_ROUTE_CHAN_WIDTH}
         --echo_file on
         --min_route_chan_width_hint 1
         --write_rr_graph ${OUT_RRXML_VIRT}
@@ -624,6 +638,7 @@ function(DEFINE_DEVICE)
       ${DEFINE_DEVICE_DEVICE}
       PROPERTIES
         OUT_RRXML_VIRT ${CMAKE_CURRENT_SOURCE_DIR}/${OUT_RRXML_VIRT_FILENAME}
+        ROUTE_CHAN_WIDTH ${ROUTE_CHAN_WIDTH}
     )
 
     set(RR_PATCH_DEPS ${DEFINE_DEVICE_RR_PATCH_DEPS})
@@ -1491,7 +1506,12 @@ function(ADD_FPGA_TARGET)
 
   get_target_property_required(VPR env VPR)
 
-  get_target_property_required(ROUTE_CHAN_WIDTH ${ARCH} ROUTE_CHAN_WIDTH)
+  # Use route channel width from the device. If not provided then use the
+  # one from the arch.
+  get_target_property(ROUTE_CHAN_WIDTH ${DEVICE} ROUTE_CHAN_WIDTH)
+  if("${ROUTE_CHAN_WIDTH}" STREQUAL "ROUTE_CHAN_WIDTH-NOTFOUND")
+      get_target_property_required(ROUTE_CHAN_WIDTH ${ARCH} ROUTE_CHAN_WIDTH)
+  endif()
 
   get_target_property(VPR_ARCH_ARGS ${ARCH} VPR_ARCH_ARGS)
   if("${VPR_ARCH_ARGS}" STREQUAL "VPR_ARCH_ARGS-NOTFOUND")
