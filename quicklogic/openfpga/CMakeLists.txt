@@ -1,4 +1,3 @@
-include(../common/cmake/install.cmake)
 include(../common/cmake/quicklogic_openfpga_arch.cmake)
 include(../common/cmake/quicklogic_openfpga_device.cmake)
 include(../common/cmake/quicklogic_board.cmake)
