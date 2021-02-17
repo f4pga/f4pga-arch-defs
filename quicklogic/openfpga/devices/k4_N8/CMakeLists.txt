@@ -1,8 +1,11 @@
-file(RELATIVE_PATH
-  ARCH_XML
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${symbiflow-arch-defs_SOURCE_DIR}/third_party/SOFA/ARCH/vpr_arch/k4_N8_tileable_reset_softadder_register_scan_chain_nonLR_caravel_io_skywater130nm.xml
-)
+# FIXME: Until adder support is merged into SOFA repository use the local VPR arch XML file
+set(ARCH_XML k4_N8_tileable_reset_softadder_register_scan_chain_nonLR_caravel_io_skywater130nm.xml)
+
+#file(RELATIVE_PATH
+#  ARCH_XML
+#  ${CMAKE_CURRENT_SOURCE_DIR}
+#  ${symbiflow-arch-defs_SOURCE_DIR}/third_party/SOFA/ARCH/vpr_arch/k4_N8_tileable_reset_softadder_register_scan_chain_nonLR_caravel_io_skywater130nm.xml
+#)
 
 quicklogic_define_openfpga_device (
   NAME     k4_N8
