@@ -18,6 +18,7 @@ import simplejson as json
 
 # =============================================================================
 
+
 class IOBufDeleter():
     def __find_top_module(self, design):
         """
@@ -47,11 +48,15 @@ class IOBufDeleter():
         netnames = self.module["netnames"]
 
         connected_ports = list()
-        for port, port_bits in ports_connections.items():
-            for sig, sig_bits in prim_connections.items():
-                for bit in sig_bits:
-                    if bit in port_bits:
+        for port, (port_bits, top_io_bits) in ports_connections.items():
+            for cell, connections in prim_connections.items():
+                for cell_port, cell_bits in connections.items():
+                    if port_bits == cell_bits:
                         connected_ports.append(port)
+
+                        # Connect the cell's ports to the top level I/Os
+                        connections = cells[cell]["connections"]
+                        connections[cell_port] = top_io_bits
 
         for port in connected_ports:
             for cell_name, cfgs in cells.items():
@@ -70,18 +75,14 @@ class IOBufDeleter():
         to be later used to find out which of primitive ports have
         direct IO connection.
         """
-        if primitive not in self.module["cells"].keys():
-            return None
-        connections = self.module["cells"][primitive]["connections"]
+
         conns = dict()
-        for sig, bits in connections.items():
-            conns[sig] = list()
-            # Drop string values, only int values are associated with ports
-            for bit in bits:
-                if isinstance(bit, int):
-                    conns[sig].append(bit)
-            if len(conns[sig]) == 0:
-                del conns[sig]
+
+        for cell, data in self.module["cells"].items():
+            if data["type"] != primitive:
+                continue
+
+            conns[cell] = data["connections"]
 
         return conns
 
@@ -89,15 +90,17 @@ class IOBufDeleter():
         """
         Get all constrained ports with their corresponding 'bits'.
         """
-        ports = [
-            port for port in self.module["ports"].keys()
-        ]
+        ports = dict()
+
+        for port, cfg in self.module["ports"].items():
+            ports[port] = cfg["bits"]
 
         ports_connections = dict()
-        for port in ports:
+
+        for port, top_bits in ports.items():
             for net_name, cfg in self.module["netnames"].items():
                 if "iopadmap" in net_name and port in net_name:
-                    ports_connections[port] = cfg["bits"]
+                    ports_connections[port] = (cfg["bits"], top_bits)
                     break
 
         return ports_connections
@@ -127,15 +130,19 @@ def main():
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument("-p", default=None, type=str,
-                        help="Comma separated list of primitives which \
+    parser.add_argument(
+        "-p",
+        default=None,
+        type=str,
+        help="Comma separated list of primitives which \
                               have direct IO connection and do not require \
-                              IBUF/OBUF")
+                              IBUF/OBUF"
+    )
 
     args = parser.parse_args()
     design = json.load(sys.stdin)
 
-    if args.p != '' or args.p is not None:
+    if args.p:
         primitives = args.p.split(',')
         deleter = IOBufDeleter(design, primitives)
         design = deleter.process_direct_ios()
