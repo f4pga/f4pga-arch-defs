@@ -78,38 +78,49 @@ class GridLocSpec:
         self.tile_w, self.tile_h = tile_types[self.tile][0:2]
 
         # Optional fields but common to many constructs
-        globs  = {"W": grid_w, "H": grid_h, "w": self.tile_w, "h": self.tile_h}
+        globs = {"W": grid_w, "H": grid_h, "w": self.tile_w, "h": self.tile_h}
         params = {}
         for param, default in self.PARAMS:
             s = xml_elem.attrib.get(param, default)
-            if s is not None:            
-                params[param] = int(eval(s, {'__builtins__':None}, globs))
+            if s is not None:
+                params[param] = int(eval(s, {'__builtins__': None}, globs))
 
         # "fill"
         if xml_elem.tag == "fill":
             self.locs = set(
-                [loc for loc in itertools.product(
-                    range(0, grid_w, self.tile_w),
-                    range(0, grid_h, self.tile_h)
-                )]
+                [
+                    loc for loc in itertools.product(
+                        range(0, grid_w, self.tile_w),
+                        range(0, grid_h, self.tile_h)
+                    )
+                ]
             )
 
         # "corners"
         elif xml_elem.tag == "corners":
-            self.locs = set([
-                (0, 0,),
-                (grid_w - self.tile_w, 0),
-                (0, grid_h - self.tile_h),
-                (grid_w - self.tile_w, grid_h - self.tile_h)
-            ])
+            self.locs = set(
+                [
+                    (
+                        0,
+                        0,
+                    ), (grid_w - self.tile_w, 0), (0, grid_h - self.tile_h),
+                    (grid_w - self.tile_w, grid_h - self.tile_h)
+                ]
+            )
 
         # "perimeter"
         elif xml_elem.tag == "perimeter":
             self.locs = set()
 
             for x in range(0, grid_w, self.tile_w):
-                self.locs.add((x, 0,))
-                self.locs.add((x, grid_h - self.tile_h,))
+                self.locs.add((
+                    x,
+                    0,
+                ))
+                self.locs.add((
+                    x,
+                    grid_h - self.tile_h,
+                ))
 
             for y in range(self.tile_h, grid_h - self.tile_h, self.tile_h):
                 self.locs.add((0, y))
@@ -123,10 +134,21 @@ class GridLocSpec:
             assert "repeaty" not in xml_elem.attrib, "'repeaty' not supported"
 
             self.locs = set(
-                [(x, y,) for x, y in itertools.product(
-                    range(params["startx"], params["endx"] + 1, params["incrx"]),
-                    range(params["starty"], params["endy"] + 1, params["incry"])
-                )]
+                [
+                    (
+                        x,
+                        y,
+                    ) for x, y in itertools.product(
+                        range(
+                            params["startx"], params["endx"] +
+                            1, params["incrx"]
+                        ),
+                        range(
+                            params["starty"], params["endy"] +
+                            1, params["incry"]
+                        )
+                    )
+                ]
             )
 
         # "row"
@@ -135,9 +157,14 @@ class GridLocSpec:
             # TODO: Support incry
             assert "incry" not in xml_elem.attrib, "'incry' not supported"
 
-            self.locs = set([
-                (x, params["starty"],) for x in range(params["startx"], grid_w)
-            ])
+            self.locs = set(
+                [
+                    (
+                        x,
+                        params["starty"],
+                    ) for x in range(params["startx"], grid_w)
+                ]
+            )
 
         # "col"
         elif xml_elem.tag == "col":
@@ -145,19 +172,28 @@ class GridLocSpec:
             # TODO: Support incrx
             assert "incrx" not in xml_elem.attrib, "'incrx' not supported"
 
-            self.locs = set([
-                (params["startx"], y) for y in range(params["starty"], grid_h)
-            ])
+            self.locs = set(
+                [
+                    (params["startx"], y)
+                    for y in range(params["starty"], grid_h)
+                ]
+            )
 
         # "single"
         elif xml_elem.tag == "single":
-            self.locs = set(((params["x"], params["y"],),))
+            self.locs = set(((
+                params["x"],
+                params["y"],
+            ), ))
 
             # For "single" store its original metadata
             self.xml_metadata = xml_elem.find("metadata")
 
         else:
-            assert False, "Unknown grid location spec '{}'".format(xml_elem.tag)
+            assert False, "Unknown grid location spec '{}'".format(
+                xml_elem.tag
+            )
+
 
 # =============================================================================
 
@@ -173,7 +209,10 @@ def dump_tile_grid(grid, file=sys.stdout):
     for y in range(ymax + 1):
         l = " {:>2}: ".format(y)
         for x in range(xmax + 1):
-            loc = (x, y,)
+            loc = (
+                x,
+                y,
+            )
             if loc not in grid:
                 l += '.'
             else:
@@ -201,9 +240,8 @@ def assemble_grid(gridspec_list):
 
             # Clear the tile area in case it has width and/or height > 1
             if gridspec.tile_w > 1 or gridspec.tile_h > 1:
-                for x, y in itertools.product(
-                    range(gridspec.tile_w),
-                    range(gridspec.tile_h)):
+                for x, y in itertools.product(range(gridspec.tile_w),
+                                              range(gridspec.tile_h)):
 
                     l = (loc[0] + x, loc[1] + y)
                     grid[l] = EMPTY
@@ -223,8 +261,10 @@ def process_fixed_layout(xml_layout, tile_types, sub_tile_prefix, args):
     "single" tiles.
     """
 
-    print("Processing fixed layout '{}' ...".format(xml_layout.attrib["name"]),
-        file=sys.stderr)
+    print(
+        "Processing fixed layout '{}' ...".format(xml_layout.attrib["name"]),
+        file=sys.stderr
+    )
 
     # Decode grid location specifications
     grid_spec = []
@@ -248,7 +288,7 @@ def process_fixed_layout(xml_layout, tile_types, sub_tile_prefix, args):
 
     # Math equation evaluation function
     def math_eval(match):
-        return str(eval(match.group(1), {'__builtins__':None}, {}))
+        return str(eval(match.group(1), {'__builtins__': None}, {}))
 
     # Write layout
     xml_layout_new = ET.Element("fixed_layout", attrib=xml_layout.attrib)
@@ -261,12 +301,15 @@ def process_fixed_layout(xml_layout, tile_types, sub_tile_prefix, args):
             continue
 
         # Create a new "single" tag
-        xml_single = ET.Element("single", attrib = {
-            "type": tile_type,
-            "x": str(loc[0]),
-            "y": str(loc[1]),
-            "priority": "10" # FIXME: Arbitrary
-        })        
+        xml_single = ET.Element(
+            "single",
+            attrib={
+                "type": tile_type,
+                "x": str(loc[0]),
+                "y": str(loc[1]),
+                "priority": "10"  # FIXME: Arbitrary
+            }
+        )
 
         # Append metadata
         if args.fasm_prefix is not None:
@@ -296,11 +339,13 @@ def process_fixed_layout(xml_layout, tile_types, sub_tile_prefix, args):
                         # sub-tile
                         if sub_tile_type in sub_tile_prefix:
                             fasm_prefix += "."
-                            fasm_prefix += sub_tile_prefix[sub_tile_type].format(**tags)
+                            fasm_prefix += sub_tile_prefix[sub_tile_type
+                                                           ].format(**tags)
 
                         # Evaluate equations
-                        fasm_prefix = re.sub(r"\[([0-9+\-*/%]+)\]",
-                                             math_eval, fasm_prefix)
+                        fasm_prefix = re.sub(
+                            r"\[([0-9+\-*/%]+)\]", math_eval, fasm_prefix
+                        )
 
                         fasm_prefixes.append(fasm_prefix)
                         z = z + 1
@@ -331,13 +376,15 @@ def process_layouts(xml_layout, tile_types, args):
 
     # Look for "fixed_layout" and process them
     for xml_elem in list(xml_layout):
-        if xml_elem.tag == "fixed_layout":            
+        if xml_elem.tag == "fixed_layout":
 
             xml_layout_new = process_fixed_layout(
-                xml_elem, tile_types, sub_tile_prefix, args)
+                xml_elem, tile_types, sub_tile_prefix, args
+            )
 
             xml_layout.remove(xml_elem)
             xml_layout.append(xml_layout_new)
+
 
 # =============================================================================
 
@@ -351,28 +398,46 @@ def parse_tiles(xml_tiles):
 
     # Process all "tile" tags
     for xml_tile in xml_tiles.findall("tile"):
-        name   = xml_tile.attrib["name"]
-        width  = int(xml_tile.attrib.get("width", "1"))
+        name = xml_tile.attrib["name"]
+        width = int(xml_tile.attrib.get("width", "1"))
         height = int(xml_tile.attrib.get("height", "1"))
 
         # Process sub-tile tags
         sub_tiles = []
         for xml_sub_tile in xml_tile.findall("sub_tile"):
-            sub_name  = xml_sub_tile.attrib["name"]
+            sub_name = xml_sub_tile.attrib["name"]
             sub_count = int(xml_sub_tile.get("capacity", "1"))
-            sub_tiles.append((sub_name, sub_count,))
+            sub_tiles.append((
+                sub_name,
+                sub_count,
+            ))
 
         # No sub-tiles, assume that the tile is not heterogeneous
         if not sub_tiles:
             count = int(xml_tile.get("capacity", "1"))
-            sub_tiles = [(name, count,)]
+            sub_tiles = [(
+                name,
+                count,
+            )]
 
-        tile_types[name] = (width, height, tuple(sub_tiles),)
+        tile_types[name] = (
+            width,
+            height,
+            tuple(sub_tiles),
+        )
 
     # Add entry for the EMPTY tile
-    tile_types[EMPTY] = (1, 1, (EMPTY, 1,),)
+    tile_types[EMPTY] = (
+        1,
+        1,
+        (
+            EMPTY,
+            1,
+        ),
+    )
 
     return tile_types
+
 
 # =============================================================================
 
@@ -386,16 +451,10 @@ def main():
     )
 
     parser.add_argument(
-        "--arch-in",
-        type=str,
-        required=True,
-        help="VPR arch.xml input"
+        "--arch-in", type=str, required=True, help="VPR arch.xml input"
     )
     parser.add_argument(
-        "--arch-out",
-        type=str,
-        default=None,
-        help="VPR arch.xml output"
+        "--arch-out", type=str, default=None, help="VPR arch.xml output"
     )
 
     parser.add_argument(
@@ -409,7 +468,8 @@ def main():
         type=str,
         default=[],
         nargs="+",
-        help="Template strings for sub-tile FASM prefixes (<sub_tile>=<prefix_fmt>) (def. None) "
+        help=
+        "Template strings for sub-tile FASM prefixes (<sub_tile>=<prefix_fmt>) (def. None) "
     )
     parser.add_argument(
         "--prefix-only",
@@ -447,14 +507,10 @@ def main():
 
     # Write the modified architecture file back
     xml_tree = ET.ElementTree(xml_arch)
-    xml_tree.write(
-        args.arch_out,
-        pretty_print=True,
-        encoding="utf-8"
-    )
+    xml_tree.write(args.arch_out, pretty_print=True, encoding="utf-8")
+
 
 # =============================================================================
 
 if __name__ == "__main__":
     main()
-

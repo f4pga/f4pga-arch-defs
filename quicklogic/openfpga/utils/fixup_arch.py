@@ -42,15 +42,22 @@ def fixup_tiles(xml_arch):
         xml_tiles.remove(xml_org_tile)
 
         # Make a new sub-tile node. Copy legal attributes and children
-        xml_sub_tile = ET.Element("sub_tile",
-            {k: v for k, v in xml_org_tile.attrib.items() if k in SUB_TILE_ATTRIB}
+        xml_sub_tile = ET.Element(
+            "sub_tile", {
+                k: v
+                for k, v in xml_org_tile.attrib.items()
+                if k in SUB_TILE_ATTRIB
+            }
         )
         for element in xml_org_tile:
             xml_sub_tile.append(element)
 
         # Make a new tile node, copy legal attributes
-        xml_new_tile = ET.Element("tile",
-            {k: v for k, v in xml_org_tile.attrib.items() if k in TILE_ATTRIB}
+        xml_new_tile = ET.Element(
+            "tile",
+            {k: v
+             for k, v in xml_org_tile.attrib.items()
+             if k in TILE_ATTRIB}
         )
 
         # Attach nodes
@@ -132,6 +139,7 @@ def make_all_modes_packable(xml_arch):
 
     return xml_arch
 
+
 # =============================================================================
 
 
@@ -182,6 +190,7 @@ def pick_layout(xml_arch, layout_spec):
 
     return xml_arch
 
+
 # =============================================================================
 
 
@@ -194,22 +203,17 @@ def main():
     )
 
     parser.add_argument(
-        "--arch-in",
-        type=str,
-        required=True,
-        help="VPR arch.xml input"
+        "--arch-in", type=str, required=True, help="VPR arch.xml input"
     )
     parser.add_argument(
-        "--arch-out",
-        type=str,
-        default=None,
-        help="VPR arch.xml output"
+        "--arch-out", type=str, default=None, help="VPR arch.xml output"
     )
     parser.add_argument(
         "--pick-layout",
         type=str,
         default=None,
-        help="Pick the given layout name. Optionally re-name it (<old_name>=<new_name>)"
+        help=
+        "Pick the given layout name. Optionally re-name it (<old_name>=<new_name>)"
     )
 
     args = parser.parse_args()
@@ -234,11 +238,8 @@ def main():
 
     # Write the modified architecture file back
     xml_tree = ET.ElementTree(xml_arch)
-    xml_tree.write(
-        args.arch_out,
-        pretty_print=True,
-        encoding="utf-8"
-    )
+    xml_tree.write(args.arch_out, pretty_print=True, encoding="utf-8")
+
 
 # =============================================================================
 
