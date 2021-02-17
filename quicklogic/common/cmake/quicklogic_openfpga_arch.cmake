@@ -91,15 +91,4 @@ function(QUICKLOGIC_DEFINE_OPENFPGA_ARCH)
     ROUTE_CHAN_WIDTH ${QUICKLOGIC_DEFINE_OPENFPGA_ARCH_ROUTE_CHAN_WIDTH}
   )
 
-#  # Define toolchain installation target
-#  define_ql_toolchain_target(
-#    FAMILY ap3
-#    ARCH ql-ap3
-#    ROUTE_CHAN_WIDTH 100
-#    CELLS_SIM ${CELLS_SIM_FILE}
-#    VPR_ARCH_ARGS ${VPR_AP3_ARCH_ARGS}
-#    CONV_SCRIPT ${YOSYS_CONV_SCRIPT}
-#    SYNTH_SCRIPT ${YOSYS_SYNTH_SCRIPT}
-#  )
-
 endfunction()
