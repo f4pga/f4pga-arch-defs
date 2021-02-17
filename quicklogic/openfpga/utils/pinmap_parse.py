@@ -8,6 +8,7 @@ from collections import namedtuple
 
 import lxml.etree as ET
 
+
 # =============================================================================
 class PinMappingData(object):
     """
@@ -25,8 +26,10 @@ class PinMappingData(object):
     min_time    - Minimum acceptable transition time (in ns) of the given pin.
     """
 
-    def __init__(self, port_name, mapped_pin, type, direction, assoc_clk,
-                 clk_edge, time_factor, min_time):
+    def __init__(
+            self, port_name, mapped_pin, type, direction, assoc_clk, clk_edge,
+            time_factor, min_time
+    ):
         self.port_name = port_name
         self.mapped_pin = mapped_pin
         self.type = type
@@ -38,7 +41,7 @@ class PinMappingData(object):
 
     def __str__(self):
         return "{Port_name: '%s' mapped_pin: '%s' type: '%s' direction: '%s' assoc_clk: '%s' \
-                clk_edge: '%s' time_factor: '%s' min_time: '%s'}"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      % (self.port_name, \
+                clk_edge: '%s' time_factor: '%s' min_time: '%s'}"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        % (self.port_name, \
                 self.mapped_pin, self.type, self.direction, self.assoc_clk, \
                     self.clk_edge, self.time_factor, self.min_time)
 
@@ -46,6 +49,7 @@ class PinMappingData(object):
         return "{Port_name: '%s' mapped_pin: '%s' type: '%s' direction: '%s' assoc_clk: '%s' clk_edge: '%s' time_factor: '%s' min_time: '%s'}" % (self.port_name, \
                 self.mapped_pin, self.type, self.direction, self.assoc_clk, \
                     self.clk_edge, self.time_factor, self.min_time)
+
 
 """
 Device properties present in the pin-mapping xml
@@ -55,7 +59,6 @@ family  - Device family name
 size    - Device size
 """
 DeviceData = namedtuple("DeviceData", "name family size")
-
 """
 Properties defined at Cell section level
 
@@ -66,8 +69,12 @@ end_col     - For TOP or BOTTOM IO, specify end column from where mapped port na
 start_row   - For LEFT or RIGHT IO, specify start row from where mapped port name bus index starts
 end_row     - For LEFT or RIGHT IO, specify end row from where mapped port name bus index ends
 """
-CellData = namedtuple("CellData", "port_name mapped_name start_col end_col start_row end_row")
+CellData = namedtuple(
+    "CellData", "port_name mapped_name start_col end_col start_row end_row"
+)
+
 # =============================================================================
+
 
 def parse_io(xml_io, orientation):
 
@@ -82,11 +89,11 @@ def parse_io(xml_io, orientation):
     if orientation in ("TOP", "BOTTOM"):
         io_row = xml_io.get("row")
         if io_row is None:
-            side=""
+            side = ""
             if orientation is "TOP":
-                side="TOP_IO"
+                side = "TOP_IO"
             elif orientation is "BOTTOM":
-                side="BOTTOM_IO"
+                side = "BOTTOM_IO"
             print(
                 "ERROR: No mandatory attribute 'row' defined in '", side,
                 "' section"
@@ -106,19 +113,17 @@ def parse_io(xml_io, orientation):
             )
             return None
 
-
     for xml_cell in xml_io.findall("CELL"):
         cell = {}
 
         cellData = CellData(
             port_name=xml_cell.get("port_name"),
             mapped_name=xml_cell.get("mapped_name"),
-            start_col=xml_cell.get("start_col",""),
-            end_col=xml_cell.get("end_col",""),
-            start_row=xml_cell.get("start_row",""),
-            end_row=xml_cell.get("end_row","")
+            start_col=xml_cell.get("start_col", ""),
+            end_col=xml_cell.get("end_col", ""),
+            start_row=xml_cell.get("start_row", ""),
+            end_row=xml_cell.get("end_row", "")
         )
-
         """
         pinmaps = {}
         for xml_pinmap in xml_cell.findall("Pinmap"):
@@ -168,7 +173,9 @@ def parse_io(xml_io, orientation):
 
     return cells
 
+
 # =============================================================================
+
 
 def vec_to_scalar(port_name):
     scalar_ports = []
@@ -183,13 +190,13 @@ def vec_to_scalar(port_name):
             return None
         bus = port_name[open_brace + 1:close_brace]
         lsb = int(bus[:bus.find(':')])
-        msb = int(bus[bus.find(':')+1:])
+        msb = int(bus[bus.find(':') + 1:])
         if lsb > msb:
-            for i in range(msb, lsb+1):
+            for i in range(msb, lsb + 1):
                 curr_port_name = port_name[:open_brace] + '[' + str(i) + ']'
                 scalar_ports.append(curr_port_name)
         else:
-            for i in range(lsb, msb+1):
+            for i in range(lsb, msb + 1):
                 curr_port_name = port_name[:open_brace] + '[' + str(i) + ']'
                 scalar_ports.append(curr_port_name)
     else:
@@ -197,9 +204,11 @@ def vec_to_scalar(port_name):
 
     return scalar_ports
 
+
 # =============================================================================
 
-def parse_io_cells(xml_root ):
+
+def parse_io_cells(xml_root):
     """
     Parses the "IO" section of the pinmapfile. Returns a dict indexed by IO cell
     names which contains cell types and their locations in the device grid.
@@ -250,11 +259,15 @@ def read_pinmapfile_data(pinmapfile):
     xml_root = xml_tree.getroot()
 
     if xml_root.get("name") is None:
-        print("ERROR: No mandatory attribute 'name' specified in 'DEVICE' section")
+        print(
+            "ERROR: No mandatory attribute 'name' specified in 'DEVICE' section"
+        )
         return None
 
     if xml_root.get("family") is None:
-        print("ERROR: No mandatory attribute 'family' specified in 'DEVICE' section")
+        print(
+            "ERROR: No mandatory attribute 'family' specified in 'DEVICE' section"
+        )
         return None
 
     if xml_root.get("size") is None:
@@ -264,9 +277,9 @@ def read_pinmapfile_data(pinmapfile):
         return None
 
     deviceData = DeviceData(
-        name = xml_root.get("name"),
-        family = xml_root.get("family"),
-        size = xml_root.get("size"),
+        name=xml_root.get("name"),
+        family=xml_root.get("family"),
+        size=xml_root.get("size"),
     )
 
     # Parse IO cells
@@ -296,10 +309,7 @@ def main():
         help="Input pin-mapping XML file"
     )
     parser.add_argument(
-        "-o",
-        type=str,
-        default="pinmap.csv",
-        help="Output pinmap CSV file"
+        "-o", type=str, default="pinmap.csv", help="Output pinmap CSV file"
     )
 
     args = parser.parse_args()
@@ -315,9 +325,10 @@ def main():
     for key, value in io_cells.items():
         for item in value.values():
             csv_str += key + "," + item.port_name + "," + item.mapped_name + "," + "\n"
-    
+
     with open(args.o, "w") as fp:
         fp.write(csv_str)
+
 
 if __name__ == "__main__":
     main()

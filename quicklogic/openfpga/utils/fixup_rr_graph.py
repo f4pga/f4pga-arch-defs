@@ -18,16 +18,10 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "--rr-graph-in",
-        required=True,
-        type=str,
-        help="Input RR graph XML"
+        "--rr-graph-in", required=True, type=str, help="Input RR graph XML"
     )
     parser.add_argument(
-        "--rr-graph-out",
-        required=True,
-        type=str,
-        help="Output RR graph XML"
+        "--rr-graph-out", required=True, type=str, help="Output RR graph XML"
     )
 
     args = parser.parse_args()
