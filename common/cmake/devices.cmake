@@ -516,8 +516,14 @@ function(DEFINE_DEVICE)
   #
   # WARNING: Using a different place delay or lookahead algorithm will result
   # in an invalid cache.
-  set(options CACHE_LOOKAHEAD CACHE_PLACE_DELAY)
-  set(oneValueArgs DEVICE ARCH PART DEVICE_TYPE PACKAGES WIRE_EBLIF)
+  #
+  # The DONT_INSTALL option prevents device files to be installed.
+  #
+  # When ROUTE_CHAN_WIDTH is provided it overrides the channel with provided
+  # for the ARCH
+  #
+  set(options CACHE_LOOKAHEAD CACHE_PLACE_DELAY DONT_INSTALL)
+  set(oneValueArgs DEVICE ARCH PART DEVICE_TYPE PACKAGES WIRE_EBLIF ROUTE_CHAN_WIDTH)
   set(multiValueArgs RR_PATCH_DEPS RR_PATCH_EXTRA_ARGS CACHE_ARGS)
   cmake_parse_arguments(
     DEFINE_DEVICE
@@ -526,6 +532,8 @@ function(DEFINE_DEVICE)
     "${multiValueArgs}"
     ${ARGN}
   )
+
+  set(DONT_INSTALL ${DEFINE_DEVICE_DONT_INSTALL})
 
   add_custom_target(${DEFINE_DEVICE_DEVICE})
   foreach(ARG ARCH DEVICE_TYPE PACKAGES)
@@ -779,12 +787,18 @@ function(DEFINE_DEVICE)
       PROG_TOOL false
       )
 
-    install_device_files(
-      PART ${PART}
-      DEVICE ${DEFINE_DEVICE_DEVICE}
-      DEVICE_TYPE ${DEFINE_DEVICE_DEVICE_TYPE}
-      PACKAGE ${PACKAGE})
+    # Install
+    if(NOT ${DONT_INSTALL})
+        install_device_files(
+          PART ${PART}
+          DEVICE ${DEFINE_DEVICE_DEVICE}
+          DEVICE_TYPE ${DEFINE_DEVICE_DEVICE_TYPE}
+          PACKAGE ${PACKAGE})
+    else()
+        message(WARNING "Skipping installation of device '${DEFINE_DEVICE_DEVICE}-${PACKAGE}', type '${DEFINE_DEVICE_DEVICE_TYPE}'")
+    endif()
   endforeach()
+
 endfunction()
 
 function(DEFINE_BOARD)
