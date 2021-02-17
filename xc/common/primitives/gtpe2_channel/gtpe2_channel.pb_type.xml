@@ -1,8 +1,6 @@
 <pb_type name="GTPE2_CHANNEL" num_pb="1" blif_model=".subckt GTPE2_CHANNEL_VPR">
   <output name="DRPRDY" num_pins="1"/>
   <output name="EYESCANDATAERROR" num_pins="1"/>
-  <output name="GTPTXN" num_pins="1"/>
-  <output name="GTPTXP" num_pins="1"/>
   <output name="PHYSTATUS" num_pins="1"/>
   <output name="PMARSVDOUT0" num_pins="1"/>
   <output name="PMARSVDOUT1" num_pins="1"/>
@@ -65,6 +63,10 @@
   <output name="RXNOTINTABLE" num_pins="4"/>
   <output name="RXPHMONITOR" num_pins="5"/>
   <output name="RXPHSLIPMONITOR" num_pins="5"/>
+  <output name="GTPTXN" num_pins="1"/>
+  <output name="GTPTXP" num_pins="1"/>
+  <input name="GTPRXN" num_pins="1"/>
+  <input name="GTPRXP" num_pins="1"/>
   <input name="CFGRESET" num_pins="1"/>
   <clock name="CLKRSVD0" num_pins="1"/>
   <clock name="CLKRSVD1" num_pins="1"/>
@@ -76,15 +78,9 @@
   <input name="EYESCANMODE" num_pins="1"/>
   <input name="EYESCANRESET" num_pins="1"/>
   <input name="EYESCANTRIGGER" num_pins="1"/>
-  <input name="GTPRXN" num_pins="1"/>
-  <input name="GTPRXP" num_pins="1"/>
   <input name="GTRESETSEL" num_pins="1"/>
   <input name="GTRXRESET" num_pins="1"/>
   <input name="GTTXRESET" num_pins="1"/>
-  <clock name="PLL0CLK" num_pins="1"/>
-  <clock name="PLL0REFCLK" num_pins="1"/>
-  <clock name="PLL1CLK" num_pins="1"/>
-  <clock name="PLL1REFCLK" num_pins="1"/>
   <input name="PMARSVDIN0" num_pins="1"/>
   <input name="PMARSVDIN1" num_pins="1"/>
   <input name="PMARSVDIN2" num_pins="1"/>
@@ -227,6 +223,9 @@
   <input name="TXSEQUENCE" num_pins="7"/>
   <input name="DRPADDR" num_pins="9"/>
   <metadata>
+    <meta name="fasm_prefix">
+      GTPE2
+    </meta>
     <meta name="fasm_features">
       IN_USE
     </meta>
@@ -329,7 +328,7 @@
       RXLPM_INCM_CFG[0:0] = RXLPM_INCM_CFG
       RXLPM_IPCM_CFG[0:0] = RXLPM_IPCM_CFG
       RXLPM_LF_CFG2[4:0] = RXLPM_LF_CFG2
-      RXLPM_LF_CFG[4:0] = RXLPM_LF_CFG
+      RXLPM_LF_CFG[17:0] = RXLPM_LF_CFG
       RXLPM_OSINT_CFG[2:0] = RXLPM_OSINT_CFG
       RXOOB_CFG[6:0] = RXOOB_CFG
       RXOSCALRESET_TIMEOUT[4:0] = RXOSCALRESET_TIMEOUT
@@ -420,16 +419,16 @@
       TX_RXDETECT_REF[2:0] = TX_RXDETECT_REF
       UCODEER_CLR[0:0] = UCODEER_CLR
       USE_PCS_CLK_PHASE_SEL[0:0] = USE_PCS_CLK_PHASE_SEL
-      ZINV_TXUSRCLK_INVERTED = ZINV_TXUSRCLK_INVERTED
-      ZINV_TXUSRCLK2_INVERTED = ZINV_TXUSRCLK2_INVERTED
-      ZINV_TXPHDLYTSTCLK_INVERTED = ZINV_TXPHDLYTSTCLK_INVERTED
-      ZINV_SIGVALIDCLK_INVERTED = ZINV_SIGVALIDCLK_INVERTED
-      ZINV_RXUSRCLK_INVERTED = ZINV_RXUSRCLK_INVERTED
-      ZINV_RXUSRCLK2_INVERTED = ZINV_RXUSRCLK2_INVERTED
-      ZINV_DRPCLK_INVERTED = ZINV_DRPCLK_INVERTED
-      ZINV_DMONITORCLK_INVERTED = ZINV_DMONITORCLK_INVERTED
-      ZINV_CLKRSVD0_INVERTED = ZINV_CLKRSVD0_INVERTED
-      ZINV_CLKRSVD1_INVERTED = ZINV_CLKRSVD1_INVERTED
+      ZINV_TXUSRCLK = ZINV_TXUSRCLK
+      ZINV_TXUSRCLK2 = ZINV_TXUSRCLK2
+      ZINV_TXPHDLYTSTCLK = ZINV_TXPHDLYTSTCLK
+      ZINV_SIGVALIDCLK = ZINV_SIGVALIDCLK
+      ZINV_RXUSRCLK = ZINV_RXUSRCLK
+      ZINV_RXUSRCLK2 = ZINV_RXUSRCLK2
+      ZINV_DRPCLK = ZINV_DRPCLK
+      ZINV_DMONITORCLK = ZINV_DMONITORCLK
+      ZINV_CLKRSVD0 = ZINV_CLKRSVD0
+      ZINV_CLKRSVD1 = ZINV_CLKRSVD1
     </meta>
   </metadata>
 </pb_type>

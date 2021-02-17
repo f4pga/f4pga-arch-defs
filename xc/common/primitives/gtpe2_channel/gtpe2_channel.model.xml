@@ -17,10 +17,6 @@
       <port name="GTRESETSEL"/>
       <port name="GTRXRESET"/>
       <port name="GTTXRESET"/>
-      <port name="PLL0CLK" is_clock="1"/>
-      <port name="PLL0REFCLK" is_clock="1"/>
-      <port name="PLL1CLK" is_clock="1"/>
-      <port name="PLL1REFCLK" is_clock="1"/>
       <port name="PMARSVDIN0"/>
       <port name="PMARSVDIN1"/>
       <port name="PMARSVDIN2"/>

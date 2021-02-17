@@ -14,7 +14,7 @@
   <interconnect>
     <direct name="IPAD_GTP_to_IPAD" output="IPAD.O" input="IPAD_GTP.O"/>
     <direct name="inpad.inpad_to_IPAD_GTP.I" output="IPAD_GTP.I" input="inpad.inpad">
-      <pack_pattern name="inpad_to_IPAD_GTP"/>
+      <pack_pattern name="inpad_to_IPAD_GTP" input="inpad.inpad" output="IPAD_GTP.I"/>
     </direct>
   </interconnect>
 

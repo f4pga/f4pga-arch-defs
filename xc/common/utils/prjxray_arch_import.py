@@ -838,6 +838,34 @@ def add_constant_synthetic_tiles(model_xml, complexblocklist_xml, tiles_xml):
     return synth_tile_types
 
 
+def add_direct(directlist_xml, direct):
+    direct_dict = {
+        'name':
+            '{}_to_{}_dx_{}_dy_{}_dz_{}'.format(
+                direct['from_pin'], direct['to_pin'], direct['x_offset'],
+                direct['y_offset'], direct['z_offset']
+            ),
+        'from_pin':
+            add_vpr_tile_prefix(direct['from_pin']),
+        'to_pin':
+            add_vpr_tile_prefix(direct['to_pin']),
+        'x_offset':
+            str(direct['x_offset']),
+        'y_offset':
+            str(direct['y_offset']),
+        'z_offset':
+            str(direct['z_offset']),
+    }
+
+    # If the switch is a delayless_switch, the switch name
+    # needs to be avoided as VPR automatically assigns
+    # the delayless switch to this direct connection
+    if direct['switch_name'] != '__vpr_delayless_switch__':
+        direct_dict['switch_name'] = direct['switch_name']
+
+    ET.SubElement(directlist_xml, 'direct', direct_dict)
+
+
 def insert_constant_tiles(conn, model_xml, complexblocklist_xml, tiles_xml):
     c = conn.cursor()
 
@@ -1321,42 +1349,74 @@ WHERE
             (abs(direct['x_offset']) + abs(direct['y_offset']), direct)
         )
 
+    ALLOWED_ZERO_OFFSET_DIRECT = [
+        "GTP_CHANNEL_0",
+        "GTP_CHANNEL_1",
+        "GTP_CHANNEL_2",
+        "GTP_CHANNEL_3",
+    ]
+
+    zero_offset_directs = dict()
+
     for direct in directs.values():
         _, direct = min(direct, key=lambda v: v[0])
+        from_tile = direct['from_pin'].split('.')[0]
+        to_tile = direct['to_pin'].split('.')[0]
 
-        if direct['from_pin'].split('.')[0] not in tile_types:
+        if from_tile not in tile_types:
             continue
-        if direct['to_pin'].split('.')[0] not in tile_types:
+        if to_tile not in tile_types:
             continue
+
+        # In general, the Z offset is 0, except for special cases
+        # such as for the GTP tiles, where there are direct connections
+        # within the same (x, y) cooredinates, but between different sub_tiles
+        direct['z_offset'] = 0
 
         if direct['x_offset'] == 0 and direct['y_offset'] == 0:
+            if from_tile == to_tile and from_tile in ALLOWED_ZERO_OFFSET_DIRECT:
+                if from_tile not in zero_offset_directs:
+                    zero_offset_directs[from_tile] = list()
+
+                zero_offset_directs[from_tile].append(direct)
+
             continue
 
-        direct_dict = {
-            'name':
-                '{}_to_{}_dx_{}_dy_{}'.format(
-                    direct['from_pin'], direct['to_pin'], direct['x_offset'],
-                    direct['y_offset']
-                ),
-            'from_pin':
-                add_vpr_tile_prefix(direct['from_pin']),
-            'to_pin':
-                add_vpr_tile_prefix(direct['to_pin']),
-            'x_offset':
-                str(direct['x_offset']),
-            'y_offset':
-                str(direct['y_offset']),
-            'z_offset':
-                '0',
-        }
+        add_direct(directlist_xml, direct)
 
-        # If the switch is a delayless_switch, the switch name
-        # needs to be avoided as VPR automatically assigns
-        # the delayless switch to this direct connection
-        if direct['switch_name'] != '__vpr_delayless_switch__':
-            direct_dict['switch_name'] = direct['switch_name']
+    for tile, directs in zero_offset_directs.items():
+        uri = tile_xml_spec.format(tile_type.lower())
+        ports = list()
 
-        ET.SubElement(directlist_xml, 'direct', direct_dict)
+        with open(uri) as f:
+            tile_xml = ET.parse(f, ET.XMLParser())
+
+            tile_root = tile_xml.getroot()
+
+            for capacity, sub_tile in enumerate(tile_root.iter('sub_tile')):
+                for in_port in sub_tile.iter('input'):
+                    ports.append((in_port.attrib["name"], capacity))
+                for out_port in sub_tile.iter('output'):
+                    ports.append((out_port.attrib["name"], capacity))
+                for clk_port in sub_tile.iter('clock'):
+                    ports.append((clk_port.attrib["name"], capacity))
+
+        for direct in directs:
+            from_port = direct['from_pin'].split('.')[1]
+            to_port = direct['to_pin'].split('.')[1]
+
+            from_port_capacity = None
+            to_port_capacity = None
+            for port, capacity in ports:
+                if port == from_port:
+                    from_port_capacity = capacity
+                if port == to_port:
+                    to_port_capacity = capacity
+
+            assert from_port_capacity is not None and to_port_capacity is not None
+            direct["z_offset"] = to_port_capacity - from_port_capacity
+
+            add_direct(directlist_xml, direct)
 
     arch_xml_str = ET.tostring(arch_xml, pretty_print=True).decode('utf-8')
     args.output_arch.write(arch_xml_str)

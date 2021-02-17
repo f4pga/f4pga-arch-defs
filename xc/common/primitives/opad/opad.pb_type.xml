@@ -1,7 +1,22 @@
-<pb_type name="OPAD" num_pb="1" blif_model=".subckt OPAD_VPR">
+<pb_type name="OPAD" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
   <input name="I" num_pins="1"/>
+
+  <pb_type name="OPAD_GTP" blif_model=".subckt OPAD_GTP_VPR" num_pb="1">
+    <input name="I" num_pins="1"/>
+    <output name="O" num_pins="1"/>
+    <metadata>
+      <meta name="type">bel</meta>
+    </metadata>
+  </pb_type>
+  <xi:include href="../iob33/outpad.pb_type.xml"/>
+  <interconnect>
+    <direct name="OPAD_to_OPAD_GTP" output="OPAD_GTP.I" input="OPAD.I"/>
+    <direct name="OPAD_GTP_to_outpad" output="outpad.outpad" input="OPAD_GTP.O">
+      <pack_pattern name="OPAD_GTP_to_outpad" output="outpad.outpad" input="OPAD_GTP.O"/>
+    </direct>
+  </interconnect>
   <metadata>
     <meta name="type">bel</meta>
-    <meta name="subtype">output</meta>
+    <meta name="subtype">input</meta>
   </metadata>
 </pb_type>

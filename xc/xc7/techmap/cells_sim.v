@@ -2112,13 +2112,16 @@ module IPAD_GTP_VPR (
   input I,
   output O
   );
+
   assign O = I;
 endmodule
 
-module OPAD_VPR (
-  input I
+module OPAD_GTP_VPR (
+  input I,
+  output O
   );
-  parameter LOC = "UNPLACED";
+
+  assign O = I;
 endmodule
 
 module IBUFDS_GTE2_VPR (
@@ -2129,8 +2132,8 @@ module IBUFDS_GTE2_VPR (
   input IB
   );
 
-  parameter CLKCM_CFG = "TRUE";
-  parameter CLKRCV_TRST = "TRUE";
+  parameter CLKCM_CFG = 1'b1;
+  parameter CLKRCV_TRST = 1'b1;
   parameter [1:0] CLKSWING_CFG = 2'b11;
 
   reg O_out=0;
@@ -2207,8 +2210,6 @@ module GTPE2_COMMON_VPR (
   input DRPWE,
   input GTGREFCLK0,
   input GTGREFCLK1,
-  input GTREFCLK0,
-  input GTREFCLK1,
   input PLL0LOCKDETCLK,
   input PLL0LOCKEN,
   input PLL0PD,
@@ -2258,10 +2259,12 @@ module GTPE2_COMMON_VPR (
 endmodule
 
 module GTPE2_CHANNEL_VPR (
-  output DRPRDY,
-  output EYESCANDATAERROR,
+  input GTPRXN,
+  input GTPRXP,
   output GTPTXN,
   output GTPTXP,
+  output DRPRDY,
+  output EYESCANDATAERROR,
   output PHYSTATUS,
   output PMARSVDOUT0,
   output PMARSVDOUT1,
@@ -2335,15 +2338,9 @@ module GTPE2_CHANNEL_VPR (
   input EYESCANMODE,
   input EYESCANRESET,
   input EYESCANTRIGGER,
-  input GTPRXN,
-  input GTPRXP,
   input GTRESETSEL,
   input GTRXRESET,
   input GTTXRESET,
-  input PLL0CLK,
-  input PLL0REFCLK,
-  input PLL1CLK,
-  input PLL1REFCLK,
   input PMARSVDIN0,
   input PMARSVDIN1,
   input PMARSVDIN2,

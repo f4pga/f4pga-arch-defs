@@ -1,5 +1,5 @@
 <models>
-  <model name="IPAD_GTP_VPR" never_prune="true">
+  <model name="IPAD_GTP_VPR">
     <input_ports>
       <port name="I"/>
     </input_ports>

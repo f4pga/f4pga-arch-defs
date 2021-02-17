@@ -90,14 +90,14 @@ class IOBufDeleter():
         """
         Get all constrained ports with their corresponding 'bits'.
         """
-        ports = dict()
+        top_ports = dict()
 
         for port, cfg in self.module["ports"].items():
-            ports[port] = cfg["bits"]
+            top_ports[port] = cfg["bits"]
 
         ports_connections = dict()
 
-        for port, top_bits in ports.items():
+        for port, top_bits in top_ports.items():
             for net_name, cfg in self.module["netnames"].items():
                 if "iopadmap" in net_name and port in net_name:
                     ports_connections[port] = (cfg["bits"], top_bits)
@@ -126,26 +126,12 @@ class IOBufDeleter():
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description=__doc__,
-        formatter_class=argparse.RawDescriptionHelpFormatter
-    )
-    parser.add_argument(
-        "-p",
-        default=None,
-        type=str,
-        help="Comma separated list of primitives which \
-                              have direct IO connection and do not require \
-                              IBUF/OBUF"
-    )
 
-    args = parser.parse_args()
+    primitives = ["IPAD_GTP_VPR", "OPAD_GTP_VPR"]
+
     design = json.load(sys.stdin)
-
-    if args.p:
-        primitives = args.p.split(',')
-        deleter = IOBufDeleter(design, primitives)
-        design = deleter.process_direct_ios()
+    deleter = IOBufDeleter(design, primitives)
+    design = deleter.process_direct_ios()
 
     json.dump(design, sys.stdout, indent=2)
 
