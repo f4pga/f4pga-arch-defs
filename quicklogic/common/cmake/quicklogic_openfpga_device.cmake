@@ -132,9 +132,6 @@ function(QUICKLOGIC_DEFINE_OPENFPGA_DEVICE)
   set(DEVICE_RR_PATCH_DEPS "")
   set(DEVICE_RR_PATCH_EXTRA_ARGS "")
 
-  # VPR "cache" options
-  set(ROUTER_LOOKAHEAD "extended_map")
-
   # Define the device
   define_device(
     DEVICE ${DEVICE}
@@ -146,19 +143,16 @@ function(QUICKLOGIC_DEFINE_OPENFPGA_DEVICE)
     RR_PATCH_DEPS ${DEVICE_RR_PATCH_DEPS}
     RR_PATCH_EXTRA_ARGS ${DEVICE_RR_PATCH_EXTRA_ARGS}
 
-#    CACHE_PLACE_DELAY
-#    CACHE_LOOKAHEAD
-#    CACHE_ARGS
-#      --constant_net_method route
-#      --clock_modeling ideal # Do not route clocks in OpenFPGA
-#      --place_delay_model delta_override
-#      --place_delta_delay_matrix_calculation_method dijkstra
-#      --router_lookahead ${ROUTER_LOOKAHEAD}
-#      --disable_errors check_unbuffered_edges:check_route:check_place
-#      --suppress_warnings sum_pin_class:check_unbuffered_edges:load_rr_indexed_data_T_values:check_rr_node:trans_per_R:set_rr_graph_tool_comment
-#      --route_chan_width 100
-
+    CACHE_PLACE_DELAY
+    CACHE_LOOKAHEAD
     CACHE_ARGS
+      --constant_net_method route
+      --clock_modeling ideal # Do not route clocks in OpenFPGA
+      --place_delay_model delta_override
+      --place_delta_delay_matrix_calculation_method dijkstra
+      --router_lookahead extended_map
+      --disable_errors check_unbuffered_edges:check_route:check_place
+      --suppress_warnings sum_pin_class:check_unbuffered_edges:load_rr_indexed_data_T_values:check_rr_node:trans_per_R:set_rr_graph_tool_comment
       --route_chan_width ${ROUTE_CHAN_WIDTH}
 
     # FIXME: Skip installation for now
