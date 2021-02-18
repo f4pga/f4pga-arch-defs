@@ -207,22 +207,22 @@ def dump_tile_grid(grid, file=sys.stdout):
     xmax = max([loc[0] for loc in grid])
     ymax = max([loc[1] for loc in grid])
     for y in range(ymax + 1):
-        l = " {:>2}: ".format(y)
+        line = " {:>2}: ".format(y)
         for x in range(xmax + 1):
             loc = (
                 x,
                 y,
             )
             if loc not in grid:
-                l += '.'
+                line += '.'
             else:
                 tile_type = grid[loc]
 
                 if tile_type == EMPTY:
-                    l += '.'
+                    line += '.'
                 else:
-                    l += tile_type[0].upper()
-        print(l, file=file)
+                    line += tile_type[0].upper()
+        print(line, file=file)
 
 
 def assemble_grid(gridspec_list):
@@ -243,8 +243,7 @@ def assemble_grid(gridspec_list):
                 for x, y in itertools.product(range(gridspec.tile_w),
                                               range(gridspec.tile_h)):
 
-                    l = (loc[0] + x, loc[1] + y)
-                    grid[l] = EMPTY
+                    grid[(loc[0] + x, loc[1] + y)] = EMPTY
 
             # Base tile location
             grid[loc] = gridspec.tile
@@ -468,8 +467,8 @@ def main():
         type=str,
         default=[],
         nargs="+",
-        help=
-        "Template strings for sub-tile FASM prefixes (<sub_tile>=<prefix_fmt>) (def. None) "
+        help="Template strings for sub-tile FASM prefixes "
+        "(<sub_tile>=<prefix_fmt>) (def. None) "
     )
     parser.add_argument(
         "--prefix-only",
