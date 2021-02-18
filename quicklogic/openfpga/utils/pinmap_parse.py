@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 import argparse
-import csv
-import re
 
-from collections import defaultdict
 from collections import namedtuple
 
 import lxml.etree as ET
@@ -40,15 +37,30 @@ class PinMappingData(object):
         self.min_time = min_time
 
     def __str__(self):
-        return "{Port_name: '%s' mapped_pin: '%s' type: '%s' direction: '%s' assoc_clk: '%s' \
-                clk_edge: '%s' time_factor: '%s' min_time: '%s'}"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          % (self.port_name, \
-                self.mapped_pin, self.type, self.direction, self.assoc_clk, \
-                    self.clk_edge, self.time_factor, self.min_time)
+        return "{Port_name: '%s' mapped_pin: '%s' type: '%s' direction: '%s' " \
+               "assoc_clk: '%s' clk_edge: '%s' time_factor: '%s' " \
+               "min_time: '%s'}" % (self.port_name,
+                                    self.mapped_pin,
+                                    self.type,
+                                    self.direction,
+                                    self.assoc_clk,
+                                    self.clk_edge,
+                                    self.time_factor,
+                                    self.min_time
+                                    )
 
     def __repr__(self):
-        return "{Port_name: '%s' mapped_pin: '%s' type: '%s' direction: '%s' assoc_clk: '%s' clk_edge: '%s' time_factor: '%s' min_time: '%s'}" % (self.port_name, \
-                self.mapped_pin, self.type, self.direction, self.assoc_clk, \
-                    self.clk_edge, self.time_factor, self.min_time)
+        return "{Port_name: '%s' mapped_pin: '%s' type: '%s' direction: '%s' " \
+               "assoc_clk: '%s' clk_edge: '%s' time_factor: '%s' " \
+               "min_time: '%s'}" % (self.port_name,
+                                    self.mapped_pin,
+                                    self.type,
+                                    self.direction,
+                                    self.assoc_clk,
+                                    self.clk_edge,
+                                    self.time_factor,
+                                    self.min_time
+                                    )
 
 
 """
@@ -64,10 +76,14 @@ Properties defined at Cell section level
 
 port_name   - Port name
 mapped_name - Mapped IO interface port name
-start_col   - For TOP or BOTTOM IO, specify start column from where mapped port name bus index starts
-end_col     - For TOP or BOTTOM IO, specify end column from where mapped port name bus index ends
-start_row   - For LEFT or RIGHT IO, specify start row from where mapped port name bus index starts
-end_row     - For LEFT or RIGHT IO, specify end row from where mapped port name bus index ends
+start_col   - For TOP or BOTTOM IO, specify start column from where mapped
+              port name bus index starts
+end_col     - For TOP or BOTTOM IO, specify end column from where mapped
+              port name bus index ends
+start_row   - For LEFT or RIGHT IO, specify start row from where mapped
+              port name bus index starts
+end_row     - For LEFT or RIGHT IO, specify end row from where mapped
+              port name bus index ends
 """
 CellData = namedtuple(
     "CellData", "port_name mapped_name start_col end_col start_row end_row"
@@ -85,14 +101,13 @@ def parse_io(xml_io, orientation):
     io_row = ""
     io_col = ""
 
-    xml_row_cols = {}
     if orientation in ("TOP", "BOTTOM"):
         io_row = xml_io.get("row")
         if io_row is None:
             side = ""
-            if orientation is "TOP":
+            if orientation == "TOP":
                 side = "TOP_IO"
-            elif orientation is "BOTTOM":
+            elif orientation == "BOTTOM":
                 side = "BOTTOM_IO"
             print(
                 "ERROR: No mandatory attribute 'row' defined in '", side,
@@ -103,9 +118,9 @@ def parse_io(xml_io, orientation):
         io_col = xml_io.get("col")
         if io_col is None:
             side = ""
-            if orientation is "LEFT":
+            if orientation == "LEFT":
                 side = "LEFT_IO"
-            elif orientation is "RIGHT":
+            elif orientation == "RIGHT":
                 side = "RIGHT_IO"
             print(
                 "ERROR: No mandatory attribute 'col' defined in '", side,
@@ -114,7 +129,6 @@ def parse_io(xml_io, orientation):
             return None
 
     for xml_cell in xml_io.findall("CELL"):
-        cell = {}
 
         cellData = CellData(
             port_name=xml_cell.get("port_name"),
@@ -286,7 +300,7 @@ def read_pinmapfile_data(pinmapfile):
     io_cells = parse_io_cells(xml_root)
 
     # Parse pinmap
-    #pin_map = parse_pinmap(xml_root)
+    # pin_map = parse_pinmap(xml_root)
 
     return deviceData, io_cells
 
