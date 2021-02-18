@@ -5,9 +5,6 @@ project so that it can be used with the VPR used in SymbiFlow.
 """
 
 import argparse
-import re
-import itertools
-import sys
 
 import lxml.etree as ET
 
@@ -95,8 +92,11 @@ def fixup_attributes(xml_arch):
         xml_switch_blocks = xml_device.findall("switch_block")
         for xml_old_switch_block in xml_switch_blocks:
 
-            attrib = {k: v for k, v in xml_old_switch_block.attrib.items() \
-                      if k in SWITCH_BLOCK_TAGS}
+            attrib = {
+                k: v
+                for k, v in xml_old_switch_block.attrib.items()
+                if k in SWITCH_BLOCK_TAGS
+            }
 
             xml_new_switch_block = ET.Element("switch_block", attrib)
             for element in xml_old_switch_block:
@@ -212,8 +212,8 @@ def main():
         "--pick-layout",
         type=str,
         default=None,
-        help=
-        "Pick the given layout name. Optionally re-name it (<old_name>=<new_name>)"
+        help="Pick the given layout name. Optionally re-name it "
+        "(<old_name>=<new_name>)"
     )
 
     args = parser.parse_args()
