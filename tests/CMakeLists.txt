@@ -10,7 +10,7 @@ foreach(BOARD ${BOARDS})
 endforeach()
 
 # QuickLogic boards for OpenFPGA based devices
-set(QL_OPENFPGA_BOARDS ql-openfpga-k4_N8_board)
+set(QL_OPENFPGA_BOARDS qlf_k4n8-qlf_k4n8_umc22_board)
 
 foreach(BOARD ${QL_OPENFPGA_BOARDS})
     add_custom_target(all_${BOARD})

@@ -1,6 +1,6 @@
-function(QUICKLOGIC_DEFINE_OPENFPGA_ARCH)
+function(QUICKLOGIC_DEFINE_QLF_ARCH)
   # ~~~
-  # QUICKLOGIC_DEFINE_OPENFPGA_ARCH(
+  # QUICKLOGIC_DEFINE_QLF_ARCH(
   #   FAMILY <family>
   #   ARCH <arch>
   #   VPR_ARGS <VPR args common to the architecture>
@@ -14,16 +14,16 @@ function(QUICKLOGIC_DEFINE_OPENFPGA_ARCH)
   set(multiValueArgs VPR_ARGS)
 
   cmake_parse_arguments(
-    QUICKLOGIC_DEFINE_OPENFPGA_ARCH
+    QUICKLOGIC_DEFINE_QLF_ARCH
     "${options}"
     "${oneValueArgs}"
     "${multiValueArgs}"
     ${ARGN}
   )
 
-  set(FAMILY   ${QUICKLOGIC_DEFINE_OPENFPGA_ARCH_FAMILY})
-  set(ARCH     ${QUICKLOGIC_DEFINE_OPENFPGA_ARCH_ARCH})
-  set(VPR_ARGS ${QUICKLOGIC_DEFINE_OPENFPGA_ARCH_VPR_ARGS})
+  set(FAMILY   ${QUICKLOGIC_DEFINE_QLF_ARCH_FAMILY})
+  set(ARCH     ${QUICKLOGIC_DEFINE_QLF_ARCH_ARCH})
+  set(VPR_ARGS ${QUICKLOGIC_DEFINE_QLF_ARCH_VPR_ARGS})
 
   set(FAMILY_DIR ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY})
 
@@ -39,7 +39,7 @@ function(QUICKLOGIC_DEFINE_OPENFPGA_ARCH)
     CELLS_SIM ${FAMILY_DIR}/techmap/cells_sim.v
 
     RR_PATCH_TOOL
-      ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/openfpga/utils/fixup_rr_graph.py
+      ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/qlf_k4n8/utils/fixup_rr_graph.py
     RR_PATCH_CMD "\${CMAKE_COMMAND} -E env \
       PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils:$PYTHONPATH:${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils \
       \${PYTHON3} \${RR_PATCH_TOOL} \
@@ -88,7 +88,7 @@ function(QUICKLOGIC_DEFINE_OPENFPGA_ARCH)
     NO_BIT_TIME
     USE_FASM
 
-    ROUTE_CHAN_WIDTH ${QUICKLOGIC_DEFINE_OPENFPGA_ARCH_ROUTE_CHAN_WIDTH}
+    ROUTE_CHAN_WIDTH ${QUICKLOGIC_DEFINE_QLF_ARCH_ROUTE_CHAN_WIDTH}
   )
 
 endfunction()
