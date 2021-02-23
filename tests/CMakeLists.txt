@@ -9,6 +9,12 @@ foreach(BOARD ${BOARDS})
     add_custom_target(all_${BOARD})
 endforeach()
 
+# QuickLogic boards for OpenFPGA based devices
+set(QL_OPENFPGA_BOARDS ql-openfpga-k4_N8_board)
+
+foreach(BOARD ${QL_OPENFPGA_BOARDS})
+    add_custom_target(all_${BOARD})
+endforeach()
 
 function(add_simple_test)
   # ~~~
