@@ -1,6 +1,6 @@
-function(QUICKLOGIC_DEFINE_OPENFPGA_DEVICE)
+function(QUICKLOGIC_DEFINE_QLF_DEVICE)
   # ~~~
-  # QUICKLOGIC_DEFINE_OPENFPGA_DEVICE(
+  # QUICKLOGIC_DEFINE_QLF_DEVICE(
   #   NAME <name>
   #   FAMILY <family>
   #   ARCH <arch>
@@ -13,7 +13,7 @@ function(QUICKLOGIC_DEFINE_OPENFPGA_DEVICE)
   set(oneValueArgs NAME FAMILY ARCH ARCH_XML LAYOUT ROUTE_CHAN_WIDTH)
   set(multiValueArgs)
   cmake_parse_arguments(
-    QUICKLOGIC_DEFINE_OPENFPGA_DEVICE
+    QUICKLOGIC_DEFINE_QLF_DEVICE
      "${options}"
      "${oneValueArgs}"
      "${multiValueArgs}"
@@ -21,17 +21,17 @@ function(QUICKLOGIC_DEFINE_OPENFPGA_DEVICE)
    )
 
   # Get args
-  set(NAME     ${QUICKLOGIC_DEFINE_OPENFPGA_DEVICE_NAME})
-  set(FAMILY   ${QUICKLOGIC_DEFINE_OPENFPGA_DEVICE_FAMILY})
-  set(ARCH     ${QUICKLOGIC_DEFINE_OPENFPGA_DEVICE_ARCH})
-  set(ARCH_XML ${QUICKLOGIC_DEFINE_OPENFPGA_DEVICE_ARCH_XML})
-  set(LAYOUT   ${QUICKLOGIC_DEFINE_OPENFPGA_DEVICE_LAYOUT})
+  set(NAME     ${QUICKLOGIC_DEFINE_QLF_DEVICE_NAME})
+  set(FAMILY   ${QUICKLOGIC_DEFINE_QLF_DEVICE_FAMILY})
+  set(ARCH     ${QUICKLOGIC_DEFINE_QLF_DEVICE_ARCH})
+  set(ARCH_XML ${QUICKLOGIC_DEFINE_QLF_DEVICE_ARCH_XML})
+  set(LAYOUT   ${QUICKLOGIC_DEFINE_QLF_DEVICE_LAYOUT})
 
   # If ROUTE_CHAN_WIDTH is not given then use the value from the architecture
-  if("${QUICKLOGIC_DEFINE_OPENFPGA_DEVICE_ROUTE_CHAN_WIDTH}" STREQUAL "")
+  if("${QUICKLOGIC_DEFINE_QLF_DEVICE_ROUTE_CHAN_WIDTH}" STREQUAL "")
     get_target_property_required(ROUTE_CHAN_WIDTH ${ARCH} ROUTE_CHAN_WIDTH)
   else()
-    set(ROUTE_CHAN_WIDTH ${QUICKLOGIC_DEFINE_OPENFPGA_DEVICE_ROUTE_CHAN_WIDTH})
+    set(ROUTE_CHAN_WIDTH ${QUICKLOGIC_DEFINE_QLF_DEVICE_ROUTE_CHAN_WIDTH})
   endif()
 
   get_target_property_required(PYTHON3 env PYTHON3)
@@ -57,14 +57,14 @@ function(QUICKLOGIC_DEFINE_OPENFPGA_DEVICE)
 
   # VPR architecture fixup.
   #
-  # For now architecture from the VPR used in OpenFPGA is incompaatible with
+  # For now architecture of a QLF device is incompatible with
   # the VPR used in SymbiFlow. This is due to heterogeneous tile support
   # not being integrated there yet.
   #
   # This step also removes some element attributes that are not recognized
   # by SymbiFlow VPR
 
-  set(ARCH_FIXUP_SCRIPT ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/openfpga/utils/fixup_arch.py)
+  set(ARCH_FIXUP_SCRIPT ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/qlf_k4n8/utils/fixup_arch.py)
 
   set(ARCH_FIXUP_FILE "${ARCH_BASE_NAME}.fixup.xml")
   set(ARCH_FIXUP_CMD
@@ -147,7 +147,7 @@ function(QUICKLOGIC_DEFINE_OPENFPGA_DEVICE)
     CACHE_LOOKAHEAD
     CACHE_ARGS
       --constant_net_method route
-      --clock_modeling ideal # Do not route clocks in OpenFPGA
+      --clock_modeling ideal # Do not route clocks
       --place_delay_model delta_override
       --place_delta_delay_matrix_calculation_method dijkstra
       --router_lookahead extended_map
