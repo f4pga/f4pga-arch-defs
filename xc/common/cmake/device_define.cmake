@@ -54,6 +54,7 @@ function(ADD_XC_BOARD)
 
   set(PRJRAY_DIR ${DOC_PRJ})
   set(PRJRAY_DB_DIR ${DOC_PRJ_DB})
+  set(DB_ROOT "${PRJRAY_DB_DIR}/${PRJRAY_ARCH}")
 
   set_target_properties(${BOARD}
     PROPERTIES PART ${PART}
@@ -109,6 +110,8 @@ function(ADD_XC_BOARD)
     add_custom_command(
       OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
       COMMAND ${PYTHON3} ${CREATE_PINMAP_CSV}
+        --db_root ${DB_ROOT}
+        --part ${PART}
         --connection_database ${CHANNELS_LOCATION}
         --synth_tiles ${SYNTH_TILES_LOCATION}
         --package_pins ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/${PART}/package_pins.csv
@@ -138,6 +141,8 @@ function(ADD_XC_BOARD)
     add_custom_command(
       OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
       COMMAND ${PYTHON3} ${CREATE_PINMAP_CSV}
+        --db_root ${DB_ROOT}
+        --part ${PART}
         --connection_database ${CHANNELS_LOCATION}
         --synth_tiles ${SYNTH_TILES_LOCATION}
         --package_pins ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/${PART}/package_pins.csv
@@ -165,6 +170,8 @@ function(ADD_XC_BOARD)
     add_custom_command(
       OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
       COMMAND ${PYTHON3} ${CREATE_PINMAP_CSV}
+        --db_root ${DB_ROOT}
+        --part ${PART}
         --connection_database ${CHANNELS_LOCATION}
         --package_pins ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/${PART}/package_pins.csv
         --output ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}

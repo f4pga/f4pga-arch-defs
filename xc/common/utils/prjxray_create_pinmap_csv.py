@@ -7,6 +7,8 @@ import csv
 import sqlite3
 import json
 
+import prjxray.db
+
 
 def get_vpr_coords_from_site_name(conn, site_name):
     cur = conn.cursor()
@@ -46,6 +48,12 @@ def main():
         required=True
     )
     parser.add_argument(
+        '--db_root',
+        help='Database of fabric connectivity',
+        required=True
+    )
+    parser.add_argument('--part', required=True, help="FPGA part")
+    parser.add_argument(
         "--synth_tiles",
         type=argparse.FileType('r'),
         required=False,
@@ -66,11 +74,19 @@ def main():
 
     args = parser.parse_args()
 
+    db = prjxray.db.Database(args.db_root, args.part)
+    grid = db.grid()
+
     pin_to_iob = {}
     with sqlite3.connect(args.connection_database) as conn:
         for line in csv.DictReader(args.package_pins):
             assert line['pin'] not in pin_to_iob
-            loc = get_vpr_coords_from_site_name(conn, line['site'])
+            site = line['site']
+            loc = get_vpr_coords_from_site_name(conn, site)
+            gridinfo = grid.gridinfo_at_tilename(line['tile'])
+            sites = list(gridinfo.sites.keys())
+            loc = loc + (sites.index(site), )
+
             if loc:
                 pin_to_iob[line['pin']] = (line['site'], loc)
 
@@ -110,20 +126,6 @@ def main():
                 )
 
     if not args.synth_tiles or args.overlay:
-        # If there are pads with the same XY coords, add Z coord
-        # e.g. IPADs and OPADs
-        pins_by_loc = dict()
-        pins_on_same_coord = dict()
-        for pin_name, (io, loc) in pin_to_iob.items():
-            pins_by_loc.setdefault(loc, []).append(pin_name)
-        for loc, pins in pins_by_loc.items():
-            if len(pins) > 1:
-                pins_on_same_coord[loc] = pins
-        for loc, pins in pins_on_same_coord.items():
-            for z, (pin_name) in enumerate(pins):
-                io, loc = pin_to_iob[pin_name]
-                pin_to_iob[pin_name] = (io, (loc[0], loc[1], z))
-
         for line in csv.DictReader(args.package_pins):
 
             # Skip PS7 MIO and DDR pads as they are not routable
@@ -141,7 +143,7 @@ def main():
                         name=line['pin'],
                         x=loc[0],
                         y=loc[1],
-                        z=z,
+                        z=loc[2],
                         is_clock=1,
                         is_input=1,
                         is_output=1,
