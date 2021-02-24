@@ -1354,6 +1354,7 @@ WHERE
         "GTP_CHANNEL_1",
         "GTP_CHANNEL_2",
         "GTP_CHANNEL_3",
+        "GTP_COMMON",
     ]
 
     zero_offset_directs = dict()
@@ -1385,7 +1386,7 @@ WHERE
         add_direct(directlist_xml, direct)
 
     for tile, directs in zero_offset_directs.items():
-        uri = tile_xml_spec.format(tile_type.lower())
+        uri = tile_xml_spec.format(tile.lower())
         ports = list()
 
         with open(uri) as f:
@@ -1402,8 +1403,11 @@ WHERE
                     ports.append((clk_port.attrib["name"], capacity))
 
         for direct in directs:
-            from_port = direct['from_pin'].split('.')[1]
-            to_port = direct['to_pin'].split('.')[1]
+            tile_type, from_port = direct['from_pin'].split('.')
+            _, to_port = direct['to_pin'].split('.')
+
+            if tile != tile_type:
+                continue
 
             from_port_capacity = None
             to_port_capacity = None
@@ -1413,7 +1417,7 @@ WHERE
                 if port == to_port:
                     to_port_capacity = capacity
 
-            assert from_port_capacity is not None and to_port_capacity is not None
+            assert from_port_capacity is not None and to_port_capacity is not None, (tile, from_port, to_port)
             direct["z_offset"] = to_port_capacity - from_port_capacity
 
             add_direct(directlist_xml, direct)
