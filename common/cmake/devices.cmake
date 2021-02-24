@@ -1410,12 +1410,24 @@ function(ADD_FPGA_TARGET)
     )
 
     set(SPLIT_INOUTS ${symbiflow-arch-defs_SOURCE_DIR}/utils/split_inouts.py)
+    set(SPLIT_INOUTS_OUT_JSON ${OUT_JSON}.inouts.json)
+
+    add_custom_command(
+      OUTPUT ${SPLIT_INOUTS_OUT_JSON}
+      DEPENDS ${OUT_JSON_SYNTH} ${QUIET_CMD} ${SPLIT_INOUTS} ${PYTHON3}
+      COMMAND
+        ${PYTHON3} ${SPLIT_INOUTS} -i ${OUT_JSON_SYNTH} -o ${SPLIT_INOUTS_OUT_JSON}
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+      VERBATIM
+    )
+
+    set(REMOVE_IOBUF ${symbiflow-arch-defs_SOURCE_DIR}/utils/direct_io_connect.py)
 
     add_custom_command(
       OUTPUT ${OUT_JSON}
-      DEPENDS ${OUT_JSON_SYNTH} ${QUIET_CMD} ${SPLIT_INOUTS} ${PYTHON3}
+      DEPENDS ${SPLIT_INOUTS_OUT_JSON} ${QUIET_CMD} ${REMOVE_IOBUF} ${PYTHON3}
       COMMAND
-        ${PYTHON3} ${SPLIT_INOUTS} -i ${OUT_JSON_SYNTH} -o ${OUT_JSON}
+      ${PYTHON3} ${REMOVE_IOBUF} -i ${SPLIT_INOUTS_OUT_JSON} -o ${OUT_JSON}
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       VERBATIM
     )

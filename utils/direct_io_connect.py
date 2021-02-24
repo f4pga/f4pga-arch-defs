@@ -129,11 +129,31 @@ def main():
 
     primitives = ["IPAD_GTP_VPR", "OPAD_GTP_VPR"]
 
-    design = json.load(sys.stdin)
+    #json.dump(design, sys.stdout, indent=2)
+    # Parse args
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument("-i", required=True, type=str, help="Input JSON")
+    parser.add_argument("-o", default=None, type=str, help="Output JSON")
+
+    args = parser.parse_args()
+
+    # Output name
+    if args.o is None:
+        args.o = os.path.splitext(args.i)[0] + "_out.json"
+
+    # Read the design
+    with open(args.i, "r") as fp:
+        design = json.load(fp)
+
     deleter = IOBufDeleter(design, primitives)
     design = deleter.process_direct_ios()
 
-    json.dump(design, sys.stdout, indent=2)
+    # Write the design
+    with open(args.o, "w") as fp:
+        json.dump(design, fp, sort_keys=True, indent=2)
 
 
 if __name__ == "__main__":
