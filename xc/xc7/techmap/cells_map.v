@@ -1079,21 +1079,11 @@ module RAMB18E1 (
 
   end
 
-if(RAM_MODE == "SDP" && READ_WIDTH_A == 36) begin
-    localparam EFF_READ_WIDTH_A = 18;
-    localparam EFF_READ_WIDTH_B = 18;
-end else begin
-    localparam EFF_READ_WIDTH_A = READ_WIDTH_A;
-    localparam EFF_READ_WIDTH_B = READ_WIDTH_B;
-end
+  localparam EFF_READ_WIDTH_A = (RAM_MODE == "SDP" && READ_WIDTH_A == 36) ? 18 : READ_WIDTH_A;
+  localparam EFF_READ_WIDTH_B = (RAM_MODE == "SDP" && READ_WIDTH_A == 36) ? 18 : READ_WIDTH_B;
 
-if(RAM_MODE == "SDP" && WRITE_WIDTH_B == 36) begin
-    localparam EFF_WRITE_WIDTH_A = 18;
-    localparam EFF_WRITE_WIDTH_B = 18;
-end else begin
-    localparam EFF_WRITE_WIDTH_A = WRITE_WIDTH_A;
-    localparam EFF_WRITE_WIDTH_B = WRITE_WIDTH_B;
-end
+  localparam EFF_WRITE_WIDTH_A = (RAM_MODE == "SDP" && WRITE_WIDTH_B == 36) ? 18 : WRITE_WIDTH_A;
+  localparam EFF_WRITE_WIDTH_B = (RAM_MODE == "SDP" && WRITE_WIDTH_B == 36) ? 18 : WRITE_WIDTH_B;
 
   wire REGCLKA;
   wire REGCLKB;
@@ -1137,21 +1127,11 @@ end
       assign WEBWE_WIDE[0] = WEBWE[0];
   end
 
-  if (DOA_REG) begin
-      assign REGCLKA = CLKARDCLK;
-      localparam ZINV_REGCLKARDRCLK = !IS_CLKARDCLK_INVERTED;
-  end else begin
-      assign REGCLKA = 1'b1;
-      localparam ZINV_REGCLKARDRCLK = 1'b0;
-  end
+  assign REGCLKA = DOA_REG ? CLKARDCLK : 1'b1;
+  localparam ZINV_REGCLKARDRCLK = (DOA_REG && !IS_CLKARDCLK_INVERTED);
 
-  if (DOB_REG) begin
-      assign REGCLKB = CLKBWRCLK;
-      localparam ZINV_REGCLKB = !IS_CLKBWRCLK_INVERTED;
-  end else begin
-      assign REGCLKB = 1'b1;
-      localparam ZINV_REGCLKB = 1'b0;
-  end
+  assign REGCLKB = DOB_REG ? CLKBWRCLK : 1'b1;
+  localparam ZINV_REGCLKB = (DOB_REG && !IS_CLKBWRCLK_INVERTED);
 
   RAMB18E1_VPR #(
       .IN_USE(READ_WIDTH_A != 0 || READ_WIDTH_B != 0 || WRITE_WIDTH_A != 0 || WRITE_WIDTH_B != 0),
@@ -1497,40 +1477,20 @@ module RAMB36E1 (
 
   end
 
-if(RAM_MODE == "SDP" && READ_WIDTH_A > 36) begin
-    localparam EFF_READ_WIDTH_A = 36;
-    localparam EFF_READ_WIDTH_B = 36;
-end else begin
-    localparam EFF_READ_WIDTH_A = READ_WIDTH_A;
-    localparam EFF_READ_WIDTH_B = READ_WIDTH_B;
-end
+  localparam EFF_READ_WIDTH_A = (RAM_MODE == "SDP" && READ_WIDTH_A > 36) ? 36 : READ_WIDTH_A;
+  localparam EFF_READ_WIDTH_B = (RAM_MODE == "SDP" && READ_WIDTH_A > 36) ? 36 : READ_WIDTH_B;
 
-if(RAM_MODE == "SDP" && WRITE_WIDTH_B > 36) begin
-    localparam EFF_WRITE_WIDTH_A = 36;
-    localparam EFF_WRITE_WIDTH_B = 36;
-end else begin
-    localparam EFF_WRITE_WIDTH_A = WRITE_WIDTH_A;
-    localparam EFF_WRITE_WIDTH_B = WRITE_WIDTH_B;
-end
+  localparam EFF_WRITE_WIDTH_A = (RAM_MODE == "SDP" && WRITE_WIDTH_B > 36) ? 36 : WRITE_WIDTH_A;
+  localparam EFF_WRITE_WIDTH_B = (RAM_MODE == "SDP" && WRITE_WIDTH_B > 36) ? 36 : WRITE_WIDTH_B;
 
   wire REGCLKA;
   wire REGCLKB;
 
-  if (DOA_REG) begin
-      assign REGCLKA = CLKARDCLK;
-      localparam ZINV_REGCLKARDRCLK = !IS_CLKARDCLK_INVERTED;
-  end else begin
-      assign REGCLKA = 1'b1;
-      localparam ZINV_REGCLKARDRCLK = 1'b0;
-  end
+  assign REGCLKA = DOA_REG ? CLKARDCLK : 1'b1;
+  localparam ZINV_REGCLKARDRCLK = (DOA_REG && !IS_CLKARDCLK_INVERTED);
 
-  if (DOB_REG) begin
-      assign REGCLKB = CLKBWRCLK;
-      localparam ZINV_REGCLKB = !IS_CLKBWRCLK_INVERTED;
-  end else begin
-      assign REGCLKB = 1'b1;
-      localparam ZINV_REGCLKB = 1'b0;
-  end
+  assign REGCLKB = DOB_REG ? CLKBWRCLK : 1'b1;
+  localparam ZINV_REGCLKB = (DOB_REG && !IS_CLKBWRCLK_INVERTED);
 
   wire [7:0] WEBWE_WIDE;
   wire [3:0] WEA_WIDE;
@@ -2605,99 +2565,87 @@ module OSERDESE2 (
   parameter _TECHMAP_CONSTMSK_TQ_ = 1'bx;
   parameter _TECHMAP_CONSTVAL_TQ_ = 1'bx;
 
+  localparam INV_D1 = (_TECHMAP_CONSTMSK_D1_ == 1) ? !_TECHMAP_CONSTVAL_D1_ ^ IS_D1_INVERTED :
+                          (_TECHMAP_CONSTVAL_D1_ == 0) ? ~IS_D1_INVERTED : IS_D1_INVERTED;
   generate if (_TECHMAP_CONSTMSK_D1_ == 1) begin
-    localparam INV_D1 = !_TECHMAP_CONSTVAL_D1_ ^ IS_D1_INVERTED;
     wire d1 = 1'b1;
   end else if (_TECHMAP_CONSTVAL_D1_ == 0) begin
-    localparam INV_D1 = ~IS_D1_INVERTED;
     wire d1 = 1'b1;
   end else begin
-    localparam INV_D1 = IS_D1_INVERTED;
     wire d1 = D1;
   end endgenerate
 
+  localparam INV_D2 = (_TECHMAP_CONSTMSK_D2_ == 1) ? !_TECHMAP_CONSTVAL_D2_ ^ IS_D2_INVERTED :
+                          (_TECHMAP_CONSTVAL_D2_ == 0) ? ~IS_D2_INVERTED : IS_D2_INVERTED;
   generate if (_TECHMAP_CONSTMSK_D2_ == 1) begin
-    localparam INV_D2 = !_TECHMAP_CONSTVAL_D2_ ^ IS_D2_INVERTED;
     wire d2 = 1'b1;
   end else if (_TECHMAP_CONSTVAL_D2_ == 0) begin
-    localparam INV_D2 = ~IS_D2_INVERTED;
     wire d2 = 1'b1;
   end else begin
-    localparam INV_D2 = IS_D2_INVERTED;
     wire d2 = D2;
   end endgenerate
 
+  localparam INV_D3 = (_TECHMAP_CONSTMSK_D3_ == 1) ? !_TECHMAP_CONSTVAL_D3_ ^ IS_D3_INVERTED :
+                          (_TECHMAP_CONSTVAL_D3_ == 0) ? ~IS_D3_INVERTED : IS_D3_INVERTED;
   generate if (_TECHMAP_CONSTMSK_D3_ == 1) begin
-    localparam INV_D3 = !_TECHMAP_CONSTVAL_D3_ ^ IS_D3_INVERTED;
     wire d3 = 1'b1;
   end else if (_TECHMAP_CONSTVAL_D3_ == 0) begin
-    localparam INV_D3 = ~IS_D3_INVERTED;
     wire d3 = 1'b1;
   end else begin
-    localparam INV_D3 = IS_D3_INVERTED;
     wire d3 = D3;
   end endgenerate
 
+  localparam INV_D4 = (_TECHMAP_CONSTMSK_D4_ == 1) ? !_TECHMAP_CONSTVAL_D4_ ^ IS_D4_INVERTED :
+                          (_TECHMAP_CONSTVAL_D4_ == 0) ? ~IS_D4_INVERTED : IS_D4_INVERTED;
   generate if (_TECHMAP_CONSTMSK_D4_ == 1) begin
-    localparam INV_D4 = !_TECHMAP_CONSTVAL_D4_ ^ IS_D4_INVERTED;
     wire d4 = 1'b1;
   end else if (_TECHMAP_CONSTVAL_D4_ == 0) begin
-    localparam INV_D4 = ~IS_D4_INVERTED;
     wire d4 = 1'b1;
   end else begin
-    localparam INV_D4 = IS_D4_INVERTED;
     wire d4 = D4;
   end endgenerate
 
+  localparam INV_D5 = (_TECHMAP_CONSTMSK_D5_ == 1) ? !_TECHMAP_CONSTVAL_D5_ ^ IS_D5_INVERTED :
+                          (_TECHMAP_CONSTVAL_D5_ == 0) ? ~IS_D5_INVERTED : IS_D5_INVERTED;
   generate if (_TECHMAP_CONSTMSK_D5_ == 1) begin
-    localparam INV_D5 = !_TECHMAP_CONSTVAL_D5_ ^ IS_D5_INVERTED;
     wire d5 = 1'b1;
   end else if (_TECHMAP_CONSTVAL_D5_ == 0) begin
-    localparam INV_D5 = ~IS_D5_INVERTED;
     wire d5 = 1'b1;
   end else begin
-    localparam INV_D5 = IS_D5_INVERTED;
     wire d5 = D5;
   end endgenerate
 
+  localparam INV_D6 = (_TECHMAP_CONSTMSK_D6_ == 1) ? !_TECHMAP_CONSTVAL_D6_ ^ IS_D6_INVERTED :
+                          (_TECHMAP_CONSTVAL_D6_ == 0) ? ~IS_D6_INVERTED : IS_D6_INVERTED;
   generate if (_TECHMAP_CONSTMSK_D6_ == 1) begin
-    localparam INV_D6 = !_TECHMAP_CONSTVAL_D6_ ^ IS_D6_INVERTED;
     wire d6 = 1'b1;
   end else if (_TECHMAP_CONSTVAL_D6_ == 0) begin
-    localparam INV_D6 = ~IS_D6_INVERTED;
     wire d6 = 1'b1;
   end else begin
-    localparam INV_D6 = IS_D6_INVERTED;
     wire d6 = D6;
   end endgenerate
 
+  localparam INV_D7 = (_TECHMAP_CONSTMSK_D7_ == 1) ? !_TECHMAP_CONSTVAL_D7_ ^ IS_D7_INVERTED :
+                          (_TECHMAP_CONSTVAL_D7_ == 0) ? ~IS_D7_INVERTED : IS_D7_INVERTED;
   generate if (_TECHMAP_CONSTMSK_D7_ == 1) begin
-    localparam INV_D7 = !_TECHMAP_CONSTVAL_D7_ ^ IS_D7_INVERTED;
     wire d7 = 1'b1;
   end else if (_TECHMAP_CONSTVAL_D7_ == 0) begin
-    localparam INV_D7 = ~IS_D7_INVERTED;
     wire d7 = 1'b1;
   end else begin
-    localparam INV_D7 = IS_D7_INVERTED;
     wire d7 = D7;
   end endgenerate
 
+  localparam INV_D8 = (_TECHMAP_CONSTMSK_D8_ == 1) ? !_TECHMAP_CONSTVAL_D8_ ^ IS_D8_INVERTED :
+                          (_TECHMAP_CONSTVAL_D8_ == 0) ? ~IS_D8_INVERTED : IS_D8_INVERTED;
   generate if (_TECHMAP_CONSTMSK_D8_ == 1) begin
-    localparam INV_D8 = !_TECHMAP_CONSTVAL_D8_ ^ IS_D8_INVERTED;
     wire d8 = 1'b1;
   end else if (_TECHMAP_CONSTVAL_D8_ == 0) begin
-    localparam INV_D8 = ~IS_D8_INVERTED;
     wire d8 = 1'b1;
   end else begin
-    localparam INV_D8 = IS_D8_INVERTED;
     wire d8 = D8;
   end endgenerate
 
-  generate if (_TECHMAP_CONSTVAL_TQ_ === 1'bx && (DATA_RATE_TQ == "DDR" || DATA_RATE_TQ == "SDR")) begin
-      localparam TQ_USED = 1'b1;
-  end else begin
-      localparam TQ_USED = 1'b0;
-  end endgenerate
+  localparam TQ_USED = (_TECHMAP_CONSTVAL_TQ_ === 1'bx && (DATA_RATE_TQ == "DDR" || DATA_RATE_TQ == "SDR")) ? 1'b1 : 1'b0;
 
   parameter _TECHMAP_CONSTMSK_T1_ = 0;
   parameter _TECHMAP_CONSTVAL_T1_ = 0;
@@ -2708,47 +2656,44 @@ module OSERDESE2 (
   parameter _TECHMAP_CONSTMSK_T4_ = 0;
   parameter _TECHMAP_CONSTVAL_T4_ = 0;
 
+
+  localparam INV_T1 = (_TECHMAP_CONSTMSK_T1_ == 1) ? !_TECHMAP_CONSTVAL_T1_ ^ IS_T1_INVERTED :
+                          (_TECHMAP_CONSTVAL_T1_ == 0) ? ~IS_T1_INVERTED : IS_T1_INVERTED;
   generate if (_TECHMAP_CONSTMSK_T1_ == 1) begin
-    localparam INV_T1 = !_TECHMAP_CONSTVAL_T1_ ^ IS_T1_INVERTED;
     wire t1 = 1'b1;
   end else if (_TECHMAP_CONSTVAL_T1_ == 0) begin
-    localparam INV_T1 = ~IS_T1_INVERTED;
     wire t1 = 1'b1;
   end else begin
-    localparam INV_T1 = IS_T1_INVERTED;
     wire t1 = T1;
   end endgenerate
 
+  localparam INV_T2 = (_TECHMAP_CONSTMSK_T2_ == 1) ? !_TECHMAP_CONSTVAL_T2_ ^ IS_T2_INVERTED :
+                          (_TECHMAP_CONSTVAL_T2_ == 0) ? ~IS_T2_INVERTED : IS_T2_INVERTED;
   generate if (_TECHMAP_CONSTMSK_T2_ == 1) begin
-    localparam INV_T2 =  !_TECHMAP_CONSTVAL_T2_ ^ IS_T2_INVERTED;
     wire t2 = 1'b1;
   end else if (_TECHMAP_CONSTVAL_T2_ == 0) begin
-    localparam INV_T2 = ~IS_T2_INVERTED;
     wire t2 = 1'b1;
   end else begin
-    localparam INV_T2 = IS_T2_INVERTED;
     wire t2 = T2;
   end endgenerate
 
+  localparam INV_T3 = (_TECHMAP_CONSTMSK_T3_ == 1) ? !_TECHMAP_CONSTVAL_T3_ ^ IS_T3_INVERTED :
+                          (_TECHMAP_CONSTVAL_T3_ == 0) ? ~IS_T3_INVERTED : IS_T3_INVERTED;
   generate if (_TECHMAP_CONSTMSK_T3_ == 1) begin
-    localparam INV_T3 = !_TECHMAP_CONSTVAL_T3_ ^ IS_T3_INVERTED;
     wire t3 = 1'b1;
   end else if (_TECHMAP_CONSTVAL_T3_ == 0) begin
-    localparam INV_T3 = ~IS_T3_INVERTED;
     wire t3 = 1'b1;
   end else begin
-    localparam INV_T3 = IS_T3_INVERTED;
     wire t3 = T3;
   end endgenerate
 
+  localparam INV_T4 = (_TECHMAP_CONSTMSK_T4_ == 1) ? !_TECHMAP_CONSTVAL_T4_ ^ IS_T4_INVERTED :
+                          (_TECHMAP_CONSTVAL_T4_ == 0) ? ~IS_T4_INVERTED : IS_T4_INVERTED;
   generate if (_TECHMAP_CONSTMSK_T4_ == 1) begin
-    localparam INV_T4 = !_TECHMAP_CONSTVAL_T4_ ^ IS_T4_INVERTED;
     wire t4 = 1'b1;
   end else if (_TECHMAP_CONSTVAL_T4_ == 0) begin
-    localparam INV_T4 = ~IS_T4_INVERTED;
     wire t4 = 1'b1;
   end else begin
-    localparam INV_T4 = IS_T4_INVERTED;
     wire t4 = T4;
   end endgenerate
 
@@ -3078,40 +3023,23 @@ module IDDR_2CLK (
 
   wire SR;
 
+  localparam SRVAL = (!R_USED) ? 1'b1 : 1'b0;
+  localparam SRUSED = 1'b1;
+
   generate if (!R_USED && !S_USED) begin
     assign SR = 1'b0;
-    localparam SRVAL  = 1'b1;
-    localparam SRUSED = 1'b1;
-
   end else if (R_USED && !S_USED) begin
     assign SR = R;
-    localparam SRVAL  = 1'b0;
-    localparam SRUSED = 1'b1;
-
   end else if (!R_USED && S_USED) begin
     assign SR = S;
-    localparam SRVAL  = 1'b1;
-    localparam SRUSED = 1'b1;
-
   end else begin
     assign SR = 1'bx;
-    localparam SRVAL  = 1'bx;
-    localparam SRUSED = 1'bx;
-
     $error("Both S and R cannot be used simultaneously");
   end endgenerate
 
-  generate if (DDR_CLK_EDGE != "OPPOSITE_EDGE") begin
-    localparam INIT_Q3 = INIT_Q1;
-    localparam INIT_Q4 = INIT_Q2;
-    localparam SRVAL34 = SRVAL;
-
-  end else begin
-    localparam INIT_Q3 = 1'b1;
-    localparam INIT_Q4 = 1'b1;
-    localparam SRVAL34 = 1'b1;
-
-  end endgenerate
+  localparam INIT_Q3 = (DDR_CLK_EDGE != "OPPOSITE_EDGE") ? INIT_Q1 : 1'b1;
+  localparam INIT_Q4 = (DDR_CLK_EDGE != "OPPOSITE_EDGE") ? INIT_Q2 : 1'b1;
+  localparam SRVAL34 = (DDR_CLK_EDGE != "OPPOSITE_EDGE") ? SRVAL : 1'b1;
 
   IDDR_VPR #(
     .ZINV_D         (!IS_D_INVERTED),
@@ -3204,22 +3132,16 @@ module ODDR (
 
   wire SR;
 
+  localparam SRVAL = (!R_USED) ? 1'b1 : 1'b0;
+
   generate if (!R_USED && !S_USED) begin
     assign SR = 1'b0;
-    localparam SRVAL = 1'b1;
-
   end else if (R_USED && !S_USED) begin
     assign SR = R;
-    localparam SRVAL = 1'b0;
-
   end else if (!R_USED && S_USED) begin
     assign SR = S;
-    localparam SRVAL = 1'b1;
-
   end else begin
     assign SR = 1'bx;
-    localparam SRVAL = 1'bx;
-
     $error("Both S and R cannot be used simultaneously");
   end endgenerate
 
@@ -3228,25 +3150,23 @@ module ODDR (
   parameter _TECHMAP_CONSTMSK_D2_ = 0;
   parameter _TECHMAP_CONSTVAL_D2_ = 0;
 
+  localparam ZINV_D1 = (_TECHMAP_CONSTMSK_D1_ == 1) ? _TECHMAP_CONSTVAL_D1_ ^ IS_D1_INVERTED :
+                           (_TECHMAP_CONSTVAL_D1_ == 0) ? IS_D1_INVERTED : !IS_D1_INVERTED;
   generate if (_TECHMAP_CONSTMSK_D1_ == 1) begin
-    localparam ZINV_D1 = _TECHMAP_CONSTVAL_D1_ ^ IS_D1_INVERTED;
     wire d1 = 1'b1;
   end else if (_TECHMAP_CONSTVAL_D1_ == 0) begin
-    localparam ZINV_D1 = IS_D1_INVERTED;
     wire d1 = 1'b1;
   end else begin
-    localparam ZINV_D1 = !IS_D1_INVERTED;
     wire d1 = D1;
   end endgenerate
 
+  localparam ZINV_D2 = (_TECHMAP_CONSTMSK_D2_ == 1) ? _TECHMAP_CONSTVAL_D2_ ^ IS_D2_INVERTED :
+                           (_TECHMAP_CONSTVAL_D2_ == 0) ? IS_D2_INVERTED : !IS_D2_INVERTED;
   generate if (_TECHMAP_CONSTMSK_D2_ == 1) begin
-    localparam ZINV_D2 = _TECHMAP_CONSTVAL_D2_ ^ IS_D2_INVERTED;
     wire d2 = 1'b1;
   end else if (_TECHMAP_CONSTVAL_D2_ == 0) begin
-    localparam ZINV_D2 = IS_D2_INVERTED;
     wire d2 = 1'b1;
   end else begin
-    localparam ZINV_D2 = !IS_D2_INVERTED;
     wire d2 = D2;
   end endgenerate
 
@@ -4113,36 +4033,35 @@ output [15:0] DO
   localparam CLKOUT5_REGS  = pll_clkregs(CLKOUT5_DIVIDE, CLKOUT5_DUTY_CYCLE, CLKOUT5_PHASE);
 
   // Handle inputs that should have certain logic levels when left unconnected
+  localparam INV_CLKINSEL = (_TECHMAP_CONSTMSK_CLKINSEL_ == 1) ? !_TECHMAP_CONSTVAL_CLKINSEL_ :
+                                (_TECHMAP_CONSTVAL_CLKINSEL_ == 0) ? IS_CLKINSEL_INVERTED :
+                                    IS_CLKINSEL_INVERTED;
   generate if (_TECHMAP_CONSTMSK_CLKINSEL_ == 1) begin
-    localparam INV_CLKINSEL = !_TECHMAP_CONSTVAL_CLKINSEL_;
     wire clkinsel = 1'b1;
   end else if (_TECHMAP_CONSTVAL_CLKINSEL_ == 0) begin
-    localparam INV_CLKINSEL = IS_CLKINSEL_INVERTED;
     wire clkinsel = 1'b1;
   end else begin
-    localparam INV_CLKINSEL = IS_CLKINSEL_INVERTED;
     wire clkinsel = CLKINSEL;
   end endgenerate
 
+  localparam INV_PWRDWN = (_TECHMAP_CONSTMSK_PWRDWN_ == 1) ? !_TECHMAP_CONSTVAL_PWRDWN_ :
+                              (_TECHMAP_CONSTVAL_PWRDWN_ == 0) ? ~IS_PWRDWN_INVERTED :
+                                  IS_PWRDWN_INVERTED;
   generate if (_TECHMAP_CONSTMSK_PWRDWN_ == 1) begin
-    localparam INV_PWRDWN =  !_TECHMAP_CONSTVAL_PWRDWN_;
     wire pwrdwn = 1'b1;
   end else if (_TECHMAP_CONSTVAL_PWRDWN_ == 0) begin
-    localparam INV_PWRDWN = ~IS_PWRDWN_INVERTED;
     wire pwrdwn = 1'b1;
   end else begin
-    localparam INV_PWRDWN =  IS_PWRDWN_INVERTED;
     wire pwrdwn = PWRDWN;
   end endgenerate
 
+  localparam INV_RST = (_TECHMAP_CONSTMSK_RST_ == 1) ? !_TECHMAP_CONSTVAL_PWRDWN_ :
+                           (_TECHMAP_CONSTVAL_RST_ == 0) ? ~IS_RST_INVERTED : IS_RST_INVERTED;
   generate if (_TECHMAP_CONSTMSK_RST_ == 1) begin
-    localparam INV_RST =  !_TECHMAP_CONSTVAL_PWRDWN_;
     wire rst = 1'b1;
   end else if (_TECHMAP_CONSTVAL_RST_ == 0) begin
-    localparam INV_RST = ~IS_RST_INVERTED;
     wire rst = 1'b1;
   end else begin
-    localparam INV_RST =  IS_RST_INVERTED;
     wire rst = RST;
   end endgenerate
 
