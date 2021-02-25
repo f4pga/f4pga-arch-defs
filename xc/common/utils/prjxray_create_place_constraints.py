@@ -316,106 +316,109 @@ class ClockPlacer(object):
 
         self.clock_cmts = {}
 
-        if "subckt" in blif_data.keys():
-            for subckt in blif_data["subckt"]:
-                if 'cname' not in subckt:
+        if "subckt" not in blif_data.keys():
+            return
+
+        for subckt in blif_data["subckt"]:
+            if 'cname' not in subckt:
+                continue
+            bel = subckt['args'][0]
+
+            assert 'cname' in subckt and len(subckt['cname']) == 1, subckt
+
+            if bel not in CLOCKS:
+                continue
+
+            cname = subckt['cname'][0]
+
+            clock = {
+                'name': cname,
+                'subckt': bel,
+                'sink_nets': [],
+                'source_nets': [],
+            }
+
+            sources = CLOCKS[bel]['sources']
+
+            ports = dict(
+                arg.split('=', maxsplit=1) for arg in subckt['args'][1:]
+            )
+
+            for source in sources:
+                source_net = ports[source]
+                if source_net == '$true' or source_net == '$false':
                     continue
-                bel = subckt['args'][0]
 
-                assert 'cname' in subckt and len(subckt['cname']) == 1, subckt
+                self.clock_sources[source_net] = []
+                self.clock_sources_cname[source_net] = cname
+                clock['source_nets'].append(source_net)
 
-                if bel not in CLOCKS:
-                    continue
+            self.clock_blocks[cname] = clock
 
-                cname = subckt['cname'][0]
-
-                clock = {
-                    'name': cname,
-                    'subckt': bel,
-                    'sink_nets': [],
-                    'source_nets': [],
-                }
-
-                sources = CLOCKS[bel]['sources']
-
-                ports = dict(
-                    arg.split('=', maxsplit=1) for arg in subckt['args'][1:]
-                )
-
-                for source in sources:
-                    source_net = ports[source]
-                    if source_net == '$true' or source_net == '$false':
+            # Both PS7 and BUFGCTRL has specialized constraints,
+            # do not bind based on input pins.
+            if bel not in ['PS7_VPR', 'BUFGCTRL_VPR']:
+                for port in ports.values():
+                    if port not in io_locs:
                         continue
 
-                    self.clock_sources[source_net] = []
-                    self.clock_sources_cname[source_net] = cname
-                    clock['source_nets'].append(source_net)
+                    if cname in self.clock_cmts:
+                        assert self.clock_cmts[cname
+                                               ] == self.input_pins[port], (
+                                                   cname, port,
+                                                   self.clock_cmts[cname],
+                                                   self.input_pins[port]
+                                               )
+                    else:
+                        self.clock_cmts[cname] = self.input_pins[port]
 
-                self.clock_blocks[cname] = clock
+        for subckt in blif_data["subckt"]:
+            if 'cname' not in subckt:
+                continue
 
-                # Both PS7 and BUFGCTRL has specialized constraints,
-                # do not bind based on input pins.
-                if bel not in ['PS7_VPR', 'BUFGCTRL_VPR']:
-                    for port in ports.values():
-                        if port not in io_locs:
-                            continue
+            bel = subckt['args'][0]
+            if bel not in CLOCKS:
+                continue
 
-                        if cname in self.clock_cmts:
-                            assert self.clock_cmts[cname] == self.input_pins[
-                                port], (
-                                    cname, port, self.clock_cmts[cname],
-                                    self.input_pins[port]
-                                )
-                        else:
-                            self.clock_cmts[cname] = self.input_pins[port]
+            sinks = CLOCKS[bel]['sinks']
+            ports = dict(
+                arg.split('=', maxsplit=1) for arg in subckt['args'][1:]
+            )
 
-            for subckt in blif_data["subckt"]:
-                if 'cname' not in subckt:
-                    continue
+            assert 'cname' in subckt and len(subckt['cname']) == 1, subckt
+            cname = subckt['cname'][0]
+            clock = self.clock_blocks[cname]
 
-                bel = subckt['args'][0]
-                if bel not in CLOCKS:
-                    continue
-
-                sinks = CLOCKS[bel]['sinks']
-                ports = dict(
-                    arg.split('=', maxsplit=1) for arg in subckt['args'][1:]
+            for sink in sinks:
+                assert sink in ports, (
+                    cname,
+                    sink,
                 )
+                sink_net = ports[sink]
+                if sink_net == '$true' or sink_net == '$false':
+                    continue
 
-                assert 'cname' in subckt and len(subckt['cname']) == 1, subckt
-                cname = subckt['cname'][0]
-                clock = self.clock_blocks[cname]
+                clock['sink_nets'].append(sink_net)
 
-                for sink in sinks:
-                    assert sink in ports, (
-                        cname,
-                        sink,
+                if sink_net not in self.input_pins and sink_net not in self.clock_sources:
+
+                    # Allow BUFGs to be driven by generic sources but only
+                    # when enabled.
+                    if bel == "BUFGCTRL_VPR" and allow_bufg_logic_sources:
+                        continue
+
+                    # The clock source comes from logic, disallow that
+                    eprint(
+                        "The clock net '{}' driving '{}' sources at logic which is not allowed!"
+                        .format(sink_net, bel)
                     )
-                    sink_net = ports[sink]
-                    if sink_net == '$true' or sink_net == '$false':
-                        continue
+                    exit(-1)
 
-                    clock['sink_nets'].append(sink_net)
+                if sink_net in self.input_pins:
+                    if sink_net not in self.clock_sources:
+                        self.clock_sources[sink_net] = []
 
-                    if sink_net not in self.input_pins and sink_net not in self.clock_sources:
-
-                        # Allow BUFGs to be driven by generic sources but only
-                        # when enabled.
-                        if bel == "BUFGCTRL_VPR" and allow_bufg_logic_sources:
-                            continue
-
-                        # The clock source comes from logic, disallow that
-                        eprint(
-                            "The clock net '{}' driving '{}' sources at logic which is not allowed!"
-                            .format(sink_net, bel)
-                        )
-                        exit(-1)
-
-                    if sink_net in self.input_pins:
-                        if sink_net not in self.clock_sources:
-                            self.clock_sources[sink_net] = []
-
-                    self.clock_sources[sink_net].append(cname)
+                self.clock_sources[sink_net].append(cname)
 
     def assign_cmts(self, vpr_grid, blocks):
         """ Assign CMTs to subckt's that require it (e.g. BURF/PLL/MMCM). """
