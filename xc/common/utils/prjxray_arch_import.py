@@ -543,8 +543,9 @@ def make_prefix(site, x, y, from_site_name=False):
         mod_x, mod_y = prefix_required[1]
         x_formula = "x{}".format(" % mod_x") if mod_x else "x"
         y_formula = "y{}".format(" % mod_y") if mod_y else "y"
-        return site_type, '{}_X{}Y{}'.format(site_type, eval(x_formula),
-                                             eval(y_formula))
+        return site_type, '{}_X{}Y{}'.format(
+            site_type, eval(x_formula), eval(y_formula)
+        )
     else:
         assert False, (site_type, prefix_required)
 
@@ -1417,7 +1418,9 @@ WHERE
                 if port == to_port:
                     to_port_capacity = capacity
 
-            assert from_port_capacity is not None and to_port_capacity is not None, (tile, from_port, to_port)
+            assert from_port_capacity is not None and to_port_capacity is not None, (
+                tile, from_port, to_port
+            )
             direct["z_offset"] = to_port_capacity - from_port_capacity
 
             add_direct(directlist_xml, direct)

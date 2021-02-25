@@ -2176,14 +2176,20 @@ SELECT tile_type_pkey, grid_x, grid_y FROM tile WHERE pkey = ?;""",
         dest_tile_type_pkey, dest_grid_x, dest_grid_y = res
 
         if dest_grid_x == src_grid_x and dest_grid_y == src_grid_y:
-            cur2.execute("""
+            cur2.execute(
+                """
 SELECT name FROM site_instance WHERE site_pkey = (
-    SELECT site_pkey FROM wire_in_tile WHERE pkey = ?)""", (src_wire_in_tile_pkey, ))
+    SELECT site_pkey FROM wire_in_tile WHERE pkey = ?)""",
+                (src_wire_in_tile_pkey, )
+            )
             src_site_instance = cur2.fetchone()[0]
 
-            cur2.execute("""
+            cur2.execute(
+                """
 SELECT name FROM site_instance WHERE site_pkey = (
-    SELECT site_pkey FROM wire_in_tile WHERE pkey = ?)""", (dest_wire_in_tile_pkey, ))
+    SELECT site_pkey FROM wire_in_tile WHERE pkey = ?)""",
+                (dest_wire_in_tile_pkey, )
+            )
             dest_site_instance = cur2.fetchone()[0]
 
             sites_with_direct[src_site_instance] = dest_site_instance

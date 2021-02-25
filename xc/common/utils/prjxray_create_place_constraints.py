@@ -102,7 +102,7 @@ CLOCKS = {
     "GTPE2_COMMON_VPR":
         {
             "sources": frozenset(),
-            "sinks": frozenset(("GTREFCLK0", "GTREFCLK1" )),
+            "sinks": frozenset(("GTREFCLK0", "GTREFCLK1")),
             "type": "GTPE2_COMMON",
         },
 }
@@ -120,6 +120,7 @@ def get_cmt(cmt_dict, loc):
                 return v['clock_region']
 
     return None
+
 
 class VprGrid(object):
     """This class contains a set of dictionaries helpful
@@ -201,7 +202,8 @@ class VprGrid(object):
 
                 self.vpr_loc_cmt[(int(vpr_x), int(vpr_y))] = clk_region
 
-                self.canon_loc[(int(vpr_x), int(vpr_y))] = (int(can_x), int(can_y))
+                self.canon_loc[(int(vpr_x),
+                                int(vpr_y))] = (int(can_x), int(can_y))
 
     def get_site_dict(self):
         return self.site_dict
@@ -512,14 +514,15 @@ class ClockPlacer(object):
                     is_net_bufg = CLOCKS[source_block['subckt']
                                          ]['type'] == 'BUFGCTRL'
                     is_net_gtp = CLOCKS[source_block['subckt']
-                                         ]['type'] == 'IBUFDS_GTE2'
+                                        ]['type'] == 'IBUFDS_GTE2'
 
                     if is_net_bufg:
                         continue
 
                     if is_net_gtp:
                         problem.addConstraint(
-                            lambda cmt: cmt in self.gtp_cmts, (source_clock_name, )
+                            lambda cmt: cmt in self.gtp_cmts,
+                            (source_clock_name, )
                         )
 
                     if CLOCKS[clock['subckt']]['type'] == 'BUFGCTRL':
@@ -542,7 +545,8 @@ class ClockPlacer(object):
             self.clock_cmts.update(solutions[0])
 
     def place_clocks(
-            self, canon_grid, vpr_grid, loc_in_use, block_locs, blocks, grid_capacities
+            self, canon_grid, vpr_grid, loc_in_use, block_locs, blocks,
+            grid_capacities
     ):
         self.assign_cmts(vpr_grid, block_locs)
 
@@ -651,7 +655,9 @@ def get_tile_capacities(arch_xml_filename):
     return grid
 
 
-def get_vpr_coords_from_site_name(canon_grid, vpr_grid, site_name, grid_capacities):
+def get_vpr_coords_from_site_name(
+        canon_grid, vpr_grid, site_name, grid_capacities
+):
     site_name = site_name.replace('"', '')
 
     site_dict = vpr_grid.get_site_dict()
@@ -674,7 +680,9 @@ def get_vpr_coords_from_site_name(canon_grid, vpr_grid, site_name, grid_capaciti
     elif capacity == 1:
         return (x, y, 0)
     else:
-        sites = list(canon_grid.gridinfo_at_loc((canon_x, canon_y)).sites.keys())
+        sites = list(
+            canon_grid.gridinfo_at_loc((canon_x, canon_y)).sites.keys()
+        )
         assert capacity == len(sites), (tile, capacity, (x, y))
 
         instance_idx = sites.index(site_name)
@@ -682,7 +690,9 @@ def get_vpr_coords_from_site_name(canon_grid, vpr_grid, site_name, grid_capaciti
         return (x, y, instance_idx)
 
 
-def constrain_special_ios(canon_grid, vpr_grid, io_blocks, blif_data, blocks, place_constraints):
+def constrain_special_ios(
+        canon_grid, vpr_grid, io_blocks, blif_data, blocks, place_constraints
+):
     if "subckt" not in blif_data:
         return
 
@@ -741,7 +751,8 @@ def constrain_special_ios(canon_grid, vpr_grid, io_blocks, blif_data, blocks, pl
                 sites = list(gridinfo.sites.keys())
                 site_name = sites[z]
 
-                connected_io_site = vpr_grid.get_site_dict()[site_name]['connected_to_site']
+                connected_io_site = vpr_grid.get_site_dict(
+                )[site_name]['connected_to_site']
                 assert connected_io_site, (site_name, bel, cname)
 
                 new_z = sites.index(connected_io_site)
@@ -837,7 +848,9 @@ def main():
     blocks = {}
     block_locs = {}
     for block, loc in place_constraints.get_loc_sites():
-        vpr_loc = get_vpr_coords_from_site_name(canon_grid, vpr_grid, loc, grid_capacities)
+        vpr_loc = get_vpr_coords_from_site_name(
+            canon_grid, vpr_grid, loc, grid_capacities
+        )
         loc_in_use.add(vpr_loc)
 
         if block in io_blocks:
@@ -853,7 +866,9 @@ def main():
         )
 
     # Constrain blocks directly connected to IO in the same x, y location
-    constrain_special_ios(canon_grid, vpr_grid, io_blocks, eblif_data, blocks, place_constraints)
+    constrain_special_ios(
+        canon_grid, vpr_grid, io_blocks, eblif_data, blocks, place_constraints
+    )
 
     # Constrain clock resources
     clock_placer = ClockPlacer(
@@ -861,8 +876,9 @@ def main():
         args.allow_bufg_logic_sources
     )
     if clock_placer.has_clock_nets():
-        for block, loc in clock_placer.place_clocks(
-                canon_grid, vpr_grid, loc_in_use, block_locs, blocks, grid_capacities):
+        for block, loc in clock_placer.place_clocks(canon_grid, vpr_grid,
+                                                    loc_in_use, block_locs,
+                                                    blocks, grid_capacities):
             vpr_loc = get_vpr_coords_from_site_name(
                 canon_grid, vpr_grid, loc, grid_capacities
             )

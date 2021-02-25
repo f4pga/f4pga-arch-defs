@@ -48,9 +48,7 @@ def main():
         required=True
     )
     parser.add_argument(
-        '--db_root',
-        help='Database of fabric connectivity',
-        required=True
+        '--db_root', help='Database of fabric connectivity', required=True
     )
     parser.add_argument('--part', required=True, help="FPGA part")
     parser.add_argument(

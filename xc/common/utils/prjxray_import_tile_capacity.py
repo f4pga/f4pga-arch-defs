@@ -95,7 +95,9 @@ def main():
             continue
 
         site_type = db.get_site_type(site.type)
-        input_wires, output_wires = get_wires(site, site_type, args.unused_wires)
+        input_wires, output_wires = get_wires(
+            site, site_type, args.unused_wires
+        )
 
         sites[site.type].append((site, input_wires, output_wires))
 
