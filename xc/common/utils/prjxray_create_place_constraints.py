@@ -693,6 +693,16 @@ def get_vpr_coords_from_site_name(
 def constrain_special_ios(
         canon_grid, vpr_grid, io_blocks, blif_data, blocks, place_constraints
 ):
+    """
+    There are special IOs which need extra handling when dealing with placement constraints.
+
+    For instance, the IBUFDS_GTE2 primitive must be placed in correspondance with the location
+    of its input PADs, as no other route exists other than that.
+
+    This function reads the connectivity of the top level nets, which have been previously
+    constrained, and correctly constrains those blocks which require special handling.
+    """
+
     if "subckt" not in blif_data:
         return
 

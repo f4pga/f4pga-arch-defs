@@ -2220,6 +2220,10 @@ SELECT name FROM site_instance WHERE site_pkey = (
 
             site_type = cur.fetchone()[0]
 
+            # This is a site which is directly connected to the current site
+            # and will be implemented as a sub_tile. This information is relevant
+            # to generate correct placement constraints for sub_tiles directly
+            # connected within the same physical tile
             connected_to_site = sites_with_direct.get(site_name, None)
 
             csv_writer.writerow(
