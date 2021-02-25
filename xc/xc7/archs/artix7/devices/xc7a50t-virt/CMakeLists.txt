@@ -23,6 +23,7 @@ add_xc_device_define_type(
     GTP_CHANNEL_1
     GTP_CHANNEL_2
     GTP_CHANNEL_3
+    PCIE_BOT
   PB_TYPES
     SLICEL
     SLICEM
@@ -38,4 +39,5 @@ add_xc_device_define_type(
     IBUFDS_GTE2
     IPAD
     OPAD
+    PCIE_2_1
 )
