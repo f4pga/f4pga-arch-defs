@@ -95,6 +95,8 @@ function(ADD_XC_BOARD)
 
     set_target_properties(${BOARD}
       PROPERTIES PLACE_CONSTR_TOOL_EXTRA_ARGS " \
+      --db_root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH} \
+      --part ${PART} \
       --vpr_grid_map ${VPR_GRID_MAP_LOCATION} \
       --roi
     ")
@@ -127,6 +129,8 @@ function(ADD_XC_BOARD)
 
     set_target_properties(${BOARD}
       PROPERTIES PLACE_CONSTR_TOOL_EXTRA_ARGS " \
+      --db_root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH} \
+      --part ${PART} \
       --vpr_grid_map ${VPR_GRID_MAP_LOCATION}
     ")
 
@@ -159,7 +163,9 @@ function(ADD_XC_BOARD)
 
     set_target_properties(${BOARD}
       PROPERTIES PLACE_CONSTR_TOOL_EXTRA_ARGS " \
-      --vpr_grid_map ${VPR_GRID_MAP_LOCATION}
+      --db_root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH} \
+      --part ${PART} \
+      --vpr_grid_map ${VPR_GRID_MAP_LOCATION} \
     ")
 
     set(CREATE_PINMAP_CSV ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/prjxray_create_pinmap_csv.py)
@@ -202,7 +208,10 @@ function(ADD_XC_BOARD)
   set_target_properties(
     dummy_${ARCH}_${DEVICE}_${ADD_XC_BOARD_PACKAGE}
     PROPERTIES
-    PLACE_CONSTR_TOOL_EXTRA_ARGS "--vpr_grid_map ${VPR_GRID_MAP_LOCATION} --roi"
+    PLACE_CONSTR_TOOL_EXTRA_ARGS " \
+      --db_root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH} \
+      --part ${PART} \
+      --vpr_grid_map ${VPR_GRID_MAP_LOCATION} --roi"
     PINMAP
     ${CMAKE_CURRENT_SOURCE_DIR}/${PINMAP_CSV})
 
