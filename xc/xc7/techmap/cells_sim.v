@@ -2208,6 +2208,8 @@ module GTPE2_COMMON_VPR (
   input DRPCLK,
   input DRPEN,
   input DRPWE,
+  input GTREFCLK0,
+  input GTREFCLK1,
   input GTGREFCLK0,
   input GTGREFCLK1,
   input PLL0LOCKDETCLK,
