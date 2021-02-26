@@ -2247,17 +2247,9 @@ module GTPE2_COMMON_VPR (
   parameter [7:0] PLL_CLKOUT_CFG = 8'b00000000;
   parameter [15:0] RSVD_ATTR0 = 16'h0000;
   parameter [15:0] RSVD_ATTR1 = 16'h0000;
-  parameter IS_DRPCLK_INVERTED = 1'b0;
-  parameter IS_PLL0LOCKDETCLK_INVERTED = 1'b0;
-  parameter IS_PLL1LOCKDETCLK_INVERTED = 1'b0;
-  parameter IS_GTGREFCLK0_INVERTED = 1'b0;
-  parameter IS_GTGREFCLK1_INVERTED = 1'b0;
   parameter ZINV_DRPCLK = 1'b0;
   parameter ZINV_PLL1LOCKDETCLK = 1'b0;
   parameter ZINV_PLL1LOCKDETCLK = 1'b0;
-  parameter INV_GTGREFCLK0 = 1'b0;
-  parameter INV_GTGREFCLK1 = 1'b0;
-  parameter IN_USE = 1'b0;
 endmodule
 
 module GTPE2_CHANNEL_VPR (
@@ -2728,5 +2720,4 @@ module GTPE2_CHANNEL_VPR (
   parameter ZINV_DMONITORCLK = 1'b1;
   parameter ZINV_CLKRSVD0 = 1'b1;
   parameter ZINV_CLKRSVD1 = 1'b1;
-  parameter IN_USE = 1'b0;
 endmodule
