@@ -506,6 +506,8 @@ def is_in_roi(conn, roi, tile_pkey):
 # For example, IO sites only need the Y coordinate, use a modulus of 2.
 # So IOB_X1Y10 becomes IOB_Y0, IOB_X1Y11 becomes IOB_Y1, etc.
 # Setting modulo to 0 results in omitting modulo operation.
+#
+# Sites which do not require prefix will contain a (None, None) pair.
 PREFIX_REQUIRED = {
     "IOB": ("Y", 2),
     "IDELAY": ("Y", 2),
@@ -514,9 +516,9 @@ PREFIX_REQUIRED = {
     "BUFGCTRL": ("XY", (2, 16)),
     "SLICEM": ("X", 2),
     "SLICEL": ("X", 2),
-    "GTPE2_COMMON": ("XY", (0, 0)),
-    "GTPE2_CHANNEL": ("XY", (0, 0)),
-    "IBUFDS_GTE2": ("XY", (0, 0)),
+    "GTPE2_COMMON": (None, None),
+    "GTPE2_CHANNEL": (None, None),
+    "IBUFDS_GTE2": ("Y", 2),
     "IPAD": ("XY", (0, 0)),
     "OPAD": ("XY", (0, 0)),
 }
@@ -546,6 +548,8 @@ def make_prefix(site, x, y, from_site_name=False):
         return site_type, '{}_X{}Y{}'.format(
             site_type, eval(x_formula), eval(y_formula)
         )
+    elif prefix_required[0] is None:
+        return site_type, None
     else:
         assert False, (site_type, prefix_required)
 
@@ -611,14 +615,22 @@ ORDER BY site_instance.x_coord, site_instance.y_coord, site_type.name;""",
         (tile_pkey, )
     )
 
+    NO_SITE_TYPE_PREFIX = ["SLICEL", "SLICEM", "IBUFDS_GTE2"]
+
     prefixes = []
+
     for site_type, x, y in c:
         _, prefix = make_prefix(site_type, x, y)
 
-        if "SLICE" in site_type:
-            prefixes.append('{}.{}'.format(tile_prefix, prefix))
+        if prefix is None:
+            prefixes.append('{}.{}'.format(tile_prefix, site_type))
         else:
-            prefixes.append('{}.{}.{}'.format(tile_prefix, site_type, prefix))
+            if site_type in NO_SITE_TYPE_PREFIX:
+                prefixes.append('{}.{}'.format(tile_prefix, prefix))
+            else:
+                prefixes.append(
+                    '{}.{}.{}'.format(tile_prefix, site_type, prefix)
+                )
 
     assert len(prefixes
                ) == tile_capacity, (tile_pkey, tile_capacity, len(prefixes))

@@ -7,8 +7,6 @@ module top(
     output wire test_out
 );
 
-assign test_out = test_in;
-
 wire gtrefclk0, gtrefclk1;
 
 (* keep *)
@@ -18,7 +16,7 @@ GTPE2_COMMON #(
 	.PLL0_REFCLK_DIV(1'd1)
 ) GTPE2_COMMON (
 	.BGBYPASSB(1'd1),
-	.BGMONITORENB(1'd1),
+	.BGMONITORENB(test_in),
 	.BGPDB(1'd1),
 	.BGRCALOVRD(5'd31),
 	.GTREFCLK0(gtrefclk0),
@@ -27,7 +25,8 @@ GTPE2_COMMON #(
 	.PLL0PD(1'd0),
 	.PLL0REFCLKSEL(1'd1),
 	.PLL1PD(1'd1),
-	.RCALENB(1'd1)
+	.RCALENB(1'd1),
+	.REFCLKOUTMONITOR0(test_out)
 );
 
 (* keep *)

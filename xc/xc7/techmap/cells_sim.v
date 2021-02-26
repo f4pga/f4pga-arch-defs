@@ -2210,8 +2210,6 @@ module GTPE2_COMMON_VPR (
   input DRPWE,
   input GTREFCLK0,
   input GTREFCLK1,
-  input GTGREFCLK0,
-  input GTGREFCLK1,
   input PLL0LOCKDETCLK,
   input PLL0LOCKEN,
   input PLL0PD,
@@ -2249,7 +2247,7 @@ module GTPE2_COMMON_VPR (
   parameter [15:0] RSVD_ATTR1 = 16'h0000;
   parameter ZINV_DRPCLK = 1'b0;
   parameter ZINV_PLL1LOCKDETCLK = 1'b0;
-  parameter ZINV_PLL1LOCKDETCLK = 1'b0;
+  parameter ZINV_PLL0LOCKDETCLK = 1'b0;
 endmodule
 
 module GTPE2_CHANNEL_VPR (

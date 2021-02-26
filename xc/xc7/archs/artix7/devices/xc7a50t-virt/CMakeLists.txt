@@ -38,6 +38,4 @@ add_xc_device_define_type(
     IBUFDS_GTE2
     IPAD
     OPAD
-  PRIMITIVES_WITH_DIRECT_IO
-    GTPE2_CHANNEL
 )
