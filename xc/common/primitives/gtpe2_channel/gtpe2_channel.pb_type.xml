@@ -223,9 +223,6 @@
   <input name="TXSEQUENCE" num_pins="7"/>
   <input name="DRPADDR" num_pins="9"/>
   <metadata>
-    <meta name="fasm_prefix">
-      GTPE2
-    </meta>
     <meta name="fasm_features">
       IN_USE
     </meta>
