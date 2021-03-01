@@ -13,7 +13,6 @@ The JSON design format used by Yosys is documented there:
 
 """
 import argparse
-import sys
 import simplejson as json
 
 # =============================================================================
@@ -129,7 +128,7 @@ def main():
 
     primitives = ["IPAD_GTP_VPR", "OPAD_GTP_VPR"]
 
-    #json.dump(design, sys.stdout, indent=2)
+    # json.dump(design, sys.stdout, indent=2)
     # Parse args
     parser = argparse.ArgumentParser(
         description=__doc__,
@@ -139,10 +138,6 @@ def main():
     parser.add_argument("-o", default=None, type=str, help="Output JSON")
 
     args = parser.parse_args()
-
-    # Output name
-    if args.o is None:
-        args.o = os.path.splitext(args.i)[0] + "_out.json"
 
     # Read the design
     with open(args.i, "r") as fp:

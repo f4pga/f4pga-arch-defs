@@ -1,7 +1,6 @@
 """ Generates project xray. """
 import argparse
 import json
-import sys
 import prjxray.db
 from prjxray.site_type import SitePinDirection
 from lib.pb_type_xml import start_heterogeneous_tile, add_switchblock_locations

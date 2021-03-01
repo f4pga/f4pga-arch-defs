@@ -30,7 +30,6 @@ prjxray_assign_tile_pin_direction.
 
 
 """
-import sys
 import argparse
 import csv
 import prjxray.db

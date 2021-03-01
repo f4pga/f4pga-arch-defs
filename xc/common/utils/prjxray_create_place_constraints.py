@@ -363,12 +363,12 @@ class ClockPlacer(object):
                         continue
 
                     if cname in self.clock_cmts:
-                        assert self.clock_cmts[cname
-                                               ] == self.input_pins[port], (
-                                                   cname, port,
-                                                   self.clock_cmts[cname],
-                                                   self.input_pins[port]
-                                               )
+                        assert_out = (
+                            cname, port, self.clock_cmts[cname],
+                            self.input_pins[port]
+                        )
+                        assert self.clock_cmts[cname] == self.input_pins[
+                            port], assert_out
                     else:
                         self.clock_cmts[cname] = self.input_pins[port]
 
@@ -664,7 +664,6 @@ def get_vpr_coords_from_site_name(
     site_name = site_name.replace('"', '')
 
     site_dict = vpr_grid.get_site_dict()
-    tile_dict = vpr_grid.get_tile_dict()
     canon_loc = vpr_grid.get_canon_loc()
 
     tile = site_dict[site_name]['tile']
