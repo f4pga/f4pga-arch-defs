@@ -75,6 +75,8 @@ def main():
     db = prjxray.db.Database(args.db_root, args.part)
     grid = db.grid()
 
+    CAPACITY_IOS = ["IPAD", "OPAD"]
+
     pin_to_iob = {}
     with sqlite3.connect(args.connection_database) as conn:
         for line in csv.DictReader(args.package_pins):
@@ -83,10 +85,15 @@ def main():
             loc = get_vpr_coords_from_site_name(conn, site)
             gridinfo = grid.gridinfo_at_tilename(line['tile'])
             sites = list(gridinfo.sites.keys())
-            loc = loc + (sites.index(site), )
 
-            if loc:
-                pin_to_iob[line['pin']] = (line['site'], loc)
+            if gridinfo.sites[site] in CAPACITY_IOS:
+                z_loc = sites.index(site)
+            else:
+                z_loc = 0
+
+            loc = loc + (z_loc, )
+
+            pin_to_iob[line['pin']] = (line['site'], loc)
 
     args.package_pins.seek(0)
     if args.synth_tiles:
