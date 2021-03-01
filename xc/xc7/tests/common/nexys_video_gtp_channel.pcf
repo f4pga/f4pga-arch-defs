@@ -1,0 +1,4 @@
+set_io tx_n C7
+set_io tx_p D7
+set_io rx_n C9
+set_io rx_p D9

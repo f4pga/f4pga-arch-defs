@@ -1367,7 +1367,16 @@ WHERE
         "GTP_CHANNEL_1",
         "GTP_CHANNEL_2",
         "GTP_CHANNEL_3",
-        "GTP_COMMON",
+        "GTP_CHANNEL_0_MID_LEFT",
+        "GTP_CHANNEL_1_MID_LEFT",
+        "GTP_CHANNEL_2_MID_LEFT",
+        "GTP_CHANNEL_3_MID_LEFT",
+        "GTP_CHANNEL_0_MID_RIGHT",
+        "GTP_CHANNEL_1_MID_RIGHT",
+        "GTP_CHANNEL_2_MID_RIGHT",
+        "GTP_CHANNEL_3_MID_RIGHT",
+        "GTP_COMMON_MID_LEFT",
+        "GTP_COMMON_MID_RIGHT",
     ]
 
     zero_offset_directs = dict()
