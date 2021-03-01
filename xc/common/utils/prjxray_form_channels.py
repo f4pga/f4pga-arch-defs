@@ -2142,7 +2142,7 @@ SELECT node_pkey FROM wire WHERE pkey = ?""", (src_wire_pkey, )
         # Find the wire connected to the source.
         src_wire = list(node_to_site_pins(conn, src_node_pkey))
         assert len(src_wire) == 1
-        source_wire_pkey, src_tile_pkey, src_wire_in_tile_pkey = src_wire[0]
+        _, src_tile_pkey, src_wire_in_tile_pkey = src_wire[0]
 
         cur2.execute(
             """
@@ -2163,8 +2163,7 @@ SELECT node_pkey FROM wire WHERE pkey = ?""", (dest_wire_pkey, )
         # Find the wire connected to the sink.
         dest_wire = list(node_to_site_pins(conn, dest_node_pkey))
         assert len(dest_wire) == 1
-        destination_wire_pkey, dest_tile_pkey, dest_wire_in_tile_pkey = dest_wire[
-            0]
+        _, dest_tile_pkey, dest_wire_in_tile_pkey = dest_wire[0]
 
         cur2.execute(
             """
@@ -2176,21 +2175,39 @@ SELECT tile_type_pkey, grid_x, grid_y FROM tile WHERE pkey = ?;""",
         dest_tile_type_pkey, dest_grid_x, dest_grid_y = res
 
         if dest_grid_x == src_grid_x and dest_grid_y == src_grid_y:
-            cur2.execute(
-                """
-SELECT name FROM site_instance WHERE site_pkey = (
-    SELECT site_pkey FROM wire_in_tile WHERE pkey = ?)""",
-                (src_wire_in_tile_pkey, )
-            )
-            src_site_instance = cur2.fetchone()[0]
+            tile = new_grid[(dest_grid_x, dest_grid_y)]
 
             cur2.execute(
-                """
-SELECT name FROM site_instance WHERE site_pkey = (
-    SELECT site_pkey FROM wire_in_tile WHERE pkey = ?)""",
+                "SELECT site_pkey FROM wire_in_tile WHERE pkey = ?",
+                (src_wire_in_tile_pkey, )
+            )
+            src_site_pkey = cur2.fetchone()[0]
+
+            cur2.execute(
+                "SELECT site_pkey FROM wire_in_tile WHERE pkey = ?",
                 (dest_wire_in_tile_pkey, )
             )
-            dest_site_instance = cur2.fetchone()[0]
+            dest_site_pkey = cur2.fetchone()[0]
+
+            src_site_instance = None
+            dest_site_instance = None
+            for site in tile.sites:
+                cur2.execute(
+                    "SELECT name FROM site_instance WHERE site_pkey = ? AND phy_tile_pkey = ?"
+                    "", (
+                        site.site_pkey,
+                        site.phy_tile_pkey,
+                    )
+                )
+
+                res = cur2.fetchone()[0]
+
+                if site.site_pkey == src_site_pkey:
+                    src_site_instance = res
+                elif site.site_pkey == dest_site_pkey:
+                    dest_site_instance = res
+
+            assert src_site_instance and dest_site_instance
 
             sites_with_direct[src_site_instance] = dest_site_instance
 

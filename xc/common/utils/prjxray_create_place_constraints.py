@@ -709,7 +709,7 @@ def constrain_special_ios(
     if "subckt" not in blif_data:
         return
 
-    BEL_TYPES = ["IBUFDS_GTE2_VPR"]
+    BEL_TYPES = ["IBUFDS_GTE2_VPR", "GTPE2_CHANNEL_VPR"]
     SPECIAL_IPADS = ["IPAD_GTP_VPR"]
 
     special_io_map = dict()
