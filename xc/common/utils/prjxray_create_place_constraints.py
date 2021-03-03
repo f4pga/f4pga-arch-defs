@@ -105,6 +105,12 @@ CLOCKS = {
             "sinks": frozenset(("GTREFCLK0", "GTREFCLK1")),
             "type": "GTPE2_COMMON",
         },
+    "GTPE2_CHANNEL_VPR":
+        {
+            "sources": frozenset(("TXOUTCLK", "RXOUTCLK")),
+            "sinks": frozenset(),
+            "type": "GTPE2_CHANNEL",
+        },
 }
 
 
@@ -420,16 +426,17 @@ class ClockPlacer(object):
 
                 self.clock_sources[sink_net].append(cname)
 
-    def assign_cmts(self, vpr_grid, blocks):
+    def assign_cmts(self, vpr_grid, blocks, block_locs):
         """ Assign CMTs to subckt's that require it (e.g. BURF/PLL/MMCM). """
 
         problem = constraint.Problem()
 
         site_dict = vpr_grid.get_site_dict()
+        vpr_loc_cmt = vpr_grid.get_vpr_loc_cmt()
 
         # Any clocks that have LOC's already defined should be respected.
         # Store the parent CMT in clock_cmts.
-        for block, loc in blocks.items():
+        for block, loc in block_locs.items():
             if block in self.clock_blocks:
 
                 clock = self.clock_blocks[block]
@@ -447,6 +454,21 @@ class ClockPlacer(object):
                         )
                     else:
                         self.clock_cmts[block] = clock_region_pkey
+
+        # Any clocks that were previously constrained must be preserved
+        for block, (loc_x, loc_y, _) in blocks.items():
+            if block in self.clock_blocks:
+
+                clock = self.clock_blocks[block]
+                if CLOCKS[clock['subckt']]['type'] == 'BUFGCTRL':
+                    pass
+                else:
+                    cmt = vpr_loc_cmt[(loc_x, loc_y)]
+
+                    if block in self.clock_cmts:
+                        assert cmt == self.clock_cmts[block], (block, cmt)
+                    else:
+                        self.clock_cmts[block] = cmt
 
         # Non-clock IBUF's increase the solution space if they are not
         # constrainted by a LOC.  Given that non-clock IBUF's don't need to
@@ -516,17 +538,9 @@ class ClockPlacer(object):
                     source_block = self.clock_blocks[source_clock_name]
                     is_net_bufg = CLOCKS[source_block['subckt']
                                          ]['type'] == 'BUFGCTRL'
-                    is_net_gtp = CLOCKS[source_block['subckt']
-                                        ]['type'] == 'IBUFDS_GTE2'
 
                     if is_net_bufg:
                         continue
-
-                    if is_net_gtp:
-                        problem.addConstraint(
-                            lambda cmt: cmt in self.gtp_cmts,
-                            (source_clock_name, )
-                        )
 
                     if CLOCKS[clock['subckt']]['type'] == 'BUFGCTRL':
                         # BUFG's need to be in the right half.
@@ -551,7 +565,7 @@ class ClockPlacer(object):
             self, canon_grid, vpr_grid, loc_in_use, block_locs, blocks,
             grid_capacities
     ):
-        self.assign_cmts(vpr_grid, block_locs)
+        self.assign_cmts(vpr_grid, blocks, block_locs)
 
         site_type_dict = vpr_grid.get_site_type_dict()
 
