@@ -47,7 +47,8 @@ class IOBufDeleter():
         netnames = self.module["netnames"]
 
         connected_ports = list()
-        for port, (port_bits, top_io_bits) in ports_connections.items():
+        for port, (port_bits, cell_loc,
+                   top_io_bits) in ports_connections.items():
             for cell, connections in prim_connections.items():
                 for cell_port, cell_bits in connections.items():
                     if port_bits == cell_bits:
@@ -57,8 +58,12 @@ class IOBufDeleter():
                         connections = cells[cell]["connections"]
                         connections[cell_port] = top_io_bits
 
+                        # Copy pre-existing location attributes to the new cell
+                        attrs = cells[cell]["parameters"]
+                        attrs["IO_LOC_PAIRS"] = cell_loc
+
         for port in connected_ports:
-            for cell_name, cfgs in cells.items():
+            for cell_name, _ in cells.items():
                 if "iopadmap" in cell_name and port in cell_name:
                     del cells[cell_name]
                     break
@@ -91,16 +96,30 @@ class IOBufDeleter():
         """
         top_ports = dict()
 
-        for port, cfg in self.module["ports"].items():
-            top_ports[port] = cfg["bits"]
+        for port, port_data in self.module["ports"].items():
+            top_ports[port] = port_data["bits"]
 
         ports_connections = dict()
 
         for port, top_bits in top_ports.items():
-            for net_name, cfg in self.module["netnames"].items():
+            data_bits = None
+            cell_loc = None
+
+            for net_name, net_data in self.module["netnames"].items():
                 if "iopadmap" in net_name and port in net_name:
-                    ports_connections[port] = (cfg["bits"], top_bits)
+                    data_bits = net_data["bits"]
                     break
+
+            for cell_name, cell_data in self.module["cells"].items():
+                if "iopadmap" in cell_name and port in cell_name:
+                    if "IO_LOC_PAIRS" in cell_data["parameters"]:
+                        cell_loc = cell_data["parameters"]["IO_LOC_PAIRS"]
+                    else:
+                        cell_loc = ""
+                    break
+
+            if data_bits is not None and cell_loc is not None:
+                ports_connections[port] = (data_bits, cell_loc, top_bits)
 
         return ports_connections
 
