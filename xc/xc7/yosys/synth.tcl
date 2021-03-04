@@ -3,7 +3,6 @@ yosys -import
 plugin -i xdc
 plugin -i fasm
 plugin -i params
-plugin -i selection
 plugin -i sdc
 plugin -i design_introspection
 
