@@ -18,7 +18,7 @@ input  wire jc4
 );
 
 // ============================================================================
-// Clock & reset
+// Reset generator
 wire CLK;
 BUFG bufgctrl(.I(clk), .O(CLK));
 
@@ -42,7 +42,7 @@ mmcme2_test #
 )
 mmcme2_test
 (
-.CLK        (CLK),
+.CLK        (clk),
 .RST        (RST),
 
 .CLKFBOUT   (),
