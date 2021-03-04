@@ -7042,8 +7042,8 @@ module GTPE2_COMMON (
   parameter _TECHMAP_CONSTMSK_GTREFCLK1_         = 0;
   parameter _TECHMAP_CONSTVAL_GTREFCLK1_         = 0;
 
-  localparam [0:0] GTREFCLK0_USED = (_TECHMAP_CONSTMSK_GTREFCLK0_ == 0) ? 1'b1 : 1'b0;
-  localparam [0:0] GTREFCLK1_USED = (_TECHMAP_CONSTMSK_GTREFCLK1_ == 0) ? 1'b1 : 1'b0;
+  localparam [0:0] GTREFCLK0_USED = (_TECHMAP_CONSTMSK_GTREFCLK0_ == 1) ? 1'b0 : 1'b1;
+  localparam [0:0] GTREFCLK1_USED = (_TECHMAP_CONSTMSK_GTREFCLK1_ == 1) ? 1'b0 : 1'b1;
   localparam [0:0] BOTH_GTREFCLK_USED = GTREFCLK0_USED && GTREFCLK1_USED;
 
   GTPE2_COMMON_VPR #(
@@ -7066,9 +7066,9 @@ module GTPE2_COMMON (
     .PLL_CLKOUT_CFG         (PLL_CLKOUT_CFG),
     .RSVD_ATTR0             (RSVD_ATTR0),
     .RSVD_ATTR1             (RSVD_ATTR1),
-    .ZINV_DRPCLK            (!INV_DRPCLK),
-    .ZINV_PLL0LOCKDETCLK    (!INV_PLL0LOCKDETCLK),
-    .ZINV_PLL1LOCKDETCLK    (!INV_PLL1LOCKDETCLK),
+    .ZINV_DRPCLK            (INV_DRPCLK),
+    .ZINV_PLL0LOCKDETCLK    (INV_PLL0LOCKDETCLK),
+    .ZINV_PLL1LOCKDETCLK    (INV_PLL1LOCKDETCLK),
     .GTREFCLK0_USED         (GTREFCLK0_USED),
     .GTREFCLK1_USED         (GTREFCLK1_USED),
     .BOTH_GTREFCLK_USED     (BOTH_GTREFCLK_USED)
@@ -7096,6 +7096,7 @@ module GTPE2_COMMON (
     .DRPCLK             (drpclk),
     .DRPEN              (DRPEN),
     .DRPWE              (DRPWE),
+    .GTREFCLK1          (GTREFCLK1),
     .GTGREFCLK0         (GTGREFCLK0),
     .GTGREFCLK1         (GTGREFCLK1),
     .PLL0LOCKDETCLK     (pll0lockdetclk),
@@ -7922,7 +7923,7 @@ module GTPE2_CHANNEL (
     .TX_DATA_WIDTH                  (TX_DATA_WIDTH_BIN),
     .TX_DEEMPH0                     (TX_DEEMPH0),
     .TX_DEEMPH1                     (TX_DEEMPH1),
-    .TX_DRIVE_MODE_DIRECT           (TX_DRIVE_MODE == "DIRECT"),
+    .TX_DRIVE_MODE_PIPE             (TX_DRIVE_MODE == "PIPE"),
     .TX_EIDLE_ASSERT_DELAY          (TX_EIDLE_ASSERT_DELAY),
     .TX_EIDLE_DEASSERT_DELAY        (TX_EIDLE_DEASSERT_DELAY),
     .TX_LOOPBACK_DRIVE_HIZ          (TX_LOOPBACK_DRIVE_HIZ == "TRUE"),
@@ -7943,16 +7944,16 @@ module GTPE2_CHANNEL (
     .TX_XCLK_SEL_TXUSR              (TX_XCLK_SEL == "TXUSR"),
     .UCODEER_CLR                    (UCODEER_CLR),
     .USE_PCS_CLK_PHASE_SEL          (USE_PCS_CLK_PHASE_SEL),
-    .ZINV_TXUSRCLK                  (!INV_TXUSRCLK),
-    .ZINV_TXUSRCLK2                 (!INV_TXUSRCLK2),
-    .ZINV_TXPHDLYTSTCLK             (!INV_TXPHDLYTSTCLK),
-    .ZINV_SIGVALIDCLK               (!INV_SIGVALIDCLK),
-    .ZINV_RXUSRCLK                  (!INV_RXUSRCLK),
-    .ZINV_RXUSRCLK2                 (!INV_RXUSRCLK2),
-    .ZINV_DRPCLK                    (!INV_DRPCLK),
-    .ZINV_DMONITORCLK               (!INV_DMONITORCLK),
-    .ZINV_CLKRSVD0                  (!INV_CLKRSVD0),
-    .ZINV_CLKRSVD1                  (!INV_CLKRSVD1),
+    .ZINV_TXUSRCLK                  (INV_TXUSRCLK),
+    .ZINV_TXUSRCLK2                 (INV_TXUSRCLK2),
+    .ZINV_TXPHDLYTSTCLK             (INV_TXPHDLYTSTCLK),
+    .ZINV_SIGVALIDCLK               (INV_SIGVALIDCLK),
+    .ZINV_RXUSRCLK                  (INV_RXUSRCLK),
+    .ZINV_RXUSRCLK2                 (INV_RXUSRCLK2),
+    .ZINV_DRPCLK                    (INV_DRPCLK),
+    .ZINV_DMONITORCLK               (INV_DMONITORCLK),
+    .ZINV_CLKRSVD0                  (INV_CLKRSVD0),
+    .ZINV_CLKRSVD1                  (INV_CLKRSVD1),
     .IO_LOC_PAIRS                   (IO_LOC_PAIRS)
   ) gtp_channel (
     .GTPRXN                         (gtprxn),

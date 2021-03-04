@@ -2692,7 +2692,7 @@ module GTPE2_CHANNEL_VPR (
   parameter [2:0] TX_DATA_WIDTH = 3'b011;
   parameter [5:0] TX_DEEMPH0 = 6'b000000;
   parameter [5:0] TX_DEEMPH1 = 6'b000000;
-  parameter TX_DRIVE_MODE_DIRECT = 1'b1;
+  parameter TX_DRIVE_MODE_PIPE = 1'b0;
   parameter [2:0] TX_EIDLE_ASSERT_DELAY = 3'b110;
   parameter [2:0] TX_EIDLE_DEASSERT_DELAY = 3'b100;
   parameter TX_LOOPBACK_DRIVE_HIZ = 1'b0;
