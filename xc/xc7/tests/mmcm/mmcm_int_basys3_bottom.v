@@ -18,9 +18,9 @@ input  wire jc4
 );
 
 // ============================================================================
-// Clock & reset
+// Reset generator
 wire CLK;
-BUFG bufgctrl(.I(clk), .O(CLK));
+BUFG bufg(.I(clk), .O(CLK));
 
 reg [3:0] rst_sr;
 initial rst_sr <= 4'hF;

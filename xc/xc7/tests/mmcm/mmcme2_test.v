@@ -26,14 +26,15 @@ parameter CLKOUT0_DIVIDE_F = 12.000;
 
 // ============================================================================
 // Input clock divider (to get different clkins)
-wire clk100 = CLK;
+wire clk100;
+BUFG bufg100 (.I(CLK), .O(clk100));
 
 reg clk50_ce;
 always @(posedge clk100)
     clk50_ce <= !clk50_ce;
 
 wire clk50;
-BUFGCE bufg50 (.I(clk100), .CE(clk50_ce), .O(clk50));
+BUFGCE bufg50 (.I(CLK), .CE(clk50_ce), .O(clk50));
 
 // ============================================================================
 // The MMCM

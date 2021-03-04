@@ -18,7 +18,7 @@ input  wire jc4
 );
 
 // ============================================================================
-// Clock & reset
+// Reset generator
 wire CLK;
 BUFG bufgctrl(.I(clk), .O(CLK));
 
