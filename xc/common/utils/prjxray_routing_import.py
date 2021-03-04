@@ -658,20 +658,25 @@ AND
             right_graph_node_pkey
         ) = result
 
+        side_graph_node_map = {
+            "TOP": top_graph_node_pkey,
+            "BOTTOM": bottom_graph_node_pkey,
+            "LEFT": left_graph_node_pkey,
+            "RIGHT": right_graph_node_pkey,
+        }
         # VPR emits only one node for each site pin, instead of one node for each
         # side location of a pin.
         #
         # If the directional graph nodes are present for a specific tile wire,
         # the same node ID is assigned to the directional graph node to prevent
         # VPR failing to find a route.
-        if left_graph_node_pkey is not None:
-            node_mapping[left_graph_node_pkey] = (node.id, node.type)
-        if right_graph_node_pkey is not None:
-            node_mapping[right_graph_node_pkey] = (node.id, node.type)
-        if top_graph_node_pkey is not None:
-            node_mapping[top_graph_node_pkey] = (node.id, node.type)
-        if bottom_graph_node_pkey is not None:
-            node_mapping[bottom_graph_node_pkey] = (node.id, node.type)
+        sides = node.loc.side._name_
+        sides_list = sides.split("_")
+
+        for side in sides_list:
+            graph_node_pkey = side_graph_node_map[side]
+            assert graph_node_pkey is not None, (tile_type, pin_name)
+            node_mapping[graph_node_pkey] = (node.id, node.type)
 
 
 def import_tracks(conn, alive_tracks, node_mapping, graph, default_segment_id):
