@@ -2210,6 +2210,8 @@ module GTPE2_COMMON_VPR (
   input DRPWE,
   input GTREFCLK0,
   input GTREFCLK1,
+  input GTGREFCLK0,
+  input GTGREFCLK1,
   input PLL0LOCKDETCLK,
   input PLL0LOCKEN,
   input PLL0PD,
@@ -2245,9 +2247,9 @@ module GTPE2_COMMON_VPR (
   parameter [7:0] PLL_CLKOUT_CFG = 8'b00000000;
   parameter [15:0] RSVD_ATTR0 = 16'h0000;
   parameter [15:0] RSVD_ATTR1 = 16'h0000;
-  parameter ZINV_DRPCLK = 1'b0;
-  parameter ZINV_PLL1LOCKDETCLK = 1'b0;
-  parameter ZINV_PLL0LOCKDETCLK = 1'b0;
+  parameter INV_DRPCLK = 1'b0;
+  parameter INV_PLL1LOCKDETCLK = 1'b0;
+  parameter INV_PLL0LOCKDETCLK = 1'b0;
   parameter GTREFCLK0_USED = 1'b0;
   parameter GTREFCLK1_USED = 1'b0;
   parameter BOTH_GTREFCLK_USED = 1'b0;
@@ -2714,14 +2716,14 @@ module GTPE2_CHANNEL_VPR (
   parameter [0:0] UCODEER_CLR = 1'b0;
   parameter [0:0] USE_PCS_CLK_PHASE_SEL = 1'b0;
 
-  parameter ZINV_TXUSRCLK = 1'b1;
-  parameter ZINV_TXUSRCLK2 = 1'b1;
-  parameter ZINV_TXPHDLYTSTCLK = 1'b1;
-  parameter ZINV_SIGVALIDCLK = 1'b1;
-  parameter ZINV_RXUSRCLK = 1'b1;
-  parameter ZINV_RXUSRCLK2 = 1'b1;
-  parameter ZINV_DRPCLK = 1'b1;
-  parameter ZINV_DMONITORCLK = 1'b1;
-  parameter ZINV_CLKRSVD0 = 1'b1;
-  parameter ZINV_CLKRSVD1 = 1'b1;
+  parameter INV_TXUSRCLK = 1'b1;
+  parameter INV_TXUSRCLK2 = 1'b1;
+  parameter INV_TXPHDLYTSTCLK = 1'b1;
+  parameter INV_SIGVALIDCLK = 1'b1;
+  parameter INV_RXUSRCLK = 1'b1;
+  parameter INV_RXUSRCLK2 = 1'b1;
+  parameter INV_DRPCLK = 1'b1;
+  parameter INV_DMONITORCLK = 1'b1;
+  parameter INV_CLKRSVD0 = 1'b1;
+  parameter INV_CLKRSVD1 = 1'b1;
 endmodule

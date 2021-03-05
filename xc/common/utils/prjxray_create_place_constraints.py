@@ -396,10 +396,9 @@ class ClockPlacer(object):
             clock = self.clock_blocks[cname]
 
             for sink in sinks:
-                assert sink in ports, (
-                    cname,
-                    sink,
-                )
+                if sink not in ports:
+                    continue
+
                 sink_net = ports[sink]
                 if sink_net == '$true' or sink_net == '$false':
                     continue
