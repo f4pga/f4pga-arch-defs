@@ -75,7 +75,7 @@ assign OUT = O ^ S;
 endmodule
 
 (* abc9_box, blackbox *)
-module CARRY_COUT_PLUG(input CIN, output COUT);
+module CARRY_COUT_PLUG((* abc9_carry *) input CIN, (* abc9_carry *) output COUT);
 
 assign COUT = CIN;
 
@@ -85,6 +85,7 @@ assign COUT = CIN;
 
 endmodule
 
+(* abc9_box, lib_whitebox *)
 module CARRY4_VPR(O0, O1, O2, O3, CO0, CO1, CO2, CO3, CYINIT, CIN, DI0, DI1, DI2, DI3, S0, S1, S2, S3);
   parameter CYINIT_AX = 1'b0;
   parameter CYINIT_C0 = 1'b0;
@@ -156,12 +157,14 @@ module CARRY4_VPR(O0, O1, O2, O3, CO0, CO1, CO2, CO3, CYINIT, CIN, DI0, DI1, DI2
   (* DELAY_CONST_DI1="0.443e-9" *)
   (* DELAY_CONST_DI2="0.324e-9" *)
   (* DELAY_CONST_DI3="0.327e-9" *)
+  (* abc9_carry *)
   output wire CO3;
 
   input wire DI0, DI1, DI2, DI3;
   input wire S0, S1, S2, S3;
 
   input wire CYINIT;
+  (* abc9_carry *)
   input wire CIN;
 
   wire CI0;
