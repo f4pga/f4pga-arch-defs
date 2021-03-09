@@ -2253,6 +2253,11 @@ module GTPE2_COMMON_VPR (
   parameter GTREFCLK0_USED = 1'b0;
   parameter GTREFCLK1_USED = 1'b0;
   parameter BOTH_GTREFCLK_USED = 1'b0;
+  parameter ENABLE_DRP = 1'b1;
+
+  // This parameter should never be changed according to UG482 (v1.9), pg 24
+  parameter [1:0] IBUFDS_GTE2_CLKSWING_CFG = 2'b11;
+
 endmodule
 
 module GTPE2_CHANNEL_VPR (
