@@ -2565,85 +2565,45 @@ module OSERDESE2 (
   parameter _TECHMAP_CONSTMSK_TQ_ = 1'bx;
   parameter _TECHMAP_CONSTVAL_TQ_ = 1'bx;
 
-  localparam INV_D1 = (_TECHMAP_CONSTMSK_D1_ == 1) ? !_TECHMAP_CONSTVAL_D1_ ^ IS_D1_INVERTED :
-                          (_TECHMAP_CONSTVAL_D1_ == 0) ? ~IS_D1_INVERTED : IS_D1_INVERTED;
-  generate if (_TECHMAP_CONSTMSK_D1_ == 1) begin
-    wire d1 = 1'b1;
-  end else if (_TECHMAP_CONSTVAL_D1_ == 0) begin
-    wire d1 = 1'b1;
-  end else begin
-    wire d1 = D1;
-  end endgenerate
+  localparam INV_D1 = (_TECHMAP_CONSTMSK_D1_ == 1)  ? !_TECHMAP_CONSTVAL_D1_ ^ IS_D1_INVERTED :
+                      (_TECHMAP_CONSTVAL_D1_ === 0) ? ~IS_D1_INVERTED : IS_D1_INVERTED;
+  wire d1 = (_TECHMAP_CONSTMSK_D1_ == 1)  ? 1'b1 :
+            (_TECHMAP_CONSTVAL_D1_ === 0) ? 1'b1 : D1;
 
-  localparam INV_D2 = (_TECHMAP_CONSTMSK_D2_ == 1) ? !_TECHMAP_CONSTVAL_D2_ ^ IS_D2_INVERTED :
-                          (_TECHMAP_CONSTVAL_D2_ == 0) ? ~IS_D2_INVERTED : IS_D2_INVERTED;
-  generate if (_TECHMAP_CONSTMSK_D2_ == 1) begin
-    wire d2 = 1'b1;
-  end else if (_TECHMAP_CONSTVAL_D2_ == 0) begin
-    wire d2 = 1'b1;
-  end else begin
-    wire d2 = D2;
-  end endgenerate
+  localparam INV_D2 = (_TECHMAP_CONSTMSK_D2_ == 1)  ? !_TECHMAP_CONSTVAL_D2_ ^ IS_D2_INVERTED :
+                      (_TECHMAP_CONSTVAL_D2_ === 0) ? ~IS_D2_INVERTED : IS_D2_INVERTED;
+  wire d2 = (_TECHMAP_CONSTMSK_D2_ == 1)  ? 1'b1 :
+            (_TECHMAP_CONSTVAL_D2_ === 0) ? 1'b1 : D2;
 
-  localparam INV_D3 = (_TECHMAP_CONSTMSK_D3_ == 1) ? !_TECHMAP_CONSTVAL_D3_ ^ IS_D3_INVERTED :
-                          (_TECHMAP_CONSTVAL_D3_ == 0) ? ~IS_D3_INVERTED : IS_D3_INVERTED;
-  generate if (_TECHMAP_CONSTMSK_D3_ == 1) begin
-    wire d3 = 1'b1;
-  end else if (_TECHMAP_CONSTVAL_D3_ == 0) begin
-    wire d3 = 1'b1;
-  end else begin
-    wire d3 = D3;
-  end endgenerate
+  localparam INV_D3 = (_TECHMAP_CONSTMSK_D3_ == 1)  ? !_TECHMAP_CONSTVAL_D3_ ^ IS_D3_INVERTED :
+                      (_TECHMAP_CONSTVAL_D3_ === 0) ? ~IS_D3_INVERTED : IS_D3_INVERTED;
+  wire d3 = (_TECHMAP_CONSTMSK_D3_ == 1)  ? 1'b1 :
+            (_TECHMAP_CONSTVAL_D3_ === 0) ? 1'b1 : D3;
 
-  localparam INV_D4 = (_TECHMAP_CONSTMSK_D4_ == 1) ? !_TECHMAP_CONSTVAL_D4_ ^ IS_D4_INVERTED :
-                          (_TECHMAP_CONSTVAL_D4_ == 0) ? ~IS_D4_INVERTED : IS_D4_INVERTED;
-  generate if (_TECHMAP_CONSTMSK_D4_ == 1) begin
-    wire d4 = 1'b1;
-  end else if (_TECHMAP_CONSTVAL_D4_ == 0) begin
-    wire d4 = 1'b1;
-  end else begin
-    wire d4 = D4;
-  end endgenerate
+  localparam INV_D4 = (_TECHMAP_CONSTMSK_D4_ == 1)  ? !_TECHMAP_CONSTVAL_D4_ ^ IS_D4_INVERTED :
+                      (_TECHMAP_CONSTVAL_D4_ === 0) ? ~IS_D4_INVERTED : IS_D4_INVERTED;
+  wire d4 = (_TECHMAP_CONSTMSK_D4_ == 1)  ? 1'b1 :
+            (_TECHMAP_CONSTVAL_D4_ === 0) ? 1'b1 : D4;
 
-  localparam INV_D5 = (_TECHMAP_CONSTMSK_D5_ == 1) ? !_TECHMAP_CONSTVAL_D5_ ^ IS_D5_INVERTED :
-                          (_TECHMAP_CONSTVAL_D5_ == 0) ? ~IS_D5_INVERTED : IS_D5_INVERTED;
-  generate if (_TECHMAP_CONSTMSK_D5_ == 1) begin
-    wire d5 = 1'b1;
-  end else if (_TECHMAP_CONSTVAL_D5_ == 0) begin
-    wire d5 = 1'b1;
-  end else begin
-    wire d5 = D5;
-  end endgenerate
+  localparam INV_D5 = (_TECHMAP_CONSTMSK_D5_ == 1)  ? !_TECHMAP_CONSTVAL_D5_ ^ IS_D5_INVERTED :
+                      (_TECHMAP_CONSTVAL_D5_ === 0) ? ~IS_D5_INVERTED : IS_D5_INVERTED;
+  wire d5 = (_TECHMAP_CONSTMSK_D5_ == 1)  ? 1'b1 :
+            (_TECHMAP_CONSTVAL_D5_ === 0) ? 1'b1 : D5;
 
-  localparam INV_D6 = (_TECHMAP_CONSTMSK_D6_ == 1) ? !_TECHMAP_CONSTVAL_D6_ ^ IS_D6_INVERTED :
-                          (_TECHMAP_CONSTVAL_D6_ == 0) ? ~IS_D6_INVERTED : IS_D6_INVERTED;
-  generate if (_TECHMAP_CONSTMSK_D6_ == 1) begin
-    wire d6 = 1'b1;
-  end else if (_TECHMAP_CONSTVAL_D6_ == 0) begin
-    wire d6 = 1'b1;
-  end else begin
-    wire d6 = D6;
-  end endgenerate
+  localparam INV_D6 = (_TECHMAP_CONSTMSK_D6_ == 1)  ? !_TECHMAP_CONSTVAL_D6_ ^ IS_D6_INVERTED :
+                      (_TECHMAP_CONSTVAL_D6_ === 0) ? ~IS_D6_INVERTED : IS_D6_INVERTED;
+  wire d6 = (_TECHMAP_CONSTMSK_D6_ == 1)  ? 1'b1 :
+            (_TECHMAP_CONSTVAL_D6_ === 0) ? 1'b1 : D6;
 
-  localparam INV_D7 = (_TECHMAP_CONSTMSK_D7_ == 1) ? !_TECHMAP_CONSTVAL_D7_ ^ IS_D7_INVERTED :
-                          (_TECHMAP_CONSTVAL_D7_ == 0) ? ~IS_D7_INVERTED : IS_D7_INVERTED;
-  generate if (_TECHMAP_CONSTMSK_D7_ == 1) begin
-    wire d7 = 1'b1;
-  end else if (_TECHMAP_CONSTVAL_D7_ == 0) begin
-    wire d7 = 1'b1;
-  end else begin
-    wire d7 = D7;
-  end endgenerate
+  localparam INV_D7 = (_TECHMAP_CONSTMSK_D7_ == 1)  ? !_TECHMAP_CONSTVAL_D7_ ^ IS_D7_INVERTED :
+                      (_TECHMAP_CONSTVAL_D7_ === 0) ? ~IS_D7_INVERTED : IS_D7_INVERTED;
+  wire d7 = (_TECHMAP_CONSTMSK_D7_ == 1)  ? 1'b1 :
+            (_TECHMAP_CONSTVAL_D7_ === 0) ? 1'b1 : D7;
 
-  localparam INV_D8 = (_TECHMAP_CONSTMSK_D8_ == 1) ? !_TECHMAP_CONSTVAL_D8_ ^ IS_D8_INVERTED :
-                          (_TECHMAP_CONSTVAL_D8_ == 0) ? ~IS_D8_INVERTED : IS_D8_INVERTED;
-  generate if (_TECHMAP_CONSTMSK_D8_ == 1) begin
-    wire d8 = 1'b1;
-  end else if (_TECHMAP_CONSTVAL_D8_ == 0) begin
-    wire d8 = 1'b1;
-  end else begin
-    wire d8 = D8;
-  end endgenerate
+  localparam INV_D8 = (_TECHMAP_CONSTMSK_D8_ == 1)  ? !_TECHMAP_CONSTVAL_D8_ ^ IS_D8_INVERTED :
+                      (_TECHMAP_CONSTVAL_D8_ === 0) ? ~IS_D8_INVERTED : IS_D8_INVERTED;
+  wire d8 = (_TECHMAP_CONSTMSK_D8_ == 1)  ? 1'b1 :
+            (_TECHMAP_CONSTVAL_D8_ === 0) ? 1'b1 : D8;
 
   localparam TQ_USED = (_TECHMAP_CONSTVAL_TQ_ === 1'bx && (DATA_RATE_TQ == "DDR" || DATA_RATE_TQ == "SDR")) ? 1'b1 : 1'b0;
 
@@ -2656,46 +2616,25 @@ module OSERDESE2 (
   parameter _TECHMAP_CONSTMSK_T4_ = 0;
   parameter _TECHMAP_CONSTVAL_T4_ = 0;
 
+  localparam INV_T1 = (_TECHMAP_CONSTMSK_T1_ == 1)  ? !_TECHMAP_CONSTVAL_T1_ ^ IS_T1_INVERTED :
+                      (_TECHMAP_CONSTVAL_T1_ === 0) ? ~IS_T1_INVERTED : IS_T1_INVERTED;
+  wire t1 = (_TECHMAP_CONSTMSK_T1_ == 1)  ? 1'b1 :
+            (_TECHMAP_CONSTVAL_T1_ === 0) ? 1'b1 : T1;
+  
+  localparam INV_T2 = (_TECHMAP_CONSTMSK_T2_ == 1)  ? !_TECHMAP_CONSTVAL_T2_ ^ IS_T2_INVERTED :
+                      (_TECHMAP_CONSTVAL_T2_ === 0) ? ~IS_T2_INVERTED : IS_T2_INVERTED;
+  wire t2 = (_TECHMAP_CONSTMSK_T2_ == 1)  ? 1'b1 :
+            (_TECHMAP_CONSTVAL_T2_ === 0) ? 1'b1 : T2;
+  
+  localparam INV_T3 = (_TECHMAP_CONSTMSK_T3_ == 1)  ? !_TECHMAP_CONSTVAL_T3_ ^ IS_T3_INVERTED :
+                      (_TECHMAP_CONSTVAL_T3_ === 0) ? ~IS_T3_INVERTED : IS_T3_INVERTED;
+  wire t3 = (_TECHMAP_CONSTMSK_T3_ == 1)  ? 1'b1 :
+            (_TECHMAP_CONSTVAL_T3_ === 0) ? 1'b1 : T3;
 
-  localparam INV_T1 = (_TECHMAP_CONSTMSK_T1_ == 1) ? !_TECHMAP_CONSTVAL_T1_ ^ IS_T1_INVERTED :
-                          (_TECHMAP_CONSTVAL_T1_ == 0) ? ~IS_T1_INVERTED : IS_T1_INVERTED;
-  generate if (_TECHMAP_CONSTMSK_T1_ == 1) begin
-    wire t1 = 1'b1;
-  end else if (_TECHMAP_CONSTVAL_T1_ == 0) begin
-    wire t1 = 1'b1;
-  end else begin
-    wire t1 = T1;
-  end endgenerate
-
-  localparam INV_T2 = (_TECHMAP_CONSTMSK_T2_ == 1) ? !_TECHMAP_CONSTVAL_T2_ ^ IS_T2_INVERTED :
-                          (_TECHMAP_CONSTVAL_T2_ == 0) ? ~IS_T2_INVERTED : IS_T2_INVERTED;
-  generate if (_TECHMAP_CONSTMSK_T2_ == 1) begin
-    wire t2 = 1'b1;
-  end else if (_TECHMAP_CONSTVAL_T2_ == 0) begin
-    wire t2 = 1'b1;
-  end else begin
-    wire t2 = T2;
-  end endgenerate
-
-  localparam INV_T3 = (_TECHMAP_CONSTMSK_T3_ == 1) ? !_TECHMAP_CONSTVAL_T3_ ^ IS_T3_INVERTED :
-                          (_TECHMAP_CONSTVAL_T3_ == 0) ? ~IS_T3_INVERTED : IS_T3_INVERTED;
-  generate if (_TECHMAP_CONSTMSK_T3_ == 1) begin
-    wire t3 = 1'b1;
-  end else if (_TECHMAP_CONSTVAL_T3_ == 0) begin
-    wire t3 = 1'b1;
-  end else begin
-    wire t3 = T3;
-  end endgenerate
-
-  localparam INV_T4 = (_TECHMAP_CONSTMSK_T4_ == 1) ? !_TECHMAP_CONSTVAL_T4_ ^ IS_T4_INVERTED :
-                          (_TECHMAP_CONSTVAL_T4_ == 0) ? ~IS_T4_INVERTED : IS_T4_INVERTED;
-  generate if (_TECHMAP_CONSTMSK_T4_ == 1) begin
-    wire t4 = 1'b1;
-  end else if (_TECHMAP_CONSTVAL_T4_ == 0) begin
-    wire t4 = 1'b1;
-  end else begin
-    wire t4 = T4;
-  end endgenerate
+  localparam INV_T4 = (_TECHMAP_CONSTMSK_T4_ == 1)  ? !_TECHMAP_CONSTVAL_T4_ ^ IS_T4_INVERTED :
+                      (_TECHMAP_CONSTVAL_T4_ === 0) ? ~IS_T4_INVERTED : IS_T4_INVERTED;
+  wire t4 = (_TECHMAP_CONSTMSK_T4_ == 1)  ? 1'b1 :
+            (_TECHMAP_CONSTVAL_T4_ === 0) ? 1'b1 : T4;
 
   OSERDESE2_VPR #(
       .SERDES_MODE_SLAVE            (SERDES_MODE == "SLAVE"),
