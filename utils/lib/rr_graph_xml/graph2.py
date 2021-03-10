@@ -73,6 +73,14 @@ def graph_from_xml(
     nodes = []
     edges = []
 
+    # Node direction map
+    node_direction_map = {
+        None: graph2.NodeDirection.NO_DIR,
+        "INC_DIR": graph2.NodeDirection.INC_DIR,
+        "DEC_DIR": graph2.NodeDirection.DEC_DIR,
+        "BI_DIR": graph2.NodeDirection.BI_DIR,
+    }
+
     # Itertate over XML elements
     switch_timing = None
     switch_sizing = None
@@ -232,6 +240,9 @@ def graph_from_xml(
             ]:
                 continue
 
+            direction = element.get("direction", None)
+            direction = node_direction_map[direction]
+
             # Dropping metadata for now
             metadata = None
 
@@ -239,7 +250,7 @@ def graph_from_xml(
                 graph2.Node(
                     id=int(element.attrib['id']),
                     type=node_type,
-                    direction=graph2.NodeDirection.NO_DIR,
+                    direction=direction,
                     capacity=int(element.attrib['capacity']),
                     loc=node_loc,
                     timing=node_timing,
@@ -284,6 +295,7 @@ class Graph(object):
             build_pin_edges=True,
             rebase_nodes=True,
             filter_nodes=True,
+            load_edges=False,
     ):
         if progressbar is None:
             progressbar = lambda x: x  # noqa: E731
@@ -293,7 +305,10 @@ class Graph(object):
         self.output_file_name = output_file_name
 
         graph_input = graph_from_xml(
-            input_file_name, progressbar, filter_nodes=filter_nodes
+            input_file_name,
+            progressbar,
+            filter_nodes=filter_nodes,
+            load_edges=load_edges,
         )
         graph_input['build_pin_edges'] = build_pin_edges
 
