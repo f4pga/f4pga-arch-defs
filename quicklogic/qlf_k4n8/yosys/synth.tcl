@@ -1,14 +1,18 @@
 yosys -import
 
+# Load the QuickLogic qlf_k4n8 support plugin. Note that this is only temporary
+# until support for the device is merged into the upstream Yosys
+plugin -i ql-qlf-k4n8
+yosys -import
+
 # Read VPR cells library
 read_verilog -lib $::env(TECHMAP_PATH)/cells_sim.v
 
 # Synthesize
-#synth -auto-top -flatten -lut 4
 if {[info exists ::env(SYNTH_OPTS)]} {
-    synth_quicklogic -openfpga $::env(SYNTH_OPTS)
+    synth_quicklogic -family qlf_k4n8 $::env(SYNTH_OPTS)
 } else {
-    synth_quicklogic -openfpga
+    synth_quicklogic -family qlf_k4n8
 }
 
 # Write a pre-mapped design

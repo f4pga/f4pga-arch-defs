@@ -26,7 +26,6 @@ foreach(CARRY_DEPTH 1 2 3 4 7 8 9 15 16 17 31 32)
         BOARDS ${QL_OPENFPGA_BOARDS}
         EXPLICIT_ADD_FILE_TARGET
         ROUTE_ONLY
-        DEFINES SYNTH_OPTS=-adder
         )
 
     set(CARRY_TEST carry_test_${CARRY_DEPTH}_init1.v)
@@ -54,7 +53,6 @@ foreach(CARRY_DEPTH 1 2 3 4 7 8 9 15 16 17 31 32)
         BOARDS ${QL_OPENFPGA_BOARDS}
         EXPLICIT_ADD_FILE_TARGET
         ROUTE_ONLY
-        DEFINES SYNTH_OPTS=-adder
         )
 
     set(CARRY_TEST carry_test_${CARRY_DEPTH}_init_fabric.v)
@@ -82,6 +80,5 @@ foreach(CARRY_DEPTH 1 2 3 4 7 8 9 15 16 17 31 32)
         BOARDS ${QL_OPENFPGA_BOARDS}
         EXPLICIT_ADD_FILE_TARGET
         ROUTE_ONLY
-        DEFINES SYNTH_OPTS=-adder
         )
 endforeach()
