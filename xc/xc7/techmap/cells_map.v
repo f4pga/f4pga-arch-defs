@@ -3089,32 +3089,22 @@ module ODDR (
   parameter _TECHMAP_CONSTMSK_D2_ = 0;
   parameter _TECHMAP_CONSTVAL_D2_ = 0;
 
-  localparam ZINV_D1 = (_TECHMAP_CONSTMSK_D1_ == 1) ? _TECHMAP_CONSTVAL_D1_ ^ IS_D1_INVERTED :
-                           (_TECHMAP_CONSTVAL_D1_ == 0) ? IS_D1_INVERTED : !IS_D1_INVERTED;
-  generate if (_TECHMAP_CONSTMSK_D1_ == 1) begin
-    wire d1 = 1'b1;
-  end else if (_TECHMAP_CONSTVAL_D1_ == 0) begin
-    wire d1 = 1'b1;
-  end else begin
-    wire d1 = D1;
-  end endgenerate
+  localparam INV_D1 = (_TECHMAP_CONSTMSK_D1_ ==  1) ? !_TECHMAP_CONSTVAL_D1_ ^ IS_D1_INVERTED :
+                       (_TECHMAP_CONSTVAL_D1_ === 0) ? IS_D1_INVERTED : !IS_D1_INVERTED;
+  wire d1 = (_TECHMAP_CONSTMSK_D1_ ==  1) ? 1'b1 :
+            (_TECHMAP_CONSTVAL_D1_ === 0) ? 1'b1 : D1;
 
-  localparam ZINV_D2 = (_TECHMAP_CONSTMSK_D2_ == 1) ? _TECHMAP_CONSTVAL_D2_ ^ IS_D2_INVERTED :
-                           (_TECHMAP_CONSTVAL_D2_ == 0) ? IS_D2_INVERTED : !IS_D2_INVERTED;
-  generate if (_TECHMAP_CONSTMSK_D2_ == 1) begin
-    wire d2 = 1'b1;
-  end else if (_TECHMAP_CONSTVAL_D2_ == 0) begin
-    wire d2 = 1'b1;
-  end else begin
-    wire d2 = D2;
-  end endgenerate
+  localparam INV_D2 = (_TECHMAP_CONSTMSK_D2_ ==  1) ? !_TECHMAP_CONSTVAL_D2_ ^ IS_D2_INVERTED :
+                       (_TECHMAP_CONSTVAL_D2_ === 0) ? IS_D2_INVERTED : !IS_D2_INVERTED;
+  wire d2 = (_TECHMAP_CONSTMSK_D2_ ==  1) ? 1'b1 :
+            (_TECHMAP_CONSTVAL_D2_ === 0) ? 1'b1 : D2;
 
   ODDR_VPR # (
     .ZINV_CLK       (!IS_C_INVERTED),
-    .INV_D1         (!ZINV_D1),
-    .INV_D2         (!ZINV_D2),
-    .ZINV_D1        (ZINV_D1),
-    .ZINV_D2        (ZINV_D2),
+    .INV_D1         (INV_D1),
+    .INV_D2         (INV_D2),
+    .ZINV_D1        (!INV_D1),
+    .ZINV_D2        (!INV_D2),
     .SRTYPE_SYNC    ( SRTYPE == "SYNC"),
     .SAME_EDGE      ( (DDR_CLK_EDGE != "OPPOSITE_EDGE") ^ IS_C_INVERTED),
     .ZINIT_Q        (!INIT),
