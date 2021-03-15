@@ -63,7 +63,7 @@
   <!-- Metadata -->
   <metadata>
     <meta name="fasm_prefix">
-      PLLE2
+      PLLE2_ADV
     </meta>
     <meta name="fasm_features">
       IN_USE
