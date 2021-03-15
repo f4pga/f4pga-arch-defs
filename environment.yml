@@ -10,7 +10,7 @@ dependencies:
   - litex-hub::openocd=0.10.0_1514_ga8edbd020=20201119_154304
   - litex-hub::symbiflow-yosys-plugins=1.0.0_7_253_g3c5df0f=20210301_104249
   - litex-hub::prjxray-tools=0.1_2842_g6867429c=20210301_104249
-  - litex-hub::prjxray-db=v0.0_243_g057e179=20210119_091808
+  - litex-hub::prjxray-db=0.0_248_g2e51ad3=20210312_125539
   - litex-hub::vtr-optimized=8.0.0_3445_ga806b1609=20210312_125539
   - litex-hub::yosys=0.9_5266_g0fb4224e=20210301_104249_py37
   - litex-hub::zachjs-sv2v=0.0.5_0025_ge9f9696=20201120_205532
