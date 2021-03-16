@@ -1,118 +1,45 @@
 # SymbiFlow for Quicklogic FPGAs
 
+Currently the supported families are:
+- qlf_k4n8
+
 ## Quickstart guide
 
-### 1. Install Yosys with QuickLogic support
+### 1. Build SymbiFlow
 
-First, download the sources from the Antmicro's Yosys fork:
-
-```bash
-git clone https://github.com/antmicro/yosys.git -b quicklogic-rebased quicklogic-yosys
-cd quicklogic-yosys
-```
-
-Build Yosys with the following commands:
+Clone the SymbiFlow repository:
 
 ```bash
-cd yosys
-make config-gcc
-make -j$(nproc)
-sudo make install
-```
-
-This will install Yosys into your `/usr/local/bin/` directory.
-
-Note: If you want to build Yosys using clang, replace `make config-gcc` with `make config-clang`.
-
-Note: Once the QuickLogic specific changes in Yosys are merged with Yosys used by mainline Symbilow, this step will be unnecessary.
-
-Next, download necessary Yosys plugins from the `yosys-symbiflow-plugins` repository:
-
-```bash
-git clone https://github.com/antmicro/yosys-symbiflow-plugins -b ql-ios
-cd yosys-symbiflow-plugins
-```
-
-Build and install the plugins using the commands:
-
-```bash
-make
-sudo make install
-```
-
-This will build and install the plugins to `/usr/local/share/yosys/plugins`.
-
-Note: Until the Yosys with Quicklogic support is available as a symbiflow Conda package the plugins have to be downloaded and installed manually.
-
-### 2. Install SymbiFlow
-
-Clone the SymbiFlow repository, make sure you're using `quicklogic-upstream-rebase` branch:
-
-```bash
-git clone https://github.com/antmicro/symbiflow-arch-defs -b quicklogic-upstream-rebase
+git clone https://github.com/SymbiFlow/symbiflow-arch-defs
 ```
 
 Set up the environment:
 
 ```bash
-export YOSYS=/usr/local/bin/yosys
-# assuming default Yosys installation path
 make env
-cd build && make all_conda
 ```
 
-### 3. Generate a bitstream for a sample design
+The command will automatically clone all GIT submodules, setup a Conda environment with all the necessary packages and generate the build system by invoking CMake.
+
+### 2. Generate routing for a sample design
 
 Once the SymbiFlow environment is set up, you can perform the implementation (synthesis, placement and routing) of an example FPGA designs.
 
-Go to the `quicklogic/pp3/tests` directory and choose a design you want to implement e.g:
+Choose a target FPGA family, go to the `quicklogic/<family>/tests` directory and choose a design you want to implement e.g:
 
 ```bash
-cd quicklogic/pp3/tests/btn_counter
-make counter-ql-chandalar_bit 
+cd quicklogic/qlf_k4n8/tests/counter
+make counter-umc22-adder_route
 ```
 
-This will generate a binary bitstream file for the design. The resulting bitstream will be written to the `top.bit` file in the working directory of the design.
-
-Currently designs that work on hardware are:
-
-- Designs that require external button/led connections:
-	- btn_xor
-	- btn_ff
-	- btn_counter
-	- ext_counter
-- Designs demonstrating SoC - FPGA interaction:
-	- counter
-	- soc_clocks
-	- soc_litex_pwm
-
-For details of each of the test design please refer to its `README.md` file.
-
-### 4. Programming the EOS S3 SoC
-
-To simplify the programming process, some helper scripts were integrated with the flow.
-The scripts can automatically configure the IOMUX of the SoC so that all top-level IO ports of the design are routed to the physical pads of the chip.
-
-In order to generate the JLink programming script, build the following target:
-
-```bash
-make counter-ql-chandalar_jlink
-```
-
-or to generate OpenOCD script:
-
-```bash
-make counter-ql-chandalar_openocd
-```
-
-The script will contain both the bitstream and IOMUX configuration.
+This will generate a routing file for the design. For details of each of the test design please refer to its `README.md` file.
 
 ## Naming convention
 
 The naming convention of all build targets is: `<design_name>-<board_name>_<stage_name>`
 
 The `<design_name>` corresponds to the name of the design.
-The `<board_name>` defines the board that the design is targetted for, possible values are `ql-chandalar` and `ql-jibob4`
+The `<board_name>` defines the board that the design is targetted for.
 The last part `<stage_name>` defines the last stage of the flow that is to be executed.
 
 The most important stages are:
@@ -120,23 +47,20 @@ The most important stages are:
 - **eblif**
     Runs Yosys synthesis and generates an EBLIF file suitable for VPR. The output EBLIF file is named `top.eblif`
 
+- **pack**
+    Runs VPR packing stage. The packed design is written to the `top.net` file.
+
+- **place**
+    Runs VPR placement stage. Design placement is stored in the `top.place` file. IO placement constraints for VPR are written to the `top_io.place` file.
+
 - **route**
-    Runs VPR pack, place and route flow. The packed design is written to the `top.net` file. design placement and routing data is stored in the `top.place` and `top.route` files respectively. IO placement constraints for VPR are written to the `top_io.place` file.
+    Runs VPR routing. Design routing data is stored in the `top.route` file.
+
+- **analysis**
+    Runs VPR analysis, writes post-route netlists in BLIF and Verilog format plus an SDF file with post routing timing analysis.
 
 - **fasm**
     Generates the FPGA assembly file (a.k.a. FASM) using the routed design. The FASM file is named `top.fasm`.
-
-- **bit**
-    Generates a binary bitstream file from the FASM file using the `qlfasm.py` tool. The bitstream is ready to be loaded to the FPGA.
-
-- **jlink**
-    For convenience of programming the EOS S3 SoC, the `jlink` stage generates a command script which configures the IOMUX of the SoC and loads the bitstream to the FPGA. The script is ready to be executed via the *JLink commander* tool.
-
-- **openocd**
-    The `openocd` stage generates an OpenOCD script with `load_bitstream` process which configures the IOMUX of the SoC and loads the bitstream to the FPGA. The script is ready to be executed via the *GDB* tool. To do so, connect to target with OpenOCD, append the generated script to command set: `-f top.openocd` and execute in GDB session `monitor load_bitstream`.
-
-- **bit_v**
-    Runs the `fasm2bels` tool on the bitstream generated by the `bit` target. The ``fasm2bels`` tool converts a bitstream or a FASM file to a Verilog file containing basic elements (BELs) and connections between them. The resulting file is named `top_bit.v`
 
 Executing a particular stage implies that all stages before it will be executed as well (if needed). They form a dependency chain.
 
@@ -144,9 +68,9 @@ Executing a particular stage implies that all stages before it will be executed 
 
 To to add a new design to the flow, and use it as a test follow the guide:
 
-1. Create a subfolder for your design under the `quicklogic/pp3/tests` folder.
+1. Create a subfolder for your design under the `quicklogic/<family>/tests` folder.
 
-1. Add inclusion of the folder in the `quicklogic/pp3/tests/CMakeLists.txt` by adding the following line to it:
+1. Add inclusion of the folder in the `quicklogic/<family>/tests/CMakeLists.txt` by adding the following line to it:
 
     ```plaintext
     add_subdirectory(<your_directory_name>)
@@ -164,13 +88,13 @@ To to add a new design to the flow, and use it as a test follow the guide:
       )
     ```
 
-    The design name can be anything. For available board names please refer to the `quicklogic/pp3/boards.cmake` file. Input IO constraints have to be given in the *PCF* format. The *SDC* file argument is optional. 
+    The design name can be anything. For available board names please refer to the `quicklogic/<family>/boards.cmake` file. Input IO constraints have to be given in the *PCF* format. The *SDC* file argument is optional. 
     Please also refer to CMake files for existing designs.
     All the files passed to `add_fpga_target` have to be added to the flow with `add_file_target` e.g:
     
     ```plaintext
-    add_file_target(FILE btn_counter.v SCANNER_TYPE verilog)
-    add_file_target(FILE chandalar.pcf)
+    add_file_target(FILE counter.v SCANNER_TYPE verilog)
+    add_file_target(FILE io_constraints.pcf)
     ```
     
     The verilog scanner will automatically add all the verilog dependecies explicitely included in the added file.
@@ -184,16 +108,10 @@ To to add a new design to the flow, and use it as a test follow the guide:
 1. Now enter the build directory of your project and run the appropriate target as described:
 
    ```bash
-   cd build/quicklogic/pp3/tests/<your_directory_name>
-   make <your_design_name>-<target_board_name>_bit
+   cd build/quicklogic/<faimly>/tests/<your_directory_name>
+   make <your_design_name>-<target_board_name>_<stage_name>
    ```
 
 ## Known limitations
 
-SymbiFlow support for Quicklogic FPGAs is currently under heavy development. These are known limitations of the toolchain:
-
-1. No support for the global clock network yet. Clock signal is routed to *QCK* inputs of *LOGIC* cells via the ordinary routing network.
-
-1. The direct connection between the "TBS" mux and the flip-flop inside the *LOGIC* cell cannot be used. The signal has to be routed around through the switchbox from the *CZ* pin to the *QDI* pin.
-
-1. Only a single *LUT2* or *LUT3* can be packed into a LOGIC cell.
+SymbiFlow support for Quicklogic FPGAs is currently under heavy development. The current support for the qlf_k4n8 family does not support binary bitstream generation. FASM file generation is supported but is still being worked on.
