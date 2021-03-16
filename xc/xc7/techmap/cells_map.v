@@ -5552,1955 +5552,655 @@ module PS7 (
 
   // Detect all unconnected inputs and tie them to 0.
 
-  generate if((_TECHMAP_CONSTMSK_DDRARB_ == 4'd0) && (_TECHMAP_CONSTVAL_DDRARB_ == 4'd0))
-    wire [3:0] ddrarb = 4'd0;
-  else
-    wire [3:0] ddrarb = DDRARB;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_DMA0ACLK_ == 1'd0) && (_TECHMAP_CONSTVAL_DMA0ACLK_ == 1'd0))
-    wire [0:0] dma0aclk = 1'd0;
-  else
-    wire [0:0] dma0aclk = DMA0ACLK;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_DMA0DAREADY_ == 1'd0) && (_TECHMAP_CONSTVAL_DMA0DAREADY_ == 1'd0))
-    wire [0:0] dma0daready = 1'd0;
-  else
-    wire [0:0] dma0daready = DMA0DAREADY;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_DMA0DRLAST_ == 1'd0) && (_TECHMAP_CONSTVAL_DMA0DRLAST_ == 1'd0))
-    wire [0:0] dma0drlast = 1'd0;
-  else
-    wire [0:0] dma0drlast = DMA0DRLAST;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_DMA0DRTYPE_ == 2'd0) && (_TECHMAP_CONSTVAL_DMA0DRTYPE_ == 2'd0))
-    wire [1:0] dma0drtype = 2'd0;
-  else
-    wire [1:0] dma0drtype = DMA0DRTYPE;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_DMA0DRVALID_ == 1'd0) && (_TECHMAP_CONSTVAL_DMA0DRVALID_ == 1'd0))
-    wire [0:0] dma0drvalid = 1'd0;
-  else
-    wire [0:0] dma0drvalid = DMA0DRVALID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_DMA1ACLK_ == 1'd0) && (_TECHMAP_CONSTVAL_DMA1ACLK_ == 1'd0))
-    wire [0:0] dma1aclk = 1'd0;
-  else
-    wire [0:0] dma1aclk = DMA1ACLK;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_DMA1DAREADY_ == 1'd0) && (_TECHMAP_CONSTVAL_DMA1DAREADY_ == 1'd0))
-    wire [0:0] dma1daready = 1'd0;
-  else
-    wire [0:0] dma1daready = DMA1DAREADY;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_DMA1DRLAST_ == 1'd0) && (_TECHMAP_CONSTVAL_DMA1DRLAST_ == 1'd0))
-    wire [0:0] dma1drlast = 1'd0;
-  else
-    wire [0:0] dma1drlast = DMA1DRLAST;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_DMA1DRTYPE_ == 2'd0) && (_TECHMAP_CONSTVAL_DMA1DRTYPE_ == 2'd0))
-    wire [1:0] dma1drtype = 2'd0;
-  else
-    wire [1:0] dma1drtype = DMA1DRTYPE;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_DMA1DRVALID_ == 1'd0) && (_TECHMAP_CONSTVAL_DMA1DRVALID_ == 1'd0))
-    wire [0:0] dma1drvalid = 1'd0;
-  else
-    wire [0:0] dma1drvalid = DMA1DRVALID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_DMA2ACLK_ == 1'd0) && (_TECHMAP_CONSTVAL_DMA2ACLK_ == 1'd0))
-    wire [0:0] dma2aclk = 1'd0;
-  else
-    wire [0:0] dma2aclk = DMA2ACLK;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_DMA2DAREADY_ == 1'd0) && (_TECHMAP_CONSTVAL_DMA2DAREADY_ == 1'd0))
-    wire [0:0] dma2daready = 1'd0;
-  else
-    wire [0:0] dma2daready = DMA2DAREADY;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_DMA2DRLAST_ == 1'd0) && (_TECHMAP_CONSTVAL_DMA2DRLAST_ == 1'd0))
-    wire [0:0] dma2drlast = 1'd0;
-  else
-    wire [0:0] dma2drlast = DMA2DRLAST;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_DMA2DRTYPE_ == 2'd0) && (_TECHMAP_CONSTVAL_DMA2DRTYPE_ == 2'd0))
-    wire [1:0] dma2drtype = 2'd0;
-  else
-    wire [1:0] dma2drtype = DMA2DRTYPE;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_DMA2DRVALID_ == 1'd0) && (_TECHMAP_CONSTVAL_DMA2DRVALID_ == 1'd0))
-    wire [0:0] dma2drvalid = 1'd0;
-  else
-    wire [0:0] dma2drvalid = DMA2DRVALID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_DMA3ACLK_ == 1'd0) && (_TECHMAP_CONSTVAL_DMA3ACLK_ == 1'd0))
-    wire [0:0] dma3aclk = 1'd0;
-  else
-    wire [0:0] dma3aclk = DMA3ACLK;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_DMA3DAREADY_ == 1'd0) && (_TECHMAP_CONSTVAL_DMA3DAREADY_ == 1'd0))
-    wire [0:0] dma3daready = 1'd0;
-  else
-    wire [0:0] dma3daready = DMA3DAREADY;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_DMA3DRLAST_ == 1'd0) && (_TECHMAP_CONSTVAL_DMA3DRLAST_ == 1'd0))
-    wire [0:0] dma3drlast = 1'd0;
-  else
-    wire [0:0] dma3drlast = DMA3DRLAST;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_DMA3DRTYPE_ == 2'd0) && (_TECHMAP_CONSTVAL_DMA3DRTYPE_ == 2'd0))
-    wire [1:0] dma3drtype = 2'd0;
-  else
-    wire [1:0] dma3drtype = DMA3DRTYPE;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_DMA3DRVALID_ == 1'd0) && (_TECHMAP_CONSTVAL_DMA3DRVALID_ == 1'd0))
-    wire [0:0] dma3drvalid = 1'd0;
-  else
-    wire [0:0] dma3drvalid = DMA3DRVALID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOCAN0PHYRX_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOCAN0PHYRX_ == 1'd0))
-    wire [0:0] emiocan0phyrx = 1'd0;
-  else
-    wire [0:0] emiocan0phyrx = EMIOCAN0PHYRX;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOCAN1PHYRX_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOCAN1PHYRX_ == 1'd0))
-    wire [0:0] emiocan1phyrx = 1'd0;
-  else
-    wire [0:0] emiocan1phyrx = EMIOCAN1PHYRX;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOENET0EXTINTIN_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOENET0EXTINTIN_ == 1'd0))
-    wire [0:0] emioenet0extintin = 1'd0;
-  else
-    wire [0:0] emioenet0extintin = EMIOENET0EXTINTIN;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOENET0GMIICOL_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOENET0GMIICOL_ == 1'd0))
-    wire [0:0] emioenet0gmiicol = 1'd0;
-  else
-    wire [0:0] emioenet0gmiicol = EMIOENET0GMIICOL;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOENET0GMIICRS_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOENET0GMIICRS_ == 1'd0))
-    wire [0:0] emioenet0gmiicrs = 1'd0;
-  else
-    wire [0:0] emioenet0gmiicrs = EMIOENET0GMIICRS;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOENET0GMIIRXCLK_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOENET0GMIIRXCLK_ == 1'd0))
-    wire [0:0] emioenet0gmiirxclk = 1'd0;
-  else
-    wire [0:0] emioenet0gmiirxclk = EMIOENET0GMIIRXCLK;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOENET0GMIIRXD_ == 8'd0) && (_TECHMAP_CONSTVAL_EMIOENET0GMIIRXD_ == 8'd0))
-    wire [7:0] emioenet0gmiirxd = 8'd0;
-  else
-    wire [7:0] emioenet0gmiirxd = EMIOENET0GMIIRXD;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOENET0GMIIRXDV_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOENET0GMIIRXDV_ == 1'd0))
-    wire [0:0] emioenet0gmiirxdv = 1'd0;
-  else
-    wire [0:0] emioenet0gmiirxdv = EMIOENET0GMIIRXDV;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOENET0GMIIRXER_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOENET0GMIIRXER_ == 1'd0))
-    wire [0:0] emioenet0gmiirxer = 1'd0;
-  else
-    wire [0:0] emioenet0gmiirxer = EMIOENET0GMIIRXER;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOENET0GMIITXCLK_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOENET0GMIITXCLK_ == 1'd0))
-    wire [0:0] emioenet0gmiitxclk = 1'd0;
-  else
-    wire [0:0] emioenet0gmiitxclk = EMIOENET0GMIITXCLK;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOENET0MDIOI_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOENET0MDIOI_ == 1'd0))
-    wire [0:0] emioenet0mdioi = 1'd0;
-  else
-    wire [0:0] emioenet0mdioi = EMIOENET0MDIOI;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOENET1EXTINTIN_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOENET1EXTINTIN_ == 1'd0))
-    wire [0:0] emioenet1extintin = 1'd0;
-  else
-    wire [0:0] emioenet1extintin = EMIOENET1EXTINTIN;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOENET1GMIICOL_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOENET1GMIICOL_ == 1'd0))
-    wire [0:0] emioenet1gmiicol = 1'd0;
-  else
-    wire [0:0] emioenet1gmiicol = EMIOENET1GMIICOL;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOENET1GMIICRS_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOENET1GMIICRS_ == 1'd0))
-    wire [0:0] emioenet1gmiicrs = 1'd0;
-  else
-    wire [0:0] emioenet1gmiicrs = EMIOENET1GMIICRS;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOENET1GMIIRXCLK_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOENET1GMIIRXCLK_ == 1'd0))
-    wire [0:0] emioenet1gmiirxclk = 1'd0;
-  else
-    wire [0:0] emioenet1gmiirxclk = EMIOENET1GMIIRXCLK;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOENET1GMIIRXD_ == 8'd0) && (_TECHMAP_CONSTVAL_EMIOENET1GMIIRXD_ == 8'd0))
-    wire [7:0] emioenet1gmiirxd = 8'd0;
-  else
-    wire [7:0] emioenet1gmiirxd = EMIOENET1GMIIRXD;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOENET1GMIIRXDV_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOENET1GMIIRXDV_ == 1'd0))
-    wire [0:0] emioenet1gmiirxdv = 1'd0;
-  else
-    wire [0:0] emioenet1gmiirxdv = EMIOENET1GMIIRXDV;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOENET1GMIIRXER_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOENET1GMIIRXER_ == 1'd0))
-    wire [0:0] emioenet1gmiirxer = 1'd0;
-  else
-    wire [0:0] emioenet1gmiirxer = EMIOENET1GMIIRXER;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOENET1GMIITXCLK_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOENET1GMIITXCLK_ == 1'd0))
-    wire [0:0] emioenet1gmiitxclk = 1'd0;
-  else
-    wire [0:0] emioenet1gmiitxclk = EMIOENET1GMIITXCLK;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOENET1MDIOI_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOENET1MDIOI_ == 1'd0))
-    wire [0:0] emioenet1mdioi = 1'd0;
-  else
-    wire [0:0] emioenet1mdioi = EMIOENET1MDIOI;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOGPIOI_ == 64'd0) && (_TECHMAP_CONSTVAL_EMIOGPIOI_ == 64'd0))
-    wire [63:0] emiogpioi = 64'd0;
-  else
-    wire [63:0] emiogpioi = EMIOGPIOI;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOI2C0SCLI_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOI2C0SCLI_ == 1'd0))
-    wire [0:0] emioi2c0scli = 1'd0;
-  else
-    wire [0:0] emioi2c0scli = EMIOI2C0SCLI;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOI2C0SDAI_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOI2C0SDAI_ == 1'd0))
-    wire [0:0] emioi2c0sdai = 1'd0;
-  else
-    wire [0:0] emioi2c0sdai = EMIOI2C0SDAI;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOI2C1SCLI_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOI2C1SCLI_ == 1'd0))
-    wire [0:0] emioi2c1scli = 1'd0;
-  else
-    wire [0:0] emioi2c1scli = EMIOI2C1SCLI;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOI2C1SDAI_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOI2C1SDAI_ == 1'd0))
-    wire [0:0] emioi2c1sdai = 1'd0;
-  else
-    wire [0:0] emioi2c1sdai = EMIOI2C1SDAI;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOPJTAGTCK_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOPJTAGTCK_ == 1'd0))
-    wire [0:0] emiopjtagtck = 1'd0;
-  else
-    wire [0:0] emiopjtagtck = EMIOPJTAGTCK;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOPJTAGTDI_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOPJTAGTDI_ == 1'd0))
-    wire [0:0] emiopjtagtdi = 1'd0;
-  else
-    wire [0:0] emiopjtagtdi = EMIOPJTAGTDI;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOPJTAGTMS_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOPJTAGTMS_ == 1'd0))
-    wire [0:0] emiopjtagtms = 1'd0;
-  else
-    wire [0:0] emiopjtagtms = EMIOPJTAGTMS;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOSDIO0CDN_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOSDIO0CDN_ == 1'd0))
-    wire [0:0] emiosdio0cdn = 1'd0;
-  else
-    wire [0:0] emiosdio0cdn = EMIOSDIO0CDN;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOSDIO0CLKFB_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOSDIO0CLKFB_ == 1'd0))
-    wire [0:0] emiosdio0clkfb = 1'd0;
-  else
-    wire [0:0] emiosdio0clkfb = EMIOSDIO0CLKFB;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOSDIO0CMDI_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOSDIO0CMDI_ == 1'd0))
-    wire [0:0] emiosdio0cmdi = 1'd0;
-  else
-    wire [0:0] emiosdio0cmdi = EMIOSDIO0CMDI;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOSDIO0DATAI_ == 4'd0) && (_TECHMAP_CONSTVAL_EMIOSDIO0DATAI_ == 4'd0))
-    wire [3:0] emiosdio0datai = 4'd0;
-  else
-    wire [3:0] emiosdio0datai = EMIOSDIO0DATAI;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOSDIO0WP_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOSDIO0WP_ == 1'd0))
-    wire [0:0] emiosdio0wp = 1'd0;
-  else
-    wire [0:0] emiosdio0wp = EMIOSDIO0WP;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOSDIO1CDN_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOSDIO1CDN_ == 1'd0))
-    wire [0:0] emiosdio1cdn = 1'd0;
-  else
-    wire [0:0] emiosdio1cdn = EMIOSDIO1CDN;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOSDIO1CLKFB_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOSDIO1CLKFB_ == 1'd0))
-    wire [0:0] emiosdio1clkfb = 1'd0;
-  else
-    wire [0:0] emiosdio1clkfb = EMIOSDIO1CLKFB;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOSDIO1CMDI_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOSDIO1CMDI_ == 1'd0))
-    wire [0:0] emiosdio1cmdi = 1'd0;
-  else
-    wire [0:0] emiosdio1cmdi = EMIOSDIO1CMDI;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOSDIO1DATAI_ == 4'd0) && (_TECHMAP_CONSTVAL_EMIOSDIO1DATAI_ == 4'd0))
-    wire [3:0] emiosdio1datai = 4'd0;
-  else
-    wire [3:0] emiosdio1datai = EMIOSDIO1DATAI;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOSDIO1WP_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOSDIO1WP_ == 1'd0))
-    wire [0:0] emiosdio1wp = 1'd0;
-  else
-    wire [0:0] emiosdio1wp = EMIOSDIO1WP;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOSPI0MI_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOSPI0MI_ == 1'd0))
-    wire [0:0] emiospi0mi = 1'd0;
-  else
-    wire [0:0] emiospi0mi = EMIOSPI0MI;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOSPI0SCLKI_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOSPI0SCLKI_ == 1'd0))
-    wire [0:0] emiospi0sclki = 1'd0;
-  else
-    wire [0:0] emiospi0sclki = EMIOSPI0SCLKI;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOSPI0SI_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOSPI0SI_ == 1'd0))
-    wire [0:0] emiospi0si = 1'd0;
-  else
-    wire [0:0] emiospi0si = EMIOSPI0SI;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOSPI0SSIN_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOSPI0SSIN_ == 1'd0))
-    wire [0:0] emiospi0ssin = 1'd0;
-  else
-    wire [0:0] emiospi0ssin = EMIOSPI0SSIN;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOSPI1MI_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOSPI1MI_ == 1'd0))
-    wire [0:0] emiospi1mi = 1'd0;
-  else
-    wire [0:0] emiospi1mi = EMIOSPI1MI;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOSPI1SCLKI_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOSPI1SCLKI_ == 1'd0))
-    wire [0:0] emiospi1sclki = 1'd0;
-  else
-    wire [0:0] emiospi1sclki = EMIOSPI1SCLKI;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOSPI1SI_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOSPI1SI_ == 1'd0))
-    wire [0:0] emiospi1si = 1'd0;
-  else
-    wire [0:0] emiospi1si = EMIOSPI1SI;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOSPI1SSIN_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOSPI1SSIN_ == 1'd0))
-    wire [0:0] emiospi1ssin = 1'd0;
-  else
-    wire [0:0] emiospi1ssin = EMIOSPI1SSIN;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOSRAMINTIN_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOSRAMINTIN_ == 1'd0))
-    wire [0:0] emiosramintin = 1'd0;
-  else
-    wire [0:0] emiosramintin = EMIOSRAMINTIN;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOTRACECLK_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOTRACECLK_ == 1'd0))
-    wire [0:0] emiotraceclk = 1'd0;
-  else
-    wire [0:0] emiotraceclk = EMIOTRACECLK;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOTTC0CLKI_ == 3'd0) && (_TECHMAP_CONSTVAL_EMIOTTC0CLKI_ == 3'd0))
-    wire [2:0] emiottc0clki = 3'd0;
-  else
-    wire [2:0] emiottc0clki = EMIOTTC0CLKI;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOTTC1CLKI_ == 3'd0) && (_TECHMAP_CONSTVAL_EMIOTTC1CLKI_ == 3'd0))
-    wire [2:0] emiottc1clki = 3'd0;
-  else
-    wire [2:0] emiottc1clki = EMIOTTC1CLKI;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOUART0CTSN_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOUART0CTSN_ == 1'd0))
-    wire [0:0] emiouart0ctsn = 1'd0;
-  else
-    wire [0:0] emiouart0ctsn = EMIOUART0CTSN;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOUART0DCDN_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOUART0DCDN_ == 1'd0))
-    wire [0:0] emiouart0dcdn = 1'd0;
-  else
-    wire [0:0] emiouart0dcdn = EMIOUART0DCDN;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOUART0DSRN_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOUART0DSRN_ == 1'd0))
-    wire [0:0] emiouart0dsrn = 1'd0;
-  else
-    wire [0:0] emiouart0dsrn = EMIOUART0DSRN;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOUART0RIN_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOUART0RIN_ == 1'd0))
-    wire [0:0] emiouart0rin = 1'd0;
-  else
-    wire [0:0] emiouart0rin = EMIOUART0RIN;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOUART0RX_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOUART0RX_ == 1'd0))
-    wire [0:0] emiouart0rx = 1'd0;
-  else
-    wire [0:0] emiouart0rx = EMIOUART0RX;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOUART1CTSN_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOUART1CTSN_ == 1'd0))
-    wire [0:0] emiouart1ctsn = 1'd0;
-  else
-    wire [0:0] emiouart1ctsn = EMIOUART1CTSN;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOUART1DCDN_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOUART1DCDN_ == 1'd0))
-    wire [0:0] emiouart1dcdn = 1'd0;
-  else
-    wire [0:0] emiouart1dcdn = EMIOUART1DCDN;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOUART1DSRN_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOUART1DSRN_ == 1'd0))
-    wire [0:0] emiouart1dsrn = 1'd0;
-  else
-    wire [0:0] emiouart1dsrn = EMIOUART1DSRN;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOUART1RIN_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOUART1RIN_ == 1'd0))
-    wire [0:0] emiouart1rin = 1'd0;
-  else
-    wire [0:0] emiouart1rin = EMIOUART1RIN;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOUART1RX_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOUART1RX_ == 1'd0))
-    wire [0:0] emiouart1rx = 1'd0;
-  else
-    wire [0:0] emiouart1rx = EMIOUART1RX;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOUSB0VBUSPWRFAULT_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOUSB0VBUSPWRFAULT_ == 1'd0))
-    wire [0:0] emiousb0vbuspwrfault = 1'd0;
-  else
-    wire [0:0] emiousb0vbuspwrfault = EMIOUSB0VBUSPWRFAULT;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOUSB1VBUSPWRFAULT_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOUSB1VBUSPWRFAULT_ == 1'd0))
-    wire [0:0] emiousb1vbuspwrfault = 1'd0;
-  else
-    wire [0:0] emiousb1vbuspwrfault = EMIOUSB1VBUSPWRFAULT;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EMIOWDTCLKI_ == 1'd0) && (_TECHMAP_CONSTVAL_EMIOWDTCLKI_ == 1'd0))
-    wire [0:0] emiowdtclki = 1'd0;
-  else
-    wire [0:0] emiowdtclki = EMIOWDTCLKI;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_EVENTEVENTI_ == 1'd0) && (_TECHMAP_CONSTVAL_EVENTEVENTI_ == 1'd0))
-    wire [0:0] eventeventi = 1'd0;
-  else
-    wire [0:0] eventeventi = EVENTEVENTI;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_FCLKCLKTRIGN_ == 4'd0) && (_TECHMAP_CONSTVAL_FCLKCLKTRIGN_ == 4'd0))
-    wire [3:0] fclkclktrign = 4'd0;
-  else
-    wire [3:0] fclkclktrign = FCLKCLKTRIGN;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_FPGAIDLEN_ == 1'd0) && (_TECHMAP_CONSTVAL_FPGAIDLEN_ == 1'd0))
-    wire [0:0] fpgaidlen = 1'd0;
-  else
-    wire [0:0] fpgaidlen = FPGAIDLEN;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_FTMDTRACEINATID_ == 4'd0) && (_TECHMAP_CONSTVAL_FTMDTRACEINATID_ == 4'd0))
-    wire [3:0] ftmdtraceinatid = 4'd0;
-  else
-    wire [3:0] ftmdtraceinatid = FTMDTRACEINATID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_FTMDTRACEINCLOCK_ == 1'd0) && (_TECHMAP_CONSTVAL_FTMDTRACEINCLOCK_ == 1'd0))
-    wire [0:0] ftmdtraceinclock = 1'd0;
-  else
-    wire [0:0] ftmdtraceinclock = FTMDTRACEINCLOCK;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_FTMDTRACEINDATA_ == 32'd0) && (_TECHMAP_CONSTVAL_FTMDTRACEINDATA_ == 32'd0))
-    wire [31:0] ftmdtraceindata = 32'd0;
-  else
-    wire [31:0] ftmdtraceindata = FTMDTRACEINDATA;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_FTMDTRACEINVALID_ == 1'd0) && (_TECHMAP_CONSTVAL_FTMDTRACEINVALID_ == 1'd0))
-    wire [0:0] ftmdtraceinvalid = 1'd0;
-  else
-    wire [0:0] ftmdtraceinvalid = FTMDTRACEINVALID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_FTMTF2PDEBUG_ == 32'd0) && (_TECHMAP_CONSTVAL_FTMTF2PDEBUG_ == 32'd0))
-    wire [31:0] ftmtf2pdebug = 32'd0;
-  else
-    wire [31:0] ftmtf2pdebug = FTMTF2PDEBUG;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_FTMTF2PTRIG_ == 4'd0) && (_TECHMAP_CONSTVAL_FTMTF2PTRIG_ == 4'd0))
-    wire [3:0] ftmtf2ptrig = 4'd0;
-  else
-    wire [3:0] ftmtf2ptrig = FTMTF2PTRIG;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_FTMTP2FTRIGACK_ == 4'd0) && (_TECHMAP_CONSTVAL_FTMTP2FTRIGACK_ == 4'd0))
-    wire [3:0] ftmtp2ftrigack = 4'd0;
-  else
-    wire [3:0] ftmtp2ftrigack = FTMTP2FTRIGACK;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_IRQF2P_ == 20'd0) && (_TECHMAP_CONSTVAL_IRQF2P_ == 20'd0))
-    wire [19:0] irqf2p = 20'd0;
-  else
-    wire [19:0] irqf2p = IRQF2P;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_MAXIGP0ACLK_ == 1'd0) && (_TECHMAP_CONSTVAL_MAXIGP0ACLK_ == 1'd0))
-    wire [0:0] maxigp0aclk = 1'd0;
-  else
-    wire [0:0] maxigp0aclk = MAXIGP0ACLK;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_MAXIGP0ARREADY_ == 1'd0) && (_TECHMAP_CONSTVAL_MAXIGP0ARREADY_ == 1'd0))
-    wire [0:0] maxigp0arready = 1'd0;
-  else
-    wire [0:0] maxigp0arready = MAXIGP0ARREADY;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_MAXIGP0AWREADY_ == 1'd0) && (_TECHMAP_CONSTVAL_MAXIGP0AWREADY_ == 1'd0))
-    wire [0:0] maxigp0awready = 1'd0;
-  else
-    wire [0:0] maxigp0awready = MAXIGP0AWREADY;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_MAXIGP0BID_ == 12'd0) && (_TECHMAP_CONSTVAL_MAXIGP0BID_ == 12'd0))
-    wire [11:0] maxigp0bid = 12'd0;
-  else
-    wire [11:0] maxigp0bid = MAXIGP0BID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_MAXIGP0BRESP_ == 2'd0) && (_TECHMAP_CONSTVAL_MAXIGP0BRESP_ == 2'd0))
-    wire [1:0] maxigp0bresp = 2'd0;
-  else
-    wire [1:0] maxigp0bresp = MAXIGP0BRESP;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_MAXIGP0BVALID_ == 1'd0) && (_TECHMAP_CONSTVAL_MAXIGP0BVALID_ == 1'd0))
-    wire [0:0] maxigp0bvalid = 1'd0;
-  else
-    wire [0:0] maxigp0bvalid = MAXIGP0BVALID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_MAXIGP0RDATA_ == 32'd0) && (_TECHMAP_CONSTVAL_MAXIGP0RDATA_ == 32'd0))
-    wire [31:0] maxigp0rdata = 32'd0;
-  else
-    wire [31:0] maxigp0rdata = MAXIGP0RDATA;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_MAXIGP0RID_ == 12'd0) && (_TECHMAP_CONSTVAL_MAXIGP0RID_ == 12'd0))
-    wire [11:0] maxigp0rid = 12'd0;
-  else
-    wire [11:0] maxigp0rid = MAXIGP0RID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_MAXIGP0RLAST_ == 1'd0) && (_TECHMAP_CONSTVAL_MAXIGP0RLAST_ == 1'd0))
-    wire [0:0] maxigp0rlast = 1'd0;
-  else
-    wire [0:0] maxigp0rlast = MAXIGP0RLAST;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_MAXIGP0RRESP_ == 2'd0) && (_TECHMAP_CONSTVAL_MAXIGP0RRESP_ == 2'd0))
-    wire [1:0] maxigp0rresp = 2'd0;
-  else
-    wire [1:0] maxigp0rresp = MAXIGP0RRESP;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_MAXIGP0RVALID_ == 1'd0) && (_TECHMAP_CONSTVAL_MAXIGP0RVALID_ == 1'd0))
-    wire [0:0] maxigp0rvalid = 1'd0;
-  else
-    wire [0:0] maxigp0rvalid = MAXIGP0RVALID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_MAXIGP0WREADY_ == 1'd0) && (_TECHMAP_CONSTVAL_MAXIGP0WREADY_ == 1'd0))
-    wire [0:0] maxigp0wready = 1'd0;
-  else
-    wire [0:0] maxigp0wready = MAXIGP0WREADY;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_MAXIGP1ACLK_ == 1'd0) && (_TECHMAP_CONSTVAL_MAXIGP1ACLK_ == 1'd0))
-    wire [0:0] maxigp1aclk = 1'd0;
-  else
-    wire [0:0] maxigp1aclk = MAXIGP1ACLK;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_MAXIGP1ARREADY_ == 1'd0) && (_TECHMAP_CONSTVAL_MAXIGP1ARREADY_ == 1'd0))
-    wire [0:0] maxigp1arready = 1'd0;
-  else
-    wire [0:0] maxigp1arready = MAXIGP1ARREADY;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_MAXIGP1AWREADY_ == 1'd0) && (_TECHMAP_CONSTVAL_MAXIGP1AWREADY_ == 1'd0))
-    wire [0:0] maxigp1awready = 1'd0;
-  else
-    wire [0:0] maxigp1awready = MAXIGP1AWREADY;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_MAXIGP1BID_ == 12'd0) && (_TECHMAP_CONSTVAL_MAXIGP1BID_ == 12'd0))
-    wire [11:0] maxigp1bid = 12'd0;
-  else
-    wire [11:0] maxigp1bid = MAXIGP1BID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_MAXIGP1BRESP_ == 2'd0) && (_TECHMAP_CONSTVAL_MAXIGP1BRESP_ == 2'd0))
-    wire [1:0] maxigp1bresp = 2'd0;
-  else
-    wire [1:0] maxigp1bresp = MAXIGP1BRESP;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_MAXIGP1BVALID_ == 1'd0) && (_TECHMAP_CONSTVAL_MAXIGP1BVALID_ == 1'd0))
-    wire [0:0] maxigp1bvalid = 1'd0;
-  else
-    wire [0:0] maxigp1bvalid = MAXIGP1BVALID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_MAXIGP1RDATA_ == 32'd0) && (_TECHMAP_CONSTVAL_MAXIGP1RDATA_ == 32'd0))
-    wire [31:0] maxigp1rdata = 32'd0;
-  else
-    wire [31:0] maxigp1rdata = MAXIGP1RDATA;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_MAXIGP1RID_ == 12'd0) && (_TECHMAP_CONSTVAL_MAXIGP1RID_ == 12'd0))
-    wire [11:0] maxigp1rid = 12'd0;
-  else
-    wire [11:0] maxigp1rid = MAXIGP1RID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_MAXIGP1RLAST_ == 1'd0) && (_TECHMAP_CONSTVAL_MAXIGP1RLAST_ == 1'd0))
-    wire [0:0] maxigp1rlast = 1'd0;
-  else
-    wire [0:0] maxigp1rlast = MAXIGP1RLAST;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_MAXIGP1RRESP_ == 2'd0) && (_TECHMAP_CONSTVAL_MAXIGP1RRESP_ == 2'd0))
-    wire [1:0] maxigp1rresp = 2'd0;
-  else
-    wire [1:0] maxigp1rresp = MAXIGP1RRESP;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_MAXIGP1RVALID_ == 1'd0) && (_TECHMAP_CONSTVAL_MAXIGP1RVALID_ == 1'd0))
-    wire [0:0] maxigp1rvalid = 1'd0;
-  else
-    wire [0:0] maxigp1rvalid = MAXIGP1RVALID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_MAXIGP1WREADY_ == 1'd0) && (_TECHMAP_CONSTVAL_MAXIGP1WREADY_ == 1'd0))
-    wire [0:0] maxigp1wready = 1'd0;
-  else
-    wire [0:0] maxigp1wready = MAXIGP1WREADY;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIACPACLK_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIACPACLK_ == 1'd0))
-    wire [0:0] saxiacpaclk = 1'd0;
-  else
-    wire [0:0] saxiacpaclk = SAXIACPACLK;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIACPARADDR_ == 32'd0) && (_TECHMAP_CONSTVAL_SAXIACPARADDR_ == 32'd0))
-    wire [31:0] saxiacparaddr = 32'd0;
-  else
-    wire [31:0] saxiacparaddr = SAXIACPARADDR;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIACPARBURST_ == 2'd0) && (_TECHMAP_CONSTVAL_SAXIACPARBURST_ == 2'd0))
-    wire [1:0] saxiacparburst = 2'd0;
-  else
-    wire [1:0] saxiacparburst = SAXIACPARBURST;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIACPARCACHE_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIACPARCACHE_ == 4'd0))
-    wire [3:0] saxiacparcache = 4'd0;
-  else
-    wire [3:0] saxiacparcache = SAXIACPARCACHE;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIACPARID_ == 3'd0) && (_TECHMAP_CONSTVAL_SAXIACPARID_ == 3'd0))
-    wire [2:0] saxiacparid = 3'd0;
-  else
-    wire [2:0] saxiacparid = SAXIACPARID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIACPARLEN_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIACPARLEN_ == 4'd0))
-    wire [3:0] saxiacparlen = 4'd0;
-  else
-    wire [3:0] saxiacparlen = SAXIACPARLEN;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIACPARLOCK_ == 2'd0) && (_TECHMAP_CONSTVAL_SAXIACPARLOCK_ == 2'd0))
-    wire [1:0] saxiacparlock = 2'd0;
-  else
-    wire [1:0] saxiacparlock = SAXIACPARLOCK;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIACPARPROT_ == 3'd0) && (_TECHMAP_CONSTVAL_SAXIACPARPROT_ == 3'd0))
-    wire [2:0] saxiacparprot = 3'd0;
-  else
-    wire [2:0] saxiacparprot = SAXIACPARPROT;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIACPARQOS_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIACPARQOS_ == 4'd0))
-    wire [3:0] saxiacparqos = 4'd0;
-  else
-    wire [3:0] saxiacparqos = SAXIACPARQOS;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIACPARSIZE_ == 2'd0) && (_TECHMAP_CONSTVAL_SAXIACPARSIZE_ == 2'd0))
-    wire [1:0] saxiacparsize = 2'd0;
-  else
-    wire [1:0] saxiacparsize = SAXIACPARSIZE;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIACPARUSER_ == 5'd0) && (_TECHMAP_CONSTVAL_SAXIACPARUSER_ == 5'd0))
-    wire [4:0] saxiacparuser = 5'd0;
-  else
-    wire [4:0] saxiacparuser = SAXIACPARUSER;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIACPARVALID_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIACPARVALID_ == 1'd0))
-    wire [0:0] saxiacparvalid = 1'd0;
-  else
-    wire [0:0] saxiacparvalid = SAXIACPARVALID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIACPAWADDR_ == 32'd0) && (_TECHMAP_CONSTVAL_SAXIACPAWADDR_ == 32'd0))
-    wire [31:0] saxiacpawaddr = 32'd0;
-  else
-    wire [31:0] saxiacpawaddr = SAXIACPAWADDR;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIACPAWBURST_ == 2'd0) && (_TECHMAP_CONSTVAL_SAXIACPAWBURST_ == 2'd0))
-    wire [1:0] saxiacpawburst = 2'd0;
-  else
-    wire [1:0] saxiacpawburst = SAXIACPAWBURST;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIACPAWCACHE_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIACPAWCACHE_ == 4'd0))
-    wire [3:0] saxiacpawcache = 4'd0;
-  else
-    wire [3:0] saxiacpawcache = SAXIACPAWCACHE;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIACPAWID_ == 3'd0) && (_TECHMAP_CONSTVAL_SAXIACPAWID_ == 3'd0))
-    wire [2:0] saxiacpawid = 3'd0;
-  else
-    wire [2:0] saxiacpawid = SAXIACPAWID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIACPAWLEN_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIACPAWLEN_ == 4'd0))
-    wire [3:0] saxiacpawlen = 4'd0;
-  else
-    wire [3:0] saxiacpawlen = SAXIACPAWLEN;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIACPAWLOCK_ == 2'd0) && (_TECHMAP_CONSTVAL_SAXIACPAWLOCK_ == 2'd0))
-    wire [1:0] saxiacpawlock = 2'd0;
-  else
-    wire [1:0] saxiacpawlock = SAXIACPAWLOCK;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIACPAWPROT_ == 3'd0) && (_TECHMAP_CONSTVAL_SAXIACPAWPROT_ == 3'd0))
-    wire [2:0] saxiacpawprot = 3'd0;
-  else
-    wire [2:0] saxiacpawprot = SAXIACPAWPROT;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIACPAWQOS_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIACPAWQOS_ == 4'd0))
-    wire [3:0] saxiacpawqos = 4'd0;
-  else
-    wire [3:0] saxiacpawqos = SAXIACPAWQOS;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIACPAWSIZE_ == 2'd0) && (_TECHMAP_CONSTVAL_SAXIACPAWSIZE_ == 2'd0))
-    wire [1:0] saxiacpawsize = 2'd0;
-  else
-    wire [1:0] saxiacpawsize = SAXIACPAWSIZE;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIACPAWUSER_ == 5'd0) && (_TECHMAP_CONSTVAL_SAXIACPAWUSER_ == 5'd0))
-    wire [4:0] saxiacpawuser = 5'd0;
-  else
-    wire [4:0] saxiacpawuser = SAXIACPAWUSER;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIACPAWVALID_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIACPAWVALID_ == 1'd0))
-    wire [0:0] saxiacpawvalid = 1'd0;
-  else
-    wire [0:0] saxiacpawvalid = SAXIACPAWVALID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIACPBREADY_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIACPBREADY_ == 1'd0))
-    wire [0:0] saxiacpbready = 1'd0;
-  else
-    wire [0:0] saxiacpbready = SAXIACPBREADY;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIACPRREADY_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIACPRREADY_ == 1'd0))
-    wire [0:0] saxiacprready = 1'd0;
-  else
-    wire [0:0] saxiacprready = SAXIACPRREADY;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIACPWDATA_ == 64'd0) && (_TECHMAP_CONSTVAL_SAXIACPWDATA_ == 64'd0))
-    wire [63:0] saxiacpwdata = 64'd0;
-  else
-    wire [63:0] saxiacpwdata = SAXIACPWDATA;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIACPWID_ == 3'd0) && (_TECHMAP_CONSTVAL_SAXIACPWID_ == 3'd0))
-    wire [2:0] saxiacpwid = 3'd0;
-  else
-    wire [2:0] saxiacpwid = SAXIACPWID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIACPWLAST_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIACPWLAST_ == 1'd0))
-    wire [0:0] saxiacpwlast = 1'd0;
-  else
-    wire [0:0] saxiacpwlast = SAXIACPWLAST;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIACPWSTRB_ == 8'd0) && (_TECHMAP_CONSTVAL_SAXIACPWSTRB_ == 8'd0))
-    wire [7:0] saxiacpwstrb = 8'd0;
-  else
-    wire [7:0] saxiacpwstrb = SAXIACPWSTRB;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIACPWVALID_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIACPWVALID_ == 1'd0))
-    wire [0:0] saxiacpwvalid = 1'd0;
-  else
-    wire [0:0] saxiacpwvalid = SAXIACPWVALID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP0ACLK_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIGP0ACLK_ == 1'd0))
-    wire [0:0] saxigp0aclk = 1'd0;
-  else
-    wire [0:0] saxigp0aclk = SAXIGP0ACLK;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP0ARADDR_ == 32'd0) && (_TECHMAP_CONSTVAL_SAXIGP0ARADDR_ == 32'd0))
-    wire [31:0] saxigp0araddr = 32'd0;
-  else
-    wire [31:0] saxigp0araddr = SAXIGP0ARADDR;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP0ARBURST_ == 2'd0) && (_TECHMAP_CONSTVAL_SAXIGP0ARBURST_ == 2'd0))
-    wire [1:0] saxigp0arburst = 2'd0;
-  else
-    wire [1:0] saxigp0arburst = SAXIGP0ARBURST;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP0ARCACHE_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIGP0ARCACHE_ == 4'd0))
-    wire [3:0] saxigp0arcache = 4'd0;
-  else
-    wire [3:0] saxigp0arcache = SAXIGP0ARCACHE;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP0ARID_ == 6'd0) && (_TECHMAP_CONSTVAL_SAXIGP0ARID_ == 6'd0))
-    wire [5:0] saxigp0arid = 6'd0;
-  else
-    wire [5:0] saxigp0arid = SAXIGP0ARID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP0ARLEN_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIGP0ARLEN_ == 4'd0))
-    wire [3:0] saxigp0arlen = 4'd0;
-  else
-    wire [3:0] saxigp0arlen = SAXIGP0ARLEN;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP0ARLOCK_ == 2'd0) && (_TECHMAP_CONSTVAL_SAXIGP0ARLOCK_ == 2'd0))
-    wire [1:0] saxigp0arlock = 2'd0;
-  else
-    wire [1:0] saxigp0arlock = SAXIGP0ARLOCK;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP0ARPROT_ == 3'd0) && (_TECHMAP_CONSTVAL_SAXIGP0ARPROT_ == 3'd0))
-    wire [2:0] saxigp0arprot = 3'd0;
-  else
-    wire [2:0] saxigp0arprot = SAXIGP0ARPROT;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP0ARQOS_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIGP0ARQOS_ == 4'd0))
-    wire [3:0] saxigp0arqos = 4'd0;
-  else
-    wire [3:0] saxigp0arqos = SAXIGP0ARQOS;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP0ARSIZE_ == 2'd0) && (_TECHMAP_CONSTVAL_SAXIGP0ARSIZE_ == 2'd0))
-    wire [1:0] saxigp0arsize = 2'd0;
-  else
-    wire [1:0] saxigp0arsize = SAXIGP0ARSIZE;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP0ARVALID_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIGP0ARVALID_ == 1'd0))
-    wire [0:0] saxigp0arvalid = 1'd0;
-  else
-    wire [0:0] saxigp0arvalid = SAXIGP0ARVALID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP0AWADDR_ == 32'd0) && (_TECHMAP_CONSTVAL_SAXIGP0AWADDR_ == 32'd0))
-    wire [31:0] saxigp0awaddr = 32'd0;
-  else
-    wire [31:0] saxigp0awaddr = SAXIGP0AWADDR;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP0AWBURST_ == 2'd0) && (_TECHMAP_CONSTVAL_SAXIGP0AWBURST_ == 2'd0))
-    wire [1:0] saxigp0awburst = 2'd0;
-  else
-    wire [1:0] saxigp0awburst = SAXIGP0AWBURST;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP0AWCACHE_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIGP0AWCACHE_ == 4'd0))
-    wire [3:0] saxigp0awcache = 4'd0;
-  else
-    wire [3:0] saxigp0awcache = SAXIGP0AWCACHE;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP0AWID_ == 6'd0) && (_TECHMAP_CONSTVAL_SAXIGP0AWID_ == 6'd0))
-    wire [5:0] saxigp0awid = 6'd0;
-  else
-    wire [5:0] saxigp0awid = SAXIGP0AWID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP0AWLEN_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIGP0AWLEN_ == 4'd0))
-    wire [3:0] saxigp0awlen = 4'd0;
-  else
-    wire [3:0] saxigp0awlen = SAXIGP0AWLEN;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP0AWLOCK_ == 2'd0) && (_TECHMAP_CONSTVAL_SAXIGP0AWLOCK_ == 2'd0))
-    wire [1:0] saxigp0awlock = 2'd0;
-  else
-    wire [1:0] saxigp0awlock = SAXIGP0AWLOCK;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP0AWPROT_ == 3'd0) && (_TECHMAP_CONSTVAL_SAXIGP0AWPROT_ == 3'd0))
-    wire [2:0] saxigp0awprot = 3'd0;
-  else
-    wire [2:0] saxigp0awprot = SAXIGP0AWPROT;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP0AWQOS_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIGP0AWQOS_ == 4'd0))
-    wire [3:0] saxigp0awqos = 4'd0;
-  else
-    wire [3:0] saxigp0awqos = SAXIGP0AWQOS;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP0AWSIZE_ == 2'd0) && (_TECHMAP_CONSTVAL_SAXIGP0AWSIZE_ == 2'd0))
-    wire [1:0] saxigp0awsize = 2'd0;
-  else
-    wire [1:0] saxigp0awsize = SAXIGP0AWSIZE;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP0AWVALID_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIGP0AWVALID_ == 1'd0))
-    wire [0:0] saxigp0awvalid = 1'd0;
-  else
-    wire [0:0] saxigp0awvalid = SAXIGP0AWVALID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP0BREADY_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIGP0BREADY_ == 1'd0))
-    wire [0:0] saxigp0bready = 1'd0;
-  else
-    wire [0:0] saxigp0bready = SAXIGP0BREADY;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP0RREADY_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIGP0RREADY_ == 1'd0))
-    wire [0:0] saxigp0rready = 1'd0;
-  else
-    wire [0:0] saxigp0rready = SAXIGP0RREADY;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP0WDATA_ == 32'd0) && (_TECHMAP_CONSTVAL_SAXIGP0WDATA_ == 32'd0))
-    wire [31:0] saxigp0wdata = 32'd0;
-  else
-    wire [31:0] saxigp0wdata = SAXIGP0WDATA;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP0WID_ == 6'd0) && (_TECHMAP_CONSTVAL_SAXIGP0WID_ == 6'd0))
-    wire [5:0] saxigp0wid = 6'd0;
-  else
-    wire [5:0] saxigp0wid = SAXIGP0WID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP0WLAST_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIGP0WLAST_ == 1'd0))
-    wire [0:0] saxigp0wlast = 1'd0;
-  else
-    wire [0:0] saxigp0wlast = SAXIGP0WLAST;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP0WSTRB_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIGP0WSTRB_ == 4'd0))
-    wire [3:0] saxigp0wstrb = 4'd0;
-  else
-    wire [3:0] saxigp0wstrb = SAXIGP0WSTRB;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP0WVALID_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIGP0WVALID_ == 1'd0))
-    wire [0:0] saxigp0wvalid = 1'd0;
-  else
-    wire [0:0] saxigp0wvalid = SAXIGP0WVALID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP1ACLK_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIGP1ACLK_ == 1'd0))
-    wire [0:0] saxigp1aclk = 1'd0;
-  else
-    wire [0:0] saxigp1aclk = SAXIGP1ACLK;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP1ARADDR_ == 32'd0) && (_TECHMAP_CONSTVAL_SAXIGP1ARADDR_ == 32'd0))
-    wire [31:0] saxigp1araddr = 32'd0;
-  else
-    wire [31:0] saxigp1araddr = SAXIGP1ARADDR;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP1ARBURST_ == 2'd0) && (_TECHMAP_CONSTVAL_SAXIGP1ARBURST_ == 2'd0))
-    wire [1:0] saxigp1arburst = 2'd0;
-  else
-    wire [1:0] saxigp1arburst = SAXIGP1ARBURST;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP1ARCACHE_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIGP1ARCACHE_ == 4'd0))
-    wire [3:0] saxigp1arcache = 4'd0;
-  else
-    wire [3:0] saxigp1arcache = SAXIGP1ARCACHE;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP1ARID_ == 6'd0) && (_TECHMAP_CONSTVAL_SAXIGP1ARID_ == 6'd0))
-    wire [5:0] saxigp1arid = 6'd0;
-  else
-    wire [5:0] saxigp1arid = SAXIGP1ARID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP1ARLEN_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIGP1ARLEN_ == 4'd0))
-    wire [3:0] saxigp1arlen = 4'd0;
-  else
-    wire [3:0] saxigp1arlen = SAXIGP1ARLEN;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP1ARLOCK_ == 2'd0) && (_TECHMAP_CONSTVAL_SAXIGP1ARLOCK_ == 2'd0))
-    wire [1:0] saxigp1arlock = 2'd0;
-  else
-    wire [1:0] saxigp1arlock = SAXIGP1ARLOCK;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP1ARPROT_ == 3'd0) && (_TECHMAP_CONSTVAL_SAXIGP1ARPROT_ == 3'd0))
-    wire [2:0] saxigp1arprot = 3'd0;
-  else
-    wire [2:0] saxigp1arprot = SAXIGP1ARPROT;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP1ARQOS_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIGP1ARQOS_ == 4'd0))
-    wire [3:0] saxigp1arqos = 4'd0;
-  else
-    wire [3:0] saxigp1arqos = SAXIGP1ARQOS;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP1ARSIZE_ == 2'd0) && (_TECHMAP_CONSTVAL_SAXIGP1ARSIZE_ == 2'd0))
-    wire [1:0] saxigp1arsize = 2'd0;
-  else
-    wire [1:0] saxigp1arsize = SAXIGP1ARSIZE;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP1ARVALID_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIGP1ARVALID_ == 1'd0))
-    wire [0:0] saxigp1arvalid = 1'd0;
-  else
-    wire [0:0] saxigp1arvalid = SAXIGP1ARVALID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP1AWADDR_ == 32'd0) && (_TECHMAP_CONSTVAL_SAXIGP1AWADDR_ == 32'd0))
-    wire [31:0] saxigp1awaddr = 32'd0;
-  else
-    wire [31:0] saxigp1awaddr = SAXIGP1AWADDR;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP1AWBURST_ == 2'd0) && (_TECHMAP_CONSTVAL_SAXIGP1AWBURST_ == 2'd0))
-    wire [1:0] saxigp1awburst = 2'd0;
-  else
-    wire [1:0] saxigp1awburst = SAXIGP1AWBURST;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP1AWCACHE_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIGP1AWCACHE_ == 4'd0))
-    wire [3:0] saxigp1awcache = 4'd0;
-  else
-    wire [3:0] saxigp1awcache = SAXIGP1AWCACHE;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP1AWID_ == 6'd0) && (_TECHMAP_CONSTVAL_SAXIGP1AWID_ == 6'd0))
-    wire [5:0] saxigp1awid = 6'd0;
-  else
-    wire [5:0] saxigp1awid = SAXIGP1AWID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP1AWLEN_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIGP1AWLEN_ == 4'd0))
-    wire [3:0] saxigp1awlen = 4'd0;
-  else
-    wire [3:0] saxigp1awlen = SAXIGP1AWLEN;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP1AWLOCK_ == 2'd0) && (_TECHMAP_CONSTVAL_SAXIGP1AWLOCK_ == 2'd0))
-    wire [1:0] saxigp1awlock = 2'd0;
-  else
-    wire [1:0] saxigp1awlock = SAXIGP1AWLOCK;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP1AWPROT_ == 3'd0) && (_TECHMAP_CONSTVAL_SAXIGP1AWPROT_ == 3'd0))
-    wire [2:0] saxigp1awprot = 3'd0;
-  else
-    wire [2:0] saxigp1awprot = SAXIGP1AWPROT;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP1AWQOS_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIGP1AWQOS_ == 4'd0))
-    wire [3:0] saxigp1awqos = 4'd0;
-  else
-    wire [3:0] saxigp1awqos = SAXIGP1AWQOS;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP1AWSIZE_ == 2'd0) && (_TECHMAP_CONSTVAL_SAXIGP1AWSIZE_ == 2'd0))
-    wire [1:0] saxigp1awsize = 2'd0;
-  else
-    wire [1:0] saxigp1awsize = SAXIGP1AWSIZE;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP1AWVALID_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIGP1AWVALID_ == 1'd0))
-    wire [0:0] saxigp1awvalid = 1'd0;
-  else
-    wire [0:0] saxigp1awvalid = SAXIGP1AWVALID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP1BREADY_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIGP1BREADY_ == 1'd0))
-    wire [0:0] saxigp1bready = 1'd0;
-  else
-    wire [0:0] saxigp1bready = SAXIGP1BREADY;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP1RREADY_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIGP1RREADY_ == 1'd0))
-    wire [0:0] saxigp1rready = 1'd0;
-  else
-    wire [0:0] saxigp1rready = SAXIGP1RREADY;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP1WDATA_ == 32'd0) && (_TECHMAP_CONSTVAL_SAXIGP1WDATA_ == 32'd0))
-    wire [31:0] saxigp1wdata = 32'd0;
-  else
-    wire [31:0] saxigp1wdata = SAXIGP1WDATA;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP1WID_ == 6'd0) && (_TECHMAP_CONSTVAL_SAXIGP1WID_ == 6'd0))
-    wire [5:0] saxigp1wid = 6'd0;
-  else
-    wire [5:0] saxigp1wid = SAXIGP1WID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP1WLAST_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIGP1WLAST_ == 1'd0))
-    wire [0:0] saxigp1wlast = 1'd0;
-  else
-    wire [0:0] saxigp1wlast = SAXIGP1WLAST;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP1WSTRB_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIGP1WSTRB_ == 4'd0))
-    wire [3:0] saxigp1wstrb = 4'd0;
-  else
-    wire [3:0] saxigp1wstrb = SAXIGP1WSTRB;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIGP1WVALID_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIGP1WVALID_ == 1'd0))
-    wire [0:0] saxigp1wvalid = 1'd0;
-  else
-    wire [0:0] saxigp1wvalid = SAXIGP1WVALID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP0ACLK_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIHP0ACLK_ == 1'd0))
-    wire [0:0] saxihp0aclk = 1'd0;
-  else
-    wire [0:0] saxihp0aclk = SAXIHP0ACLK;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP0ARADDR_ == 32'd0) && (_TECHMAP_CONSTVAL_SAXIHP0ARADDR_ == 32'd0))
-    wire [31:0] saxihp0araddr = 32'd0;
-  else
-    wire [31:0] saxihp0araddr = SAXIHP0ARADDR;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP0ARBURST_ == 2'd0) && (_TECHMAP_CONSTVAL_SAXIHP0ARBURST_ == 2'd0))
-    wire [1:0] saxihp0arburst = 2'd0;
-  else
-    wire [1:0] saxihp0arburst = SAXIHP0ARBURST;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP0ARCACHE_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIHP0ARCACHE_ == 4'd0))
-    wire [3:0] saxihp0arcache = 4'd0;
-  else
-    wire [3:0] saxihp0arcache = SAXIHP0ARCACHE;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP0ARID_ == 6'd0) && (_TECHMAP_CONSTVAL_SAXIHP0ARID_ == 6'd0))
-    wire [5:0] saxihp0arid = 6'd0;
-  else
-    wire [5:0] saxihp0arid = SAXIHP0ARID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP0ARLEN_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIHP0ARLEN_ == 4'd0))
-    wire [3:0] saxihp0arlen = 4'd0;
-  else
-    wire [3:0] saxihp0arlen = SAXIHP0ARLEN;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP0ARLOCK_ == 2'd0) && (_TECHMAP_CONSTVAL_SAXIHP0ARLOCK_ == 2'd0))
-    wire [1:0] saxihp0arlock = 2'd0;
-  else
-    wire [1:0] saxihp0arlock = SAXIHP0ARLOCK;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP0ARPROT_ == 3'd0) && (_TECHMAP_CONSTVAL_SAXIHP0ARPROT_ == 3'd0))
-    wire [2:0] saxihp0arprot = 3'd0;
-  else
-    wire [2:0] saxihp0arprot = SAXIHP0ARPROT;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP0ARQOS_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIHP0ARQOS_ == 4'd0))
-    wire [3:0] saxihp0arqos = 4'd0;
-  else
-    wire [3:0] saxihp0arqos = SAXIHP0ARQOS;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP0ARSIZE_ == 2'd0) && (_TECHMAP_CONSTVAL_SAXIHP0ARSIZE_ == 2'd0))
-    wire [1:0] saxihp0arsize = 2'd0;
-  else
-    wire [1:0] saxihp0arsize = SAXIHP0ARSIZE;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP0ARVALID_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIHP0ARVALID_ == 1'd0))
-    wire [0:0] saxihp0arvalid = 1'd0;
-  else
-    wire [0:0] saxihp0arvalid = SAXIHP0ARVALID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP0AWADDR_ == 32'd0) && (_TECHMAP_CONSTVAL_SAXIHP0AWADDR_ == 32'd0))
-    wire [31:0] saxihp0awaddr = 32'd0;
-  else
-    wire [31:0] saxihp0awaddr = SAXIHP0AWADDR;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP0AWBURST_ == 2'd0) && (_TECHMAP_CONSTVAL_SAXIHP0AWBURST_ == 2'd0))
-    wire [1:0] saxihp0awburst = 2'd0;
-  else
-    wire [1:0] saxihp0awburst = SAXIHP0AWBURST;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP0AWCACHE_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIHP0AWCACHE_ == 4'd0))
-    wire [3:0] saxihp0awcache = 4'd0;
-  else
-    wire [3:0] saxihp0awcache = SAXIHP0AWCACHE;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP0AWID_ == 6'd0) && (_TECHMAP_CONSTVAL_SAXIHP0AWID_ == 6'd0))
-    wire [5:0] saxihp0awid = 6'd0;
-  else
-    wire [5:0] saxihp0awid = SAXIHP0AWID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP0AWLEN_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIHP0AWLEN_ == 4'd0))
-    wire [3:0] saxihp0awlen = 4'd0;
-  else
-    wire [3:0] saxihp0awlen = SAXIHP0AWLEN;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP0AWLOCK_ == 2'd0) && (_TECHMAP_CONSTVAL_SAXIHP0AWLOCK_ == 2'd0))
-    wire [1:0] saxihp0awlock = 2'd0;
-  else
-    wire [1:0] saxihp0awlock = SAXIHP0AWLOCK;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP0AWPROT_ == 3'd0) && (_TECHMAP_CONSTVAL_SAXIHP0AWPROT_ == 3'd0))
-    wire [2:0] saxihp0awprot = 3'd0;
-  else
-    wire [2:0] saxihp0awprot = SAXIHP0AWPROT;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP0AWQOS_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIHP0AWQOS_ == 4'd0))
-    wire [3:0] saxihp0awqos = 4'd0;
-  else
-    wire [3:0] saxihp0awqos = SAXIHP0AWQOS;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP0AWSIZE_ == 2'd0) && (_TECHMAP_CONSTVAL_SAXIHP0AWSIZE_ == 2'd0))
-    wire [1:0] saxihp0awsize = 2'd0;
-  else
-    wire [1:0] saxihp0awsize = SAXIHP0AWSIZE;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP0AWVALID_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIHP0AWVALID_ == 1'd0))
-    wire [0:0] saxihp0awvalid = 1'd0;
-  else
-    wire [0:0] saxihp0awvalid = SAXIHP0AWVALID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP0BREADY_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIHP0BREADY_ == 1'd0))
-    wire [0:0] saxihp0bready = 1'd0;
-  else
-    wire [0:0] saxihp0bready = SAXIHP0BREADY;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP0RDISSUECAP1EN_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIHP0RDISSUECAP1EN_ == 1'd0))
-    wire [0:0] saxihp0rdissuecap1en = 1'd0;
-  else
-    wire [0:0] saxihp0rdissuecap1en = SAXIHP0RDISSUECAP1EN;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP0RREADY_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIHP0RREADY_ == 1'd0))
-    wire [0:0] saxihp0rready = 1'd0;
-  else
-    wire [0:0] saxihp0rready = SAXIHP0RREADY;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP0WDATA_ == 64'd0) && (_TECHMAP_CONSTVAL_SAXIHP0WDATA_ == 64'd0))
-    wire [63:0] saxihp0wdata = 64'd0;
-  else
-    wire [63:0] saxihp0wdata = SAXIHP0WDATA;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP0WID_ == 6'd0) && (_TECHMAP_CONSTVAL_SAXIHP0WID_ == 6'd0))
-    wire [5:0] saxihp0wid = 6'd0;
-  else
-    wire [5:0] saxihp0wid = SAXIHP0WID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP0WLAST_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIHP0WLAST_ == 1'd0))
-    wire [0:0] saxihp0wlast = 1'd0;
-  else
-    wire [0:0] saxihp0wlast = SAXIHP0WLAST;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP0WRISSUECAP1EN_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIHP0WRISSUECAP1EN_ == 1'd0))
-    wire [0:0] saxihp0wrissuecap1en = 1'd0;
-  else
-    wire [0:0] saxihp0wrissuecap1en = SAXIHP0WRISSUECAP1EN;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP0WSTRB_ == 8'd0) && (_TECHMAP_CONSTVAL_SAXIHP0WSTRB_ == 8'd0))
-    wire [7:0] saxihp0wstrb = 8'd0;
-  else
-    wire [7:0] saxihp0wstrb = SAXIHP0WSTRB;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP0WVALID_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIHP0WVALID_ == 1'd0))
-    wire [0:0] saxihp0wvalid = 1'd0;
-  else
-    wire [0:0] saxihp0wvalid = SAXIHP0WVALID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP1ACLK_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIHP1ACLK_ == 1'd0))
-    wire [0:0] saxihp1aclk = 1'd0;
-  else
-    wire [0:0] saxihp1aclk = SAXIHP1ACLK;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP1ARADDR_ == 32'd0) && (_TECHMAP_CONSTVAL_SAXIHP1ARADDR_ == 32'd0))
-    wire [31:0] saxihp1araddr = 32'd0;
-  else
-    wire [31:0] saxihp1araddr = SAXIHP1ARADDR;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP1ARBURST_ == 2'd0) && (_TECHMAP_CONSTVAL_SAXIHP1ARBURST_ == 2'd0))
-    wire [1:0] saxihp1arburst = 2'd0;
-  else
-    wire [1:0] saxihp1arburst = SAXIHP1ARBURST;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP1ARCACHE_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIHP1ARCACHE_ == 4'd0))
-    wire [3:0] saxihp1arcache = 4'd0;
-  else
-    wire [3:0] saxihp1arcache = SAXIHP1ARCACHE;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP1ARID_ == 6'd0) && (_TECHMAP_CONSTVAL_SAXIHP1ARID_ == 6'd0))
-    wire [5:0] saxihp1arid = 6'd0;
-  else
-    wire [5:0] saxihp1arid = SAXIHP1ARID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP1ARLEN_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIHP1ARLEN_ == 4'd0))
-    wire [3:0] saxihp1arlen = 4'd0;
-  else
-    wire [3:0] saxihp1arlen = SAXIHP1ARLEN;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP1ARLOCK_ == 2'd0) && (_TECHMAP_CONSTVAL_SAXIHP1ARLOCK_ == 2'd0))
-    wire [1:0] saxihp1arlock = 2'd0;
-  else
-    wire [1:0] saxihp1arlock = SAXIHP1ARLOCK;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP1ARPROT_ == 3'd0) && (_TECHMAP_CONSTVAL_SAXIHP1ARPROT_ == 3'd0))
-    wire [2:0] saxihp1arprot = 3'd0;
-  else
-    wire [2:0] saxihp1arprot = SAXIHP1ARPROT;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP1ARQOS_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIHP1ARQOS_ == 4'd0))
-    wire [3:0] saxihp1arqos = 4'd0;
-  else
-    wire [3:0] saxihp1arqos = SAXIHP1ARQOS;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP1ARSIZE_ == 2'd0) && (_TECHMAP_CONSTVAL_SAXIHP1ARSIZE_ == 2'd0))
-    wire [1:0] saxihp1arsize = 2'd0;
-  else
-    wire [1:0] saxihp1arsize = SAXIHP1ARSIZE;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP1ARVALID_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIHP1ARVALID_ == 1'd0))
-    wire [0:0] saxihp1arvalid = 1'd0;
-  else
-    wire [0:0] saxihp1arvalid = SAXIHP1ARVALID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP1AWADDR_ == 32'd0) && (_TECHMAP_CONSTVAL_SAXIHP1AWADDR_ == 32'd0))
-    wire [31:0] saxihp1awaddr = 32'd0;
-  else
-    wire [31:0] saxihp1awaddr = SAXIHP1AWADDR;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP1AWBURST_ == 2'd0) && (_TECHMAP_CONSTVAL_SAXIHP1AWBURST_ == 2'd0))
-    wire [1:0] saxihp1awburst = 2'd0;
-  else
-    wire [1:0] saxihp1awburst = SAXIHP1AWBURST;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP1AWCACHE_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIHP1AWCACHE_ == 4'd0))
-    wire [3:0] saxihp1awcache = 4'd0;
-  else
-    wire [3:0] saxihp1awcache = SAXIHP1AWCACHE;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP1AWID_ == 6'd0) && (_TECHMAP_CONSTVAL_SAXIHP1AWID_ == 6'd0))
-    wire [5:0] saxihp1awid = 6'd0;
-  else
-    wire [5:0] saxihp1awid = SAXIHP1AWID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP1AWLEN_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIHP1AWLEN_ == 4'd0))
-    wire [3:0] saxihp1awlen = 4'd0;
-  else
-    wire [3:0] saxihp1awlen = SAXIHP1AWLEN;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP1AWLOCK_ == 2'd0) && (_TECHMAP_CONSTVAL_SAXIHP1AWLOCK_ == 2'd0))
-    wire [1:0] saxihp1awlock = 2'd0;
-  else
-    wire [1:0] saxihp1awlock = SAXIHP1AWLOCK;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP1AWPROT_ == 3'd0) && (_TECHMAP_CONSTVAL_SAXIHP1AWPROT_ == 3'd0))
-    wire [2:0] saxihp1awprot = 3'd0;
-  else
-    wire [2:0] saxihp1awprot = SAXIHP1AWPROT;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP1AWQOS_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIHP1AWQOS_ == 4'd0))
-    wire [3:0] saxihp1awqos = 4'd0;
-  else
-    wire [3:0] saxihp1awqos = SAXIHP1AWQOS;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP1AWSIZE_ == 2'd0) && (_TECHMAP_CONSTVAL_SAXIHP1AWSIZE_ == 2'd0))
-    wire [1:0] saxihp1awsize = 2'd0;
-  else
-    wire [1:0] saxihp1awsize = SAXIHP1AWSIZE;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP1AWVALID_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIHP1AWVALID_ == 1'd0))
-    wire [0:0] saxihp1awvalid = 1'd0;
-  else
-    wire [0:0] saxihp1awvalid = SAXIHP1AWVALID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP1BREADY_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIHP1BREADY_ == 1'd0))
-    wire [0:0] saxihp1bready = 1'd0;
-  else
-    wire [0:0] saxihp1bready = SAXIHP1BREADY;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP1RDISSUECAP1EN_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIHP1RDISSUECAP1EN_ == 1'd0))
-    wire [0:0] saxihp1rdissuecap1en = 1'd0;
-  else
-    wire [0:0] saxihp1rdissuecap1en = SAXIHP1RDISSUECAP1EN;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP1RREADY_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIHP1RREADY_ == 1'd0))
-    wire [0:0] saxihp1rready = 1'd0;
-  else
-    wire [0:0] saxihp1rready = SAXIHP1RREADY;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP1WDATA_ == 64'd0) && (_TECHMAP_CONSTVAL_SAXIHP1WDATA_ == 64'd0))
-    wire [63:0] saxihp1wdata = 64'd0;
-  else
-    wire [63:0] saxihp1wdata = SAXIHP1WDATA;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP1WID_ == 6'd0) && (_TECHMAP_CONSTVAL_SAXIHP1WID_ == 6'd0))
-    wire [5:0] saxihp1wid = 6'd0;
-  else
-    wire [5:0] saxihp1wid = SAXIHP1WID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP1WLAST_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIHP1WLAST_ == 1'd0))
-    wire [0:0] saxihp1wlast = 1'd0;
-  else
-    wire [0:0] saxihp1wlast = SAXIHP1WLAST;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP1WRISSUECAP1EN_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIHP1WRISSUECAP1EN_ == 1'd0))
-    wire [0:0] saxihp1wrissuecap1en = 1'd0;
-  else
-    wire [0:0] saxihp1wrissuecap1en = SAXIHP1WRISSUECAP1EN;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP1WSTRB_ == 8'd0) && (_TECHMAP_CONSTVAL_SAXIHP1WSTRB_ == 8'd0))
-    wire [7:0] saxihp1wstrb = 8'd0;
-  else
-    wire [7:0] saxihp1wstrb = SAXIHP1WSTRB;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP1WVALID_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIHP1WVALID_ == 1'd0))
-    wire [0:0] saxihp1wvalid = 1'd0;
-  else
-    wire [0:0] saxihp1wvalid = SAXIHP1WVALID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP2ACLK_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIHP2ACLK_ == 1'd0))
-    wire [0:0] saxihp2aclk = 1'd0;
-  else
-    wire [0:0] saxihp2aclk = SAXIHP2ACLK;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP2ARADDR_ == 32'd0) && (_TECHMAP_CONSTVAL_SAXIHP2ARADDR_ == 32'd0))
-    wire [31:0] saxihp2araddr = 32'd0;
-  else
-    wire [31:0] saxihp2araddr = SAXIHP2ARADDR;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP2ARBURST_ == 2'd0) && (_TECHMAP_CONSTVAL_SAXIHP2ARBURST_ == 2'd0))
-    wire [1:0] saxihp2arburst = 2'd0;
-  else
-    wire [1:0] saxihp2arburst = SAXIHP2ARBURST;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP2ARCACHE_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIHP2ARCACHE_ == 4'd0))
-    wire [3:0] saxihp2arcache = 4'd0;
-  else
-    wire [3:0] saxihp2arcache = SAXIHP2ARCACHE;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP2ARID_ == 6'd0) && (_TECHMAP_CONSTVAL_SAXIHP2ARID_ == 6'd0))
-    wire [5:0] saxihp2arid = 6'd0;
-  else
-    wire [5:0] saxihp2arid = SAXIHP2ARID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP2ARLEN_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIHP2ARLEN_ == 4'd0))
-    wire [3:0] saxihp2arlen = 4'd0;
-  else
-    wire [3:0] saxihp2arlen = SAXIHP2ARLEN;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP2ARLOCK_ == 2'd0) && (_TECHMAP_CONSTVAL_SAXIHP2ARLOCK_ == 2'd0))
-    wire [1:0] saxihp2arlock = 2'd0;
-  else
-    wire [1:0] saxihp2arlock = SAXIHP2ARLOCK;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP2ARPROT_ == 3'd0) && (_TECHMAP_CONSTVAL_SAXIHP2ARPROT_ == 3'd0))
-    wire [2:0] saxihp2arprot = 3'd0;
-  else
-    wire [2:0] saxihp2arprot = SAXIHP2ARPROT;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP2ARQOS_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIHP2ARQOS_ == 4'd0))
-    wire [3:0] saxihp2arqos = 4'd0;
-  else
-    wire [3:0] saxihp2arqos = SAXIHP2ARQOS;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP2ARSIZE_ == 2'd0) && (_TECHMAP_CONSTVAL_SAXIHP2ARSIZE_ == 2'd0))
-    wire [1:0] saxihp2arsize = 2'd0;
-  else
-    wire [1:0] saxihp2arsize = SAXIHP2ARSIZE;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP2ARVALID_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIHP2ARVALID_ == 1'd0))
-    wire [0:0] saxihp2arvalid = 1'd0;
-  else
-    wire [0:0] saxihp2arvalid = SAXIHP2ARVALID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP2AWADDR_ == 32'd0) && (_TECHMAP_CONSTVAL_SAXIHP2AWADDR_ == 32'd0))
-    wire [31:0] saxihp2awaddr = 32'd0;
-  else
-    wire [31:0] saxihp2awaddr = SAXIHP2AWADDR;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP2AWBURST_ == 2'd0) && (_TECHMAP_CONSTVAL_SAXIHP2AWBURST_ == 2'd0))
-    wire [1:0] saxihp2awburst = 2'd0;
-  else
-    wire [1:0] saxihp2awburst = SAXIHP2AWBURST;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP2AWCACHE_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIHP2AWCACHE_ == 4'd0))
-    wire [3:0] saxihp2awcache = 4'd0;
-  else
-    wire [3:0] saxihp2awcache = SAXIHP2AWCACHE;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP2AWID_ == 6'd0) && (_TECHMAP_CONSTVAL_SAXIHP2AWID_ == 6'd0))
-    wire [5:0] saxihp2awid = 6'd0;
-  else
-    wire [5:0] saxihp2awid = SAXIHP2AWID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP2AWLEN_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIHP2AWLEN_ == 4'd0))
-    wire [3:0] saxihp2awlen = 4'd0;
-  else
-    wire [3:0] saxihp2awlen = SAXIHP2AWLEN;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP2AWLOCK_ == 2'd0) && (_TECHMAP_CONSTVAL_SAXIHP2AWLOCK_ == 2'd0))
-    wire [1:0] saxihp2awlock = 2'd0;
-  else
-    wire [1:0] saxihp2awlock = SAXIHP2AWLOCK;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP2AWPROT_ == 3'd0) && (_TECHMAP_CONSTVAL_SAXIHP2AWPROT_ == 3'd0))
-    wire [2:0] saxihp2awprot = 3'd0;
-  else
-    wire [2:0] saxihp2awprot = SAXIHP2AWPROT;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP2AWQOS_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIHP2AWQOS_ == 4'd0))
-    wire [3:0] saxihp2awqos = 4'd0;
-  else
-    wire [3:0] saxihp2awqos = SAXIHP2AWQOS;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP2AWSIZE_ == 2'd0) && (_TECHMAP_CONSTVAL_SAXIHP2AWSIZE_ == 2'd0))
-    wire [1:0] saxihp2awsize = 2'd0;
-  else
-    wire [1:0] saxihp2awsize = SAXIHP2AWSIZE;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP2AWVALID_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIHP2AWVALID_ == 1'd0))
-    wire [0:0] saxihp2awvalid = 1'd0;
-  else
-    wire [0:0] saxihp2awvalid = SAXIHP2AWVALID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP2BREADY_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIHP2BREADY_ == 1'd0))
-    wire [0:0] saxihp2bready = 1'd0;
-  else
-    wire [0:0] saxihp2bready = SAXIHP2BREADY;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP2RDISSUECAP1EN_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIHP2RDISSUECAP1EN_ == 1'd0))
-    wire [0:0] saxihp2rdissuecap1en = 1'd0;
-  else
-    wire [0:0] saxihp2rdissuecap1en = SAXIHP2RDISSUECAP1EN;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP2RREADY_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIHP2RREADY_ == 1'd0))
-    wire [0:0] saxihp2rready = 1'd0;
-  else
-    wire [0:0] saxihp2rready = SAXIHP2RREADY;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP2WDATA_ == 64'd0) && (_TECHMAP_CONSTVAL_SAXIHP2WDATA_ == 64'd0))
-    wire [63:0] saxihp2wdata = 64'd0;
-  else
-    wire [63:0] saxihp2wdata = SAXIHP2WDATA;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP2WID_ == 6'd0) && (_TECHMAP_CONSTVAL_SAXIHP2WID_ == 6'd0))
-    wire [5:0] saxihp2wid = 6'd0;
-  else
-    wire [5:0] saxihp2wid = SAXIHP2WID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP2WLAST_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIHP2WLAST_ == 1'd0))
-    wire [0:0] saxihp2wlast = 1'd0;
-  else
-    wire [0:0] saxihp2wlast = SAXIHP2WLAST;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP2WRISSUECAP1EN_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIHP2WRISSUECAP1EN_ == 1'd0))
-    wire [0:0] saxihp2wrissuecap1en = 1'd0;
-  else
-    wire [0:0] saxihp2wrissuecap1en = SAXIHP2WRISSUECAP1EN;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP2WSTRB_ == 8'd0) && (_TECHMAP_CONSTVAL_SAXIHP2WSTRB_ == 8'd0))
-    wire [7:0] saxihp2wstrb = 8'd0;
-  else
-    wire [7:0] saxihp2wstrb = SAXIHP2WSTRB;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP2WVALID_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIHP2WVALID_ == 1'd0))
-    wire [0:0] saxihp2wvalid = 1'd0;
-  else
-    wire [0:0] saxihp2wvalid = SAXIHP2WVALID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP3ACLK_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIHP3ACLK_ == 1'd0))
-    wire [0:0] saxihp3aclk = 1'd0;
-  else
-    wire [0:0] saxihp3aclk = SAXIHP3ACLK;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP3ARADDR_ == 32'd0) && (_TECHMAP_CONSTVAL_SAXIHP3ARADDR_ == 32'd0))
-    wire [31:0] saxihp3araddr = 32'd0;
-  else
-    wire [31:0] saxihp3araddr = SAXIHP3ARADDR;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP3ARBURST_ == 2'd0) && (_TECHMAP_CONSTVAL_SAXIHP3ARBURST_ == 2'd0))
-    wire [1:0] saxihp3arburst = 2'd0;
-  else
-    wire [1:0] saxihp3arburst = SAXIHP3ARBURST;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP3ARCACHE_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIHP3ARCACHE_ == 4'd0))
-    wire [3:0] saxihp3arcache = 4'd0;
-  else
-    wire [3:0] saxihp3arcache = SAXIHP3ARCACHE;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP3ARID_ == 6'd0) && (_TECHMAP_CONSTVAL_SAXIHP3ARID_ == 6'd0))
-    wire [5:0] saxihp3arid = 6'd0;
-  else
-    wire [5:0] saxihp3arid = SAXIHP3ARID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP3ARLEN_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIHP3ARLEN_ == 4'd0))
-    wire [3:0] saxihp3arlen = 4'd0;
-  else
-    wire [3:0] saxihp3arlen = SAXIHP3ARLEN;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP3ARLOCK_ == 2'd0) && (_TECHMAP_CONSTVAL_SAXIHP3ARLOCK_ == 2'd0))
-    wire [1:0] saxihp3arlock = 2'd0;
-  else
-    wire [1:0] saxihp3arlock = SAXIHP3ARLOCK;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP3ARPROT_ == 3'd0) && (_TECHMAP_CONSTVAL_SAXIHP3ARPROT_ == 3'd0))
-    wire [2:0] saxihp3arprot = 3'd0;
-  else
-    wire [2:0] saxihp3arprot = SAXIHP3ARPROT;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP3ARQOS_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIHP3ARQOS_ == 4'd0))
-    wire [3:0] saxihp3arqos = 4'd0;
-  else
-    wire [3:0] saxihp3arqos = SAXIHP3ARQOS;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP3ARSIZE_ == 2'd0) && (_TECHMAP_CONSTVAL_SAXIHP3ARSIZE_ == 2'd0))
-    wire [1:0] saxihp3arsize = 2'd0;
-  else
-    wire [1:0] saxihp3arsize = SAXIHP3ARSIZE;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP3ARVALID_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIHP3ARVALID_ == 1'd0))
-    wire [0:0] saxihp3arvalid = 1'd0;
-  else
-    wire [0:0] saxihp3arvalid = SAXIHP3ARVALID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP3AWADDR_ == 32'd0) && (_TECHMAP_CONSTVAL_SAXIHP3AWADDR_ == 32'd0))
-    wire [31:0] saxihp3awaddr = 32'd0;
-  else
-    wire [31:0] saxihp3awaddr = SAXIHP3AWADDR;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP3AWBURST_ == 2'd0) && (_TECHMAP_CONSTVAL_SAXIHP3AWBURST_ == 2'd0))
-    wire [1:0] saxihp3awburst = 2'd0;
-  else
-    wire [1:0] saxihp3awburst = SAXIHP3AWBURST;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP3AWCACHE_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIHP3AWCACHE_ == 4'd0))
-    wire [3:0] saxihp3awcache = 4'd0;
-  else
-    wire [3:0] saxihp3awcache = SAXIHP3AWCACHE;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP3AWID_ == 6'd0) && (_TECHMAP_CONSTVAL_SAXIHP3AWID_ == 6'd0))
-    wire [5:0] saxihp3awid = 6'd0;
-  else
-    wire [5:0] saxihp3awid = SAXIHP3AWID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP3AWLEN_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIHP3AWLEN_ == 4'd0))
-    wire [3:0] saxihp3awlen = 4'd0;
-  else
-    wire [3:0] saxihp3awlen = SAXIHP3AWLEN;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP3AWLOCK_ == 2'd0) && (_TECHMAP_CONSTVAL_SAXIHP3AWLOCK_ == 2'd0))
-    wire [1:0] saxihp3awlock = 2'd0;
-  else
-    wire [1:0] saxihp3awlock = SAXIHP3AWLOCK;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP3AWPROT_ == 3'd0) && (_TECHMAP_CONSTVAL_SAXIHP3AWPROT_ == 3'd0))
-    wire [2:0] saxihp3awprot = 3'd0;
-  else
-    wire [2:0] saxihp3awprot = SAXIHP3AWPROT;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP3AWQOS_ == 4'd0) && (_TECHMAP_CONSTVAL_SAXIHP3AWQOS_ == 4'd0))
-    wire [3:0] saxihp3awqos = 4'd0;
-  else
-    wire [3:0] saxihp3awqos = SAXIHP3AWQOS;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP3AWSIZE_ == 2'd0) && (_TECHMAP_CONSTVAL_SAXIHP3AWSIZE_ == 2'd0))
-    wire [1:0] saxihp3awsize = 2'd0;
-  else
-    wire [1:0] saxihp3awsize = SAXIHP3AWSIZE;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP3AWVALID_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIHP3AWVALID_ == 1'd0))
-    wire [0:0] saxihp3awvalid = 1'd0;
-  else
-    wire [0:0] saxihp3awvalid = SAXIHP3AWVALID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP3BREADY_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIHP3BREADY_ == 1'd0))
-    wire [0:0] saxihp3bready = 1'd0;
-  else
-    wire [0:0] saxihp3bready = SAXIHP3BREADY;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP3RDISSUECAP1EN_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIHP3RDISSUECAP1EN_ == 1'd0))
-    wire [0:0] saxihp3rdissuecap1en = 1'd0;
-  else
-    wire [0:0] saxihp3rdissuecap1en = SAXIHP3RDISSUECAP1EN;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP3RREADY_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIHP3RREADY_ == 1'd0))
-    wire [0:0] saxihp3rready = 1'd0;
-  else
-    wire [0:0] saxihp3rready = SAXIHP3RREADY;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP3WDATA_ == 64'd0) && (_TECHMAP_CONSTVAL_SAXIHP3WDATA_ == 64'd0))
-    wire [63:0] saxihp3wdata = 64'd0;
-  else
-    wire [63:0] saxihp3wdata = SAXIHP3WDATA;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP3WID_ == 6'd0) && (_TECHMAP_CONSTVAL_SAXIHP3WID_ == 6'd0))
-    wire [5:0] saxihp3wid = 6'd0;
-  else
-    wire [5:0] saxihp3wid = SAXIHP3WID;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP3WLAST_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIHP3WLAST_ == 1'd0))
-    wire [0:0] saxihp3wlast = 1'd0;
-  else
-    wire [0:0] saxihp3wlast = SAXIHP3WLAST;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP3WRISSUECAP1EN_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIHP3WRISSUECAP1EN_ == 1'd0))
-    wire [0:0] saxihp3wrissuecap1en = 1'd0;
-  else
-    wire [0:0] saxihp3wrissuecap1en = SAXIHP3WRISSUECAP1EN;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP3WSTRB_ == 8'd0) && (_TECHMAP_CONSTVAL_SAXIHP3WSTRB_ == 8'd0))
-    wire [7:0] saxihp3wstrb = 8'd0;
-  else
-    wire [7:0] saxihp3wstrb = SAXIHP3WSTRB;
-  endgenerate
-
-  generate if((_TECHMAP_CONSTMSK_SAXIHP3WVALID_ == 1'd0) && (_TECHMAP_CONSTVAL_SAXIHP3WVALID_ == 1'd0))
-    wire [0:0] saxihp3wvalid = 1'd0;
-  else
-    wire [0:0] saxihp3wvalid = SAXIHP3WVALID;
-  endgenerate
+  wire [3:0] ddrarb = (_TECHMAP_CONSTMSK_DDRARB_ == 4'd0 && _TECHMAP_CONSTVAL_DDRARB_ === 4'd0) ? 4'b0 : DDRARB;
+
+  wire [0:0] dma0aclk = (_TECHMAP_CONSTMSK_DMA0ACLK_ == 1'd0 && _TECHMAP_CONSTVAL_DMA0ACLK_ === 1'd0) ? 1'b0 : DMA0ACLK;
+
+  wire [0:0] dma0daready = (_TECHMAP_CONSTMSK_DMA0DAREADY_ == 1'd0 && _TECHMAP_CONSTVAL_DMA0DAREADY_ === 1'd0) ? 1'b0 : DMA0DAREADY;
+
+  wire [0:0] dma0drlast = (_TECHMAP_CONSTMSK_DMA0DRLAST_ == 1'd0 && _TECHMAP_CONSTVAL_DMA0DRLAST_ === 1'd0) ? 1'b0 : DMA0DRLAST;
+
+  wire [1:0] dma0drtype = (_TECHMAP_CONSTMSK_DMA0DRTYPE_ == 2'd0 && _TECHMAP_CONSTVAL_DMA0DRTYPE_ === 2'd0) ? 2'b0 : DMA0DRTYPE;
+
+  wire [0:0] dma0drvalid = (_TECHMAP_CONSTMSK_DMA0DRVALID_ == 1'd0 && _TECHMAP_CONSTVAL_DMA0DRVALID_ === 1'd0) ? 1'b0 : DMA0DRVALID;
+
+  wire [0:0] dma1aclk = (_TECHMAP_CONSTMSK_DMA1ACLK_ == 1'd0 && _TECHMAP_CONSTVAL_DMA1ACLK_ === 1'd0) ? 1'b0 : DMA1ACLK;
+
+  wire [0:0] dma1daready = (_TECHMAP_CONSTMSK_DMA1DAREADY_ == 1'd0 && _TECHMAP_CONSTVAL_DMA1DAREADY_ === 1'd0) ? 1'b0 : DMA1DAREADY;
+
+  wire [0:0] dma1drlast = (_TECHMAP_CONSTMSK_DMA1DRLAST_ == 1'd0 && _TECHMAP_CONSTVAL_DMA1DRLAST_ === 1'd0) ? 1'b0 : DMA1DRLAST;
+
+  wire [1:0] dma1drtype = (_TECHMAP_CONSTMSK_DMA1DRTYPE_ == 2'd0 && _TECHMAP_CONSTVAL_DMA1DRTYPE_ === 2'd0) ? 2'b0 : DMA1DRTYPE;
+
+  wire [0:0] dma1drvalid = (_TECHMAP_CONSTMSK_DMA1DRVALID_ == 1'd0 && _TECHMAP_CONSTVAL_DMA1DRVALID_ === 1'd0) ? 1'b0 : DMA1DRVALID;
+
+  wire [0:0] dma2aclk = (_TECHMAP_CONSTMSK_DMA2ACLK_ == 1'd0 && _TECHMAP_CONSTVAL_DMA2ACLK_ === 1'd0) ? 1'b0 : DMA2ACLK;
+
+  wire [0:0] dma2daready = (_TECHMAP_CONSTMSK_DMA2DAREADY_ == 1'd0 && _TECHMAP_CONSTVAL_DMA2DAREADY_ === 1'd0) ? 1'b0 : DMA2DAREADY;
+
+  wire [0:0] dma2drlast = (_TECHMAP_CONSTMSK_DMA2DRLAST_ == 1'd0 && _TECHMAP_CONSTVAL_DMA2DRLAST_ === 1'd0) ? 1'b0 : DMA2DRLAST;
+
+  wire [1:0] dma2drtype = (_TECHMAP_CONSTMSK_DMA2DRTYPE_ == 2'd0 && _TECHMAP_CONSTVAL_DMA2DRTYPE_ === 2'd0) ? 2'b0 : DMA2DRTYPE;
+
+  wire [0:0] dma2drvalid = (_TECHMAP_CONSTMSK_DMA2DRVALID_ == 1'd0 && _TECHMAP_CONSTVAL_DMA2DRVALID_ === 1'd0) ? 1'b0 : DMA2DRVALID;
+
+  wire [0:0] dma3aclk = (_TECHMAP_CONSTMSK_DMA3ACLK_ == 1'd0 && _TECHMAP_CONSTVAL_DMA3ACLK_ === 1'd0) ? 1'b0 : DMA3ACLK;
+
+  wire [0:0] dma3daready = (_TECHMAP_CONSTMSK_DMA3DAREADY_ == 1'd0 && _TECHMAP_CONSTVAL_DMA3DAREADY_ === 1'd0) ? 1'b0 : DMA3DAREADY;
+
+  wire [0:0] dma3drlast = (_TECHMAP_CONSTMSK_DMA3DRLAST_ == 1'd0 && _TECHMAP_CONSTVAL_DMA3DRLAST_ === 1'd0) ? 1'b0 : DMA3DRLAST;
+
+  wire [1:0] dma3drtype = (_TECHMAP_CONSTMSK_DMA3DRTYPE_ == 2'd0 && _TECHMAP_CONSTVAL_DMA3DRTYPE_ === 2'd0) ? 2'b0 : DMA3DRTYPE;
+
+  wire [0:0] dma3drvalid = (_TECHMAP_CONSTMSK_DMA3DRVALID_ == 1'd0 && _TECHMAP_CONSTVAL_DMA3DRVALID_ === 1'd0) ? 1'b0 : DMA3DRVALID;
+
+  wire [0:0] emiocan0phyrx = (_TECHMAP_CONSTMSK_EMIOCAN0PHYRX_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOCAN0PHYRX_ === 1'd0) ? 1'b0 : EMIOCAN0PHYRX;
+
+  wire [0:0] emiocan1phyrx = (_TECHMAP_CONSTMSK_EMIOCAN1PHYRX_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOCAN1PHYRX_ === 1'd0) ? 1'b0 : EMIOCAN1PHYRX;
+
+  wire [0:0] emioenet0extintin = (_TECHMAP_CONSTMSK_EMIOENET0EXTINTIN_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOENET0EXTINTIN_ === 1'd0) ? 1'b0 : EMIOENET0EXTINTIN;
+
+  wire [0:0] emioenet0gmiicol = (_TECHMAP_CONSTMSK_EMIOENET0GMIICOL_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOENET0GMIICOL_ === 1'd0) ? 1'b0 : EMIOENET0GMIICOL;
+
+  wire [0:0] emioenet0gmiicrs = (_TECHMAP_CONSTMSK_EMIOENET0GMIICRS_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOENET0GMIICRS_ === 1'd0) ? 1'b0 : EMIOENET0GMIICRS;
+
+  wire [0:0] emioenet0gmiirxclk = (_TECHMAP_CONSTMSK_EMIOENET0GMIIRXCLK_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOENET0GMIIRXCLK_ === 1'd0) ? 1'b0 : EMIOENET0GMIIRXCLK;
+
+  wire [7:0] emioenet0gmiirxd = (_TECHMAP_CONSTMSK_EMIOENET0GMIIRXD_ == 8'd0 && _TECHMAP_CONSTVAL_EMIOENET0GMIIRXD_ === 8'd0) ? 8'b0 : EMIOENET0GMIIRXD;
+
+  wire [0:0] emioenet0gmiirxdv = (_TECHMAP_CONSTMSK_EMIOENET0GMIIRXDV_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOENET0GMIIRXDV_ === 1'd0) ? 1'b0 : EMIOENET0GMIIRXDV;
+
+  wire [0:0] emioenet0gmiirxer = (_TECHMAP_CONSTMSK_EMIOENET0GMIIRXER_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOENET0GMIIRXER_ === 1'd0) ? 1'b0 : EMIOENET0GMIIRXER;
+
+  wire [0:0] emioenet0gmiitxclk = (_TECHMAP_CONSTMSK_EMIOENET0GMIITXCLK_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOENET0GMIITXCLK_ === 1'd0) ? 1'b0 : EMIOENET0GMIITXCLK;
+
+  wire [0:0] emioenet0mdioi = (_TECHMAP_CONSTMSK_EMIOENET0MDIOI_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOENET0MDIOI_ === 1'd0) ? 1'b0 : EMIOENET0MDIOI;
+
+  wire [0:0] emioenet1extintin = (_TECHMAP_CONSTMSK_EMIOENET1EXTINTIN_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOENET1EXTINTIN_ === 1'd0) ? 1'b0 : EMIOENET1EXTINTIN;
+
+  wire [0:0] emioenet1gmiicol = (_TECHMAP_CONSTMSK_EMIOENET1GMIICOL_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOENET1GMIICOL_ === 1'd0) ? 1'b0 : EMIOENET1GMIICOL;
+
+  wire [0:0] emioenet1gmiicrs = (_TECHMAP_CONSTMSK_EMIOENET1GMIICRS_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOENET1GMIICRS_ === 1'd0) ? 1'b0 : EMIOENET1GMIICRS;
+
+  wire [0:0] emioenet1gmiirxclk = (_TECHMAP_CONSTMSK_EMIOENET1GMIIRXCLK_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOENET1GMIIRXCLK_ === 1'd0) ? 1'b0 : EMIOENET1GMIIRXCLK;
+
+  wire [7:0] emioenet1gmiirxd = (_TECHMAP_CONSTMSK_EMIOENET1GMIIRXD_ == 8'd0 && _TECHMAP_CONSTVAL_EMIOENET1GMIIRXD_ === 8'd0) ? 8'b0 : EMIOENET1GMIIRXD;
+
+  wire [0:0] emioenet1gmiirxdv = (_TECHMAP_CONSTMSK_EMIOENET1GMIIRXDV_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOENET1GMIIRXDV_ === 1'd0) ? 1'b0 : EMIOENET1GMIIRXDV;
+
+  wire [0:0] emioenet1gmiirxer = (_TECHMAP_CONSTMSK_EMIOENET1GMIIRXER_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOENET1GMIIRXER_ === 1'd0) ? 1'b0 : EMIOENET1GMIIRXER;
+
+  wire [0:0] emioenet1gmiitxclk = (_TECHMAP_CONSTMSK_EMIOENET1GMIITXCLK_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOENET1GMIITXCLK_ === 1'd0) ? 1'b0 : EMIOENET1GMIITXCLK;
+
+  wire [0:0] emioenet1mdioi = (_TECHMAP_CONSTMSK_EMIOENET1MDIOI_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOENET1MDIOI_ === 1'd0) ? 1'b0 : EMIOENET1MDIOI;
+
+  wire [63:0] emiogpioi = (_TECHMAP_CONSTMSK_EMIOGPIOI_ == 64'd0 && _TECHMAP_CONSTVAL_EMIOGPIOI_ === 64'd0) ? 64'b0 : EMIOGPIOI;
+
+  wire [0:0] emioi2c0scli = (_TECHMAP_CONSTMSK_EMIOI2C0SCLI_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOI2C0SCLI_ === 1'd0) ? 1'b0 : EMIOI2C0SCLI;
+
+  wire [0:0] emioi2c0sdai = (_TECHMAP_CONSTMSK_EMIOI2C0SDAI_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOI2C0SDAI_ === 1'd0) ? 1'b0 : EMIOI2C0SDAI;
+
+  wire [0:0] emioi2c1scli = (_TECHMAP_CONSTMSK_EMIOI2C1SCLI_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOI2C1SCLI_ === 1'd0) ? 1'b0 : EMIOI2C1SCLI;
+
+  wire [0:0] emioi2c1sdai = (_TECHMAP_CONSTMSK_EMIOI2C1SDAI_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOI2C1SDAI_ === 1'd0) ? 1'b0 : EMIOI2C1SDAI;
+
+  wire [0:0] emiopjtagtck = (_TECHMAP_CONSTMSK_EMIOPJTAGTCK_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOPJTAGTCK_ === 1'd0) ? 1'b0 : EMIOPJTAGTCK;
+
+  wire [0:0] emiopjtagtdi = (_TECHMAP_CONSTMSK_EMIOPJTAGTDI_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOPJTAGTDI_ === 1'd0) ? 1'b0 : EMIOPJTAGTDI;
+
+  wire [0:0] emiopjtagtms = (_TECHMAP_CONSTMSK_EMIOPJTAGTMS_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOPJTAGTMS_ === 1'd0) ? 1'b0 : EMIOPJTAGTMS;
+
+  wire [0:0] emiosdio0cdn = (_TECHMAP_CONSTMSK_EMIOSDIO0CDN_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOSDIO0CDN_ === 1'd0) ? 1'b0 : EMIOSDIO0CDN;
+
+  wire [0:0] emiosdio0clkfb = (_TECHMAP_CONSTMSK_EMIOSDIO0CLKFB_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOSDIO0CLKFB_ === 1'd0) ? 1'b0 : EMIOSDIO0CLKFB;
+
+  wire [0:0] emiosdio0cmdi = (_TECHMAP_CONSTMSK_EMIOSDIO0CMDI_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOSDIO0CMDI_ === 1'd0) ? 1'b0 : EMIOSDIO0CMDI;
+
+  wire [3:0] emiosdio0datai = (_TECHMAP_CONSTMSK_EMIOSDIO0DATAI_ == 4'd0 && _TECHMAP_CONSTVAL_EMIOSDIO0DATAI_ === 4'd0) ? 4'b0 : EMIOSDIO0DATAI;
+
+  wire [0:0] emiosdio0wp = (_TECHMAP_CONSTMSK_EMIOSDIO0WP_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOSDIO0WP_ === 1'd0) ? 1'b0 : EMIOSDIO0WP;
+
+  wire [0:0] emiosdio1cdn = (_TECHMAP_CONSTMSK_EMIOSDIO1CDN_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOSDIO1CDN_ === 1'd0) ? 1'b0 : EMIOSDIO1CDN;
+
+  wire [0:0] emiosdio1clkfb = (_TECHMAP_CONSTMSK_EMIOSDIO1CLKFB_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOSDIO1CLKFB_ === 1'd0) ? 1'b0 : EMIOSDIO1CLKFB;
+
+  wire [0:0] emiosdio1cmdi = (_TECHMAP_CONSTMSK_EMIOSDIO1CMDI_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOSDIO1CMDI_ === 1'd0) ? 1'b0 : EMIOSDIO1CMDI;
+
+  wire [3:0] emiosdio1datai = (_TECHMAP_CONSTMSK_EMIOSDIO1DATAI_ == 4'd0 && _TECHMAP_CONSTVAL_EMIOSDIO1DATAI_ === 4'd0) ? 4'b0 : EMIOSDIO1DATAI;
+
+  wire [0:0] emiosdio1wp = (_TECHMAP_CONSTMSK_EMIOSDIO1WP_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOSDIO1WP_ === 1'd0) ? 1'b0 : EMIOSDIO1WP;
+
+  wire [0:0] emiospi0mi = (_TECHMAP_CONSTMSK_EMIOSPI0MI_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOSPI0MI_ === 1'd0) ? 1'b0 : EMIOSPI0MI;
+
+  wire [0:0] emiospi0sclki = (_TECHMAP_CONSTMSK_EMIOSPI0SCLKI_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOSPI0SCLKI_ === 1'd0) ? 1'b0 : EMIOSPI0SCLKI;
+
+  wire [0:0] emiospi0si = (_TECHMAP_CONSTMSK_EMIOSPI0SI_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOSPI0SI_ === 1'd0) ? 1'b0 : EMIOSPI0SI;
+
+  wire [0:0] emiospi0ssin = (_TECHMAP_CONSTMSK_EMIOSPI0SSIN_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOSPI0SSIN_ === 1'd0) ? 1'b0 : EMIOSPI0SSIN;
+
+  wire [0:0] emiospi1mi = (_TECHMAP_CONSTMSK_EMIOSPI1MI_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOSPI1MI_ === 1'd0) ? 1'b0 : EMIOSPI1MI;
+
+  wire [0:0] emiospi1sclki = (_TECHMAP_CONSTMSK_EMIOSPI1SCLKI_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOSPI1SCLKI_ === 1'd0) ? 1'b0 : EMIOSPI1SCLKI;
+
+  wire [0:0] emiospi1si = (_TECHMAP_CONSTMSK_EMIOSPI1SI_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOSPI1SI_ === 1'd0) ? 1'b0 : EMIOSPI1SI;
+
+  wire [0:0] emiospi1ssin = (_TECHMAP_CONSTMSK_EMIOSPI1SSIN_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOSPI1SSIN_ === 1'd0) ? 1'b0 : EMIOSPI1SSIN;
+
+  wire [0:0] emiosramintin = (_TECHMAP_CONSTMSK_EMIOSRAMINTIN_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOSRAMINTIN_ === 1'd0) ? 1'b0 : EMIOSRAMINTIN;
+
+  wire [0:0] emiotraceclk = (_TECHMAP_CONSTMSK_EMIOTRACECLK_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOTRACECLK_ === 1'd0) ? 1'b0 : EMIOTRACECLK;
+
+  wire [2:0] emiottc0clki = (_TECHMAP_CONSTMSK_EMIOTTC0CLKI_ == 3'd0 && _TECHMAP_CONSTVAL_EMIOTTC0CLKI_ === 3'd0) ? 3'b0 : EMIOTTC0CLKI;
+
+  wire [2:0] emiottc1clki = (_TECHMAP_CONSTMSK_EMIOTTC1CLKI_ == 3'd0 && _TECHMAP_CONSTVAL_EMIOTTC1CLKI_ === 3'd0) ? 3'b0 : EMIOTTC1CLKI;
+
+  wire [0:0] emiouart0ctsn = (_TECHMAP_CONSTMSK_EMIOUART0CTSN_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOUART0CTSN_ === 1'd0) ? 1'b0 : EMIOUART0CTSN;
+
+  wire [0:0] emiouart0dcdn = (_TECHMAP_CONSTMSK_EMIOUART0DCDN_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOUART0DCDN_ === 1'd0) ? 1'b0 : EMIOUART0DCDN;
+
+  wire [0:0] emiouart0dsrn = (_TECHMAP_CONSTMSK_EMIOUART0DSRN_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOUART0DSRN_ === 1'd0) ? 1'b0 : EMIOUART0DSRN;
+
+  wire [0:0] emiouart0rin = (_TECHMAP_CONSTMSK_EMIOUART0RIN_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOUART0RIN_ === 1'd0) ? 1'b0 : EMIOUART0RIN;
+
+  wire [0:0] emiouart0rx = (_TECHMAP_CONSTMSK_EMIOUART0RX_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOUART0RX_ === 1'd0) ? 1'b0 : EMIOUART0RX;
+
+  wire [0:0] emiouart1ctsn = (_TECHMAP_CONSTMSK_EMIOUART1CTSN_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOUART1CTSN_ === 1'd0) ? 1'b0 : EMIOUART1CTSN;
+
+  wire [0:0] emiouart1dcdn = (_TECHMAP_CONSTMSK_EMIOUART1DCDN_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOUART1DCDN_ === 1'd0) ? 1'b0 : EMIOUART1DCDN;
+
+  wire [0:0] emiouart1dsrn = (_TECHMAP_CONSTMSK_EMIOUART1DSRN_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOUART1DSRN_ === 1'd0) ? 1'b0 : EMIOUART1DSRN;
+
+  wire [0:0] emiouart1rin = (_TECHMAP_CONSTMSK_EMIOUART1RIN_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOUART1RIN_ === 1'd0) ? 1'b0 : EMIOUART1RIN;
+
+  wire [0:0] emiouart1rx = (_TECHMAP_CONSTMSK_EMIOUART1RX_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOUART1RX_ === 1'd0) ? 1'b0 : EMIOUART1RX;
+
+  wire [0:0] emiousb0vbuspwrfault = (_TECHMAP_CONSTMSK_EMIOUSB0VBUSPWRFAULT_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOUSB0VBUSPWRFAULT_ === 1'd0) ? 1'b0 : EMIOUSB0VBUSPWRFAULT;
+
+  wire [0:0] emiousb1vbuspwrfault = (_TECHMAP_CONSTMSK_EMIOUSB1VBUSPWRFAULT_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOUSB1VBUSPWRFAULT_ === 1'd0) ? 1'b0 : EMIOUSB1VBUSPWRFAULT;
+
+  wire [0:0] emiowdtclki = (_TECHMAP_CONSTMSK_EMIOWDTCLKI_ == 1'd0 && _TECHMAP_CONSTVAL_EMIOWDTCLKI_ === 1'd0) ? 1'b0 : EMIOWDTCLKI;
+
+  wire [0:0] eventeventi = (_TECHMAP_CONSTMSK_EVENTEVENTI_ == 1'd0 && _TECHMAP_CONSTVAL_EVENTEVENTI_ === 1'd0) ? 1'b0 : EVENTEVENTI;
+
+  wire [3:0] fclkclktrign = (_TECHMAP_CONSTMSK_FCLKCLKTRIGN_ == 4'd0 && _TECHMAP_CONSTVAL_FCLKCLKTRIGN_ === 4'd0) ? 4'b0 : FCLKCLKTRIGN;
+
+  wire [0:0] fpgaidlen = (_TECHMAP_CONSTMSK_FPGAIDLEN_ == 1'd0 && _TECHMAP_CONSTVAL_FPGAIDLEN_ === 1'd0) ? 1'b0 : FPGAIDLEN;
+
+  wire [3:0] ftmdtraceinatid = (_TECHMAP_CONSTMSK_FTMDTRACEINATID_ == 4'd0 && _TECHMAP_CONSTVAL_FTMDTRACEINATID_ === 4'd0) ? 4'b0 : FTMDTRACEINATID;
+
+  wire [0:0] ftmdtraceinclock = (_TECHMAP_CONSTMSK_FTMDTRACEINCLOCK_ == 1'd0 && _TECHMAP_CONSTVAL_FTMDTRACEINCLOCK_ === 1'd0) ? 1'b0 : FTMDTRACEINCLOCK;
+
+  wire [31:0] ftmdtraceindata = (_TECHMAP_CONSTMSK_FTMDTRACEINDATA_ == 32'd0 && _TECHMAP_CONSTVAL_FTMDTRACEINDATA_ === 32'd0) ? 32'b0 : FTMDTRACEINDATA;
+
+  wire [0:0] ftmdtraceinvalid = (_TECHMAP_CONSTMSK_FTMDTRACEINVALID_ == 1'd0 && _TECHMAP_CONSTVAL_FTMDTRACEINVALID_ === 1'd0) ? 1'b0 : FTMDTRACEINVALID;
+
+  wire [31:0] ftmtf2pdebug = (_TECHMAP_CONSTMSK_FTMTF2PDEBUG_ == 32'd0 && _TECHMAP_CONSTVAL_FTMTF2PDEBUG_ === 32'd0) ? 32'b0 : FTMTF2PDEBUG;
+
+  wire [3:0] ftmtf2ptrig = (_TECHMAP_CONSTMSK_FTMTF2PTRIG_ == 4'd0 && _TECHMAP_CONSTVAL_FTMTF2PTRIG_ === 4'd0) ? 4'b0 : FTMTF2PTRIG;
+
+  wire [3:0] ftmtp2ftrigack = (_TECHMAP_CONSTMSK_FTMTP2FTRIGACK_ == 4'd0 && _TECHMAP_CONSTVAL_FTMTP2FTRIGACK_ === 4'd0) ? 4'b0 : FTMTP2FTRIGACK;
+
+  wire [19:0] irqf2p = (_TECHMAP_CONSTMSK_IRQF2P_ == 20'd0 && _TECHMAP_CONSTVAL_IRQF2P_ === 20'd0) ? 20'b0 : IRQF2P;
+
+  wire [0:0] maxigp0aclk = (_TECHMAP_CONSTMSK_MAXIGP0ACLK_ == 1'd0 && _TECHMAP_CONSTVAL_MAXIGP0ACLK_ === 1'd0) ? 1'b0 : MAXIGP0ACLK;
+
+  wire [0:0] maxigp0arready = (_TECHMAP_CONSTMSK_MAXIGP0ARREADY_ == 1'd0 && _TECHMAP_CONSTVAL_MAXIGP0ARREADY_ === 1'd0) ? 1'b0 : MAXIGP0ARREADY;
+
+  wire [0:0] maxigp0awready = (_TECHMAP_CONSTMSK_MAXIGP0AWREADY_ == 1'd0 && _TECHMAP_CONSTVAL_MAXIGP0AWREADY_ === 1'd0) ? 1'b0 : MAXIGP0AWREADY;
+
+  wire [11:0] maxigp0bid = (_TECHMAP_CONSTMSK_MAXIGP0BID_ == 12'd0 && _TECHMAP_CONSTVAL_MAXIGP0BID_ === 12'd0) ? 12'b0 : MAXIGP0BID;
+
+  wire [1:0] maxigp0bresp = (_TECHMAP_CONSTMSK_MAXIGP0BRESP_ == 2'd0 && _TECHMAP_CONSTVAL_MAXIGP0BRESP_ === 2'd0) ? 2'b0 : MAXIGP0BRESP;
+
+  wire [0:0] maxigp0bvalid = (_TECHMAP_CONSTMSK_MAXIGP0BVALID_ == 1'd0 && _TECHMAP_CONSTVAL_MAXIGP0BVALID_ === 1'd0) ? 1'b0 : MAXIGP0BVALID;
+
+  wire [31:0] maxigp0rdata = (_TECHMAP_CONSTMSK_MAXIGP0RDATA_ == 32'd0 && _TECHMAP_CONSTVAL_MAXIGP0RDATA_ === 32'd0) ? 32'b0 : MAXIGP0RDATA;
+
+  wire [11:0] maxigp0rid = (_TECHMAP_CONSTMSK_MAXIGP0RID_ == 12'd0 && _TECHMAP_CONSTVAL_MAXIGP0RID_ === 12'd0) ? 12'b0 : MAXIGP0RID;
+
+  wire [0:0] maxigp0rlast = (_TECHMAP_CONSTMSK_MAXIGP0RLAST_ == 1'd0 && _TECHMAP_CONSTVAL_MAXIGP0RLAST_ === 1'd0) ? 1'b0 : MAXIGP0RLAST;
+
+  wire [1:0] maxigp0rresp = (_TECHMAP_CONSTMSK_MAXIGP0RRESP_ == 2'd0 && _TECHMAP_CONSTVAL_MAXIGP0RRESP_ === 2'd0) ? 2'b0 : MAXIGP0RRESP;
+
+  wire [0:0] maxigp0rvalid = (_TECHMAP_CONSTMSK_MAXIGP0RVALID_ == 1'd0 && _TECHMAP_CONSTVAL_MAXIGP0RVALID_ === 1'd0) ? 1'b0 : MAXIGP0RVALID;
+
+  wire [0:0] maxigp0wready = (_TECHMAP_CONSTMSK_MAXIGP0WREADY_ == 1'd0 && _TECHMAP_CONSTVAL_MAXIGP0WREADY_ === 1'd0) ? 1'b0 : MAXIGP0WREADY;
+
+  wire [0:0] maxigp1aclk = (_TECHMAP_CONSTMSK_MAXIGP1ACLK_ == 1'd0 && _TECHMAP_CONSTVAL_MAXIGP1ACLK_ === 1'd0) ? 1'b0 : MAXIGP1ACLK;
+
+  wire [0:0] maxigp1arready = (_TECHMAP_CONSTMSK_MAXIGP1ARREADY_ == 1'd0 && _TECHMAP_CONSTVAL_MAXIGP1ARREADY_ === 1'd0) ? 1'b0 : MAXIGP1ARREADY;
+
+  wire [0:0] maxigp1awready = (_TECHMAP_CONSTMSK_MAXIGP1AWREADY_ == 1'd0 && _TECHMAP_CONSTVAL_MAXIGP1AWREADY_ === 1'd0) ? 1'b0 : MAXIGP1AWREADY;
+
+  wire [11:0] maxigp1bid = (_TECHMAP_CONSTMSK_MAXIGP1BID_ == 12'd0 && _TECHMAP_CONSTVAL_MAXIGP1BID_ === 12'd0) ? 12'b0 : MAXIGP1BID;
+
+  wire [1:0] maxigp1bresp = (_TECHMAP_CONSTMSK_MAXIGP1BRESP_ == 2'd0 && _TECHMAP_CONSTVAL_MAXIGP1BRESP_ === 2'd0) ? 2'b0 : MAXIGP1BRESP;
+
+  wire [0:0] maxigp1bvalid = (_TECHMAP_CONSTMSK_MAXIGP1BVALID_ == 1'd0 && _TECHMAP_CONSTVAL_MAXIGP1BVALID_ === 1'd0) ? 1'b0 : MAXIGP1BVALID;
+
+  wire [31:0] maxigp1rdata = (_TECHMAP_CONSTMSK_MAXIGP1RDATA_ == 32'd0 && _TECHMAP_CONSTVAL_MAXIGP1RDATA_ === 32'd0) ? 32'b0 : MAXIGP1RDATA;
+
+  wire [11:0] maxigp1rid = (_TECHMAP_CONSTMSK_MAXIGP1RID_ == 12'd0 && _TECHMAP_CONSTVAL_MAXIGP1RID_ === 12'd0) ? 12'b0 : MAXIGP1RID;
+
+  wire [0:0] maxigp1rlast = (_TECHMAP_CONSTMSK_MAXIGP1RLAST_ == 1'd0 && _TECHMAP_CONSTVAL_MAXIGP1RLAST_ === 1'd0) ? 1'b0 : MAXIGP1RLAST;
+
+  wire [1:0] maxigp1rresp = (_TECHMAP_CONSTMSK_MAXIGP1RRESP_ == 2'd0 && _TECHMAP_CONSTVAL_MAXIGP1RRESP_ === 2'd0) ? 2'b0 : MAXIGP1RRESP;
+
+  wire [0:0] maxigp1rvalid = (_TECHMAP_CONSTMSK_MAXIGP1RVALID_ == 1'd0 && _TECHMAP_CONSTVAL_MAXIGP1RVALID_ === 1'd0) ? 1'b0 : MAXIGP1RVALID;
+
+  wire [0:0] maxigp1wready = (_TECHMAP_CONSTMSK_MAXIGP1WREADY_ == 1'd0 && _TECHMAP_CONSTVAL_MAXIGP1WREADY_ === 1'd0) ? 1'b0 : MAXIGP1WREADY;
+
+  wire [0:0] saxiacpaclk = (_TECHMAP_CONSTMSK_SAXIACPACLK_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIACPACLK_ === 1'd0) ? 1'b0 : SAXIACPACLK;
+
+  wire [31:0] saxiacparaddr = (_TECHMAP_CONSTMSK_SAXIACPARADDR_ == 32'd0 && _TECHMAP_CONSTVAL_SAXIACPARADDR_ === 32'd0) ? 32'b0 : SAXIACPARADDR;
+
+  wire [1:0] saxiacparburst = (_TECHMAP_CONSTMSK_SAXIACPARBURST_ == 2'd0 && _TECHMAP_CONSTVAL_SAXIACPARBURST_ === 2'd0) ? 2'b0 : SAXIACPARBURST;
+
+  wire [3:0] saxiacparcache = (_TECHMAP_CONSTMSK_SAXIACPARCACHE_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIACPARCACHE_ === 4'd0) ? 4'b0 : SAXIACPARCACHE;
+
+  wire [2:0] saxiacparid = (_TECHMAP_CONSTMSK_SAXIACPARID_ == 3'd0 && _TECHMAP_CONSTVAL_SAXIACPARID_ === 3'd0) ? 3'b0 : SAXIACPARID;
+
+  wire [3:0] saxiacparlen = (_TECHMAP_CONSTMSK_SAXIACPARLEN_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIACPARLEN_ === 4'd0) ? 4'b0 : SAXIACPARLEN;
+
+  wire [1:0] saxiacparlock = (_TECHMAP_CONSTMSK_SAXIACPARLOCK_ == 2'd0 && _TECHMAP_CONSTVAL_SAXIACPARLOCK_ === 2'd0) ? 2'b0 : SAXIACPARLOCK;
+
+  wire [2:0] saxiacparprot = (_TECHMAP_CONSTMSK_SAXIACPARPROT_ == 3'd0 && _TECHMAP_CONSTVAL_SAXIACPARPROT_ === 3'd0) ? 3'b0 : SAXIACPARPROT;
+
+  wire [3:0] saxiacparqos = (_TECHMAP_CONSTMSK_SAXIACPARQOS_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIACPARQOS_ === 4'd0) ? 4'b0 : SAXIACPARQOS;
+
+  wire [1:0] saxiacparsize = (_TECHMAP_CONSTMSK_SAXIACPARSIZE_ == 2'd0 && _TECHMAP_CONSTVAL_SAXIACPARSIZE_ === 2'd0) ? 2'b0 : SAXIACPARSIZE;
+
+  wire [4:0] saxiacparuser = (_TECHMAP_CONSTMSK_SAXIACPARUSER_ == 5'd0 && _TECHMAP_CONSTVAL_SAXIACPARUSER_ === 5'd0) ? 5'b0 : SAXIACPARUSER;
+
+  wire [0:0] saxiacparvalid = (_TECHMAP_CONSTMSK_SAXIACPARVALID_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIACPARVALID_ === 1'd0) ? 1'b0 : SAXIACPARVALID;
+
+  wire [31:0] saxiacpawaddr = (_TECHMAP_CONSTMSK_SAXIACPAWADDR_ == 32'd0 && _TECHMAP_CONSTVAL_SAXIACPAWADDR_ === 32'd0) ? 32'b0 : SAXIACPAWADDR;
+
+  wire [1:0] saxiacpawburst = (_TECHMAP_CONSTMSK_SAXIACPAWBURST_ == 2'd0 && _TECHMAP_CONSTVAL_SAXIACPAWBURST_ === 2'd0) ? 2'b0 : SAXIACPAWBURST;
+
+  wire [3:0] saxiacpawcache = (_TECHMAP_CONSTMSK_SAXIACPAWCACHE_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIACPAWCACHE_ === 4'd0) ? 4'b0 : SAXIACPAWCACHE;
+
+  wire [2:0] saxiacpawid = (_TECHMAP_CONSTMSK_SAXIACPAWID_ == 3'd0 && _TECHMAP_CONSTVAL_SAXIACPAWID_ === 3'd0) ? 3'b0 : SAXIACPAWID;
+
+  wire [3:0] saxiacpawlen = (_TECHMAP_CONSTMSK_SAXIACPAWLEN_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIACPAWLEN_ === 4'd0) ? 4'b0 : SAXIACPAWLEN;
+
+  wire [1:0] saxiacpawlock = (_TECHMAP_CONSTMSK_SAXIACPAWLOCK_ == 2'd0 && _TECHMAP_CONSTVAL_SAXIACPAWLOCK_ === 2'd0) ? 2'b0 : SAXIACPAWLOCK;
+
+  wire [2:0] saxiacpawprot = (_TECHMAP_CONSTMSK_SAXIACPAWPROT_ == 3'd0 && _TECHMAP_CONSTVAL_SAXIACPAWPROT_ === 3'd0) ? 3'b0 : SAXIACPAWPROT;
+
+  wire [3:0] saxiacpawqos = (_TECHMAP_CONSTMSK_SAXIACPAWQOS_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIACPAWQOS_ === 4'd0) ? 4'b0 : SAXIACPAWQOS;
+
+  wire [1:0] saxiacpawsize = (_TECHMAP_CONSTMSK_SAXIACPAWSIZE_ == 2'd0 && _TECHMAP_CONSTVAL_SAXIACPAWSIZE_ === 2'd0) ? 2'b0 : SAXIACPAWSIZE;
+
+  wire [4:0] saxiacpawuser = (_TECHMAP_CONSTMSK_SAXIACPAWUSER_ == 5'd0 && _TECHMAP_CONSTVAL_SAXIACPAWUSER_ === 5'd0) ? 5'b0 : SAXIACPAWUSER;
+
+  wire [0:0] saxiacpawvalid = (_TECHMAP_CONSTMSK_SAXIACPAWVALID_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIACPAWVALID_ === 1'd0) ? 1'b0 : SAXIACPAWVALID;
+
+  wire [0:0] saxiacpbready = (_TECHMAP_CONSTMSK_SAXIACPBREADY_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIACPBREADY_ === 1'd0) ? 1'b0 : SAXIACPBREADY;
+
+  wire [0:0] saxiacprready = (_TECHMAP_CONSTMSK_SAXIACPRREADY_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIACPRREADY_ === 1'd0) ? 1'b0 : SAXIACPRREADY;
+
+  wire [63:0] saxiacpwdata = (_TECHMAP_CONSTMSK_SAXIACPWDATA_ == 64'd0 && _TECHMAP_CONSTVAL_SAXIACPWDATA_ === 64'd0) ? 64'b0 : SAXIACPWDATA;
+
+  wire [2:0] saxiacpwid = (_TECHMAP_CONSTMSK_SAXIACPWID_ == 3'd0 && _TECHMAP_CONSTVAL_SAXIACPWID_ === 3'd0) ? 3'b0 : SAXIACPWID;
+
+  wire [0:0] saxiacpwlast = (_TECHMAP_CONSTMSK_SAXIACPWLAST_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIACPWLAST_ === 1'd0) ? 1'b0 : SAXIACPWLAST;
+
+  wire [7:0] saxiacpwstrb = (_TECHMAP_CONSTMSK_SAXIACPWSTRB_ == 8'd0 && _TECHMAP_CONSTVAL_SAXIACPWSTRB_ === 8'd0) ? 8'b0 : SAXIACPWSTRB;
+
+  wire [0:0] saxiacpwvalid = (_TECHMAP_CONSTMSK_SAXIACPWVALID_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIACPWVALID_ === 1'd0) ? 1'b0 : SAXIACPWVALID;
+
+  wire [0:0] saxigp0aclk = (_TECHMAP_CONSTMSK_SAXIGP0ACLK_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIGP0ACLK_ === 1'd0) ? 1'b0 : SAXIGP0ACLK;
+
+  wire [31:0] saxigp0araddr = (_TECHMAP_CONSTMSK_SAXIGP0ARADDR_ == 32'd0 && _TECHMAP_CONSTVAL_SAXIGP0ARADDR_ === 32'd0) ? 32'b0 : SAXIGP0ARADDR;
+
+  wire [1:0] saxigp0arburst = (_TECHMAP_CONSTMSK_SAXIGP0ARBURST_ == 2'd0 && _TECHMAP_CONSTVAL_SAXIGP0ARBURST_ === 2'd0) ? 2'b0 : SAXIGP0ARBURST;
+
+  wire [3:0] saxigp0arcache = (_TECHMAP_CONSTMSK_SAXIGP0ARCACHE_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIGP0ARCACHE_ === 4'd0) ? 4'b0 : SAXIGP0ARCACHE;
+
+  wire [5:0] saxigp0arid = (_TECHMAP_CONSTMSK_SAXIGP0ARID_ == 6'd0 && _TECHMAP_CONSTVAL_SAXIGP0ARID_ === 6'd0) ? 6'b0 : SAXIGP0ARID;
+
+  wire [3:0] saxigp0arlen = (_TECHMAP_CONSTMSK_SAXIGP0ARLEN_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIGP0ARLEN_ === 4'd0) ? 4'b0 : SAXIGP0ARLEN;
+
+  wire [1:0] saxigp0arlock = (_TECHMAP_CONSTMSK_SAXIGP0ARLOCK_ == 2'd0 && _TECHMAP_CONSTVAL_SAXIGP0ARLOCK_ === 2'd0) ? 2'b0 : SAXIGP0ARLOCK;
+
+  wire [2:0] saxigp0arprot = (_TECHMAP_CONSTMSK_SAXIGP0ARPROT_ == 3'd0 && _TECHMAP_CONSTVAL_SAXIGP0ARPROT_ === 3'd0) ? 3'b0 : SAXIGP0ARPROT;
+
+  wire [3:0] saxigp0arqos = (_TECHMAP_CONSTMSK_SAXIGP0ARQOS_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIGP0ARQOS_ === 4'd0) ? 4'b0 : SAXIGP0ARQOS;
+
+  wire [1:0] saxigp0arsize = (_TECHMAP_CONSTMSK_SAXIGP0ARSIZE_ == 2'd0 && _TECHMAP_CONSTVAL_SAXIGP0ARSIZE_ === 2'd0) ? 2'b0 : SAXIGP0ARSIZE;
+
+  wire [0:0] saxigp0arvalid = (_TECHMAP_CONSTMSK_SAXIGP0ARVALID_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIGP0ARVALID_ === 1'd0) ? 1'b0 : SAXIGP0ARVALID;
+
+  wire [31:0] saxigp0awaddr = (_TECHMAP_CONSTMSK_SAXIGP0AWADDR_ == 32'd0 && _TECHMAP_CONSTVAL_SAXIGP0AWADDR_ === 32'd0) ? 32'b0 : SAXIGP0AWADDR;
+
+  wire [1:0] saxigp0awburst = (_TECHMAP_CONSTMSK_SAXIGP0AWBURST_ == 2'd0 && _TECHMAP_CONSTVAL_SAXIGP0AWBURST_ === 2'd0) ? 2'b0 : SAXIGP0AWBURST;
+
+  wire [3:0] saxigp0awcache = (_TECHMAP_CONSTMSK_SAXIGP0AWCACHE_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIGP0AWCACHE_ === 4'd0) ? 4'b0 : SAXIGP0AWCACHE;
+
+  wire [5:0] saxigp0awid = (_TECHMAP_CONSTMSK_SAXIGP0AWID_ == 6'd0 && _TECHMAP_CONSTVAL_SAXIGP0AWID_ === 6'd0) ? 6'b0 : SAXIGP0AWID;
+
+  wire [3:0] saxigp0awlen = (_TECHMAP_CONSTMSK_SAXIGP0AWLEN_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIGP0AWLEN_ === 4'd0) ? 4'b0 : SAXIGP0AWLEN;
+
+  wire [1:0] saxigp0awlock = (_TECHMAP_CONSTMSK_SAXIGP0AWLOCK_ == 2'd0 && _TECHMAP_CONSTVAL_SAXIGP0AWLOCK_ === 2'd0) ? 2'b0 : SAXIGP0AWLOCK;
+
+  wire [2:0] saxigp0awprot = (_TECHMAP_CONSTMSK_SAXIGP0AWPROT_ == 3'd0 && _TECHMAP_CONSTVAL_SAXIGP0AWPROT_ === 3'd0) ? 3'b0 : SAXIGP0AWPROT;
+
+  wire [3:0] saxigp0awqos = (_TECHMAP_CONSTMSK_SAXIGP0AWQOS_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIGP0AWQOS_ === 4'd0) ? 4'b0 : SAXIGP0AWQOS;
+
+  wire [1:0] saxigp0awsize = (_TECHMAP_CONSTMSK_SAXIGP0AWSIZE_ == 2'd0 && _TECHMAP_CONSTVAL_SAXIGP0AWSIZE_ === 2'd0) ? 2'b0 : SAXIGP0AWSIZE;
+
+  wire [0:0] saxigp0awvalid = (_TECHMAP_CONSTMSK_SAXIGP0AWVALID_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIGP0AWVALID_ === 1'd0) ? 1'b0 : SAXIGP0AWVALID;
+
+  wire [0:0] saxigp0bready = (_TECHMAP_CONSTMSK_SAXIGP0BREADY_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIGP0BREADY_ === 1'd0) ? 1'b0 : SAXIGP0BREADY;
+
+  wire [0:0] saxigp0rready = (_TECHMAP_CONSTMSK_SAXIGP0RREADY_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIGP0RREADY_ === 1'd0) ? 1'b0 : SAXIGP0RREADY;
+
+  wire [31:0] saxigp0wdata = (_TECHMAP_CONSTMSK_SAXIGP0WDATA_ == 32'd0 && _TECHMAP_CONSTVAL_SAXIGP0WDATA_ === 32'd0) ? 32'b0 : SAXIGP0WDATA;
+
+  wire [5:0] saxigp0wid = (_TECHMAP_CONSTMSK_SAXIGP0WID_ == 6'd0 && _TECHMAP_CONSTVAL_SAXIGP0WID_ === 6'd0) ? 6'b0 : SAXIGP0WID;
+
+  wire [0:0] saxigp0wlast = (_TECHMAP_CONSTMSK_SAXIGP0WLAST_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIGP0WLAST_ === 1'd0) ? 1'b0 : SAXIGP0WLAST;
+
+  wire [3:0] saxigp0wstrb = (_TECHMAP_CONSTMSK_SAXIGP0WSTRB_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIGP0WSTRB_ === 4'd0) ? 4'b0 : SAXIGP0WSTRB;
+
+  wire [0:0] saxigp0wvalid = (_TECHMAP_CONSTMSK_SAXIGP0WVALID_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIGP0WVALID_ === 1'd0) ? 1'b0 : SAXIGP0WVALID;
+
+  wire [0:0] saxigp1aclk = (_TECHMAP_CONSTMSK_SAXIGP1ACLK_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIGP1ACLK_ === 1'd0) ? 1'b0 : SAXIGP1ACLK;
+
+  wire [31:0] saxigp1araddr = (_TECHMAP_CONSTMSK_SAXIGP1ARADDR_ == 32'd0 && _TECHMAP_CONSTVAL_SAXIGP1ARADDR_ === 32'd0) ? 32'b0 : SAXIGP1ARADDR;
+
+  wire [1:0] saxigp1arburst = (_TECHMAP_CONSTMSK_SAXIGP1ARBURST_ == 2'd0 && _TECHMAP_CONSTVAL_SAXIGP1ARBURST_ === 2'd0) ? 2'b0 : SAXIGP1ARBURST;
+
+  wire [3:0] saxigp1arcache = (_TECHMAP_CONSTMSK_SAXIGP1ARCACHE_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIGP1ARCACHE_ === 4'd0) ? 4'b0 : SAXIGP1ARCACHE;
+
+  wire [5:0] saxigp1arid = (_TECHMAP_CONSTMSK_SAXIGP1ARID_ == 6'd0 && _TECHMAP_CONSTVAL_SAXIGP1ARID_ === 6'd0) ? 6'b0 : SAXIGP1ARID;
+
+  wire [3:0] saxigp1arlen = (_TECHMAP_CONSTMSK_SAXIGP1ARLEN_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIGP1ARLEN_ === 4'd0) ? 4'b0 : SAXIGP1ARLEN;
+
+  wire [1:0] saxigp1arlock = (_TECHMAP_CONSTMSK_SAXIGP1ARLOCK_ == 2'd0 && _TECHMAP_CONSTVAL_SAXIGP1ARLOCK_ === 2'd0) ? 2'b0 : SAXIGP1ARLOCK;
+
+  wire [2:0] saxigp1arprot = (_TECHMAP_CONSTMSK_SAXIGP1ARPROT_ == 3'd0 && _TECHMAP_CONSTVAL_SAXIGP1ARPROT_ === 3'd0) ? 3'b0 : SAXIGP1ARPROT;
+
+  wire [3:0] saxigp1arqos = (_TECHMAP_CONSTMSK_SAXIGP1ARQOS_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIGP1ARQOS_ === 4'd0) ? 4'b0 : SAXIGP1ARQOS;
+
+  wire [1:0] saxigp1arsize = (_TECHMAP_CONSTMSK_SAXIGP1ARSIZE_ == 2'd0 && _TECHMAP_CONSTVAL_SAXIGP1ARSIZE_ === 2'd0) ? 2'b0 : SAXIGP1ARSIZE;
+
+  wire [0:0] saxigp1arvalid = (_TECHMAP_CONSTMSK_SAXIGP1ARVALID_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIGP1ARVALID_ === 1'd0) ? 1'b0 : SAXIGP1ARVALID;
+
+  wire [31:0] saxigp1awaddr = (_TECHMAP_CONSTMSK_SAXIGP1AWADDR_ == 32'd0 && _TECHMAP_CONSTVAL_SAXIGP1AWADDR_ === 32'd0) ? 32'b0 : SAXIGP1AWADDR;
+
+  wire [1:0] saxigp1awburst = (_TECHMAP_CONSTMSK_SAXIGP1AWBURST_ == 2'd0 && _TECHMAP_CONSTVAL_SAXIGP1AWBURST_ === 2'd0) ? 2'b0 : SAXIGP1AWBURST;
+
+  wire [3:0] saxigp1awcache = (_TECHMAP_CONSTMSK_SAXIGP1AWCACHE_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIGP1AWCACHE_ === 4'd0) ? 4'b0 : SAXIGP1AWCACHE;
+
+  wire [5:0] saxigp1awid = (_TECHMAP_CONSTMSK_SAXIGP1AWID_ == 6'd0 && _TECHMAP_CONSTVAL_SAXIGP1AWID_ === 6'd0) ? 6'b0 : SAXIGP1AWID;
+
+  wire [3:0] saxigp1awlen = (_TECHMAP_CONSTMSK_SAXIGP1AWLEN_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIGP1AWLEN_ === 4'd0) ? 4'b0 : SAXIGP1AWLEN;
+
+  wire [1:0] saxigp1awlock = (_TECHMAP_CONSTMSK_SAXIGP1AWLOCK_ == 2'd0 && _TECHMAP_CONSTVAL_SAXIGP1AWLOCK_ === 2'd0) ? 2'b0 : SAXIGP1AWLOCK;
+
+  wire [2:0] saxigp1awprot = (_TECHMAP_CONSTMSK_SAXIGP1AWPROT_ == 3'd0 && _TECHMAP_CONSTVAL_SAXIGP1AWPROT_ === 3'd0) ? 3'b0 : SAXIGP1AWPROT;
+
+  wire [3:0] saxigp1awqos = (_TECHMAP_CONSTMSK_SAXIGP1AWQOS_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIGP1AWQOS_ === 4'd0) ? 4'b0 : SAXIGP1AWQOS;
+
+  wire [1:0] saxigp1awsize = (_TECHMAP_CONSTMSK_SAXIGP1AWSIZE_ == 2'd0 && _TECHMAP_CONSTVAL_SAXIGP1AWSIZE_ === 2'd0) ? 2'b0 : SAXIGP1AWSIZE;
+
+  wire [0:0] saxigp1awvalid = (_TECHMAP_CONSTMSK_SAXIGP1AWVALID_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIGP1AWVALID_ === 1'd0) ? 1'b0 : SAXIGP1AWVALID;
+
+  wire [0:0] saxigp1bready = (_TECHMAP_CONSTMSK_SAXIGP1BREADY_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIGP1BREADY_ === 1'd0) ? 1'b0 : SAXIGP1BREADY;
+
+  wire [0:0] saxigp1rready = (_TECHMAP_CONSTMSK_SAXIGP1RREADY_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIGP1RREADY_ === 1'd0) ? 1'b0 : SAXIGP1RREADY;
+
+  wire [31:0] saxigp1wdata = (_TECHMAP_CONSTMSK_SAXIGP1WDATA_ == 32'd0 && _TECHMAP_CONSTVAL_SAXIGP1WDATA_ === 32'd0) ? 32'b0 : SAXIGP1WDATA;
+
+  wire [5:0] saxigp1wid = (_TECHMAP_CONSTMSK_SAXIGP1WID_ == 6'd0 && _TECHMAP_CONSTVAL_SAXIGP1WID_ === 6'd0) ? 6'b0 : SAXIGP1WID;
+
+  wire [0:0] saxigp1wlast = (_TECHMAP_CONSTMSK_SAXIGP1WLAST_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIGP1WLAST_ === 1'd0) ? 1'b0 : SAXIGP1WLAST;
+
+  wire [3:0] saxigp1wstrb = (_TECHMAP_CONSTMSK_SAXIGP1WSTRB_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIGP1WSTRB_ === 4'd0) ? 4'b0 : SAXIGP1WSTRB;
+
+  wire [0:0] saxigp1wvalid = (_TECHMAP_CONSTMSK_SAXIGP1WVALID_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIGP1WVALID_ === 1'd0) ? 1'b0 : SAXIGP1WVALID;
+
+  wire [0:0] saxihp0aclk = (_TECHMAP_CONSTMSK_SAXIHP0ACLK_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIHP0ACLK_ === 1'd0) ? 1'b0 : SAXIHP0ACLK;
+
+  wire [31:0] saxihp0araddr = (_TECHMAP_CONSTMSK_SAXIHP0ARADDR_ == 32'd0 && _TECHMAP_CONSTVAL_SAXIHP0ARADDR_ === 32'd0) ? 32'b0 : SAXIHP0ARADDR;
+
+  wire [1:0] saxihp0arburst = (_TECHMAP_CONSTMSK_SAXIHP0ARBURST_ == 2'd0 && _TECHMAP_CONSTVAL_SAXIHP0ARBURST_ === 2'd0) ? 2'b0 : SAXIHP0ARBURST;
+
+  wire [3:0] saxihp0arcache = (_TECHMAP_CONSTMSK_SAXIHP0ARCACHE_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIHP0ARCACHE_ === 4'd0) ? 4'b0 : SAXIHP0ARCACHE;
+
+  wire [5:0] saxihp0arid = (_TECHMAP_CONSTMSK_SAXIHP0ARID_ == 6'd0 && _TECHMAP_CONSTVAL_SAXIHP0ARID_ === 6'd0) ? 6'b0 : SAXIHP0ARID;
+
+  wire [3:0] saxihp0arlen = (_TECHMAP_CONSTMSK_SAXIHP0ARLEN_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIHP0ARLEN_ === 4'd0) ? 4'b0 : SAXIHP0ARLEN;
+
+  wire [1:0] saxihp0arlock = (_TECHMAP_CONSTMSK_SAXIHP0ARLOCK_ == 2'd0 && _TECHMAP_CONSTVAL_SAXIHP0ARLOCK_ === 2'd0) ? 2'b0 : SAXIHP0ARLOCK;
+
+  wire [2:0] saxihp0arprot = (_TECHMAP_CONSTMSK_SAXIHP0ARPROT_ == 3'd0 && _TECHMAP_CONSTVAL_SAXIHP0ARPROT_ === 3'd0) ? 3'b0 : SAXIHP0ARPROT;
+
+  wire [3:0] saxihp0arqos = (_TECHMAP_CONSTMSK_SAXIHP0ARQOS_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIHP0ARQOS_ === 4'd0) ? 4'b0 : SAXIHP0ARQOS;
+
+  wire [1:0] saxihp0arsize = (_TECHMAP_CONSTMSK_SAXIHP0ARSIZE_ == 2'd0 && _TECHMAP_CONSTVAL_SAXIHP0ARSIZE_ === 2'd0) ? 2'b0 : SAXIHP0ARSIZE;
+
+  wire [0:0] saxihp0arvalid = (_TECHMAP_CONSTMSK_SAXIHP0ARVALID_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIHP0ARVALID_ === 1'd0) ? 1'b0 : SAXIHP0ARVALID;
+
+  wire [31:0] saxihp0awaddr = (_TECHMAP_CONSTMSK_SAXIHP0AWADDR_ == 32'd0 && _TECHMAP_CONSTVAL_SAXIHP0AWADDR_ === 32'd0) ? 32'b0 : SAXIHP0AWADDR;
+
+  wire [1:0] saxihp0awburst = (_TECHMAP_CONSTMSK_SAXIHP0AWBURST_ == 2'd0 && _TECHMAP_CONSTVAL_SAXIHP0AWBURST_ === 2'd0) ? 2'b0 : SAXIHP0AWBURST;
+
+  wire [3:0] saxihp0awcache = (_TECHMAP_CONSTMSK_SAXIHP0AWCACHE_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIHP0AWCACHE_ === 4'd0) ? 4'b0 : SAXIHP0AWCACHE;
+
+  wire [5:0] saxihp0awid = (_TECHMAP_CONSTMSK_SAXIHP0AWID_ == 6'd0 && _TECHMAP_CONSTVAL_SAXIHP0AWID_ === 6'd0) ? 6'b0 : SAXIHP0AWID;
+
+  wire [3:0] saxihp0awlen = (_TECHMAP_CONSTMSK_SAXIHP0AWLEN_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIHP0AWLEN_ === 4'd0) ? 4'b0 : SAXIHP0AWLEN;
+
+  wire [1:0] saxihp0awlock = (_TECHMAP_CONSTMSK_SAXIHP0AWLOCK_ == 2'd0 && _TECHMAP_CONSTVAL_SAXIHP0AWLOCK_ === 2'd0) ? 2'b0 : SAXIHP0AWLOCK;
+
+  wire [2:0] saxihp0awprot = (_TECHMAP_CONSTMSK_SAXIHP0AWPROT_ == 3'd0 && _TECHMAP_CONSTVAL_SAXIHP0AWPROT_ === 3'd0) ? 3'b0 : SAXIHP0AWPROT;
+
+  wire [3:0] saxihp0awqos = (_TECHMAP_CONSTMSK_SAXIHP0AWQOS_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIHP0AWQOS_ === 4'd0) ? 4'b0 : SAXIHP0AWQOS;
+
+  wire [1:0] saxihp0awsize = (_TECHMAP_CONSTMSK_SAXIHP0AWSIZE_ == 2'd0 && _TECHMAP_CONSTVAL_SAXIHP0AWSIZE_ === 2'd0) ? 2'b0 : SAXIHP0AWSIZE;
+
+  wire [0:0] saxihp0awvalid = (_TECHMAP_CONSTMSK_SAXIHP0AWVALID_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIHP0AWVALID_ === 1'd0) ? 1'b0 : SAXIHP0AWVALID;
+
+  wire [0:0] saxihp0bready = (_TECHMAP_CONSTMSK_SAXIHP0BREADY_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIHP0BREADY_ === 1'd0) ? 1'b0 : SAXIHP0BREADY;
+
+  wire [0:0] saxihp0rdissuecap1en = (_TECHMAP_CONSTMSK_SAXIHP0RDISSUECAP1EN_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIHP0RDISSUECAP1EN_ === 1'd0) ? 1'b0 : SAXIHP0RDISSUECAP1EN;
+
+  wire [0:0] saxihp0rready = (_TECHMAP_CONSTMSK_SAXIHP0RREADY_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIHP0RREADY_ === 1'd0) ? 1'b0 : SAXIHP0RREADY;
+
+  wire [63:0] saxihp0wdata = (_TECHMAP_CONSTMSK_SAXIHP0WDATA_ == 64'd0 && _TECHMAP_CONSTVAL_SAXIHP0WDATA_ === 64'd0) ? 64'b0 : SAXIHP0WDATA;
+
+  wire [5:0] saxihp0wid = (_TECHMAP_CONSTMSK_SAXIHP0WID_ == 6'd0 && _TECHMAP_CONSTVAL_SAXIHP0WID_ === 6'd0) ? 6'b0 : SAXIHP0WID;
+
+  wire [0:0] saxihp0wlast = (_TECHMAP_CONSTMSK_SAXIHP0WLAST_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIHP0WLAST_ === 1'd0) ? 1'b0 : SAXIHP0WLAST;
+
+  wire [0:0] saxihp0wrissuecap1en = (_TECHMAP_CONSTMSK_SAXIHP0WRISSUECAP1EN_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIHP0WRISSUECAP1EN_ === 1'd0) ? 1'b0 : SAXIHP0WRISSUECAP1EN;
+
+  wire [7:0] saxihp0wstrb = (_TECHMAP_CONSTMSK_SAXIHP0WSTRB_ == 8'd0 && _TECHMAP_CONSTVAL_SAXIHP0WSTRB_ === 8'd0) ? 8'b0 : SAXIHP0WSTRB;
+
+  wire [0:0] saxihp0wvalid = (_TECHMAP_CONSTMSK_SAXIHP0WVALID_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIHP0WVALID_ === 1'd0) ? 1'b0 : SAXIHP0WVALID;
+
+  wire [0:0] saxihp1aclk = (_TECHMAP_CONSTMSK_SAXIHP1ACLK_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIHP1ACLK_ === 1'd0) ? 1'b0 : SAXIHP1ACLK;
+
+  wire [31:0] saxihp1araddr = (_TECHMAP_CONSTMSK_SAXIHP1ARADDR_ == 32'd0 && _TECHMAP_CONSTVAL_SAXIHP1ARADDR_ === 32'd0) ? 32'b0 : SAXIHP1ARADDR;
+
+  wire [1:0] saxihp1arburst = (_TECHMAP_CONSTMSK_SAXIHP1ARBURST_ == 2'd0 && _TECHMAP_CONSTVAL_SAXIHP1ARBURST_ === 2'd0) ? 2'b0 : SAXIHP1ARBURST;
+
+  wire [3:0] saxihp1arcache = (_TECHMAP_CONSTMSK_SAXIHP1ARCACHE_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIHP1ARCACHE_ === 4'd0) ? 4'b0 : SAXIHP1ARCACHE;
+
+  wire [5:0] saxihp1arid = (_TECHMAP_CONSTMSK_SAXIHP1ARID_ == 6'd0 && _TECHMAP_CONSTVAL_SAXIHP1ARID_ === 6'd0) ? 6'b0 : SAXIHP1ARID;
+
+  wire [3:0] saxihp1arlen = (_TECHMAP_CONSTMSK_SAXIHP1ARLEN_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIHP1ARLEN_ === 4'd0) ? 4'b0 : SAXIHP1ARLEN;
+
+  wire [1:0] saxihp1arlock = (_TECHMAP_CONSTMSK_SAXIHP1ARLOCK_ == 2'd0 && _TECHMAP_CONSTVAL_SAXIHP1ARLOCK_ === 2'd0) ? 2'b0 : SAXIHP1ARLOCK;
+
+  wire [2:0] saxihp1arprot = (_TECHMAP_CONSTMSK_SAXIHP1ARPROT_ == 3'd0 && _TECHMAP_CONSTVAL_SAXIHP1ARPROT_ === 3'd0) ? 3'b0 : SAXIHP1ARPROT;
+
+  wire [3:0] saxihp1arqos = (_TECHMAP_CONSTMSK_SAXIHP1ARQOS_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIHP1ARQOS_ === 4'd0) ? 4'b0 : SAXIHP1ARQOS;
+
+  wire [1:0] saxihp1arsize = (_TECHMAP_CONSTMSK_SAXIHP1ARSIZE_ == 2'd0 && _TECHMAP_CONSTVAL_SAXIHP1ARSIZE_ === 2'd0) ? 2'b0 : SAXIHP1ARSIZE;
+
+  wire [0:0] saxihp1arvalid = (_TECHMAP_CONSTMSK_SAXIHP1ARVALID_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIHP1ARVALID_ === 1'd0) ? 1'b0 : SAXIHP1ARVALID;
+
+  wire [31:0] saxihp1awaddr = (_TECHMAP_CONSTMSK_SAXIHP1AWADDR_ == 32'd0 && _TECHMAP_CONSTVAL_SAXIHP1AWADDR_ === 32'd0) ? 32'b0 : SAXIHP1AWADDR;
+
+  wire [1:0] saxihp1awburst = (_TECHMAP_CONSTMSK_SAXIHP1AWBURST_ == 2'd0 && _TECHMAP_CONSTVAL_SAXIHP1AWBURST_ === 2'd0) ? 2'b0 : SAXIHP1AWBURST;
+
+  wire [3:0] saxihp1awcache = (_TECHMAP_CONSTMSK_SAXIHP1AWCACHE_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIHP1AWCACHE_ === 4'd0) ? 4'b0 : SAXIHP1AWCACHE;
+
+  wire [5:0] saxihp1awid = (_TECHMAP_CONSTMSK_SAXIHP1AWID_ == 6'd0 && _TECHMAP_CONSTVAL_SAXIHP1AWID_ === 6'd0) ? 6'b0 : SAXIHP1AWID;
+
+  wire [3:0] saxihp1awlen = (_TECHMAP_CONSTMSK_SAXIHP1AWLEN_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIHP1AWLEN_ === 4'd0) ? 4'b0 : SAXIHP1AWLEN;
+
+  wire [1:0] saxihp1awlock = (_TECHMAP_CONSTMSK_SAXIHP1AWLOCK_ == 2'd0 && _TECHMAP_CONSTVAL_SAXIHP1AWLOCK_ === 2'd0) ? 2'b0 : SAXIHP1AWLOCK;
+
+  wire [2:0] saxihp1awprot = (_TECHMAP_CONSTMSK_SAXIHP1AWPROT_ == 3'd0 && _TECHMAP_CONSTVAL_SAXIHP1AWPROT_ === 3'd0) ? 3'b0 : SAXIHP1AWPROT;
+
+  wire [3:0] saxihp1awqos = (_TECHMAP_CONSTMSK_SAXIHP1AWQOS_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIHP1AWQOS_ === 4'd0) ? 4'b0 : SAXIHP1AWQOS;
+
+  wire [1:0] saxihp1awsize = (_TECHMAP_CONSTMSK_SAXIHP1AWSIZE_ == 2'd0 && _TECHMAP_CONSTVAL_SAXIHP1AWSIZE_ === 2'd0) ? 2'b0 : SAXIHP1AWSIZE;
+
+  wire [0:0] saxihp1awvalid = (_TECHMAP_CONSTMSK_SAXIHP1AWVALID_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIHP1AWVALID_ === 1'd0) ? 1'b0 : SAXIHP1AWVALID;
+
+  wire [0:0] saxihp1bready = (_TECHMAP_CONSTMSK_SAXIHP1BREADY_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIHP1BREADY_ === 1'd0) ? 1'b0 : SAXIHP1BREADY;
+
+  wire [0:0] saxihp1rdissuecap1en = (_TECHMAP_CONSTMSK_SAXIHP1RDISSUECAP1EN_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIHP1RDISSUECAP1EN_ === 1'd0) ? 1'b0 : SAXIHP1RDISSUECAP1EN;
+
+  wire [0:0] saxihp1rready = (_TECHMAP_CONSTMSK_SAXIHP1RREADY_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIHP1RREADY_ === 1'd0) ? 1'b0 : SAXIHP1RREADY;
+
+  wire [63:0] saxihp1wdata = (_TECHMAP_CONSTMSK_SAXIHP1WDATA_ == 64'd0 && _TECHMAP_CONSTVAL_SAXIHP1WDATA_ === 64'd0) ? 64'b0 : SAXIHP1WDATA;
+
+  wire [5:0] saxihp1wid = (_TECHMAP_CONSTMSK_SAXIHP1WID_ == 6'd0 && _TECHMAP_CONSTVAL_SAXIHP1WID_ === 6'd0) ? 6'b0 : SAXIHP1WID;
+
+  wire [0:0] saxihp1wlast = (_TECHMAP_CONSTMSK_SAXIHP1WLAST_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIHP1WLAST_ === 1'd0) ? 1'b0 : SAXIHP1WLAST;
+
+  wire [0:0] saxihp1wrissuecap1en = (_TECHMAP_CONSTMSK_SAXIHP1WRISSUECAP1EN_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIHP1WRISSUECAP1EN_ === 1'd0) ? 1'b0 : SAXIHP1WRISSUECAP1EN;
+
+  wire [7:0] saxihp1wstrb = (_TECHMAP_CONSTMSK_SAXIHP1WSTRB_ == 8'd0 && _TECHMAP_CONSTVAL_SAXIHP1WSTRB_ === 8'd0) ? 8'b0 : SAXIHP1WSTRB;
+
+  wire [0:0] saxihp1wvalid = (_TECHMAP_CONSTMSK_SAXIHP1WVALID_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIHP1WVALID_ === 1'd0) ? 1'b0 : SAXIHP1WVALID;
+
+  wire [0:0] saxihp2aclk = (_TECHMAP_CONSTMSK_SAXIHP2ACLK_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIHP2ACLK_ === 1'd0) ? 1'b0 : SAXIHP2ACLK;
+
+  wire [31:0] saxihp2araddr = (_TECHMAP_CONSTMSK_SAXIHP2ARADDR_ == 32'd0 && _TECHMAP_CONSTVAL_SAXIHP2ARADDR_ === 32'd0) ? 32'b0 : SAXIHP2ARADDR;
+
+  wire [1:0] saxihp2arburst = (_TECHMAP_CONSTMSK_SAXIHP2ARBURST_ == 2'd0 && _TECHMAP_CONSTVAL_SAXIHP2ARBURST_ === 2'd0) ? 2'b0 : SAXIHP2ARBURST;
+
+  wire [3:0] saxihp2arcache = (_TECHMAP_CONSTMSK_SAXIHP2ARCACHE_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIHP2ARCACHE_ === 4'd0) ? 4'b0 : SAXIHP2ARCACHE;
+
+  wire [5:0] saxihp2arid = (_TECHMAP_CONSTMSK_SAXIHP2ARID_ == 6'd0 && _TECHMAP_CONSTVAL_SAXIHP2ARID_ === 6'd0) ? 6'b0 : SAXIHP2ARID;
+
+  wire [3:0] saxihp2arlen = (_TECHMAP_CONSTMSK_SAXIHP2ARLEN_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIHP2ARLEN_ === 4'd0) ? 4'b0 : SAXIHP2ARLEN;
+
+  wire [1:0] saxihp2arlock = (_TECHMAP_CONSTMSK_SAXIHP2ARLOCK_ == 2'd0 && _TECHMAP_CONSTVAL_SAXIHP2ARLOCK_ === 2'd0) ? 2'b0 : SAXIHP2ARLOCK;
+
+  wire [2:0] saxihp2arprot = (_TECHMAP_CONSTMSK_SAXIHP2ARPROT_ == 3'd0 && _TECHMAP_CONSTVAL_SAXIHP2ARPROT_ === 3'd0) ? 3'b0 : SAXIHP2ARPROT;
+
+  wire [3:0] saxihp2arqos = (_TECHMAP_CONSTMSK_SAXIHP2ARQOS_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIHP2ARQOS_ === 4'd0) ? 4'b0 : SAXIHP2ARQOS;
+
+  wire [1:0] saxihp2arsize = (_TECHMAP_CONSTMSK_SAXIHP2ARSIZE_ == 2'd0 && _TECHMAP_CONSTVAL_SAXIHP2ARSIZE_ === 2'd0) ? 2'b0 : SAXIHP2ARSIZE;
+
+  wire [0:0] saxihp2arvalid = (_TECHMAP_CONSTMSK_SAXIHP2ARVALID_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIHP2ARVALID_ === 1'd0) ? 1'b0 : SAXIHP2ARVALID;
+
+  wire [31:0] saxihp2awaddr = (_TECHMAP_CONSTMSK_SAXIHP2AWADDR_ == 32'd0 && _TECHMAP_CONSTVAL_SAXIHP2AWADDR_ === 32'd0) ? 32'b0 : SAXIHP2AWADDR;
+
+  wire [1:0] saxihp2awburst = (_TECHMAP_CONSTMSK_SAXIHP2AWBURST_ == 2'd0 && _TECHMAP_CONSTVAL_SAXIHP2AWBURST_ === 2'd0) ? 2'b0 : SAXIHP2AWBURST;
+
+  wire [3:0] saxihp2awcache = (_TECHMAP_CONSTMSK_SAXIHP2AWCACHE_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIHP2AWCACHE_ === 4'd0) ? 4'b0 : SAXIHP2AWCACHE;
+
+  wire [5:0] saxihp2awid = (_TECHMAP_CONSTMSK_SAXIHP2AWID_ == 6'd0 && _TECHMAP_CONSTVAL_SAXIHP2AWID_ === 6'd0) ? 6'b0 : SAXIHP2AWID;
+
+  wire [3:0] saxihp2awlen = (_TECHMAP_CONSTMSK_SAXIHP2AWLEN_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIHP2AWLEN_ === 4'd0) ? 4'b0 : SAXIHP2AWLEN;
+
+  wire [1:0] saxihp2awlock = (_TECHMAP_CONSTMSK_SAXIHP2AWLOCK_ == 2'd0 && _TECHMAP_CONSTVAL_SAXIHP2AWLOCK_ === 2'd0) ? 2'b0 : SAXIHP2AWLOCK;
+
+  wire [2:0] saxihp2awprot = (_TECHMAP_CONSTMSK_SAXIHP2AWPROT_ == 3'd0 && _TECHMAP_CONSTVAL_SAXIHP2AWPROT_ === 3'd0) ? 3'b0 : SAXIHP2AWPROT;
+
+  wire [3:0] saxihp2awqos = (_TECHMAP_CONSTMSK_SAXIHP2AWQOS_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIHP2AWQOS_ === 4'd0) ? 4'b0 : SAXIHP2AWQOS;
+
+  wire [1:0] saxihp2awsize = (_TECHMAP_CONSTMSK_SAXIHP2AWSIZE_ == 2'd0 && _TECHMAP_CONSTVAL_SAXIHP2AWSIZE_ === 2'd0) ? 2'b0 : SAXIHP2AWSIZE;
+
+  wire [0:0] saxihp2awvalid = (_TECHMAP_CONSTMSK_SAXIHP2AWVALID_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIHP2AWVALID_ === 1'd0) ? 1'b0 : SAXIHP2AWVALID;
+
+  wire [0:0] saxihp2bready = (_TECHMAP_CONSTMSK_SAXIHP2BREADY_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIHP2BREADY_ === 1'd0) ? 1'b0 : SAXIHP2BREADY;
+
+  wire [0:0] saxihp2rdissuecap1en = (_TECHMAP_CONSTMSK_SAXIHP2RDISSUECAP1EN_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIHP2RDISSUECAP1EN_ === 1'd0) ? 1'b0 : SAXIHP2RDISSUECAP1EN;
+
+  wire [0:0] saxihp2rready = (_TECHMAP_CONSTMSK_SAXIHP2RREADY_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIHP2RREADY_ === 1'd0) ? 1'b0 : SAXIHP2RREADY;
+
+  wire [63:0] saxihp2wdata = (_TECHMAP_CONSTMSK_SAXIHP2WDATA_ == 64'd0 && _TECHMAP_CONSTVAL_SAXIHP2WDATA_ === 64'd0) ? 64'b0 : SAXIHP2WDATA;
+
+  wire [5:0] saxihp2wid = (_TECHMAP_CONSTMSK_SAXIHP2WID_ == 6'd0 && _TECHMAP_CONSTVAL_SAXIHP2WID_ === 6'd0) ? 6'b0 : SAXIHP2WID;
+
+  wire [0:0] saxihp2wlast = (_TECHMAP_CONSTMSK_SAXIHP2WLAST_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIHP2WLAST_ === 1'd0) ? 1'b0 : SAXIHP2WLAST;
+
+  wire [0:0] saxihp2wrissuecap1en = (_TECHMAP_CONSTMSK_SAXIHP2WRISSUECAP1EN_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIHP2WRISSUECAP1EN_ === 1'd0) ? 1'b0 : SAXIHP2WRISSUECAP1EN;
+
+  wire [7:0] saxihp2wstrb = (_TECHMAP_CONSTMSK_SAXIHP2WSTRB_ == 8'd0 && _TECHMAP_CONSTVAL_SAXIHP2WSTRB_ === 8'd0) ? 8'b0 : SAXIHP2WSTRB;
+
+  wire [0:0] saxihp2wvalid = (_TECHMAP_CONSTMSK_SAXIHP2WVALID_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIHP2WVALID_ === 1'd0) ? 1'b0 : SAXIHP2WVALID;
+
+  wire [0:0] saxihp3aclk = (_TECHMAP_CONSTMSK_SAXIHP3ACLK_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIHP3ACLK_ === 1'd0) ? 1'b0 : SAXIHP3ACLK;
+
+  wire [31:0] saxihp3araddr = (_TECHMAP_CONSTMSK_SAXIHP3ARADDR_ == 32'd0 && _TECHMAP_CONSTVAL_SAXIHP3ARADDR_ === 32'd0) ? 32'b0 : SAXIHP3ARADDR;
+
+  wire [1:0] saxihp3arburst = (_TECHMAP_CONSTMSK_SAXIHP3ARBURST_ == 2'd0 && _TECHMAP_CONSTVAL_SAXIHP3ARBURST_ === 2'd0) ? 2'b0 : SAXIHP3ARBURST;
+
+  wire [3:0] saxihp3arcache = (_TECHMAP_CONSTMSK_SAXIHP3ARCACHE_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIHP3ARCACHE_ === 4'd0) ? 4'b0 : SAXIHP3ARCACHE;
+
+  wire [5:0] saxihp3arid = (_TECHMAP_CONSTMSK_SAXIHP3ARID_ == 6'd0 && _TECHMAP_CONSTVAL_SAXIHP3ARID_ === 6'd0) ? 6'b0 : SAXIHP3ARID;
+
+  wire [3:0] saxihp3arlen = (_TECHMAP_CONSTMSK_SAXIHP3ARLEN_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIHP3ARLEN_ === 4'd0) ? 4'b0 : SAXIHP3ARLEN;
+
+  wire [1:0] saxihp3arlock = (_TECHMAP_CONSTMSK_SAXIHP3ARLOCK_ == 2'd0 && _TECHMAP_CONSTVAL_SAXIHP3ARLOCK_ === 2'd0) ? 2'b0 : SAXIHP3ARLOCK;
+
+  wire [2:0] saxihp3arprot = (_TECHMAP_CONSTMSK_SAXIHP3ARPROT_ == 3'd0 && _TECHMAP_CONSTVAL_SAXIHP3ARPROT_ === 3'd0) ? 3'b0 : SAXIHP3ARPROT;
+
+  wire [3:0] saxihp3arqos = (_TECHMAP_CONSTMSK_SAXIHP3ARQOS_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIHP3ARQOS_ === 4'd0) ? 4'b0 : SAXIHP3ARQOS;
+
+  wire [1:0] saxihp3arsize = (_TECHMAP_CONSTMSK_SAXIHP3ARSIZE_ == 2'd0 && _TECHMAP_CONSTVAL_SAXIHP3ARSIZE_ === 2'd0) ? 2'b0 : SAXIHP3ARSIZE;
+
+  wire [0:0] saxihp3arvalid = (_TECHMAP_CONSTMSK_SAXIHP3ARVALID_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIHP3ARVALID_ === 1'd0) ? 1'b0 : SAXIHP3ARVALID;
+
+  wire [31:0] saxihp3awaddr = (_TECHMAP_CONSTMSK_SAXIHP3AWADDR_ == 32'd0 && _TECHMAP_CONSTVAL_SAXIHP3AWADDR_ === 32'd0) ? 32'b0 : SAXIHP3AWADDR;
+
+  wire [1:0] saxihp3awburst = (_TECHMAP_CONSTMSK_SAXIHP3AWBURST_ == 2'd0 && _TECHMAP_CONSTVAL_SAXIHP3AWBURST_ === 2'd0) ? 2'b0 : SAXIHP3AWBURST;
+
+  wire [3:0] saxihp3awcache = (_TECHMAP_CONSTMSK_SAXIHP3AWCACHE_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIHP3AWCACHE_ === 4'd0) ? 4'b0 : SAXIHP3AWCACHE;
+
+  wire [5:0] saxihp3awid = (_TECHMAP_CONSTMSK_SAXIHP3AWID_ == 6'd0 && _TECHMAP_CONSTVAL_SAXIHP3AWID_ === 6'd0) ? 6'b0 : SAXIHP3AWID;
+
+  wire [3:0] saxihp3awlen = (_TECHMAP_CONSTMSK_SAXIHP3AWLEN_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIHP3AWLEN_ === 4'd0) ? 4'b0 : SAXIHP3AWLEN;
+
+  wire [1:0] saxihp3awlock = (_TECHMAP_CONSTMSK_SAXIHP3AWLOCK_ == 2'd0 && _TECHMAP_CONSTVAL_SAXIHP3AWLOCK_ === 2'd0) ? 2'b0 : SAXIHP3AWLOCK;
+
+  wire [2:0] saxihp3awprot = (_TECHMAP_CONSTMSK_SAXIHP3AWPROT_ == 3'd0 && _TECHMAP_CONSTVAL_SAXIHP3AWPROT_ === 3'd0) ? 3'b0 : SAXIHP3AWPROT;
+
+  wire [3:0] saxihp3awqos = (_TECHMAP_CONSTMSK_SAXIHP3AWQOS_ == 4'd0 && _TECHMAP_CONSTVAL_SAXIHP3AWQOS_ === 4'd0) ? 4'b0 : SAXIHP3AWQOS;
+
+  wire [1:0] saxihp3awsize = (_TECHMAP_CONSTMSK_SAXIHP3AWSIZE_ == 2'd0 && _TECHMAP_CONSTVAL_SAXIHP3AWSIZE_ === 2'd0) ? 2'b0 : SAXIHP3AWSIZE;
+
+  wire [0:0] saxihp3awvalid = (_TECHMAP_CONSTMSK_SAXIHP3AWVALID_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIHP3AWVALID_ === 1'd0) ? 1'b0 : SAXIHP3AWVALID;
+
+  wire [0:0] saxihp3bready = (_TECHMAP_CONSTMSK_SAXIHP3BREADY_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIHP3BREADY_ === 1'd0) ? 1'b0 : SAXIHP3BREADY;
+
+  wire [0:0] saxihp3rdissuecap1en = (_TECHMAP_CONSTMSK_SAXIHP3RDISSUECAP1EN_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIHP3RDISSUECAP1EN_ === 1'd0) ? 1'b0 : SAXIHP3RDISSUECAP1EN;
+
+  wire [0:0] saxihp3rready = (_TECHMAP_CONSTMSK_SAXIHP3RREADY_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIHP3RREADY_ === 1'd0) ? 1'b0 : SAXIHP3RREADY;
+
+  wire [63:0] saxihp3wdata = (_TECHMAP_CONSTMSK_SAXIHP3WDATA_ == 64'd0 && _TECHMAP_CONSTVAL_SAXIHP3WDATA_ === 64'd0) ? 64'b0 : SAXIHP3WDATA;
+
+  wire [5:0] saxihp3wid = (_TECHMAP_CONSTMSK_SAXIHP3WID_ == 6'd0 && _TECHMAP_CONSTVAL_SAXIHP3WID_ === 6'd0) ? 6'b0 : SAXIHP3WID;
+
+  wire [0:0] saxihp3wlast = (_TECHMAP_CONSTMSK_SAXIHP3WLAST_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIHP3WLAST_ === 1'd0) ? 1'b0 : SAXIHP3WLAST;
+
+  wire [0:0] saxihp3wrissuecap1en = (_TECHMAP_CONSTMSK_SAXIHP3WRISSUECAP1EN_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIHP3WRISSUECAP1EN_ === 1'd0) ? 1'b0 : SAXIHP3WRISSUECAP1EN;
+
+  wire [7:0] saxihp3wstrb = (_TECHMAP_CONSTMSK_SAXIHP3WSTRB_ == 8'd0 && _TECHMAP_CONSTVAL_SAXIHP3WSTRB_ === 8'd0) ? 8'b0 : SAXIHP3WSTRB;
+
+  wire [0:0] saxihp3wvalid = (_TECHMAP_CONSTMSK_SAXIHP3WVALID_ == 1'd0 && _TECHMAP_CONSTVAL_SAXIHP3WVALID_ === 1'd0) ? 1'b0 : SAXIHP3WVALID;
 
   // Replacement cell.
   PS7_VPR _TECHMAP_REPLACE_ (
