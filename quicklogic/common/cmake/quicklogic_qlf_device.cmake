@@ -5,7 +5,6 @@ function(QUICKLOGIC_DEFINE_QLF_DEVICE)
   #   FAMILY <family>
   #   ARCH <arch>
   #   ARCH_XML <arch.xml>
-  #   LAYOUT <layout name>
   #   [ROUTE_CHAN_WIDTH <route channel width>]
   #   )
   # ~~~
@@ -25,7 +24,6 @@ function(QUICKLOGIC_DEFINE_QLF_DEVICE)
   set(FAMILY   ${QUICKLOGIC_DEFINE_QLF_DEVICE_FAMILY})
   set(ARCH     ${QUICKLOGIC_DEFINE_QLF_DEVICE_ARCH})
   set(ARCH_XML ${QUICKLOGIC_DEFINE_QLF_DEVICE_ARCH_XML})
-  set(LAYOUT   ${QUICKLOGIC_DEFINE_QLF_DEVICE_LAYOUT})
 
   # If ROUTE_CHAN_WIDTH is not given then use the value from the architecture
   if("${QUICKLOGIC_DEFINE_QLF_DEVICE_ROUTE_CHAN_WIDTH}" STREQUAL "")
@@ -50,80 +48,18 @@ function(QUICKLOGIC_DEFINE_QLF_DEVICE)
       add_file_target(FILE ${ARCH_XML} SCANNER_TYPE)
   endif()
 
-  get_file_location(ARCH_BASE_FILE ${ARCH_XML})
-  set(ARCH_BASE_NAME "${DEVICE}-arch")
-
-  # .......................................................
-
-  # VPR architecture fixup.
-  #
-  # For now architecture of a QLF device is incompatible with
-  # the VPR used in SymbiFlow. This is due to heterogeneous tile support
-  # not being integrated there yet.
-  #
-  # This step also removes some element attributes that are not recognized
-  # by SymbiFlow VPR
-
-  set(ARCH_FIXUP_SCRIPT ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/qlf_k4n8/utils/fixup_arch.py)
-
-  set(ARCH_FIXUP_FILE "${ARCH_BASE_NAME}.fixup.xml")
-  set(ARCH_FIXUP_CMD
-    ${PYTHON3} ${ARCH_FIXUP_SCRIPT}
-      --arch-in ${ARCH_BASE_FILE}
-      --arch-out ${ARCH_FIXUP_FILE}
-      --pick-layout ${LAYOUT}=${DEVICE}
-  )
-
-  add_custom_command(
-    OUTPUT ${ARCH_FIXUP_FILE}
-    COMMAND ${ARCH_FIXUP_CMD}
-    DEPENDS ${ARCH_BASE_FILE} ${ARCH_FIXUP_SCRIPT} ${PYTHON3}
-  )
-  add_file_target(FILE ${ARCH_FIXUP_FILE} GENERATED)
-
-  # .......................................................
-
-  # FASM pefix injection.
-  #
-  # The layout is provided as XML described using VPR grid loc constructs.
-  # These do not allow to specify fasm prefixed directly. So instead the
-  # arch.xml is processed by a script that updated the layout so that it
-  # consists only of <single> tiles that have unique FASM prefixes.
-  set(FASM_PREFIX_TEMPLATE "X{x}Y{y}")
-
-  # FIXME: Move the script to quicklogic/common
-  set(FLATTEN_LAYOUT_SCRIPT ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/flatten_layout.py)
-
-  set(ARCH_PREFIXED_FILE "${ARCH_BASE_NAME}.prefixed.xml")
-  set(ARCH_PREFIXED_CMD
-    ${PYTHON3} ${FLATTEN_LAYOUT_SCRIPT}
-      --arch-in ${ARCH_FIXUP_FILE}
-      --arch-out ${ARCH_PREFIXED_FILE}
-      --fasm_prefix ${FASM_PREFIX_TEMPLATE}
-  )
-  
-  add_custom_command(
-    OUTPUT ${ARCH_PREFIXED_FILE}
-    COMMAND ${ARCH_PREFIXED_CMD}
-    DEPENDS ${ARCH_FIXUP_FILE} ${FLATTEN_LAYOUT_SCRIPT} ${PYTHON3}
-  )
-  add_file_target(FILE ${ARCH_PREFIXED_FILE} GENERATED)
-
-  set(ARCH_FINAL_FILE ${ARCH_PREFIXED_FILE})
-
   # .......................................................
 
   add_custom_target(
     ${DEVICE_TYPE}
   )
-  append_file_dependency(ARCH_FINAL ${ARCH_FINAL_FILE})
 
   set_target_properties(
     ${DEVICE_TYPE}
     PROPERTIES
     TECHFILE ""
     FAMILY ${FAMILY}
-    DEVICE_MERGED_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${ARCH_FINAL_FILE}
+    DEVICE_MERGED_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${ARCH_XML}
   )
 
   # .......................................................
