@@ -5,7 +5,6 @@ quicklogic_define_qlf_device (
   ARCH     qlf_k4n8
   FAMILY   qlf_k4n8
   ARCH_XML ${ARCH_XML}
-  LAYOUT   32x32
 
   ROUTE_CHAN_WIDTH 60
 )
