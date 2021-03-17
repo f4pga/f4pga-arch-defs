@@ -3,7 +3,6 @@ yosys -import
 plugin -i xdc
 plugin -i fasm
 plugin -i params
-plugin -i selection
 plugin -i sdc
 plugin -i design_introspection
 
@@ -57,7 +56,7 @@ update_pll_params
 # Note that write_sdc and the SDC plugin holds live pointers to RTLIL objects.
 # If Yosys mutates those objects (e.g. destroys them), the SDC plugin will
 # segfault.
-write_sdc $::env(OUT_SDC)
+write_sdc -include_propagated_clocks $::env(OUT_SDC)
 
 write_verilog $::env(OUT_SYNTH_V).premap.v
 
