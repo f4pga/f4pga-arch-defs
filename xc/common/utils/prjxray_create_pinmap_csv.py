@@ -83,6 +83,10 @@ def main():
             assert line['pin'] not in pin_to_iob
             site = line['site']
             loc = get_vpr_coords_from_site_name(conn, site)
+
+            if loc is None:
+                continue
+
             gridinfo = grid.gridinfo_at_tilename(line['tile'])
             sites = list(gridinfo.sites.keys())
 
