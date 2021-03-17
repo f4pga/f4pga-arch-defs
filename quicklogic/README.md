@@ -1,4 +1,4 @@
-# SymbiFlow for Quicklogic FPGAs
+# SymbiFlow for QuickLogic FPGAs
 
 Currently the supported families are:
 - qlf_k4n8
@@ -114,4 +114,4 @@ To to add a new design to the flow, and use it as a test follow the guide:
 
 ## Known limitations
 
-SymbiFlow support for Quicklogic FPGAs is currently under heavy development. The current support for the qlf_k4n8 family does not support binary bitstream generation. FASM file generation is supported but is still being worked on.
+SymbiFlow support for QuickLogic FPGAs is currently under heavy development. The current support for the qlf_k4n8 family does not support binary bitstream generation. FASM file generation is supported but is still being worked on.
