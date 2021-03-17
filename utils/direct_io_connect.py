@@ -64,12 +64,12 @@ class IOBufDeleter():
 
         for port in connected_ports:
             for cell_name, _ in cells.items():
-                if "iopadmap" in cell_name and port in cell_name:
+                if "iopadmap" in cell_name and port in cell_name and not cell_name.endswith("t_inv"):
                     del cells[cell_name]
                     break
 
             for net_name, config in netnames.items():
-                if "iopadmap" in net_name and port in net_name:
+                if "iopadmap" in net_name and port in net_name and not net_name.endswith("t_inv"):
                     del netnames[net_name]
                     break
 
@@ -111,7 +111,7 @@ class IOBufDeleter():
                     break
 
             for cell_name, cell_data in self.module["cells"].items():
-                if "iopadmap" in cell_name and port in cell_name:
+                if "iopadmap" in cell_name and port in cell_name and not cell_name.endswith("t_inv"):
                     if "IO_LOC_PAIRS" in cell_data["parameters"]:
                         cell_loc = cell_data["parameters"]["IO_LOC_PAIRS"]
                     else:
