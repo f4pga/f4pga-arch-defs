@@ -9,6 +9,17 @@ class Direction(Enum):
     RIGHT = 2
     TOP = 3
     BOTTOM = 4
+    RIGHT_LEFT = 5
+    RIGHT_BOTTOM = 6
+    RIGHT_BOTTOM_LEFT = 7
+    TOP_RIGHT = 8
+    TOP_BOTTOM = 9
+    TOP_LEFT = 10
+    TOP_RIGHT_BOTTOM = 11
+    TOP_RIGHT_LEFT = 12
+    TOP_BOTTOM_LEFT = 13
+    TOP_RIGHT_BOTTOM_LEFT = 14
+    BOTTOM_LEFT = 15
 
 
 # Track (aka Channel) is a wire that runs from one position to another along X or Y axis
