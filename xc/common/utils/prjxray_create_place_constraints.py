@@ -113,6 +113,8 @@ CLOCKS = {
         },
 }
 
+GTP_PRIMITIVES = ["IBUFDS_GTE2", "GTPE2_COMMON", "GTPE2_CHANNEL"]
+
 
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
@@ -300,8 +302,10 @@ class ClockPlacer(object):
         for _, _, clk_region in site_type_dict['PLLE2_ADV']:
             self.pll_cmts.add(clk_region)
 
-        for _, _, clk_region in site_type_dict['IBUFDS_GTE2']:
-            self.gtp_cmts.add(clk_region)
+        if any(site in GTP_PRIMITIVES for site in site_type_dict):
+            assert "IBUFDS_GTE2" in site_type_dict
+            for _, _, clk_region in site_type_dict['IBUFDS_GTE2']:
+                self.gtp_cmts.add(clk_region)
 
         self.input_pins = {}
         if not self.roi:
