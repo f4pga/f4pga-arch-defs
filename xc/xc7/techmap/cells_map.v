@@ -7729,6 +7729,8 @@ module GTPE2_CHANNEL (
   parameter [0:0] UCODEER_CLR = 1'b0;
   parameter [0:0] USE_PCS_CLK_PHASE_SEL = 1'b0;
 
+  parameter IO_LOC_PAIRS = "NONE";
+
   localparam [1:0] CHAN_BOND_SEQ_LEN_BIN = CHAN_BOND_SEQ_LEN - 1;
   localparam [1:0] CLK_COR_SEQ_LEN_BIN = CLK_COR_SEQ_LEN - 1;
   localparam [4:0] RX_CLK25_DIV_BIN = RX_CLK25_DIV - 1;
@@ -8102,7 +8104,8 @@ module GTPE2_CHANNEL (
     .INV_DRPCLK                     (INV_DRPCLK),
     .INV_DMONITORCLK                (INV_DMONITORCLK),
     .INV_CLKRSVD0                   (INV_CLKRSVD0),
-    .INV_CLKRSVD1                   (INV_CLKRSVD1)
+    .INV_CLKRSVD1                   (INV_CLKRSVD1),
+    .IO_LOC_PAIRS                   (IO_LOC_PAIRS)
   ) gtp_channel (
     .GTPRXN                         (gtprxn),
     .GTPRXP                         (gtprxp),
