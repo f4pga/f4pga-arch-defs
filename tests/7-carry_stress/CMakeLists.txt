@@ -20,13 +20,6 @@ foreach(CARRY_DEPTH 1 2 3 4 7 8 9 15 16 17 31 32)
         EXPLICIT_ADD_FILE_TARGET
         ROUTE_ONLY
         )
-    add_simple_test(
-        NAME 7-carry_stress_init0_depth_${CARRY_DEPTH}
-        SOURCES ${CARRY_TEST}
-        BOARDS ${QL_OPENFPGA_BOARDS}
-        EXPLICIT_ADD_FILE_TARGET
-        ROUTE_ONLY
-        )
 
     set(CARRY_TEST carry_test_${CARRY_DEPTH}_init1.v)
     add_custom_command(
@@ -47,13 +40,6 @@ foreach(CARRY_DEPTH 1 2 3 4 7 8 9 15 16 17 31 32)
         EXPLICIT_ADD_FILE_TARGET
         ROUTE_ONLY
         )
-    add_simple_test(
-        NAME 7-carry_stress_init1_depth_${CARRY_DEPTH}
-        SOURCES ${CARRY_TEST}
-        BOARDS ${QL_OPENFPGA_BOARDS}
-        EXPLICIT_ADD_FILE_TARGET
-        ROUTE_ONLY
-        )
 
     set(CARRY_TEST carry_test_${CARRY_DEPTH}_init_fabric.v)
     add_custom_command(
@@ -71,13 +57,6 @@ foreach(CARRY_DEPTH 1 2 3 4 7 8 9 15 16 17 31 32)
         NAME 7-carry_stress_init_fabric_depth_${CARRY_DEPTH}
         SOURCES ${CARRY_TEST}
         BOARDS ${FULL_BOARDS}
-        EXPLICIT_ADD_FILE_TARGET
-        ROUTE_ONLY
-        )
-    add_simple_test(
-        NAME 7-carry_stress_init_fabric_depth_${CARRY_DEPTH}
-        SOURCES ${CARRY_TEST}
-        BOARDS ${QL_OPENFPGA_BOARDS}
         EXPLICIT_ADD_FILE_TARGET
         ROUTE_ONLY
         )
