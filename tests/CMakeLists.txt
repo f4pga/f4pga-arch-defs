@@ -1,4 +1,4 @@
-set(FULL_BOARDS dummy_ice40_hx1k_tq144 )
+set(FULL_BOARDS dummy_ice40_hx1k_tq144 qlf_k4n8-qlf_k4n8_umc22_board)
 if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
 list(APPEND FULL_BOARDS dummy_artix7_xc7a50t-basys3_test)
 endif()
@@ -6,13 +6,6 @@ set(SMALL_BOARDS dummy_testarch_4x4_dummy dummy_testarch_10x10_dummy)
 set(BOARDS ${FULL_BOARDS} ${SMALL_BOARDS})
 
 foreach(BOARD ${BOARDS})
-    add_custom_target(all_${BOARD})
-endforeach()
-
-# QuickLogic boards for OpenFPGA based devices
-set(QL_OPENFPGA_BOARDS qlf_k4n8-qlf_k4n8_umc22_board)
-
-foreach(BOARD ${QL_OPENFPGA_BOARDS})
     add_custom_target(all_${BOARD})
 endforeach()
 
@@ -58,18 +51,11 @@ function(add_simple_test)
       ${symbiflow-arch-defs_SOURCE_DIR}/common/yosys/miter_and_tempinduct.ys)
   endif()
 
-  set(CHECK_TEST_ARGS "")
-  if(NOT ${ADD_SIMPLE_TEST_ROUTE_ONLY})
-    set(CHECK_TEST_ARGS EMIT_CHECK_TESTS EQUIV_CHECK_SCRIPT ${EQUIV_CHECK_SCRIPT})
-  else()
-    set(CHECK_TEST_ARGS "ROUTE_ONLY")
-  endif()
-
-
   foreach(BOARD ${ADD_SIMPLE_TEST_BOARDS})
     get_target_property_required(DEVICE ${BOARD} DEVICE)
     get_target_property_required(ARCH ${DEVICE} ARCH)
     get_target_property_required(NO_PINS ${ARCH} NO_PINS)
+    get_target_property_required(NO_BITSTREAM ${ARCH} NO_BITSTREAM)
 
     set_target_properties(${BOARD} PROPERTIES PART "dummy")
 
@@ -87,6 +73,13 @@ function(add_simple_test)
     set(NO_SYNTHESIS_ARG "")
     if(${ADD_SIMPLE_TEST_NO_SYNTHESIS})
       set(NO_SYNTHESIS_ARG NO_SYNTHESIS)
+    endif()
+
+    set(CHECK_TEST_ARGS "")
+    if(NOT ${ADD_SIMPLE_TEST_ROUTE_ONLY} AND NOT ${NO_BITSTREAM})
+      set(CHECK_TEST_ARGS EMIT_CHECK_TESTS EQUIV_CHECK_SCRIPT ${EQUIV_CHECK_SCRIPT})
+    else()
+      set(CHECK_TEST_ARGS "ROUTE_ONLY")
     endif()
 
     add_fpga_target(
