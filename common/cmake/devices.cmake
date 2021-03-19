@@ -490,7 +490,8 @@ function(DEFINE_DEVICE)
   #   [CACHE_PLACE_DELAY]
   #   [CACHE_LOOKAHEAD]
   #   [CACHE_ARGS <args>]
-  #   [ROUTE_CHAN_WIDTH]
+  #   [ROUTE_CHAN_WIDTH <width>]
+  #   [DONT_INSTALL]
   #   )
   # ~~~
   #
@@ -557,12 +558,6 @@ function(DEFINE_DEVICE)
   )
   get_target_property_required(RR_PATCH_CMD ${DEFINE_DEVICE_ARCH} RR_PATCH_CMD)
 
-  if("${DEFINE_DEVICE_ROUTE_CHAN_WIDTH}" STREQUAL "")
-    get_target_property_required(ROUTE_CHAN_WIDTH ${DEFINE_DEVICE_ARCH} ROUTE_CHAN_WIDTH)
-  else()
-    set(ROUTE_CHAN_WIDTH ${DEFINE_DEVICE_ROUTE_CHAN_WIDTH})
-  endif()
-
   get_target_property_required(
     VIRT_DEVICE_MERGED_FILE ${DEFINE_DEVICE_DEVICE_TYPE} DEVICE_MERGED_FILE
   )
@@ -603,9 +598,15 @@ function(DEFINE_DEVICE)
     # If not use a dummy value (assuming that the graph will get patched
     # anyways).
     if("${DEFINE_DEVICE_ROUTE_CHAN_WIDTH}" STREQUAL "")
-      set(RRXML_VIRT_ROUTE_CHAN_WIDTH 6) # FIXME: Where did the number come from?
+      # The value below had been chosen to allow VPR to build a virtual rr
+      # graph with BIDIR channels and get a consistent routing of a dummy
+      # wire design. Using a larger value will unnecessarly lead to increase
+      # of storage size of the graph and in turn its loading / processing time.
+      set(RRXML_VIRT_ROUTE_CHAN_WIDTH 6)
+      get_target_property_required(ROUTE_CHAN_WIDTH ${DEFINE_DEVICE_ARCH} ROUTE_CHAN_WIDTH)
     else()
       set(RRXML_VIRT_ROUTE_CHAN_WIDTH ${DEFINE_DEVICE_ROUTE_CHAN_WIDTH})
+      set(ROUTE_CHAN_WIDTH ${DEFINE_DEVICE_ROUTE_CHAN_WIDTH})
     endif()
 
     # Generate the "default" rr_graph.xml we are going to patch using wire.
