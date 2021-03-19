@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+"""
+This script processes an embedded FPGA (eFPGA) mapping of internal pin names
+and VPR device grid locations and generates a pinmap CSV file to be used
+with the rest of the SymbiFlow flow.
+"""
 import argparse
 
 from collections import namedtuple
