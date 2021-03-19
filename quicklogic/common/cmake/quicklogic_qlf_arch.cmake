@@ -46,43 +46,17 @@ function(QUICKLOGIC_DEFINE_QLF_ARCH)
           --rr-graph-in \${OUT_RRXML_VIRT} \
           --rr-graph-out \${OUT_RRXML_REAL}"
   
+    # In the current state there is no support for IO placement constraints
+    # for QuickLogic qlf_k4n8 devices. It is currently a work in progress.
     NO_PINS
-    NO_PLACE 
-#    PLACE_TOOL
-#      ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/create_ioplace.py
-#    PLACE_TOOL_CMD "${CMAKE_COMMAND} -E env \
-#      PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils:$PYTHONPATH \
-#      \${PYTHON3} \${PLACE_TOOL} \
-#          --map \${PINMAP} \
-#          --blif \${OUT_EBLIF} \
-#          --pcf \${INPUT_IO_FILE} \
-#          --net \${OUT_NET}"
+    NO_PLACE
+    NO_PLACE_CONSTR
 
-    NO_PLACE_CONSTR  
-#    PLACE_CONSTR_TOOL
-#      ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/create_place_constraints.py
-#    PLACE_CONSTR_TOOL_CMD "${CMAKE_COMMAND} -E env \
-#      PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils \
-#      \${PYTHON3} \${PLACE_CONSTR_TOOL} \
-#          --family ${FAMILY_NAME} \
-#          --map ${symbiflow-arch-defs_BINARY_DIR}/quicklogic/${FAMILY_NAME}/\${BOARD}_clkmap.csv \
-#          --blif \${OUT_EBLIF} \
-#          --i /dev/stdin \
-#          --o /dev/stdout \
-#          \${PLACE_CONSTR_TOOL_EXTRA_ARGS}"
-  
-    NO_BITSTREAM  
-#    FASM_TO_BIT
-#      ${QLFASM}
-#    FASM_TO_BIT_CMD "\${PYTHON3} \
-#      \${QLFASM} \
-#          \${OUT_FASM}
-#          \${OUT_BITSTREAM}
-#          \${FASM_TO_BIT_EXTRA_ARGS}"
-#    FASM_TO_BIT_DEPS
-#      ${QLFASM_TARGET}
-#    BITSTREAM_EXTENSION bit
-  
+    # With the current support there is no bitstream generation support yet.
+    # A FASM file can be generated though but FASM annotation is also a subject
+    # to change.
+    NO_BITSTREAM
+
     NO_BIT_TO_BIN
     NO_BIT_TO_V
     NO_BIT_TIME

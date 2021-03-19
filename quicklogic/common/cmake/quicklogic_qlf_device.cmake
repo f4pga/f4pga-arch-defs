@@ -45,7 +45,7 @@ function(QUICKLOGIC_DEFINE_QLF_DEVICE)
   # Arch XML base file
   get_file_target(ARCH_XML_TARGET ${ARCH_XML})
   if (NOT TARGET ${ARCH_XML_TARGET})
-      add_file_target(FILE ${ARCH_XML} SCANNER_TYPE)
+      add_file_target(FILE ${ARCH_XML} SCANNER_TYPE xml)
   endif()
 
   # .......................................................
@@ -87,8 +87,6 @@ function(QUICKLOGIC_DEFINE_QLF_DEVICE)
       --place_delay_model delta_override
       --place_delta_delay_matrix_calculation_method dijkstra
       --router_lookahead extended_map
-      --disable_errors check_unbuffered_edges:check_route:check_place
-      --suppress_warnings sum_pin_class:check_unbuffered_edges:load_rr_indexed_data_T_values:check_rr_node:trans_per_R:set_rr_graph_tool_comment
       --route_chan_width ${ROUTE_CHAN_WIDTH}
 
     # FIXME: Skip installation for now
