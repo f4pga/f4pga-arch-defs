@@ -6,7 +6,13 @@ get_filename_component(FAMILY ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 
 add_subdirectory(techmap)
 
-# VPR args
+# Common VPR args for the qlf_k4n8 architecture
+#
+# There is no modeling of clock routing. The global clock network is implicit
+# and non-configurable in the hardware so there is no reason why VPR should
+# consider it. Each tile has a separate clock input multiplexer. Its selection
+# is established during the VPR packing stage.
+#
 set(VPR_ARCH_ARGS "\
     --clock_modeling ideal \
     --place_delta_delay_matrix_calculation_method dijkstra \
@@ -20,7 +26,7 @@ quicklogic_define_qlf_arch(
   ARCH     qlf_k4n8
   VPR_ARGS ${VPR_ARCH_ARGS}
 
-  ROUTE_CHAN_WIDTH 100 # Will be overriden by each device
+  ROUTE_CHAN_WIDTH 10 # Will be overriden by each device
 )
 
 add_subdirectory(devices)
