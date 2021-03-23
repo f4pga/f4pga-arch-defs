@@ -10,13 +10,15 @@ EBLIF=$1
 NET=$2
 PART=$3
 DEVICE=$4
-ARCH_DEF=$5
-PCF=$6
+BITSTREAM_DEVICE=$5
+ARCH_DEF=$6
+PCF=$7
 
 if [ ! -z $PCF ]; then
     PCF_OPTS="--pcf $PCF"
 fi
 
+DATABASE_DIR=${DATABASE_DIR:=$(prjxray-config)}/$BITSTREAM_DEVICE
 VPR_GRID_MAP=${SHARE_DIR_PATH}/arch/${DEVICE}/vpr_grid_map.csv
 PINMAP=${SHARE_DIR_PATH}/arch/${DEVICE}/${PART}/pinmap.csv
 IOGEN=${SHARE_DIR_PATH}/scripts/prjxray_create_ioplace.py
@@ -25,5 +27,5 @@ PROJECT=$(basename -- "$EBLIF")
 IOPLACE_FILE="${PROJECT%.*}.ioplace"
 
 python3 ${IOGEN} --blif $EBLIF --map $PINMAP --net $NET $PCF_OPTS > ${IOPLACE_FILE}
-python3 ${CONSTR_GEN} --net $NET --arch ${ARCH_DEF} --blif $EBLIF --vpr_grid_map ${VPR_GRID_MAP} --input ${IOPLACE_FILE} > constraints.place
+python3 ${CONSTR_GEN} --net $NET --arch ${ARCH_DEF} --blif $EBLIF --vpr_grid_map ${VPR_GRID_MAP} --input ${IOPLACE_FILE} --db_root $DATABASE_DIR --part $PART > constraints.place
 
