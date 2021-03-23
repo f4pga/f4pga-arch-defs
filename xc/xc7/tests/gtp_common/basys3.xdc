@@ -1,0 +1,6 @@
+set_property LOC A8  [get_ports clk_n_0]
+set_property LOC B8  [get_ports clk_p_0]
+set_property LOC A10 [get_ports clk_n_1]
+set_property LOC B10 [get_ports clk_p_1]
+set_property LOC V17 [get_ports test_in]
+set_property LOC U16 [get_ports test_out]
