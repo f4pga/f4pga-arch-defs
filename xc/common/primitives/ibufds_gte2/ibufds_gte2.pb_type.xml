@@ -1,0 +1,16 @@
+<pb_type name="IBUFDS_GTE2" num_pb="1" blif_model=".subckt IBUFDS_GTE2_VPR">
+  <input name="CEB" num_pins="1"/>
+  <clock name="I" num_pins="1"/>
+  <clock name="IB" num_pins="1"/>
+  <output name="O" num_pins="1"/>
+  <output name="ODIV2" num_pins="1"/>
+  <metadata>
+    <meta name="fasm_features">
+      IN_USE
+    </meta>
+    <meta name="fasm_params">
+      CLKCM_CFG = CLKCM_CFG
+      CLKRCV_TRST = CLKRCV_TRST
+    </meta>
+  </metadata>
+</pb_type>
