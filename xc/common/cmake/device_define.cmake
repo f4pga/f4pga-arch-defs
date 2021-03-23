@@ -54,6 +54,7 @@ function(ADD_XC_BOARD)
 
   set(PRJRAY_DIR ${DOC_PRJ})
   set(PRJRAY_DB_DIR ${DOC_PRJ_DB})
+  set(DB_ROOT "${PRJRAY_DB_DIR}/${PRJRAY_ARCH}")
 
   set_target_properties(${BOARD}
     PROPERTIES PART ${PART}
@@ -94,6 +95,8 @@ function(ADD_XC_BOARD)
 
     set_target_properties(${BOARD}
       PROPERTIES PLACE_CONSTR_TOOL_EXTRA_ARGS " \
+      --db_root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH} \
+      --part ${PART} \
       --vpr_grid_map ${VPR_GRID_MAP_LOCATION} \
       --roi
     ")
@@ -109,6 +112,8 @@ function(ADD_XC_BOARD)
     add_custom_command(
       OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
       COMMAND ${PYTHON3} ${CREATE_PINMAP_CSV}
+        --db_root ${DB_ROOT}
+        --part ${PART}
         --connection_database ${CHANNELS_LOCATION}
         --synth_tiles ${SYNTH_TILES_LOCATION}
         --package_pins ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/${PART}/package_pins.csv
@@ -124,6 +129,8 @@ function(ADD_XC_BOARD)
 
     set_target_properties(${BOARD}
       PROPERTIES PLACE_CONSTR_TOOL_EXTRA_ARGS " \
+      --db_root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH} \
+      --part ${PART} \
       --vpr_grid_map ${VPR_GRID_MAP_LOCATION}
     ")
 
@@ -138,6 +145,8 @@ function(ADD_XC_BOARD)
     add_custom_command(
       OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
       COMMAND ${PYTHON3} ${CREATE_PINMAP_CSV}
+        --db_root ${DB_ROOT}
+        --part ${PART}
         --connection_database ${CHANNELS_LOCATION}
         --synth_tiles ${SYNTH_TILES_LOCATION}
         --package_pins ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/${PART}/package_pins.csv
@@ -154,7 +163,9 @@ function(ADD_XC_BOARD)
 
     set_target_properties(${BOARD}
       PROPERTIES PLACE_CONSTR_TOOL_EXTRA_ARGS " \
-      --vpr_grid_map ${VPR_GRID_MAP_LOCATION}
+      --db_root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH} \
+      --part ${PART} \
+      --vpr_grid_map ${VPR_GRID_MAP_LOCATION} \
     ")
 
     set(CREATE_PINMAP_CSV ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/prjxray_create_pinmap_csv.py)
@@ -165,6 +176,8 @@ function(ADD_XC_BOARD)
     add_custom_command(
       OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
       COMMAND ${PYTHON3} ${CREATE_PINMAP_CSV}
+        --db_root ${DB_ROOT}
+        --part ${PART}
         --connection_database ${CHANNELS_LOCATION}
         --package_pins ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/${PART}/package_pins.csv
         --output ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
@@ -195,7 +208,10 @@ function(ADD_XC_BOARD)
   set_target_properties(
     dummy_${ARCH}_${DEVICE}_${ADD_XC_BOARD_PACKAGE}
     PROPERTIES
-    PLACE_CONSTR_TOOL_EXTRA_ARGS "--vpr_grid_map ${VPR_GRID_MAP_LOCATION} --roi"
+    PLACE_CONSTR_TOOL_EXTRA_ARGS " \
+      --db_root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH} \
+      --part ${PART} \
+      --vpr_grid_map ${VPR_GRID_MAP_LOCATION} --roi"
     PINMAP
     ${CMAKE_CURRENT_SOURCE_DIR}/${PINMAP_CSV})
 
