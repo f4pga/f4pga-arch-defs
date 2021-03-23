@@ -1,7 +1,6 @@
 """ Generates project xray. """
 import argparse
 import json
-import sys
 import prjxray.db
 from prjxray.site_type import SitePinDirection
 from lib.pb_type_xml import start_heterogeneous_tile, add_switchblock_locations
@@ -58,6 +57,7 @@ def main():
         pin_assignments = json.load(f)
 
     db = prjxray.db.Database(args.db_root, args.part)
+    grid = db.grid()
     tile_type = db.get_tile_type(args.tile_type)
 
     sites = {}
@@ -65,14 +65,25 @@ def main():
     pb_types = args.pb_types.split(',')
 
     equivalent_sites_dict = dict()
+
+    gridinfo = None
+    for tile in grid.tiles():
+        if args.tile_type in tile:
+            gridinfo = grid.gridinfo_at_tilename(tile)
+
+            break
+
+    assert gridinfo
+
+    for site_inst, site_type in gridinfo.sites.items():
+        sites[site_type] = list()
+
     for pb_type in pb_types:
         try:
             site, equivalent_sites = pb_type.split("/")
         except ValueError:
             site = pb_type
             equivalent_sites = None
-
-        sites[site] = []
 
         equivalent_sites_dict[site] = equivalent_sites.split(
             ':'
@@ -83,7 +94,9 @@ def main():
             continue
 
         site_type = db.get_site_type(site.type)
-        input_wires, output_wires = get_wires(site, site_type, args.unused_wires)
+        input_wires, output_wires = get_wires(
+            site, site_type, args.unused_wires
+        )
 
         sites[site.type].append((site, input_wires, output_wires))
 

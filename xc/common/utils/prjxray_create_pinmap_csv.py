@@ -7,6 +7,8 @@ import csv
 import sqlite3
 import json
 
+import prjxray.db
+
 
 def get_vpr_coords_from_site_name(conn, site_name):
     cur = conn.cursor()
@@ -46,6 +48,10 @@ def main():
         required=True
     )
     parser.add_argument(
+        '--db_root', help='Database of fabric connectivity', required=True
+    )
+    parser.add_argument('--part', required=True, help="FPGA part")
+    parser.add_argument(
         "--synth_tiles",
         type=argparse.FileType('r'),
         required=False,
@@ -66,13 +72,32 @@ def main():
 
     args = parser.parse_args()
 
+    db = prjxray.db.Database(args.db_root, args.part)
+    grid = db.grid()
+
+    CAPACITY_IOS = ["IPAD", "OPAD"]
+
     pin_to_iob = {}
     with sqlite3.connect(args.connection_database) as conn:
         for line in csv.DictReader(args.package_pins):
             assert line['pin'] not in pin_to_iob
-            loc = get_vpr_coords_from_site_name(conn, line['site'])
-            if loc:
-                pin_to_iob[line['pin']] = (line['site'], loc)
+            site = line['site']
+            loc = get_vpr_coords_from_site_name(conn, site)
+
+            if loc is None:
+                continue
+
+            gridinfo = grid.gridinfo_at_tilename(line['tile'])
+            sites = list(gridinfo.sites.keys())
+
+            if gridinfo.sites[site] in CAPACITY_IOS:
+                z_loc = sites.index(site)
+            else:
+                z_loc = 0
+
+            loc = loc + (z_loc, )
+
+            pin_to_iob[line['pin']] = (line['site'], loc)
 
     args.package_pins.seek(0)
     if args.synth_tiles:
@@ -121,12 +146,13 @@ def main():
 
             loc = pin_to_iob[line['pin']][1]
             if loc is not None:
+                z = 0 if len(loc) == 2 else loc[2]
                 writer.writerow(
                     dict(
                         name=line['pin'],
                         x=loc[0],
                         y=loc[1],
-                        z=0,
+                        z=loc[2],
                         is_clock=1,
                         is_input=1,
                         is_output=1,

@@ -30,7 +30,6 @@ prjxray_assign_tile_pin_direction.
 
 
 """
-
 import argparse
 import csv
 import prjxray.db
@@ -44,7 +43,7 @@ from lib.rr_graph import graph2
 import datetime
 import os
 import os.path
-from lib.connection_database import NodeClassification, create_tables
+from lib.connection_database import NodeClassification, create_tables, node_to_site_pins
 
 from prjxray_db_cache import DatabaseCache
 from prjxray_define_segments import SegmentWireMap
@@ -1908,19 +1907,6 @@ SELECT site_pkey FROM wire_in_tile WHERE tile_type_pkey = ? AND site_pkey IS NOT
 
     new_grid = shifted_grid
 
-    fieldnames = [
-        "site_name",
-        "site_type",
-        "physical_tile",
-        "vpr_x",
-        "vpr_y",
-        "canon_x",
-        "canon_y",
-        "clock_region",
-    ]
-    csv_writer = csv.DictWriter(grid_map_output, fieldnames=fieldnames)
-    csv_writer.writeheader()
-
     write_cur.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
 
     # Create tile rows for each tile in the VPR grid.  As provide map entries
@@ -1979,44 +1965,6 @@ INSERT INTO tile(phy_tile_pkey, tile_type_pkey, grid_x, grid_y) VALUES (
                 """
 INSERT INTO tile_map(tile_pkey, phy_tile_pkey) VALUES (?, ?)
                 """, (tile_pkey, phy_tile_pkey)
-            )
-
-        for site in tile.sites:
-            cur.execute(
-                "SELECT name FROM site_instance WHERE site_pkey = ? AND phy_tile_pkey = ?",
-                (
-                    site.site_pkey,
-                    site.phy_tile_pkey,
-                )
-            )
-
-            site_name = cur.fetchone()[0]
-
-            cur.execute(
-                "SELECT name, clock_region_pkey, grid_x, grid_y FROM phy_tile WHERE pkey = ?",
-                (site.phy_tile_pkey, )
-            )
-
-            phy_tile_name, clock_region, canon_x, canon_y = cur.fetchone()
-
-            cur.execute(
-                "SELECT name FROM site_type WHERE pkey = ?",
-                (site.site_type_pkey, )
-            )
-
-            site_type = cur.fetchone()[0]
-
-            csv_writer.writerow(
-                {
-                    "site_name": site_name,
-                    "site_type": site_type,
-                    "physical_tile": phy_tile_name,
-                    "vpr_x": grid_x,
-                    "vpr_y": grid_y,
-                    "canon_x": canon_x,
-                    "canon_y": canon_y,
-                    "clock_region": clock_region
-                }
             )
 
         # First assign all wires at the root_phy_tile_pkeys to this tile_pkey.
@@ -2158,6 +2106,155 @@ AND
     write_cur.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
     write_cur.execute("ANALYZE")
     write_cur.execute("""COMMIT TRANSACTION;""")
+
+    fieldnames = [
+        "site_name",
+        "site_type",
+        "physical_tile",
+        "vpr_x",
+        "vpr_y",
+        "canon_x",
+        "canon_y",
+        "clock_region",
+        "connected_to_site",
+    ]
+    csv_writer = csv.DictWriter(grid_map_output, fieldnames=fieldnames)
+    csv_writer.writeheader()
+
+    sites_with_direct = dict()
+    for src_wire_pkey, dest_wire_pkey, pip_in_tile_pkey in \
+            progressbar_utils.progressbar(
+            cur.execute("""
+SELECT
+    src_wire_pkey,
+    dest_wire_pkey,
+    pip_in_tile_pkey
+FROM
+    edge_with_mux""")):
+
+        cur2.execute(
+            """
+SELECT node_pkey FROM wire WHERE pkey = ?""", (src_wire_pkey, )
+        )
+        (src_node_pkey, ) = cur2.fetchone()
+
+        # Find the wire connected to the source.
+        src_wire = list(node_to_site_pins(conn, src_node_pkey))
+        assert len(src_wire) == 1
+        _, src_tile_pkey, src_wire_in_tile_pkey = src_wire[0]
+
+        cur2.execute(
+            """
+SELECT tile_type_pkey, grid_x, grid_y FROM tile WHERE pkey = ?""",
+            (src_tile_pkey, )
+        )
+
+        res = cur2.fetchone()
+        src_tile_type_pkey, src_grid_x, src_grid_y = res
+
+        # Get the node that is attached to the sink.
+        cur2.execute(
+            """
+SELECT node_pkey FROM wire WHERE pkey = ?""", (dest_wire_pkey, )
+        )
+        (dest_node_pkey, ) = cur2.fetchone()
+
+        # Find the wire connected to the sink.
+        dest_wire = list(node_to_site_pins(conn, dest_node_pkey))
+        assert len(dest_wire) == 1
+        _, dest_tile_pkey, dest_wire_in_tile_pkey = dest_wire[0]
+
+        cur2.execute(
+            """
+SELECT tile_type_pkey, grid_x, grid_y FROM tile WHERE pkey = ?;""",
+            (dest_tile_pkey, )
+        )
+
+        res = cur2.fetchone()
+        dest_tile_type_pkey, dest_grid_x, dest_grid_y = res
+
+        if dest_grid_x == src_grid_x and dest_grid_y == src_grid_y:
+            tile = new_grid[(dest_grid_x, dest_grid_y)]
+
+            cur2.execute(
+                "SELECT site_pkey FROM wire_in_tile WHERE pkey = ?",
+                (src_wire_in_tile_pkey, )
+            )
+            src_site_pkey = cur2.fetchone()[0]
+
+            cur2.execute(
+                "SELECT site_pkey FROM wire_in_tile WHERE pkey = ?",
+                (dest_wire_in_tile_pkey, )
+            )
+            dest_site_pkey = cur2.fetchone()[0]
+
+            src_site_instance = None
+            dest_site_instance = None
+            for site in tile.sites:
+                cur2.execute(
+                    "SELECT name FROM site_instance WHERE site_pkey = ? AND phy_tile_pkey = ?"
+                    "", (
+                        site.site_pkey,
+                        site.phy_tile_pkey,
+                    )
+                )
+
+                res = cur2.fetchone()[0]
+
+                if site.site_pkey == src_site_pkey:
+                    src_site_instance = res
+                elif site.site_pkey == dest_site_pkey:
+                    dest_site_instance = res
+
+            assert src_site_instance and dest_site_instance
+
+            sites_with_direct[src_site_instance] = dest_site_instance
+
+    for (grid_x, grid_y), tile in new_grid.items():
+        for site in tile.sites:
+            cur.execute(
+                "SELECT name FROM site_instance WHERE site_pkey = ? AND phy_tile_pkey = ?",
+                (
+                    site.site_pkey,
+                    site.phy_tile_pkey,
+                )
+            )
+
+            site_name = cur.fetchone()[0]
+
+            cur.execute(
+                "SELECT name, clock_region_pkey, grid_x, grid_y FROM phy_tile WHERE pkey = ?",
+                (site.phy_tile_pkey, )
+            )
+
+            phy_tile_name, clock_region, canon_x, canon_y = cur.fetchone()
+
+            cur.execute(
+                "SELECT name FROM site_type WHERE pkey = ?",
+                (site.site_type_pkey, )
+            )
+
+            site_type = cur.fetchone()[0]
+
+            # This is a site which is directly connected to the current site
+            # and will be implemented as a sub_tile. This information is relevant
+            # to generate correct placement constraints for sub_tiles directly
+            # connected within the same physical tile
+            connected_to_site = sites_with_direct.get(site_name, None)
+
+            csv_writer.writerow(
+                {
+                    "site_name": site_name,
+                    "site_type": site_type,
+                    "physical_tile": phy_tile_name,
+                    "vpr_x": grid_x,
+                    "vpr_y": grid_y,
+                    "canon_x": canon_x,
+                    "canon_y": canon_y,
+                    "clock_region": clock_region,
+                    "connected_to_site": connected_to_site
+                }
+            )
 
 
 def create_constant_tracks(conn):

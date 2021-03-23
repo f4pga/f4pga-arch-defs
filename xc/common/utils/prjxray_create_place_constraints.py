@@ -7,6 +7,7 @@ import csv
 import vpr_place_constraints
 import lxml.etree as ET
 import constraint
+import prjxray.db
 
 CLOCKS = {
     "PLLE2_ADV_VPR":
@@ -92,7 +93,27 @@ CLOCKS = {
             "sinks": frozenset(),
             "type": "IBUF",
         },
+    "IBUFDS_GTE2_VPR":
+        {
+            "sources": frozenset(("O", )),
+            "sinks": frozenset(),
+            "type": "IBUFDS_GTE2",
+        },
+    "GTPE2_COMMON_VPR":
+        {
+            "sources": frozenset(),
+            "sinks": frozenset(("GTREFCLK0", "GTREFCLK1")),
+            "type": "GTPE2_COMMON",
+        },
+    "GTPE2_CHANNEL_VPR":
+        {
+            "sources": frozenset(("TXOUTCLK", "RXOUTCLK")),
+            "sinks": frozenset(),
+            "type": "GTPE2_CHANNEL",
+        },
 }
+
+GTP_PRIMITIVES = ["IBUFDS_GTE2", "GTPE2_COMMON", "GTPE2_CHANNEL"]
 
 
 def eprint(*args, **kwargs):
@@ -119,6 +140,7 @@ class VprGrid(object):
         self.cmt_dict = dict()
         self.tile_dict = dict()
         self.vpr_loc_cmt = dict()
+        self.canon_loc = dict()
 
         if graph_limit is not None:
             limits = graph_limit.split(",")
@@ -135,6 +157,7 @@ class VprGrid(object):
                 can_x = row['canon_x']
                 can_y = row['canon_y']
                 clk_region = row['clock_region']
+                connected_to_site = row['connected_to_site']
 
                 if graph_limit is not None:
                     if int(can_x) < xmin or int(can_x) > xmax:
@@ -151,6 +174,7 @@ class VprGrid(object):
                     'vpr_loc': (int(vpr_x), int(vpr_y)),
                     'canon_loc': (int(can_x), int(can_y)),
                     'clock_region': clk_region,
+                    'connected_to_site': connected_to_site,
                 }
 
                 # Generating site types dictionary.
@@ -186,6 +210,9 @@ class VprGrid(object):
 
                 self.vpr_loc_cmt[(int(vpr_x), int(vpr_y))] = clk_region
 
+                self.canon_loc[(int(vpr_x),
+                                int(vpr_y))] = (int(can_x), int(can_y))
+
     def get_site_dict(self):
         return self.site_dict
 
@@ -209,6 +236,9 @@ class VprGrid(object):
         """
         return self.vpr_loc_cmt
 
+    def get_canon_loc(self):
+        return self.canon_loc
+
 
 class ClockPlacer(object):
     def __init__(
@@ -227,7 +257,8 @@ class ClockPlacer(object):
             'TOP': [],
             'BOT': [],
         }
-        self.pll_cmts = list()
+        self.pll_cmts = set()
+        self.gtp_cmts = set()
 
         cmt_dict = vpr_grid.get_cmt_dict()
         site_type_dict = vpr_grid.get_site_type_dict()
@@ -269,7 +300,12 @@ class ClockPlacer(object):
                 self.cmt_to_bufg_tile[clock_region] = "BOT"
 
         for _, _, clk_region in site_type_dict['PLLE2_ADV']:
-            self.pll_cmts.append(clk_region)
+            self.pll_cmts.add(clk_region)
+
+        if any(site in GTP_PRIMITIVES for site in site_type_dict):
+            assert "IBUFDS_GTE2" in site_type_dict
+            for _, _, clk_region in site_type_dict['IBUFDS_GTE2']:
+                self.gtp_cmts.add(clk_region)
 
         self.input_pins = {}
         if not self.roi:
@@ -290,117 +326,120 @@ class ClockPlacer(object):
 
         self.clock_cmts = {}
 
-        if "subckt" in blif_data.keys():
-            for subckt in blif_data["subckt"]:
-                if 'cname' not in subckt:
+        if "subckt" not in blif_data.keys():
+            return
+
+        for subckt in blif_data["subckt"]:
+            if 'cname' not in subckt:
+                continue
+            bel = subckt['args'][0]
+
+            assert 'cname' in subckt and len(subckt['cname']) == 1, subckt
+
+            if bel not in CLOCKS:
+                continue
+
+            cname = subckt['cname'][0]
+
+            clock = {
+                'name': cname,
+                'subckt': bel,
+                'sink_nets': [],
+                'source_nets': [],
+            }
+
+            sources = CLOCKS[bel]['sources']
+
+            ports = dict(
+                arg.split('=', maxsplit=1) for arg in subckt['args'][1:]
+            )
+
+            for source in sources:
+                source_net = ports[source]
+                if source_net == '$true' or source_net == '$false':
                     continue
-                bel = subckt['args'][0]
 
-                assert 'cname' in subckt and len(subckt['cname']) == 1, subckt
+                self.clock_sources[source_net] = []
+                self.clock_sources_cname[source_net] = cname
+                clock['source_nets'].append(source_net)
 
-                if bel not in CLOCKS:
-                    continue
+            self.clock_blocks[cname] = clock
 
-                cname = subckt['cname'][0]
-
-                clock = {
-                    'name': cname,
-                    'subckt': subckt['args'][0],
-                    'sink_nets': [],
-                    'source_nets': [],
-                }
-
-                sources = CLOCKS[bel]['sources']
-
-                ports = dict(
-                    arg.split('=', maxsplit=1) for arg in subckt['args'][1:]
-                )
-
-                for source in sources:
-                    source_net = ports[source]
-                    if source_net == '$true' or source_net == '$false':
+            # Both PS7 and BUFGCTRL has specialized constraints,
+            # do not bind based on input pins.
+            if bel not in ['PS7_VPR', 'BUFGCTRL_VPR']:
+                for port in ports.values():
+                    if port not in io_locs:
                         continue
 
-                    self.clock_sources[source_net] = []
-                    self.clock_sources_cname[source_net] = cname
-                    clock['source_nets'].append(source_net)
-
-                self.clock_blocks[cname] = clock
-
-                # Both PS7 and BUFGCTRL has specialized constraints,
-                # do not bind based on input pins.
-                if bel not in ['PS7_VPR', 'BUFGCTRL_VPR']:
-                    for port in ports.values():
-                        if port not in io_locs:
-                            continue
-
-                        if cname in self.clock_cmts:
-                            assert self.clock_cmts[cname] == self.input_pins[
-                                port], (
-                                    cname, port, self.clock_cmts[cname],
-                                    self.input_pins[port]
-                                )
-                        else:
-                            self.clock_cmts[cname] = self.input_pins[port]
-
-            for subckt in blif_data["subckt"]:
-                if 'cname' not in subckt:
-                    continue
-
-                bel = subckt['args'][0]
-                if bel not in CLOCKS:
-                    continue
-
-                sinks = CLOCKS[bel]['sinks']
-                ports = dict(
-                    arg.split('=', maxsplit=1) for arg in subckt['args'][1:]
-                )
-
-                assert 'cname' in subckt and len(subckt['cname']) == 1, subckt
-                cname = subckt['cname'][0]
-                clock = self.clock_blocks[cname]
-
-                for sink in sinks:
-                    assert sink in ports, (
-                        cname,
-                        sink,
-                    )
-                    sink_net = ports[sink]
-                    if sink_net == '$true' or sink_net == '$false':
-                        continue
-
-                    clock['sink_nets'].append(sink_net)
-
-                    if sink_net not in self.input_pins and sink_net not in self.clock_sources:
-
-                        # Allow BUFGs to be driven by generic sources but only
-                        # when enabled.
-                        if bel == "BUFGCTRL_VPR" and allow_bufg_logic_sources:
-                            continue
-
-                        # The clock source comes from logic, disallow that
-                        eprint(
-                            "The clock net '{}' driving '{}' sources at logic which is not allowed!"
-                            .format(sink_net, bel)
+                    if cname in self.clock_cmts:
+                        assert_out = (
+                            cname, port, self.clock_cmts[cname],
+                            self.input_pins[port]
                         )
-                        exit(-1)
+                        assert self.clock_cmts[cname] == self.input_pins[
+                            port], assert_out
+                    else:
+                        self.clock_cmts[cname] = self.input_pins[port]
 
-                    if sink_net in self.input_pins:
-                        if sink_net not in self.clock_sources:
-                            self.clock_sources[sink_net] = []
+        for subckt in blif_data["subckt"]:
+            if 'cname' not in subckt:
+                continue
 
-                    self.clock_sources[sink_net].append(cname)
+            bel = subckt['args'][0]
+            if bel not in CLOCKS:
+                continue
 
-    def assign_cmts(self, vpr_grid, blocks):
+            sinks = CLOCKS[bel]['sinks']
+            ports = dict(
+                arg.split('=', maxsplit=1) for arg in subckt['args'][1:]
+            )
+
+            assert 'cname' in subckt and len(subckt['cname']) == 1, subckt
+            cname = subckt['cname'][0]
+            clock = self.clock_blocks[cname]
+
+            for sink in sinks:
+                if sink not in ports:
+                    continue
+
+                sink_net = ports[sink]
+                if sink_net == '$true' or sink_net == '$false':
+                    continue
+
+                clock['sink_nets'].append(sink_net)
+
+                if sink_net not in self.input_pins and sink_net not in self.clock_sources:
+
+                    # Allow BUFGs to be driven by generic sources but only
+                    # when enabled.
+                    if bel == "BUFGCTRL_VPR" and allow_bufg_logic_sources:
+                        continue
+
+                    # The clock source comes from logic, disallow that
+                    eprint(
+                        "The clock net '{}' driving '{}' sources at logic which is not allowed!"
+                        .format(sink_net, bel)
+                    )
+                    exit(-1)
+
+                if sink_net in self.input_pins:
+                    if sink_net not in self.clock_sources:
+                        self.clock_sources[sink_net] = []
+
+                self.clock_sources[sink_net].append(cname)
+
+    def assign_cmts(self, vpr_grid, blocks, block_locs):
         """ Assign CMTs to subckt's that require it (e.g. BURF/PLL/MMCM). """
 
         problem = constraint.Problem()
 
         site_dict = vpr_grid.get_site_dict()
+        vpr_loc_cmt = vpr_grid.get_vpr_loc_cmt()
 
         # Any clocks that have LOC's already defined should be respected.
         # Store the parent CMT in clock_cmts.
-        for block, loc in blocks.items():
+        for block, loc in block_locs.items():
             if block in self.clock_blocks:
 
                 clock = self.clock_blocks[block]
@@ -418,6 +457,21 @@ class ClockPlacer(object):
                         )
                     else:
                         self.clock_cmts[block] = clock_region_pkey
+
+        # Any clocks that were previously constrained must be preserved
+        for block, (loc_x, loc_y, _) in blocks.items():
+            if block in self.clock_blocks:
+
+                clock = self.clock_blocks[block]
+                if CLOCKS[clock['subckt']]['type'] == 'BUFGCTRL':
+                    pass
+                else:
+                    cmt = vpr_loc_cmt[(loc_x, loc_y)]
+
+                    if block in self.clock_cmts:
+                        assert cmt == self.clock_cmts[block], (block, cmt)
+                    else:
+                        self.clock_cmts[block] = cmt
 
         # Non-clock IBUF's increase the solution space if they are not
         # constrainted by a LOC.  Given that non-clock IBUF's don't need to
@@ -487,6 +541,7 @@ class ClockPlacer(object):
                     source_block = self.clock_blocks[source_clock_name]
                     is_net_bufg = CLOCKS[source_block['subckt']
                                          ]['type'] == 'BUFGCTRL'
+
                     if is_net_bufg:
                         continue
 
@@ -510,9 +565,10 @@ class ClockPlacer(object):
             self.clock_cmts.update(solutions[0])
 
     def place_clocks(
-            self, vpr_grid, loc_in_use, block_locs, blocks, grid_capacities
+            self, canon_grid, vpr_grid, loc_in_use, block_locs, blocks,
+            grid_capacities
     ):
-        self.assign_cmts(vpr_grid, block_locs)
+        self.assign_cmts(vpr_grid, blocks, block_locs)
 
         site_type_dict = vpr_grid.get_site_type_dict()
 
@@ -541,7 +597,7 @@ class ClockPlacer(object):
 
                 available_placements[key].append(loc)
                 vpr_loc = get_vpr_coords_from_site_name(
-                    vpr_grid, loc, grid_capacities
+                    canon_grid, vpr_grid, loc, grid_capacities
                 )
 
                 if vpr_loc is None:
@@ -551,7 +607,6 @@ class ClockPlacer(object):
                 vpr_locs[loc] = vpr_loc
 
         for clock_name, clock in self.clock_blocks.items():
-
             # All clocks should have an assigned CMTs at this point.
             assert clock_name in self.clock_cmts, clock_name
 
@@ -620,16 +675,19 @@ def get_tile_capacities(arch_xml_filename):
     return grid
 
 
-def get_vpr_coords_from_site_name(vpr_grid, site_name, grid_capacities):
+def get_vpr_coords_from_site_name(
+        canon_grid, vpr_grid, site_name, grid_capacities
+):
     site_name = site_name.replace('"', '')
 
     site_dict = vpr_grid.get_site_dict()
-    tile_dict = vpr_grid.get_tile_dict()
+    canon_loc = vpr_grid.get_canon_loc()
 
     tile = site_dict[site_name]['tile']
 
     capacity = 0
     x, y = site_dict[site_name]['vpr_loc']
+    canon_x, canon_y = canon_loc[(x, y)]
 
     if (x, y) in grid_capacities.keys():
         capacity = grid_capacities[(x, y)]
@@ -641,19 +699,102 @@ def get_vpr_coords_from_site_name(vpr_grid, site_name, grid_capacities):
     elif capacity == 1:
         return (x, y, 0)
     else:
-        sites = tile_dict[tile]
+        sites = list(
+            canon_grid.gridinfo_at_loc((canon_x, canon_y)).sites.keys()
+        )
         assert capacity == len(sites), (tile, capacity, (x, y))
 
-        instance_idx = None
-        for idx, (a_site_name, syte_type) in enumerate(sites):
-            if a_site_name == site_name:
-                assert instance_idx is None, (tile, site_name)
-                instance_idx = idx
-                break
-
-        assert instance_idx is not None, (tile, site_name)
+        instance_idx = sites.index(site_name)
 
         return (x, y, instance_idx)
+
+
+def constrain_special_ios(
+        canon_grid, vpr_grid, io_blocks, blif_data, blocks, place_constraints
+):
+    """
+    There are special IOs which need extra handling when dealing with placement constraints.
+
+    For instance, the IBUFDS_GTE2 primitive must be placed in correspondance with the location
+    of its input PADs, as no other route exists other than that.
+
+    This function reads the connectivity of the top level nets, which have been previously
+    constrained, and correctly constrains those blocks which require special handling.
+    """
+
+    if "subckt" not in blif_data:
+        return
+
+    BEL_TYPES = ["IBUFDS_GTE2_VPR", "GTPE2_CHANNEL_VPR"]
+    SPECIAL_IPADS = ["IPAD_GTP_VPR"]
+
+    special_io_map = dict()
+    for subckt in blif_data["subckt"]:
+        if 'cname' not in subckt:
+            continue
+        bel = subckt['args'][0]
+
+        if bel not in SPECIAL_IPADS:
+            continue
+
+        top_net = None
+        renamed_net = None
+        for port in subckt['args'][1:]:
+            port_name, net = port.split("=")
+
+            if port_name == "I":
+                assert net in io_blocks, (net, io_blocks)
+                top_net = net
+            elif port_name == "O":
+                renamed_net = net
+            else:
+                assert False, "ERROR: Special IPAD ports not recognized!"
+
+        special_io_map[renamed_net] = top_net
+
+    blocks_to_constrain = set()
+    for subckt in blif_data["subckt"]:
+        if 'cname' not in subckt:
+            continue
+        bel = subckt['args'][0]
+
+        if bel not in BEL_TYPES:
+            continue
+
+        assert 'cname' in subckt and len(subckt['cname']) == 1, subckt
+        cname = subckt['cname'][0]
+
+        for port in subckt['args'][1:]:
+            _, net = port.split("=")
+
+            if net not in special_io_map:
+                continue
+
+            net = special_io_map[net]
+            if net in io_blocks:
+                x, y, z = io_blocks[net]
+
+                canon_loc = vpr_grid.get_canon_loc()[(x, y)]
+
+                gridinfo = canon_grid.gridinfo_at_loc(canon_loc)
+                sites = list(gridinfo.sites.keys())
+                site_name = sites[z]
+
+                connected_io_site = vpr_grid.get_site_dict(
+                )[site_name]['connected_to_site']
+                assert connected_io_site, (site_name, bel, cname)
+
+                new_z = sites.index(connected_io_site)
+                loc = (x, y, new_z)
+
+                blocks_to_constrain.add((cname, loc))
+
+    for block, vpr_loc in blocks_to_constrain:
+        place_constraints.constrain_block(
+            block, vpr_loc, "Constraining block {}".format(block)
+        )
+
+        blocks[block] = vpr_loc
 
 
 def main():
@@ -689,6 +830,8 @@ def main():
         required=True
     )
     parser.add_argument('--arch', help='Arch XML', required=True)
+    parser.add_argument('--db_root', required=True)
+    parser.add_argument('--part', required=True)
     parser.add_argument(
         "--blif",
         '-b',
@@ -705,6 +848,9 @@ def main():
     parser.add_argument('--graph_limit', help='Graph limit parameters')
 
     args = parser.parse_args()
+
+    db = prjxray.db.Database(args.db_root, args.part)
+    canon_grid = db.grid()
 
     io_blocks = {}
     loc_in_use = set()
@@ -731,7 +877,9 @@ def main():
     blocks = {}
     block_locs = {}
     for block, loc in place_constraints.get_loc_sites():
-        vpr_loc = get_vpr_coords_from_site_name(vpr_grid, loc, grid_capacities)
+        vpr_loc = get_vpr_coords_from_site_name(
+            canon_grid, vpr_grid, loc, grid_capacities
+        )
         loc_in_use.add(vpr_loc)
 
         if block in io_blocks:
@@ -746,16 +894,22 @@ def main():
             block, vpr_loc, "Constraining block {}".format(block)
         )
 
+    # Constrain blocks directly connected to IO in the same x, y location
+    constrain_special_ios(
+        canon_grid, vpr_grid, io_blocks, eblif_data, blocks, place_constraints
+    )
+
     # Constrain clock resources
     clock_placer = ClockPlacer(
         vpr_grid, io_blocks, eblif_data, args.roi, args.graph_limit,
         args.allow_bufg_logic_sources
     )
     if clock_placer.has_clock_nets():
-        for block, loc in clock_placer.place_clocks(
-                vpr_grid, loc_in_use, block_locs, blocks, grid_capacities):
+        for block, loc in clock_placer.place_clocks(canon_grid, vpr_grid,
+                                                    loc_in_use, block_locs,
+                                                    blocks, grid_capacities):
             vpr_loc = get_vpr_coords_from_site_name(
-                vpr_grid, loc, grid_capacities
+                canon_grid, vpr_grid, loc, grid_capacities
             )
             place_constraints.constrain_block(
                 block, vpr_loc, "Constraining clock block {}".format(block)

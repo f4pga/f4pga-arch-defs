@@ -505,6 +505,9 @@ def is_in_roi(conn, roi, tile_pkey):
 #
 # For example, IO sites only need the Y coordinate, use a modulus of 2.
 # So IOB_X1Y10 becomes IOB_Y0, IOB_X1Y11 becomes IOB_Y1, etc.
+# Setting modulo to 0 results in omitting modulo operation.
+#
+# Sites which do not require prefix will contain a (None, None) pair.
 PREFIX_REQUIRED = {
     "IOB": ("Y", 2),
     "IDELAY": ("Y", 2),
@@ -513,6 +516,11 @@ PREFIX_REQUIRED = {
     "BUFGCTRL": ("XY", (2, 16)),
     "SLICEM": ("X", 2),
     "SLICEL": ("X", 2),
+    "GTPE2_COMMON": (None, None),
+    "GTPE2_CHANNEL": (None, None),
+    "IBUFDS_GTE2": ("Y", 2),
+    "IPAD": ("XY", (0, 0)),
+    "OPAD": ("XY", (0, 0)),
 }
 
 
@@ -526,12 +534,22 @@ def make_prefix(site, x, y, from_site_name=False):
     prefix_required = PREFIX_REQUIRED[site_type]
 
     if prefix_required[0] == 'Y':
-        return site_type, '{}_Y{}'.format(site_type, y % prefix_required[1])
+        mod_y = prefix_required[1]
+        y_formula = "y{}".format(" % mod_y") if mod_y else "y"
+        return site_type, '{}_Y{}'.format(site_type, eval(y_formula))
     elif prefix_required[0] == 'X':
-        return site_type, '{}_X{}'.format(site_type, x % prefix_required[1])
+        mod_x = prefix_required[1]
+        x_formula = "x{}".format(" % mod_x") if mod_x else "x"
+        return site_type, '{}_X{}'.format(site_type, eval(x_formula))
     elif prefix_required[0] == 'XY':
         mod_x, mod_y = prefix_required[1]
-        return site_type, '{}_X{}Y{}'.format(site_type, x % mod_x, y % mod_y)
+        x_formula = "x{}".format(" % mod_x") if mod_x else "x"
+        y_formula = "y{}".format(" % mod_y") if mod_y else "y"
+        return site_type, '{}_X{}Y{}'.format(
+            site_type, eval(x_formula), eval(y_formula)
+        )
+    elif prefix_required[0] is None:
+        return site_type, None
     else:
         assert False, (site_type, prefix_required)
 
@@ -597,14 +615,22 @@ ORDER BY site_instance.x_coord, site_instance.y_coord, site_type.name;""",
         (tile_pkey, )
     )
 
+    NO_SITE_TYPE_PREFIX = ["SLICEL", "SLICEM", "IBUFDS_GTE2"]
+
     prefixes = []
+
     for site_type, x, y in c:
         _, prefix = make_prefix(site_type, x, y)
 
-        if "SLICE" in site_type:
-            prefixes.append('{}.{}'.format(tile_prefix, prefix))
+        if prefix is None:
+            prefixes.append('{}.{}'.format(tile_prefix, site_type))
         else:
-            prefixes.append('{}.{}.{}'.format(tile_prefix, site_type, prefix))
+            if site_type in NO_SITE_TYPE_PREFIX:
+                prefixes.append('{}.{}'.format(tile_prefix, prefix))
+            else:
+                prefixes.append(
+                    '{}.{}.{}'.format(tile_prefix, site_type, prefix)
+                )
 
     assert len(prefixes
                ) == tile_capacity, (tile_pkey, tile_capacity, len(prefixes))
@@ -823,6 +849,34 @@ def add_constant_synthetic_tiles(model_xml, complexblocklist_xml, tiles_xml):
     synth_tile_types['GND'] = 'SYN-GND'
 
     return synth_tile_types
+
+
+def add_direct(directlist_xml, direct):
+    direct_dict = {
+        'name':
+            '{}_to_{}_dx_{}_dy_{}_dz_{}'.format(
+                direct['from_pin'], direct['to_pin'], direct['x_offset'],
+                direct['y_offset'], direct['z_offset']
+            ),
+        'from_pin':
+            add_vpr_tile_prefix(direct['from_pin']),
+        'to_pin':
+            add_vpr_tile_prefix(direct['to_pin']),
+        'x_offset':
+            str(direct['x_offset']),
+        'y_offset':
+            str(direct['y_offset']),
+        'z_offset':
+            str(direct['z_offset']),
+    }
+
+    # If the switch is a delayless_switch, the switch name
+    # needs to be avoided as VPR automatically assigns
+    # the delayless switch to this direct connection
+    if direct['switch_name'] != '__vpr_delayless_switch__':
+        direct_dict['switch_name'] = direct['switch_name']
+
+    ET.SubElement(directlist_xml, 'direct', direct_dict)
 
 
 def insert_constant_tiles(conn, model_xml, complexblocklist_xml, tiles_xml):
@@ -1308,42 +1362,89 @@ WHERE
             (abs(direct['x_offset']) + abs(direct['y_offset']), direct)
         )
 
+    ALLOWED_ZERO_OFFSET_DIRECT = [
+        "GTP_CHANNEL_0",
+        "GTP_CHANNEL_1",
+        "GTP_CHANNEL_2",
+        "GTP_CHANNEL_3",
+        "GTP_CHANNEL_0_MID_LEFT",
+        "GTP_CHANNEL_1_MID_LEFT",
+        "GTP_CHANNEL_2_MID_LEFT",
+        "GTP_CHANNEL_3_MID_LEFT",
+        "GTP_CHANNEL_0_MID_RIGHT",
+        "GTP_CHANNEL_1_MID_RIGHT",
+        "GTP_CHANNEL_2_MID_RIGHT",
+        "GTP_CHANNEL_3_MID_RIGHT",
+        "GTP_COMMON_MID_LEFT",
+        "GTP_COMMON_MID_RIGHT",
+    ]
+
+    zero_offset_directs = dict()
+
     for direct in directs.values():
         _, direct = min(direct, key=lambda v: v[0])
+        from_tile = direct['from_pin'].split('.')[0]
+        to_tile = direct['to_pin'].split('.')[0]
 
-        if direct['from_pin'].split('.')[0] not in tile_types:
+        if from_tile not in tile_types:
             continue
-        if direct['to_pin'].split('.')[0] not in tile_types:
+        if to_tile not in tile_types:
             continue
+
+        # In general, the Z offset is 0, except for special cases
+        # such as for the GTP tiles, where there are direct connections
+        # within the same (x, y) cooredinates, but between different sub_tiles
+        direct['z_offset'] = 0
 
         if direct['x_offset'] == 0 and direct['y_offset'] == 0:
+            if from_tile == to_tile and from_tile in ALLOWED_ZERO_OFFSET_DIRECT:
+                if from_tile not in zero_offset_directs:
+                    zero_offset_directs[from_tile] = list()
+
+                zero_offset_directs[from_tile].append(direct)
+
             continue
 
-        direct_dict = {
-            'name':
-                '{}_to_{}_dx_{}_dy_{}'.format(
-                    direct['from_pin'], direct['to_pin'], direct['x_offset'],
-                    direct['y_offset']
-                ),
-            'from_pin':
-                add_vpr_tile_prefix(direct['from_pin']),
-            'to_pin':
-                add_vpr_tile_prefix(direct['to_pin']),
-            'x_offset':
-                str(direct['x_offset']),
-            'y_offset':
-                str(direct['y_offset']),
-            'z_offset':
-                '0',
-        }
+        add_direct(directlist_xml, direct)
 
-        # If the switch is a delayless_switch, the switch name
-        # needs to be avoided as VPR automatically assigns
-        # the delayless switch to this direct connection
-        if direct['switch_name'] != '__vpr_delayless_switch__':
-            direct_dict['switch_name'] = direct['switch_name']
+    for tile, directs in zero_offset_directs.items():
+        uri = tile_xml_spec.format(tile.lower())
+        ports = list()
 
-        ET.SubElement(directlist_xml, 'direct', direct_dict)
+        with open(uri) as f:
+            tile_xml = ET.parse(f, ET.XMLParser())
+
+            tile_root = tile_xml.getroot()
+
+            for capacity, sub_tile in enumerate(tile_root.iter('sub_tile')):
+                for in_port in sub_tile.iter('input'):
+                    ports.append((in_port.attrib["name"], capacity))
+                for out_port in sub_tile.iter('output'):
+                    ports.append((out_port.attrib["name"], capacity))
+                for clk_port in sub_tile.iter('clock'):
+                    ports.append((clk_port.attrib["name"], capacity))
+
+        for direct in directs:
+            tile_type, from_port = direct['from_pin'].split('.')
+            _, to_port = direct['to_pin'].split('.')
+
+            if tile != tile_type:
+                continue
+
+            from_port_capacity = None
+            to_port_capacity = None
+            for port, capacity in ports:
+                if port == from_port:
+                    from_port_capacity = capacity
+                if port == to_port:
+                    to_port_capacity = capacity
+
+            assert from_port_capacity is not None and to_port_capacity is not None, (
+                tile, from_port, to_port
+            )
+            direct["z_offset"] = to_port_capacity - from_port_capacity
+
+            add_direct(directlist_xml, direct)
 
     arch_xml_str = ET.tostring(arch_xml, pretty_print=True).decode('utf-8')
     args.output_arch.write(arch_xml_str)
