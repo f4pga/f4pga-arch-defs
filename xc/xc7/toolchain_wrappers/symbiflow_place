@@ -21,7 +21,7 @@ fi
 OUT_NOISY_WARNINGS=noisy_warnings-${DEVICE}_place.log
 
 echo "Generating coinstrains ..."
-symbiflow_generate_constraints $EBLIF $NET $PART $DEVICE $ARCH_DEF $PCF
+symbiflow_generate_constraints $EBLIF $NET $PART $DEVICE $BITSTREAM_DEVICE $ARCH_DEF $PCF
 
 run_vpr --fix_clusters constraints.place --place
 
