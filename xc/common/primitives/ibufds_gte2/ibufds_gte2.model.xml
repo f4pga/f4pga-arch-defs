@@ -1,0 +1,13 @@
+<models>
+  <model name="IBUFDS_GTE2_VPR" never_prune="true">
+    <input_ports>
+      <port name="CEB"/>
+      <port name="I" is_clock="1"/>
+      <port name="IB" is_clock="1"/>
+    </input_ports>
+    <output_ports>
+      <port name="O"/>
+      <port name="ODIV2"/>
+    </output_ports>
+  </model>
+</models>
