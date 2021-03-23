@@ -264,8 +264,12 @@ function(ADD_FILE_TARGET)
   endforeach()
 
   if(NOT ${ADD_FILE_TARGET_GENERATED} AND NOT ${ADD_FILE_TARGET_ABSOLUTE})
+    get_filename_component(DEST_PATH ${CMAKE_CURRENT_BINARY_DIR}/${ADD_FILE_TARGET_FILE} DIRECTORY)
     add_custom_command(
       OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${ADD_FILE_TARGET_FILE}
+      COMMAND
+        ${CMAKE_COMMAND} -E make_directory
+        ${DEST_PATH}
       COMMAND
         ${CMAKE_COMMAND} -E create_symlink
         ${CMAKE_CURRENT_SOURCE_DIR}/${ADD_FILE_TARGET_FILE}

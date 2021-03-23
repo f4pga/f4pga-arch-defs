@@ -490,6 +490,8 @@ function(DEFINE_DEVICE)
   #   [CACHE_PLACE_DELAY]
   #   [CACHE_LOOKAHEAD]
   #   [CACHE_ARGS <args>]
+  #   [ROUTE_CHAN_WIDTH <width>]
+  #   [DONT_INSTALL]
   #   )
   # ~~~
   #
@@ -515,8 +517,14 @@ function(DEFINE_DEVICE)
   #
   # WARNING: Using a different place delay or lookahead algorithm will result
   # in an invalid cache.
-  set(options CACHE_LOOKAHEAD CACHE_PLACE_DELAY)
-  set(oneValueArgs DEVICE ARCH PART DEVICE_TYPE PACKAGES WIRE_EBLIF)
+  #
+  # The DONT_INSTALL option prevents device files to be installed.
+  #
+  # When ROUTE_CHAN_WIDTH is provided it overrides the channel with provided
+  # for the ARCH
+  #
+  set(options CACHE_LOOKAHEAD CACHE_PLACE_DELAY DONT_INSTALL)
+  set(oneValueArgs DEVICE ARCH PART DEVICE_TYPE PACKAGES WIRE_EBLIF ROUTE_CHAN_WIDTH)
   set(multiValueArgs RR_PATCH_DEPS RR_PATCH_EXTRA_ARGS CACHE_ARGS)
   cmake_parse_arguments(
     DEFINE_DEVICE
@@ -525,6 +533,8 @@ function(DEFINE_DEVICE)
     "${multiValueArgs}"
     ${ARGN}
   )
+
+  set(DONT_INSTALL ${DEFINE_DEVICE_DONT_INSTALL})
 
   add_custom_target(${DEFINE_DEVICE_DEVICE})
   foreach(ARG ARCH DEVICE_TYPE PACKAGES)
@@ -547,8 +557,6 @@ function(DEFINE_DEVICE)
     RR_PATCH_TOOL ${DEFINE_DEVICE_ARCH} RR_PATCH_TOOL
   )
   get_target_property_required(RR_PATCH_CMD ${DEFINE_DEVICE_ARCH} RR_PATCH_CMD)
-  get_target_property_required(ROUTE_CHAN_WIDTH ${DEFINE_DEVICE_ARCH}
-    ROUTE_CHAN_WIDTH)
 
   get_target_property_required(
     VIRT_DEVICE_MERGED_FILE ${DEFINE_DEVICE_DEVICE_TYPE} DEVICE_MERGED_FILE
@@ -586,6 +594,21 @@ function(DEFINE_DEVICE)
     # Generate a rr_graph for a device.
     #
 
+    # Use the device specific channel with for the virtual graph if provided.
+    # If not use a dummy value (assuming that the graph will get patched
+    # anyways).
+    if("${DEFINE_DEVICE_ROUTE_CHAN_WIDTH}" STREQUAL "")
+      # The value below had been chosen to allow VPR to build a virtual rr
+      # graph with BIDIR channels and get a consistent routing of a dummy
+      # wire design. Using a larger value will unnecessarly lead to increase
+      # of storage size of the graph and in turn its loading / processing time.
+      set(RRXML_VIRT_ROUTE_CHAN_WIDTH 6)
+      get_target_property_required(ROUTE_CHAN_WIDTH ${DEFINE_DEVICE_ARCH} ROUTE_CHAN_WIDTH)
+    else()
+      set(RRXML_VIRT_ROUTE_CHAN_WIDTH ${DEFINE_DEVICE_ROUTE_CHAN_WIDTH})
+      set(ROUTE_CHAN_WIDTH ${DEFINE_DEVICE_ROUTE_CHAN_WIDTH})
+    endif()
+
     # Generate the "default" rr_graph.xml we are going to patch using wire.
     add_custom_command(
       OUTPUT ${OUT_RRXML_VIRT} rr_graph_${DEVICE}_${PACKAGE}.virt.out
@@ -599,7 +622,7 @@ function(DEFINE_DEVICE)
         --device ${DEVICE_FULL}
         ${WIRE_EBLIF}
         --place_algorithm bounding_box
-        --route_chan_width 6
+        --route_chan_width ${RRXML_VIRT_ROUTE_CHAN_WIDTH}
         --echo_file on
         --min_route_chan_width_hint 1
         --write_rr_graph ${OUT_RRXML_VIRT}
@@ -624,6 +647,7 @@ function(DEFINE_DEVICE)
       ${DEFINE_DEVICE_DEVICE}
       PROPERTIES
         OUT_RRXML_VIRT ${CMAKE_CURRENT_SOURCE_DIR}/${OUT_RRXML_VIRT_FILENAME}
+        ROUTE_CHAN_WIDTH ${ROUTE_CHAN_WIDTH}
     )
 
     set(RR_PATCH_DEPS ${DEFINE_DEVICE_RR_PATCH_DEPS})
@@ -764,12 +788,18 @@ function(DEFINE_DEVICE)
       PROG_TOOL false
       )
 
-    install_device_files(
-      PART ${PART}
-      DEVICE ${DEFINE_DEVICE_DEVICE}
-      DEVICE_TYPE ${DEFINE_DEVICE_DEVICE_TYPE}
-      PACKAGE ${PACKAGE})
+    # Install
+    if(NOT ${DONT_INSTALL})
+        install_device_files(
+          PART ${PART}
+          DEVICE ${DEFINE_DEVICE_DEVICE}
+          DEVICE_TYPE ${DEFINE_DEVICE_DEVICE_TYPE}
+          PACKAGE ${PACKAGE})
+    else()
+        message(WARNING "Skipping installation of device '${DEFINE_DEVICE_DEVICE}-${PACKAGE}', type '${DEFINE_DEVICE_DEVICE_TYPE}'")
+    endif()
   endforeach()
+
 endfunction()
 
 function(DEFINE_BOARD)
@@ -810,6 +840,9 @@ function(DEFINE_BOARD)
   endforeach()
 
   # Target for gathering all targets for a particular board.
+
+  add_custom_target(all_${DEFINE_BOARD_BOARD}_pack)
+  add_custom_target(all_${DEFINE_BOARD_BOARD}_place)
   add_custom_target(all_${DEFINE_BOARD_BOARD}_route)
   add_custom_target(all_${DEFINE_BOARD_BOARD}_bin)
 endfunction()
@@ -1374,6 +1407,26 @@ function(ADD_FPGA_TARGET)
     # as targets not defining it should not use TECHMAP_PATH ENV variable
     get_target_property(YOSYS_TECHMAP ${ARCH} YOSYS_TECHMAP)
 
+    # Device type specific cells and techmap
+    get_target_property(YOSYS_DEVICE_CELLS_SIM ${DEVICE_TYPE} CELLS_SIM)
+    get_target_property(YOSYS_DEVICE_CELLS_MAP ${DEVICE_TYPE} CELLS_MAP)
+
+    if (NOT "${YOSYS_DEVICE_CELLS_SIM}" MATCHES ".*NOTFOUND")
+        get_file_target(YOSYS_DEVICE_CELLS_SIM_TARGET ${YOSYS_DEVICE_CELLS_SIM})
+        get_file_location(YOSYS_DEVICE_CELLS_SIM ${YOSYS_DEVICE_CELLS_SIM})
+        list(APPEND CELLS_SIM_DEPS ${YOSYS_DEVICE_CELLS_SIM} ${YOSYS_DEVICE_CELLS_SIM_TARGET})
+    else ()
+        set(YOSYS_DEVICE_CELLS_SIM "")
+    endif()
+
+    if (NOT "${YOSYS_DEVICE_CELLS_MAP}" MATCHES ".*NOTFOUND")
+        get_file_target(YOSYS_DEVICE_CELLS_MAP_TARGET ${YOSYS_DEVICE_CELLS_MAP})
+        get_file_location(YOSYS_DEVICE_CELLS_MAP ${YOSYS_DEVICE_CELLS_MAP})
+        list(APPEND CELLS_SIM_DEPS ${YOSYS_DEVICE_CELLS_MAP} ${YOSYS_DEVICE_CELLS_MAP_TARGET})
+    else ()
+        set(YOSYS_DEVICE_CELLS_MAP "")
+    endif()
+
     add_custom_command(
       OUTPUT ${OUT_JSON_SYNTH} ${OUT_SYNTH_V} ${OUT_FASM_EXTRA} ${OUT_SDC}
       DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS} ${INPUT_XDC_FILE} ${CELLS_SIM_DEPS}
@@ -1385,6 +1438,8 @@ function(ADD_FPGA_TARGET)
         ${CMAKE_COMMAND} -E env
           TECHMAP_PATH=${YOSYS_TECHMAP}
           UTILS_PATH=${symbiflow-arch-defs_SOURCE_DIR}/utils
+          DEVICE_CELLS_SIM=${YOSYS_DEVICE_CELLS_SIM}
+          DEVICE_CELLS_MAP=${YOSYS_DEVICE_CELLS_MAP}
           OUT_JSON=${OUT_JSON_SYNTH}
           OUT_SYNTH_V=${OUT_SYNTH_V}
           OUT_FASM_EXTRA=${OUT_FASM_EXTRA}
@@ -1491,7 +1546,12 @@ function(ADD_FPGA_TARGET)
 
   get_target_property_required(VPR env VPR)
 
-  get_target_property_required(ROUTE_CHAN_WIDTH ${ARCH} ROUTE_CHAN_WIDTH)
+  # Use route channel width from the device. If not provided then use the
+  # one from the arch.
+  get_target_property(ROUTE_CHAN_WIDTH ${DEVICE} ROUTE_CHAN_WIDTH)
+  if("${ROUTE_CHAN_WIDTH}" STREQUAL "ROUTE_CHAN_WIDTH-NOTFOUND")
+      get_target_property_required(ROUTE_CHAN_WIDTH ${ARCH} ROUTE_CHAN_WIDTH)
+  endif()
 
   get_target_property(VPR_ARCH_ARGS ${ARCH} VPR_ARCH_ARGS)
   if("${VPR_ARCH_ARGS}" STREQUAL "VPR_ARCH_ARGS-NOTFOUND")
@@ -1590,6 +1650,9 @@ function(ADD_FPGA_TARGET)
     COMMAND
       ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/echo/vpr_stdout.log ${OUT_LOCAL}/echo/pack.log
     )
+
+  add_custom_target(${NAME}_pack DEPENDS ${OUT_NET})
+  add_dependencies(all_${BOARD}_pack ${NAME}_pack)
 
   # Generate placement constraints.
   # -------------------------------------------------------------------------
@@ -1750,6 +1813,10 @@ function(ADD_FPGA_TARGET)
         ${OUT_LOCAL}/echo/place.log
     WORKING_DIRECTORY ${OUT_LOCAL}/echo
   )
+
+  add_custom_target(${NAME}_place DEPENDS ${OUT_PLACE})
+  add_dependencies(all_${BOARD}_place ${NAME}_place)
+
 
   # Generate routing.
   # -------------------------------------------------------------------------

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DEVICE name= "Caraval" family="ArcticPro3" size="32X32" >
+  <IO>
+    <TOP_IO row="0">
+        <CELL port_name="f2a_i" mapped_name="gfpga_pad_IO_F2A[0:511]" start_col="1" end_col="32"/>
+        <CELL port_name="a2f_o" mapped_name="gfpga_pad_IO_A2F[0:511]" start_col="1" end_col="32"/>
+    </TOP_IO>
+    <RIGHT_IO col="33">
+        <CELL port_name="f2a_i" mapped_name="gfpga_pad_IO_F2A[512:1023]" start_row="1" end_row="32"/>
+        <CELL port_name="a2f_o" mapped_name="gfpga_pad_IO_A2F[512:1023]" start_row="1" end_row="32"/>
+    </RIGHT_IO>
+    <BOTTOM_IO row="33">
+        <CELL port_name="f2a_i" mapped_name="gfpga_pad_IO_F2A[1024:1535]" start_col="32" end_col="1"/>
+        <CELL port_name="a2f_o" mapped_name="gfpga_pad_IO_A2F[1024:1535]" start_col="32" end_col="1"/>
+    </BOTTOM_IO>
+    <LEFT_IO col="0">
+        <CELL port_name="f2a_i" mapped_name="gfpga_pad_IO_F2A[1536:2047]" start_row="32" end_row="1"/>
+        <CELL port_name="a2f_o" mapped_name="gfpga_pad_IO_A2F[1536:2047]" start_row="32" end_row="1"/>
+    </LEFT_IO>
+  </IO>
+</DEVICE>
