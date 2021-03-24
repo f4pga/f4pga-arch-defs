@@ -927,7 +927,7 @@ def main():
     print("Processing CLBs...")    
 
     removed_ios = set()
-    io_block_names = {}
+    leaf_block_names = {}
 
     repacked_clb_count = 0
     repacked_block_count = 0
@@ -1047,10 +1047,9 @@ def main():
             if cell.type in ["$input", "$output"]:
                 removed_ios.add(cell.name)
 
-            # If the cell is an output IOB then store the desired name for the
-            # destination block
-            if cell.type == "$output":
-                io_block_names[dst_path] = cell.name
+            # Store the leaf block name so that it can be restored after
+            # repacking
+            leaf_block_names[dst_path] = cell.name
 
             # Repack it
             repacked_cell = repack_netlist_cell(
@@ -1109,16 +1108,16 @@ def main():
         repacked_clb_block = build_packed_netlist_from_pb_graph(graph) 
         repacked_clb_block.rename_cluster(clb_block.name)
 
-        # Restore names of IO blocks
+        # Restore names of leaf blocks
         for src_block, rule, (dst_path, dst_pbtype) in blocks_to_repack:
-            if dst_path in io_block_names:
+            if dst_path in leaf_block_names:
 
                 search_path = dst_path.split(".", maxsplit=1)[1]
                 dst_block = repacked_clb_block.get_block_by_path(search_path)
                 assert dst_block is not None, dst_path
 
-                name = io_block_names[dst_path]
-                print("  ", "renaming IOB {} to {}".format(dst_block, name))
+                name = leaf_block_names[dst_path]
+                print("  ", "renaming leaf block {} to {}".format(dst_block, name))
                 dst_block.name = name
 
         # Replace the CLB
