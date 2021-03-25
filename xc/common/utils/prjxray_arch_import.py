@@ -519,8 +519,8 @@ PREFIX_REQUIRED = {
     "GTPE2_COMMON": (None, None),
     "GTPE2_CHANNEL": (None, None),
     "IBUFDS_GTE2": ("Y", 2),
-    "IPAD": ("XY", (0, 0)),
-    "OPAD": ("XY", (0, 0)),
+    "IPAD": (None, None),
+    "OPAD": (None, None),
 }
 
 
@@ -534,20 +534,12 @@ def make_prefix(site, x, y, from_site_name=False):
     prefix_required = PREFIX_REQUIRED[site_type]
 
     if prefix_required[0] == 'Y':
-        mod_y = prefix_required[1]
-        y_formula = "y{}".format(" % mod_y") if mod_y else "y"
-        return site_type, '{}_Y{}'.format(site_type, eval(y_formula))
+        return site_type, '{}_Y{}'.format(site_type, y % prefix_required[1])
     elif prefix_required[0] == 'X':
-        mod_x = prefix_required[1]
-        x_formula = "x{}".format(" % mod_x") if mod_x else "x"
-        return site_type, '{}_X{}'.format(site_type, eval(x_formula))
+        return site_type, '{}_X{}'.format(site_type, x % prefix_required[1])
     elif prefix_required[0] == 'XY':
         mod_x, mod_y = prefix_required[1]
-        x_formula = "x{}".format(" % mod_x") if mod_x else "x"
-        y_formula = "y{}".format(" % mod_y") if mod_y else "y"
-        return site_type, '{}_X{}Y{}'.format(
-            site_type, eval(x_formula), eval(y_formula)
-        )
+        return site_type, '{}_X{}Y{}'.format(site_type, x % mod_x, y % mod_y)
     elif prefix_required[0] is None:
         return site_type, None
     else:
@@ -599,7 +591,7 @@ def create_capacity_prefix(c, tile_prefix, tile_pkey, tile_capacity):
     """
     c.execute(
         """
-SELECT site_type.name, site_instance.x_coord, site_instance.y_coord
+SELECT site_type.name, site_instance.name, site_instance.x_coord, site_instance.y_coord
 FROM site_instance
 INNER JOIN site ON site_instance.site_pkey = site.pkey
 INNER JOIN site_type ON site.site_type_pkey = site_type.pkey
@@ -619,7 +611,8 @@ ORDER BY site_instance.x_coord, site_instance.y_coord, site_type.name;""",
 
     prefixes = []
 
-    for site_type, x, y in c:
+    for site_type, site_name, x, y in sorted(
+            c, key=lambda site: (site[0], int(site[2]), int(site[3]))):
         _, prefix = make_prefix(site_type, x, y)
 
         if prefix is None:

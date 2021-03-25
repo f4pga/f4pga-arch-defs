@@ -60,8 +60,6 @@ def main():
     grid = db.grid()
     tile_type = db.get_tile_type(args.tile_type)
 
-    sites = {}
-
     pb_types = args.pb_types.split(',')
 
     equivalent_sites_dict = dict()
@@ -75,9 +73,6 @@ def main():
 
     assert gridinfo
 
-    for site_inst, site_type in gridinfo.sites.items():
-        sites[site_type] = list()
-
     for pb_type in pb_types:
         try:
             site, equivalent_sites = pb_type.split("/")
@@ -89,16 +84,19 @@ def main():
             ':'
         ) if equivalent_sites else []
 
-    for site in tile_type.get_sites():
-        if site.type not in sites.keys():
-            continue
+    sites = list()
 
+    for site in tile_type.get_sites():
         site_type = db.get_site_type(site.type)
         input_wires, output_wires = get_wires(
             site, site_type, args.unused_wires
         )
 
-        sites[site.type].append((site, input_wires, output_wires))
+        sites.append((site_type, site, input_wires, output_wires))
+
+    sites = sorted(
+        sites, key=lambda site: (site[1].type, int(site[1].x), int(site[1].y))
+    )
 
     tile_xml = start_heterogeneous_tile(
         args.tile_type,

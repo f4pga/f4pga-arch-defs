@@ -88,7 +88,7 @@ def main():
                 continue
 
             gridinfo = grid.gridinfo_at_tilename(line['tile'])
-            sites = list(gridinfo.sites.keys())
+            sites = sorted(gridinfo.sites.keys())
 
             if gridinfo.sites[site] in CAPACITY_IOS:
                 z_loc = sites.index(site)

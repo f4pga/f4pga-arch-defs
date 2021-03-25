@@ -4,6 +4,7 @@ import argparse
 import eblif
 import sys
 import csv
+import os
 import vpr_place_constraints
 import lxml.etree as ET
 import constraint
@@ -777,7 +778,7 @@ def constrain_special_ios(
                 canon_loc = vpr_grid.get_canon_loc()[(x, y)]
 
                 gridinfo = canon_grid.gridinfo_at_loc(canon_loc)
-                sites = list(gridinfo.sites.keys())
+                sites = sorted(gridinfo.sites.keys())
                 site_name = sites[z]
 
                 connected_io_site = vpr_grid.get_site_dict(
@@ -849,7 +850,23 @@ def main():
 
     args = parser.parse_args()
 
-    db = prjxray.db.Database(args.db_root, args.part)
+    part = args.part
+    device_families = {
+        "xc7a": "artix7",
+        "xc7k": "kintex7",
+        "xc7z": "zynq7",
+    }
+
+    device_family = None
+    for device in device_families:
+        if part.startswith(device):
+            device_family = device_families[device]
+            break
+
+    assert device_family
+
+    db_root = os.path.join(args.db_root, device_family)
+    db = prjxray.db.Database(db_root, args.part)
     canon_grid = db.grid()
 
     io_blocks = {}

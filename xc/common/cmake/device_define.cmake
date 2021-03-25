@@ -95,7 +95,7 @@ function(ADD_XC_BOARD)
 
     set_target_properties(${BOARD}
       PROPERTIES PLACE_CONSTR_TOOL_EXTRA_ARGS " \
-      --db_root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH} \
+      --db_root ${PRJRAY_DB_DIR} \
       --part ${PART} \
       --vpr_grid_map ${VPR_GRID_MAP_LOCATION} \
       --roi
@@ -129,7 +129,7 @@ function(ADD_XC_BOARD)
 
     set_target_properties(${BOARD}
       PROPERTIES PLACE_CONSTR_TOOL_EXTRA_ARGS " \
-      --db_root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH} \
+      --db_root ${PRJRAY_DB_DIR} \
       --part ${PART} \
       --vpr_grid_map ${VPR_GRID_MAP_LOCATION}
     ")
@@ -163,7 +163,7 @@ function(ADD_XC_BOARD)
 
     set_target_properties(${BOARD}
       PROPERTIES PLACE_CONSTR_TOOL_EXTRA_ARGS " \
-      --db_root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH} \
+      --db_root ${PRJRAY_DB_DIR} \
       --part ${PART} \
       --vpr_grid_map ${VPR_GRID_MAP_LOCATION} \
     ")
@@ -209,7 +209,7 @@ function(ADD_XC_BOARD)
     dummy_${ARCH}_${DEVICE}_${ADD_XC_BOARD_PACKAGE}
     PROPERTIES
     PLACE_CONSTR_TOOL_EXTRA_ARGS " \
-      --db_root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH} \
+      --db_root ${PRJRAY_DB_DIR} \
       --part ${PART} \
       --vpr_grid_map ${VPR_GRID_MAP_LOCATION} --roi"
     PINMAP
