@@ -10,15 +10,14 @@ EBLIF=$1
 NET=$2
 PART=$3
 DEVICE=$4
-BITSTREAM_DEVICE=$5
-ARCH_DEF=$6
-PCF=$7
+ARCH_DEF=$5
+PCF=$6
 
 if [ ! -z $PCF ]; then
     PCF_OPTS="--pcf $PCF"
 fi
 
-DATABASE_DIR=${DATABASE_DIR:=$(prjxray-config)}/$BITSTREAM_DEVICE
+DATABASE_DIR=${DATABASE_DIR:=$(prjxray-config)}
 VPR_GRID_MAP=${SHARE_DIR_PATH}/arch/${DEVICE}/vpr_grid_map.csv
 PINMAP=${SHARE_DIR_PATH}/arch/${DEVICE}/${PART}/pinmap.csv
 IOGEN=${SHARE_DIR_PATH}/scripts/prjxray_create_ioplace.py

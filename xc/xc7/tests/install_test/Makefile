@@ -22,7 +22,7 @@ ${BUILDDIR}/${TOP}.net: ${BUILDDIR}/${TOP}.eblif
 	cd ${BUILDDIR} && symbiflow_pack -e ${TOP}.eblif -d ${DEVICE} -a ${ADDITIONAL_VPR_OPTIONS}
 
 ${BUILDDIR}/${TOP}.place: ${BUILDDIR}/${TOP}.net
-	cd ${BUILDDIR} && symbiflow_place -e ${TOP}.eblif -d ${DEVICE} -b ${BITSTREAM_DEVICE} -n ${TOP}.net -P ${PARTNAME} -a ${ADDITIONAL_VPR_OPTIONS}
+	cd ${BUILDDIR} && symbiflow_place -e ${TOP}.eblif -d ${DEVICE} -n ${TOP}.net -P ${PARTNAME} -a ${ADDITIONAL_VPR_OPTIONS}
 
 ${BUILDDIR}/${TOP}.route: ${BUILDDIR}/${TOP}.place
 	cd ${BUILDDIR} && symbiflow_route -e ${TOP}.eblif -d ${DEVICE} -a ${ADDITIONAL_VPR_OPTIONS}

@@ -671,13 +671,13 @@ function(PROJECT_RAY_TILE_CAPACITY)
   #   ARCH <arch>
   #   TILE <tile>
   #   SITE_TYPES <site types>
-  #   UNUSED_WIRES <unused wires>
+  #   [UNUSED_WIRES <unused wires>]
   #   )
   # ~~~
   #
   # SITE_TYPES: contains a list of sites that are used as sub tiles for the specified tile.
   #             The total number of instances of a site type appears as the capacity of the sub tile
-  # UNUSED_WIRES: contains a list of wires in site to be dropped
+  # UNUSED_WIRES: optional list of wires in site to be dropped
 
   set(options)
   set(oneValueArgs ARCH TILE)

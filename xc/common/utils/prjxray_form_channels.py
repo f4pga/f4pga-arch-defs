@@ -2107,6 +2107,13 @@ AND
     write_cur.execute("ANALYZE")
     write_cur.execute("""COMMIT TRANSACTION;""")
 
+    # Now that the final VPR grid is generated, we need a fast lookup to easily
+    # access to the canonical to VPR grid mapping.
+    #
+    # Furthermore, information on the internal tile connections between sites belonging
+    # to the same tile, which are treated as heterogeneous tiles. These connections are
+    # required to correctly instruct VPR on the presence of direct connections between
+    # sites at the same X, Y coordinate, but with different sub tile coordinates.
     fieldnames = [
         "site_name",
         "site_type",
@@ -2121,6 +2128,7 @@ AND
     csv_writer = csv.DictWriter(grid_map_output, fieldnames=fieldnames)
     csv_writer.writeheader()
 
+    # Find all sites that have direct connections with other sites in the same tile.
     sites_with_direct = dict()
     for src_wire_pkey, dest_wire_pkey, pip_in_tile_pkey in \
             progressbar_utils.progressbar(
@@ -2210,6 +2218,7 @@ SELECT tile_type_pkey, grid_x, grid_y FROM tile WHERE pkey = ?;""",
 
             sites_with_direct[src_site_instance] = dest_site_instance
 
+    # Build the Canonical to VPR grid mapping
     for (grid_x, grid_y), tile in new_grid.items():
         for site in tile.sites:
             cur.execute(
