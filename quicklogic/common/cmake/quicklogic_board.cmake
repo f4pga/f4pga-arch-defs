@@ -1,7 +1,7 @@
 function(ADD_QUICKLOGIC_BOARD)
 
   set(options)
-  set(oneValueArgs BOARD DEVICE PACKAGE FABRIC_PACKAGE)
+  set(oneValueArgs BOARD DEVICE PACKAGE FABRIC_PACKAGE PINMAP_XML PINMAP)
   set(multiValueArgs)
   cmake_parse_arguments(
      ADD_QUICKLOGIC_BOARD
@@ -19,6 +19,8 @@ function(ADD_QUICKLOGIC_BOARD)
     BOARD ${ADD_QUICKLOGIC_BOARD_BOARD}
     DEVICE ${ADD_QUICKLOGIC_BOARD_DEVICE}
     PACKAGE ${ADD_QUICKLOGIC_BOARD_PACKAGE}
+    PINMAP ${ADD_QUICKLOGIC_BOARD_PINMAP}
+    PINMAP_XML ${ADD_QUICKLOGIC_BOARD_PINMAP_XML}
     )
 
   set(DEVICE ${ADD_QUICKLOGIC_BOARD_DEVICE})
@@ -27,6 +29,8 @@ function(ADD_QUICKLOGIC_BOARD)
   get_target_property_required(FAMILY ${DEVICE_TYPE} FAMILY)
   set(PACKAGE ${ADD_QUICKLOGIC_BOARD_PACKAGE})
   set(BOARD ${ADD_QUICKLOGIC_BOARD_BOARD})
+  set(PINMAP ${ADD_QUICKLOGIC_BOARD_PINMAP})
+  set(PINMAP_XML ${ADD_QUICKLOGIC_BOARD_PINMAP_XML})
 
   # Get the database location. If given then use the database to generate
   # pinmap and clkmap CSV files
@@ -185,6 +189,57 @@ function(ADD_QUICKLOGIC_BOARD)
       PACKAGE ${PACKAGE}
     )
 
+  elseif("${ARCH}" STREQUAL "qlf_k4n8")
+    set(PINMAP_CSV ${PINMAP})
+
+    # Link the pinmap XML
+    add_custom_command(
+      OUTPUT
+        ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_XML}
+      COMMAND
+        ${CMAKE_COMMAND} -E create_symlink 
+          ${CMAKE_CURRENT_SOURCE_DIR}/devices/umc22/${PINMAP_XML}
+          ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_XML}
+    )
+    add_file_target(FILE ${PINMAP_XML} GENERATED)
+
+    # Make the pinmap CSV depend on pinmap XML. This way the symlink will be
+    # created  without the need for adding the dependency elsewhere.
+    set(PINMAP_CSV_DEPS)
+    append_file_dependency(PINMAP_CSV_DEPS ${PINMAP_XML})
+
+    # Link the pinmap CSV
+    add_custom_command(
+      OUTPUT
+        ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
+      COMMAND
+        ${CMAKE_COMMAND} -E create_symlink 
+          ${CMAKE_CURRENT_SOURCE_DIR}/devices/umc22/${PINMAP_CSV}
+          ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
+      DEPENDS
+        ${PINMAP_CSV_DEPS}
+    )
+    add_file_target(FILE ${PINMAP_CSV} GENERATED)
+
+
+    # Set the board properties
+    set_target_properties(
+      ${BOARD}
+      PROPERTIES
+        PINMAP
+          ${CMAKE_CURRENT_SOURCE_DIR}/${PINMAP_CSV}
+        PINMAP_XML
+          ${CMAKE_CURRENT_SOURCE_DIR}/${PINMAP_XML}
+    )
+
+    # Install board files
+    #define_ql_pinmap_csv_install_target(
+    #  PART ${PART}
+    #  BOARD ${BOARD}
+    #  DEVICE_TYPE ${DEVICE_TYPE}
+    #  DEVICE ${DEVICE}
+    #  PACKAGE ${PACKAGE}
+    #)
   endif()
 
 endfunction()

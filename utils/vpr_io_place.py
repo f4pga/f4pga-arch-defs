@@ -23,6 +23,7 @@ class IoPlace(object):
         self.outputs = set()
         self.net_to_block = None
         self.net_map = {}
+        self.block_to_inst = {}
         self.inout_nets = set()
         self.net_to_pad = set()
         self.net_file_io = set()
@@ -91,6 +92,15 @@ class IoPlace(object):
                 top_block = top_block.getparent()
             self.net_to_block[block.get("name")] = top_block.get("name")
 
+        # Loop over all top-level blocks. Store block name to its instance
+        # correspondences.
+        for block_xml in net_root.findall("block"):
+            name = block_xml.attrib["name"]
+            inst = block_xml.attrib["instance"]
+
+            assert name not in self.block_to_inst, block_xml.attrib
+            self.block_to_inst[name] = inst
+
     def load_net_file_ios(self, net_file):
         """
         Loads input and outputs net names from the netlist file.
@@ -111,6 +121,38 @@ class IoPlace(object):
             io_list = io_line.split(" ")
             for io in io_list:
                 self.net_file_io.add(io.replace("out:", ""))
+
+    def get_top_level_block_instance_for_net(self, net_name):
+        """
+        Returns a name of the top-level block instance for the given net
+        name.
+        """
+        assert self.is_net(net_name)
+
+        # VPR prefixes output constraints with "out:"
+        if net_name in self.outputs:
+            net_name = 'out:' + net_name
+
+        # This is an inout net
+        if net_name in self.inout_nets:
+            block_names = set()
+
+            for prefix, suffix in zip(["", "out:"], ["_$inp", "_$out"]):
+                match = NETNAME_REGEX.match(net_name)
+                name = prefix + match.group(1) + suffix + match.group(2)
+                block_names.add(self.net_to_block[name])
+
+            # Both parts of the net should point to the same block
+            assert len(block_names) == 1, (net_name, block_names)
+            return self.block_to_inst[list(block_names)[0]]
+
+        # A regular net
+        else:
+            if net_name in self.net_to_block:
+                block_name = self.net_to_block[net_name]
+                return self.block_to_inst[block_name]
+            else:
+                return None
 
     def constrain_net(self, net_name, loc, comment=""):
         assert len(loc) == 3
