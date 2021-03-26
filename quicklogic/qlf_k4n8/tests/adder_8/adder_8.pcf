@@ -1,0 +1,30 @@
+set_io cout  F2A_GPIO2_31
+
+set_io sum[0]  F2A_GPIO2_30
+set_io sum[1]  F2A_GPIO2_29
+set_io sum[2]  F2A_GPIO2_28
+set_io sum[3]  F2A_GPIO2_27
+set_io sum[4]  F2A_GPIO2_26
+set_io sum[5]  F2A_GPIO2_25
+set_io sum[6]  F2A_GPIO2_24
+set_io sum[7]  F2A_GPIO2_23
+
+set_io a[0]  A2F_GPIO2_23
+set_io a[1]  A2F_GPIO2_22
+set_io a[2]  A2F_GPIO2_21
+set_io a[3]  A2F_GPIO2_20
+set_io a[4]  A2F_GPIO2_19
+set_io a[5]  A2F_GPIO2_18
+set_io a[6]  A2F_GPIO2_17
+set_io a[7]  A2F_GPIO2_16
+
+set_io b[0]  A2F_GPIO2_11
+set_io b[1]  A2F_GPIO2_10
+set_io b[2]  A2F_GPIO2_9
+set_io b[3]  A2F_GPIO2_8
+set_io b[4]  A2F_GPIO2_7
+set_io b[5]  A2F_GPIO2_6
+set_io b[6]  A2F_GPIO2_5
+set_io b[7]  A2F_GPIO2_4
+
+set_io cin  F2A_GPIO2_3

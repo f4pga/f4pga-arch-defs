@@ -46,10 +46,17 @@ function(QUICKLOGIC_DEFINE_QLF_ARCH)
           --rr-graph-in \${OUT_RRXML_VIRT} \
           --rr-graph-out \${OUT_RRXML_REAL}"
   
-    # In the current state there is no support for IO placement constraints
-    # for QuickLogic qlf_k4n8 devices. It is currently a work in progress.
-    NO_PINS
-    NO_PLACE
+    PLACE_TOOL
+      ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/utils/create_ioplace.py
+    PLACE_TOOL_CMD "${CMAKE_COMMAND} -E env \
+      PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils:$PYTHONPATH:${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils \
+      \${PYTHON3} \${PLACE_TOOL} \
+          --pinmap_xml \${PINMAP_XML} \
+          --blif \${OUT_EBLIF} \
+          --pcf \${INPUT_IO_FILE} \
+          --net \${OUT_NET} \
+          --csv_file \${PINMAP}"
+
     NO_PLACE_CONSTR
 
     # With the current support there is no bitstream generation support yet.
