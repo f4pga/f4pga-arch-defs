@@ -20,6 +20,10 @@ function(DEFINE_ARCH)
   #    YOSYS_CONV_SCRIPT <yosys_script>
   #    BITSTREAM_EXTENSION <ext>
   #    [VPR_ARCH_ARGS <arg list>]
+  #    RR_PATCH_TOOL <path to rr_patch tool>
+  #    RR_PATCH_CMD <command to run RR_PATCH_TOOL>
+  #    [NET_PATCH_TOOL <path to net patch tool>]
+  #    [NET_PATCH_TOOL_CMD <command to run NET_PATCH_TOOL>]
   #    DEVICE_FULL_TEMPLATE <template for constructing DEVICE_FULL strings.
   #    [RR_PATCH_TOOL <path to rr_patch tool>]
   #    [RR_PATCH_CMD <command to run RR_PATCH_TOOL>]
@@ -117,7 +121,16 @@ function(DEFINE_ARCH)
   # the new placement constraints for non-IO tiles have been added, a new placement
   # constraint file is generated and fed to standard output.
   #
+  # NET_PATCH_TOOL_CMD variables:
   #
+  # * NET_PATCH_TOOL - Value of NET_PATCH_TOOL property of <arch>.
+  # * IN_EBLIF  - EBLIF file from the synthesis step
+  # * IN_NET    - VPR .net file after packing & placement
+  # * IN_PLACE  - VPR .place file after packing & placement
+  # * OUT_EBLIF - EBLIF file to be used by VPR router
+  # * OUT_NET   - VPR .net file to be used by router
+  # * OUT_PLACE - VPR .place file to be used by router
+  # * VPR_ARCH  - Path to VPR architecture XML file
   #
   # HLC_TO_BIT_CMD variables:
   #
@@ -160,6 +173,8 @@ function(DEFINE_ARCH)
     BIN_EXTENSION
     RR_PATCH_TOOL
     RR_PATCH_CMD
+    NET_PATCH_TOOL
+    NET_PATCH_TOOL_CMD
     PLACE_TOOL
     PLACE_TOOL_CMD
     PLACE_CONSTR_TOOL
@@ -221,6 +236,8 @@ function(DEFINE_ARCH)
     CELLS_SIM
     RR_PATCH_TOOL
     RR_PATCH_CMD
+    NET_PATCH_TOOL
+    NET_PATCH_TOOL_CMD
     )
 
   set(PLACE_ARGS
@@ -502,6 +519,8 @@ function(DEFINE_DEVICE)
   #   [NO_RR_PATCHING]
   #   [EXT_RR_GRAPH]
   #   [NO_INSTALL]
+  #   [NET_PATCH_DEPS <list of dependencies>]
+  #   [NET_PATCH_EXTRA_ARGS <extra args for .net patching>]
   #   )
   # ~~~
   #
@@ -535,7 +554,7 @@ function(DEFINE_DEVICE)
   #
   set(options CACHE_LOOKAHEAD CACHE_PLACE_DELAY NO_INSTALL NO_RR_PATCHING)
   set(oneValueArgs DEVICE ARCH PART DEVICE_TYPE PACKAGES WIRE_EBLIF ROUTE_CHAN_WIDTH EXT_RR_GRAPH)
-  set(multiValueArgs RR_PATCH_DEPS RR_PATCH_EXTRA_ARGS CACHE_ARGS)
+  set(multiValueArgs RR_PATCH_DEPS RR_PATCH_EXTRA_ARGS NET_PATCH_DEPS NET_PATCH_EXTRA_ARGS CACHE_ARGS)
   cmake_parse_arguments(
     DEFINE_DEVICE
     "${options}"
@@ -561,6 +580,20 @@ function(DEFINE_DEVICE)
     set(WIRE_EBLIF ${symbiflow-arch-defs_SOURCE_DIR}/common/wire.eblif)
   else()
     set(WIRE_EBLIF ${DEFINE_DEVICE_WIRE_EBLIF})
+  endif()
+
+  if(NOT "${DEFINE_DEVICE_NET_PATCH_DEPS}" STREQUAL "")
+    set_target_properties(
+      ${DEFINE_DEVICE_DEVICE} PROPERTIES
+      NET_PATCH_DEPS ${DEFINE_DEVICE_NET_PATCH_DEPS}
+    )
+  endif()
+
+  if(NOT "${DEFINE_DEVICE_NET_PATCH_EXTRA_ARGS}" STREQUAL "")
+    set_target_properties(
+      ${DEFINE_DEVICE_DEVICE} PROPERTIES
+      NET_PATCH_EXTRA_ARGS ${DEFINE_DEVICE_NET_PATCH_EXTRA_ARGS}
+    )
   endif()
 
   set(NO_RR_PATCHING ${DEFINE_DEVICE_NO_RR_PATCHING})
@@ -1913,7 +1946,7 @@ function(ADD_FPGA_TARGET)
   get_target_property(NET_PATCH_TOOL     ${ARCH} NET_PATCH_TOOL)
   get_target_property(NET_PATCH_TOOL_CMD ${ARCH} NET_PATCH_TOOL_CMD)
 
-  if (NOT "${NET_PATCH_TOOL}" MATCHES ".*NOTFOUND")
+  if (NOT "${NET_PATCH_TOOL}" MATCHES ".*-NOTFOUND" AND NOT "${NET_PATCH_TOOL}" STREQUAL "")
 
     # Set variables for the configure statement below
     set(VPR_ARCH ${DEVICE_MERGED_FILE_LOCATION})

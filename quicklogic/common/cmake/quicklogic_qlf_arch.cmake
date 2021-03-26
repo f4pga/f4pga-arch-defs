@@ -54,6 +54,20 @@ function(QUICKLOGIC_DEFINE_QLF_ARCH)
     NO_TEST_PINS
     NO_PLACE_CONSTR
 
+    NET_PATCH_TOOL
+      ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/qlf_k4n8/utils/repacker/repack.py
+    NET_PATCH_TOOL_CMD "${CMAKE_COMMAND} -E env \
+     PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils \
+     \${PYTHON3} \${NET_PATCH_TOOL} \
+         --net-in \${IN_NET} \
+         --eblif-in \${IN_EBLIF} \
+         --place-in \${IN_PLACE} \
+         --net-out \${OUT_NET} \
+         --eblif-out \${OUT_EBLIF} \
+         --place-out \${OUT_PLACE} \
+         --vpr-arch \${VPR_ARCH} \
+         --absorb_buffer_luts on"
+
     # With the current support there is no bitstream generation support yet.
     # A FASM file can be generated though but FASM annotation is also a subject
     # to change.
