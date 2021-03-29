@@ -331,18 +331,21 @@ def main():
     '''
     # Parse arguments
     parser = argparse.ArgumentParser(
-        description=
-        'Processes interface mapping xml file and generates template csv file'
+        description='Process interface mapping xml file to generate csv file.'
     )
 
     parser.add_argument(
         "--pinmapfile",
+        "-p",
+        "-P",
         type=str,
         required=True,
         help="Input pin-mapping XML file"
     )
     parser.add_argument(
         "--csv_file",
+        "-c",
+        "-C",
         type=str,
         default="template_pinmap.csv",
         help="Output template pinmap CSV file"
