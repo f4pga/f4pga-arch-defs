@@ -24,6 +24,7 @@ function(DEFINE_ARCH)
   #    RR_PATCH_CMD <command to run RR_PATCH_TOOL>
   #    DEVICE_FULL_TEMPLATE <template for constructing DEVICE_FULL strings.
   #    [NO_PINS]
+  #    [NO_TEST_PINS]
   #    [NO_PLACE]
   #    [NO_PLACE_CONSTR]
   #    [USE_FASM]
@@ -63,6 +64,8 @@ function(DEFINE_ARCH)
   #  * DOC_PRJ_DB - path to the third party documentation database
   #
   # If NO_PINS is set, PLACE_TOOL and PLACE_TOOL_CMD cannot be specified.
+  # If NO_TEST_PINS is set, the automatic generation of the constraints file for
+  # the generic tests is skipped.
   # If NO_BITSTREAM is set, HLC_TO_BIT, HLC_TO_BIT_CMD BIT_TO_V,
   # BIT_TO_V_CMD, BIT_TO_BIN and BIT_TO_BIN_CMD cannot be specified.
   #
@@ -132,6 +135,7 @@ function(DEFINE_ARCH)
   set(options
     NO_PLACE_CONSTR
     NO_PINS
+    NO_TEST_PINS
     NO_BITSTREAM
     NO_BIT_TO_BIN
     NO_BIT_TO_V
@@ -197,6 +201,7 @@ function(DEFINE_ARCH)
     RR_PATCH_CMD
     NO_PLACE_CONSTR
     NO_PINS
+    NO_TEST_PINS
     NO_BITSTREAM
     NO_BIT_TO_BIN
     NO_BIT_TO_V

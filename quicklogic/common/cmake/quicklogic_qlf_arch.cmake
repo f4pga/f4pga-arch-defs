@@ -45,7 +45,7 @@ function(QUICKLOGIC_DEFINE_QLF_ARCH)
       \${PYTHON3} \${RR_PATCH_TOOL} \
           --rr-graph-in \${OUT_RRXML_VIRT} \
           --rr-graph-out \${OUT_RRXML_REAL}"
-  
+
     PLACE_TOOL
       ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/utils/create_ioplace.py
     PLACE_TOOL_CMD "${CMAKE_COMMAND} -E env \
@@ -57,6 +57,7 @@ function(QUICKLOGIC_DEFINE_QLF_ARCH)
           --net \${OUT_NET} \
           --csv_file \${PINMAP}"
 
+    NO_TEST_PINS
     NO_PLACE_CONSTR
 
     # With the current support there is no bitstream generation support yet.
