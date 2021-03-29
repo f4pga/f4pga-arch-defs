@@ -55,12 +55,13 @@ function(add_simple_test)
     get_target_property_required(DEVICE ${BOARD} DEVICE)
     get_target_property_required(ARCH ${DEVICE} ARCH)
     get_target_property_required(NO_PINS ${ARCH} NO_PINS)
+    get_target_property_required(NO_TEST_PINS ${ARCH} NO_TEST_PINS)
     get_target_property_required(NO_BITSTREAM ${ARCH} NO_BITSTREAM)
 
     set_target_properties(${BOARD} PROPERTIES PART "dummy")
 
     set(INPUT_IO_FILE_ARG "")
-    if(NOT ${NO_PINS})
+    if(NOT ${NO_PINS} AND NOT ${NO_TEST_PINS})
       generate_pinmap(
           NAME ${ADD_SIMPLE_TEST_NAME}_${BOARD}.pcf
         TOP top
