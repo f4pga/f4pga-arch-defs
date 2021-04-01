@@ -20,9 +20,9 @@ function(DEFINE_ARCH)
   #    YOSYS_CONV_SCRIPT <yosys_script>
   #    BITSTREAM_EXTENSION <ext>
   #    [VPR_ARCH_ARGS <arg list>]
-  #    RR_PATCH_TOOL <path to rr_patch tool>
-  #    RR_PATCH_CMD <command to run RR_PATCH_TOOL>
   #    DEVICE_FULL_TEMPLATE <template for constructing DEVICE_FULL strings.
+  #    [RR_PATCH_TOOL <path to rr_patch tool>]
+  #    [RR_PATCH_CMD <command to run RR_PATCH_TOOL>]
   #    [NO_PINS]
   #    [NO_TEST_PINS]
   #    [NO_PLACE]
@@ -199,8 +199,6 @@ function(DEFINE_ARCH)
     YOSYS_SYNTH_SCRIPT
     YOSYS_CONV_SCRIPT
     DEVICE_FULL_TEMPLATE
-    RR_PATCH_TOOL
-    RR_PATCH_CMD
     NO_PLACE_CONSTR
     NO_PINS
     NO_TEST_PINS
@@ -221,6 +219,8 @@ function(DEFINE_ARCH)
     VPR_ARCH_ARGS
     YOSYS_TECHMAP
     CELLS_SIM
+    RR_PATCH_TOOL
+    RR_PATCH_CMD
     )
 
   set(PLACE_ARGS
@@ -499,6 +499,8 @@ function(DEFINE_DEVICE)
   #   [CACHE_LOOKAHEAD]
   #   [CACHE_ARGS <args>]
   #   [ROUTE_CHAN_WIDTH <width>]
+  #   [NO_RR_PATCHING]
+  #   [EXT_RR_GRAPH]
   #   [NO_INSTALL]
   #   )
   # ~~~
@@ -531,8 +533,8 @@ function(DEFINE_DEVICE)
   # When ROUTE_CHAN_WIDTH is provided it overrides the channel with provided
   # for the ARCH
   #
-  set(options CACHE_LOOKAHEAD CACHE_PLACE_DELAY NO_INSTALL)
-  set(oneValueArgs DEVICE ARCH PART DEVICE_TYPE PACKAGES WIRE_EBLIF ROUTE_CHAN_WIDTH)
+  set(options CACHE_LOOKAHEAD CACHE_PLACE_DELAY NO_INSTALL NO_RR_PATCHING)
+  set(oneValueArgs DEVICE ARCH PART DEVICE_TYPE PACKAGES WIRE_EBLIF ROUTE_CHAN_WIDTH EXT_RR_GRAPH)
   set(multiValueArgs RR_PATCH_DEPS RR_PATCH_EXTRA_ARGS CACHE_ARGS)
   cmake_parse_arguments(
     DEFINE_DEVICE
@@ -561,10 +563,25 @@ function(DEFINE_DEVICE)
     set(WIRE_EBLIF ${DEFINE_DEVICE_WIRE_EBLIF})
   endif()
 
-  get_target_property_required(
-    RR_PATCH_TOOL ${DEFINE_DEVICE_ARCH} RR_PATCH_TOOL
-  )
-  get_target_property_required(RR_PATCH_CMD ${DEFINE_DEVICE_ARCH} RR_PATCH_CMD)
+  set(NO_RR_PATCHING ${DEFINE_DEVICE_NO_RR_PATCHING})
+  set(EXT_RR_GRAPH   ${DEFINE_DEVICE_EXT_RR_GRAPH})
+
+  # For external RR graph only one PACKAGE is allowed
+  list(LENGTH DEFINE_DEVICE_PACKAGES NUM_PACKAGES)
+  if (DEFINED EXT_RR_GRAPH)
+    if (NUM_PACKAGES GREATER "1")
+      message(FATAL_ERROR "Device ${DEFINE_DEVICE_DEVICE} with external rr graph must have only one package!")
+    endif ()
+  endif ()
+
+  if (NOT ${NO_RR_PATCHING})
+    get_target_property_required(
+      RR_PATCH_TOOL ${DEFINE_DEVICE_ARCH} RR_PATCH_TOOL
+    )
+    get_target_property_required(RR_PATCH_CMD ${DEFINE_DEVICE_ARCH} RR_PATCH_CMD)
+  endif ()
+
+  get_target_property_required(RR_GRAPH_EXT ${DEFINE_DEVICE_ARCH} RR_GRAPH_EXT)
 
   get_target_property_required(
     VIRT_DEVICE_MERGED_FILE ${DEFINE_DEVICE_DEVICE_TYPE} DEVICE_MERGED_FILE
@@ -573,7 +590,6 @@ function(DEFINE_DEVICE)
   get_file_location(DEVICE_MERGED_FILE ${VIRT_DEVICE_MERGED_FILE})
   get_target_property_required(VPR env VPR)
   get_target_property_required(QUIET_CMD env QUIET_CMD)
-  get_target_property_required(RR_GRAPH_EXT ${DEFINE_DEVICE_ARCH} RR_GRAPH_EXT)
 
   set(ROUTING_SCHEMA ${symbiflow-arch-defs_SOURCE_DIR}/common/xml/routing_resource.xsd)
 
@@ -582,195 +598,277 @@ function(DEFINE_DEVICE)
   foreach(PACKAGE ${DEFINE_DEVICE_PACKAGES})
     get_target_property_required(DEVICE_FULL_TEMPLATE ${DEFINE_DEVICE_ARCH} DEVICE_FULL_TEMPLATE)
     string(CONFIGURE ${DEVICE_FULL_TEMPLATE} DEVICE_FULL)
-    set(OUT_RRXML_VIRT_FILENAME
-      rr_graph_${DEVICE}_${PACKAGE}.rr_graph.virt${RR_GRAPH_EXT})
-    set(OUT_RRXML_REAL_FILENAME
-      rr_graph_${DEVICE}_${PACKAGE}.rr_graph.real.patched${RR_GRAPH_EXT})
-    set(OUT_RRBIN_REAL_FILENAME
-      rr_graph_${DEVICE}_${PACKAGE}.rr_graph.real.bin)
-    set(LOOKAHEAD_FILENAME
-      rr_graph_${DEVICE}_${PACKAGE}.lookahead.bin)
-    set(PLACE_DELAY_FILENAME
-      rr_graph_${DEVICE}_${PACKAGE}.place_delay.bin)
-    set(OUT_RRXML_REAL_LINT_FILENAME rr_graph_${DEVICE}_${PACKAGE}.rr_graph.real.lint.html)
-    set(OUT_RRXML_VIRT ${CMAKE_CURRENT_BINARY_DIR}/${OUT_RRXML_VIRT_FILENAME})
-    set(OUT_RRXML_REAL ${CMAKE_CURRENT_BINARY_DIR}/${OUT_RRXML_REAL_FILENAME})
-    set(OUT_RRBIN_REAL ${CMAKE_CURRENT_BINARY_DIR}/${OUT_RRBIN_REAL_FILENAME})
-    set(OUT_RRXML_REAL_LINT ${CMAKE_CURRENT_BINARY_DIR}/${OUT_RRXML_REAL_LINT_FILENAME})
 
-    #
-    # Generate a rr_graph for a device.
-    #
+    # Generate the virtual graph
+    if(NOT DEFINED EXT_RR_GRAPH)
 
-    # Use the device specific channel with for the virtual graph if provided.
-    # If not use a dummy value (assuming that the graph will get patched
-    # anyways).
-    if("${DEFINE_DEVICE_ROUTE_CHAN_WIDTH}" STREQUAL "")
-      # The value below had been chosen to allow VPR to build a virtual rr
-      # graph with BIDIR channels and get a consistent routing of a dummy
-      # wire design. Using a larger value will unnecessarly lead to increase
-      # of storage size of the graph and in turn its loading / processing time.
-      set(RRXML_VIRT_ROUTE_CHAN_WIDTH 6)
-      get_target_property_required(ROUTE_CHAN_WIDTH ${DEFINE_DEVICE_ARCH} ROUTE_CHAN_WIDTH)
-    else()
-      set(RRXML_VIRT_ROUTE_CHAN_WIDTH ${DEFINE_DEVICE_ROUTE_CHAN_WIDTH})
-      set(ROUTE_CHAN_WIDTH ${DEFINE_DEVICE_ROUTE_CHAN_WIDTH})
-    endif()
+      set(OUT_RR_VIRT_FILENAME
+        rr_graph_${DEVICE}_${PACKAGE}.rr_graph.virt${RR_GRAPH_EXT})
+      set(OUT_RR_VIRT
+        ${CMAKE_CURRENT_BINARY_DIR}/${OUT_RR_VIRT_FILENAME})
 
-    # Generate the "default" rr_graph.xml we are going to patch using wire.
-    add_custom_command(
-      OUTPUT ${OUT_RRXML_VIRT} rr_graph_${DEVICE}_${PACKAGE}.virt.out
-      DEPENDS
-        ${WIRE_EBLIF}
-        ${DEVICE_MERGED_FILE} ${DEVICE_MERGED_FILE_TARGET}
-        ${QUIET_CMD}
-        ${VPR} ${DEFINE_DEVICE_DEVICE_TYPE}
-      COMMAND
-        ${QUIET_CMD} ${VPR} ${DEVICE_MERGED_FILE}
-        --device ${DEVICE_FULL}
-        ${WIRE_EBLIF}
-        --place_algorithm bounding_box
-        --route_chan_width ${RRXML_VIRT_ROUTE_CHAN_WIDTH}
-        --echo_file on
-        --min_route_chan_width_hint 1
-        --write_rr_graph ${OUT_RRXML_VIRT}
-        --outfile_prefix ${DEVICE}_${PACKAGE}
-        --pack
-        --pack_verbosity 100
-        --place
-        --allow_dangling_combinational_nodes on
-      COMMAND
-        ${CMAKE_COMMAND} -E copy vpr_stdout.log
-        rr_graph_${DEVICE}_${PACKAGE}.virt.out
-      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    )
-    add_custom_target(
-      ${DEFINE_DEVICE_ARCH}_${DEFINE_DEVICE_DEVICE}_${PACKAGE}_rrxml_virt
-      DEPENDS ${OUT_RRXML_VIRT}
-    )
+      # Use the device specific channel with for the virtual graph if provided.
+      # If not use a dummy value (assuming that the graph will get patched
+      # anyways).
+      if("${DEFINE_DEVICE_ROUTE_CHAN_WIDTH}" STREQUAL "")
+        set(RRXML_VIRT_ROUTE_CHAN_WIDTH 6) # FIXME: Where did the number come from?
+      else()
+        set(RRXML_VIRT_ROUTE_CHAN_WIDTH ${DEFINE_DEVICE_ROUTE_CHAN_WIDTH})
+      endif()
 
-    add_file_target(FILE ${OUT_RRXML_VIRT_FILENAME} GENERATED)
-
-    set_target_properties(
-      ${DEFINE_DEVICE_DEVICE}
-      PROPERTIES
-        OUT_RRXML_VIRT ${CMAKE_CURRENT_SOURCE_DIR}/${OUT_RRXML_VIRT_FILENAME}
-        ROUTE_CHAN_WIDTH ${ROUTE_CHAN_WIDTH}
-    )
-
-    set(RR_PATCH_DEPS ${DEFINE_DEVICE_RR_PATCH_DEPS})
-    append_file_dependency(RR_PATCH_DEPS ${VIRT_DEVICE_MERGED_FILE})
-    append_file_dependency(RR_PATCH_DEPS ${OUT_RRXML_VIRT_FILENAME})
-
-    # Generate the "real" rr_graph.xml from the default rr_graph.xml file
-    get_target_property_required(PYTHON3 env PYTHON3)
-    string(CONFIGURE ${RR_PATCH_CMD} RR_PATCH_CMD_FOR_TARGET)
-    separate_arguments(
-      RR_PATCH_CMD_FOR_TARGET_LIST UNIX_COMMAND ${RR_PATCH_CMD_FOR_TARGET}
-    )
-    add_custom_command(
-      OUTPUT ${OUT_RRXML_REAL}
-      DEPENDS ${RR_PATCH_DEPS} ${RR_PATCH_TOOL}
-      COMMAND ${RR_PATCH_CMD_FOR_TARGET_LIST} ${DEFINE_DEVICE_RR_PATCH_EXTRA_ARGS}
-      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-      VERBATIM
-    )
-
-    add_file_target(FILE ${OUT_RRXML_REAL_FILENAME} GENERATED)
-
-    set_target_properties(
-      ${DEFINE_DEVICE_DEVICE}
-      PROPERTIES
-        ${PACKAGE}_OUT_RRXML_REAL
-        ${CMAKE_CURRENT_SOURCE_DIR}/${OUT_RRXML_REAL_FILENAME}
-    )
-
-    add_custom_target(
-      ${DEFINE_DEVICE_ARCH}_${DEFINE_DEVICE_DEVICE}_${PACKAGE}_rrxml_real
-      DEPENDS ${OUT_RRXML_REAL}
-      )
-    add_dependencies(all_rrgraph_xmls ${DEFINE_DEVICE_ARCH}_${DEFINE_DEVICE_DEVICE}_${PACKAGE}_rrxml_real)
-
-    # Lint the "real" rr_graph.xml
-    if("${RR_GRAPH_EXT}" STREQUAL ".xml")
-      xml_lint(
-        NAME ${DEFINE_DEVICE_ARCH}_${DEFINE_DEVICE_DEVICE}_${PACKAGE}_rrxml_real_lint
-        LINT_OUTPUT ${OUT_RRXML_REAL_LINT}
-        FILE ${OUT_RRXML_REAL}
-        SCHEMA ${ROUTING_SCHEMA}
-        )
-    endif()
-
-    # Generate lookahead and place delay lookup caches
-    set(DEPS)
-    append_file_dependency(DEPS ${OUT_RRXML_REAL_FILENAME})
-    append_file_dependency(DEPS ${VIRT_DEVICE_MERGED_FILE})
-
-    set(OUTPUTS ${OUT_RRBIN_REAL_FILENAME})
-    set(ARGS)
-    if(${DEFINE_DEVICE_CACHE_LOOKAHEAD})
-        list(APPEND OUTPUTS ${LOOKAHEAD_FILENAME})
-        list(APPEND ARGS --write_router_lookahead ${LOOKAHEAD_FILENAME})
-    endif()
-    if(${DEFINE_DEVICE_CACHE_PLACE_DELAY})
-        list(APPEND OUTPUTS ${PLACE_DELAY_FILENAME})
-        list(APPEND ARGS --write_placement_delay_lookup ${PLACE_DELAY_FILENAME})
-    endif()
-
-    add_custom_command(
-      OUTPUT ${OUT_RRXML_REAL}.cache ${OUTPUTS}
-      DEPENDS
+      add_custom_command(
+        OUTPUT ${OUT_RR_VIRT} rr_graph_${DEVICE}_${PACKAGE}.virt.out
+        DEPENDS
           ${WIRE_EBLIF}
-          ${VPR}
+          ${DEVICE_MERGED_FILE} ${DEVICE_MERGED_FILE_TARGET}
           ${QUIET_CMD}
-          ${DEFINE_DEVICE_DEVICE_TYPE}
-          ${DEPS} ${PYTHON3}
-      COMMAND
-          ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/check_cache.py ${OUT_RRXML_REAL} ${OUT_RRXML_REAL}.cache ${OUTPUTS} || (
+          ${VPR} ${DEFINE_DEVICE_DEVICE_TYPE}
+        COMMAND
           ${QUIET_CMD} ${VPR} ${DEVICE_MERGED_FILE}
           --device ${DEVICE_FULL}
           ${WIRE_EBLIF}
-          --read_rr_graph ${OUT_RRXML_REAL}
-          --write_rr_graph ${OUT_RRBIN_REAL}
-          --read_rr_edge_metadata on
-          --outfile_prefix ${DEVICE}_${PACKAGE}_cache
+          --place_algorithm bounding_box
+          --route_chan_width ${RRXML_VIRT_ROUTE_CHAN_WIDTH}
+          --echo_file on
+          --min_route_chan_width_hint 1
+          --write_rr_graph ${OUT_RR_VIRT}
+          --outfile_prefix ${DEVICE}_${PACKAGE}
           --pack
+          --pack_verbosity 100
           --place
-          ${ARGS}
-          ${DEFINE_DEVICE_CACHE_ARGS} &&
-          ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/update_cache.py ${OUT_RRXML_REAL} ${OUT_RRXML_REAL}.cache)
-      COMMAND
+          --allow_dangling_combinational_nodes on
+        COMMAND
           ${CMAKE_COMMAND} -E copy vpr_stdout.log
-            rr_graph_${DEVICE}_${PACKAGE}.cache.out
-      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    )
+          rr_graph_${DEVICE}_${PACKAGE}.virt.out
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+      )
+      add_custom_target(
+        ${DEFINE_DEVICE_ARCH}_${DEFINE_DEVICE_DEVICE}_${PACKAGE}_rrxml_virt
+        DEPENDS ${OUT_RR_VIRT}
+      )
 
-    add_file_target(FILE ${OUT_RRBIN_REAL_FILENAME} GENERATED)
-    get_file_target(RRBIN_REAL_TARGET ${OUT_RRBIN_REAL_FILENAME})
+      add_file_target(FILE ${OUT_RR_VIRT_FILENAME} GENERATED)
+
+    # Use the external rr_graph as virtual directly
+    else()
+      get_filename_component(OUT_RR_VIRT          ${EXT_RR_GRAPH} REALPATH)
+      get_filename_component(OUT_RR_VIRT_FILENAME ${EXT_RR_GRAPH} NAME)
+
+    endif()
+
+    # Patch the virtual rr graph if necessary
+    if(NOT ${NO_RR_PATCHING})
+
+      set(OUT_RR_PATCHED_FILENAME
+        rr_graph_${DEVICE}_${PACKAGE}.rr_graph.patched${RR_GRAPH_EXT})
+      set(OUT_RR_PATCHED
+        ${CMAKE_CURRENT_BINARY_DIR}/${OUT_RR_PATCHED_FILENAME})
+
+      set(RR_PATCH_DEPS ${DEFINE_DEVICE_RR_PATCH_DEPS})
+      append_file_dependency(RR_PATCH_DEPS ${VIRT_DEVICE_MERGED_FILE})
+      append_file_dependency(RR_PATCH_DEPS ${OUT_RR_VIRT_FILENAME})
+
+      # Set the variables below to maintain compatibility with existing
+      # invocations of rr patching utils.
+      set(OUT_RRXML_VIRT ${OUT_RR_VIRT})
+      set(OUT_RRXML_REAL ${OUT_RR_PATCHED})
+
+      get_target_property_required(PYTHON3 env PYTHON3)
+      string(CONFIGURE ${RR_PATCH_CMD} RR_PATCH_CMD_FOR_TARGET)
+      separate_arguments(
+        RR_PATCH_CMD_FOR_TARGET_LIST UNIX_COMMAND ${RR_PATCH_CMD_FOR_TARGET}
+      )
+      add_custom_command(
+        OUTPUT ${OUT_RR_PATCHED}
+        DEPENDS ${RR_PATCH_DEPS} ${RR_PATCH_TOOL}
+        COMMAND ${RR_PATCH_CMD_FOR_TARGET_LIST} ${DEFINE_DEVICE_RR_PATCH_EXTRA_ARGS}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        VERBATIM
+      )
+
+      add_file_target(FILE ${OUT_RR_PATCHED_FILENAME} GENERATED)
+
+      add_custom_target(
+        ${DEFINE_DEVICE_ARCH}_${DEFINE_DEVICE_DEVICE}_${PACKAGE}_rrxml_real
+        DEPENDS ${OUT_RR_PATCHED}
+        )
+      add_dependencies(all_rrgraph_xmls ${DEFINE_DEVICE_ARCH}_${DEFINE_DEVICE_DEVICE}_${PACKAGE}_rrxml_real)
+
+      # Lint the "real" rr_graph.xml
+      if("${RR_GRAPH_EXT}" STREQUAL ".xml")
+
+        set(OUT_RR_PATCHED_LINT_FILENAME rr_graph_${DEVICE}_${PACKAGE}.rr_graph.patched.lint.html)
+        set(OUT_RR_PATCHED_LINT ${CMAKE_CURRENT_BINARY_DIR}/${OUT_RR_PATCHED_LINT_FILENAME})
+
+        xml_lint(
+          NAME ${DEFINE_DEVICE_ARCH}_${DEFINE_DEVICE_DEVICE}_${PACKAGE}_rrxml_real_lint
+          LINT_OUTPUT ${OUT_RR_PATCHED_LINT}
+          FILE ${OUT_RR_PATCHED}
+          SCHEMA ${ROUTING_SCHEMA}
+          )
+      endif()
+
+    # Use the virtual rr_graph directly
+    else()
+
+      if(NOT DEFINED EXT_RR_GRAPH)
+        set(OUT_RR_PATCHED_FILENAME ${OUT_RR_VIRT_FILENAME})
+        set(OUT_RR_PATCHED          ${OUT_RR_VIRT})
+      else()
+        get_filename_component(OUT_RR_PATCHED          ${EXT_RR_GRAPH} REALPATH)
+        get_filename_component(OUT_RR_PATCHED_FILENAME ${EXT_RR_GRAPH} NAME)
+      endif()
+
+    endif()
+
+    # Convert patched rr_graph.xml to rr_graph.bin if necessary
+    if("${RR_GRAPH_EXT}" STREQUAL ".xml")
+
+      set(OUT_RR_REAL_FILENAME
+        rr_graph_${DEVICE}_${PACKAGE}.rr_graph.real.bin)
+      set(OUT_RR_REAL
+        ${CMAKE_CURRENT_BINARY_DIR}/${OUT_RR_REAL_FILENAME})
+
+      set(DEPS)
+      append_file_dependency(DEPS ${OUT_RR_PATCHED_FILENAME})
+      append_file_dependency(DEPS ${VIRT_DEVICE_MERGED_FILE})
+
+      add_custom_command(
+        OUTPUT ${OUT_RR_REAL}
+        DEPENDS
+            ${WIRE_EBLIF}
+            ${VPR}
+            ${QUIET_CMD}
+            ${DEFINE_DEVICE_DEVICE_TYPE}
+            ${DEPS} ${PYTHON3}
+        COMMAND
+            ${QUIET_CMD} ${VPR} ${DEVICE_MERGED_FILE}
+            --device ${DEVICE_FULL}
+            ${WIRE_EBLIF}
+            --read_rr_graph ${OUT_RR_PATCHED}
+            --read_rr_edge_metadata on
+            --write_rr_graph ${OUT_RR_REAL}
+            --outfile_prefix ${OUT_RR_REAL}_
+            --pack
+            --place
+            ${DEFINE_DEVICE_CACHE_ARGS}
+        COMMAND
+            ${CMAKE_COMMAND} -E copy vpr_stdout.log
+              ${OUT_RR_REAL}.out
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+      )
+
+      add_file_target(FILE ${OUT_RR_REAL_FILENAME} GENERATED)
+
+    else()
+
+      if(NOT DEFINED EXT_RR_GRAPH)
+
+        # Use the virtual rr_graph directly
+        if(${NO_RR_PATCHING})
+          set(OUT_RR_REAL_FILENAME ${OUT_RR_VIRT_FILENAME})
+          set(OUT_RR_REAL          ${OUT_RR_VIRT})
+
+        # Use the patched rr_graph.bin directly
+        else()
+          set(OUT_RR_REAL_FILENAME ${OUT_RR_PATCHED_FILENAME})
+          set(OUT_RR_REAL          ${OUT_RR_PATCHED})
+        endif()
+
+      else()
+
+        # Use external real rr_graph.bin directly
+        if(${NO_RR_PATCHING})
+
+          get_filename_component(OUT_RR_REAL          ${EXT_RR_GRAPH} REALPATH)
+          get_filename_component(OUT_RR_REAL_FILENAME ${EXT_RR_GRAPH} NAME)
+
+        # Use the patched rr_graph.bin directly
+        else()
+          set(OUT_RR_REAL_FILENAME ${OUT_RR_PATCHED_FILENAME})
+          set(OUT_RR_REAL          ${OUT_RR_PATCHED})
+        endif()
+
+      endif()
+
+    endif()
 
     set_target_properties(
       ${DEFINE_DEVICE_DEVICE}
       PROPERTIES
-        ${PACKAGE}_OUT_RRBIN_REAL ${CMAKE_CURRENT_SOURCE_DIR}/${OUT_RRBIN_REAL_FILENAME}
+        ${PACKAGE}_OUT_RRBIN_REAL ${CMAKE_CURRENT_SOURCE_DIR}/${OUT_RR_REAL_FILENAME}
     )
 
-    if(${DEFINE_DEVICE_CACHE_LOOKAHEAD})
-      add_file_target(FILE ${LOOKAHEAD_FILENAME} GENERATED)
-
-      # Linearize target dependency.
-      get_file_target(LOOKAHEAD_TARGET ${LOOKAHEAD_FILENAME})
-      add_dependencies(${LOOKAHEAD_TARGET} ${RRBIN_REAL_TARGET})
-    endif()
-
-    if(${DEFINE_DEVICE_CACHE_PLACE_DELAY})
-      add_file_target(FILE ${PLACE_DELAY_FILENAME} GENERATED)
-
-      # Linearize target dependency.
-      get_file_target(PLACE_DELAY_TARGET ${PLACE_DELAY_FILENAME})
-      add_dependencies(${PLACE_DELAY_TARGET} ${RRBIN_REAL_TARGET})
-    endif()
-
+    # Generate lookahead and place delay lookup caches
     if(${DEFINE_DEVICE_CACHE_LOOKAHEAD} OR ${DEFINE_DEVICE_CACHE_PLACE_DELAY})
+
+      set(LOOKAHEAD_FILENAME
+        rr_graph_${DEVICE}_${PACKAGE}.lookahead.bin)
+      set(PLACE_DELAY_FILENAME
+        rr_graph_${DEVICE}_${PACKAGE}.place_delay.bin)
+
+      set(DEPS)
+      append_file_dependency(DEPS ${OUT_RR_REAL_FILENAME})
+      append_file_dependency(DEPS ${VIRT_DEVICE_MERGED_FILE})
+
+      set(ARGS)
+      if(${DEFINE_DEVICE_CACHE_LOOKAHEAD})
+          list(APPEND OUTPUTS ${LOOKAHEAD_FILENAME})
+          list(APPEND ARGS --write_router_lookahead ${LOOKAHEAD_FILENAME})
+      endif()
+      if(${DEFINE_DEVICE_CACHE_PLACE_DELAY})
+          list(APPEND OUTPUTS ${PLACE_DELAY_FILENAME})
+          list(APPEND ARGS --write_placement_delay_lookup ${PLACE_DELAY_FILENAME})
+      endif()
+
+      set(CACHE_PREFIX rr_graph_${DEVICE}_${PACKAGE})
+
+      add_custom_command(
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${CACHE_PREFIX}.cache ${OUTPUTS}
+        DEPENDS
+            ${WIRE_EBLIF}
+            ${VPR}
+            ${QUIET_CMD}
+            ${DEFINE_DEVICE_DEVICE_TYPE}
+            ${DEPS} ${PYTHON3}
+        COMMAND
+            ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/check_cache.py ${OUT_RR_REAL} ${CACHE_PREFIX}.cache ${OUTPUTS} || (
+            ${QUIET_CMD} ${VPR} ${DEVICE_MERGED_FILE}
+            --device ${DEVICE_FULL}
+            ${WIRE_EBLIF}
+            --read_rr_graph ${OUT_RR_REAL}
+            --read_rr_edge_metadata on
+            --outfile_prefix ${CACHE_PREFIX}_cache_
+            --pack
+            --place
+            ${ARGS}
+            ${DEFINE_DEVICE_CACHE_ARGS} &&
+            ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/update_cache.py ${OUT_RR_REAL} ${CACHE_PREFIX}.cache)
+        COMMAND
+            ${CMAKE_COMMAND} -E copy vpr_stdout.log
+              ${CMAKE_CURRENT_BINARY_DIR}/${CACHE_PREFIX}.cache.out
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+      )
+
+      add_file_target(FILE ${CACHE_PREFIX}.cache GENERATED)
+      get_file_target(CACHE_TARGET ${CACHE_PREFIX}.cache)
+
+      if(${DEFINE_DEVICE_CACHE_LOOKAHEAD})
+        add_file_target(FILE ${LOOKAHEAD_FILENAME} GENERATED)
+
+        # Linearize target dependency.
+        get_file_target(LOOKAHEAD_TARGET ${LOOKAHEAD_FILENAME})
+        add_dependencies(${LOOKAHEAD_TARGET} ${CACHE_TARGET})
+      endif()
+
+      if(${DEFINE_DEVICE_CACHE_PLACE_DELAY})
+        add_file_target(FILE ${PLACE_DELAY_FILENAME} GENERATED)
+
+        # Linearize target dependency.
+        get_file_target(PLACE_DELAY_TARGET ${PLACE_DELAY_FILENAME})
+        add_dependencies(${PLACE_DELAY_TARGET} ${CACHE_TARGET})
+      endif()
+
       set_target_properties(
         ${DEFINE_DEVICE_DEVICE}
         PROPERTIES
@@ -1306,13 +1404,7 @@ function(ADD_FPGA_TARGET)
     DEVICE_MERGED_FILE ${DEVICE_TYPE} DEVICE_MERGED_FILE
   )
   get_target_property_required(
-    OUT_RRXML_REAL ${DEVICE} ${PACKAGE}_OUT_RRXML_REAL
-  )
-  get_target_property_required(
     OUT_RRBIN_REAL ${DEVICE} ${PACKAGE}_OUT_RRBIN_REAL
-  )
-  get_target_property_required(
-    OUT_RRXML_VIRT ${DEVICE} OUT_RRXML_VIRT
   )
 
   if(NOT "${ADD_FPGA_TARGET_INPUT_XDC_FILE}" STREQUAL "")
@@ -1568,8 +1660,6 @@ function(ADD_FPGA_TARGET)
   append_file_dependency(VPR_DEPS ${OUT_EBLIF_REL})
   list(APPEND VPR_DEPS ${DEFINE_DEVICE_DEVICE_TYPE})
 
-  get_file_location(OUT_RRXML_VIRT_LOCATION ${OUT_RRXML_VIRT})
-  get_file_location(OUT_RRXML_REAL_LOCATION ${OUT_RRXML_REAL})
   get_file_location(OUT_RRBIN_REAL_LOCATION ${OUT_RRBIN_REAL})
   get_file_location(DEVICE_MERGED_FILE_LOCATION ${DEVICE_MERGED_FILE})
 
