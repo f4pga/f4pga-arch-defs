@@ -60,6 +60,8 @@ for type in ['tests', 'docs', 'ice40', 'testarch', 'xc7', 'xc7-vendor',
              'xc7a200t', 'xc7a200t-vendor', 'ql', 'install', 'install-200t']:
     if 'install' in type:
         artifacts = INSTALL
+    elif 'ql' == type:
+        artifacts = INSTALL + "\n" + DEFAULT_ARTIFACTS
     else:
         artifacts = DEFAULT_ARTIFACTS
 
