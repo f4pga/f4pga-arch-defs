@@ -4,6 +4,6 @@ add_quicklogic_board(
   DEVICE     qlf_k4n8-qlf_k4n8_umc22
   PINMAP_XML interface-mapping_24x24.xml
   PACKAGE    qlf_k4n8-qlf_k4n8_umc22
-  PINMAP     qlf_k4n8-qlf_k4n8_umc22_24x24.csv
+  PINMAP     qlf_k4n8-qlf_k4n8_umc22.csv
   FABRIC_PACKAGE qlf_k4n8_umc22
 )
