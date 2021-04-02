@@ -1,0 +1,12 @@
+#!/bin/bash
+set -e
+
+MYPATH=$(dirname "$(readlink -f "$BASH_SOURCE")")
+
+
+source ${MYPATH}/env
+
+BIT2OPENOCD=`readlink -f ${MYPATH}/../bin/python/bitstream_to_openocd.py`
+
+echo "Generating bit.openocd"
+python3 ${BIT2OPENOCD} ${TOP_F}.bit ../${TOP_F}.openocd

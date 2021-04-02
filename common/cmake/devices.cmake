@@ -140,6 +140,7 @@ function(DEFINE_ARCH)
     NO_BIT_TO_BIN
     NO_BIT_TO_V
     NO_BIT_TIME
+    NO_INSTALL
     USE_FASM
   )
 
@@ -206,6 +207,7 @@ function(DEFINE_ARCH)
     NO_BIT_TO_BIN
     NO_BIT_TO_V
     NO_BIT_TIME
+    NO_INSTALL
     USE_FASM
     ROUTE_CHAN_WIDTH
     )
@@ -794,14 +796,15 @@ function(DEFINE_DEVICE)
       )
 
     # Install
-    if(NOT ${DONT_INSTALL})
+    get_target_property_required(NO_INSTALL ${DEFINE_DEVICE_ARCH} NO_INSTALL)
+    if(${NO_INSTALL})
+        message(STATUS "Skipping installation of device '${DEFINE_DEVICE_DEVICE}-${PACKAGE}', type '${DEFINE_DEVICE_DEVICE_TYPE}'")
+    else()
         install_device_files(
           PART ${PART}
           DEVICE ${DEFINE_DEVICE_DEVICE}
           DEVICE_TYPE ${DEFINE_DEVICE_DEVICE_TYPE}
           PACKAGE ${PACKAGE})
-    else()
-        message(WARNING "Skipping installation of device '${DEFINE_DEVICE_DEVICE}-${PACKAGE}', type '${DEFINE_DEVICE_DEVICE_TYPE}'")
     endif()
   endforeach()
 
@@ -1754,7 +1757,9 @@ function(ADD_FPGA_TARGET)
 
   endif()
 
-  if (${ADD_FPGA_TARGET_INSTALL_CIRCUIT})
+  get_target_property_required(NO_INSTALL ${ARCH} NO_INSTALL)
+
+  if (${ADD_FPGA_TARGET_INSTALL_CIRCUIT} AND NOT ${NO_INSTALL})
     set(INSTALL_DEPS "")
 
     # Install circuit

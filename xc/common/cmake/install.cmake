@@ -11,10 +11,18 @@ function(DEFINE_XC_TOOLCHAIN_TARGET)
     "${ARGN}"
   )
 
+  set(ARCH ${DEFINE_XC_TOOLCHAIN_TARGET_ARCH})
+
+  # Check if the architecture is to be installed
+  get_target_property_required(NO_INSTALL ${ARCH} NO_INSTALL)
+  if(${NO_INSTALL})
+    message(STATUS "Architecture ${ARCH} not set for install")
+    return()
+  endif()
+
   get_target_property_required(VPR env VPR)
   get_target_property_required(GENFASM env GENFASM)
 
-  set(ARCH ${DEFINE_XC_TOOLCHAIN_TARGET_ARCH})
   set(VPR_ARCH_ARGS ${DEFINE_XC_TOOLCHAIN_TARGET_VPR_ARCH_ARGS})
   set(ROUTE_CHAN_WIDTH ${DEFINE_XC_TOOLCHAIN_TARGET_ROUTE_CHAN_WIDTH})
   list(JOIN VPR_BASE_ARGS " " VPR_BASE_ARGS)
@@ -91,6 +99,15 @@ function(DEFINE_XC_PINMAP_CSV_INSTALL_TARGET)
   set(DEVICE ${DEFINE_XC_PINMAP_CSV_INSTALL_TARGET_DEVICE})
   set(DEVICE_TYPE ${DEFINE_XC_PINMAP_CSV_INSTALL_TARGET_DEVICE_TYPE})
   set(PACKAGE ${DEFINE_XC_PINMAP_CSV_INSTALL_TARGET_PACKAGE})
+
+  # Check if the architecture is to be installed
+  get_target_property_required(ARCH ${DEVICE} ARCH)
+  get_target_property_required(NO_INSTALL ${ARCH} NO_INSTALL)
+  if(${NO_INSTALL})
+    message(STATUS "Architecture ${ARCH} not set for install")
+    return()
+  endif()
+
 
   get_target_property(USE_ROI ${DEVICE_TYPE} USE_ROI)
   if(USE_ROI OR USE_ROI STREQUAL "USE_ROI-NOTFOUND")

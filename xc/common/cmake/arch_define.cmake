@@ -125,6 +125,11 @@ function(ADD_XC_ARCH_DEFINE)
     set(INTERCHANGE_FASM2BELS)
   endif()
 
+  set(INSTALL_ARGS "")
+  if(NOT ${FAMILY} IN_LIST INSTALL_FAMILY_LIST)
+    set(INSTALL_ARGS "NO_INSTALL")
+  endif()
+
   define_arch(
     ARCH ${ARCH}
     FAMILY ${FAMILY}
@@ -203,6 +208,7 @@ function(ADD_XC_ARCH_DEFINE)
         --xdc_file \${OUT_BIT_VERILOG}.xdc ${INTERCHANGE_FASM2BELS}"
     NO_BIT_TO_BIN
     NO_BIT_TIME
+    ${INSTALL_ARGS}
     USE_FASM
     RR_GRAPH_EXT ".bin"
     ROUTE_CHAN_WIDTH 500
@@ -211,11 +217,12 @@ function(ADD_XC_ARCH_DEFINE)
   set_target_properties(${ARCH} PROPERTIES PRJRAY_ARCH ${PRJRAY_ARCH})
   add_custom_target(all_${ARCH}_diff_fasm)
   define_xc_toolchain_target(
-      ARCH ${ARCH}
-      ROUTE_CHAN_WIDTH 500
-      VPR_ARCH_ARGS ${VPR_ARCH_ARGS}
-      CONV_SCRIPT ${YOSYS_CONV_SCRIPT}
-      SYNTH_SCRIPT ${YOSYS_SYNTH_SCRIPT}
-      UTILS_SCRIPT ${YOSYS_UTILS_SCRIPT})
+    ARCH ${ARCH}
+    ROUTE_CHAN_WIDTH 500
+    VPR_ARCH_ARGS ${VPR_ARCH_ARGS}
+    CONV_SCRIPT ${YOSYS_CONV_SCRIPT}
+    SYNTH_SCRIPT ${YOSYS_SYNTH_SCRIPT}
+    UTILS_SCRIPT ${YOSYS_UTILS_SCRIPT}
+  )
 
 endfunction()
