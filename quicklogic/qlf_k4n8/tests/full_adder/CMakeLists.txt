@@ -1,0 +1,19 @@
+add_file_target(FILE full_adder.v SCANNER_TYPE verilog)
+
+add_fpga_target(
+  NAME full_adder-umc22-no-adder
+  BOARD qlf_k4n8-qlf_k4n8_umc22_board
+  SOURCES full_adder.v
+  EXPLICIT_ADD_FILE_TARGET
+  DEFINES SYNTH_OPTS=-no_adder
+  )
+
+add_fpga_target(
+  NAME full_adder-umc22-adder
+  BOARD qlf_k4n8-qlf_k4n8_umc22_board
+  SOURCES full_adder.v
+  EXPLICIT_ADD_FILE_TARGET
+  )
+
+add_dependencies(all_qlf_k4n8_tests_no_adder full_adder-umc22-no-adder_route)
+add_dependencies(all_qlf_k4n8_tests_adder    full_adder-umc22-adder_route)
