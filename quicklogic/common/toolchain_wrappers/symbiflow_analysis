@@ -1,0 +1,16 @@
+#!/bin/bash
+set -e
+
+MYPATH=`realpath $0`
+MYPATH=`dirname ${MYPATH}`
+
+source ${MYPATH}/env
+source ${VPRPATH}/vpr_common
+
+parse_args $@
+
+export OUT_NOISY_WARNINGS=noisy_warnings-${DEVICE}_analysis.log
+
+run_vpr --analysis --gen_post_synthesis_netlist on
+
+mv vpr_stdout.log analysis.log

@@ -16,6 +16,12 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
   set(VPR_ARCH_ARGS ${DEFINE_QL_TOOLCHAIN_TARGET_VPR_ARCH_ARGS})
   set(ROUTE_CHAN_WIDTH ${DEFINE_QL_TOOLCHAIN_TARGET_ROUTE_CHAN_WIDTH})
 
+  get_target_property_required(NO_INSTALL ${ARCH} NO_INSTALL)
+  if(${NO_INSTALL})
+    message(STATUS "Architecture not set for install.")
+    return()
+  endif()
+
   set(WRAPPERS env symbiflow_generate_constraints symbiflow_pack symbiflow_place symbiflow_route symbiflow_synth symbiflow_write_bitstream symbiflow_write_fasm symbiflow_write_binary symbiflow_write_jlink symbiflow_write_openocd symbiflow_write_bitheader symbiflow_write_fasm2bels symbiflow_generate_fasm2bels ql_symbiflow symbiflow_analysis)
 
   # Export VPR arguments
@@ -27,7 +33,7 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
   configure_file(${VPR_CONFIG_TEMPLATE} "${VPR_CONFIG}" @ONLY)
 
   set(VPR_COMMON "${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/toolchain_wrappers/vpr_common")
-  
+
   # Add cells.sim to all deps, so it is installed with make install
   get_file_target(CELLS_SIM_TARGET ${DEFINE_QL_TOOLCHAIN_TARGET_CELLS_SIM})
   add_custom_target(
@@ -50,52 +56,11 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
           DESTINATION share/quicklogic/${FAMILY}/vpr)
 
   # install python scripts
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/split_inouts.py
+   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/split_inouts.py
           DESTINATION bin/python
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/create_ioplace.py
-          DESTINATION bin/python
-          PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
-
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/create_place_constraints.py
-          DESTINATION bin/python
-          PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
-
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/fasm2bels.py
-          DESTINATION bin/python
-          PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
-
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/quicklogic-fasm/quicklogic_fasm/bitstream_to_jlink.py
-          DESTINATION bin/python
-          PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
-
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/quicklogic-fasm/quicklogic_fasm/bitstream_to_header.py
-          DESTINATION bin/python
-          PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
-
-  # install python script dependencies
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/connections.py
-          DESTINATION bin/python
-          PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
-
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/data_structs.py
-          DESTINATION bin/python
-          PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
-
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/timing.py
-          DESTINATION bin/python
-          PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
-
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/tile_import.py
-          DESTINATION bin/python
-          PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
-
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/utils.py
-          DESTINATION bin/python
-          PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
-
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/verilogmodule.py
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/pinmap_parse.py
           DESTINATION bin/python
           PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
 
@@ -126,35 +91,17 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
   install(FILES  ${DEFINE_QL_TOOLCHAIN_TARGET_CONV_SCRIPT} ${DEFINE_QL_TOOLCHAIN_TARGET_SYNTH_SCRIPT}
     DESTINATION share/quicklogic/${FAMILY}/yosys)
 
-  # Install PP3 specific files
-  if("${FAMILY}" STREQUAL "pp3")
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/utils/create_ioplace.py
+          DESTINATION bin/python
+          PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
-    # Database
-    install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/build/quicklogic/${FAMILY}/devices/ql-eos-s3-virt/db_phy.pickle
-      DESTINATION share/arch/ql-eos-s3_wlcsp
-      PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ )
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/devices/umc22/interface-mapping_24x24.xml
+          DESTINATION share/symbiflow/arch/qlf_k4n8-qlf_k4n8_umc22_qlf_k4n8-qlf_k4n8_umc22
+          PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
-    # Python scripts
-    install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/eos_s3_iomux_config.py
-      DESTINATION bin/python
-      PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
-
-    # Yosys scripts
-    install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/yosys/pack.tcl
-      DESTINATION share/quicklogic/${FAMILY}/yosys
-      PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
-
-  # Install AP3 specific files
-  elseif("${FAMILY}" STREQUAL "ap3")
-
-    # Anything?
-
-  # Unsupported family
-  else()
-    message(FATA_ERROR "Family '${FAMILY}' is not suitable for installed toolchain")
-  endif()
-
-
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/devices/umc22/qlf_k4n8-qlf_k4n8_umc22_24x24.csv
+          DESTINATION share/symbiflow/arch/qlf_k4n8-qlf_k4n8_umc22_qlf_k4n8-qlf_k4n8_umc22
+          PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 endfunction()
 
 function(DEFINE_QL_DEVICE_CELLS_INSTALL_TARGET)
@@ -174,21 +121,25 @@ function(DEFINE_QL_DEVICE_CELLS_INSTALL_TARGET)
   set(DEVICE ${DEFINE_QL_DEVICE_CELLS_INSTALL_TARGET_DEVICE})
   set(PACKAGE ${DEFINE_QL_DEVICE_CELLS_INSTALL_TARGET_PACKAGE})
 
+  get_target_property_required(NO_INSTALL ${ARCH} NO_INSTALL)
+  if(${NO_INSTALL})
+    message(STATUS "Architecture ${ARCH} not set for install")
+    return()
+  endif()
+
   # Install the final architecture file. This is actually already done in
   # DEFINE_DEVICE but in case when the file name differs across devices we
   # want it to be unified for the installed toolchain.
   get_target_property_required(DEVICE_MERGED_FILE ${DEVICE_TYPE} DEVICE_MERGED_FILE)
   get_file_target(DEVICE_MERGED_FILE_TARGET ${DEVICE_MERGED_FILE})
-  get_file_location(DEVICE_MERGED_FILE ${DEVICE_MERGED_FILE})
 
   install(FILES ${DEVICE_MERGED_FILE}
-          DESTINATION "share/arch/${DEVICE}_${PACKAGE}"
+          DESTINATION "share/symbiflow/arch/${DEVICE}_${PACKAGE}"
           RENAME "arch_${DEVICE}_${PACKAGE}.xml")
 
   # Install device-specific cells sim and cells map files
   get_target_property(CELLS_SIM ${DEVICE_TYPE} CELLS_SIM)
   get_target_property(CELLS_MAP ${DEVICE_TYPE} CELLS_MAP)
-
   if (NOT "${CELLS_SIM}" MATCHES ".*NOTFOUND")
     get_file_target(CELLS_SIM_TARGET ${CELLS_SIM})
     get_file_location(CELLS_SIM ${CELLS_SIM})
@@ -198,7 +149,7 @@ function(DEFINE_QL_DEVICE_CELLS_INSTALL_TARGET)
       DEPENDS ${CELLS_SIM_TARGET} ${CELLS_SIM}
       )
     install(FILES ${CELLS_SIM}
-      DESTINATION "share/arch/${DEVICE}_${PACKAGE}/cells")
+      DESTINATION "share/symbiflow/arch/${DEVICE}_${PACKAGE}/cells")
   endif()
 
   if (NOT "${CELLS_MAP}" MATCHES ".*NOTFOUND")
@@ -210,31 +161,8 @@ function(DEFINE_QL_DEVICE_CELLS_INSTALL_TARGET)
       DEPENDS ${CELLS_MAP_TARGET} ${CELLS_MAP}
       )
     install(FILES ${CELLS_MAP}
-      DESTINATION "share/arch/${DEVICE}_${PACKAGE}/cells")
+      DESTINATION "share/symbiflow/arch/${DEVICE}_${PACKAGE}/cells")
   endif()
-
-  # install PP3 RAMFIFO simulation model files
-  if("${FAMILY}" STREQUAL "pp3")
-    install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/primitives/assp/assp_bfm.sim.v
-            DESTINATION "share/arch/${DEVICE}_${PACKAGE}/cells")
-
-    install(DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/primitives/ramfifo/
-            DESTINATION "share/arch/${DEVICE}_${PACKAGE}/cells"
-            FILES_MATCHING PATTERN "*.v")
-
-    # install RAMFIFO tutotrial examples
-    install(DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/tests/FIFO_Examples
-            DESTINATION "tests")
-    install(DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/tests/RAM_Examples
-            DESTINATION "tests")
-    install(DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/tests/quicklogic_testsuite/counter_16bit
-            DESTINATION "tests")
-    install(DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/tests/quicklogic_testsuite/fifo_test
-            DESTINATION "tests")
-    install(DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/tests/quicklogic_testsuite/ram_test
-            DESTINATION "tests")
-  endif()
-      
 endfunction()
 
 function(DEFINE_QL_PINMAP_CSV_INSTALL_TARGET)
@@ -256,8 +184,15 @@ function(DEFINE_QL_PINMAP_CSV_INSTALL_TARGET)
   set(DEVICE_TYPE ${DEFINE_QL_PINMAP_CSV_INSTALL_TARGET_DEVICE_TYPE})
   set(PACKAGE ${DEFINE_QL_PINMAP_CSV_INSTALL_TARGET_PACKAGE})
 
+  get_target_property_required(NO_INSTALL ${ARCH} NO_INSTALL)
+  if(${NO_INSTALL})
+    message(STATUS "Architecture ${ARCH} not set for install")
+    return()
+  endif()
+
   get_target_property_required(PINMAP ${BOARD} PINMAP)
   get_file_location(PINMAP_FILE ${PINMAP})
+  get_filename_component(PINMAP_FILE_REAL ${PINMAP_FILE} REALPATH)
   get_filename_component(PINMAP_FILE_NAME ${PINMAP_FILE} NAME)
   append_file_dependency(DEPS ${PINMAP})
   add_custom_target(
@@ -265,20 +200,24 @@ function(DEFINE_QL_PINMAP_CSV_INSTALL_TARGET)
     ALL
     DEPENDS ${DEPS}
     )
-  install(FILES ${PINMAP_FILE}
-    DESTINATION "share/arch/${DEVICE}_${PACKAGE}/${PART}"
+  install(FILES ${PINMAP_FILE_REAL}
+    DESTINATION "share/symbiflow/arch/${DEVICE}_${PACKAGE}/${PART}"
     RENAME "pinmap_${ADD_QUICKLOGIC_BOARD_FABRIC_PACKAGE}.csv")
 
-  get_target_property_required(CLKMAP ${BOARD} CLKMAP)
-  get_file_location(CLKMAP_FILE ${CLKMAP})
-  get_filename_component(CLKMAP_FILE_NAME ${CLKMAP_FILE} NAME)
-  append_file_dependency(DEPS ${CLKMAP})
-  add_custom_target(
-    "CLKMAP_INSTALL_${BOARD}_${DEVICE}_${PACKAGE}_${CLKMAP_FILE_NAME}"
-    ALL
-    DEPENDS ${DEPS}
-    )
-  install(FILES ${CLKMAP_FILE}
-    DESTINATION "share/arch/${DEVICE}_${PACKAGE}/${PART}"
-    RENAME "clkmap_${ADD_QUICKLOGIC_BOARD_FABRIC_PACKAGE}.csv")
+  get_target_property(CLKMAP ${BOARD} CLKMAP)
+  if(NOT "${CLKMAP}" MATCHES ".*-NOTFOUND")
+    get_file_location(CLKMAP_FILE ${CLKMAP})
+    get_filename_component(CLKMAP_FILE_REAL ${CLKMAP_FILE} REALPATH)
+    get_filename_component(CLKMAP_FILE_NAME ${CLKMAP_FILE} NAME)
+    append_file_dependency(DEPS ${CLKMAP})
+    add_custom_target(
+      "CLKMAP_INSTALL_${BOARD}_${DEVICE}_${PACKAGE}_${CLKMAP_FILE_NAME}"
+      ALL
+      DEPENDS ${DEPS}
+      )
+    install(FILES ${CLKMAP_FILE_REAL}
+      DESTINATION "share/symbiflow/arch/${DEVICE}_${PACKAGE}/${PART}"
+      RENAME "clkmap_${ADD_QUICKLOGIC_BOARD_FABRIC_PACKAGE}.csv")
+  endif()
+
 endfunction()

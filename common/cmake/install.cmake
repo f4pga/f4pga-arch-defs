@@ -61,6 +61,7 @@ function(INSTALL_DEVICE_FILES)
   # Generate installation target for the files
   foreach(FILE ${INSTALL_FILES})
     get_file_location(SRC_FILE ${FILE})
+    get_filename_component(SRC_FILE_REAL ${SRC_FILE} REALPATH)
     get_filename_component(FILE_NAME ${SRC_FILE} NAME)
     append_file_dependency(DEPS ${FILE})
     # Create a custom target and add it to ALL target.
@@ -70,8 +71,10 @@ function(INSTALL_DEVICE_FILES)
       "INSTALL_${DEVICE}_${PACKAGE}_${FILE_NAME}"
       ALL
       DEPENDS ${DEPS})
-    install(FILES ${SRC_FILE}
-      DESTINATION "share/symbiflow/arch/${DEVICE}_${PACKAGE}")
+    install(FILES ${SRC_FILE_REAL}
+      DESTINATION "share/symbiflow/arch/${DEVICE}_${PACKAGE}"
+      RENAME ${FILE_NAME}
+    )
   endforeach()
 
 endfunction()

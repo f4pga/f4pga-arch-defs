@@ -1,0 +1,12 @@
+#!/bin/bash
+set -e
+
+MYPATH=$(dirname "$(readlink -f "$BASH_SOURCE")")
+
+
+source ${MYPATH}/env
+
+BIT2BINARY=`readlink -f ${MYPATH}/../bin/python/bitstream_to_binary.py`
+
+
+python3 ${BIT2BINARY} ${TOP_F}.bit ../${TOP_F}.bin
