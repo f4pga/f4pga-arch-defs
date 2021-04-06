@@ -262,12 +262,10 @@ class Eblif:
 
             # Input list
             if fields[0] == ".inputs":
-                assert len(fields) >= 2
                 eblif.inputs = fields[1:]
 
             # Output list
             elif fields[0] == ".outputs":
-                assert len(fields) >= 2
                 eblif.outputs = fields[1:]
 
             # Got a generic cell
