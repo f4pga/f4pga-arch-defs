@@ -3,11 +3,9 @@
 A set of utils for VTR pb_type rr graphs
 """
 
-import re
 import itertools
 import colorsys
 
-from collections import namedtuple
 from enum import Enum
 
 from block_path import PathNode
@@ -180,9 +178,9 @@ class Graph():
                 # Add edge
                 ic = "direct:{}".format(xml_pbtype.attrib["name"])
                 if parent_node.port_type in [PortType.INPUT, PortType.CLOCK]:
-                    edge = graph.add_edge(parent_node.id, node.id, ic)
+                    graph.add_edge(parent_node.id, node.id, ic)
                 elif parent_node.port_type == PortType.OUTPUT:
-                    edge = graph.add_edge(node.id, parent_node.id, ic)
+                    graph.add_edge(node.id, parent_node.id, ic)
                 else:
                     assert False, parent_node
 
@@ -290,7 +288,7 @@ class Graph():
 
         # Determine where the pb_type is in the hierarchy
         is_leaf = is_leaf_pbtype(xml_pbtype)
-        is_top = get_parent_pb(xml_pbtype) == None
+        is_top = get_parent_pb(xml_pbtype) is None
         assert not (is_top and is_leaf), (xml_pbtype.tag, xml_pbtype.attrib)
 
         # Add nodes
@@ -463,7 +461,7 @@ class Graph():
             for i, net in enumerate(nets):
 
                 h = i / len(nets)
-                l = 0.50
+                l = 0.50  # noqa: E741
                 s = 1.0
 
                 r, g, b = colorsys.hls_to_rgb(h, l, s)
@@ -535,7 +533,7 @@ class Graph():
                 continue
 
             highlight = highlight_nodes is not None and \
-                        node.id in highlight_nodes
+                        node.id in highlight_nodes  # noqa: E127
 
             parts = node.path.split(".")
             label = "{}: {}".format(node.id, ".".join(parts[-2:]))
@@ -570,7 +568,6 @@ class Graph():
         # Add nodes
         for rank, nodes in nodes.items():
             dot.append(" {")
-            #dot.append("  rank=same;")
 
             for node in nodes:
                 dot.append(

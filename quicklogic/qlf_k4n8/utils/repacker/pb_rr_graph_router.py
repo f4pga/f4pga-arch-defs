@@ -4,7 +4,7 @@ This file implements a simple graph router used for complex block routing
 graphs.
 """
 
-from pb_rr_graph import Graph, NodeType
+from pb_rr_graph import NodeType
 
 # =============================================================================
 
@@ -220,4 +220,4 @@ class Router:
 
         # Route nets
         for net_name in nets:
-            res = self.route_net(self.nets[net_name], debug=debug)
+            self.route_net(self.nets[net_name], debug=debug)

@@ -39,8 +39,11 @@ def absorb_buffer_luts(netlist):
         return False
 
     # Identify LUT buffers
-    buffers = {key: cell for key, cell in netlist.cells.items() \
-               if is_buffer_lut(cell) == True}
+    buffers = {
+        key: cell
+        for key, cell in netlist.cells.items()
+        if is_buffer_lut(cell)
+    }
 
     # Merge them downstream
     net_map = {}

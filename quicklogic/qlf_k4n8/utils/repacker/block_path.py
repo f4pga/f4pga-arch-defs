@@ -8,7 +8,7 @@ import re
 
 # A regular expression for parsing path nodes
 PATH_NODE_RE = re.compile(
-    r"^(?P<name>[^\s\[\]\.]+)(\[(?P<index>[0-9]+)\])?" \
+    r"^(?P<name>[^\s\[\]\.]+)(\[(?P<index>[0-9]+)\])?"
     r"(\[(?P<mode>[^\s\[\]\.]+)\])?$"
 )
 

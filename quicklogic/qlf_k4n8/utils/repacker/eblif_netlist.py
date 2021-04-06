@@ -231,8 +231,8 @@ class Eblif:
 
         # Split lines, strip whitespace, remove blank ones
         lines = string.split("\n")
-        lines = [l.strip() for l in lines]
-        lines = [l for l in lines if l]
+        lines = [line.strip() for line in lines]
+        lines = [line for line in lines if line]
 
         eblif = None
         cell = None
