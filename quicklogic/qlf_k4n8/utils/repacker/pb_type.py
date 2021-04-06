@@ -62,10 +62,10 @@ class Port:
 
         # Create the port
         port = Port(
-            type = PortType.from_string(elem.tag),
-            name = elem.attrib["name"],
-            width = int(elem.get("num_pins", "1")),
-            cls = elem.get("port_class", None)
+            type=PortType.from_string(elem.tag),
+            name=elem.attrib["name"],
+            width=int(elem.get("num_pins", "1")),
+            cls=elem.get("port_class", None)
         )
 
         return port
@@ -81,8 +81,7 @@ class Port:
 
             # TODO: Compile the regex upfront
             match = re.fullmatch(
-                r"((?P<i1>[0-9]+):)?(?P<i0>[0-9]+)",
-                range_spec
+                r"((?P<i1>[0-9]+):)?(?P<i0>[0-9]+)", range_spec
             )
             assert match is not None, range_spec
 
@@ -96,9 +95,9 @@ class Port:
                 assert i1 < self.width, range_spec
 
                 if i1 > i0:
-                    indices = range(i0, i1+1)
+                    indices = range(i0, i1 + 1)
                 elif i1 < i0:
-                    indices = range(i0, i1-1, -1)
+                    indices = range(i0, i1 - 1, -1)
                 else:
                     indices = [i0]
 
@@ -113,6 +112,7 @@ class Port:
         # Yield names
         for i in indices:
             yield (self.name, i)
+
 
 # =============================================================================
 
@@ -191,14 +191,13 @@ class Model:
         string = self.name
         for port in self.ports.values():
             string += " {}:{}[{}:0]".format(
-                port.type.name[0].upper(),
-                port.name,
-                port.width - 1
+                port.type.name[0].upper(), port.name, port.width - 1
             )
         return string
 
     def __repr__(self):
         return str(self)
+
 
 # =============================================================================
 
@@ -256,7 +255,7 @@ class PbType:
         # implicit one.
         xml_modes = {x.attrib["name"]: x for x in elem.findall("mode")}
         if not xml_modes:
-            xml_modes  = {"default": elem}
+            xml_modes = {"default": elem}
 
         # Build modes
         pb_type.modes = {}
@@ -271,7 +270,6 @@ class PbType:
 
                 port = Port.from_etree(xml_port)
                 pb_type.ports[port.name] = port
-
 
         # This is a native LUT leaf pb_type. Add one more level of hierarchy
         if is_leaf_pbtype(elem) and cls == "lut":
@@ -304,8 +302,7 @@ class PbType:
 
         # TODO: Compile the regex upfront
         match = re.fullmatch(
-            r"(?P<port>[^\s\[\]\.]+)(\[(?P<bits>[^\s\[\]]+)\])?",
-            port_spec
+            r"(?P<port>[^\s\[\]\.]+)(\[(?P<bits>[^\s\[\]]+)\])?", port_spec
         )
         assert match is not None, port_spec
 
@@ -318,7 +315,6 @@ class PbType:
 
         # Yield the bits
         yield from port.yield_pins(bits)
-        
 
     def find(self, path):
         """

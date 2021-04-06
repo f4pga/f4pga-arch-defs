@@ -25,10 +25,10 @@ class Net:
 
     def __str__(self):
         return "{}, fanout={}, {}".format(
-            self.name,
-            len(self.sinks),
+            self.name, len(self.sinks),
             "routed" if self.is_routed else "unrouted"
         )
+
 
 # =============================================================================
 
@@ -102,7 +102,6 @@ class Router:
         keys = sorted(list(self.nets.keys()))
         for key in keys:
             print("   ", str(self.nets[key]))
-
 
     def route_net(self, net, debug=False):
         """
@@ -188,20 +187,20 @@ class Router:
                 # DEBUG
                 if debug:
                     with open("unrouted.dot", "w") as fp:
-                        fp.write(self.graph.dump_dot(
-                            color_by="net",
-                            highlight_nodes=set([
-                                net.source,
-                                sink
-                            ])
-                        ))
+                        fp.write(
+                            self.graph.dump_dot(
+                                color_by="net",
+                                highlight_nodes=set([net.source, sink])
+                            )
+                        )
 
                 # Raise an exception
-                raise RuntimeError("Unroutable net '{}' from {} to {}".format(
-                    net.name,
-                    self.graph.nodes[net.source],
-                    self.graph.nodes[sink]
-                ))
+                raise RuntimeError(
+                    "Unroutable net '{}' from {} to {}".format(
+                        net.name, self.graph.nodes[net.source],
+                        self.graph.nodes[sink]
+                    )
+                )
 
             # Annotate all nodes of the route
             for node_id in route:
@@ -210,12 +209,11 @@ class Router:
         # Success
         net.is_routed = True
 
-
     def route_nets(self, nets=None, debug=False):
         """
         Routes net with specified names or all nets if no names are given.
         """
-        
+
         # Use all if explicit list not provided
         if nets is None:
             nets = sorted(list(self.nets.keys()))

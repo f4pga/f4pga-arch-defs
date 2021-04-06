@@ -54,9 +54,9 @@ class PathNode:
         match = PATH_NODE_RE.fullmatch(string)
         assert match is not None, string
 
-        name  = match.group("name")
+        name = match.group("name")
         index = match.group("index")
-        mode  = match.group("mode")
+        mode = match.group("mode")
 
         if index is not None:
             index = int(index)

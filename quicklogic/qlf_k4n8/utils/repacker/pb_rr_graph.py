@@ -36,6 +36,7 @@ class Node:
     This class represents a node in pb graph. Nodes are associated with port
     pins.
     """
+
     def __init__(self, id, type, port_type, path, net=None):
         self.id = id
         self.type = type
@@ -45,11 +46,7 @@ class Node:
 
     def __str__(self):
         return "id:{:3d}, type:{}, port_type:{}, path:{}, net:{}".format(
-            self.id,
-            self.type,
-            self.port_type,
-            self.path,
-            self.net
+            self.id, self.type, self.port_type, self.path, self.net
         )
 
 
@@ -58,6 +55,7 @@ class Edge:
     This class represents an edge in pb_graph. Edges are associated with
     interconnect connections.
     """
+
     def __init__(self, src_id, dst_id, ic):
         self.src_id = src_id
         self.dst_id = dst_id
@@ -65,10 +63,9 @@ class Edge:
 
     def __str__(self):
         return "src_id:{}, dst_id:{}, ic:{}".format(
-            self.src_id,
-            self.dst_id,
-            self.ic
+            self.src_id, self.dst_id, self.ic
         )
+
 
 # =============================================================================
 
@@ -98,11 +95,11 @@ class Graph():
         Adds a new node. Automatically assings its id
         """
         node = Node(
-            id = self.next_node_id,
-            type = type,
-            port_type = port_type,
-            path = path,
-            net = net
+            id=self.next_node_id,
+            type=type,
+            port_type=port_type,
+            path=path,
+            net=net
         )
 
         self.nodes[node.id] = node
@@ -117,11 +114,7 @@ class Graph():
         assert src_id in self.nodes, src_id
         assert dst_id in self.nodes, dst_id
 
-        edge = Edge(
-            src_id = src_id,
-            dst_id = dst_id,
-            ic = ic
-        )
+        edge = Edge(src_id=src_id, dst_id=dst_id, ic=ic)
 
         self.edges.append(edge)
 
@@ -161,7 +154,7 @@ class Graph():
         Builds a routing graph for the given complex block from VPR
         architecture XML description.
         """
-        assert xml_clb.tag == "pb_type"        
+        assert xml_clb.tag == "pb_type"
 
         # Create the graph
         graph = Graph()
@@ -180,25 +173,16 @@ class Graph():
 
                 # Add node
                 node = graph.add_node(
-                    parent_node.type,
-                    parent_node.port_type,
+                    parent_node.type, parent_node.port_type,
                     ".".join([curr_path, parent_port])
                 )
 
                 # Add edge
-                ic = "direct:{}".format(xml_pbtype.attrib["name"]) 
+                ic = "direct:{}".format(xml_pbtype.attrib["name"])
                 if parent_node.port_type in [PortType.INPUT, PortType.CLOCK]:
-                    edge = graph.add_edge(
-                        parent_node.id,
-                        node.id,
-                        ic
-                    )
+                    edge = graph.add_edge(parent_node.id, node.id, ic)
                 elif parent_node.port_type == PortType.OUTPUT:
-                    edge = graph.add_edge(
-                        node.id,
-                        parent_node.id,
-                        ic
-                    )
+                    edge = graph.add_edge(node.id, parent_node.id, ic)
                 else:
                     assert False, parent_node
 
@@ -219,7 +203,10 @@ class Graph():
 
             # Identify all modes. If there is none then add the default
             # implicit one.
-            xml_modes = {x.attrib["name"]: x for x in xml_pbtype.findall("mode")}
+            xml_modes = {
+                x.attrib["name"]: x
+                for x in xml_pbtype.findall("mode")
+            }
             if not xml_modes:
                 xml_modes = {"default": xml_pbtype}
 
@@ -227,21 +214,23 @@ class Graph():
             for mode, xml_mode in xml_modes.items():
 
                 # Append mode name to the current path
-                curr_path = path +  "[{}]".format(mode)
+                curr_path = path + "[{}]".format(mode)
 
                 # Enumerate childern, build their paths
                 children = []
                 for xml_child, index in yield_pb_children(xml_mode):
 
-                    child_path = ".".join([
-                        curr_path,
-                        "{}[{}]".format(
-                            xml_child.attrib["name"],
-                            index
-                        )
-                    ])
+                    child_path = ".".join(
+                        [
+                            curr_path,
+                            "{}[{}]".format(xml_child.attrib["name"], index)
+                        ]
+                    )
 
-                    children.append((xml_child, child_path,))
+                    children.append((
+                        xml_child,
+                        child_path,
+                    ))
 
                 # Build child pb_type nodes
                 dn_node_map = {}
@@ -264,7 +253,6 @@ class Graph():
                 for xml_child, child_path in children:
                     if not is_leaf_pbtype(xml_child):
                         process_pbtype(xml_child, dn_node_map, child_path)
-
 
         # Set the top-level CLB path
         if clb_instance is None:
@@ -381,25 +369,26 @@ class Graph():
 
             # Direct
             if xml_conn.tag == "direct":
-                inps = list(yield_pins(xml_ic, xml_conn.attrib["input"],  False))
-                outs = list(yield_pins(xml_ic, xml_conn.attrib["output"], False))
+                inps = list(
+                    yield_pins(xml_ic, xml_conn.attrib["input"], False)
+                )
+                outs = list(
+                    yield_pins(xml_ic, xml_conn.attrib["output"], False)
+                )
 
                 assert len(inps) == len(outs), (
-                    xml_conn.tag,
-                    xml_conn.attrib,
-                    len(inps),
-                    len(outs)
+                    xml_conn.tag, xml_conn.attrib, len(inps), len(outs)
                 )
 
                 # Add edges
                 for inp, out in zip(inps, outs):
                     inp = get_node_path(inp)
                     out = get_node_path(out)
-                    
+
                     self.add_edge(
-                        src_id = node_map[inp].id,
-                        dst_id = node_map[out].id,
-                        ic = xml_conn.attrib["name"]
+                        src_id=node_map[inp].id,
+                        dst_id=node_map[out].id,
+                        ic=xml_conn.attrib["name"]
                     )
 
             # Mux
@@ -407,7 +396,9 @@ class Graph():
                 inp_ports = xml_conn.attrib["input"].split()
 
                 # Get output pins, should be only one
-                out_pins = list(yield_pins(xml_ic, xml_conn.attrib["output"], False))
+                out_pins = list(
+                    yield_pins(xml_ic, xml_conn.attrib["output"], False)
+                )
                 assert len(out_pins) == 1, xml_ic.attrib
 
                 # Build edges for each input port
@@ -420,11 +411,11 @@ class Graph():
                     # Add edge
                     inp = get_node_path(inp_pins[0])
                     out = get_node_path(out_pins[0])
-                    
+
                     self.add_edge(
-                        src_id = node_map[inp].id,
-                        dst_id = node_map[out].id,
-                        ic = xml_conn.attrib["name"]
+                        src_id=node_map[inp].id,
+                        dst_id=node_map[out].id,
+                        ic=xml_conn.attrib["name"]
                     )
 
             # Complete
@@ -445,11 +436,11 @@ class Graph():
                 for inp_pin, out_pin in itertools.product(inp_pins, out_pins):
                     inp = get_node_path(inp_pin)
                     out = get_node_path(out_pin)
-                    
+
                     self.add_edge(
-                        src_id = node_map[inp].id,
-                        dst_id = node_map[out].id,
-                        ic = xml_conn.attrib["name"]
+                        src_id=node_map[inp].id,
+                        dst_id=node_map[out].id,
+                        ic=xml_conn.attrib["name"]
                     )
 
     def dump_dot(self, color_by="type", nets_only=False, highlight_nodes=None):
@@ -464,7 +455,8 @@ class Graph():
 
         # Build net color map
         if color_by == "net":
-            nets = set([node.net for node in self.nodes.values()]) - set([None])
+            nets = set([node.net for node in self.nodes.values()]
+                       ) - set([None])
             nets = sorted(list(nets))
 
             net_colors = {}
@@ -565,13 +557,15 @@ class Graph():
             if rank not in nodes:
                 nodes[rank] = []
 
-            nodes[rank].append({
-                "id": node.id,
-                "label": label,
-                "xlabel": xlabel,
-                "color": color,
-                "shape": shape
-            })
+            nodes[rank].append(
+                {
+                    "id": node.id,
+                    "label": label,
+                    "xlabel": xlabel,
+                    "color": color,
+                    "shape": shape
+                }
+            )
 
         # Add nodes
         for rank, nodes in nodes.items():
@@ -579,13 +573,16 @@ class Graph():
             #dot.append("  rank=same;")
 
             for node in nodes:
-                dot.append("  node_{} [label=\"{}\",xlabel=\"{}\",fillcolor=\"{}\",shape={}];".format(
-                    node["id"],
-                    node["label"],
-                    node["xlabel"],
-                    node["color"],
-                    node["shape"],
-                ))
+                dot.append(
+                    "  node_{} [label=\"{}\",xlabel=\"{}\",fillcolor=\"{}\",shape={}];"
+                    .format(
+                        node["id"],
+                        node["label"],
+                        node["xlabel"],
+                        node["color"],
+                        node["shape"],
+                    )
+                )
 
             dot.append(" }")
 
@@ -596,15 +593,14 @@ class Graph():
                 if not self.edge_net(edge):
                     continue
 
-            label = edge.ic 
+            label = edge.ic
             color = edge_color(edge)
 
-            dot.append(" node_{} -> node_{} [label=\"{}\",color=\"{}\"];".format(
-                edge.src_id,
-                edge.dst_id,
-                label,
-                color
-            ))
+            dot.append(
+                " node_{} -> node_{} [label=\"{}\",color=\"{}\"];".format(
+                    edge.src_id, edge.dst_id, label, color
+                )
+            )
 
         # Footer
         dot.append("}")

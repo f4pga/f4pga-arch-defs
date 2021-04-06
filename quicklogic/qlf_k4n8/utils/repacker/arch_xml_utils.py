@@ -23,7 +23,9 @@ def get_parent_pb(xml_pbtype):
     Returns a parent pb_type of the given one or none if it is a top-level
     complex block
     """
-    assert xml_pbtype.tag in ["pb_type", "mode", "interconnect"], xml_pbtype.tag
+    assert xml_pbtype.tag in [
+        "pb_type", "mode", "interconnect"
+    ], xml_pbtype.tag
 
     # Get immediate parent
     xml_parent = xml_pbtype.getparent()
@@ -97,6 +99,7 @@ def get_pb_by_name(xml_parent, name):
     # None found
     return None
 
+
 # =============================================================================
 
 
@@ -109,12 +112,14 @@ def yield_pb_children(xml_parent):
         for i in range(num_pb):
             yield xml_child, i
 
+
 # =============================================================================
 
 INTERCONNECT_PORT_SPEC_RE = re.compile(
     r"((?P<pbtype>[A-Za-z0-9_]+)(\[(?P<indices>[0-9:]+)\])?\.)" \
     r"(?P<port>[A-Za-z0-9_]+)(\[(?P<bits>[0-9:]+)\])?"
 )
+
 
 def get_pb_and_port(xml_ic, port_spec):
     """
@@ -151,17 +156,17 @@ def yield_indices(index_spec):
     # None
     if index_spec is None:
         return
-        
+
     # Range
     elif ":" in index_spec:
         i0, i1 = [int(i) for i in index_spec.split(":")]
 
         if i0 > i1:
-            for i in range(i1, i0+1):
+            for i in range(i1, i0 + 1):
                 yield i
 
         elif i0 < i1:
-            for i in range(i0, i1+1):
+            for i in range(i0, i1 + 1):
                 yield i
 
         else:
@@ -207,7 +212,7 @@ def yield_pins(xml_ic, port_spec, skip_index=True):
         indices = list(yield_indices(match.group("indices")))
         if not indices:
             if num_pb > 1:
-                indices = list(range(0, num_pb))    
+                indices = list(range(0, num_pb))
             else:
                 indices = [None]
     else:
@@ -238,6 +243,7 @@ def yield_pins(xml_ic, port_spec, skip_index=True):
                 name += "[0]"
 
             yield name
+
 
 # =============================================================================
 

@@ -39,6 +39,7 @@ def get_block_by_path(block, path):
 
     return None
 
+
 # =============================================================================
 
 
@@ -49,14 +50,16 @@ def load_clb_nets_into_pb_graph(clb_block, clb_graph):
 
     # Annotate nodes with nets
     for node in clb_graph.nodes.values():
-    
+
         # Disassemble node path parts
         parts = node.path.split(".")
         parts = [PathNode.from_string(p) for p in parts]
 
         # Check if the node belongs to this CLB
         block_inst = "{}[{}]".format(parts[0].name, parts[0].index)
-        assert block_inst == clb_block.instance, (block_inst, clb_block.instance)
+        assert block_inst == clb_block.instance, (
+            block_inst, clb_block.instance
+        )
 
         # Find the block referred to by the node
         block = get_block_by_path(clb_block, parts[1:-1])
@@ -72,6 +75,7 @@ def load_clb_nets_into_pb_graph(clb_block, clb_graph):
         # Find a net for the port pin and assign it
         net = block.find_net_for_port(block_port.name, node_port.index)
         node.net = net
+
 
 # =============================================================================
 
@@ -135,8 +139,8 @@ def build_packed_netlist_from_pb_graph(clb_graph):
         instance = "{}[{}]".format(parts[0].name, parts[0].index)
         if clb_block is None:
             clb_block = packed_netlist.Block(
-                name = "clb", # FIXME:
-                instance = instance
+                name="clb",  # FIXME:
+                instance=instance
             )
         else:
             assert clb_block.instance == instance
@@ -146,7 +150,7 @@ def build_packed_netlist_from_pb_graph(clb_graph):
         for prev_part, curr_part in zip(parts[0:-2], parts[1:-1]):
             instance = "{}[{}]".format(curr_part.name, curr_part.index)
             parent_mode = prev_part.mode
-                
+
             # Get an existing block
             if instance in parent.blocks:
                 block = parent.blocks[instance]
@@ -154,16 +158,15 @@ def build_packed_netlist_from_pb_graph(clb_graph):
             # Create a new block
             else:
                 block = packed_netlist.Block(
-                    name = "",
-                    instance = instance,
-                    parent = parent
+                    name="", instance=instance, parent=parent
                 )
                 block.name = "block@{:08X}".format(id(block))
                 parent.blocks[instance] = block
 
             # Set / verify operating mode of the parent
             if parent_mode is not None:
-                assert parent.mode in [None, parent_mode], (parent.mode, parent_mode)
+                assert parent.mode in [None, parent_mode
+                                       ], (parent.mode, parent_mode)
                 parent.mode = parent_mode
 
             # Next level
@@ -202,9 +205,7 @@ def build_packed_netlist_from_pb_graph(clb_graph):
 
         # Create an open block
         block = packed_netlist.Block(
-            name = "open",
-            instance = instance,
-            parent = parent
+            name="open", instance=instance, parent=parent
         )
         parent.blocks[block.instance] = block
 
@@ -233,16 +234,13 @@ def build_packed_netlist_from_pb_graph(clb_graph):
 
             # The relevant information will be updated as more nodes gets
             # discovered.
-            port = packed_netlist.Port(
-                name = port_name,
-                type = port_type
-            )
+            port = packed_netlist.Port(name=port_name, type=port_type)
             block.ports[port_name] = port
 
         else:
 
             port = block.ports[port_name]
-            assert port.type == port_type, (port.type, port_type)        
+            assert port.type == port_type, (port.type, port_type)
 
         # Extend the port width if necessary
         bit_index = parts[-1].index
@@ -264,7 +262,9 @@ def build_packed_netlist_from_pb_graph(clb_graph):
 
             # Get the driver pb_type and port
             driver_path = clb_graph.nodes[driver_node].path.split(".")
-            driver_path = [PathNode.from_string(driver_path[i]) for i in [-2, -1]]
+            driver_path = [
+                PathNode.from_string(driver_path[i]) for i in [-2, -1]
+            ]
 
             # When a connection refers to the immediate parent do not include
             # block index suffix
@@ -274,9 +274,7 @@ def build_packed_netlist_from_pb_graph(clb_graph):
 
             # Add the connection
             port.connections[bit_index] = packed_netlist.Connection(
-                driver_instance,
-                driver_path[1].name,
-                driver_path[1].index,
+                driver_instance, driver_path[1].name, driver_path[1].index,
                 driver_conn
             )
 

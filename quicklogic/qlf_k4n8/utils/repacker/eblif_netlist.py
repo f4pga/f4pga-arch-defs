@@ -27,7 +27,7 @@ class Cell:
         self.name = None
 
         # Cell type (model)
-        self.type  = type
+        self.type = type
 
         # Ports and connections. Indexed by port specificatons
         # (as <port>[<bit>]), contains net names.
@@ -40,8 +40,8 @@ class Cell:
 
         # Extended EBLIF data
         self.cname = None
-        self.attributes = OrderedDict() # name: value, strings
-        self.parameters = OrderedDict() # name: value, strings
+        self.attributes = OrderedDict()  # name: value, strings
+        self.parameters = OrderedDict()  # name: value, strings
 
     def __str__(self):
         return "{} ({})".format(self.type, self.name)
@@ -96,7 +96,6 @@ class Eblif:
 
         # Cells (by names)
         self.cells = OrderedDict()
-
 
     def add_cell(self, cell):
         """
@@ -308,7 +307,7 @@ class Eblif:
                 if len(fields) >= 6:
                     cell.init = int(fields[5])
                 else:
-                    cell.init = 3 # Unknown
+                    cell.init = 3  # Unknown
 
             # Got a native LUT
             elif fields[0] == ".names":
@@ -324,7 +323,7 @@ class Eblif:
 
                 # Initialize the truth table
                 if type == "$lut":
-                    cell.init = [0 for i in range(2 ** width)]
+                    cell.init = [0 for i in range(2**width)]
                 elif type == "$const":
                     cell.init = 0
 
@@ -432,10 +431,12 @@ class Eblif:
 
                 # Write the cell header. Sort inputs by their indices
                 keys = sorted(nets.keys())
-                lines.append(".names {} {}".format(
-                    " ".join([nets[k] for k in keys]),
-                    str(cell.ports["lut_out"])
-                ))
+                lines.append(
+                    ".names {} {}".format(
+                        " ".join([nets[k] for k in keys]),
+                        str(cell.ports["lut_out"])
+                    )
+                )
 
                 # Write the truth table
                 fmt = "{:0" + str(len(nets)) + "b}"
@@ -449,11 +450,8 @@ class Eblif:
             elif cell.type in ["$fe", "$re", "$ah", "$al", "$as"]:
 
                 line = ".latch {} {} {} {} {}".format(
-                    str(cell.ports["D"]),
-                    str(cell.ports["Q"]),
-                    cell.type[1:],
-                    str(cell.ports["clock"]),
-                    str(cell.init)
+                    str(cell.ports["D"]), str(cell.ports["Q"]), cell.type[1:],
+                    str(cell.ports["clock"]), str(cell.init)
                 )
                 lines.append(line)
 
@@ -461,9 +459,7 @@ class Eblif:
             elif cell.type == "$latch":
 
                 line = ".latch {} {} {}".format(
-                    str(cell.ports["D"]),
-                    str(cell.ports["Q"]),
-                    str(cell.init)
+                    str(cell.ports["D"]), str(cell.ports["Q"]), str(cell.init)
                 )
                 lines.append(line)
 
@@ -483,12 +479,12 @@ class Eblif:
                 # Cell attributes
                 if attr:
                     for k, v in cell.attributes.items():
-                        lines.append(".attr {} {}".format(k ,v))
+                        lines.append(".attr {} {}".format(k, v))
 
                 # Cell parameters
                 if param:
                     for k, v in cell.parameters.items():
-                        lines.append(".param {} {}".format(k ,v))
+                        lines.append(".param {} {}".format(k, v))
 
         # Footer
         lines.append(".end")
