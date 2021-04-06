@@ -57,8 +57,8 @@ function(QUICKLOGIC_DEFINE_QLF_ARCH)
     NET_PATCH_TOOL
       ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/qlf_k4n8/utils/repacker/repack.py
     NET_PATCH_TOOL_CMD "${CMAKE_COMMAND} -E env \
-     PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils \
-     \${PYTHON3} \${NET_PATCH_TOOL} \
+      PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils \
+      \${QUIET_CMD} \${PYTHON3} \${NET_PATCH_TOOL} \
          --net-in \${IN_NET} \
          --eblif-in \${IN_EBLIF} \
          --place-in \${IN_PLACE} \
@@ -66,6 +66,8 @@ function(QUICKLOGIC_DEFINE_QLF_ARCH)
          --eblif-out \${OUT_EBLIF} \
          --place-out \${OUT_PLACE} \
          --vpr-arch \${VPR_ARCH} \
+         --log \${OUT_NET}.log \
+         --log-level DEBUG \
          --absorb_buffer_luts on"
 
     # With the current support there is no bitstream generation support yet.
