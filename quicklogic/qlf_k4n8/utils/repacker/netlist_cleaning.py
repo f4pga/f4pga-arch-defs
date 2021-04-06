@@ -3,6 +3,8 @@
 Utilities for cleaning circuit netlists
 """
 
+import logging
+
 # =============================================================================
 
 
@@ -72,7 +74,7 @@ def absorb_buffer_luts(netlist):
         # Remove the cell
         del netlist.cells[cell.name]
 
-    print("", "Absorbed {} buffer LUTs".format(len(buffers)))
+    logging.debug(" Absorbed {} buffer LUTs".format(len(buffers)))
     return net_map
 
 

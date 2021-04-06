@@ -4,6 +4,8 @@ This file implements a simple graph router used for complex block routing
 graphs.
 """
 
+import logging
+
 from pb_rr_graph import NodeType
 
 # =============================================================================
@@ -98,10 +100,10 @@ class Router:
             self.nets[net_name] = net
 
         # DEBUG
-        print("  ", "Nets:")
+        logging.debug("   Nets:")
         keys = sorted(list(self.nets.keys()))
         for key in keys:
-            print("   ", str(self.nets[key]))
+            logging.debug("    " + str(self.nets[key]))
 
     def route_net(self, net, debug=False):
         """
@@ -152,7 +154,7 @@ class Router:
             return None
 
         # Search for a route
-        print("  ", net.name)
+        logging.debug("   " + net.name)
 
         # This net has no sinks. Remove annotation from the source node
         if not net.sinks:
@@ -182,7 +184,7 @@ class Router:
 
             # No route found
             if not route:
-                print("   ", "No route found!")
+                logging.critical("    No route found!")
 
                 # DEBUG
                 if debug:

@@ -3,7 +3,9 @@
 A SymbiFlow implementation of OpenFPGA re-packer.
 """
 
+import logging
 import argparse
+import sys
 import os
 import hashlib
 import time
@@ -89,7 +91,7 @@ def fixup_route_throu_luts(clb_block):
     net_pairs = []
 
     for block in blocks:
-        print("  ", block)
+        logging.debug("   " + str(block))
 
         # Idnetify input and output to be routed together. There should be
         # only one of each.
@@ -302,7 +304,7 @@ def identify_blocks_to_repack(clb_block, repacking_rules):
     # For each rule
     blocks_to_repack = []
     for rule in repacking_rules:
-        print("  ", "checking rule path '{}'...".format(rule.src))
+        logging.debug("   checking rule path '{}'...".format(rule.src))
 
         # Parse the path
         path = [PathNode.from_string(p) for p in rule.src.split(".")]
@@ -315,7 +317,7 @@ def identify_blocks_to_repack(clb_block, repacking_rules):
 
         # Walk
         for block in walk(clb_block, path):
-            print("   ", block)
+            logging.debug("    " + str(block))
 
             # Append to list
             blocks_to_repack.append((block, rule))
@@ -504,7 +506,7 @@ def annotate_net_endpoints(
 
         # Skip unconnected ports
         if not net:
-            print("   ", "Port '{}' is unconnected".format(port))
+            logging.debug("    Port '{}' is unconnected".format(port))
             continue
 
         # Assign the net
@@ -689,7 +691,7 @@ def load_repacking_rules(json_root):
     assert isinstance(json_rules, list), type(json_rules)
 
     # Convert the rules
-    print(" Repacking rules:")
+    logging.debug(" Repacking rules:")
 
     rules = []
     for entry in json_rules:
@@ -704,8 +706,7 @@ def load_repacking_rules(json_root):
         )
         rules.append(rule)
 
-        # DEBUG
-        print(" ", "{} -> {}".format(rule.src, rule.dst))
+        logging.debug("  {} -> {}".format(rule.src, rule.dst))
 
     return rules
 
@@ -746,9 +747,9 @@ def expand_port_maps(rules, clb_pbtypes):
         rule.port_map = port_map
 
         # DEBUG
-#        print(" ", rule.src, "->", rule.dst)
+#        logging.debug(" ", rule.src, "->", rule.dst)
 #        for k, v in rule.port_map.items():
-#            print("  ", k, "->", v)
+#            logging.debug("  ", k, "->", v)
 
     return rules
 
@@ -845,14 +846,35 @@ def main():
         action="store_true",
         help="Dump .eblif files at different stages of EBLIF netlist processing"
     )
+    parser.add_argument(
+        "--log", type=str, default=None, help="Log file name (def. stdout)"
+    )
+    parser.add_argument(
+        "--log-level",
+        type=str,
+        choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+        default="WARNING",
+        help="Log level (def. \"WARNING\")"
+    )
 
     args = parser.parse_args()
     init_time = time.perf_counter()
 
     absorb_buffer_luts = args.absorb_buffer_luts == "on"
 
+    # Setup logging
+    logging.basicConfig(
+        filename=args.log,
+        filemode="w",
+        format="%(message)s",
+        level=getattr(logging, args.log_level.upper()),
+    )
+
+    if args.log is not None:
+        logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
+
     # Load the VPR architecture
-    print("Loading VPR architecture file...")
+    logging.info("Loading VPR architecture file...")
     xml_tree = ET.parse(args.vpr_arch, ET.XMLParser(remove_blank_text=True))
 
     # Get CLBs
@@ -860,14 +882,14 @@ def main():
     xml_clbs = {clb.attrib["name"]: clb for clb in xml_clbs}
 
     # Build pb_type hierarchy for each CLB
-    print("Building pb_type hierarchy...")
+    logging.info("Building pb_type hierarchy...")
     clb_pbtypes = {
         name: PbType.from_etree(elem)
         for name, elem in xml_clbs.items()
     }
 
     # Build a list of models
-    print("Building primitive models...")
+    logging.info("Building primitive models...")
     models = {}
     for pb_type in clb_pbtypes.values():
         models.update(Model.collect_models(pb_type))
@@ -875,10 +897,10 @@ def main():
     # DEBUG
     keys = sorted(list(models.keys()))
     for key in keys:
-        print("", str(models[key]))
+        logging.debug(" " + str(models[key]))
 
     # Load the repacking rules
-    print("Loading repacking rules...")
+    logging.info("Loading repacking rules...")
     with open(args.repacking_rules, "r") as fp:
         json_root = json.load(fp)
 
@@ -888,7 +910,7 @@ def main():
     expand_port_maps(repacking_rules, clb_pbtypes)
 
     # Load the BLIF/EBLIF file
-    print("Loading BLIF/EBLIF circuit netlist...")
+    logging.info("Loading BLIF/EBLIF circuit netlist...")
     eblif = Eblif.from_file(args.eblif_in)
 
     # Convert top-level inputs to cells
@@ -899,7 +921,7 @@ def main():
         eblif.to_file("netlist.io_cells.eblif")
 
     # Clean the netlist
-    print("Cleaning circuit netlist...")
+    logging.info("Cleaning circuit netlist...")
 
     if absorb_buffer_luts:
         net_map = netlist_cleaning.absorb_buffer_luts(eblif)
@@ -909,14 +931,14 @@ def main():
 #    # DEBUG
 #    keys = sorted(list(eblif.cells.keys()))
 #    for key in keys:
-#        print("", eblif.cells[key].name)
+#        logging.debug(" " + eblif.cells[key].name)
 
 # Optional dump
     if args.dump_netlist:
         eblif.to_file("netlist.cleaned.eblif")
 
     # Load the packed netlist XML
-    print("Loading VPR packed netlist...")
+    logging.info("Loading VPR packed netlist...")
     net_xml = ET.parse(args.net_in, ET.XMLParser(remove_blank_text=True))
     packed_netlist = PackedNetlist.from_etree(net_xml.getroot())
 
@@ -924,7 +946,7 @@ def main():
     repack_time = time.perf_counter()
 
     # Process netlist CLBs
-    print("Processing CLBs...")
+    logging.info("Processing CLBs...")
 
     removed_ios = set()
     leaf_block_names = {}
@@ -933,7 +955,7 @@ def main():
     repacked_block_count = 0
 
     for clb_block in packed_netlist.blocks.values():
-        print("", clb_block)
+        logging.debug(" " + str(clb_block))
 
         # Remap block and net names
         clb_block.rename_nets(net_map)
@@ -941,19 +963,20 @@ def main():
         # Find a corresponding root pb_type (complex block) in the architecture
         clb_pbtype = clb_pbtypes.get(clb_block.type, None)
         if clb_pbtype is None:
-            print(
-                "ERROR: Complex block type '{}' not found in the VPR arch".
-                format(clb_block.type)
+            logging.error(
+                "Complex block type '{}' not found in the VPR arch".format(
+                    clb_block.type
+                )
             )
             exit(-1)
 
         # Identify and fixup route-throu LUTs
-        print(" ", "Identifying route-throu LUTs...")
+        logging.debug("  Identifying route-throu LUTs...")
         net_pairs = fixup_route_throu_luts(clb_block)
         insert_buffers(net_pairs, eblif, clb_block)
 
         # Identify blocks to repack. Continue to next CLB if there are none
-        print(" ", "Identifying blocks to repack...")
+        logging.debug("  Identifying blocks to repack...")
         blocks_to_repack = identify_blocks_to_repack(
             clb_block, repacking_rules
         )
@@ -961,7 +984,7 @@ def main():
             continue
 
         # For each block to be repacked identify its destination candidate(s)
-        print(" ", "Identifying repack targets...")
+        logging.debug("  Identifying repack targets...")
         iter_list = list(blocks_to_repack)
         blocks_to_repack = []
         for block, rule in iter_list:
@@ -991,18 +1014,18 @@ def main():
             )
             assert candidates, (block, arch_path)
 
-            print("  ", block, "({})".format(rule.src))
+            logging.debug("   {} ({})".format(str(block), rule.src))
             for path, pbtype_xml in candidates:
-                print("   ", path)
+                logging.debug("    " + str(path))
 
             # No candidates
             if not candidates:
-                print("ERROR: No repack target found!")
+                logging.critical("No repack target found!")
                 exit(-1)
 
             # There must be only a single repack target per block
             if len(candidates) > 1:
-                print("ERROR: Multiple repack targets found!")
+                logging.critical("Multiple repack targets found!")
                 exit(-1)
 
             # Store concrete correspondence
@@ -1017,8 +1040,8 @@ def main():
         for block, rule, (path, pbtype) in blocks_to_repack:
 
             if path in repack_targets:
-                print(
-                    "ERROR: Multiple blocks are to be repacked into '{}'".
+                logging.error(
+                    "Multiple blocks are to be repacked into '{}'".
                     format(path)
                 )
             repack_targets.add(path)
@@ -1028,9 +1051,9 @@ def main():
         repacked_block_count += len(blocks_to_repack)
 
         # Repack the circuit netlist
-        print(" ", "Repacking circuit netlist...")
+        logging.debug("  Repacking circuit netlist...")
         for src_block, rule, (dst_path, dst_pbtype) in blocks_to_repack:
-            print("  ", src_block)
+            logging.debug("   " + str(src_block))
 
             # Find the original pb_type
             src_path = src_block.get_path(with_indices=False)
@@ -1072,7 +1095,7 @@ def main():
             )
 
         # Build a pb routing graph for this CLB
-        print(" ", "Building pb_type routing graph...")
+        logging.debug("  Building pb_type routing graph...")
         clb_xml = xml_clbs[clb_block.type]
         graph = Graph.from_etree(clb_xml, clb_block.instance)
 
@@ -1085,15 +1108,15 @@ def main():
             graph.clear_nets()
 
         # Annotate source and sinks with nets
-        print(" ", "Annotating net endpoints...")
+        logging.debug("  Annotating net endpoints...")
 
         # For the CLB
-        print("  ", clb_block)
+        logging.debug("   " + str(clb_block))
         annotate_net_endpoints(graph, clb_block)
 
         # For repacked leafs
         for block, rule, (path, dst_pbtype) in blocks_to_repack:
-            print("  ", block)
+            logging.debug("   " + str(block))
 
             # Get the destination BLIF model
             assert dst_pbtype.blif_model is not None, dst_pbtype.name
@@ -1103,18 +1126,18 @@ def main():
             annotate_net_endpoints(graph, block, path, rule.port_map)
 
         # Initialize router
-        print(" ", "Initializing router...")
+        logging.debug("  Initializing router...")
         router = Router(graph)
 
         # There has to be at least one net in the block after repacking
         assert router.nets, "No nets"
 
         # Route
-        print(" ", "Routing...")
+        logging.debug("  Routing...")
         router.route_nets(debug=True)
 
         # Build packed netlist CLB from the graph
-        print(" ", "Rebuilding CLB netlist...")
+        logging.debug("  Rebuilding CLB netlist...")
         repacked_clb_block = build_packed_netlist_from_pb_graph(graph)
         repacked_clb_block.rename_cluster(clb_block.name)
 
@@ -1127,9 +1150,8 @@ def main():
                 assert dst_block is not None, dst_path
 
                 name = leaf_block_names[dst_path]
-                print(
-                    "  ",
-                    "renaming leaf block {} to {}".format(dst_block, name)
+                logging.debug(
+                    "   renaming leaf block {} to {}".format(dst_block, name)
                 )
                 dst_block.name = name
 
@@ -1162,7 +1184,7 @@ def main():
     # Clean the circuit netlist again. Need to do it here again as LUT buffers
     # driving top-level inputs couldn't been swept before repacking as it
     # would cause top-level port renaming.
-    print("Cleaning repacked circuit netlist...")
+    logging.info("Cleaning repacked circuit netlist...")
     if absorb_buffer_luts:
 
         net_map = netlist_cleaning.absorb_buffer_luts(eblif)
@@ -1179,7 +1201,7 @@ def main():
     eblif.convert_cells_to_ports()
 
     # Write the circuit netlist
-    print("Writing EBLIF circuit netlist...")
+    logging.info("Writing EBLIF circuit netlist...")
     fname = args.eblif_out if args.eblif_out else "repacked.eblif"
     eblif.to_file(fname, consts=False)
 
@@ -1190,7 +1212,7 @@ def main():
     packed_netlist.netlist_id = "SHA256:" + digest
 
     # Write the packed netlist
-    print("Writing VPR packed netlist...")
+    logging.info("Writing VPR packed netlist...")
     net_out_fname = args.net_out if args.net_out else "repacked.net"
     write_packed_netlist(net_out_fname, packed_netlist)
 
@@ -1199,7 +1221,7 @@ def main():
     # Read and patch SHA and packed netlist name in the VPR placement file
     # if given
     if args.place_in:
-        print("Patching VPR placement file...")
+        logging.info("Patching VPR placement file...")
 
         # Compute .net file digest
         with open(net_out_fname, "rb") as fp:
@@ -1219,8 +1241,8 @@ def main():
                 )
                 break
         else:
-            print(
-                " WARNING the placement file '{}' has no header!".format(
+            logging.warn(
+                " The placement file '{}' has no header!".format(
                     args.place_in
                 )
             )
@@ -1230,14 +1252,14 @@ def main():
         with open(fname, "w") as fp:
             fp.writelines(placement)
 
-    print("Finished.")
+    logging.info("Finished.")
 
-    print("")
-    print("Initialization time: {:.2f}s".format(init_time))
-    print("Repacking time     : {:.2f}s".format(repack_time))
-    print("Finishing time     : {:.2f}s".format(writeout_time))
-    print("Repacked CLBs      : {}".format(repacked_clb_count))
-    print("Repacked blocks    : {}".format(repacked_block_count))
+    logging.info("")
+    logging.info("Initialization time: {:.2f}s".format(init_time))
+    logging.info("Repacking time     : {:.2f}s".format(repack_time))
+    logging.info("Finishing time     : {:.2f}s".format(writeout_time))
+    logging.info("Repacked CLBs      : {}".format(repacked_clb_count))
+    logging.info("Repacked blocks    : {}".format(repacked_block_count))
 
 
 # =============================================================================
