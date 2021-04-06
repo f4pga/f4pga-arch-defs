@@ -5,7 +5,6 @@ A SymbiFlow implementation of OpenFPGA re-packer.
 
 import argparse
 import os
-import re
 import hashlib
 import time
 from collections import namedtuple
@@ -27,10 +26,6 @@ from pb_rr_graph_netlist import load_clb_nets_into_pb_graph
 from pb_rr_graph_netlist import build_packed_netlist_from_pb_graph
 
 from pb_type import PbType, Model
-
-from arch_xml_utils import is_leaf_pbtype
-from arch_xml_utils import yield_pb_children
-from arch_xml_utils import yield_indices
 
 # =============================================================================
 
@@ -123,7 +118,6 @@ def fixup_route_throu_luts(clb_block):
 
         # Check if we have both input and output
         assert blk_inp and blk_out
-        #print("   ", blk_inp, blk_out)
 
         # Identify the net
         net_inp = block.find_net_for_port(blk_inp.port.name, blk_inp.pin)
@@ -269,7 +263,7 @@ def identify_blocks_to_repack(clb_block, repacking_rules):
 
         # Check if the current block is a LUT
         is_lut = len(block.blocks) == 1 and "lut[0]" in block.blocks and \
-                 block.blocks["lut[0]"].is_leaf
+                 block.blocks["lut[0]"].is_leaf  # noqa: E127
 
         # Check if the block match the path node. Check type and mode
         block_node = PathNode.from_string(block.instance)
@@ -390,7 +384,6 @@ def identify_repack_target_candidates(clb_pbtype, path):
     """
 
     def walk(arch_path, pbtype, pbtype_index, curr_path=None):
-        #print("Walk:", ".".join(arch_path), curr_path)
 
         # Parse the path node
         if arch_path:
@@ -770,7 +763,7 @@ def write_packed_netlist(fname, netlist):
 
     xml_tree = ET.ElementTree(netlist.to_etree())
     xml_data = '<?xml version="1.0"?>\n' \
-             + ET.tostring(xml_tree, pretty_print=True).decode("utf-8")
+             + ET.tostring(xml_tree, pretty_print=True).decode("utf-8")  # noqa: E127
 
     with open(fname, "w") as fp:
         fp.write(xml_data)
@@ -1044,16 +1037,16 @@ def main():
             src_pbtype = clb_pbtype.find(src_path)
             assert src_pbtype is not None, src_path
 
-            # Get the source BLIF model
-            assert src_pbtype.blif_model is not None
-            src_blif_model = src_pbtype.blif_model
+            #            # Get the source BLIF model
+            #            assert src_pbtype.blif_model is not None
+            #            src_blif_model = src_pbtype.blif_model
 
             # Get the destination BLIF model
             assert dst_pbtype.blif_model is not None, dst_pbtype.name
             dst_blif_model = dst_pbtype.blif_model.split(maxsplit=1)[-1]
 
             # Get the model object
-            assert dst_blif_model in models, blif_model
+            assert dst_blif_model in models, dst_blif_model
             model = models[dst_blif_model]
 
             # Find the cell in the netlist
@@ -1069,7 +1062,7 @@ def main():
             leaf_block_names[dst_path] = cell.name
 
             # Repack it
-            repacked_cell = repack_netlist_cell(
+            repack_netlist_cell(
                 eblif,
                 cell,
                 src_block,

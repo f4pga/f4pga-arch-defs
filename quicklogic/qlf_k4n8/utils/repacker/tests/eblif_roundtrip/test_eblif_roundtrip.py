@@ -3,10 +3,8 @@ import os
 import sys
 import tempfile
 
-import pytest
-
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
-from eblif_netlist import Eblif
+from eblif_netlist import Eblif  # noqa: E402
 
 # =============================================================================
 

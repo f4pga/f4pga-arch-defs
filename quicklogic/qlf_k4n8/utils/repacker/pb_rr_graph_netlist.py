@@ -7,9 +7,6 @@ routing information.
 
 from block_path import PathNode
 
-from pb_rr_graph import Graph
-from pb_rr_graph import NodeType
-
 import packed_netlist
 
 # =============================================================================
@@ -30,7 +27,7 @@ def get_block_by_path(block, path):
         block = block.blocks[instance]
 
         # Check operating mode
-        if path[0].mode != None:
+        if path[0].mode is not None:
             if block.mode != path[0].mode:
                 return None
 
@@ -218,7 +215,6 @@ def build_packed_netlist_from_pb_graph(clb_graph):
 
         # Find the block. If not found it meas that it is not active and
         # shouldn't be present in the netlist
-        #path = ["{}[{}]".format(p.name, p.index) for p in parts[1:-1]]
         block = get_block_by_path(clb_block, parts[1:-1])
         if block is None:
             continue

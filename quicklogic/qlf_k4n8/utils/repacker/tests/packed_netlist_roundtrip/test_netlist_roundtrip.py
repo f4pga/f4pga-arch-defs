@@ -3,12 +3,10 @@ import os
 import sys
 import tempfile
 
-import pytest
+import lxml.etree as ET
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
-from packed_netlist import PackedNetlist
-
-import lxml.etree as ET
+from packed_netlist import PackedNetlist  # noqa: E402
 
 # =============================================================================
 

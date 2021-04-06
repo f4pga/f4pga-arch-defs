@@ -259,7 +259,7 @@ class Block:
             block.blocks[sub_block.instance] = sub_block
 
         # Parse attributes and parameters
-        for tag, data in zip(["attributes", "parameters"], \
+        for tag, data in zip(["attributes", "parameters"],
                              [block.attributes, block.parameters]):
 
             # Find the list
@@ -300,7 +300,7 @@ class Block:
 
         # Attributes / parameters
         if self.is_leaf:
-            for tag, data in zip(["attributes", "parameters"], \
+            for tag, data in zip(["attributes", "parameters"],
                                  [self.attributes, self.parameters]):
 
                 xml_list = ET.Element(tag)
@@ -318,7 +318,7 @@ class Block:
             xml_ports = ET.Element(tag)
             port_type = tag[:-1]
 
-            keys = self.ports.keys()  #sorted(list(self.ports[tag].keys()))
+            keys = self.ports.keys()
             for key in keys:
                 port = self.ports[key]
                 if port.type == port_type:
@@ -347,7 +347,7 @@ class Block:
             elem.append(xml_ports)
 
         # Recurse
-        keys = self.blocks.keys()  #sorted(list(self.blocks.keys()))
+        keys = self.blocks.keys()
         for key in keys:
             xml_block = self.blocks[key].to_etree()
             elem.append(xml_block)
@@ -458,7 +458,7 @@ class Block:
          - This block,
          - A child,
          - The parent,
-         - A sibling (the parent's child).         
+         - A sibling (the parent's child).
         """
 
         # Strip index. FIXME: Use a regex here.
@@ -529,7 +529,7 @@ class Block:
                 return None
 
             # Check if operating mode matches
-            if parts[0].mode != None:
+            if parts[0].mode is not None:
                 if block.mode != parts[0].mode:
                     return None
 
