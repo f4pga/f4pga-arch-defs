@@ -12,6 +12,7 @@ import lxml.etree as ET
 
 # =============================================================================
 
+
 def test_netlist_roundtrip():
 
     basedir = os.path.dirname(__file__)
@@ -21,7 +22,7 @@ def test_netlist_roundtrip():
     xslt_file = os.path.join(basedir, "../sort_netlist.xsl")
     xslt = ET.parse(xslt_file)
     xform = ET.XSLT(xslt)
-    
+
     # Load the golden netlist XML
     xml_tree = ET.parse(golden_file, ET.XMLParser(remove_blank_text=True))
 
@@ -56,4 +57,3 @@ def test_netlist_roundtrip():
             output_data = fp.read()
 
         assert golden_data == output_data
-

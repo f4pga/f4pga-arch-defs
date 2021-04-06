@@ -39,6 +39,7 @@ class RepackingRule:
     """
     A structure for representing repacking rule.
     """
+
     def __init__(self, src, dst, index_map, port_map, mode_bits=None):
         self.src = src
         self.dst = dst
@@ -51,6 +52,7 @@ class RepackingRule:
         Remaps the given source pb_type index to the destination pb_type index
         """
         return index * self.index_map[0] + self.index_map[1]
+
 
 # =============================================================================
 
@@ -138,51 +140,46 @@ def fixup_route_throu_luts(clb_block):
 
         # Insert the route-throu LUT as an explicit block
         lut_block = pn.Block(
-            name = net_out,
-            instance = "lut[0]",
-            mode = "default",
-            parent = block
+            name=net_out, instance="lut[0]", mode="default", parent=block
         )
         block.blocks[lut_block.instance] = lut_block
 
         # Add LUT ports with connections
         lut_block.ports[blk_inp.port.name] = pn.Port(
-            name = blk_inp.port.name,
-            type = blk_inp.port.type,
-            width = blk_inp.port.width,
-            connections = {
-                blk_inp.pin: pn.Connection(
-                    driver = block.type,
-                    port = blk_inp.port.name,
-                    pin = blk_inp.pin,
-                    interconnect = "direct"
-                )
+            name=blk_inp.port.name,
+            type=blk_inp.port.type,
+            width=blk_inp.port.width,
+            connections={
+                blk_inp.pin:
+                    pn.Connection(
+                        driver=block.type,
+                        port=blk_inp.port.name,
+                        pin=blk_inp.pin,
+                        interconnect="direct"
+                    )
             }
         )
 
         lut_block.ports[blk_out.port.name] = pn.Port(
-            name = blk_out.port.name,
-            type = blk_out.port.type,
-            width = blk_out.port.width,
-            connections = {
-                blk_out.pin: net_out
-            }
+            name=blk_out.port.name,
+            type=blk_out.port.type,
+            width=blk_out.port.width,
+            connections={blk_out.pin: net_out}
         )
 
         # Set input port rotation. This will allow to have a simple LUT-1
         # buffer in the circuit netlist.
-        lut_block.ports[blk_inp.port.name].rotation_map = {
-            blk_inp.pin: 0
-        }
+        lut_block.ports[blk_inp.port.name].rotation_map = {blk_inp.pin: 0}
 
         # Update the block output port to reference the LUT
         blk_out.port.connections = {
-            blk_out.pin: pn.Connection(
-                driver = lut_block.instance,
-                port = blk_out.port.name,
-                pin = blk_out.pin,
-                interconnect = "direct"
-            )
+            blk_out.pin:
+                pn.Connection(
+                    driver=lut_block.instance,
+                    port=blk_out.port.name,
+                    pin=blk_out.pin,
+                    interconnect="direct"
+                )
         }
 
         # Update the block mode and name
@@ -246,6 +243,7 @@ def insert_buffers(nets, eblif, clb_block):
             for port in cell.ports:
                 if cell.ports[port] == net_inp:
                     cell.ports[port] = net_out
+
 
 # =============================================================================
 
@@ -432,7 +430,9 @@ def identify_repack_target_candidates(clb_pbtype, path):
             for child, i in mode.yield_children():
 
                 # Recurse
-                part = "{}[{}][{}]".format(pbtype_name, pbtype_index, mode_name)          
+                part = "{}[{}][{}]".format(
+                    pbtype_name, pbtype_index, mode_name
+                )
                 yield from walk(arch_path, child, i, curr_path + [part])
 
     # Split the path
@@ -450,7 +450,9 @@ def identify_repack_target_candidates(clb_pbtype, path):
 # =============================================================================
 
 
-def annotate_net_endpoints(clb_graph, block, block_path=None, port_map=None, def_map=None):
+def annotate_net_endpoints(
+        clb_graph, block, block_path=None, port_map=None, def_map=None
+):
     """
     This function annotates SOURCE and SINK nodes of the block pointed by
     block_path with nets of their corresponding ports but from the other given
@@ -461,7 +463,7 @@ def annotate_net_endpoints(clb_graph, block, block_path=None, port_map=None, def
 
     # Invert the port map (is src->dst, we need dst->src)
     if port_map is not None:
-        inv_port_map = {v:k for k,v in port_map.items()}
+        inv_port_map = {v: k for k, v in port_map.items()}
 
     # Get block path
     if block_path is None:
@@ -490,7 +492,7 @@ def annotate_net_endpoints(clb_graph, block, block_path=None, port_map=None, def
         port = PathNode.from_string(port)
         if port_map is not None:
             key = (port.name, port.index)
-            if key in inv_port_map:    
+            if key in inv_port_map:
                 name, index = inv_port_map[key]
                 port = PathNode(name, index)
 
@@ -527,8 +529,8 @@ def rotate_truth_table(table, rotation_map):
     width = max(rotation_map.keys()) + 1
 
     # Rotate
-    new_table = [0 for i in range(2 ** width)]
-    for daddr in range(2 ** width):
+    new_table = [0 for i in range(2**width)]
+    for daddr in range(2**width):
 
         # Remap address bits
         saddr = 0
@@ -544,7 +546,9 @@ def rotate_truth_table(table, rotation_map):
     return new_table
 
 
-def repack_netlist_cell(eblif, cell, block, src_pbtype, model, rule, def_map=None):
+def repack_netlist_cell(
+        eblif, cell, block, src_pbtype, model, rule, def_map=None
+):
     """
     This function transforms circuit netlist (BLIF / EBLIF) cells to implement
     re-packing.
@@ -588,13 +592,13 @@ def repack_netlist_cell(eblif, cell, block, src_pbtype, model, rule, def_map=Non
         # Undo VPR port rotation
         blk_port = block.ports[port.name]
         if blk_port.rotation_map:
-            inv_rotation_map = {v:k for k, v in blk_port.rotation_map.items()}
+            inv_rotation_map = {v: k for k, v in blk_port.rotation_map.items()}
             port.index = inv_rotation_map[port.index]
 
         # Remap the port
         if rule.port_map is not None:
             key = (port.name, port.index)
-            if key in rule.port_map:    
+            if key in rule.port_map:
                 name, index = rule.port_map[key]
                 port = PathNode(name, index)
 
@@ -677,6 +681,7 @@ def syncrhonize_attributes_and_parameters(eblif, packed_netlist):
     for block in packed_netlist.blocks.values():
         walk(block)
 
+
 # =============================================================================
 
 
@@ -698,11 +703,11 @@ def load_repacking_rules(json_root):
         assert isinstance(entry, dict), type(entry)
 
         rule = RepackingRule(
-            src = entry["src_pbtype"],
-            dst = entry["dst_pbtype"],
-            index_map = entry["index_map"],
-            port_map = entry["port_map"],
-            mode_bits = entry["mode_bits"],
+            src=entry["src_pbtype"],
+            dst=entry["dst_pbtype"],
+            index_map=entry["index_map"],
+            port_map=entry["port_map"],
+            mode_bits=entry["mode_bits"],
         )
         rules.append(rule)
 
@@ -754,6 +759,7 @@ def expand_port_maps(rules, clb_pbtypes):
 
     return rules
 
+
 # =============================================================================
 
 
@@ -768,6 +774,7 @@ def write_packed_netlist(fname, netlist):
 
     with open(fname, "w") as fp:
         fp.write(xml_data)
+
 
 # =============================================================================
 
@@ -911,7 +918,7 @@ def main():
 #    for key in keys:
 #        print("", eblif.cells[key].name)
 
-    # Optional dump
+# Optional dump
     if args.dump_netlist:
         eblif.to_file("netlist.cleaned.eblif")
 
@@ -924,7 +931,7 @@ def main():
     repack_time = time.perf_counter()
 
     # Process netlist CLBs
-    print("Processing CLBs...")    
+    print("Processing CLBs...")
 
     removed_ios = set()
     leaf_block_names = {}
@@ -941,7 +948,10 @@ def main():
         # Find a corresponding root pb_type (complex block) in the architecture
         clb_pbtype = clb_pbtypes.get(clb_block.type, None)
         if clb_pbtype is None:
-            print("ERROR: Complex block type '{}' not found in the VPR arch".format(clb_block.type))
+            print(
+                "ERROR: Complex block type '{}' not found in the VPR arch".
+                format(clb_block.type)
+            )
             exit(-1)
 
         # Identify and fixup route-throu LUTs
@@ -951,7 +961,9 @@ def main():
 
         # Identify blocks to repack. Continue to next CLB if there are none
         print(" ", "Identifying blocks to repack...")
-        blocks_to_repack = identify_blocks_to_repack(clb_block, repacking_rules)
+        blocks_to_repack = identify_blocks_to_repack(
+            clb_block, repacking_rules
+        )
         if not blocks_to_repack:
             continue
 
@@ -981,7 +993,9 @@ def main():
             arch_path = fix_block_path(blk_path, dst_path)
 
             # Identify target candidates
-            candidates = identify_repack_target_candidates(clb_pbtype, arch_path)
+            candidates = identify_repack_target_candidates(
+                clb_pbtype, arch_path
+            )
             assert candidates, (block, arch_path)
 
             print("  ", block, "({})".format(rule.src))
@@ -1010,7 +1024,10 @@ def main():
         for block, rule, (path, pbtype) in blocks_to_repack:
 
             if path in repack_targets:
-                print("ERROR: Multiple blocks are to be repacked into '{}'".format(path))
+                print(
+                    "ERROR: Multiple blocks are to be repacked into '{}'".
+                    format(path)
+                )
             repack_targets.add(path)
 
         # Stats
@@ -1072,7 +1089,7 @@ def main():
             fname = "graph_original_{}.dot".format(clb_block.instance)
             with open(fname, "w") as fp:
                 fp.write(graph.dump_dot(color_by="net", nets_only=True))
-            graph.clear_nets()        
+            graph.clear_nets()
 
         # Annotate source and sinks with nets
         print(" ", "Annotating net endpoints...")
@@ -1105,7 +1122,7 @@ def main():
 
         # Build packed netlist CLB from the graph
         print(" ", "Rebuilding CLB netlist...")
-        repacked_clb_block = build_packed_netlist_from_pb_graph(graph) 
+        repacked_clb_block = build_packed_netlist_from_pb_graph(graph)
         repacked_clb_block.rename_cluster(clb_block.name)
 
         # Restore names of leaf blocks
@@ -1117,7 +1134,10 @@ def main():
                 assert dst_block is not None, dst_path
 
                 name = leaf_block_names[dst_path]
-                print("  ", "renaming leaf block {} to {}".format(dst_block, name))
+                print(
+                    "  ",
+                    "renaming leaf block {} to {}".format(dst_block, name)
+                )
                 dst_block.name = name
 
         # Replace the CLB
@@ -1128,7 +1148,6 @@ def main():
             fname = "graph_repacked_{}.dot".format(clb_block.instance)
             with open(fname, "w") as fp:
                 fp.write(graph.dump_dot(color_by="net", nets_only=True))
-
 
     # Remove top-level ports from the packed netlist
     for name in removed_ios:
@@ -1203,13 +1222,15 @@ def main():
 
                 # Replace the header
                 placement[i] = "Netlist_File: {} Netlist_ID: {}\n".format(
-                    os.path.basename(net_out_fname),
-                    "SHA256:" + net_digest
+                    os.path.basename(net_out_fname), "SHA256:" + net_digest
                 )
                 break
         else:
-            print(" WARNING the placement file '{}' has no header!".format(
-                args.place_in))
+            print(
+                " WARNING the placement file '{}' has no header!".format(
+                    args.place_in
+                )
+            )
 
         # Write the patched placement
         fname = args.place_out if args.place_out else "repacked.place"
@@ -1225,8 +1246,8 @@ def main():
     print("Repacked CLBs      : {}".format(repacked_clb_count))
     print("Repacked blocks    : {}".format(repacked_block_count))
 
-# =============================================================================
 
+# =============================================================================
 
 if __name__ == "__main__":
     main()

@@ -21,8 +21,10 @@ class Connection:
     """
 
     # A regex for parsing connection specification
-    REGEX = re.compile(r"(?P<driver>\S+)\.(?P<port>\S+)\[(?P<pin>[0-9]+)\]->"
-                       r"(?P<interconnect>\S+)")
+    REGEX = re.compile(
+        r"(?P<driver>\S+)\.(?P<port>\S+)\[(?P<pin>[0-9]+)\]->"
+        r"(?P<interconnect>\S+)"
+    )
 
     def __init__(self, driver, port, pin, interconnect):
         """
@@ -61,10 +63,10 @@ class Connection:
 
         # Extract data
         return Connection(
-            driver = match.group("driver"),
-            port = match.group("port"),
-            pin = int(match.group("pin")),
-            interconnect = match.group("interconnect")
+            driver=match.group("driver"),
+            port=match.group("port"),
+            pin=int(match.group("pin")),
+            interconnect=match.group("interconnect")
         )
 
     def to_string(self):
@@ -72,10 +74,7 @@ class Connection:
         Builds a specification string that can be stored in packed netlist
         """
         return "{}.{}[{}]->{}".format(
-            self.driver,
-            self.port,
-            self.pin,
-            self.interconnect
+            self.driver, self.port, self.pin, self.interconnect
         )
 
     def __str__(self):
@@ -83,6 +82,7 @@ class Connection:
 
     def __repr__(self):
         return self.to_string()
+
 
 # =============================================================================
 
@@ -134,12 +134,12 @@ class Port:
         # Remove open connections
         conn = {i: conn[i] for i in range(width) if conn[i] != "open"}
 
-        # Build connection objects. Do that only for ports that specify a 
+        # Build connection objects. Do that only for ports that specify a
         # connection to another port. Otherwise treat the name as a net name.
         for key in conn.keys():
             if "->" in conn[key]:
-                conn[key] = Connection.from_string(conn[key])    
-        
+                conn[key] = Connection.from_string(conn[key])
+
         return Port(name, type, width, conn)
 
     def to_etree(self):
@@ -165,13 +165,12 @@ class Port:
         Returns a user-readable description string
         """
         return "{}[{}:0] ({})".format(
-            self.name,
-            self.width - 1,
-            self.type[0].upper()
+            self.name, self.width - 1, self.type[0].upper()
         )
 
     def __repr__(self):
         return str(self)
+
 
 # =============================================================================
 
@@ -213,9 +212,9 @@ class Block:
 
         # Create the block with basic attributes
         block = Block(
-            name = elem.attrib["name"],
-            instance = elem.attrib["instance"],
-            mode = elem.get("mode", "default")
+            name=elem.attrib["name"],
+            instance=elem.attrib["instance"],
+            mode=elem.get("mode", "default")
         )
 
         # Parse ports
@@ -269,7 +268,8 @@ class Block:
 
                 # Only a leaf block can have attributes / parameters
                 assert block.is_leaf, "Non-leaf block '{}' with {}".format(
-                    block.instance, tag)
+                    block.instance, tag
+                )
 
                 # Parse
                 sub_tag = tag[:-1]
@@ -318,7 +318,7 @@ class Block:
             xml_ports = ET.Element(tag)
             port_type = tag[:-1]
 
-            keys = self.ports.keys() #sorted(list(self.ports[tag].keys()))
+            keys = self.ports.keys()  #sorted(list(self.ports[tag].keys()))
             for key in keys:
                 port = self.ports[key]
                 if port.type == port_type:
@@ -333,21 +333,21 @@ class Block:
                         # Encode
                         rotation = []
                         for i in range(port.width):
-                            rotation.append(str(
-                                port.rotation_map.get(i, "open"))
+                            rotation.append(
+                                str(port.rotation_map.get(i, "open"))
                             )
 
                         # Make an element
-                        xml_rotation_map = ET.Element("port_rotation_map", {
-                            "name": port.name
-                        })
+                        xml_rotation_map = ET.Element(
+                            "port_rotation_map", {"name": port.name}
+                        )
                         xml_rotation_map.text = " ".join(rotation)
                         xml_ports.append(xml_rotation_map)
 
             elem.append(xml_ports)
 
         # Recurse
-        keys = self.blocks.keys() #sorted(list(self.blocks.keys()))
+        keys = self.blocks.keys()  #sorted(list(self.blocks.keys()))
         for key in keys:
             xml_block = self.blocks[key].to_etree()
             elem.append(xml_block)
@@ -509,7 +509,7 @@ class Block:
         block = self.get_neighboring_block(conn.driver)
         assert block is not None, (self.instance, conn.driver)
 
-        # Recurse            
+        # Recurse
         return block.find_net_for_port(conn.port, conn.pin)
 
     def get_block_by_path(self, path):
@@ -527,7 +527,7 @@ class Block:
             instance = "{}[{}]".format(parts[0].name, parts[0].index)
             if block.instance != instance:
                 return None
-            
+
             # Check if operating mode matches
             if parts[0].mode != None:
                 if block.mode != parts[0].mode:
@@ -569,6 +569,7 @@ class Block:
 
     def __repr__(self):
         return str(self)
+
 
 # =============================================================================
 

@@ -10,6 +10,7 @@ from eblif_netlist import Eblif
 
 # =============================================================================
 
+
 def test_netlist_roundtrip():
 
     basedir = os.path.dirname(__file__)
@@ -31,4 +32,3 @@ def test_netlist_roundtrip():
             output_data = fp.read().rstrip()
 
         assert golden_data == output_data
-
