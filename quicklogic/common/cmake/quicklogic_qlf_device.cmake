@@ -60,6 +60,8 @@ function(QUICKLOGIC_DEFINE_QLF_DEVICE)
     TECHFILE ""
     FAMILY ${FAMILY}
     DEVICE_MERGED_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${ARCH_XML}
+    USE_ROI FALSE
+    LIMIT_GRAPH_TO_DEVICE FALSE
   )
 
   # .......................................................

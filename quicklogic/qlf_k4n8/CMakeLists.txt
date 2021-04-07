@@ -30,6 +30,11 @@ quicklogic_define_qlf_arch(
   ROUTE_CHAN_WIDTH 10 # Will be overriden by each device
 )
 
+add_subdirectory(devices)
+include(boards.cmake)
+
+add_subdirectory(tests)
+
 # Define toolchain installation target
 set(FAMILY_DIR ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY})
 
@@ -42,9 +47,3 @@ define_ql_toolchain_target(
   SYNTH_SCRIPT ${FAMILY_DIR}/yosys/synth.tcl
   CONV_SCRIPT ${FAMILY_DIR}/yosys/conv.tcl
 )
-
-
-add_subdirectory(devices)
-include(boards.cmake)
-
-add_subdirectory(tests)

@@ -14,6 +14,9 @@ include(common/cmake/tools.cmake)
 include(common/cmake/sv2v.cmake)
 include(common/cmake/litex.cmake)
 
+# Parse lists of architectures / devices to be installed
+parse_install_lists()
+
 find_package(PythonInterp 3 REQUIRED)
 
 add_custom_target(test_python)
@@ -32,7 +35,6 @@ set(YOSYS_DATADIR ${ENV_DIR}/share/yosys CACHE PATH "Path to yosys data director
 set(OPENOCD_DATADIR ${ENV_DIR}/share/openocd CACHE PATH "Path to openocd data directory")
 set(VPR_CAPNP_SCHEMA_DIR ${ENV_DIR}/capnp CACHE PATH "Path to VPR schema directory")
 
-set(INSTALL_FAMILY_LIST "xc7" CACHE STRING "Semi-colon separated list contianing FPGA families to be installed. E.g.: xc7;qlf_k4n8")
 
 setup_env()
 add_env_executable(EXE yosys REQUIRED)
