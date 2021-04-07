@@ -16,11 +16,12 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
   set(VPR_ARCH_ARGS ${DEFINE_QL_TOOLCHAIN_TARGET_VPR_ARCH_ARGS})
   set(ROUTE_CHAN_WIDTH ${DEFINE_QL_TOOLCHAIN_TARGET_ROUTE_CHAN_WIDTH})
 
-  get_target_property_required(NO_INSTALL ${ARCH} NO_INSTALL)
-  if(${NO_INSTALL})
-    message(STATUS "Architecture not set for install.")
+  # Check if the architecture and family should be installed
+  check_arch_install(${ARCH} DO_INSTALL)
+  if (NOT DO_INSTALL)
+    message(STATUS "Skipping installation of toolchain for arch '${ARCH}' family '${FAMILY}'")
     return()
-  endif()
+  endif ()
 
   set(WRAPPERS env symbiflow_generate_constraints symbiflow_pack symbiflow_place symbiflow_route symbiflow_synth symbiflow_write_bitstream symbiflow_write_fasm symbiflow_write_binary symbiflow_write_jlink symbiflow_write_openocd symbiflow_write_bitheader symbiflow_write_fasm2bels symbiflow_generate_fasm2bels ql_symbiflow symbiflow_analysis)
 
@@ -121,11 +122,12 @@ function(DEFINE_QL_DEVICE_CELLS_INSTALL_TARGET)
   set(DEVICE ${DEFINE_QL_DEVICE_CELLS_INSTALL_TARGET_DEVICE})
   set(PACKAGE ${DEFINE_QL_DEVICE_CELLS_INSTALL_TARGET_PACKAGE})
 
-  get_target_property_required(NO_INSTALL ${ARCH} NO_INSTALL)
-  if(${NO_INSTALL})
-    message(STATUS "Architecture ${ARCH} not set for install")
+  # Check if the device should be installed
+  check_device_install(${DEVICE} DO_INSTALL)
+  if (NOT DO_INSTALL)
+    message(STATUS "Skipping installation of device ${DEVICE}-${PACKAGE} (type ${DEVICE_TYPE})")
     return()
-  endif()
+  endif ()
 
   # Install the final architecture file. This is actually already done in
   # DEFINE_DEVICE but in case when the file name differs across devices we

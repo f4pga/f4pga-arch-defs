@@ -27,11 +27,6 @@ function(QUICKLOGIC_DEFINE_QLF_ARCH)
 
   set(FAMILY_DIR ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY})
 
-  set(INSTALL_ARGS "")
-  if(NOT ${FAMILY} IN_LIST INSTALL_FAMILY_LIST)
-    set(INSTALL_ARGS "NO_INSTALL")
-  endif()
-
   # Define the architecture
   define_arch(
     FAMILY ${FAMILY}
@@ -73,7 +68,6 @@ function(QUICKLOGIC_DEFINE_QLF_ARCH)
     NO_BIT_TO_BIN
     NO_BIT_TO_V
     NO_BIT_TIME
-    ${INSTALL_ARGS}
     USE_FASM
 
     ROUTE_CHAN_WIDTH ${QUICKLOGIC_DEFINE_QLF_ARCH_ROUTE_CHAN_WIDTH}

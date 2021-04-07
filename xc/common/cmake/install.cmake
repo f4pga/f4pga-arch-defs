@@ -14,9 +14,8 @@ function(DEFINE_XC_TOOLCHAIN_TARGET)
   set(ARCH ${DEFINE_XC_TOOLCHAIN_TARGET_ARCH})
 
   # Check if the architecture is to be installed
-  get_target_property_required(NO_INSTALL ${ARCH} NO_INSTALL)
-  if(${NO_INSTALL})
-    message(STATUS "Architecture ${ARCH} not set for install")
+  check_arch_install(${ARCH} DO_INSTALL)
+  if(NOT DO_INSTALL)
     return()
   endif()
 
@@ -94,20 +93,18 @@ function(DEFINE_XC_PINMAP_CSV_INSTALL_TARGET)
     "${ARGN}"
   )
 
-  set(PART ${DEFINE_XC_PINMAP_CSV_INSTALL_TARGET_PART})
-  set(BOARD ${DEFINE_XC_PINMAP_CSV_INSTALL_TARGET_BOARD})
   set(DEVICE ${DEFINE_XC_PINMAP_CSV_INSTALL_TARGET_DEVICE})
-  set(DEVICE_TYPE ${DEFINE_XC_PINMAP_CSV_INSTALL_TARGET_DEVICE_TYPE})
-  set(PACKAGE ${DEFINE_XC_PINMAP_CSV_INSTALL_TARGET_PACKAGE})
 
-  # Check if the architecture is to be installed
-  get_target_property_required(ARCH ${DEVICE} ARCH)
-  get_target_property_required(NO_INSTALL ${ARCH} NO_INSTALL)
-  if(${NO_INSTALL})
-    message(STATUS "Architecture ${ARCH} not set for install")
+  # Check if the device is to be installed
+  check_device_install(${DEVICE} DO_INSTALL)
+  if(NOT DO_INSTALL)
     return()
   endif()
 
+  set(PART ${DEFINE_XC_PINMAP_CSV_INSTALL_TARGET_PART})
+  set(BOARD ${DEFINE_XC_PINMAP_CSV_INSTALL_TARGET_BOARD})
+  set(DEVICE_TYPE ${DEFINE_XC_PINMAP_CSV_INSTALL_TARGET_DEVICE_TYPE})
+  set(PACKAGE ${DEFINE_XC_PINMAP_CSV_INSTALL_TARGET_PACKAGE})
 
   get_target_property(USE_ROI ${DEVICE_TYPE} USE_ROI)
   if(USE_ROI OR USE_ROI STREQUAL "USE_ROI-NOTFOUND")
