@@ -273,8 +273,8 @@ fi
 fi
 
 if [[ $1 == "-compile" || $1 == "-post_verilog" ]]; then
-  # FIXME: Allow no PCF/pinmap for AP3 and OpenFPGA devices
-  if [[ "$DEVICE" != "ql-ap3-ql745a_ql745a" && ! "$DEVICE" =~ ^(qlf_k4n8_qlf_k4n8)$ ]]; then
+  # FIXME: Allow no PCF/pinmap for some devices
+  if [[ ! "$DEVICE" =~ ^(qlf_k4n8_qlf_k4n8)$ ]]; then
     if [ -z "$PCF" ]; then
       echo "PCF file option is missing. Refer -h/--help"
       exit 1
@@ -294,19 +294,13 @@ if [[ $1 == "-compile" || $1 == "-post_verilog" ]]; then
     echo "TOP module name is missing. Refer -h/--help"
     exit 1
   fi
-    # FIXME: Allow no PCF/pinmap for AP3 and OpenFPGA devices
-    if [[ "$DEVICE" != "ql-ap3-ql745a_ql745a" && ! "$DEVICE" =~ ^(qlf_k4n8_qlf_k4n8)$ ]]; then
+    # FIXME: Allow no PCF/pinmap for some devices
+    if [[ ! "$DEVICE" =~ ^(qlf_k4n8_qlf_k4n8)$ ]]; then
       if [ -z "$PART" ]; then
        echo "PART name is missing. Refer -h/--help"
        exit 1
-      elif ! [[ "$PART" =~ ^(PU64|WR42|PD64)$ ]]; then 
-       echo "Invalid Package name, supported PU64,WR42,PD64"
-  	   PINMAPCSV="pinmap_PD64.csv"
-       exit 1
       else
-  	    if ! [[ "$PART" =~ ^(WR42|PU64|PD64)$ ]]; then 
-          PINMAPCSV="pinmap_${PART}.csv"
-        fi
+        PINMAPCSV="pinmap_${PART}.csv"
       fi
     fi
     if [ -z "$ROUTE_FLAG0" ]; then
@@ -350,8 +344,8 @@ if [ -f "$SOURCE/v_list_tmp" ]; then
     VERILOG_LIST=`cat ${SOURCE}/v_list_tmp`
 fi
 
-# FIXME: AP3 and OpenFPGA do not have fasm2bels yet
-if [[ "$DEVICE" == "ql-ap3-ql745a_ql745a" || "$DEVICE" =~ ^(qlf_k4n8*)$ ]]; then
+# FIXME: Some devices do not have fasm2bels yet
+if [[ "$DEVICE" =~ ^(qlf_k4n8*)$ ]]; then
     HAVE_FASM2BELS=0
 else
     HAVE_FASM2BELS=1
@@ -402,9 +396,8 @@ FAMILY := $FAMILY\n\
 PCF := $PCF_MAKE\n\
 SDC := $SDC_MAKE\n\
 BUILDDIR := build\n\n\
-HEX_FILES := \${current_dir}/*.hex
 
-all: \${BUILDDIR}/\${TOP}.bit\n\
+all: \${BUILDDIR}/\${TOP}.route\n\
 \n\
 \${BUILDDIR}/\${TOP}.eblif: \${VERILOG} \${PCF}\n\
   ifneq (\"\$(wildcard \$(HEX_FILES))\",\"\")\n\
@@ -420,27 +413,6 @@ all: \${BUILDDIR}/\${TOP}.bit\n\
 \n\
 \${BUILDDIR}/\${TOP}.route: \${BUILDDIR}/\${TOP}.place\n\
 	cd \${BUILDDIR} && symbiflow_route -e \${TOP}.eblif -f \${FAMILY} -d \${DEVICE} -s \${SDC} 2>&1 > $LOG_FILE\n\
-\n\
-\${BUILDDIR}/\${TOP}.fasm: \${BUILDDIR}/\${TOP}.route\n\
-	cd \${BUILDDIR} && symbiflow_write_fasm -e \${TOP}.eblif -f \${FAMILY} -d \${DEVICE} 2>&1 > $LOG_FILE\n\
-\n\
-\${BUILDDIR}/\${TOP}.bit: \${BUILDDIR}/\${TOP}.fasm\n\
-	cd \${BUILDDIR} && symbiflow_write_bitstream -d \${DEVICE} -f \${TOP}.fasm -P \${PARTNAME} -b \${TOP}.bit\n\
-\n\
-\${BUILDDIR}/\${TOP}_bit.h: \${BUILDDIR}/\${TOP}.bit\n\
-	cd \${BUILDDIR} && symbiflow_write_bitheader -b \${TOP}.bit\n\
-\n\
-\${BUILDDIR}/\${TOP}.bin: \${BUILDDIR}/\${TOP}.bit\n\
-	cd \${BUILDDIR} && symbiflow_write_binary -b \${TOP}.bit\n\
-\n\
-\${BUILDDIR}/\${TOP}.jlink: \${BUILDDIR}/\${TOP}.bit\n\
-	cd \${BUILDDIR} && symbiflow_write_jlink -f \${TOP}.fasm -P \${PACKAGENAME} -b \${TOP}.bit\n\
-\n\
-\${BUILDDIR}/\${TOP}.openocd: \${BUILDDIR}/\${TOP}.bit\n\
-	cd \${BUILDDIR} && symbiflow_write_openocd -f \${TOP}.fasm -P \${PACKAGENAME} -b \${TOP}.bit\n\
-\n\
-\${BUILDDIR}/\${TOP}_jlink.h: \${BUILDDIR}/\${TOP}.jlink\n\
-	cd \${BUILDDIR} && symbiflow_write_jlinkheader\n\
 \n\
 \${BUILDDIR}/\${TOP}.post_v: \${BUILDDIR}/\${TOP}.route\n\
 " >$MAKE_FILE
@@ -468,34 +440,16 @@ if [ $1 == "-synth" ]; then
 elif [ $1 == "-compile" ]; then
   echo -e "Running Synth->Pack->Place->Route"
 
-  # FIXME: No bitstream for OpenFPGA yet!
-  if [ ! "${FAMILY}" == "qlf_k4n8" ]; then
-
-    # FIXME: For AP3 write FASM only
-    if [ "${FAMILY}" == "ap3" ]; then
-      cd $SOURCE;make -f Makefile.symbiflow ${BUILDDIR}/${TOP}.fasm  || exit
-    else
-      cd $SOURCE;make -f Makefile.symbiflow ${BUILDDIR}/${TOP}.bit  || exit
-    fi
-  else
+  # FIXME: No bitstream for qlf_k4n8
+  if [ "${FAMILY}" == "qlf_k4n8" ]; then
     cd $SOURCE;make -f Makefile.symbiflow ${BUILDDIR}/${TOP}.route  || exit
+  else
+    cd $SOURCE;make -f Makefile.symbiflow ${BUILDDIR}/${TOP}.bit  || exit
   fi
 
   if [ ! -z "$OUT" ]; then
-    if [[ " ${OUT_ARR[@]} " =~ " jlink " ]]; then
-     cd $SOURCE;make -f Makefile.symbiflow ${BUILDDIR}/${TOP}.jlink || exit
-    fi
-    if [[ " ${OUT_ARR[@]} " =~ " openocd " ]]; then
-     cd $SOURCE;make -f Makefile.symbiflow ${BUILDDIR}/${TOP}.openocd || exit
-    fi    
     if [[ " ${OUT_ARR[@]} " =~ " post_verilog " ]]; then
      cd $SOURCE;make -f Makefile.symbiflow  ${BUILDDIR}/${TOP}.post_v || exit
-    fi
-    if [[ " ${OUT_ARR[@]} " =~ " header " ]]; then
-     cd $SOURCE;make -f Makefile.symbiflow ${BUILDDIR}/${TOP}_bit.h || exit
-    fi
-    if [[ " ${OUT_ARR[@]} " =~ " binary " ]]; then
-     cd $SOURCE;make -f Makefile.symbiflow ${BUILDDIR}/${TOP}.bin || exit
     fi
   fi
 fi

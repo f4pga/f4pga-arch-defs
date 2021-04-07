@@ -125,16 +125,12 @@ if [ ${#VERILOG_FILES[@]} -eq 0 ]; then
 	exit 1
 fi
 
-if ! [[ "$PART" =~ ^(PU64|WR42|PD64)$ ]]; then 
-	PINMAPCSV="pinmap_PD64.csv"
-else
-	PINMAPCSV="pinmap_${PART}.csv"
-fi
+PINMAPCSV="pinmap_${PART}.csv"
 
-export TECHMAP_PATH=`realpath ${MYPATH}/../share/techmaps/quicklogic/${FAMILY}/techmap`
+export TECHMAP_PATH=`realpath ${MYPATH}/../share/symbiflow/techmaps/${FAMILY}`
 
-SYNTH_TCL_PATH=`realpath ${MYPATH}/../share/quicklogic/${FAMILY}/yosys/synth.tcl`
-CONV_TCL_PATH=`realpath ${MYPATH}/../share/quicklogic/${FAMILY}/yosys/conv.tcl`
+SYNTH_TCL_PATH=`realpath ${MYPATH}/../share/symbiflow/scripts/${FAMILY}/synth.tcl`
+CONV_TCL_PATH=`realpath ${MYPATH}/../share/symbiflow/scripts/${FAMILY}/conv.tcl`
 
 export USE_ROI="FALSE"
 export INPUT_XDC_FILE=${XDC_FILES[*]}
@@ -142,14 +138,13 @@ export OUT_JSON=$TOP.json
 export SYNTH_JSON=${TOP}_io.json
 export OUT_SYNTH_V=${TOP}_synth.v
 export OUT_EBLIF=${TOP}.eblif
-#export PART_JSON=`realpath ${MYPATH}/../share/prjxray/prjxray-db/$DEVICE/$PART/part.json`
 export OUT_FASM_EXTRA=${TOP}_fasm_extra.fasm
 
 if [ -s $PCF ]; then
     export PCF_FILE=$PCF
 fi
 
-DEVICE_PATH=`realpath ${MYPATH}/../share/symbiflow/arch/${DEVICE}`
+DEVICE_PATH=`realpath ${MYPATH}/../share/symbiflow/arch/${DEVICE}_${DEVICE}`
 export PINMAP_FILE=${DEVICE_PATH}/${PINMAPCSV}
 if [ -d "${DEVICE_PATH}/cells" ]; then
 	export DEVICE_CELLS_SIM=`find ${DEVICE_PATH}/cells -name "*_sim.v"`
@@ -158,11 +153,6 @@ else
 	export DEVICE_CELLS_SIM=
 	export DEVICE_CELLS_MAP=
 fi
-
-# Device-specific synthesis options
-#if [[ "$DEVICE" =~ ^(ql-openfpga-.*)$ ]]; then
-    #export SYNTH_OPTS="-no_adder"
-#fi
 
 LOG=${TOP}_synth.log
 
