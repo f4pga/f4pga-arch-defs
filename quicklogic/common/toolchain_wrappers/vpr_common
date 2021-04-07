@@ -79,23 +79,13 @@ function parse_args {
 
      export ARCH_DIR=`realpath ${MYPATH}/../share/symbiflow/arch/${DEVICE_1}_${DEVICE_1}`
      export ARCH_DEF=${ARCH_DIR}/arch_${DEVICE_1}_${DEVICE_1}.xml
-     export RR_GRAPH=${ARCH_DIR}/${DEVICE_1}.rr_graph.bin
+     export RR_GRAPH=${ARCH_DIR}/rr_graph_${DEVICE_1}_${DEVICE_1}.rr_graph.real.bin
      export PLACE_DELAY=${ARCH_DIR}/rr_graph_${DEVICE_1}_${DEVICE_1}.place_delay.bin
      export ROUTE_DELAY=${ARCH_DIR}/rr_graph_${DEVICE_1}_${DEVICE_1}.lookahead.bin
 
-     if [[ "${DEVICE}" =~ ^(qlf_k4n8)$ ]]; then
-       # FIXME: There is the ambiguous device-arch separator "_" for OpenFPGA device names
-       # For example "ql-openfpga-k4_N8_ql-openfpga-k4_N8".
-       # The statement below assumes that OpenFPGA devices are named "<device>_<device>" thus
-       # splitting the name in half allows to get the actual name. The second half is retrieved.
-       #export DEVICE_NAME=${DEVICE:${#DEVICE}/2+1}
-       export DEVICE_NAME=${DEVICE_1}
-     else
-       #export DEVICE_NAME=`echo $DEVICE | cut -d'_' -f1`
-       export DEVICE_NAME=${DEVICE_1}
-     fi
+     export DEVICE_NAME=${DEVICE_1}
 
-     export VPR_CONFIG=`realpath ${MYPATH}/../share/quicklogic/${FAMILY}/vpr/vpr_config.sh`
+     export VPR_CONFIG=`realpath ${MYPATH}/../share/symbiflow/scripts/${FAMILY}/vpr_config.sh`
 }
 
 function run_vpr {

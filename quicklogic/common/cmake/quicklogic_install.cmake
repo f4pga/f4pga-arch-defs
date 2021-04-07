@@ -23,7 +23,7 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
     return()
   endif ()
 
-  set(WRAPPERS env symbiflow_generate_constraints symbiflow_pack symbiflow_place symbiflow_route symbiflow_synth symbiflow_write_bitstream symbiflow_write_fasm symbiflow_write_binary symbiflow_write_jlink symbiflow_write_openocd symbiflow_write_bitheader symbiflow_write_fasm2bels symbiflow_generate_fasm2bels ql_symbiflow symbiflow_analysis)
+  set(WRAPPERS env symbiflow_generate_constraints symbiflow_pack symbiflow_place symbiflow_route symbiflow_synth ql_symbiflow symbiflow_analysis)
 
   # Export VPR arguments
   list(JOIN VPR_BASE_ARGS " " VPR_BASE_ARGS)
@@ -54,7 +54,7 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
   install(FILES ${VPR_CONFIG}
-          DESTINATION share/quicklogic/${FAMILY}/vpr)
+          DESTINATION share/symbiflow/scripts/${FAMILY})
 
   # install python scripts
    install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/split_inouts.py
@@ -82,15 +82,16 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
           PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
 
   # install techmap
-  install(DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/techmap
-      DESTINATION share/techmaps/quicklogic/${FAMILY})
+  install(DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/techmap/.
+          DESTINATION share/symbiflow/techmaps/${FAMILY}
+          FILES_MATCHING PATTERN *.v)
 
   install(FILES ${DEFINE_QL_TOOLCHAIN_TARGET_CELLS_SIM}
-          DESTINATION share/techmaps/quicklogic/${FAMILY}/techmap)
+          DESTINATION share/symbiflow/techmaps/${FAMILY})
 
   # install Yosys scripts
-  install(FILES  ${DEFINE_QL_TOOLCHAIN_TARGET_CONV_SCRIPT} ${DEFINE_QL_TOOLCHAIN_TARGET_SYNTH_SCRIPT}
-    DESTINATION share/quicklogic/${FAMILY}/yosys)
+  install(FILES ${DEFINE_QL_TOOLCHAIN_TARGET_CONV_SCRIPT} ${DEFINE_QL_TOOLCHAIN_TARGET_SYNTH_SCRIPT}
+          DESTINATION share/symbiflow/scripts/${FAMILY})
 
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/utils/create_ioplace.py
           DESTINATION bin/python

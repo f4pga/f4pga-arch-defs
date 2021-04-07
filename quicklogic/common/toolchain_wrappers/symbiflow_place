@@ -27,12 +27,6 @@ if [ -s $PCF ]; then
     echo "Generating coinstrains ..."
     symbiflow_generate_constraints $PCF $EBLIF $NET $PART $DEVICE $ARCH_DEF
 
-    #generate_constraints $PCF $EBLIF $NET $PART $DEVICE $ARCH_DEF
-
-    #IOPLACE_FILE="${PROJECT%.*}_io.place"
-    #PLACE_FILE="${PROJECT%.*}_io.place"
-    #if [ -f
-
     IOPLACE_FILE="${PROJECT%.*}_io.place"
     PLACE_FILE="${PROJECT%.*}_constraints.place"
 
