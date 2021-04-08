@@ -51,6 +51,21 @@ class RepackingRule:
         return index * self.index_map[0] + self.index_map[1]
 
 
+class RepackingConstraint:
+    """
+    Represents a constraint imposed on a given net name
+    """
+
+    def __init__(self, net, block_type, port_spec):
+
+        port = PathNode.from_string(port_spec)
+
+        self.net = net
+        self.block_type = block_type
+        self.port = port.name
+        self.pin = port.index
+
+
 # =============================================================================
 
 
@@ -446,7 +461,12 @@ def identify_repack_target_candidates(clb_pbtype, path):
 
 
 def annotate_net_endpoints(
-        clb_graph, block, block_path=None, port_map=None, def_map=None
+        clb_graph,
+        block,
+        block_path=None,
+        constraints=None,
+        port_map=None,
+        def_map=None
 ):
     """
     This function annotates SOURCE and SINK nodes of the block pointed by
@@ -460,12 +480,27 @@ def annotate_net_endpoints(
     if port_map is not None:
         inv_port_map = {v: k for k, v in port_map.items()}
 
+    # Sort constraints by port and pin. Build a set of constrained nets
+    # FIXME: Do this once after constraints loading instead of here for every
+    # block.
+    if constraints is not None:
+        constraints = {(c.port, c.pin): c for c in constraints}
+
+        # Sets of constrained nets per block type
+        constrained_nets = {}
+        for constraint in constraints.values():
+            if constraint.block_type not in constrained_nets:
+                constrained_nets[constraint.block_type] = set()
+            constrained_nets[constraint.block_type].add(constraint.net)
+
     # Get block path
     if block_path is None:
         block_path = block.get_path()
 
     # Remove mode from the last node of the path
+    # Get the destination block type
     block_path = [PathNode.from_string(p) for p in block_path.split(".")]
+    block_type = block_path[0].name
     block_path[-1].mode = None
     block_path = ".".join([str(p) for p in block_path])
 
@@ -483,8 +518,30 @@ def annotate_net_endpoints(
         if path != block_path:
             continue
 
-        # Optionally remap the port
         port = PathNode.from_string(port)
+
+        # Check if the port is constrained. If so then forcibly assign it
+        # to the net from the constraint and immediately move to the next node
+        if constraints is not None:
+            key = (port.name, port.index)
+
+            # Get the constraint
+            if key in constraints:
+                constraint = constraints[key]
+
+                # Check if the block type matches
+                if block_type == constraint.block_type:
+                    logging.debug(
+                        "    Constraining net '{}' to port '{}'".format(
+                            constraint.net, port
+                        )
+                    )
+
+                    # Assign the net
+                    node.net = constraint.net
+                    continue
+
+        # Optionally remap the port
         if port_map is not None:
             key = (port.name, port.index)
             if key in inv_port_map:
@@ -497,12 +554,24 @@ def annotate_net_endpoints(
         if port.name in block.ports:
             net = block.find_net_for_port(port.name, port.index)
 
+        # If the net is constrained then skip it. It has already been assigned
+        # (or will be) during processing of node of the constrained port.
+        if constraints is not None:
+            if block_type in constrained_nets:
+                if net in constrained_nets[block_type]:
+                    continue
+
         # If the port is unconnected then check if there is a defautil value
         # in the map
         if def_map:
             key = (port.name, port.index)
-            if key in def_map:
+            if not net and key in def_map:
                 net = def_map[key]
+                logging.debug(
+                    "    Unconnected port '{}' defaults to {}".format(
+                        port, net
+                    )
+                )
 
         # Skip unconnected ports
         if not net:
@@ -757,6 +826,42 @@ def expand_port_maps(rules, clb_pbtypes):
 # =============================================================================
 
 
+def load_repacking_constraints(json_root):
+    """
+    Loads constraints for the repacker from a parsed JSON file
+    """
+
+    # Get the appropriate section
+    json_constrs = json_root.get("repacking_constraints", None)
+    assert json_constrs is not None
+    assert isinstance(json_constrs, list), type(json_constrs)
+
+    # Convert to RepackingConstraint objects
+    logging.debug(" Repacking constraints:")
+
+    constraints = []
+    for json_constr in json_constrs:
+
+        constraint = RepackingConstraint(
+            net=json_constr["net"],
+            block_type=json_constr["tile"],
+            port_spec=json_constr["pin"]
+        )
+        constraints.append(constraint)
+
+        logging.debug(
+            "  {}: {}.{}[{}]".format(
+                constraint.net, constraint.block_type, constraint.port,
+                constraint.pin
+            )
+        )
+
+    return constraints
+
+
+# =============================================================================
+
+
 def write_packed_netlist(fname, netlist):
     """
     Writes the given packed netlist to an XML file
@@ -792,6 +897,12 @@ def main():
         type=str,
         required=True,
         help="JSON file describing repacking rules"
+    )
+    parser.add_argument(
+        "--repacking-constraints",
+        type=str,
+        default=None,
+        help="JSON file describing repacking constraints"
     )
     parser.add_argument(
         "--eblif-in",
@@ -909,6 +1020,17 @@ def main():
     # Expand port maps in repacking rules
     expand_port_maps(repacking_rules, clb_pbtypes)
 
+    # Load the repacking constraints if provided
+    if args.repacking_constraints is not None:
+        logging.info("Loading repacking constraints...")
+
+        with open(args.repacking_constraints, "r") as fp:
+            json_root = json.load(fp)
+            repacking_constraints = load_repacking_constraints(json_root)
+
+    else:
+        repacking_constraints = []
+
     # Load the BLIF/EBLIF file
     logging.info("Loading BLIF/EBLIF circuit netlist...")
     eblif = Eblif.from_file(args.eblif_in)
@@ -928,12 +1050,7 @@ def main():
     else:
         net_map = {}
 
-#    # DEBUG
-#    keys = sorted(list(eblif.cells.keys()))
-#    for key in keys:
-#        logging.debug(" " + eblif.cells[key].name)
-
-# Optional dump
+    # Optional dump
     if args.dump_netlist:
         eblif.to_file("netlist.cleaned.eblif")
 
@@ -1112,7 +1229,11 @@ def main():
 
         # For the CLB
         logging.debug("   " + str(clb_block))
-        annotate_net_endpoints(graph, clb_block)
+        annotate_net_endpoints(
+            clb_graph=graph,
+            block=clb_block,
+            constraints=repacking_constraints
+        )
 
         # For repacked leafs
         for block, rule, (path, dst_pbtype) in blocks_to_repack:
@@ -1123,7 +1244,12 @@ def main():
             dst_blif_model = dst_pbtype.blif_model.split(maxsplit=1)[-1]
 
             # Annotate
-            annotate_net_endpoints(graph, block, path, rule.port_map)
+            annotate_net_endpoints(
+                clb_graph=graph,
+                block=block,
+                block_path=path,
+                port_map=rule.port_map
+            )
 
         # Initialize router
         logging.debug("  Initializing router...")
