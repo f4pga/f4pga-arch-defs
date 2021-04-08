@@ -503,6 +503,9 @@ def annotate_net_endpoints(
                 constrained_nets[constraint.block_type] = set()
             constrained_nets[constraint.block_type].add(constraint.net)
 
+        # Get nets relevant to this block
+        all_nets = block.get_nets()
+
     # Get block path
     if block_path is None:
         block_path = block.get_path()
@@ -539,17 +542,20 @@ def annotate_net_endpoints(
             if key in constraints:
                 constraint = constraints[key]
 
-                # Check if the block type matches
-                if block_type == constraint.block_type:
-                    logging.debug(
-                        "    Constraining net '{}' to port '{}'".format(
-                            constraint.net, port
-                        )
-                    )
+                # The net must be present in the block
+                if constraint.net in all_nets:
 
-                    # Assign the net
-                    node.net = constraint.net
-                    continue
+                    # Check if the block type matches
+                    if block_type == constraint.block_type:
+                        logging.debug(
+                            "    Constraining net '{}' to port '{}'".format(
+                                constraint.net, port
+                            )
+                        )
+
+                        # Assign the net
+                        node.net = constraint.net
+                        continue
 
         # Optionally remap the port
         if port_map is not None:

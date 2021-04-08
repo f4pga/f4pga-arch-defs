@@ -512,6 +512,28 @@ class Block:
         # Recurse
         return block.find_net_for_port(conn.port, conn.pin)
 
+    def get_nets(self):
+        """
+        Returns all nets that are present in this block and its children
+        """
+
+        nets = set()
+
+        # Recursive walk function
+        def walk(block):
+
+            # Examine block ports
+            for port in block.ports.values():
+                for pin in range(port.width):
+
+                    net = block.find_net_for_port(port.name, pin)
+                    if net:
+                        nets.add(net)
+
+        # Get the nets
+        walk(self)
+        return nets
+
     def get_block_by_path(self, path):
         """
         Returns a child block given its hierarchical path. The path must not
