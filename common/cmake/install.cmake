@@ -3,14 +3,19 @@ function(PARSE_INSTALL_LISTS)
   # PARSE_INSTALL_LISTS
   #
   # Parses lists of architectures and devices to be installed as given by a
-  # user. Converts them to CMake lists.
+  # user. Converts them to CMake lists and sets them in the global scope.
   #
   # There are INSTALL_* and NO_INSTALL_* global variables. Each of them holds
-  # a list of entities to install and not to install.
+  # a comma-separated list of entities to install and not to install.
   #
   # When none of these two is set then all entities are considered for installation
   # If INSTALL_* is set then only entities present there are to be installed.
   # The NO_INSTALL_* list contains entities that should NOT be installed.
+  #
+  # For example: If one wants to install only the Xilinx 7-series familly one
+  # would run the CMake with -DINSTALL_FAMILIES=xc7. If one wants to install
+  # all supported families BUT Xilinx 7-series one would do -DNO_INSTALL_FAMILIES=xc7
+  # The same principle applies to the architecture and the device lists.
 
   # Device lists
   if (NOT "${INSTALL_DEVICES}" STREQUAL "")
