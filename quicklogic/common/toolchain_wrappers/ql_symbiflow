@@ -224,7 +224,7 @@ for arg_v in $@; do
 				OUT+="$arg_v "
 			elif [ $PARTNAME -eq 1 ]; then
 				PART="${arg_v}"
- 				PART="${PART^^}"
+# 				PART="${PART^^}"
 			else
 				echo "Refer help for more details: ql_symbiflow -h "
                                 exit 1
@@ -286,7 +286,7 @@ if [[ $1 == "-compile" || $1 == "-post_verilog" ]]; then
   if [ -z "$DEVICE" ]; then
     echo "DEVICE name is missing. Refer -h/--help"
     exit 1
-  elif ! [[ "$DEVICE" =~ ^(ql-eos-s3_wlcsp|ql-ap3-ql745a_ql745a|qlf_k4n8_qlf_k4n8)$ ]]; then 
+  elif ! [[ "$DEVICE" =~ ^(qlf_k4n8_qlf_k4n8)$ ]]; then 
 	  echo "Invalid Device name, supported qlf_k4n8"
     exit 1
   fi
@@ -345,10 +345,21 @@ if [ -f "$SOURCE/v_list_tmp" ]; then
 fi
 
 # FIXME: Some devices do not have fasm2bels yet
-if [[ "$DEVICE" =~ ^(qlf_k4n8*)$ ]]; then
+if [[ "$DEVICE" =~ ^(qlf_k4n8.*)$ ]]; then
     HAVE_FASM2BELS=0
 else
     HAVE_FASM2BELS=1
+fi
+
+# Some devices have only single part. If the part is not explicitly provided
+# try infering it from the device name
+if [ -z $PART ]; then
+    if [[ "$DEVICE" =~ ^(qlf_k4n8.*)$ ]]; then
+        PART=qlf_k4n8_umc22
+    else
+        echo "Please provide part with the -P option"
+        exit 1
+    fi
 fi
 
 export PCF_FILE=$PCF

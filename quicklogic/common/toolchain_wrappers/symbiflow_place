@@ -24,7 +24,7 @@ PROJECT=$(basename -- "$EBLIF")
 
 # Generate IO constraints
 if [ -s $PCF ]; then
-    echo "Generating coinstrains ..."
+    echo "Generating constraints ..."
     symbiflow_generate_constraints $PCF $EBLIF $NET $PART $DEVICE $ARCH_DEF
 
     IOPLACE_FILE="${PROJECT%.*}_io.place"
