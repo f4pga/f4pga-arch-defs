@@ -12,13 +12,14 @@ DEVICE=$5
 ARCH_DEF=$6
 
 if [[ "$DEVICE" =~ ^(qlf_k4n8_qlf_k4n8)$ ]];then
-	PINMAPCSV="qlf_k4n8-qlf_k4n8_umc22_24x24.csv"
 	DEVICE_1="qlf_k4n8-qlf_k4n8_umc22"
-	PINMAPXML="interface-mapping_24x24.xml"
+	PINMAPXML="pinmap_${PART}.xml"
 else
-    PINMAPCSV="pinmap_${PART}.csv"
-    CLKMAPCSV="clkmap_${PART}.csv"
+    DEVICE_1=${DEVICE}
 fi
+
+PINMAPCSV="pinmap_${PART}.csv"
+CLKMAPCSV="clkmap_${PART}.csv"
 
 echo "PINMAP FILE : $PINMAPCSV"
 echo "CLKMAP FILE : $CLKMAPCSV"

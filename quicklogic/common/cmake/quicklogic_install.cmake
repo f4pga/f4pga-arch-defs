@@ -57,7 +57,7 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
           DESTINATION share/symbiflow/scripts/${FAMILY})
 
   # install python scripts
-   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/split_inouts.py
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/split_inouts.py
           DESTINATION bin/python
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
@@ -97,13 +97,6 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
           DESTINATION bin/python
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/devices/umc22/interface-mapping_24x24.xml
-          DESTINATION share/symbiflow/arch/qlf_k4n8-qlf_k4n8_umc22_qlf_k4n8-qlf_k4n8_umc22
-          PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
-
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/devices/umc22/qlf_k4n8-qlf_k4n8_umc22_24x24.csv
-          DESTINATION share/symbiflow/arch/qlf_k4n8-qlf_k4n8_umc22_qlf_k4n8-qlf_k4n8_umc22
-          PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 endfunction()
 
 function(DEFINE_QL_DEVICE_CELLS_INSTALL_TARGET)
@@ -206,6 +199,20 @@ function(DEFINE_QL_PINMAP_CSV_INSTALL_TARGET)
   install(FILES ${PINMAP_FILE_REAL}
     DESTINATION "share/symbiflow/arch/${DEVICE}_${PACKAGE}/${PART}"
     RENAME "pinmap_${ADD_QUICKLOGIC_BOARD_FABRIC_PACKAGE}.csv")
+
+  get_target_property_required(PINMAP ${BOARD} PINMAP_XML)
+  get_file_location(PINMAP_XML_FILE ${PINMAP_XML})
+  get_filename_component(PINMAP_XML_FILE_REAL ${PINMAP_XML_FILE} REALPATH)
+  get_filename_component(PINMAP_XML_FILE_NAME ${PINMAP_XML_FILE} NAME)
+  append_file_dependency(DEPS ${PINMAP_XML})
+  add_custom_target(
+    "PINMAP_XML_INSTALL_${BOARD}_${DEVICE}_${PACKAGE}_${PINMAP_XML_FILE_NAME}"
+    ALL
+    DEPENDS ${DEPS}
+    )
+  install(FILES ${PINMAP_XML_FILE_REAL}
+    DESTINATION "share/symbiflow/arch/${DEVICE}_${PACKAGE}/${PART}"
+    RENAME "pinmap_${ADD_QUICKLOGIC_BOARD_FABRIC_PACKAGE}.xml")
 
   get_target_property(CLKMAP ${BOARD} CLKMAP)
   if(NOT "${CLKMAP}" MATCHES ".*-NOTFOUND")
