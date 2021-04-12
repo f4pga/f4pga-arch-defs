@@ -37,7 +37,7 @@ from pb_rr_graph_router import Router
 from pb_rr_graph_netlist import load_clb_nets_into_pb_graph
 from pb_rr_graph_netlist import build_packed_netlist_from_pb_graph
 
-from pb_type import PbType, Model
+from pb_type import PbType, Model, PortType
 
 # =============================================================================
 
@@ -702,6 +702,23 @@ def repack_netlist_cell(
         pad_len = (1 << lut_width) - len(init)
         init = "0" * pad_len + init
 
+        repacked_cell.parameters["LUT"] = init
+
+    # If the cell is a LUT-based const generator append the LUT parameter as
+    # well.
+    if cell.type == "$const":
+
+        assert lut_width == 0, (cell, lut_width)
+
+        # Assume that the model is a LUT. Take its widest input port and use
+        # its width as LUT size.
+        max_width = -1
+        for port in model.ports.values():
+            if port.type == PortType.INPUT:
+                if port.width > max_width:
+                    max_width = port.width
+
+        init = str(cell.init) * (1 << max_width)
         repacked_cell.parameters["LUT"] = init
 
     # If the rule contains mode bits then append the MODE parameter to the cell
