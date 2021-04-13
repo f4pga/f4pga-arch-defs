@@ -1,0 +1,34 @@
+#!/bin/bash
+set -e
+
+MYPATH=`realpath $0`
+MYPATH=`dirname ${MYPATH}`
+
+PCF=$1
+EBLIF=$2
+NET=$3
+PART=$4
+DEVICE=$5
+ARCH_DEF=$6
+
+if [[ "$DEVICE" =~ ^(qlf_k4n8_qlf_k4n8)$ ]];then
+	DEVICE_1="qlf_k4n8-qlf_k4n8_umc22"
+	PINMAPXML="pinmap_${PART}.xml"
+else
+    DEVICE_1=${DEVICE}
+fi
+
+PINMAPCSV="pinmap_${PART}.csv"
+CLKMAPCSV="clkmap_${PART}.csv"
+
+echo "PINMAP FILE : $PINMAPCSV"
+echo "CLKMAP FILE : $CLKMAPCSV"
+
+PINMAP=`realpath ${MYPATH}/../share/symbiflow/arch/${DEVICE_1}_${DEVICE_1}/${PINMAPCSV}`
+PINMAP_XML=`realpath ${MYPATH}/../share/symbiflow/arch/${DEVICE_1}_${DEVICE_1}/${PINMAPXML}`
+CLKMAP=`realpath ${MYPATH}/../share/symbiflow/arch/${DEVICE_1}_${DEVICE_1}/${CLKMAPCSV}`
+IOGEN=`realpath ${MYPATH}/python/create_ioplace.py`
+PROJECT=$(basename -- "$EBLIF")
+IOPLACE_FILE="${PROJECT%.*}_io.place"
+
+python3 ${IOGEN} --pcf $PCF --blif $EBLIF --pinmap_xml $PINMAP_XML --csv_file $PINMAP --net $NET > ${IOPLACE_FILE}

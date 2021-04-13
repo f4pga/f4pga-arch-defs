@@ -1,6 +1,7 @@
-include(../common/cmake/quicklogic_qlf_arch.cmake)
-include(../common/cmake/quicklogic_qlf_device.cmake)
 include(../common/cmake/quicklogic_board.cmake)
+include(../common/cmake/quicklogic_qlf_device.cmake)
+include(../common/cmake/quicklogic_qlf_arch.cmake)
+include(../common/cmake/quicklogic_install.cmake)
 
 get_filename_component(FAMILY ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 
@@ -33,3 +34,16 @@ add_subdirectory(devices)
 include(boards.cmake)
 
 add_subdirectory(tests)
+
+# Define toolchain installation target
+set(FAMILY_DIR ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY})
+
+define_ql_toolchain_target(
+  FAMILY ${FAMILY}
+  ARCH qlf_k4n8
+  ROUTE_CHAN_WIDTH 100
+  CELLS_SIM ${FAMILY_DIR}/techmap/cells_sim.v
+  VPR_ARCH_ARGS ${VPR_ARCH_ARGS}
+  SYNTH_SCRIPT ${FAMILY_DIR}/yosys/synth.tcl
+  CONV_SCRIPT ${FAMILY_DIR}/yosys/conv.tcl
+)
