@@ -11,10 +11,17 @@ function(DEFINE_XC_TOOLCHAIN_TARGET)
     "${ARGN}"
   )
 
+  set(ARCH ${DEFINE_XC_TOOLCHAIN_TARGET_ARCH})
+
+  # Check if the architecture is to be installed
+  check_arch_install(${ARCH} DO_INSTALL)
+  if(NOT DO_INSTALL)
+    return()
+  endif()
+
   get_target_property_required(VPR env VPR)
   get_target_property_required(GENFASM env GENFASM)
 
-  set(ARCH ${DEFINE_XC_TOOLCHAIN_TARGET_ARCH})
   set(VPR_ARCH_ARGS ${DEFINE_XC_TOOLCHAIN_TARGET_VPR_ARCH_ARGS})
   set(ROUTE_CHAN_WIDTH ${DEFINE_XC_TOOLCHAIN_TARGET_ROUTE_CHAN_WIDTH})
   list(JOIN VPR_BASE_ARGS " " VPR_BASE_ARGS)
@@ -86,9 +93,16 @@ function(DEFINE_XC_PINMAP_CSV_INSTALL_TARGET)
     "${ARGN}"
   )
 
+  set(DEVICE ${DEFINE_XC_PINMAP_CSV_INSTALL_TARGET_DEVICE})
+
+  # Check if the device is to be installed
+  check_device_install(${DEVICE} DO_INSTALL)
+  if(NOT DO_INSTALL)
+    return()
+  endif()
+
   set(PART ${DEFINE_XC_PINMAP_CSV_INSTALL_TARGET_PART})
   set(BOARD ${DEFINE_XC_PINMAP_CSV_INSTALL_TARGET_BOARD})
-  set(DEVICE ${DEFINE_XC_PINMAP_CSV_INSTALL_TARGET_DEVICE})
   set(DEVICE_TYPE ${DEFINE_XC_PINMAP_CSV_INSTALL_TARGET_DEVICE_TYPE})
   set(PACKAGE ${DEFINE_XC_PINMAP_CSV_INSTALL_TARGET_PACKAGE})
 

@@ -60,6 +60,8 @@ function(QUICKLOGIC_DEFINE_QLF_DEVICE)
     TECHFILE ""
     FAMILY ${FAMILY}
     DEVICE_MERGED_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${ARCH_XML}
+    USE_ROI FALSE
+    LIMIT_GRAPH_TO_DEVICE FALSE
   )
 
   # .......................................................
@@ -88,9 +90,15 @@ function(QUICKLOGIC_DEFINE_QLF_DEVICE)
       --place_delta_delay_matrix_calculation_method dijkstra
       --router_lookahead extended_map
       --route_chan_width ${ROUTE_CHAN_WIDTH}
+  )
 
-    # FIXME: Skip installation for now
-    DONT_INSTALL
+  # .......................................................
+
+  # Add install targets for additional device-specific files
+  define_ql_device_cells_install_target(
+    DEVICE ${DEVICE}
+    DEVICE_TYPE ${DEVICE_TYPE}
+    PACKAGE ${PACKAGE}
   )
 
 endfunction()

@@ -48,6 +48,7 @@ function(DEFINE_ARCH)
   #    BIT_TIME <path to BIT_TIME executable>
   #    BIT_TIME_CMD <command to run BIT_TIME>
   #    [RR_GRAPH_EXT <ext>]
+  #    [NO_INSTALL]
   #   )
   # ~~~
   #
@@ -140,6 +141,7 @@ function(DEFINE_ARCH)
     NO_BIT_TO_BIN
     NO_BIT_TO_V
     NO_BIT_TIME
+    NO_INSTALL
     USE_FASM
   )
 
@@ -206,6 +208,7 @@ function(DEFINE_ARCH)
     NO_BIT_TO_BIN
     NO_BIT_TO_V
     NO_BIT_TIME
+    NO_INSTALL
     USE_FASM
     ROUTE_CHAN_WIDTH
     )
@@ -496,7 +499,7 @@ function(DEFINE_DEVICE)
   #   [CACHE_LOOKAHEAD]
   #   [CACHE_ARGS <args>]
   #   [ROUTE_CHAN_WIDTH <width>]
-  #   [DONT_INSTALL]
+  #   [NO_INSTALL]
   #   )
   # ~~~
   #
@@ -528,7 +531,7 @@ function(DEFINE_DEVICE)
   # When ROUTE_CHAN_WIDTH is provided it overrides the channel with provided
   # for the ARCH
   #
-  set(options CACHE_LOOKAHEAD CACHE_PLACE_DELAY DONT_INSTALL)
+  set(options CACHE_LOOKAHEAD CACHE_PLACE_DELAY NO_INSTALL)
   set(oneValueArgs DEVICE ARCH PART DEVICE_TYPE PACKAGES WIRE_EBLIF ROUTE_CHAN_WIDTH)
   set(multiValueArgs RR_PATCH_DEPS RR_PATCH_EXTRA_ARGS CACHE_ARGS)
   cmake_parse_arguments(
@@ -539,7 +542,7 @@ function(DEFINE_DEVICE)
     ${ARGN}
   )
 
-  set(DONT_INSTALL ${DEFINE_DEVICE_DONT_INSTALL})
+  set(NO_INSTALL ${DEFINE_DEVICE_NO_INSTALL})
 
   add_custom_target(${DEFINE_DEVICE_DEVICE})
   foreach(ARG ARCH DEVICE_TYPE PACKAGES)
@@ -793,16 +796,37 @@ function(DEFINE_DEVICE)
       PROG_TOOL false
       )
 
-    # Install
-    if(NOT ${DONT_INSTALL})
-        install_device_files(
-          PART ${PART}
-          DEVICE ${DEFINE_DEVICE_DEVICE}
-          DEVICE_TYPE ${DEFINE_DEVICE_DEVICE_TYPE}
-          PACKAGE ${PACKAGE})
-    else()
-        message(WARNING "Skipping installation of device '${DEFINE_DEVICE_DEVICE}-${PACKAGE}', type '${DEFINE_DEVICE_DEVICE_TYPE}'")
-    endif()
+    # Append the device to the device list of the arch. This is currently used
+    # to determine whether the architecture is to be installed. Individual
+    # devices get examined if no device is to be installed then installation
+    # of the arch is skipped as well.
+    get_target_property(DEVICES ${DEFINE_DEVICE_ARCH} DEVICES)
+    if ("${DEVICES}" MATCHES ".*NOTFOUND")
+      set(DEVICES "")
+    endif ()
+
+    list(APPEND DEVICES ${DEFINE_DEVICE_DEVICE})
+
+    set_target_properties(
+        ${DEFINE_DEVICE_ARCH}
+        PROPERTIES
+          DEVICES "${DEVICES}"
+    )
+
+    # Set the NO_INSTALL property
+    set_target_properties(
+      ${DEFINE_DEVICE_DEVICE}
+      PROPERTIES
+        NO_INSTALL ${NO_INSTALL}
+    )
+
+    # Install device files. The function checks internally whether the files need to be installed
+    install_device_files(
+      PART ${PART}
+      DEVICE ${DEFINE_DEVICE_DEVICE}
+      DEVICE_TYPE ${DEFINE_DEVICE_DEVICE_TYPE}
+      PACKAGE ${PACKAGE}
+    )
   endforeach()
 
 endfunction()
@@ -1755,48 +1779,54 @@ function(ADD_FPGA_TARGET)
   endif()
 
   if (${ADD_FPGA_TARGET_INSTALL_CIRCUIT})
-    set(INSTALL_DEPS "")
 
-    # Install circuit
-    append_file_dependency(INSTALL_DEPS ${OUT_EBLIF_REL})
+    # Check if the device should be installed
+    check_device_install(${DEVICE} DO_INSTALL)
+    if (DO_INSTALL)
 
-    install(
-      FILES ${OUT_EBLIF}
-      RENAME ${NAME}.eblif
-      DESTINATION "benchmarks/circuits"
-    )
+      set(INSTALL_DEPS "")
 
-    # Install place constraints
-    set(CONSTR_FILE "")
-    if (NOT ${NO_PLACE_CONSTR})
-      append_file_dependency(INSTALL_DEPS ${OUT_CONSTR_REL})
-      set(CONSTR_FILE ${OUT_CONSTR})
-    else()
-      append_file_dependency(INSTALL_DEPS ${OUT_IO_REL})
-      set(CONSTR_FILE ${OUT_IO})
-    endif()
+      # Install circuit
+      append_file_dependency(INSTALL_DEPS ${OUT_EBLIF_REL})
 
-    install(
-      FILES ${CONSTR_FILE}
-      RENAME ${NAME}.place
-      DESTINATION "benchmarks/place_constr"
-    )
-
-    # Install SDC constraints
-    if (NOT SDC_FILE STREQUAL "")
       install(
-        FILES ${SDC_FILE}
-        RENAME ${NAME}.sdc
-        DESTINATION "benchmarks/sdc"
+        FILES ${OUT_EBLIF}
+        RENAME ${NAME}.eblif
+        DESTINATION "benchmarks/circuits"
       )
-      append_file_dependency(INSTALL_DEPS ${SDC_DEPS})
-    endif()
 
-    add_custom_target(
-      "INSTALL_${NAME}_CIRCUIT"
-      ALL
-      DEPENDS ${INSTALL_DEPS}
-    )
+      # Install place constraints
+      set(CONSTR_FILE "")
+      if (NOT ${NO_PLACE_CONSTR})
+        append_file_dependency(INSTALL_DEPS ${OUT_CONSTR_REL})
+        set(CONSTR_FILE ${OUT_CONSTR})
+      else()
+        append_file_dependency(INSTALL_DEPS ${OUT_IO_REL})
+        set(CONSTR_FILE ${OUT_IO})
+      endif()
+
+      install(
+        FILES ${CONSTR_FILE}
+        RENAME ${NAME}.place
+        DESTINATION "benchmarks/place_constr"
+      )
+
+      # Install SDC constraints
+      if (NOT SDC_FILE STREQUAL "")
+        install(
+          FILES ${SDC_FILE}
+          RENAME ${NAME}.sdc
+          DESTINATION "benchmarks/sdc"
+        )
+        append_file_dependency(INSTALL_DEPS ${SDC_DEPS})
+      endif()
+
+      add_custom_target(
+        "INSTALL_${NAME}_CIRCUIT"
+        ALL
+        DEPENDS ${INSTALL_DEPS}
+      )
+    endif()
   endif()
 
   # Generate placement.

@@ -132,7 +132,7 @@ function(ADD_QUICKLOGIC_BOARD)
     add_custom_command(
       OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${CLKMAP_CSV}
       COMMAND
-        ${CMAKE_COMMAND} -E create_symlink 
+        ${CMAKE_COMMAND} -E copy
             ${CLKMAP_CSV_LOCATION}
             ${CMAKE_CURRENT_BINARY_DIR}/${CLKMAP_CSV}
       DEPENDS ${RR_GRAPH_TARGET}
@@ -192,28 +192,28 @@ function(ADD_QUICKLOGIC_BOARD)
   elseif("${ARCH}" STREQUAL "qlf_k4n8")
     set(PINMAP_CSV ${PINMAP})
 
-    # Link the pinmap XML
+    # Copy the pinmap XML
     add_custom_command(
       OUTPUT
         ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_XML}
       COMMAND
-        ${CMAKE_COMMAND} -E create_symlink 
+        ${CMAKE_COMMAND} -E copy
           ${CMAKE_CURRENT_SOURCE_DIR}/devices/umc22/${PINMAP_XML}
           ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_XML}
     )
     add_file_target(FILE ${PINMAP_XML} GENERATED)
 
-    # Make the pinmap CSV depend on pinmap XML. This way the symlink will be
+    # Make the pinmap CSV depend on pinmap XML. This way the file will be
     # created  without the need for adding the dependency elsewhere.
     set(PINMAP_CSV_DEPS)
     append_file_dependency(PINMAP_CSV_DEPS ${PINMAP_XML})
 
-    # Link the pinmap CSV
+    # Copy the pinmap CSV
     add_custom_command(
       OUTPUT
         ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
       COMMAND
-        ${CMAKE_COMMAND} -E create_symlink 
+        ${CMAKE_COMMAND} -E copy
           ${CMAKE_CURRENT_SOURCE_DIR}/devices/umc22/${PINMAP_CSV}
           ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
       DEPENDS
@@ -233,13 +233,13 @@ function(ADD_QUICKLOGIC_BOARD)
     )
 
     # Install board files
-    #define_ql_pinmap_csv_install_target(
-    #  PART ${PART}
-    #  BOARD ${BOARD}
-    #  DEVICE_TYPE ${DEVICE_TYPE}
-    #  DEVICE ${DEVICE}
-    #  PACKAGE ${PACKAGE}
-    #)
+    define_ql_pinmap_csv_install_target(
+      PART ${PART}
+      BOARD ${BOARD}
+      DEVICE_TYPE ${DEVICE_TYPE}
+      DEVICE ${DEVICE}
+      PACKAGE ${PACKAGE}
+    )
   endif()
 
 endfunction()

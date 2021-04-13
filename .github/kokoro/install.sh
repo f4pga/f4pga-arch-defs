@@ -4,7 +4,7 @@ SCRIPT_SRC="$(realpath ${BASH_SOURCE[0]})"
 SCRIPT_DIR="$(dirname "${SCRIPT_SRC}")"
 INSTALL_DIR="$(pwd)/github/${KOKORO_DIR}/install"
 
-export CMAKE_FLAGS="-GNinja -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}"
+export CMAKE_FLAGS="-GNinja -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} -DINSTALL_FAMILIES=xc7"
 export BUILD_TOOL=ninja
 source ${SCRIPT_DIR}/common.sh
 

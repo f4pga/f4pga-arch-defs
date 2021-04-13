@@ -210,12 +210,5 @@ function(ADD_XC_ARCH_DEFINE)
 
   set_target_properties(${ARCH} PROPERTIES PRJRAY_ARCH ${PRJRAY_ARCH})
   add_custom_target(all_${ARCH}_diff_fasm)
-  define_xc_toolchain_target(
-      ARCH ${ARCH}
-      ROUTE_CHAN_WIDTH 500
-      VPR_ARCH_ARGS ${VPR_ARCH_ARGS}
-      CONV_SCRIPT ${YOSYS_CONV_SCRIPT}
-      SYNTH_SCRIPT ${YOSYS_SYNTH_SCRIPT}
-      UTILS_SCRIPT ${YOSYS_UTILS_SCRIPT})
 
 endfunction()

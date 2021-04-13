@@ -14,6 +14,9 @@ include(common/cmake/tools.cmake)
 include(common/cmake/sv2v.cmake)
 include(common/cmake/litex.cmake)
 
+# Parse lists of architectures / devices to be installed
+parse_install_lists()
+
 find_package(PythonInterp 3 REQUIRED)
 
 add_custom_target(test_python)
