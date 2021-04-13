@@ -127,9 +127,9 @@ function(DEFINE_QL_DEVICE_CELLS_INSTALL_TARGET)
   # DEFINE_DEVICE but in case when the file name differs across devices we
   # want it to be unified for the installed toolchain.
   get_target_property_required(DEVICE_MERGED_FILE ${DEVICE_TYPE} DEVICE_MERGED_FILE)
-  get_file_target(DEVICE_MERGED_FILE_TARGET ${DEVICE_MERGED_FILE})
+  get_file_location(DEVICE_MERGED_FILE_LOCATION ${DEVICE_MERGED_FILE})
 
-  install(FILES ${DEVICE_MERGED_FILE}
+  install(FILES ${DEVICE_MERGED_FILE_LOCATION}
           DESTINATION "share/symbiflow/arch/${DEVICE}_${PACKAGE}"
           RENAME "arch_${DEVICE}_${PACKAGE}.xml")
 
