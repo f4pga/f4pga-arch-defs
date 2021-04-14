@@ -32,6 +32,41 @@ WHERE
         return results[0]
 
 
+def get_sites_at_tilename(conn, tile_name):
+    """
+    Returns a list of sites and a dictionary of site_name to site_type that are present
+    in a given tile.
+    """
+
+    cur = conn.cursor()
+
+    cur.execute(
+        """
+SELECT site_type.name, site_instance.name, site_instance.x_coord, site_instance.y_coord
+FROM site_instance
+INNER JOIN site ON site_instance.site_pkey = site.pkey
+INNER JOIN site_type ON site.site_type_pkey = site_type.pkey
+WHERE site_instance.phy_tile_pkey IN (
+  SELECT
+    pkey
+  FROM
+    phy_tile
+  WHERE
+    name = ?
+)
+ORDER BY site_type.name, site_instance.x_coord, site_instance.y_coord;""",
+        (tile_name, )
+    )
+
+    site_instances = dict()
+    sites = list()
+    for site_type, site_instance, _, _ in cur:
+        site_instances[site_instance] = site_type
+        sites.append(site_instance)
+
+    return sites, site_instances
+
+
 def main():
     parser = argparse.ArgumentParser(description='Creates a pin map CSV.')
     parser.add_argument(
@@ -66,13 +101,30 @@ def main():
 
     args = parser.parse_args()
 
+    CAPACITY_IOS = ["IPAD", "OPAD"]
+
     pin_to_iob = {}
     with sqlite3.connect(args.connection_database) as conn:
         for line in csv.DictReader(args.package_pins):
+            pin = line['pin']
             assert line['pin'] not in pin_to_iob
-            loc = get_vpr_coords_from_site_name(conn, line['site'])
-            if loc:
-                pin_to_iob[line['pin']] = (line['site'], loc)
+            site = line['site']
+            tile = line['tile']
+            loc = get_vpr_coords_from_site_name(conn, site)
+
+            if loc is None:
+                continue
+
+            sites, site_instances = get_sites_at_tilename(conn, tile)
+
+            if site_instances[site] in CAPACITY_IOS:
+                z_loc = sites.index(site)
+            else:
+                z_loc = 0
+
+            loc = loc + (z_loc, )
+
+            pin_to_iob[pin] = (site, loc)
 
     args.package_pins.seek(0)
     if args.synth_tiles:
@@ -121,12 +173,13 @@ def main():
 
             loc = pin_to_iob[line['pin']][1]
             if loc is not None:
+                z = 0 if len(loc) == 2 else loc[2]
                 writer.writerow(
                     dict(
                         name=line['pin'],
                         x=loc[0],
                         y=loc[1],
-                        z=0,
+                        z=loc[2],
                         is_clock=1,
                         is_input=1,
                         is_output=1,

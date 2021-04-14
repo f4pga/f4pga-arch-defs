@@ -1,0 +1,25 @@
+<pb_type name="IPAD" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <output name="O" num_pins="1"/>
+
+  <pb_type name="IPAD_GTP" blif_model=".subckt IPAD_GTP_VPR" num_pb="1">
+    <input name="I" num_pins="1"/>
+    <output name="O" num_pins="1"/>
+    <metadata>
+      <meta name="type">bel</meta>
+    </metadata>
+  </pb_type>
+
+  <xi:include href="../iob33/inpad.pb_type.xml"/>
+
+  <interconnect>
+    <direct name="IPAD_GTP_to_IPAD" output="IPAD.O" input="IPAD_GTP.O"/>
+    <direct name="inpad.inpad_to_IPAD_GTP.I" output="IPAD_GTP.I" input="inpad.inpad">
+      <pack_pattern name="inpad_to_IPAD_GTP" input="inpad.inpad" output="IPAD_GTP.I"/>
+    </direct>
+  </interconnect>
+
+  <metadata>
+    <meta name="type">bel</meta>
+    <meta name="subtype">input</meta>
+  </metadata>
+</pb_type>

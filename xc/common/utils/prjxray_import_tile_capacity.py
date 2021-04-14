@@ -7,12 +7,20 @@ from lib.pb_type_xml import start_heterogeneous_tile, add_switchblock_locations
 import lxml.etree as ET
 
 
-def get_wires(site, site_type):
+def get_wires(site, site_type, unused_wires=None):
     """Get wires related to a site"""
     input_wires = set()
     output_wires = set()
 
+    drop_wires = list()
+    wires_to_drop = list()
+    if unused_wires:
+        wires_to_drop = unused_wires.split(",")
+
     for site_pin in site.site_pins:
+        if site_pin.name in wires_to_drop:
+            drop_wires.append(site_pin)
+            continue
         if site_type.get_site_pin(
                 site_pin.name).direction == SitePinDirection.IN:
             input_wires.add(site_pin.wire)
@@ -21,6 +29,9 @@ def get_wires(site, site_type):
             output_wires.add(site_pin.wire)
         else:
             assert False, site_pin
+
+    for wire in drop_wires:
+        site.site_pins.remove(wire)
 
     return input_wires, output_wires
 
@@ -35,6 +46,10 @@ def main():
     parser.add_argument('--tile_type', required=True)
     parser.add_argument('--pb_types', required=True)
     parser.add_argument('--pin_assignments', required=True)
+    parser.add_argument(
+        '--unused_wires',
+        help="Comma seperated list of site wires to exclude in this tile."
+    )
 
     args = parser.parse_args()
 
@@ -42,13 +57,22 @@ def main():
         pin_assignments = json.load(f)
 
     db = prjxray.db.Database(args.db_root, args.part)
+    grid = db.grid()
     tile_type = db.get_tile_type(args.tile_type)
-
-    sites = {}
 
     pb_types = args.pb_types.split(',')
 
     equivalent_sites_dict = dict()
+
+    gridinfo = None
+    for tile in grid.tiles():
+        if args.tile_type in tile:
+            gridinfo = grid.gridinfo_at_tilename(tile)
+
+            break
+
+    assert gridinfo
+
     for pb_type in pb_types:
         try:
             site, equivalent_sites = pb_type.split("/")
@@ -56,20 +80,23 @@ def main():
             site = pb_type
             equivalent_sites = None
 
-        sites[site] = []
-
         equivalent_sites_dict[site] = equivalent_sites.split(
             ':'
         ) if equivalent_sites else []
 
+    sites = list()
+
     for site in tile_type.get_sites():
-        if site.type not in sites.keys():
-            continue
-
         site_type = db.get_site_type(site.type)
-        input_wires, output_wires = get_wires(site, site_type)
+        input_wires, output_wires = get_wires(
+            site, site_type, args.unused_wires
+        )
 
-        sites[site.type].append((site, input_wires, output_wires))
+        sites.append((site_type, site, input_wires, output_wires))
+
+    sites = sorted(
+        sites, key=lambda site: (site[1].type, int(site[1].x), int(site[1].y))
+    )
 
     tile_xml = start_heterogeneous_tile(
         args.tile_type,
