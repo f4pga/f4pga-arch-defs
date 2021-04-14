@@ -18,6 +18,11 @@ add_xc_device_define_type(
     CMT_TOP_L_UPPER_T
     CMT_TOP_R_UPPER_T
     HCLK_IOI3
+    GTP_COMMON
+    GTP_CHANNEL_0
+    GTP_CHANNEL_1
+    GTP_CHANNEL_2
+    GTP_CHANNEL_3
   PB_TYPES
     SLICEL
     SLICEM
@@ -28,4 +33,9 @@ add_xc_device_define_type(
     BUFGCTRL
     PLLE2_ADV
     HCLK_IOI3
+    GTPE2_COMMON
+    GTPE2_CHANNEL
+    IBUFDS_GTE2
+    IPAD
+    OPAD
 )

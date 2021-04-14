@@ -3,6 +3,8 @@ add_file_target(FILE basys3.pcf)
 add_file_target(FILE basys3.sdc)
 add_file_target(FILE basys3.xdc)
 add_file_target(FILE basys3_pmod.pcf)
+add_file_target(FILE basys3_gtp_common.pcf)
+add_file_target(FILE basys3_gtp_channel.pcf)
 
 # ARTY constraint files
 add_file_target(FILE arty_uart.pcf)
@@ -27,6 +29,7 @@ add_file_target(FILE zybo_z7.pcf)
 add_file_target(FILE nexys_video.pcf)
 add_file_target(FILE nexys_video.xdc)
 add_file_target(FILE nexys_video_noclk.xdc)
+add_file_target(FILE nexys_video_gtp_channel.pcf)
 
 add_file_target(FILE error_output_logic.v SCANNER_TYPE verilog)
 add_file_target(FILE error_output_logic_unt.v SCANNER_TYPE verilog)
