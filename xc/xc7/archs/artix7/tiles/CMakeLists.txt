@@ -20,6 +20,8 @@ add_subdirectory(gtp_channel_0)
 add_subdirectory(gtp_channel_1)
 add_subdirectory(gtp_channel_2)
 add_subdirectory(gtp_channel_3)
+add_subdirectory(pcie_2_1)
+add_subdirectory(pcie_bot)
 
 set(IOPAD_SITES IOB33 IDELAYE2 ILOGICE3 OLOGICE3)
 set(IOPAD_S_SITES IOB33S IDELAYE2 ILOGICE3 OLOGICE3)
