@@ -61,3 +61,6 @@
 [submodule "third_party/pythondata-software-compiler_rt"]
 	path = third_party/pythondata-software-compiler_rt
 	url = https://github.com/litex-hub/pythondata-software-compiler_rt
+[submodule "third_party/litesata"]
+	path = third_party/litesata
+	url = https://github.com/enjoy-digital/litesata.git
