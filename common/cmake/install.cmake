@@ -356,6 +356,12 @@ function(INSTALL_DEVICE_FILES)
     list(APPEND INSTALL_FILES ${VPR_GRID_MAP_FILE})
   endif()
 
+  # Extra files for the device (common to all packages)
+  get_target_property(EXTRA_FILES ${DEVICE} EXTRA_INSTALL_FILES)
+  if(NOT ${EXTRA_FILES} MATCHES ".*-NOTFOUND" AND NOT ${EXTRA_FILES} STREQUAL "")
+    list(APPEND INSTALL_FILES ${EXTRA_FILES})
+  endif()
+
   # Generate installation target for the files
   foreach(FILE ${INSTALL_FILES})
     get_file_location(SRC_FILE ${FILE})

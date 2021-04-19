@@ -146,6 +146,11 @@ function(QUICKLOGIC_DEFINE_QLF_DEVICE)
   set(DEVICE_NET_PATCH_DEPS ${REPACKING_RULES_TARGET})
   set(DEVICE_NET_PATCH_EXTRA_ARGS "--repacking-rules ${CMAKE_CURRENT_BINARY_DIR}/${REPACKING_RULES_NAME}")
 
+  # Add the repacking rules as an extra file to be installed
+  set(EXTRA_INSTALL_FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/${REPACKING_RULES_NAME}
+  )
+
   # Define the device
   define_device(
     DEVICE ${DEVICE}
@@ -169,6 +174,8 @@ function(QUICKLOGIC_DEFINE_QLF_DEVICE)
       --place_delta_delay_matrix_calculation_method dijkstra
       --router_lookahead extended_map
       --route_chan_width ${ROUTE_CHAN_WIDTH}
+
+    EXTRA_INSTALL_FILES ${EXTRA_INSTALL_FILES}
   )
 
   # .......................................................

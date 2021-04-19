@@ -521,6 +521,7 @@ function(DEFINE_DEVICE)
   #   [NO_INSTALL]
   #   [NET_PATCH_DEPS <list of dependencies>]
   #   [NET_PATCH_EXTRA_ARGS <extra args for .net patching>]
+  #   [EXTRA_INSTALL_FILES <file1> <file2> ... <fileN>]
   #   )
   # ~~~
   #
@@ -554,7 +555,7 @@ function(DEFINE_DEVICE)
   #
   set(options CACHE_LOOKAHEAD CACHE_PLACE_DELAY NO_INSTALL NO_RR_PATCHING)
   set(oneValueArgs DEVICE ARCH PART DEVICE_TYPE PACKAGES WIRE_EBLIF ROUTE_CHAN_WIDTH EXT_RR_GRAPH)
-  set(multiValueArgs RR_PATCH_DEPS RR_PATCH_EXTRA_ARGS NET_PATCH_DEPS NET_PATCH_EXTRA_ARGS CACHE_ARGS)
+  set(multiValueArgs RR_PATCH_DEPS RR_PATCH_EXTRA_ARGS NET_PATCH_DEPS NET_PATCH_EXTRA_ARGS CACHE_ARGS EXTRA_INSTALL_FILES)
   cmake_parse_arguments(
     DEFINE_DEVICE
     "${options}"
@@ -903,11 +904,12 @@ function(DEFINE_DEVICE)
           DEVICES "${DEVICES}"
     )
 
-    # Set the NO_INSTALL property
+    # Set the NO_INSTALL property and the list of extra files to be installed
     set_target_properties(
       ${DEFINE_DEVICE_DEVICE}
       PROPERTIES
         NO_INSTALL ${NO_INSTALL}
+        EXTRA_INSTALL_FILES "${DEFINE_DEVICE_EXTRA_INSTALL_FILES}"
     )
 
     # Install device files. The function checks internally whether the files need to be installed
