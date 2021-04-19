@@ -23,7 +23,7 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
     return()
   endif ()
 
-  set(WRAPPERS env symbiflow_generate_constraints symbiflow_pack symbiflow_place symbiflow_route symbiflow_synth ql_symbiflow symbiflow_analysis)
+  set(WRAPPERS env symbiflow_generate_constraints symbiflow_pack symbiflow_place symbiflow_route symbiflow_synth ql_symbiflow symbiflow_analysis symbiflow_repack)
 
   # Export VPR arguments
   list(JOIN VPR_BASE_ARGS " " VPR_BASE_ARGS)
@@ -85,6 +85,25 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/lib/parse_pcf.py
           DESTINATION bin/python/lib
           PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
+
+  # install the repacker
+  set(REPACKER_FILES
+    arch_xml_utils.py
+    block_path.py
+    eblif_netlist.py
+    netlist_cleaning.py
+    packed_netlist.py
+    pb_rr_graph_netlist.py
+    pb_rr_graph.py
+    pb_rr_graph_router.py
+    pb_type.py
+    repack.py
+  )
+  foreach(NAME ${REPACKER_FILES})
+    install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/utils/repacker/${NAME}
+            DESTINATION bin/python/repacker
+            PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
+  endforeach()
 
   # install techmap
   install(DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/techmap/.
