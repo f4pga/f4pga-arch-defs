@@ -38,13 +38,7 @@ function(QUICKLOGIC_DEFINE_QLF_ARCH)
     VPR_ARCH_ARGS ${VPR_ARGS}
     CELLS_SIM ${FAMILY_DIR}/techmap/cells_sim.v
 
-    RR_PATCH_TOOL
-      ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/qlf_k4n8/utils/fixup_rr_graph.py
-    RR_PATCH_CMD "\${CMAKE_COMMAND} -E env \
-      PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils:$PYTHONPATH:${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils \
-      \${PYTHON3} \${RR_PATCH_TOOL} \
-          --rr-graph-in \${OUT_RRXML_VIRT} \
-          --rr-graph-out \${OUT_RRXML_REAL}"
+    RR_GRAPH_EXT ".bin"
 
     PLACE_TOOL
       ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/utils/create_ioplace.py

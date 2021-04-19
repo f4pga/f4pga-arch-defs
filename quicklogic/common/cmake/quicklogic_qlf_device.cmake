@@ -5,11 +5,13 @@ function(QUICKLOGIC_DEFINE_QLF_DEVICE)
   #   FAMILY <family>
   #   ARCH <arch>
   #   ARCH_XML <arch.xml>
+  #   LAYOUT <layout name>
+  #   RR_GRAPH <rr_graph>
   #   [ROUTE_CHAN_WIDTH <route channel width>]
   #   )
   # ~~~
   set(options)
-  set(oneValueArgs NAME FAMILY ARCH ARCH_XML LAYOUT ROUTE_CHAN_WIDTH)
+  set(oneValueArgs NAME FAMILY ARCH ARCH_XML LAYOUT RR_GRAPH ROUTE_CHAN_WIDTH)
   set(multiValueArgs)
   cmake_parse_arguments(
     QUICKLOGIC_DEFINE_QLF_DEVICE
@@ -24,6 +26,8 @@ function(QUICKLOGIC_DEFINE_QLF_DEVICE)
   set(FAMILY   ${QUICKLOGIC_DEFINE_QLF_DEVICE_FAMILY})
   set(ARCH     ${QUICKLOGIC_DEFINE_QLF_DEVICE_ARCH})
   set(ARCH_XML ${QUICKLOGIC_DEFINE_QLF_DEVICE_ARCH_XML})
+  set(LAYOUT   ${QUICKLOGIC_DEFINE_QLF_DEVICE_LAYOUT})
+  set(RR_GRAPH ${QUICKLOGIC_DEFINE_QLF_DEVICE_RR_GRAPH})
 
   # If ROUTE_CHAN_WIDTH is not given then use the value from the architecture
   if("${QUICKLOGIC_DEFINE_QLF_DEVICE_ROUTE_CHAN_WIDTH}" STREQUAL "")
@@ -42,11 +46,59 @@ function(QUICKLOGIC_DEFINE_QLF_DEVICE)
 
   # .......................................................
 
-  # Arch XML base file
-  get_file_target(ARCH_XML_TARGET ${ARCH_XML})
-  if (NOT TARGET ${ARCH_XML_TARGET})
-      add_file_target(FILE ${ARCH_XML} SCANNER_TYPE xml)
-  endif()
+  # Copy VPR arch XML
+  set(ARCH_XML_NAME ${DEVICE}.arch.xml)
+
+  add_custom_command(
+    OUTPUT
+      ${CMAKE_CURRENT_BINARY_DIR}/${ARCH_XML_NAME}
+    DEPENDS
+      ${ARCH_XML}
+    COMMAND
+      ${CMAKE_COMMAND} -E copy
+        ${ARCH_XML}
+        ${CMAKE_CURRENT_BINARY_DIR}/${ARCH_XML_NAME}
+  )
+
+  add_file_target(FILE ${ARCH_XML_NAME} GENERATED)
+
+  # .......................................................
+
+  set(RR_GRAPH_FOR_DEVICE ${DEVICE}.rr_graph.bin)
+
+  # If the routing graph is compressed uncompress it
+  if ("${RR_GRAPH}" MATCHES ".*\\.gz$")
+
+    add_custom_command(
+      OUTPUT
+        ${CMAKE_CURRENT_BINARY_DIR}/${RR_GRAPH_FOR_DEVICE}
+      DEPENDS
+        ${RR_GRAPH}
+      COMMAND
+        ${CMAKE_COMMAND} -E copy
+          ${RR_GRAPH}
+          ${CMAKE_CURRENT_BINARY_DIR}/${RR_GRAPH_FOR_DEVICE}.gz
+      COMMAND
+        gunzip -v -f ${CMAKE_CURRENT_BINARY_DIR}/${RR_GRAPH_FOR_DEVICE}.gz
+    )
+
+  # If not then copy it
+  else ()
+
+    add_custom_command(
+      OUTPUT
+        ${CMAKE_CURRENT_BINARY_DIR}/${RR_GRAPH_FOR_DEVICE}
+      DEPENDS
+        ${RR_GRAPH}
+      COMMAND
+        ${CMAKE_COMMAND} -E copy
+          ${RR_GRAPH}
+          ${CMAKE_CURRENT_BINARY_DIR}/${RR_GRAPH_FOR_DEVICE}
+    )
+
+  endif ()
+
+  add_file_target(FILE ${RR_GRAPH_FOR_DEVICE} GENERATED)
 
   # .......................................................
 
@@ -57,18 +109,16 @@ function(QUICKLOGIC_DEFINE_QLF_DEVICE)
   set_target_properties(
     ${DEVICE_TYPE}
     PROPERTIES
+    USE_ROI FALSE
+    LIMIT_GRAPH_TO_DEVICE FALSE
     TECHFILE ""
     FAMILY ${FAMILY}
-    DEVICE_MERGED_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${ARCH_XML}
+    DEVICE_MERGED_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${ARCH_XML_NAME}
     USE_ROI FALSE
     LIMIT_GRAPH_TO_DEVICE FALSE
   )
 
   # .......................................................
-
-  # RR graph patch dependencies
-  set(DEVICE_RR_PATCH_DEPS "")
-  set(DEVICE_RR_PATCH_EXTRA_ARGS "")
 
   # Define the device
   define_device(
@@ -77,9 +127,9 @@ function(QUICKLOGIC_DEFINE_QLF_DEVICE)
     DEVICE_TYPE ${DEVICE_TYPE}
     PACKAGES ${PACKAGE}
     ROUTE_CHAN_WIDTH ${ROUTE_CHAN_WIDTH}
-    WIRE_EBLIF ${symbiflow-arch-defs_SOURCE_DIR}/common/wire.eblif
-    RR_PATCH_DEPS ${DEVICE_RR_PATCH_DEPS}
-    RR_PATCH_EXTRA_ARGS ${DEVICE_RR_PATCH_EXTRA_ARGS}
+
+    EXT_RR_GRAPH ${CMAKE_CURRENT_BINARY_DIR}/${RR_GRAPH_FOR_DEVICE}
+    NO_RR_PATCHING
 
     CACHE_PLACE_DELAY
     CACHE_LOOKAHEAD

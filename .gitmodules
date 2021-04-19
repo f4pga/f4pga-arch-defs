@@ -61,3 +61,6 @@
 [submodule "third_party/pythondata-software-compiler_rt"]
 	path = third_party/pythondata-software-compiler_rt
 	url = https://github.com/litex-hub/pythondata-software-compiler_rt
+[submodule "third_party/qlfpga-symbiflow-plugins"]
+	path = third_party/qlfpga-symbiflow-plugins
+	url = https://github.com/QuickLogic-Corp/qlfpga-symbiflow-plugins.git
