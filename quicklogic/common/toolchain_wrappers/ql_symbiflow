@@ -309,7 +309,7 @@ if [[ $1 == "-compile" || $1 == "-post_verilog" ]]; then
 	if [ "$ROUTE_FLAG0" == "congestion" ]; then 
          MAX_CRITICALITY="0.99"
 	else
-	 MAX_CRITICALITY="0.0"
+	MAX_CRITICALITY="0.0"
 	fi
      fi
 fi
