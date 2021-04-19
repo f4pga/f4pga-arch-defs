@@ -24,7 +24,7 @@ CONDA_FLAGS="-y --override-channels -c defaults -c conda-forge"
 conda update $CONDA_FLAGS -q conda
 curl https://storage.googleapis.com/symbiflow-arch-defs-install/quicklogic-arch-defs-63c3d8f9.tar.gz --output arch.tar.gz
 tar -C $INSTALL_DIR -xvf arch.tar.gz && rm arch.tar.gz
-conda install $CONDA_FLAGS -c litex-hub/label/main symbiflow-yosys="0.9_0_g40d9e120 20210318_102115_libffi33"
+conda install $CONDA_FLAGS -c litex-hub/label/main yosys="0.9_5266_g0fb4224e 20210301_104249_py37"
 conda install $CONDA_FLAGS -c litex-hub/label/main symbiflow-yosys-plugins="1.0.0_7_284_gb6c5f5d 20210318_102115"
 conda install $CONDA_FLAGS -c litex-hub/label/main vtr-optimized="8.0.0_3452_ge7d45e013 20210318_102115"
 conda install $CONDA_FLAGS -c litex-hub iverilog
