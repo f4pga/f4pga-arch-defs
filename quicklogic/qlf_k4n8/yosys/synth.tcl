@@ -2,7 +2,7 @@ yosys -import
 
 # Load the QuickLogic qlf_k4n8 support plugin. Note that this is only temporary
 # until support for the device is merged into the upstream Yosys
-plugin -i ql-qlf-k4n8
+plugin -i ql-qlf
 yosys -import
 
 # Read VPR cells library

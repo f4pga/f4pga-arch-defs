@@ -8,7 +8,7 @@ BUILDDIR=build
 
 source ${MYPATH}/env
 source ${VPRPATH}/vpr_common
-VERSION="v1.3.1"
+VERSION="v1.3.3"
 
 if [ ! -n $1 ]; then
 echo "Please enter a valid command: Refer help ql_symbiflow --help"
@@ -18,9 +18,9 @@ echo -e "----------------- \n"
 elif [[ $1 == "-h"  ||  $1 == "--help" ]];then
 echo -e "\nBelow are the supported commands: \n\
  To synthesize and dump a eblif file:\n\
-\t>ql_symbiflow -synth -src <source_dir path> -d <device> -t <top> -v <verilog file/files> -p <pcf file>\n\
+\t>ql_symbiflow -synth -src <source_dir path> -d <device> -P <pinmap csv file> -t <top module name> -v <verilog file/files> -p <pcf file>\n\
  To run synthesis, pack, place and route:\n\
-\t>ql_symbiflow -compile -src <source_dir path> -d <device> -t <top> -v <verilog file/files> -p <pcf file>  \n\
+\t>ql_symbiflow -compile -src <source_dir path> -d <device> -P <pinmap csv file> -t <top module name> -v <verilog file/files> -p <pcf file> \n\
 Device supported:qlf_k4n8" || exit
 elif [[ $1 == "-v" || $1 == "--version" ]];then
         echo "Symbiflow Tool Version : ${VERSION}"
@@ -202,7 +202,6 @@ for arg_v in $@; do
 				TOP=$arg_v
 			elif [ $DEVICENAME -eq 1 ]; then
 				DEVICE="${arg_v}"
-				#DEVICE="${DEVICE,,}"
             	case ${DEVICE} in
             		qlf_k4n8)
 				DEVICE="${DEVICE}_${DEVICE}"
@@ -224,7 +223,6 @@ for arg_v in $@; do
 				OUT+="$arg_v "
 			elif [ $PARTNAME -eq 1 ]; then
 				PART="${arg_v}"
-# 				PART="${PART^^}"
 			else
 				echo "Refer help for more details: ql_symbiflow -h "
                                 exit 1
@@ -273,7 +271,7 @@ fi
 fi
 
 if [[ $1 == "-compile" || $1 == "-post_verilog" ]]; then
-  # FIXME: Allow no PCF/pinmap for some devices
+  # Allow no PCF/pinmap for some devices
   if [[ ! "$DEVICE" =~ ^(qlf_k4n8_qlf_k4n8)$ ]]; then
     if [ -z "$PCF" ]; then
       echo "PCF file option is missing. Refer -h/--help"
@@ -294,15 +292,14 @@ if [[ $1 == "-compile" || $1 == "-post_verilog" ]]; then
     echo "TOP module name is missing. Refer -h/--help"
     exit 1
   fi
-    # FIXME: Allow no PCF/pinmap for some devices
-    if [[ ! "$DEVICE" =~ ^(qlf_k4n8_qlf_k4n8)$ ]]; then
-      if [ -z "$PART" ]; then
-       echo "PART name is missing. Refer -h/--help"
-       exit 1
-      else
-        PINMAPCSV="pinmap_${PART}.csv"
-      fi
+  if [[  "$DEVICE" =~ ^(qlf_k4n8_qlf_k4n8)$ ]]; then
+    if [ -z "$PART" ]; then
+	   if [ -n "$PCF" ];then
+	     echo "Error: pcf file cannot be used without declaring PINMAP CSV file"
+             exit 1
+           fi	     
     fi
+  fi
     if [ -z "$ROUTE_FLAG0" ]; then
       MAX_CRITICALITY="0.0"
     elif ! [[ "$ROUTE_FLAG0" =~ ^(timing|congestion)$ ]]; then 
@@ -312,7 +309,7 @@ if [[ $1 == "-compile" || $1 == "-post_verilog" ]]; then
 	if [ "$ROUTE_FLAG0" == "congestion" ]; then 
          MAX_CRITICALITY="0.99"
 	else
-	MAX_CRITICALITY="0.0"
+	 MAX_CRITICALITY="0.0"
 	fi
      fi
 fi
@@ -351,20 +348,8 @@ else
     HAVE_FASM2BELS=1
 fi
 
-# Some devices have only single part. If the part is not explicitly provided
-# try infering it from the device name
-if [ -z $PART ]; then
-    if [[ "$DEVICE" =~ ^(qlf_k4n8.*)$ ]]; then
-        PART=qlf_k4n8_umc22
-    else
-        echo "Please provide part with the -P option"
-        exit 1
-    fi
-fi
-
 export PCF_FILE=$PCF
 export TOP_F=$TOP
-export PART=$PART
 export PINMAP_FILE=$PINMAPCSV
 export MAX_CRITICALITY=$MAX_CRITICALITY
 ##### Create Makefile #####
@@ -374,6 +359,17 @@ if [[ $SOURCE =~ ^/ ]]; then
 else 
 	CURR_DIR="${PWD}/${SOURCE}"
 fi
+
+if [[ -f $SOURCE/$PART ]];then
+	CSV_PATH=`realpath $SOURCE/$PART`
+elif [[ -f $PART ]];then
+        CSV_PATH=`realpath $PART` 
+else
+      echo "invalid csv file/path"
+      exit 1
+fi	
+
+export PART=${CSV_PATH}
 
 MAKE_FILE=${CURR_DIR}/Makefile.symbiflow
 LOG_FILE=${CURR_DIR}/${BUILDDIR}/${TOP}.log
@@ -414,7 +410,7 @@ all: \${BUILDDIR}/\${TOP}.route\n\
   ifneq (\"\$(wildcard \$(HEX_FILES))\",\"\")\n\
 	\$(shell cp \${current_dir}/*.hex \${BUILDDIR})\n\
   endif\n\
-	cd \${BUILDDIR} && symbiflow_synth -t \${TOP} -v \${VERILOG} -f \${FAMILY} -d \${DEVICE} -p \${PCF} -P \${PART} 2>&1 > $LOG_FILE\n\
+	cd \${BUILDDIR} && symbiflow_synth -t \${TOP} -v \${VERILOG} -f \${FAMILY} -d \${DEVICE} -p \${PCF} 2>&1 > $LOG_FILE\n\
 \n\
 \${BUILDDIR}/\${TOP}.net: \${BUILDDIR}/\${TOP}.eblif\n\
 	cd \${BUILDDIR} && symbiflow_pack -e \${TOP}.eblif -f \${FAMILY} -d \${DEVICE} -s \${SDC} 2>&1 > $LOG_FILE\n\
