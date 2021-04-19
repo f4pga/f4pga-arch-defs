@@ -59,6 +59,7 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
   # Example design to run through the flow
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/tests/counter_16bit/*.v
 	  DESTINATION share/symbiflow/tests/counter_16bit
+	   PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
   
   # install python scripts
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/split_inouts.py
