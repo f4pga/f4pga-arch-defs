@@ -24,10 +24,10 @@ CONDA_FLAGS="-y --override-channels -c defaults -c conda-forge"
 conda update $CONDA_FLAGS -q conda
 curl https://storage.googleapis.com/symbiflow-arch-defs-install/quicklogic-arch-defs-63c3d8f9.tar.gz --output arch.tar.gz
 tar -C $INSTALL_DIR -xvf arch.tar.gz && rm arch.tar.gz
-conda install $CONDA_FLAGS -c quicklogic-corp/label/ql yosys="0.8.0_0002_gc3b38fdc 20200901_073908" python=3.7
-conda install $CONDA_FLAGS -c quicklogic-corp/label/ql yosys-plugins="1.2.0_0009_g9ab211c 20201001_121833"
-conda install $CONDA_FLAGS -c quicklogic-corp/label/ql vtr="v8.0.0_rc2_2894_gdadca7ecf 20201008_140004"
-conda install $CONDA_FLAGS -c quicklogic-corp iverilog
+conda install $CONDA_FLAGS -c litex-hub/label/main yosys="0.9_5266_g0fb4224e 20210301_104249_py37"
+conda install $CONDA_FLAGS -c litex-hub/label/main symbiflow-yosys-plugins="1.0.0_7_284_gb6c5f5d 20210318_102115"
+conda install $CONDA_FLAGS -c litex-hub/label/main vtr-optimized="8.0.0_3452_ge7d45e013 20210318_102115"
+conda install $CONDA_FLAGS -c litex-hub iverilog
 conda install $CONDA_FLAGS -c tfors gtkwave
 conda install $CONDA_FLAGS make lxml simplejson intervaltree git pip
 conda activate
