@@ -1,11 +1,11 @@
 //-----------------------------------------------------//
 // Design Name : Shift_reg
-// File Name   : Shift_reg_1024.v
+// File Name   : Shift_reg_576.v
 // Function    : Shift register
 //-----------------------------------------------------//
 
 
-module shift_reg_1024 #( parameter size = 1023 ) (shift_in, clk, clr, shift_out);
+module shift_reg_576 #( parameter size = 575 ) (shift_in, clk, clr, shift_out);
 
    // Port Declaration
    input   shift_in;
