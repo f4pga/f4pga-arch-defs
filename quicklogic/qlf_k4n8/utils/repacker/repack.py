@@ -1,6 +1,15 @@
 #!/usr/bin/env python3
 """
 A SymbiFlow implementation of OpenFPGA re-packer.
+
+The repacker utility is responsible for converting a VPR packed netlist
+expressed using "operating" modes of pb_types so that it is expressed using
+cells from physical modes that represent the underlying hardware. For more
+details please refer to the documentation of the OpenFPGA project:
+https://openfpga.readthedocs.io/en/master/manual/openfpga_shell/openfpga_commands/fpga_bitstream_commands/#repack
+
+Please refer to the README.md file for more details on the tool operation and
+implementation.
 """
 
 import logging
