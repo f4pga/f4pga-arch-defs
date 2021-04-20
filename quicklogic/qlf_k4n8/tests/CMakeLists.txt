@@ -18,7 +18,7 @@ add_subdirectory(io_reg_tc1)
 add_subdirectory(io_tc1)
 add_subdirectory(routing_test)
 add_subdirectory(shift_reg_8)
-add_subdirectory(shift_reg_1024)
+add_subdirectory(shift_reg_576)
 add_subdirectory(top_120_13)
 add_subdirectory(unsigned_mult_80)
 
