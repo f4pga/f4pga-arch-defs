@@ -721,76 +721,25 @@ function(DEFINE_DEVICE)
 
     endif()
 
-    # Convert patched rr_graph.xml to rr_graph.bin if necessary
-    if("${RR_GRAPH_EXT}" STREQUAL ".xml")
-
-      set(OUT_RR_REAL_FILENAME
-        rr_graph_${DEVICE}_${PACKAGE}.rr_graph.real.bin)
-      set(OUT_RR_REAL
-        ${CMAKE_CURRENT_BINARY_DIR}/${OUT_RR_REAL_FILENAME})
-
-      set(DEPS)
-      append_file_dependency(DEPS ${OUT_RR_PATCHED_FILENAME})
-      append_file_dependency(DEPS ${VIRT_DEVICE_MERGED_FILE})
-
-      add_custom_command(
-        OUTPUT ${OUT_RR_REAL}
-        DEPENDS
-            ${WIRE_EBLIF}
-            ${VPR}
-            ${QUIET_CMD}
-            ${DEFINE_DEVICE_DEVICE_TYPE}
-            ${DEPS} ${PYTHON3}
-        COMMAND
-            ${QUIET_CMD} ${VPR} ${DEVICE_MERGED_FILE}
-            --device ${DEVICE_FULL}
-            ${WIRE_EBLIF}
-            --read_rr_graph ${OUT_RR_PATCHED}
-            --read_rr_edge_metadata on
-            --write_rr_graph ${OUT_RR_REAL}
-            --outfile_prefix ${OUT_RR_REAL}_
-            --pack
-            --place
-            ${DEFINE_DEVICE_CACHE_ARGS}
-        COMMAND
-            ${CMAKE_COMMAND} -E copy vpr_stdout.log
-              ${OUT_RR_REAL}.out
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-      )
-
-      add_file_target(FILE ${OUT_RR_REAL_FILENAME} GENERATED)
-
+    if(NOT ${NO_RR_PATCHING} OR "${EXT_RR_GRAPH}" STREQUAL ".xml")
+      set(OUT_RR_REAL_FILENAME rr_graph_${DEVICE}_${PACKAGE}.rr_graph.real.bin)
+      set(OUT_RR_REAL ${CMAKE_CURRENT_BINARY_DIR}/${OUT_RR_REAL_FILENAME})
+      set(READ_RR ${OUT_RR_PATCHED})
+      set(READ_RR_FILENAME ${OUT_RR_PATCHED_FILENAME}) 
     else()
-
+      # Use the virtual rr_graph directly
       if(NOT DEFINED EXT_RR_GRAPH)
+        set(OUT_RR_REAL_FILENAME ${OUT_RR_VIRT_FILENAME})
+        set(OUT_RR_REAL          ${OUT_RR_VIRT})
 
-        # Use the virtual rr_graph directly
-        if(${NO_RR_PATCHING})
-          set(OUT_RR_REAL_FILENAME ${OUT_RR_VIRT_FILENAME})
-          set(OUT_RR_REAL          ${OUT_RR_VIRT})
-
-        # Use the patched rr_graph.bin directly
-        else()
-          set(OUT_RR_REAL_FILENAME ${OUT_RR_PATCHED_FILENAME})
-          set(OUT_RR_REAL          ${OUT_RR_PATCHED})
-        endif()
-
+      # Use external real rr_graph.bin directly
       else()
-
-        # Use external real rr_graph.bin directly
-        if(${NO_RR_PATCHING})
-
-          get_filename_component(OUT_RR_REAL          ${EXT_RR_GRAPH} REALPATH)
-          get_filename_component(OUT_RR_REAL_FILENAME ${EXT_RR_GRAPH} NAME)
-
-        # Use the patched rr_graph.bin directly
-        else()
-          set(OUT_RR_REAL_FILENAME ${OUT_RR_PATCHED_FILENAME})
-          set(OUT_RR_REAL          ${OUT_RR_PATCHED})
-        endif()
-
+        get_filename_component(OUT_RR_REAL          ${EXT_RR_GRAPH} REALPATH)
+        get_filename_component(OUT_RR_REAL_FILENAME ${EXT_RR_GRAPH} NAME)
       endif()
-
+      
+      set(READ_RR ${OUT_RR_REAL})
+      set(READ_RR_FILENAME ${OUT_RR_REAL_FILENAME}) 
     endif()
 
     set_target_properties(
@@ -799,76 +748,86 @@ function(DEFINE_DEVICE)
         ${PACKAGE}_OUT_RRBIN_REAL ${CMAKE_CURRENT_SOURCE_DIR}/${OUT_RR_REAL_FILENAME}
     )
 
-    # Generate lookahead and place delay lookup caches
+    set(LOOKAHEAD_FILENAME
+      rr_graph_${DEVICE}_${PACKAGE}.lookahead.bin)
+    set(PLACE_DELAY_FILENAME
+      rr_graph_${DEVICE}_${PACKAGE}.place_delay.bin)
+
+    set(DEPS)
+    append_file_dependency(DEPS ${READ_RR_FILENAME})
+    append_file_dependency(DEPS ${VIRT_DEVICE_MERGED_FILE})
+
+    set(ARGS)
+    if(${DEFINE_DEVICE_CACHE_LOOKAHEAD})
+        list(APPEND OUTPUTS ${LOOKAHEAD_FILENAME})
+        list(APPEND ARGS --write_router_lookahead ${LOOKAHEAD_FILENAME})
+    endif()
+    if(${DEFINE_DEVICE_CACHE_PLACE_DELAY})
+        list(APPEND OUTPUTS ${PLACE_DELAY_FILENAME})
+        list(APPEND ARGS --write_placement_delay_lookup ${PLACE_DELAY_FILENAME})
+    endif()
+    if(NOT ${NO_RR_PATCHING})
+        list(APPEND OUTPUTS ${OUT_RR_REAL_FILENAME})
+        list(APPEND ARGS --write_rr_graph ${OUT_RR_REAL_FILENAME})
+    endif() 
+
+    set(CACHE_PREFIX rr_graph_${DEVICE}_${PACKAGE})
+
+    add_custom_command(
+      OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${CACHE_PREFIX}.cache ${OUTPUTS}
+      DEPENDS
+          ${WIRE_EBLIF}
+          ${VPR}
+          ${QUIET_CMD}
+          ${DEFINE_DEVICE_DEVICE_TYPE}
+          ${DEPS} ${PYTHON3}
+      COMMAND
+          ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/check_cache.py ${OUT_RR_REAL} ${CACHE_PREFIX}.cache ${OUTPUTS} || (
+          ${QUIET_CMD} ${VPR} ${DEVICE_MERGED_FILE}
+          --device ${DEVICE_FULL}
+          ${WIRE_EBLIF}
+          --read_rr_graph ${READ_RR}
+          --read_rr_edge_metadata on
+          --outfile_prefix ${CACHE_PREFIX}_cache_
+          --pack
+          --place
+          ${ARGS}
+          ${DEFINE_DEVICE_CACHE_ARGS} &&
+          ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/update_cache.py ${OUT_RR_REAL} ${CACHE_PREFIX}.cache)
+      COMMAND
+          ${CMAKE_COMMAND} -E copy vpr_stdout.log
+            ${CMAKE_CURRENT_BINARY_DIR}/${CACHE_PREFIX}.cache.out
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    )
+
+    add_file_target(FILE ${CACHE_PREFIX}.cache GENERATED)
+    get_file_target(CACHE_TARGET ${CACHE_PREFIX}.cache)
+
+    if(${DEFINE_DEVICE_CACHE_LOOKAHEAD})
+      add_file_target(FILE ${LOOKAHEAD_FILENAME} GENERATED)
+
+      # Linearize target dependency.
+      get_file_target(LOOKAHEAD_TARGET ${LOOKAHEAD_FILENAME})
+      add_dependencies(${LOOKAHEAD_TARGET} ${CACHE_TARGET})
+    endif()
+
+    if(${DEFINE_DEVICE_CACHE_PLACE_DELAY})
+      add_file_target(FILE ${PLACE_DELAY_FILENAME} GENERATED)
+
+      # Linearize target dependency.
+      get_file_target(PLACE_DELAY_TARGET ${PLACE_DELAY_FILENAME})
+      add_dependencies(${PLACE_DELAY_TARGET} ${CACHE_TARGET})
+    endif()
+
+    if(NOT ${NO_RR_PATCHING})
+      add_file_target(FILE ${OUT_RR_REAL_FILENAME} GENERATED)
+
+      # Linearize target dependency.
+      get_file_target(OUT_RR_REAL_TARGET ${OUT_RR_REAL_FILENAME})
+      add_dependencies(${OUT_RR_REAL_TARGET} ${CACHE_TARGET})
+    endif()
+
     if(${DEFINE_DEVICE_CACHE_LOOKAHEAD} OR ${DEFINE_DEVICE_CACHE_PLACE_DELAY})
-
-      set(LOOKAHEAD_FILENAME
-        rr_graph_${DEVICE}_${PACKAGE}.lookahead.bin)
-      set(PLACE_DELAY_FILENAME
-        rr_graph_${DEVICE}_${PACKAGE}.place_delay.bin)
-
-      set(DEPS)
-      append_file_dependency(DEPS ${OUT_RR_REAL_FILENAME})
-      append_file_dependency(DEPS ${VIRT_DEVICE_MERGED_FILE})
-
-      set(ARGS)
-      if(${DEFINE_DEVICE_CACHE_LOOKAHEAD})
-          list(APPEND OUTPUTS ${LOOKAHEAD_FILENAME})
-          list(APPEND ARGS --write_router_lookahead ${LOOKAHEAD_FILENAME})
-      endif()
-      if(${DEFINE_DEVICE_CACHE_PLACE_DELAY})
-          list(APPEND OUTPUTS ${PLACE_DELAY_FILENAME})
-          list(APPEND ARGS --write_placement_delay_lookup ${PLACE_DELAY_FILENAME})
-      endif()
-
-      set(CACHE_PREFIX rr_graph_${DEVICE}_${PACKAGE})
-
-      add_custom_command(
-        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${CACHE_PREFIX}.cache ${OUTPUTS}
-        DEPENDS
-            ${WIRE_EBLIF}
-            ${VPR}
-            ${QUIET_CMD}
-            ${DEFINE_DEVICE_DEVICE_TYPE}
-            ${DEPS} ${PYTHON3}
-        COMMAND
-            ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/check_cache.py ${OUT_RR_REAL} ${CACHE_PREFIX}.cache ${OUTPUTS} || (
-            ${QUIET_CMD} ${VPR} ${DEVICE_MERGED_FILE}
-            --device ${DEVICE_FULL}
-            ${WIRE_EBLIF}
-            --read_rr_graph ${OUT_RR_REAL}
-            --read_rr_edge_metadata on
-            --outfile_prefix ${CACHE_PREFIX}_cache_
-            --pack
-            --place
-            ${ARGS}
-            ${DEFINE_DEVICE_CACHE_ARGS} &&
-            ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/update_cache.py ${OUT_RR_REAL} ${CACHE_PREFIX}.cache)
-        COMMAND
-            ${CMAKE_COMMAND} -E copy vpr_stdout.log
-              ${CMAKE_CURRENT_BINARY_DIR}/${CACHE_PREFIX}.cache.out
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-      )
-
-      add_file_target(FILE ${CACHE_PREFIX}.cache GENERATED)
-      get_file_target(CACHE_TARGET ${CACHE_PREFIX}.cache)
-
-      if(${DEFINE_DEVICE_CACHE_LOOKAHEAD})
-        add_file_target(FILE ${LOOKAHEAD_FILENAME} GENERATED)
-
-        # Linearize target dependency.
-        get_file_target(LOOKAHEAD_TARGET ${LOOKAHEAD_FILENAME})
-        add_dependencies(${LOOKAHEAD_TARGET} ${CACHE_TARGET})
-      endif()
-
-      if(${DEFINE_DEVICE_CACHE_PLACE_DELAY})
-        add_file_target(FILE ${PLACE_DELAY_FILENAME} GENERATED)
-
-        # Linearize target dependency.
-        get_file_target(PLACE_DELAY_TARGET ${PLACE_DELAY_FILENAME})
-        add_dependencies(${PLACE_DELAY_TARGET} ${CACHE_TARGET})
-      endif()
-
       set_target_properties(
         ${DEFINE_DEVICE_DEVICE}
         PROPERTIES
