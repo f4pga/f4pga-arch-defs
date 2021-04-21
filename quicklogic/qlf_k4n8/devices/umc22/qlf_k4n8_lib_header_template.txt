@@ -1,6 +1,6 @@
-library(@lib_name@) {
+library({lib_name}) {
 
-    date : "@Date@" ;
+    date : "{curr_date}" ;
     revision : 2021.Q2V1 ;
 
     technology (cmos);
@@ -37,15 +37,15 @@ library(@lib_name@) {
     nom_temperature : -40;
     nom_voltage : 0.72;
 
-    operating_conditions ( @lib_name@_op_cond ) {
+    operating_conditions ( {lib_name}_op_cond ) {
         process : 1;
         temperature : -40;
         voltage :  0.72;
-     }
+    }
 
-    default_operating_conditions : @lib_name@_op_cond;
+    default_operating_conditions : {lib_name}_op_cond;
 
-    cell ( @cell_name@ ) {
+    cell ( {cell_name} ) {
         is_macro_cell : true;
         interface_timing : "true";
         area : "3513939";

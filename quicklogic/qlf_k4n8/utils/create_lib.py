@@ -8,6 +8,7 @@ import csv
 import os
 from collections import namedtuple
 from datetime import date
+import simplejson as json
 import lxml.etree as ET
 
 # =============================================================================
@@ -49,6 +50,22 @@ def main():
         help='Specify library name'
     )
     parser.add_argument(
+        "--device_name",
+        "-d",
+        "-D",
+        type=str,
+        required=True,
+        help='Specify device name'
+    )
+    parser.add_argument(
+        "--template_data_path",
+        "-t",
+        "-T",
+        type=str,
+        required=True,
+        help='Specify path from where to pick template data for library creation'
+    )
+    parser.add_argument(
         "--cell_name",
         "-m",
         "-M",
@@ -75,6 +92,15 @@ def main():
 
     args = parser.parse_args()
 
+    if os.path.exists(args.template_data_path) != True:
+        print(
+            'Invalid template data path "{}" specified'.format(
+                args.template_data_path
+            ),
+            file=sys.stderr
+        )
+        sys.exit(1)
+
     csv_pin_data = set()
     assoc_clk = dict()
     with open(args.csv, newline='') as csvfile:
@@ -86,14 +112,15 @@ def main():
 
     port_names = parse_xml(args.xml)
     create_lib(
-        port_names, csv_pin_data, args.lib_name, args.lib, args.cell_name,
-        assoc_clk
+        port_names, args.device_name, args.template_data_path, csv_pin_data,
+        args.lib_name, args.lib, args.cell_name, assoc_clk
     )
 
 
 # =============================================================================
 def create_lib(
-        port_names, csv_pin_data, lib_name, lib_file_name, cell_name, assoc_clk
+        port_names, device_name, template_data_path, csv_pin_data, lib_name,
+        lib_file_name, cell_name, assoc_clk
 ):
     """
     Create lib file
@@ -101,15 +128,21 @@ def create_lib(
     # Read header template file and populate lib file with this data
     curr_dir = os.path.dirname(os.path.abspath(__file__))
 
-    header_templ_file = os.path.join(
-        curr_dir, '../devices/umc22/lib_header_template.txt'
-    )
-    in_str = open(header_templ_file, 'r').read()
-    curr_str = in_str.replace("@lib_name@", lib_name)
+    common_lib_data = dict()
+    common_lib_data_file = template_data_path + "/" + device_name + "_common_lib_data.json"
+    with open(common_lib_data_file) as fp:
+        common_lib_data = json.load(fp)
+
     today = date.today()
     curr_date = today.strftime("%B %d, %Y")
-    str_rep_date = curr_str.replace("@Date@", curr_date)
-    str1 = str_rep_date.replace("@cell_name@", cell_name)
+
+    lib_header_tmpl = template_data_path + "/" + device_name + "_lib_header_template.txt"
+    header_templ_file = os.path.join(curr_dir, lib_header_tmpl)
+    in_str = open(header_templ_file, 'r').read()
+
+    curr_str = in_str.replace("{lib_name}", lib_name)
+    str_rep_date = curr_str.replace("{curr_date}", curr_date)
+    str1 = str_rep_date.replace("{cell_name}", cell_name)
 
     pins = []
     for port in port_names:
@@ -129,17 +162,13 @@ def create_lib(
         pin_data = PinData(name=port, dir=pin_dir, used=pin_used, clk=clk)
         pins.append(pin_data)
 
-    curly_braces_open = "{"
-    curly_braces_close = "}"
     lib_data = ""
     for pin in pins:
         if pin.used:
             if pin.dir == "input":
-                curr_str = "\n\t\tpin ({}) {}".format(
-                    pin.name, curly_braces_open
-                )
-                cap = "0.01686"
-                max_tran = "0.2000"
+                curr_str = "\n\t\tpin ({}) {{".format(pin.name)
+                cap = common_lib_data["input_used"]['cap']
+                max_tran = common_lib_data["input_used"]['max_tran']
                 curr_str += form_pin_header(pin.dir, cap, max_tran)
 
                 if pin.clk != '':
@@ -148,15 +177,15 @@ def create_lib(
                         clk_name = clk
                         timing_type = ['setup_rising', 'hold_rising']
                         for val in timing_type:
-                            curr_str += form_in_timing_group(clk_name, val)
-                curr_str += "\n\t\t{}".format(curly_braces_close)
+                            curr_str += form_in_timing_group(
+                                clk_name, val, common_lib_data
+                            )
+                curr_str += "\n\t\t}"
                 lib_data += curr_str
             else:
-                curr_str = "\n\t\tpin ({}) {}".format(
-                    pin.name, curly_braces_open
-                )
-                cap = "0.013646"
-                max_tran = "0.2000"
+                curr_str = "\n\t\tpin ({}) {{".format(pin.name)
+                cap = common_lib_data["output_used"]['cap']
+                max_tran = common_lib_data["output_used"]['max_tran']
                 curr_str += form_pin_header(pin.dir, cap, max_tran)
 
                 if pin.clk != '':
@@ -165,36 +194,31 @@ def create_lib(
                         clk_name = clk
                         timing_type = "rising_edge"
                         curr_str += form_out_timing_group(
-                            clk_name, timing_type
+                            clk_name, timing_type, common_lib_data
                         )
                     curr_str += form_out_reset_timing_group(
-                        "RESET_N", "positive_unate", "clear"
+                        "RESET_N", "positive_unate", "clear", common_lib_data
                     )
-                curr_str += "\n\t\t{}".format(curly_braces_close)
+                curr_str += "\n\t\t}"
                 lib_data += curr_str
         else:
             if pin.dir == "input":
-                curr_str = "\n\t\tpin ({}) {}".format(
-                    pin.name, curly_braces_open
-                )
-                cap = "0.01686"
-                max_tran = "0.2000"
+                curr_str = "\n\t\tpin ({}) {{".format(pin.name)
+                cap = common_lib_data["input_unused"]['cap']
+                max_tran = common_lib_data["input_unused"]['max_tran']
                 curr_str += form_pin_header(pin.dir, cap, max_tran)
-                curr_str += "\n\t\t{}".format(curly_braces_close)
+                curr_str += "\n\t\t}"
                 lib_data += curr_str
             else:
-                curr_str = "\n\t\tpin ({}) {}".format(
-                    pin.name, curly_braces_open
-                )
-                cap = "0.013646"
-                max_tran = "0.2000"
+                curr_str = "\n\t\tpin ({}) {{".format(pin.name)
+                cap = common_lib_data["output_unused"]['cap']
+                max_tran = common_lib_data["output_unused"]['max_tran']
                 curr_str += form_pin_header(pin.dir, cap, max_tran)
-                curr_str += "\n\t\t{}".format(curly_braces_close)
+                curr_str += "\n\t\t}"
                 lib_data += curr_str
 
-    dedicated_pin_lib_file = os.path.join(
-        curr_dir, '../devices/umc22/dedicated_pin_lib_data.txt'
-    )
+    dedicated_pin_tmpl = template_data_path + "/" + device_name + '_dedicated_pin_lib_data.txt'
+    dedicated_pin_lib_file = os.path.join(curr_dir, dedicated_pin_tmpl)
     dedicated_pin_data = open(dedicated_pin_lib_file, 'r').read()
 
     inter_str = str1.replace("@dedicated_pin_data@", dedicated_pin_data)
@@ -221,98 +245,102 @@ def form_pin_header(direction, cap, max_tran):
 # =============================================================================
 
 
-def form_out_reset_timing_group(reset_name, timing_sense, timing_type):
+def form_out_reset_timing_group(
+        reset_name, timing_sense, timing_type, common_lib_data
+):
     '''
     Form timing group for output pin when related pin is reset
     '''
-    cell_fall_val = "4.6000"
-    fall_tran_val = "0.2000"
-    curly_braces_open = "{"
-    curly_braces_close = "}"
-    curr_str = "\n\t\t\ttiming () {}\n\t\t\t\trelated_pin : \"{}\";".format(
-        curly_braces_open, reset_name
+    cell_fall_val = common_lib_data["reset_timing"]['cell_fall_val']
+    fall_tran_val = common_lib_data["reset_timing"]['fall_tran_val']
+    curr_str = "\n\t\t\ttiming () {{\n\t\t\t\trelated_pin : \"{}\";".format(
+        reset_name
     )
     curr_str += "\n\t\t\t\ttiming_sense : {};".format(timing_sense)
     curr_str += "\n\t\t\t\ttiming_type : {};".format(timing_type)
-    curr_str += "\n\t\t\t\tcell_fall (scalar) {}\n\t\t\t\t\tvalues({});".format(
-        curly_braces_open, cell_fall_val
+    curr_str += "\n\t\t\t\tcell_fall (scalar) {{\n\t\t\t\t\tvalues({});".format(
+        cell_fall_val
     )
-    curr_str += "\n\t\t\t\t{}".format(curly_braces_close)
-    curr_str += "\n\t\t\t\tfall_transition (scalar) {}\n\t\t\t\t\tvalues({});".format(
-        curly_braces_open, fall_tran_val
+    curr_str += "\n\t\t\t\t}"
+    curr_str += "\n\t\t\t\tfall_transition (scalar) {{\n\t\t\t\t\tvalues({});".format(
+        fall_tran_val
     )
-    curr_str += "\n\t\t\t\t{}".format(curly_braces_close)
-    curr_str += "\n\t\t\t{}".format(curly_braces_close)
+    curr_str += "\n\t\t\t\t}"
+    curr_str += "\n\t\t\t}"
     return curr_str
 
 
 # =============================================================================
 
 
-def form_out_timing_group(clk_name, timing_type):
+def form_out_timing_group(clk_name, timing_type, common_lib_data):
     '''
     Form timing group for output pin in a Pin group in a library file
     '''
-    cell_rise_val = "2.59"
-    cell_fall_val = "2.59"
-    rise_tran_val = "0.85"
-    fall_tran_val = "0.85"
-    curly_braces_open = "{"
-    curly_braces_close = "}"
-    curr_str = "\n\t\t\ttiming () {}\n\t\t\t\trelated_pin : \"{}\";".format(
-        curly_braces_open, clk_name
+    cell_rise_val = common_lib_data["output_timing"
+                                    ]['rising_edge_cell_rise_val']
+    cell_fall_val = common_lib_data["output_timing"
+                                    ]['rising_edge_cell_fall_val']
+    rise_tran_val = common_lib_data["output_timing"
+                                    ]['rising_edge_rise_tran_val']
+    fall_tran_val = common_lib_data["output_timing"
+                                    ]['rising_edge_fall_tran_val']
+    curr_str = "\n\t\t\ttiming () {{\n\t\t\t\trelated_pin : \"{}\";".format(
+        clk_name
     )
     curr_str += "\n\t\t\t\ttiming_type : {};".format(timing_type)
-    curr_str += "\n\t\t\t\tcell_rise (scalar) {}\n\t\t\t\t\tvalues({});\n\t\t\t\t{}".format(
-        curly_braces_open, cell_rise_val, curly_braces_close
+    curr_str += "\n\t\t\t\tcell_rise (scalar) {{\n\t\t\t\t\tvalues({});\n\t\t\t\t}}".format(
+        cell_rise_val
     )
-    curr_str += "\n\t\t\t\trise_transition (scalar) {}\n\t\t\t\t\tvalues({});".format(
-        curly_braces_open, rise_tran_val
+    curr_str += "\n\t\t\t\trise_transition (scalar) {{\n\t\t\t\t\tvalues({});".format(
+        rise_tran_val
     )
-    curr_str += "\n\t\t\t\t{}".format(curly_braces_close)
-    curr_str += "\n\t\t\t\tcell_fall (scalar) {}\n\t\t\t\t\tvalues({});".format(
-        curly_braces_open, cell_fall_val
+    curr_str += "\n\t\t\t\t}"
+    curr_str += "\n\t\t\t\tcell_fall (scalar) {{\n\t\t\t\t\tvalues({});".format(
+        cell_fall_val
     )
-    curr_str += "\n\t\t\t\t{}".format(curly_braces_close)
-    curr_str += "\n\t\t\t\tfall_transition (scalar) {}\n\t\t\t\t\tvalues({});".format(
-        curly_braces_open, fall_tran_val
+    curr_str += "\n\t\t\t\t}"
+    curr_str += "\n\t\t\t\tfall_transition (scalar) {{\n\t\t\t\t\tvalues({});".format(
+        fall_tran_val
     )
-    curr_str += "\n\t\t\t\t{}".format(curly_braces_close)
-    curr_str += "\n\t\t\t{}".format(curly_braces_close)
+    curr_str += "\n\t\t\t\t}"
+    curr_str += "\n\t\t\t}"
     return curr_str
 
 
 # =============================================================================
 
 
-def form_in_timing_group(clk_name, timing_type):
+def form_in_timing_group(clk_name, timing_type, common_lib_data):
     '''
     Form timing group for input pin in a Pin group in a library file
     '''
     rise_constraint_val = "0.0"
     fall_constraint_val = "0.0"
     if timing_type == "setup_rising":
-        rise_constraint_val = "-2.1"
-        fall_constraint_val = "-2.1"
+        rise_constraint_val = common_lib_data["input_timing"][
+            'setup_rising_rise_constraint_val']
+        fall_constraint_val = common_lib_data["input_timing"][
+            'setup_rising_fall_constraint_val']
     else:
-        rise_constraint_val = "2.21"
-        fall_constraint_val = "2.21"
+        rise_constraint_val = common_lib_data["input_timing"][
+            'hold_rising_rise_constraint_val']
+        fall_constraint_val = common_lib_data["input_timing"][
+            'hold_rising_fall_constraint_val']
 
-    curly_braces_open = "{"
-    curly_braces_close = "}"
-    curr_str = "\n\t\t\ttiming () {}\n\t\t\t\trelated_pin : \"{}\";".format(
-        curly_braces_open, clk_name
+    curr_str = "\n\t\t\ttiming () {{\n\t\t\t\trelated_pin : \"{}\";".format(
+        clk_name
     )
     curr_str += "\n\t\t\t\ttiming_type : {};".format(timing_type)
-    curr_str += "\n\t\t\t\trise_constraint (scalar) {}\n\t\t\t\t\tvalues({});".format(
-        curly_braces_open, rise_constraint_val
+    curr_str += "\n\t\t\t\trise_constraint (scalar) {{\n\t\t\t\t\tvalues({});".format(
+        rise_constraint_val
     )
-    curr_str += "\n\t\t\t\t{}".format(curly_braces_close)
-    curr_str += "\n\t\t\t\tfall_constraint (scalar) {}\n\t\t\t\t\tvalues({});".format(
-        curly_braces_open, fall_constraint_val
+    curr_str += "\n\t\t\t\t}"
+    curr_str += "\n\t\t\t\tfall_constraint (scalar) {{\n\t\t\t\t\tvalues({});".format(
+        fall_constraint_val
     )
-    curr_str += "\n\t\t\t\t{}".format(curly_braces_close)
-    curr_str += "\n\t\t\t{}".format(curly_braces_close)
+    curr_str += "\n\t\t\t\t}"
+    curr_str += "\n\t\t\t}"
     return curr_str
 
 
