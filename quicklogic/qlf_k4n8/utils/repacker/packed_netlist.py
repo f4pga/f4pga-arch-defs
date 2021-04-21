@@ -579,6 +579,27 @@ class Block:
         # Find the child
         return walk(self, path)
 
+    def count_leafs(self):
+        """
+        Counts all non-open leaf blocks
+        """
+
+        def walk(block, count=0):
+
+            # This is a non-ope leaf, count it
+            if block.is_leaf and not block.is_open:
+                count += 1
+
+            # This is a non-leaf block. Recurse
+            if not block.is_leaf:
+                for child in block.blocks.values():
+                    count += walk(child)
+
+            return count
+
+        # Recursive walk and count
+        return walk(self)
+
     def __str__(self):
         """
         Returns a user-readable description string
