@@ -304,7 +304,7 @@ def generate_pinmap_csv(pinmap_csv_file, io_cells):
     with open(pinmap_csv_file, "w", newline='') as csvfile:
         fieldnames = [
             'orientation', 'row', 'col', 'pin_num_in_cell', 'port_name',
-            'mapped_pin', 'GPIO_type'
+            'mapped_pin', 'GPIO_type', 'Associated Clock', 'Clock Edge'
         ]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
