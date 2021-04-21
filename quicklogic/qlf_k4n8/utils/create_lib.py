@@ -12,7 +12,6 @@ import lxml.etree as ET
 
 # =============================================================================
 
-
 # =============================================================================
 """
 Pin properties
@@ -24,6 +23,7 @@ clk - specify associate clock
 PinData = namedtuple("PinData", "name dir used clk")
 
 # =============================================================================
+
 
 def main():
     """
@@ -93,7 +93,7 @@ def main():
 
 # =============================================================================
 def create_lib(
-    port_names, csv_pin_data, lib_name, lib_file_name, cell_name, assoc_clk
+        port_names, csv_pin_data, lib_name, lib_file_name, cell_name, assoc_clk
 ):
     """
     Create lib file
@@ -109,7 +109,7 @@ def create_lib(
     today = date.today()
     curr_date = today.strftime("%B %d, %Y")
     str_rep_date = curr_str.replace("@Date@", curr_date)
-    str1= str_rep_date.replace("@cell_name@", cell_name)
+    str1 = str_rep_date.replace("@cell_name@", cell_name)
 
     pins = []
     for port in port_names:
@@ -126,12 +126,7 @@ def create_lib(
             if assoc_clk[port].strip() != '':
                 clk = assoc_clk[port].strip()
 
-        pin_data = PinData(
-            name = port,
-            dir = pin_dir,
-            used = pin_used,
-            clk = clk
-        )
+        pin_data = PinData(name=port, dir=pin_dir, used=pin_used, clk=clk)
         pins.append(pin_data)
 
     curly_braces_open = "{"
@@ -140,7 +135,9 @@ def create_lib(
     for pin in pins:
         if pin.used:
             if pin.dir == "input":
-                curr_str = "\n\t\tpin ({}) {}".format(pin.name, curly_braces_open)
+                curr_str = "\n\t\tpin ({}) {}".format(
+                    pin.name, curly_braces_open
+                )
                 cap = "0.01686"
                 max_tran = "0.2000"
                 curr_str += form_pin_header(pin.dir, cap, max_tran)
@@ -209,6 +206,7 @@ def create_lib(
 
 # =============================================================================
 
+
 def form_pin_header(direction, cap, max_tran):
     '''
     Form pin header section
@@ -218,6 +216,7 @@ def form_pin_header(direction, cap, max_tran):
     )
     curr_str += "\n\t\t\tmax_transition : {};".format(max_tran)
     return curr_str
+
 
 # =============================================================================
 
@@ -246,7 +245,9 @@ def form_out_reset_timing_group(reset_name, timing_sense, timing_type):
     curr_str += "\n\t\t\t{}".format(curly_braces_close)
     return curr_str
 
+
 # =============================================================================
+
 
 def form_out_timing_group(clk_name, timing_type):
     '''
@@ -283,6 +284,7 @@ def form_out_timing_group(clk_name, timing_type):
 
 # =============================================================================
 
+
 def form_in_timing_group(clk_name, timing_type):
     '''
     Form timing group for input pin in a Pin group in a library file
@@ -313,7 +315,9 @@ def form_in_timing_group(clk_name, timing_type):
     curr_str += "\n\t\t\t{}".format(curly_braces_close)
     return curr_str
 
+
 # =============================================================================
+
 
 def parse_xml(xml_file):
     """
@@ -353,7 +357,9 @@ def parse_xml(xml_file):
 
     return port_names
 
+
 # =============================================================================
+
 
 def parse_xml_io(xml_io):
     """
@@ -370,6 +376,7 @@ def parse_xml_io(xml_io):
 
 
 # =============================================================================
+
 
 def vec_to_scalar(port_name):
     """
@@ -401,6 +408,7 @@ def vec_to_scalar(port_name):
         scalar_ports.append(port_name)
 
     return scalar_ports
+
 
 # =============================================================================
 
