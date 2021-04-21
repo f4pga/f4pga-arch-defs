@@ -16,6 +16,7 @@ import logging
 import argparse
 import sys
 import os
+import shlex
 import hashlib
 import time
 from collections import namedtuple
@@ -992,6 +993,10 @@ def main():
 
     if args.log is not None:
         logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
+
+    # Re-assemble and log the commandline
+    cmdline = " ".join([shlex.quote(a) for a in sys.argv])
+    logging.debug("command line: {}".format(cmdline))
 
     # Load the VPR architecture
     logging.info("Loading VPR architecture file...")
