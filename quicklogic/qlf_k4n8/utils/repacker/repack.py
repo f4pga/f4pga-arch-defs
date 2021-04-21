@@ -79,7 +79,7 @@ class RepackingConstraint:
 # =============================================================================
 
 
-def fixup_route_throu_luts(clb_block):
+def fixup_route_throu_luts(clb_block, new_net_ids):
     """
     This function identifies route-throu LUTs in the packed netlist and
     replaces them with explicit LUT-1 blocks.
@@ -112,7 +112,6 @@ def fixup_route_throu_luts(clb_block):
         return []
 
     # Process blocks
-    new_net_ids = {}
     net_pairs = []
 
     for block in blocks:
@@ -246,6 +245,7 @@ def insert_buffers(nets, eblif, clb_block):
         cell.ports["lut_in[0]"] = net_inp
         cell.ports["lut_out"] = net_out
         cell.init = [0, 1]
+        assert cell.name not in eblif.cells, cell
         eblif.cells[cell.name] = cell
 
         # Collects blocks driven by the output net
@@ -1111,6 +1111,8 @@ def main():
     removed_ios = set()
     leaf_block_names = {}
 
+    route_through_net_ids = {}
+
     repacked_clb_count = 0
     repacked_block_count = 0
 
@@ -1132,7 +1134,7 @@ def main():
 
         # Identify and fixup route-throu LUTs
         logging.debug("  Identifying route-throu LUTs...")
-        net_pairs = fixup_route_throu_luts(clb_block)
+        net_pairs = fixup_route_throu_luts(clb_block, route_through_net_ids)
         insert_buffers(net_pairs, eblif, clb_block)
 
         # Identify blocks to repack. Continue to next CLB if there are none
