@@ -20,14 +20,14 @@ class Net:
     def __init__(self, name):
         self.name = name
 
-        self.source = None
+        self.sources = set()
         self.sinks = set()
 
         self.is_routed = False
 
     def __str__(self):
-        return "{}, fanout={}, {}".format(
-            self.name, len(self.sinks),
+        return "{}, {} sources, max_fanout={}, {}".format(
+            self.name, len(self.sources), len(self.sinks),
             "routed" if self.is_routed else "unrouted"
         )
 
@@ -71,8 +71,9 @@ class Router:
 
             # Got a source
             if node.type == NodeType.SOURCE:
-                assert node.net not in sources, node.net
-                sources[node.net] = node.id
+                if node.net not in sources:
+                    sources[node.net] = set()
+                sources[node.net].add(node.id)
 
             # Got a sink
             elif node.type == NodeType.SINK:
@@ -86,11 +87,11 @@ class Router:
 
             net = Net(net_name)
 
-            # A net may or may not have a source node. If there is no source
-            # then one will be created during routing when a route reaches a
-            # node of the top-level CLB.
+            # A net may or may not have a source node(s). If there are no
+            # sources then one will be created during routing when a route
+            # reaches a node of the top-level CLB.
             if net_name in sources:
-                net.source = sources[net_name]
+                net.sources = sources[net_name]
 
             # A net may or may not have at leas one sink node. If there are
             # no sinks then no routing will be done.
@@ -156,12 +157,13 @@ class Router:
         # Search for a route
         logging.debug("   " + net.name)
 
-        # This net has no sinks. Remove annotation from the source node
+        # This net has no sinks. Remove annotation from the source nodes
         if not net.sinks:
-            node = self.graph.nodes[net.source]
-            node.net = None
+            for node_id in net.sources:
+                node = self.graph.nodes[node_id]
+                node.net = None
 
-        # Route all sinks to the source
+        # Route all sinks to any of the net sources
         for sink in net.sinks:
 
             # Find the route
@@ -192,14 +194,15 @@ class Router:
                         fp.write(
                             self.graph.dump_dot(
                                 color_by="net",
-                                highlight_nodes=set([net.source, sink])
+                                highlight_nodes=net.sources | set([sink])
                             )
                         )
 
                 # Raise an exception
                 raise RuntimeError(
                     "Unroutable net '{}' from {} to {}".format(
-                        net.name, self.graph.nodes[net.source],
+                        net.name,
+                        [self.graph.nodes[node_id] for node_id in net.sources],
                         self.graph.nodes[sink]
                     )
                 )
