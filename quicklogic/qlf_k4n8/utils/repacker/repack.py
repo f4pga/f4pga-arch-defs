@@ -1096,6 +1096,12 @@ def main():
     net_xml = ET.parse(args.net_in, ET.XMLParser(remove_blank_text=True))
     packed_netlist = PackedNetlist.from_etree(net_xml.getroot())
 
+    # Count blocks
+    total_blocks = 0
+    for clb_block in packed_netlist.blocks.values():
+        total_blocks += clb_block.count_leafs()
+    logging.debug(" {} leaf blocks".format(total_blocks))
+
     init_time = time.perf_counter() - init_time
     repack_time = time.perf_counter()
 
@@ -1415,6 +1421,12 @@ def main():
         with open(fname, "w") as fp:
             fp.writelines(placement)
 
+    # Count blocks
+    total_blocks = 0
+    for clb_block in packed_netlist.blocks.values():
+        total_blocks += clb_block.count_leafs()
+
+    # Print statistics
     logging.info("Finished.")
 
     logging.info("")
@@ -1423,6 +1435,7 @@ def main():
     logging.info("Finishing time     : {:.2f}s".format(writeout_time))
     logging.info("Repacked CLBs      : {}".format(repacked_clb_count))
     logging.info("Repacked blocks    : {}".format(repacked_block_count))
+    logging.info("Total blocks       : {}".format(total_blocks))
 
 
 # =============================================================================
