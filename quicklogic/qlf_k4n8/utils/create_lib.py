@@ -92,7 +92,7 @@ def main():
 
     args = parser.parse_args()
 
-    if os.path.exists(args.template_data_path) != True:
+    if not os.path.exists(args.template_data_path):
         print(
             'Invalid template data path "{}" specified'.format(
                 args.template_data_path
