@@ -171,6 +171,7 @@ add_dependencies(all_xc7_demos
     all_arty-uart_bin
     all_arty-full_bin
     all_arty100t-full_bin
+    all_netv2-a100t_bin
     all_basys3_bin
     all_basys3-full_bin
     all_pynqz1-full_bin

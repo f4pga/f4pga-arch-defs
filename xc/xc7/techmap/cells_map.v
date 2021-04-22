@@ -7011,6 +7011,8 @@ module GTPE2_COMMON (
   parameter [0:0] IS_DRPCLK_INVERTED = 1'b0;
   parameter [0:0] IS_PLL0LOCKDETCLK_INVERTED = 1'b0;
   parameter [0:0] IS_PLL1LOCKDETCLK_INVERTED = 1'b0;
+  parameter [0:0] IS_GTGREFCLK0_INVERTED = 1'b0;
+  parameter [0:0] IS_GTGREFCLK1_INVERTED = 1'b0;
 
   parameter _TECHMAP_CONSTMSK_DRPCLK_         = 0;
   parameter _TECHMAP_CONSTVAL_DRPCLK_         = 0;

@@ -96,6 +96,13 @@ add_xc_board(
   PART xc7a100tcsg324-1
 )
 
+add_xc_board(
+  BOARD netv2-a100t
+  DEVICE xc7a100t
+  PACKAGE test
+  PART xc7a100tfgg484-2
+)
+
 # TODO: https://github.com/SymbiFlow/symbiflow-arch-defs/issues/344
 add_xc_board(
   BOARD zybo
