@@ -31,6 +31,9 @@ add_file_target(FILE nexys_video.xdc)
 add_file_target(FILE nexys_video_noclk.xdc)
 add_file_target(FILE nexys_video_gtp_channel.pcf)
 
+# NeTV2 xc7a100t variant constraint files
+add_file_target(FILE netv2_a100t_pcie_complex.xdc)
+
 add_file_target(FILE error_output_logic.v SCANNER_TYPE verilog)
 add_file_target(FILE error_output_logic_unt.v SCANNER_TYPE verilog)
 add_file_target(FILE error_output_logic_tb.v SCANNER_TYPE verilog)
