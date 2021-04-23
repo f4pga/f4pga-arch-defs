@@ -6,5 +6,7 @@ quicklogic_define_qlf_device (
   ARCH_XML ${symbiflow-arch-defs_SOURCE_DIR}/third_party/qlfpga-symbiflow-plugins/qlf_k4n8/vpr_arch/UMC22nm_vpr.xml
   RR_GRAPH ${symbiflow-arch-defs_SOURCE_DIR}/third_party/qlfpga-symbiflow-plugins/qlf_k4n8/vpr_rr_graph/UMC22nm_vpr.bin.gz
 
+  REPACKING_RULES ${symbiflow-arch-defs_SOURCE_DIR}/third_party/qlfpga-symbiflow-plugins/qlf_k4n8/vpr_arch/repacking_rules.json
+
   ROUTE_CHAN_WIDTH 60
 )

@@ -348,6 +348,13 @@ else
     HAVE_FASM2BELS=1
 fi
 
+# For some devices do repacking between place and route
+if [[ "$DEVICE" =~ ^(qlf_k4n8.*)$ ]]; then
+    TOP_FINAL=${TOP}.repacked
+else
+    TOP_FINAL=${TOP}
+fi
+
 export PCF_FILE=$PCF
 export TOP_F=$TOP
 export PINMAP_FILE=$PINMAPCSV
@@ -396,6 +403,7 @@ fi
 echo -e ".PHONY:\${BUILDDIR}\n 
 current_dir := $CURR_DIR\n\
 TOP := $TOP\n\
+TOP_FINAL := $TOP_FINAL\n\
 VERILOG := $VERILOG_LIST \n\
 PARTNAME := $PART\n\
 DEVICE  := $DEVICE\n\
@@ -404,7 +412,7 @@ PCF := $PCF_MAKE\n\
 SDC := $SDC_MAKE\n\
 BUILDDIR := build\n\n\
 
-all: \${BUILDDIR}/\${TOP}.route\n\
+all: \${BUILDDIR}/\${TOP_FINAL}.route\n\
 \n\
 \${BUILDDIR}/\${TOP}.eblif: \${VERILOG} \${PCF}\n\
   ifneq (\"\$(wildcard \$(HEX_FILES))\",\"\")\n\
@@ -417,12 +425,21 @@ all: \${BUILDDIR}/\${TOP}.route\n\
 \n\
 \${BUILDDIR}/\${TOP}.place: \${BUILDDIR}/\${TOP}.net \${PCF}\n\
 	cd \${BUILDDIR} && symbiflow_place -e \${TOP}.eblif -f \${FAMILY} -d \${DEVICE} -p \${PCF} -n \${TOP}.net -P \${PARTNAME} -s \${SDC} 2>&1 > $LOG_FILE\n\
-\n\
-\${BUILDDIR}/\${TOP}.route: \${BUILDDIR}/\${TOP}.place\n\
-	cd \${BUILDDIR} && symbiflow_route -e \${TOP}.eblif -f \${FAMILY} -d \${DEVICE} -s \${SDC} 2>&1 > $LOG_FILE\n\
+" >$MAKE_FILE
+
+if [ "$TOP" != "$TOP_FINAL" ]; then
+    echo -e "\
+\${BUILDDIR}/\${TOP_FINAL}.place: \${BUILDDIR}/\${TOP}.eblif \${BUILDDIR}/\${TOP}.net \${BUILDDIR}/\${TOP}.place\n\
+	cd \${BUILDDIR} && symbiflow_repack -e \${TOP}.eblif -n \${TOP}.net -f \${FAMILY} -d \${DEVICE} 2>&1 > $LOG_FILE\n\
+    " >>$MAKE_FILE
+fi
+
+    echo -e "\
+\${BUILDDIR}/\${TOP_FINAL}.route: \${BUILDDIR}/\${TOP_FINAL}.place\n\
+	cd \${BUILDDIR} && symbiflow_route -e \${TOP_FINAL}.eblif -f \${FAMILY} -d \${DEVICE} -s \${SDC} 2>&1 > $LOG_FILE\n\
 \n\
 \${BUILDDIR}/\${TOP}.post_v: \${BUILDDIR}/\${TOP}.route\n\
-" >$MAKE_FILE
+" >>$MAKE_FILE
 
 if [ "$HAVE_FASM2BELS" != 0 ]; then
     echo -e "\
@@ -449,9 +466,9 @@ elif [ $1 == "-compile" ]; then
 
   # FIXME: No bitstream for qlf_k4n8
   if [ "${FAMILY}" == "qlf_k4n8" ]; then
-    cd $SOURCE;make -f Makefile.symbiflow ${BUILDDIR}/${TOP}.route  || exit
+    cd $SOURCE;make -f Makefile.symbiflow ${BUILDDIR}/${TOP_FINAL}.route  || exit
   else
-    cd $SOURCE;make -f Makefile.symbiflow ${BUILDDIR}/${TOP}.bit  || exit
+    cd $SOURCE;make -f Makefile.symbiflow ${BUILDDIR}/${TOP_FINAL}.bit  || exit
   fi
 
   if [ ! -z "$OUT" ]; then

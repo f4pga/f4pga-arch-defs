@@ -8,10 +8,11 @@ function(QUICKLOGIC_DEFINE_QLF_DEVICE)
   #   LAYOUT <layout name>
   #   RR_GRAPH <rr_graph>
   #   [ROUTE_CHAN_WIDTH <route channel width>]
+  #   REPACKING_RULES <repacking_rules.json>
   #   )
   # ~~~
   set(options)
-  set(oneValueArgs NAME FAMILY ARCH ARCH_XML LAYOUT RR_GRAPH ROUTE_CHAN_WIDTH)
+  set(oneValueArgs NAME FAMILY ARCH ARCH_XML LAYOUT RR_GRAPH ROUTE_CHAN_WIDTH REPACKING_RULES)
   set(multiValueArgs)
   cmake_parse_arguments(
     QUICKLOGIC_DEFINE_QLF_DEVICE
@@ -28,6 +29,8 @@ function(QUICKLOGIC_DEFINE_QLF_DEVICE)
   set(ARCH_XML ${QUICKLOGIC_DEFINE_QLF_DEVICE_ARCH_XML})
   set(LAYOUT   ${QUICKLOGIC_DEFINE_QLF_DEVICE_LAYOUT})
   set(RR_GRAPH ${QUICKLOGIC_DEFINE_QLF_DEVICE_RR_GRAPH})
+
+  set(REPACKING_RULES ${QUICKLOGIC_DEFINE_QLF_DEVICE_REPACKING_RULES})
 
   # If ROUTE_CHAN_WIDTH is not given then use the value from the architecture
   if("${QUICKLOGIC_DEFINE_QLF_DEVICE_ROUTE_CHAN_WIDTH}" STREQUAL "")
@@ -102,6 +105,24 @@ function(QUICKLOGIC_DEFINE_QLF_DEVICE)
 
   # .......................................................
 
+  # Copy repacking rules
+  set(REPACKING_RULES_NAME ${DEVICE}.repacking_rules.json)
+
+  add_custom_command(
+    OUTPUT
+      ${CMAKE_CURRENT_BINARY_DIR}/${REPACKING_RULES_NAME}
+    DEPENDS
+      ${ARCH_XML}
+    COMMAND
+      ${CMAKE_COMMAND} -E copy
+        ${REPACKING_RULES}
+        ${CMAKE_CURRENT_BINARY_DIR}/${REPACKING_RULES_NAME}
+  )
+
+  add_file_target(FILE ${REPACKING_RULES_NAME} GENERATED)
+
+  # .......................................................
+
   add_custom_target(
     ${DEVICE_TYPE}
   )
@@ -120,6 +141,16 @@ function(QUICKLOGIC_DEFINE_QLF_DEVICE)
 
   # .......................................................
 
+  get_file_target(REPACKING_RULES_TARGET ${REPACKING_RULES_NAME})
+
+  set(DEVICE_NET_PATCH_DEPS ${REPACKING_RULES_TARGET})
+  set(DEVICE_NET_PATCH_EXTRA_ARGS "--repacking-rules ${CMAKE_CURRENT_BINARY_DIR}/${REPACKING_RULES_NAME}")
+
+  # Add the repacking rules as an extra file to be installed
+  set(EXTRA_INSTALL_FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/${REPACKING_RULES_NAME}
+  )
+
   # Define the device
   define_device(
     DEVICE ${DEVICE}
@@ -131,6 +162,9 @@ function(QUICKLOGIC_DEFINE_QLF_DEVICE)
     EXT_RR_GRAPH ${CMAKE_CURRENT_BINARY_DIR}/${RR_GRAPH_FOR_DEVICE}
     NO_RR_PATCHING
 
+    NET_PATCH_DEPS ${DEVICE_NET_PATCH_DEPS}
+    NET_PATCH_EXTRA_ARGS ${DEVICE_NET_PATCH_EXTRA_ARGS}
+
     CACHE_PLACE_DELAY
     CACHE_LOOKAHEAD
     CACHE_ARGS
@@ -140,6 +174,8 @@ function(QUICKLOGIC_DEFINE_QLF_DEVICE)
       --place_delta_delay_matrix_calculation_method dijkstra
       --router_lookahead extended_map
       --route_chan_width ${ROUTE_CHAN_WIDTH}
+
+    EXTRA_INSTALL_FILES ${EXTRA_INSTALL_FILES}
   )
 
   # .......................................................
