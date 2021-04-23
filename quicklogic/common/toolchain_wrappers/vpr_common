@@ -79,7 +79,8 @@ function parse_args {
 
      export ARCH_DIR=`realpath ${MYPATH}/../share/symbiflow/arch/${DEVICE_1}_${DEVICE_1}`
      export ARCH_DEF=${ARCH_DIR}/arch_${DEVICE_1}_${DEVICE_1}.xml
-     export RR_GRAPH=${ARCH_DIR}/rr_graph_${DEVICE_1}_${DEVICE_1}.rr_graph.real.bin
+#     export RR_GRAPH=${ARCH_DIR}/rr_graph_${DEVICE_1}_${DEVICE_1}.rr_graph.real.bin
+     export RR_GRAPH=${ARCH_DIR}/${DEVICE_1}.rr_graph.bin
      export PLACE_DELAY=${ARCH_DIR}/rr_graph_${DEVICE_1}_${DEVICE_1}.place_delay.bin
      export ROUTE_DELAY=${ARCH_DIR}/rr_graph_${DEVICE_1}_${DEVICE_1}.lookahead.bin
 

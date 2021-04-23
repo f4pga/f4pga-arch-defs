@@ -22,12 +22,15 @@ set +e
 	pushd build
 	export VPR_NUM_WORKERS=${CORES}
 	set +e
+
+    # Run tests
 	ninja -j${MAX_CORES} all_quicklogic_tests
+	# If successful install the toolchain
+	if [ $? -eq 0 ]; then
+		ninja -j${MAX_CORES} install
+	fi
+
 	BUILD_RESULT=$?
-	# FIXME: Not sure if the below will work for QuickLogic now.
-	#ninja print_qor > ql_openfpga_qor.csv
-	# Installing devices and toolchain
-	ninja -j${MAX_CORES} install
 	popd
 	exit ${BUILD_RESULT}
 )

@@ -18,7 +18,8 @@ set(VPR_ARCH_ARGS "\
     --clock_modeling ideal \
     --place_delta_delay_matrix_calculation_method dijkstra \
     --place_delay_model delta_override \
-    --router_lookahead extended_map "
+    --router_lookahead extended_map \
+    --allow_dangling_combinational_nodes on "
 )
 
 # Define the architecture
@@ -47,3 +48,5 @@ define_ql_toolchain_target(
   SYNTH_SCRIPT ${FAMILY_DIR}/yosys/synth.tcl
   CONV_SCRIPT ${FAMILY_DIR}/yosys/conv.tcl
 )
+
+add_subdirectory(utils)
