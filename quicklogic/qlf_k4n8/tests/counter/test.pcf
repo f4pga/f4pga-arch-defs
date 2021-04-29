@@ -1,2 +1,2 @@
-set_io led[0] A2F_FIFO_WD0_HS
-set_io led[1] A2F_FIFO_WD1_HS
+set_io led[0] user_OUT_B[0]
+set_io led[1] user_OUT_T[11]

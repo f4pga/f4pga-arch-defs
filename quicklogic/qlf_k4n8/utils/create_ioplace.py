@@ -39,7 +39,8 @@ def gen_io_def(args):
         for line in reader:
             port_name_list = vec_to_scalar(line['port_name'])
             pin_name = vec_to_scalar(line['mapped_pin'])
-            gpio_type = line['GPIO_type'].strip()
+            gpio_type = line['GPIO_type']
+
             if len(port_name_list) != len(pin_name):
                 print(
                     'CSV port name "{}" length does not match with mapped pin name "{}" length'
@@ -56,7 +57,7 @@ def gen_io_def(args):
                             int(curr_map.x), int(curr_map.y), int(curr_map.z)
                         )
                     else:
-                        gpio_pin = pin + ":" + gpio_type
+                        gpio_pin = pin + ":" + gpio_type.strip()
                         pad_map[gpio_pin] = (
                             int(curr_map.x), int(curr_map.y), int(curr_map.z)
                         )

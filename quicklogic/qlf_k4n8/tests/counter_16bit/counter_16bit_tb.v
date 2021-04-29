@@ -1,7 +1,9 @@
+// Copyright (c) 2018 QuickLogic Corporation.  All Rights Reserved.
 //
 // Description :
 //    testbench for simple 16 bit up counter in Verilog HDL
 //
+// Version 1.0 : Initial Creation
 //
 
 `timescale 10ns /10ps

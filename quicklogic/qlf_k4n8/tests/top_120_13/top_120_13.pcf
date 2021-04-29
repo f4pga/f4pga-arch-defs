@@ -1,0 +1,5 @@
+set_io clk1  user_IN_B[10]
+set_io clk2  user_IN_B[11]
+set_io clk3  user_IN_B[12]
+set_io reset  user_IN_B[13]
+set_io out1x[0]  user_OUT_B[10]
