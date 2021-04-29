@@ -1,0 +1,16 @@
+orientation,row,col,pin_num_in_cell,port_name,mapped_pin,GPIO_type
+TOP,,,,gfpga_pad_IO_A2F[0:6],user_IN_T[6:0]
+TOP,0,1,7,gfpga_pad_IO_A2F[7],0,GPIO_IN
+TOP,0,1,8,gfpga_pad_IO_F2A[8],0,GPIO_OUT
+TOP,0,1,9,gfpga_pad_IO_F2A[9],0,GPIO_EN
+TOP,0,5,0,gfpga_pad_IO_A2F[64:95],user_IN_T[7:38]
+TOP,,,,gfpga_pad_IO_F2A[105:136],user_OUT_T[8:39]
+TOP,0,8,0,gfpga_pad_IO_A2F[212],1,GPIO_IN
+TOP,0,8,2,gfpga_pad_IO_F2A[214],1,GPIO_EN
+TOP,0,8,5,gfpga_pad_IO_F2A[217],1,GPIO_OUT
+RIGHT,,,,gfpga_pad_IO_A2F[620:683],user_IN_R[0:63]
+RIGHT,,,,gfpga_pad_IO_F2A[710:773],user_OUT_R[0:63]
+RIGHT,,,,gfpga_pad_IO_F2A[800:831],user_OUT_R[64:95]
+BOTTOM,,,,gfpga_pad_IO_A2F[1376:1439],user_IN_B[0:63]
+BOTTOM,,,,gfpga_pad_IO_F2A[1444:1507],user_OUT_B[0:63]
+BOTTOM,,,,gfpga_pad_IO_F2A[1135:1104],user_OUT_B[64:95]

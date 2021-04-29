@@ -23,7 +23,7 @@ set +e
 	export VPR_NUM_WORKERS=${CORES}
 	set +e
 
-    # Run tests
+	# Run tests
 	ninja -j${MAX_CORES} all_quicklogic_tests
 	# If successful install the toolchain
 	if [ $? -eq 0 ]; then
