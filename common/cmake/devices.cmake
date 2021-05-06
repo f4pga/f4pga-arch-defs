@@ -1361,8 +1361,8 @@ function(ADD_FPGA_TARGET)
   # * ${TOP}.${BITSTREAM_EXTENSION} - Bitstream for target.
   #
   set(options EXPLICIT_ADD_FILE_TARGET EMIT_CHECK_TESTS NO_SYNTHESIS ROUTE_ONLY INSTALL_CIRCUIT)
-  set(oneValueArgs NAME TOP BOARD INPUT_IO_FILE EQUIV_CHECK_SCRIPT AUTOSIM_CYCLES ASSERT_USAGE INPUT_XDC_FILE INPUT_SDC_FILE)
-  set(multiValueArgs SOURCES TESTBENCH_SOURCES DEFINES BIT_TO_V_EXTRA_ARGS)
+  set(oneValueArgs NAME TOP BOARD INPUT_IO_FILE EQUIV_CHECK_SCRIPT AUTOSIM_CYCLES ASSERT_USAGE INPUT_SDC_FILE)
+  set(multiValueArgs SOURCES TESTBENCH_SOURCES DEFINES BIT_TO_V_EXTRA_ARGS INPUT_XDC_FILE)
   cmake_parse_arguments(
     ADD_FPGA_TARGET
     "${options}"
@@ -1401,8 +1401,9 @@ function(ADD_FPGA_TARGET)
     OUT_RRBIN_REAL ${DEVICE} ${PACKAGE}_OUT_RRBIN_REAL
   )
 
-  if(NOT "${ADD_FPGA_TARGET_INPUT_XDC_FILE}" STREQUAL "")
-      get_target_property_required(PART_JSON ${BOARD} PART_JSON)
+  list(LENGTH ADD_FPGA_TARGET_INPUT_XDC_FILE XDCS_COUNT)
+  if(${XDCS_COUNT} GREATER "0")
+    get_target_property_required(PART_JSON ${BOARD} PART_JSON)
   endif()
 
   set(NAME ${ADD_FPGA_TARGET_NAME})
@@ -1448,18 +1449,18 @@ function(ADD_FPGA_TARGET)
     if(NOT "${ADD_FPGA_TARGET_INPUT_IO_FILE}" STREQUAL "")
       add_file_target(FILE ${ADD_FPGA_TARGET_INPUT_IO_FILE})
     endif()
-    if(NOT "${ADD_FPGA_TARGET_INPUT_XDC_FILE}" STREQUAL "")
-      add_file_target(FILE ${ADD_FPGA_TARGET_INPUT_XDC_FILE})
-    endif()
+    foreach(XDC ${ADD_FPGA_TARGET_INPUT_XDC_FILE})
+      add_file_target(FILE ${XDC})
+    endforeach()
     if(NOT "${ADD_FPGA_TARGET_INPUT_SDC_FILE}" STREQUAL "")
       add_file_target(FILE ${ADD_FPGA_TARGET_INPUT_SDC_FILE})
     endif()
   endif()
 
-  if(NOT "${ADD_FPGA_TARGET_INPUT_XDC_FILE}" STREQUAL "")
-    get_file_location(INPUT_XDC_FILE ${ADD_FPGA_TARGET_INPUT_XDC_FILE})
-    append_file_dependency(YOSYS_IO_DEPS ${ADD_FPGA_TARGET_INPUT_XDC_FILE})
-  endif()
+  foreach(XDC ${ADD_FPGA_TARGET_INPUT_XDC_FILE})
+    append_file_location(INPUT_XDC_FILE ${XDC})
+    append_file_dependency(YOSYS_IO_DEPS ${XDC})
+  endforeach()
 
   #
   # Generate BLIF as start of vpr input.
@@ -1495,7 +1496,7 @@ function(ADD_FPGA_TARGET)
 
   set(YOSYS_IO_DEPS "")
 
-  if(NOT ${ADD_FPGA_TARGET_INPUT_IO_FILE} STREQUAL "" OR NOT ${ADD_FPGA_TARGET_INPUT_XDC_FILE} STREQUAL "")
+  if(NOT ${ADD_FPGA_TARGET_INPUT_IO_FILE} STREQUAL "" OR ${XDCS_COUNT} GREATER "0")
     get_target_property_required(PINMAP_FILE ${BOARD} PINMAP)
     get_file_location(PINMAP ${PINMAP_FILE})
     get_target_property(PINMAP_XML_FILE ${BOARD} PINMAP_XML)
@@ -1546,6 +1547,9 @@ function(ADD_FPGA_TARGET)
         set(YOSYS_DEVICE_CELLS_MAP "")
     endif()
 
+    # Convert list of XDCs to string
+    string(REPLACE ";" " " XDC_FILES "${INPUT_XDC_FILE}")
+
     add_custom_command(
       OUTPUT ${OUT_JSON_SYNTH} ${OUT_SYNTH_V} ${OUT_FASM_EXTRA} ${OUT_SDC}
       DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS} ${INPUT_XDC_FILE} ${CELLS_SIM_DEPS}
@@ -1563,7 +1567,7 @@ function(ADD_FPGA_TARGET)
           OUT_SYNTH_V=${OUT_SYNTH_V}
           OUT_FASM_EXTRA=${OUT_FASM_EXTRA}
           PART_JSON=${PART_JSON}
-          INPUT_XDC_FILE=${INPUT_XDC_FILE}
+          INPUT_XDC_FILE=${XDC_FILES}
           OUT_SDC=${OUT_SDC}
           USE_ROI=${USE_ROI}
           PCF_FILE=${INPUT_IO_FILE}
@@ -1625,14 +1629,14 @@ function(ADD_FPGA_TARGET)
   set(VPR_DEPS "")
 
   set(SDC_ARG "")
-  if(NOT "${ADD_FPGA_TARGET_INPUT_XDC_FILE}" STREQUAL "" AND
+  if(${XDCS_COUNT} GREATER "0" AND
      NOT "${ADD_FPGA_TARGET_INPUT_SDC_FILE}" STREQUAL "")
     message(FATAL_ERROR "SDC and XDC constraint files cannot be provided simultaneously!")
   endif()
 
   set(SDC_FILE "")
   set(SDC_DEPS "")
-  if(NOT "${ADD_FPGA_TARGET_INPUT_XDC_FILE}" STREQUAL "")
+  if(${XDCS_COUNT} GREATER "0")
     append_file_dependency(VPR_DEPS ${OUT_SDC_REL})
     get_file_location(SDC_LOCATION ${OUT_SDC_REL})
     set(SDC_ARG --sdc_file ${SDC_LOCATION})
@@ -1778,7 +1782,7 @@ function(ADD_FPGA_TARGET)
   # -------------------------------------------------------------------------
   set(FIX_CLUSTERS_ARG "")
 
-  if(NOT ${ADD_FPGA_TARGET_INPUT_IO_FILE} STREQUAL "" OR NOT ${ADD_FPGA_TARGET_INPUT_XDC_FILE} STREQUAL "")
+  if(NOT ${ADD_FPGA_TARGET_INPUT_IO_FILE} STREQUAL "" OR ${XDCS_COUNT} GREATER "0")
     get_target_property_required(NO_PINS ${ARCH} NO_PINS)
     if(${NO_PINS})
       message(FATAL_ERROR "Arch ${ARCH} does not currently support pin constraints.")
