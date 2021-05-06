@@ -90,7 +90,7 @@ function(ADD_LITEX_TEST)
       SOURCES
         ${LITEX_GATEWARE}/top.v
         ${EXTERNAL_SOURCES}
-      INPUT_XDC_FILE ${LITEX_GATEWARE}/top.xdc
+      INPUT_XDC_FILES ${LITEX_GATEWARE}/top.xdc
       EXPLICIT_ADD_FILE_TARGET
       INSTALL_CIRCUIT
     )

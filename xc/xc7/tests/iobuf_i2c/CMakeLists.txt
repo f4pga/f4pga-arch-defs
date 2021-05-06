@@ -9,7 +9,7 @@ add_fpga_target(
   BOARD basys3-full
   SOURCES iobuf_i2c_basys3.v
   INPUT_IO_FILE ${COMMON}/basys3_pmod.pcf
-  INPUT_XDC_FILE ${COMMON}/basys3.xdc
+  INPUT_XDC_FILES ${COMMON}/basys3.xdc
   EXPLICIT_ADD_FILE_TARGET
   )
 

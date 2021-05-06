@@ -5,7 +5,7 @@ add_fpga_target(
   NAME            iddr_basys3
   BOARD           basys3-bottom
   SOURCES         iddr_basys3.v
-  INPUT_XDC_FILE  iddr_basys3.xdc
+  INPUT_XDC_FILES  iddr_basys3.xdc
   EXPLICIT_ADD_FILE_TARGET
   )
 
@@ -19,10 +19,10 @@ add_file_target(FILE oddr_basys3.v SCANNER_TYPE verilog)
 add_file_target(FILE oddr_basys3.xdc SCANNER_TYPE)
 
 add_fpga_target(
-  NAME            oddr_basys3
-  BOARD           basys3-bottom
-  SOURCES         oddr_basys3.v
-  INPUT_XDC_FILE  oddr_basys3.xdc
+  NAME             oddr_basys3
+  BOARD            basys3-bottom
+  SOURCES          oddr_basys3.v
+  INPUT_XDC_FILES  oddr_basys3.xdc
   EXPLICIT_ADD_FILE_TARGET
   )
 

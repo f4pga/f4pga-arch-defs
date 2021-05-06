@@ -119,7 +119,7 @@ function(xc7_iologic_design)
         NAME ${DESIGN}
         BOARD ${BOARD}
         INPUT_IO_FILE ${PCF_FILE}
-        INPUT_XDC_FILE ${XDC_FILE}
+        INPUT_XDC_FILES ${XDC_FILE}
         SOURCES ${VERILOG_FILE}
         EXPLICIT_ADD_FILE_TARGET
         )
