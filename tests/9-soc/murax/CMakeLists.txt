@@ -111,7 +111,7 @@ foreach(FREQ ${NEXYS_VIDEO_FREQS})
         nexys_video_toplevel_${FREQ}.v
         Murax.v
       INPUT_IO_FILE  ${NEXYS_VIDEO_PCF}
-      INPUT_XDC_FILE ${NEXYS_VIDEO_XDC}
+      INPUT_XDC_FILES ${NEXYS_VIDEO_XDC}
       EXPLICIT_ADD_FILE_TARGET
     )
 

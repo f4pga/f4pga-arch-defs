@@ -133,7 +133,7 @@ SYNTH_TCL_PATH=`realpath ${MYPATH}/../share/symbiflow/scripts/${FAMILY}/synth.tc
 CONV_TCL_PATH=`realpath ${MYPATH}/../share/symbiflow/scripts/${FAMILY}/conv.tcl`
 
 export USE_ROI="FALSE"
-export INPUT_XDC_FILE=${XDC_FILES[*]}
+export INPUT_XDC_FILES=${XDC_FILES[*]}
 export OUT_JSON=$TOP.json
 export SYNTH_JSON=${TOP}_io.json
 export OUT_SYNTH_V=${TOP}_synth.v

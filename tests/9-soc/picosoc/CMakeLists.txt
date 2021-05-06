@@ -117,7 +117,7 @@ foreach(FREQ ${BASYS3_FREQS})
         picorv32.v
         simpleuart.v
         firmware_noflash_${FREQ}.v
-      INPUT_XDC_FILE basys3.xdc
+      INPUT_XDC_FILES basys3.xdc
       INPUT_IO_FILE ${BASYS3_PCF}
       EXPLICIT_ADD_FILE_TARGET
       INSTALL_CIRCUIT
@@ -165,7 +165,7 @@ foreach(FREQ ${NEXYS_VIDEO_FREQS})
         simpleuart.v
         firmware_noflash_${FREQ}.v
       INPUT_IO_FILE  ${NEXYS_VIDEO_PCF}
-      INPUT_XDC_FILE ${NEXYS_VIDEO_XDC}
+      INPUT_XDC_FILES ${NEXYS_VIDEO_XDC}
       EXPLICIT_ADD_FILE_TARGET
     )
 
@@ -189,7 +189,7 @@ foreach(FREQ ${NEXYS_VIDEO_FREQS})
         simpleuart.v
         firmware_noflash_${FREQ}.v
       INPUT_IO_FILE  ${NEXYS_VIDEO_PCF}
-      INPUT_XDC_FILE ${NEXYS_VIDEO_XDC}
+      INPUT_XDC_FILES ${NEXYS_VIDEO_XDC}
       EXPLICIT_ADD_FILE_TARGET
     )
 

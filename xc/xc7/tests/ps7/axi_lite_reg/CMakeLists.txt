@@ -6,7 +6,7 @@ add_fpga_target(
   NAME axi_regs_zybo
   BOARD zybo-full
   SOURCES AxiPeriph.v axi_reg.v
-  INPUT_XDC_FILE zybo.xdc
+  INPUT_XDC_FILES zybo.xdc
   EXPLICIT_ADD_FILE_TARGET
   )
 

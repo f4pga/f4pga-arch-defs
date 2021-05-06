@@ -12,7 +12,7 @@ add_fpga_target(
   SOURCES
     ddr_uart.v
   INPUT_IO_FILE arty.pcf
-  INPUT_XDC_FILE arty.xdc
+  INPUT_XDC_FILES arty.xdc
   EXPLICIT_ADD_FILE_TARGET
 )
 
@@ -29,7 +29,7 @@ add_fpga_target(
   SOURCES
     ddr_uart_100t.v
   INPUT_IO_FILE arty.pcf
-  INPUT_XDC_FILE arty.xdc
+  INPUT_XDC_FILES arty.xdc
   EXPLICIT_ADD_FILE_TARGET
 )
 
