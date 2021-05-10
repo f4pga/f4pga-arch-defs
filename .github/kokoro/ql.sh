@@ -30,6 +30,10 @@ set +e
 		ninja -j${MAX_CORES} install
 	fi
 
+	# Testing installed toolchain
+	export CTEST_OUTPUT_ON_FAILURE=1
+	ctest -R binary_toolchain_test_counter
+
 	BUILD_RESULT=$?
 	popd
 	exit ${BUILD_RESULT}
