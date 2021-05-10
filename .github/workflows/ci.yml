@@ -10,12 +10,13 @@ jobs:
 
     - uses: actions/checkout@v2
       with:
+        lfs: 'true'
         submodules: recursive
 
     - name: Install
       run: |
         sudo apt-get update
-        sudo apt-get install git g++-6 colordiff coreutils graphviz inkscape make cmake
+        sudo apt-get install git git-lfs g++-6 colordiff coreutils graphviz inkscape make cmake
 
     - name: Execute test script
       run: stdbuf -i0 -o0 -e0 ./.github/ci/test.sh

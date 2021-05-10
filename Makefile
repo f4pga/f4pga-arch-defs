@@ -26,6 +26,7 @@ clean::
 env:: | $(CONDA_ENV_PYTHON)
 	git submodule init
 	git submodule update --init --recursive
+	git submodule foreach git lfs pull
 	@$(IN_CONDA_ENV) mkdir -p build && cd build && $(CMAKE_COMMAND) ${CMAKE_FLAGS} ..
 
 build/Makefile:
