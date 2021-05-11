@@ -117,7 +117,7 @@ function(ADD_XC_ARCH_DEFINE)
   get_target_property_required(RAPIDWRIGHT_INSTALLED rapidwright RAPIDWRIGHT_INSTALLED)
   if(${RAPIDWRIGHT_INSTALLED})
     get_target_property_required(RAPIDWRIGHT_PATH rapidwright RAPIDWRIGHT_PATH)
-    set(INTERCHANGE_FASM2BELS "--interchange_capnp_schema_dir ${RAPIDWRIGHT_PATH}/interchange
+    set(INTERCHANGE_FASM2BELS "--interchange_capnp_schema_dir ${RAPIDWRIGHT_PATH}/interchange/fpga-interchange-schema/interchange
             --logical_netlist \${OUT_BIT_VERILOG}.netlist
             --physical_netlist \${OUT_BIT_VERILOG}.phys
             --interchange_xdc \${OUT_BIT_VERILOG}.inter.xdc")
