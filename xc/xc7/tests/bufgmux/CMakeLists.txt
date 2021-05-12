@@ -8,7 +8,7 @@ add_fpga_target(
   NAME bufgmux_arty
   BOARD arty-full
   SOURCES bufgmux.v
-  INPUT_XDC_FILE arty.xdc
+  INPUT_XDC_FILES arty.xdc
   EXPLICIT_ADD_FILE_TARGET
 )
 
@@ -25,7 +25,7 @@ add_fpga_target(
   NAME bufgmux_nexys_video
   BOARD nexys_video-mid
   SOURCES bufgmux.v
-  INPUT_XDC_FILE nexys_video.xdc
+  INPUT_XDC_FILES nexys_video.xdc
   EXPLICIT_ADD_FILE_TARGET
 )
 

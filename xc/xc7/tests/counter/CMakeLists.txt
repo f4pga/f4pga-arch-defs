@@ -103,7 +103,7 @@ add_fpga_target(
   BOARD nexys_video
   SOURCES counter_nexys_video.v
   INPUT_IO_FILE ${COMMON}/nexys_video.pcf
-  INPUT_XDC_FILE ${COMMON}/nexys_video.xdc
+  INPUT_XDC_FILES ${COMMON}/nexys_video.xdc
   EXPLICIT_ADD_FILE_TARGET
 )
 

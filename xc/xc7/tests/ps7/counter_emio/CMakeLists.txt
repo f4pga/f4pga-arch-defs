@@ -5,7 +5,7 @@ add_fpga_target(
   NAME counter_emio_zybo
   BOARD zybo-full
   SOURCES counter_emio.v
-  INPUT_XDC_FILE zybo.xdc
+  INPUT_XDC_FILES zybo.xdc
   EXPLICIT_ADD_FILE_TARGET
 )
 
