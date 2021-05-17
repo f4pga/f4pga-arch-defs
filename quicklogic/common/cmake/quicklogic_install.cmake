@@ -23,7 +23,7 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
     return()
   endif ()
 
-  set(WRAPPERS env symbiflow_generate_constraints symbiflow_pack symbiflow_place symbiflow_route symbiflow_synth ql_symbiflow symbiflow_analysis symbiflow_repack)
+  set(WRAPPERS env symbiflow_generate_constraints symbiflow_pack symbiflow_place symbiflow_route symbiflow_synth ql_symbiflow symbiflow_analysis symbiflow_repack symbiflow_write_fasm symbiflow_generate_bitstream)
 
   # Export VPR arguments
   list(JOIN VPR_BASE_ARGS " " VPR_BASE_ARGS)
@@ -56,17 +56,6 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
   install(FILES ${VPR_CONFIG}
           DESTINATION share/symbiflow/scripts/${FAMILY})
 
-  # Example design to run through the flow
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/tests/counter_16bit/counter_16bit.v
-          DESTINATION share/symbiflow/tests/counter_16bit
-          PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/tests/counter_16bit/counter_16bit_tb.v
-          DESTINATION share/symbiflow/tests/counter_16bit
-          PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/tests/counter_16bit/counter_16bit.sdc
-          DESTINATION share/symbiflow/tests/counter_16bit
-          PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
-  
   # install python scripts
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/split_inouts.py
           DESTINATION bin/python
@@ -77,7 +66,7 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
           PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
 
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_io_place.py
-      DESTINATION bin/python
+          DESTINATION bin/python
           PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
 
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_place_constraints.py
@@ -126,6 +115,9 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/utils/create_ioplace.py
           DESTINATION bin/python
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
+
+  install(DIRECTORY ${QLF_FPGA_DATABASE_DIR}/${FAMILY}/fasm_database/
+          DESTINATION share/symbiflow/fasm_database/${FAMILY})
 
 endfunction()
 

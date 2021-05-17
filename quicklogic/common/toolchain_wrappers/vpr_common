@@ -1,8 +1,8 @@
 #!/bin/bash
 function parse_args {
 
-     OPTS=d:f:e:p:n:P:s:
-     LONGOPTS=device:,eblif:,pcf:,net:,part:,sdc:
+     OPTS=d:f:e:p:n:P:j:s:
+     LONGOPTS=device:,eblif:,pcf:,net:,part:,json:,sdc:
 
      PARSED_OPTS=`getopt --options=${OPTS} --longoptions=${LONGOPTS} --name $0 -- $@`
      eval set -- ${PARSED_OPTS}
@@ -15,6 +15,7 @@ function parse_args {
      PCF=""
      NET=""
      SDC=""
+     JSON=""
 
      while true; do
           case "$1" in
@@ -42,6 +43,10 @@ function parse_args {
                     PART=$2
                     shift 2
                     ;;
+	       -j|--json) 
+		    JSON=$2
+	            shift 2
+	            ;;	     
                -s|--sdc)
                     SDC=$2
                     shift 2
@@ -73,6 +78,7 @@ function parse_args {
      export PCF=$PCF
      export NET=$NET
      export SDC=$SDC
+     export JSON=$JSON
      if [[ "$DEVICE" == "qlf_k4n8_qlf_k4n8" ]]; then
 	     DEVICE_1="qlf_k4n8-qlf_k4n8_umc22"
      fi

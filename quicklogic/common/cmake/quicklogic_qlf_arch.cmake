@@ -27,6 +27,8 @@ function(QUICKLOGIC_DEFINE_QLF_ARCH)
 
   set(FAMILY_DIR ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY})
 
+  get_target_property_required(QLF_FASM env QLF_FASM)
+
   # Define the architecture
   define_arch(
     FAMILY ${FAMILY}
@@ -70,12 +72,38 @@ function(QUICKLOGIC_DEFINE_QLF_ARCH)
          --log-level DEBUG \
          --absorb_buffer_luts on"
 
-    # With the current support there is no bitstream generation support yet.
-    # A FASM file can be generated though but FASM annotation is also a subject
-    # to change.
-    NO_BITSTREAM
+    BITSTREAM_EXTENSION bit
+    FASM_TO_BIT ${QLF_FASM}
+    FASM_TO_BIT_CMD "${CMAKE_COMMAND} -E env \
+      PYTHONPATH=${symbiflow-arch-defs_BINARY_DIR}/env/conda/lib/python3.7/site-packages \
+      \${QUIET_CMD} \${FASM_TO_BIT} \
+        --db-root ${QLF_FPGA_DATABASE_DIR}/${ARCH}/fasm_database \
+        --assemble \
+        --format 4byte \
+        \${OUT_FASM} \
+        \${OUT_BITSTREAM} "
 
-    NO_BIT_TO_BIN
+    BIN_EXTENSION bin
+    BIT_TO_BIN ${QLF_FASM}
+    BIT_TO_BIN_CMD "${CMAKE_COMMAND} -E env \
+      PYTHONPATH=${symbiflow-arch-defs_BINARY_DIR}/env/conda/lib/python3.7/site-packages \
+      \${QUIET_CMD} \${FASM_TO_BIT} \
+        --db-root ${QLF_FPGA_DATABASE_DIR}/${ARCH}/fasm_database \
+        --assemble \
+        --format txt \
+        \${OUT_FASM} \
+        \${OUT_BIN} "
+
+    BIT_TO_FASM ${QLF_FASM}
+    BIT_TO_FASM_CMD "${CMAKE_COMMAND} -E env \
+      PYTHONPATH=${symbiflow-arch-defs_BINARY_DIR}/env/conda/lib/python3.7/site-packages \
+      \${QUIET_CMD} \${BIT_TO_FASM} \
+        --db-root ${QLF_FPGA_DATABASE_DIR}/${ARCH}/fasm_database \
+        --disassemble \
+        --format 4byte \
+        \${OUT_BITSTREAM} \
+        \${OUT_BIT_FASM} "
+
     NO_BIT_TO_V
     NO_BIT_TIME
     USE_FASM
