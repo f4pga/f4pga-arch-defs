@@ -4,7 +4,7 @@ add_file_target(FILE ${ADDER_C} SCANNER_TYPE verilog)
 add_fpga_target(
   NAME adder_columns_test2-umc22-adder
   TOP adder_columns
-  BOARD qlf_k4n8-qlf_k4n8_umc22_board
+  BOARD qlf_k4n8-qlf_k4n8_umc22_slow_board
   SOURCES ${ADDER_C}
   EXPLICIT_ADD_FILE_TARGET
   )

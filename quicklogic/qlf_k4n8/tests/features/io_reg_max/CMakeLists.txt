@@ -10,7 +10,7 @@ add_file_target(FILE ${IO_MUX} SCANNER_TYPE verilog)
 add_fpga_target(
   NAME io_reg_max_test-umc22-adder
   TOP io_reg_max
-  BOARD qlf_k4n8-qlf_k4n8_umc22_board
+  BOARD qlf_k4n8-qlf_k4n8_umc22_slow_board
   SOURCES ${IO_REG_MAX} ${IO_DEMUX} ${IO_MUX}
   EXPLICIT_ADD_FILE_TARGET
   )

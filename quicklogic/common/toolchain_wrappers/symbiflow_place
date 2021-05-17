@@ -25,7 +25,7 @@ PROJECT=$(basename -- "$EBLIF")
 # Generate IO constraints
 if [ -s $PCF ]; then
     echo "Generating constraints ..."
-    symbiflow_generate_constraints $PCF $EBLIF $NET $PART $DEVICE $ARCH_DEF
+    symbiflow_generate_constraints $PCF $EBLIF $NET $PART $DEVICE $ARCH_DEF $CORNER
 
     IOPLACE_FILE="${PROJECT%.*}_io.place"
     PLACE_FILE="${PROJECT%.*}_constraints.place"

@@ -4,7 +4,7 @@ add_file_target(FILE ${CURR_DIR}/clock_tree_design.v SCANNER_TYPE verilog)
 add_fpga_target(
   NAME clock_tree_design_test-umc22-no-adder
   TOP clock_tree_design
-  BOARD qlf_k4n8-qlf_k4n8_umc22_board
+  BOARD qlf_k4n8-qlf_k4n8_umc22_slow_board
   SOURCES ${CURR_DIR}/clock_tree_design.v
   EXPLICIT_ADD_FILE_TARGET
   DEFINES SYNTH_OPTS=-no_adder
@@ -13,7 +13,7 @@ add_fpga_target(
 add_fpga_target(
   NAME clock_tree_design_test-umc22-adder
   TOP clock_tree_design
-  BOARD qlf_k4n8-qlf_k4n8_umc22_board
+  BOARD qlf_k4n8-qlf_k4n8_umc22_slow_board
   SOURCES ${CURR_DIR}/clock_tree_design.v
   EXPLICIT_ADD_FILE_TARGET
   )

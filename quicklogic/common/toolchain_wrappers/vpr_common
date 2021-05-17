@@ -1,8 +1,8 @@
 #!/bin/bash
 function parse_args {
 
-     OPTS=d:f:e:p:n:P:j:s:t:
-     LONGOPTS=device:,eblif:,pcf:,net:,part:,json:,sdc:,top:
+     OPTS=d:f:e:p:n:P:j:s:t:c:
+     LONGOPTS=device:,eblif:,pcf:,net:,part:,json:,sdc:,top:,corner:
 
      PARSED_OPTS=`getopt --options=${OPTS} --longoptions=${LONGOPTS} --name $0 -- $@`
      eval set -- ${PARSED_OPTS}
@@ -17,6 +17,7 @@ function parse_args {
      SDC=""
      JSON=""
      TOP="top"
+     CORNER=""
 
      while true; do
           case "$1" in
@@ -44,16 +45,20 @@ function parse_args {
                     PART=$2
                     shift 2
                     ;;
-	       -j|--json) 
-		    JSON=$2
-	            shift 2
-	            ;;	     
+               -j|--json)
+                    JSON=$2
+                    shift 2
+                    ;;
                -s|--sdc)
                     SDC=$2
                     shift 2
                     ;;
                -t|--top)
                     TOP=$2
+                    shift 2
+                    ;;
+               -c|--corner)
+                    CORNER=$2
                     shift 2
                     ;;
                --)
@@ -84,14 +89,14 @@ function parse_args {
      export NET=$NET
      export SDC=$SDC
      export JSON=$JSON
+     export CORNER=$CORNER
      if [[ "$DEVICE" == "qlf_k4n8_qlf_k4n8" ]]; then
-	     DEVICE_1="qlf_k4n8-qlf_k4n8_umc22"
+	     DEVICE_1="qlf_k4n8-qlf_k4n8_umc22_${CORNER}"
      fi
      export TOP=$TOP
 
      export ARCH_DIR=`realpath ${MYPATH}/../share/symbiflow/arch/${DEVICE_1}_${DEVICE_1}`
      export ARCH_DEF=${ARCH_DIR}/arch_${DEVICE_1}_${DEVICE_1}.xml
-#     export RR_GRAPH=${ARCH_DIR}/rr_graph_${DEVICE_1}_${DEVICE_1}.rr_graph.real.bin
      export RR_GRAPH=${ARCH_DIR}/${DEVICE_1}.rr_graph.bin
      export PLACE_DELAY=${ARCH_DIR}/rr_graph_${DEVICE_1}_${DEVICE_1}.place_delay.bin
      export ROUTE_DELAY=${ARCH_DIR}/rr_graph_${DEVICE_1}_${DEVICE_1}.lookahead.bin
