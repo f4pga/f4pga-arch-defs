@@ -21,6 +21,4 @@ module routing_test (
 
   end
 
-
-
 endmodule
