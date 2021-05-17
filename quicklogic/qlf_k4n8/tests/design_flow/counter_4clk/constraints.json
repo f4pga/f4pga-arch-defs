@@ -1,0 +1,24 @@
+{
+  "repacking_constraints": [
+    {
+      "tile": "clb",
+      "pin": "clk[0]",
+      "net": "clk1"
+    },
+    {
+      "tile": "clb",
+      "pin": "clk[1]",
+      "net": "clk2"
+    },
+    {
+      "tile": "clb",
+      "pin": "clk[2]",
+      "net": "clk3"
+    },
+    {
+      "tile": "clb",
+      "pin": "clk[3]",
+      "net": "clk4"
+    }
+  ]
+}

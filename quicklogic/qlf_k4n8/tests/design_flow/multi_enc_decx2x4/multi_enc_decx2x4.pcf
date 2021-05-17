@@ -1,0 +1,3 @@
+set_io dataout[0] user_OUT_R[0]
+set_io clock user_IN_R[7]
+set_io reset user_IN_R[8]
