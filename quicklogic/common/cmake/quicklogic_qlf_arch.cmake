@@ -29,6 +29,10 @@ function(QUICKLOGIC_DEFINE_QLF_ARCH)
 
   get_target_property_required(QLF_FASM env QLF_FASM)
 
+  if("${FAMILY}" STREQUAL "qlf_k4n8")
+    set(REPACKER_PATH ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/qlf_k4n8/utils/repacker/repack.py)
+  endif()
+
   # Define the architecture
   define_arch(
     FAMILY ${FAMILY}
@@ -57,7 +61,7 @@ function(QUICKLOGIC_DEFINE_QLF_ARCH)
     NO_PLACE_CONSTR
 
     NET_PATCH_TOOL
-      ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/qlf_k4n8/utils/repacker/repack.py
+      ${REPACKER_PATH}
     NET_PATCH_TOOL_CMD "${CMAKE_COMMAND} -E env \
       PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils \
       \${QUIET_CMD} \${PYTHON3} \${NET_PATCH_TOOL} \
