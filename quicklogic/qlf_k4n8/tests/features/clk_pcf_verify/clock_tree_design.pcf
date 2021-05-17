@@ -1,0 +1,10 @@
+set_io t user_IN_T[1]
+set_io clr_n user_IN_T[2]
+set_io sel[0] user_IN_R[0]
+set_io sel[1] user_IN_R[1]
+set_io mux_out[0] user_OUT_R[0]
+
+set_clk clk[0] clk[3]
+set_clk clk[1] clk[2]
+set_clk clk[2] clk[0]
+set_clk clk[3] clk[1]
