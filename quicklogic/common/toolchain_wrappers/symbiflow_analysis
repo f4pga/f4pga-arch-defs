@@ -9,8 +9,13 @@ source ${VPRPATH}/vpr_common
 
 parse_args $@
 
+FIXUP_POST_SYNTHESIS=`realpath ${MYPATH}/python/vpr_fixup_post_synth.py`
+
 export OUT_NOISY_WARNINGS=noisy_warnings-${DEVICE}_analysis.log
 
 run_vpr --analysis --gen_post_synthesis_netlist on
-
 mv vpr_stdout.log analysis.log
+
+python3 ${FIXUP_POST_SYNTHESIS} \
+    -i ${TOP}_post_synthesis.v \
+    -o ${TOP}_post_synthesis.v
