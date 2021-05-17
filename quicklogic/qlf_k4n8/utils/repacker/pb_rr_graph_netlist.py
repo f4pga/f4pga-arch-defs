@@ -169,6 +169,9 @@ def build_packed_netlist_from_pb_graph(clb_graph):
             # Next level
             parent = block
 
+    # Check if the CLB got created
+    assert clb_block is not None
+
     # Add open blocks.
     for node in clb_graph.nodes.values():
 

@@ -97,7 +97,8 @@ class Port:
                 if i1 > i0:
                     indices = range(i0, i1 + 1)
                 elif i1 < i0:
-                    indices = range(i0, i1 - 1, -1)
+                    # Do not yield in reverse order when indices are reversed
+                    indices = range(i1, i0 + 1)
                 else:
                     indices = [i0]
 
