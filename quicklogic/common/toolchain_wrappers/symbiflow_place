@@ -45,6 +45,12 @@ else
 
 fi
 
+# Generate lib file
+if [ -s $PART ]; then
+	echo "Generating lib file ..."
+	symbiflow_generate_libfile $PCF $EBLIF $NET $PART $DEVICE $ARCH_DEF
+fi
+
 run_vpr --fix_clusters ${VPR_PLACE_FILE} --place
 
 mv vpr_stdout.log place.log
