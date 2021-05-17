@@ -731,4 +731,3 @@ module T_ff (
   assign D_wire = T ^ Q;
 
 endmodule  //
-
