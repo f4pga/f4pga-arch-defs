@@ -14,7 +14,7 @@ if [ ! -n $1 ]; then
 echo "Please enter a valid command: Refer help ql_symbiflow --help"
 exit 0
 elif [[ $1 == "-synth" || $1 == "-compile" ]]; then
-echo -e "----------------- \n" 
+echo -e "----------------- \n"
 elif [[ $1 == "-h"  ||  $1 == "--help" ]];then
 echo -e "\nBelow are the supported commands: \n\
  To synthesize and dump a eblif file:\n\
@@ -44,6 +44,8 @@ OUT=()
 ROUTE_FLAG0=""
 MAX_CRITICALITY="0.0"
 JSON=""
+PNR_CORNER="slow"
+ANALYSIS_CORNER="slow"
 
 VERILOGLIST=0
 PCFNAME=0
@@ -56,11 +58,13 @@ SDCNAME=0
 OUTNAME=0
 ROUTE_NAME0=0
 JSON_NAME=0
+PNR_CORNER_NAME=0
+ANALYSIS_CORNER_NAME=0
 
 for arg_v in $@; do
 	echo $arg_v
 	case "$arg_v" in
-                -src|--source)
+		-src|--source)
 			VERILOGLIST=0
 			PCFNAME=0
 			TOPNAME=0
@@ -72,6 +76,8 @@ for arg_v in $@; do
 			OUTNAME=0
 			ROUTE_NAME0=0
 			JSON_NAME=0
+			PNR_CORNER_NAME=0
+			ANALYSIS_CORNER_NAME=0
 			;;
 		-t|--top)
 			VERILOGLIST=0
@@ -85,6 +91,8 @@ for arg_v in $@; do
 			OUTNAME=0
 			ROUTE_NAME0=0
 			JSON_NAME=0
+			PNR_CORNER_NAME=0
+			ANALYSIS_CORNER_NAME=0
 			;;
 		-v|--verilog)
 			VERILOGLIST=1
@@ -98,6 +106,8 @@ for arg_v in $@; do
 			OUTNAME=0
 			ROUTE_NAME0=0
 			JSON_NAME=0
+			PNR_CORNER_NAME=0
+			ANALYSIS_CORNER_NAME=0
 			;;
 		-d|--device)
 			VERILOGLIST=0
@@ -111,6 +121,8 @@ for arg_v in $@; do
 			OUTNAME=0
 			ROUTE_NAME0=0
 			JSON_NAME=0
+			PNR_CORNER_NAME=0
+			ANALYSIS_CORNER_NAME=0
 			;;
 		-h|--help)
 			VERILOGLIST=0
@@ -124,6 +136,8 @@ for arg_v in $@; do
 			OUTNAME=0
 			ROUTE_NAME0=0
 			JSON_NAME=0
+			PNR_CORNER_NAME=0
+			ANALYSIS_CORNER_NAME=0
 			;;
 		-p|--pcf)
 			VERILOGLIST=0
@@ -137,6 +151,8 @@ for arg_v in $@; do
 			OUTNAME=0
 			ROUTE_NAME0=0
 			JSON_NAME=0
+			PNR_CORNER_NAME=0
+			ANALYSIS_CORNER_NAME=0
 			;;
 		-P|--part)
 			VERILOGLIST=0
@@ -150,6 +166,8 @@ for arg_v in $@; do
 			OUTNAME=0
 			ROUTE_NAME0=0
 			JSON_NAME=0
+			PNR_CORNER_NAME=0
+			ANALYSIS_CORNER_NAME=0
 			;;
 		-j|--json)
 			VERILOGLIST=0
@@ -158,11 +176,13 @@ for arg_v in $@; do
 			SOURCEDIR=0
 			HELPNAME=0
 			DEVICENAME=0
-			PARTNAME=1
+			PARTNAME=0
 			SDCNAME=0
 			ROUTE_NAME0=0
 			OUTNAME=0
 			JSON_NAME=1
+			PNR_CORNER_NAME=0
+			ANALYSIS_CORNER_NAME=0
 			;;
 		-s|--sdc)
 			VERILOGLIST=0
@@ -176,6 +196,8 @@ for arg_v in $@; do
 			OUTNAME=0
 			ROUTE_NAME0=0
 			JSON_NAME=0
+			PNR_CORNER_NAME=0
+			ANALYSIS_CORNER_NAME=0
 			;;
 		-r|--route_type)
 			VERILOGLIST=0
@@ -189,6 +211,38 @@ for arg_v in $@; do
 			OUTNAME=0
 			ROUTE_NAME0=1
 			JSON_NAME=0
+			PNR_CORNER_NAME=0
+			ANALYSIS_CORNER_NAME=0
+			;;
+		-pnr_corner)
+			VERILOGLIST=0
+			PCFNAME=0
+			TOPNAME=0
+			SOURCEDIR=0
+			HELPNAME=0
+			DEVICENAME=0
+			PARTNAME=0
+			SDCNAME=0
+			OUTNAME=0
+			ROUTE_NAME0=0
+			JSON_NAME=0
+			PNR_CORNER_NAME=1
+			ANALYSIS_CORNER_NAME=0
+			;;
+		-analysis_corner)
+			VERILOGLIST=0
+			PCFNAME=0
+			TOPNAME=0
+			SOURCEDIR=0
+			HELPNAME=0
+			DEVICENAME=0
+			PARTNAME=0
+			SDCNAME=0
+			OUTNAME=0
+			ROUTE_NAME0=0
+			JSON_NAME=0
+			PNR_CORNER_NAME=0
+			ANALYSIS_CORNER_NAME=1
 			;;
 		-dump)
 			VERILOGLIST=0
@@ -202,6 +256,8 @@ for arg_v in $@; do
 			OUTNAME=1
 			ROUTE_NAME0=0
 			JSON_NAME=0
+			PNR_CORNER_NAME=0
+			ANALYSIS_CORNER_NAME=0
 			;;
 		-synth|-compile)
 			VERILOGLIST=0
@@ -215,6 +271,8 @@ for arg_v in $@; do
 			OUTNAME=0
 			ROUTE_NAME0=0
 			JSON_NAME=0
+			PNR_CORNER_NAME=0
+			ANALYSIS_CORNER_NAME=0
 			;;
 
 		*)
@@ -223,7 +281,7 @@ for arg_v in $@; do
 			elif [ $VERILOGLIST -eq 1 ]; then
 				VERILOG_FILES+="$arg_v "
 			elif [ $HELPNAME -eq 1 ]; then
-				echo "" 
+				echo ""
 			elif [ $TOPNAME -eq 1 ]; then
 				TOP=$arg_v
 			elif [ $DEVICENAME -eq 1 ]; then
@@ -251,6 +309,10 @@ for arg_v in $@; do
 				OUT+="$arg_v "
 			elif [ $PARTNAME -eq 1 ]; then
 				PART="${arg_v}"
+			elif [ $PNR_CORNER_NAME -eq 1 ]; then
+				PNR_CORNER="${arg_v}"
+			elif [ $ANALYSIS_CORNER_NAME -eq 1 ]; then
+				ANALYSIS_CORNER="${arg_v}"
 			else
 				echo "Refer help for more details: ql_symbiflow -h "
                                 exit 1
@@ -270,15 +332,15 @@ else
     elif [ $SOURCE == "." ];then
     SOURCE=$PWD
     elif [ ! -d "$SOURCE" ];then
-    echo "Directory path $SOURCE DOES NOT exists. Please add absolute path" 
+    echo "Directory path $SOURCE DOES NOT exists. Please add absolute path"
     exit 1
     fi
 
 if [[ $1 == "-h"  ||  $1 == "--help" ]];then
 exit 0
 else
-if [ -f $SOURCE/v_list_tmp ];then 
-rm -f $SOURCE/v_list_tmp 
+if [ -f $SOURCE/v_list_tmp ];then
+rm -f $SOURCE/v_list_tmp
 fi
 echo "$VERILOG_FILES" >${SOURCE}/v_list
 fi
@@ -312,7 +374,7 @@ if [[ $1 == "-compile" || $1 == "-post_verilog" ]]; then
   if [ -z "$DEVICE" ]; then
     echo "DEVICE name is missing. Refer -h/--help"
     exit 1
-  elif ! [[ "$DEVICE" =~ ^(qlf_k4n8_qlf_k4n8)$ ]]; then 
+  elif ! [[ "$DEVICE" =~ ^(qlf_k4n8_qlf_k4n8)$ ]]; then
 	  echo "Invalid Device name, supported qlf_k4n8"
     exit 1
   fi
@@ -325,16 +387,16 @@ if [[ $1 == "-compile" || $1 == "-post_verilog" ]]; then
 	   if [ -n "$PCF" ];then
 	     echo "Error: pcf file cannot be used without declaring PINMAP CSV file"
              exit 1
-           fi	     
+           fi
     fi
   fi
     if [ -z "$ROUTE_FLAG0" ]; then
       MAX_CRITICALITY="0.0"
-    elif ! [[ "$ROUTE_FLAG0" =~ ^(timing|congestion)$ ]]; then 
+    elif ! [[ "$ROUTE_FLAG0" =~ ^(timing|congestion)$ ]]; then
      echo "Invalid option name, supported timing/congestion"
          exit 1
      else
-	if [ "$ROUTE_FLAG0" == "congestion" ]; then 
+	if [ "$ROUTE_FLAG0" == "congestion" ]; then
          MAX_CRITICALITY="0.99"
 	else
 	MAX_CRITICALITY="0.0"
@@ -353,16 +415,16 @@ OUT_ARR=($OUT)
 fi
 
 for item in $VERILOG_FILES;
-do 
+do
 if ! [ -f $SOURCE/$item ]; then
  echo "$item: verilog file does not exists at : $SOURCE"
  exit 1
-elif [[ $item =~ ^/ ]]; then 
+elif [[ $item =~ ^/ ]]; then
 	echo "$item \\" >>$SOURCE/v_list_tmp
-else 
+else
 	echo "\${current_dir}/$item \\" >>$SOURCE/v_list_tmp
 fi
-done 
+done
 
 if [ -f "$SOURCE/v_list_tmp" ]; then
     truncate -s-2 "$SOURCE/v_list_tmp"
@@ -390,9 +452,9 @@ export PINMAP_FILE=$PINMAPCSV
 export MAX_CRITICALITY=$MAX_CRITICALITY
 ##### Create Makefile #####
 
-if [[ $SOURCE =~ ^/ ]]; then 
+if [[ $SOURCE =~ ^/ ]]; then
 	CURR_DIR="${SOURCE}"
-else 
+else
 	CURR_DIR="${PWD}/${SOURCE}"
 fi
 
@@ -400,7 +462,7 @@ if [ -n "$PART" ]; then
     if [[ -f $SOURCE/$PART ]];then
 	CSV_PATH=`realpath $SOURCE/$PART`
     elif [[ -f $PART ]];then
-        CSV_PATH=`realpath $PART` 
+        CSV_PATH=`realpath $PART`
     else
       echo "invalid csv file/path"
       exit 1
@@ -442,7 +504,7 @@ else
    	 SDC_MAKE="\${current_dir}/build/${TOP}_dummy.sdc"
 fi
 
-echo -e ".PHONY:\${BUILDDIR}\n 
+echo -e ".PHONY:\${BUILDDIR}\n
 current_dir := $CURR_DIR\n\
 TOP := $TOP\n\
 JSON := $JSON\n\
@@ -451,6 +513,8 @@ VERILOG := $VERILOG_LIST \n\
 PARTNAME := $PART\n\
 DEVICE  := $DEVICE\n\
 FAMILY := $FAMILY\n\
+ANALYSIS_CORNER := $PNR_CORNER\n\
+PNR_CORNER := $ANALYSIS_CORNER\n\
 PCF := $PCF_MAKE\n\
 SDC := $SDC_MAKE\n\
 BUILDDIR := build\n\n\
@@ -464,35 +528,35 @@ all: \${BUILDDIR}/\${TOP}.bit\n\
 	cd \${BUILDDIR} && symbiflow_synth -t \${TOP} -v \${VERILOG} -f \${FAMILY} -d \${DEVICE} -p \${PCF} > $LOG_FILE 2>&1\n\
 \n\
 \${BUILDDIR}/\${TOP}.net: \${BUILDDIR}/\${TOP}.eblif\n\
-	cd \${BUILDDIR} && symbiflow_pack -e \${TOP}.eblif -f \${FAMILY} -d \${DEVICE} -s \${SDC} >> $LOG_FILE 2>&1\n\
+	cd \${BUILDDIR} && symbiflow_pack -e \${TOP}.eblif -f \${FAMILY} -d \${DEVICE} -s \${SDC} -c \${PNR_CORNER} >> $LOG_FILE 2>&1\n\
 \n\
 \${BUILDDIR}/\${TOP}.place: \${BUILDDIR}/\${TOP}.net \${PCF}\n\
-	cd \${BUILDDIR} && symbiflow_place -e \${TOP}.eblif -f \${FAMILY} -d \${DEVICE} -p \${PCF} -n \${TOP}.net -P \${PARTNAME} -s \${SDC} >> $LOG_FILE 2>&1\n\
+	cd \${BUILDDIR} && symbiflow_place -e \${TOP}.eblif -f \${FAMILY} -d \${DEVICE} -p \${PCF} -n \${TOP}.net -P \${PARTNAME} -s \${SDC} -c \${PNR_CORNER} >> $LOG_FILE 2>&1\n\
 " >$MAKE_FILE
 
 if [ "$TOP" != "$TOP_FINAL" ]; then
 	if [ -z "$JSON" ];then
     echo -e "\
 \${BUILDDIR}/\${TOP_FINAL}.place: \${BUILDDIR}/\${TOP}.eblif \${BUILDDIR}/\${TOP}.net \${BUILDDIR}/\${TOP}.place\n\
-	cd \${BUILDDIR} && symbiflow_repack -e \${TOP}.eblif -n \${TOP}.net -f \${FAMILY} -d \${DEVICE} >> $LOG_FILE 2>&1\n\
+	cd \${BUILDDIR} && symbiflow_repack -e \${TOP}.eblif -n \${TOP}.net -f \${FAMILY} -d \${DEVICE} -c \${PNR_CORNER} >> $LOG_FILE 2>&1\n\
     " >>$MAKE_FILE
       else
     echo -e "\
 \${BUILDDIR}/\${TOP_FINAL}.place: \${BUILDDIR}/\${TOP}.eblif \${BUILDDIR}/\${TOP}.net \${BUILDDIR}/\${TOP}.place\n\
-	cd \${BUILDDIR} && symbiflow_repack -e \${TOP}.eblif -n \${TOP}.net -f \${FAMILY} -d \${DEVICE} -j \${JSON} >> $LOG_FILE 2>&1\n\
+	cd \${BUILDDIR} && symbiflow_repack -e \${TOP}.eblif -n \${TOP}.net -f \${FAMILY} -d \${DEVICE} -j \${JSON} -c \${PNR_CORNER} >> $LOG_FILE 2>&1\n\
     " >>$MAKE_FILE
        fi
 fi
 
     echo -e "\
 \${BUILDDIR}/\${TOP_FINAL}.route: \${BUILDDIR}/\${TOP_FINAL}.place\n\
-	cd \${BUILDDIR} && symbiflow_route -e \${TOP_FINAL}.eblif -f \${FAMILY} -d \${DEVICE} -s \${SDC} >> $LOG_FILE 2>&1\n\
+	cd \${BUILDDIR} && symbiflow_route -e \${TOP_FINAL}.eblif -f \${FAMILY} -d \${DEVICE} -s \${SDC} -c \${PNR_CORNER} >> $LOG_FILE 2>&1\n\
 \n\
 \${BUILDDIR}/\${TOP}.post_v: \${BUILDDIR}/\${TOP_FINAL}.route\n\
-	cd \${BUILDDIR} && symbiflow_analysis -e \${TOP_FINAL}.eblif -f \${FAMILY} -d \${DEVICE} -s \${SDC} -t \${TOP} >> $LOG_FILE 2>&1\n\
+	cd \${BUILDDIR} && symbiflow_analysis -e \${TOP_FINAL}.eblif -f \${FAMILY} -d \${DEVICE} -s \${SDC} -t \${TOP} -c \${ANALYSIS_CORNER} >> $LOG_FILE 2>&1\n\
 \n\
 \${BUILDDIR}/\${TOP}.fasm: \${BUILDDIR}/\${TOP_FINAL}.route\n\
-	cd \${BUILDDIR} && symbiflow_write_fasm -e \${TOP_FINAL}.eblif -f \${FAMILY} -d \${DEVICE} -s \${SDC} >> $LOG_FILE 2>&1\n\
+	cd \${BUILDDIR} && symbiflow_write_fasm -e \${TOP_FINAL}.eblif -f \${FAMILY} -d \${DEVICE} -s \${SDC} -c \${PNR_CORNER} >> $LOG_FILE 2>&1\n\
 \n\
 \${BUILDDIR}/\${TOP}.bit: \${BUILDDIR}/\${TOP}.fasm\n\
 	cd \${BUILDDIR} && symbiflow_generate_bitstream -d \${FAMILY} -f \${TOP}.fasm -r 4byte -b \${TOP}.bit >> $LOG_FILE 2>&1\n\
@@ -511,11 +575,11 @@ clean:\n\
 " >>$MAKE_FILE
 
 #### Remove temporary files #####
-rm -f $SOURCE/f_list_temp $SOURCE/v_list_tmp $SOURCE/v_list 
+rm -f $SOURCE/f_list_temp $SOURCE/v_list_tmp $SOURCE/v_list
 
 ##### Make file Targets #####
 if [ $1 == "-synth" ]; then
-  echo -e "Performing Synthesis " 
+  echo -e "Performing Synthesis "
   cd $SOURCE;make -f Makefile.symbiflow ${BUILDDIR}/${TOP}.eblif || exit
 elif [[ ! -z "$OUT" && $1 == "-compile" ]];then
 	if [[ " ${OUT_ARR[@]} " =~ " post_verilog " ]];then

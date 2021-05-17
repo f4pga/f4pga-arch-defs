@@ -13,7 +13,7 @@ add_file_target(FILE ${CURR_DIR}/IR_Emitter_Registers.v SCANNER_TYPE verilog)
 add_fpga_target(
   NAME IR_Remote_test-umc22-no-adder
   TOP top
-  BOARD qlf_k4n8-qlf_k4n8_umc22_board
+  BOARD qlf_k4n8-qlf_k4n8_umc22_slow_board
   SOURCES ${CURR_DIR}/IR_Remote.v ${CURR_DIR}/r1024x9_1024x9.v ${CURR_DIR}/IR_Emitter_Carrier_Generator.v ${CURR_DIR}/i2cSlave.v ${CURR_DIR}/i2cSlaveTop.v ${CURR_DIR}/i2cSlaveSerialInterface.v ${CURR_DIR}/IR_Emitter_Interface.v ${CURR_DIR}/IR_Emitter_Modulator.v ${CURR_DIR}/IR_Emitter_Registers.v
   EXPLICIT_ADD_FILE_TARGET
   DEFINES SYNTH_OPTS=-no_adder
@@ -22,7 +22,7 @@ add_fpga_target(
 add_fpga_target(
   NAME IR_Remote_test-umc22-adder
   TOP top
-  BOARD qlf_k4n8-qlf_k4n8_umc22_board
+  BOARD qlf_k4n8-qlf_k4n8_umc22_slow_board
   SOURCES ${CURR_DIR}/IR_Remote.v ${CURR_DIR}/r1024x9_1024x9.v ${CURR_DIR}/IR_Emitter_Carrier_Generator.v ${CURR_DIR}/i2cSlave.v ${CURR_DIR}/i2cSlaveTop.v ${CURR_DIR}/i2cSlaveSerialInterface.v ${CURR_DIR}/IR_Emitter_Interface.v ${CURR_DIR}/IR_Emitter_Modulator.v ${CURR_DIR}/IR_Emitter_Registers.v
   EXPLICIT_ADD_FILE_TARGET
   )

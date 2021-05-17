@@ -4,7 +4,7 @@ add_file_target(FILE shift_reg_8.sdc SCANNER_TYPE)
 add_fpga_target(
   NAME shift_reg_8_test2-umc22-adder
   TOP shift_reg_8
-  BOARD qlf_k4n8-qlf_k4n8_umc22_board
+  BOARD qlf_k4n8-qlf_k4n8_umc22_slow_board
   SOURCES ${SHIFT_REG_8}
   INPUT_SDC_FILE shift_reg_8.sdc
   EXPLICIT_ADD_FILE_TARGET

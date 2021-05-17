@@ -6,7 +6,7 @@ add_file_target(FILE test.pcf)
 add_fpga_target(
   NAME counter_4clk-umc22-no-adder
   TOP top
-  BOARD qlf_k4n8-qlf_k4n8_umc22_board
+  BOARD qlf_k4n8-qlf_k4n8_umc22_slow_board
   SOURCES ${CURR_DIR}/counter_4clk.v
   INPUT_IO_FILE test.pcf
   INPUT_SDC_FILE counter_4clk.sdc
@@ -18,7 +18,7 @@ add_fpga_target(
 add_fpga_target(
   NAME counter_4clk-umc22-adder
   TOP top
-  BOARD qlf_k4n8-qlf_k4n8_umc22_board
+  BOARD qlf_k4n8-qlf_k4n8_umc22_slow_board
   SOURCES ${CURR_DIR}/counter_4clk.v
   INPUT_IO_FILE test.pcf
   INPUT_SDC_FILE counter_4clk.sdc
