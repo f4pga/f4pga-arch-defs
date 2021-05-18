@@ -561,6 +561,9 @@ fi
 \${BUILDDIR}/\${TOP}.bit: \${BUILDDIR}/\${TOP}.fasm\n\
 	cd \${BUILDDIR} && symbiflow_generate_bitstream -d \${FAMILY} -f \${TOP}.fasm -r 4byte -b \${TOP}.bit >> $LOG_FILE 2>&1\n\
 	cd \${BUILDDIR} && symbiflow_generate_bitstream -d \${FAMILY} -f \${TOP}.fasm -r txt -b \${TOP}.bin >> $LOG_FILE 2>&1\n\
+\n\
+\${BUILDDIR}/\${DEVICE}.lib:\n\
+	cd \${BUILDDIR} && symbiflow_generate_libfile \${PARTNAME} \${DEVICE} \${PNR_CORNER} >> $LOG_FILE 2>&1\n\
 " >>$MAKE_FILE
 
 if [ "$HAVE_FASM2BELS" != 0 ]; then
