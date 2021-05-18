@@ -4,7 +4,6 @@
 // Function    : Shift register
 //------------------------------------------------------//
 
-
 module shift_reg_8 #(
     parameter size = 7
 ) (

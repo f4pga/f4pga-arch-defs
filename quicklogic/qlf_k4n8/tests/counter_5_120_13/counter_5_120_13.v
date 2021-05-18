@@ -79,6 +79,5 @@ module counter_5_120_13 (
 
   end
 
-
 endmodule
 

@@ -45,6 +45,8 @@ function(DEFINE_ARCH)
   #    FASM_TO_BIT <path to FASM to bitstream converter>
   #    FASM_TO_BIT_CMD <command to run FASM_TO_BIT>
   #    FASM_TO_BIT_DEPS <list of dependencies for FASM_TO_BIT_CMD>
+  #    [BIT_TO_FASM <path to bitstream to FASM converter>]
+  #    [BIT_TO_FASM_CMD <command to run BIT_TO_FASM>]
   #    BIT_TO_V <path to bitstream to verilog converter>
   #    BIT_TO_V_CMD <command to run BIT_TO_V>
   #    BIT_TO_BIN <path to bitstream to binary>
@@ -183,6 +185,8 @@ function(DEFINE_ARCH)
     HLC_TO_BIT_CMD
     FASM_TO_BIT
     FASM_TO_BIT_CMD
+    BIT_TO_FASM
+    BIT_TO_FASM_CMD
     BIT_TO_V
     BIT_TO_V_CMD
     BIT_TO_BIN
@@ -238,6 +242,8 @@ function(DEFINE_ARCH)
     RR_PATCH_CMD
     NET_PATCH_TOOL
     NET_PATCH_TOOL_CMD
+    BIT_TO_FASM
+    BIT_TO_FASM_CMD
     )
 
   set(PLACE_ARGS
@@ -318,6 +324,7 @@ function(DEFINE_ARCH)
 
   if(${DEFINE_ARCH_NO_BITSTREAM})
     list(APPEND DISALLOWED_ARGS ${BIT_ARGS})
+    list(APPEND DISALLOWED_ARGS BIT_TO_FASM BIT_TO_FASM_CMD)
   else()
     list(APPEND REQUIRED_ARGS ${BIT_ARGS})
   endif()
@@ -326,6 +333,7 @@ function(DEFINE_ARCH)
     list(APPEND DISALLOWED_ARGS ${BIT_TO_V_ARGS})
   else()
     list(APPEND REQUIRED_ARGS ${BIT_TO_V_ARGS})
+    list(APPEND DISALLOWED_ARGS BIT_TO_FASM BIT_TO_FASM_CMD)
   endif()
 
   if(${DEFINE_ARCH_NO_BIT_TIME})
@@ -2144,8 +2152,23 @@ function(ADD_FPGA_TARGET)
       )
     endif()
 
-    get_target_property(OUT_BITSTREAM ${NAME} OUT_BITSTREAM)
+    # Check if we support bitstream disassembly only
     get_target_property_required(NO_BIT_TO_V ${ARCH} NO_BIT_TO_V)
+
+    get_target_property(BIT_TO_FASM     ${ARCH} BIT_TO_FASM)
+    get_target_property(BIT_TO_FASM_CMD ${ARCH} BIT_TO_FASM_CMD)
+
+    set(NO_BIT_TO_FASM TRUE)
+    if(NOT "${BIT_TO_FASM}" STREQUAL "" AND NOT "${BIT_TO_FASM_CMD}" STREQUAL "")
+      set(NO_BIT_TO_FASM FALSE)
+    endif()
+
+    # Cannot have bit to verilog and bit to FASM at the same time
+    if(NOT ${NO_BIT_TO_V} AND NOT ${NO_BIT_TO_FASM})
+      message(FATAL_ERROR "Cannot have bitstream to Verilog and bitstream to FASM targets simultaneously")
+    endif()
+
+    get_target_property(OUT_BITSTREAM ${NAME} OUT_BITSTREAM)
     if(NOT ${NO_BIT_TO_V})
         # Generate verilog from bitstream
         # -------------------------------------------------------------------------
@@ -2199,6 +2222,28 @@ function(ADD_FPGA_TARGET)
         SOURCES ${OUT_LOCAL_REL}/${TOP}_bit.v
         CYCLES ${AUTOSIM_CYCLES}
         )
+
+    elseif(NOT ${NO_BIT_TO_FASM})
+        # Generate FASM from bitstream only
+        # ---------------------------------------------------------------------
+
+        set(OUT_BIT_FASM ${OUT_LOCAL}/${TOP}_bit.fasm)
+
+        string(CONFIGURE ${BIT_TO_FASM_CMD} BIT_TO_FASM_CMD_FOR_TARGET)
+        separate_arguments(
+          BIT_TO_FASM_CMD_FOR_TARGET_LIST UNIX_COMMAND ${BIT_TO_FASM_CMD_FOR_TARGET}
+        )
+
+        add_custom_command(
+        OUTPUT ${OUT_BIT_FASM}
+        COMMAND ${BIT_TO_FASM_CMD_FOR_TARGET_LIST}
+        DEPENDS ${BIT_TO_FASM} ${OUT_BITSTREAM} ${OUT_BIN}
+        )
+
+        add_output_to_fpga_target(${NAME} BIT_FASM ${OUT_LOCAL_REL}/${TOP}_bit.fasm)
+        get_file_target(BIT_FASM_TARGET ${OUT_LOCAL_REL}/${TOP}_bit.fasm)
+        add_custom_target(${NAME}_bit_fasm DEPENDS ${BIT_FASM_TARGET})
+
     endif()
 
     get_target_property_required(NO_BIT_TIME ${ARCH} NO_BIT_TIME)

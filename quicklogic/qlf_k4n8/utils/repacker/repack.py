@@ -490,22 +490,6 @@ def annotate_net_endpoints(
     if port_map is not None:
         inv_port_map = {v: k for k, v in port_map.items()}
 
-    # Sort constraints by port and pin. Build a set of constrained nets
-    # FIXME: Do this once after constraints loading instead of here for every
-    # block.
-    if constraints is not None:
-        constraints = {(c.port, c.pin): c for c in constraints}
-
-        # Sets of constrained nets per block type
-        constrained_nets = {}
-        for constraint in constraints.values():
-            if constraint.block_type not in constrained_nets:
-                constrained_nets[constraint.block_type] = set()
-            constrained_nets[constraint.block_type].add(constraint.net)
-
-        # Get nets relevant to this block
-        all_nets = block.get_nets()
-
     # Get block path
     if block_path is None:
         block_path = block.get_path()
@@ -517,7 +501,10 @@ def annotate_net_endpoints(
     block_path[-1].mode = None
     block_path = ".".join([str(p) for p in block_path])
 
-    # Annotate SOURCE and SINK nodes
+    # Identify and annotate SOURCE and SINK nodes
+    source_and_sink_nodes = []
+    nodes_by_net = {}
+
     for node in clb_graph.nodes.values():
 
         # Consider only SOURCE and SINK nodes
@@ -531,31 +518,8 @@ def annotate_net_endpoints(
         if path != block_path:
             continue
 
+        source_and_sink_nodes.append(node)
         port = PathNode.from_string(port)
-
-        # Check if the port is constrained. If so then forcibly assign it
-        # to the net from the constraint and immediately move to the next node
-        if constraints is not None:
-            key = (port.name, port.index)
-
-            # Get the constraint
-            if key in constraints:
-                constraint = constraints[key]
-
-                # The net must be present in the block
-                if constraint.net in all_nets:
-
-                    # Check if the block type matches
-                    if block_type == constraint.block_type:
-                        logging.debug(
-                            "    Constraining net '{}' to port '{}'".format(
-                                constraint.net, port
-                            )
-                        )
-
-                        # Assign the net
-                        node.net = constraint.net
-                        continue
 
         # Optionally remap the port
         if port_map is not None:
@@ -569,13 +533,6 @@ def annotate_net_endpoints(
         net = None
         if port.name in block.ports:
             net = block.find_net_for_port(port.name, port.index)
-
-        # If the net is constrained then skip it. It has already been assigned
-        # (or will be) during processing of node of the constrained port.
-        if constraints is not None:
-            if block_type in constrained_nets:
-                if net in constrained_nets[block_type]:
-                    continue
 
         # If the port is unconnected then check if there is a defautil value
         # in the map
@@ -596,6 +553,75 @@ def annotate_net_endpoints(
 
         # Assign the net
         node.net = net
+
+        if net not in nodes_by_net:
+            nodes_by_net[net] = []
+        nodes_by_net[net].append(node)
+
+    # No constraints, finish here
+    if constraints is None:
+        return
+
+    # Reassign top-level SOURCE and SINK nodes according to the constraints
+    for constraint in constraints:
+
+        # Check if the constraint is for this block type
+        if constraint.block_type != block_type:
+            continue
+
+        # Check if the net is available
+        if constraint.net not in nodes_by_net:
+            continue
+
+        # Find a node for the destination port of the constraint. Throw an
+        # error if not found
+        for node in source_and_sink_nodes:
+            _, port = node.path.rsplit(".", maxsplit=1)
+            port = PathNode.from_string(port)
+
+            if (port.name, port.index) == (constraint.port, constraint.pin):
+                port_node = node
+                break
+
+        else:
+            logging.critical(
+                "Cannot find port '{}' of block type '{}'".format(
+                    PathNode(constraint.port, constraint.pin).to_string(),
+                    block_type
+                )
+            )
+            exit(-1)
+
+        # Check if we are not trying to constraint an input net to an output
+        # port or vice-versa.
+        node_types = set([node.type for node in nodes_by_net[constraint.net]])
+        if port_node.type not in node_types:
+
+            name_map = {NodeType.SINK: "output", NodeType.SOURCE: "input"}
+
+            logging.warning(
+                "Cannot constrain {} net '{}' to {} port '{}'".format(
+                    name_map[next(iter(node_types))],
+                    constraint.net,
+                    name_map[port_node.type],
+                    PathNode(constraint.port, constraint.pin).to_string(),
+                )
+            )
+            continue
+
+        # Remove the net from any node of the same type as the destination one
+        for node in nodes_by_net[constraint.net]:
+            if node.type == port_node.type:
+                node.net = None
+
+        # Assign the net to the port
+        port_node.net = constraint.net
+        logging.debug(
+            "    Constraining net '{}' to port '{}'".format(
+                constraint.net,
+                PathNode(constraint.port, constraint.pin).to_string()
+            )
+        )
 
 
 def rotate_truth_table(table, rotation_map):
@@ -708,6 +734,9 @@ def repack_netlist_cell(
         pad_len = (1 << lut_width) - len(init)
         init = "0" * pad_len + init
 
+        # Reverse LUT bit order
+        init = init[::-1]
+
         repacked_cell.parameters["LUT"] = init
 
     # If the cell is a LUT-based const generator append the LUT parameter as
@@ -727,14 +756,20 @@ def repack_netlist_cell(
         init = str(cell.init) * (1 << max_width)
         repacked_cell.parameters["LUT"] = init
 
+    # Process parameters for "adder_lut4"
+    if cell.type == "adder_lut4":
+
+        # Remap the Cin mux select to MODE
+        if "IN2_IS_CIN" in cell.parameters:
+            repacked_cell.parameters["MODE"] = cell.parameters["IN2_IS_CIN"]
+            del repacked_cell.parameters["IN2_IS_CIN"]
+
+        # Reverse LUT bit order
+        repacked_cell.parameters["LUT"] = repacked_cell.parameters["LUT"][::-1]
+
     # If the rule contains mode bits then append the MODE parameter to the cell
     if rule.mode_bits:
         repacked_cell.parameters["MODE"] = rule.mode_bits
-
-    # If the cell is an IOB output cell then set its name via cname. Such cells
-    # do not drive any nets hence VPR cannot name them automatically
-    if cell.type == "$output":
-        repacked_cell.cname = repacked_cell.name
 
     # Check for unconnected ports that should be tied to some default nets
     if def_map:
@@ -760,6 +795,10 @@ def syncrhonize_attributes_and_parameters(eblif, packed_netlist):
 
         # This is a leaf
         if block.is_leaf and not block.is_open:
+
+            if any(block.instance.startswith(inst)
+                   for inst in ["outpad", "inpad"]):
+                return
 
             # Find matching cell
             cell = eblif.find_cell(block.name)
@@ -847,11 +886,6 @@ def expand_port_maps(rules, clb_pbtypes):
                 port_map[src_pin] = dst_pin
 
         rule.port_map = port_map
-
-        # DEBUG
-#        logging.debug(" ", rule.src, "->", rule.dst)
-#        for k, v in rule.port_map.items():
-#            logging.debug("  ", k, "->", v)
 
     return rules
 
@@ -1072,13 +1106,6 @@ def main():
     logging.info("Loading BLIF/EBLIF circuit netlist...")
     eblif = Eblif.from_file(args.eblif_in)
 
-    # Convert top-level inputs to cells
-    eblif.convert_ports_to_cells()
-
-    # Optional dump
-    if args.dump_netlist:
-        eblif.to_file("netlist.io_cells.eblif")
-
     # Clean the netlist
     logging.info("Cleaning circuit netlist...")
 
@@ -1090,6 +1117,13 @@ def main():
     # Optional dump
     if args.dump_netlist:
         eblif.to_file("netlist.cleaned.eblif")
+
+    # Convert top-level inputs to cells
+    eblif.convert_ports_to_cells()
+
+    # Optional dump
+    if args.dump_netlist:
+        eblif.to_file("netlist.io_cells.eblif")
 
     # Load the packed netlist XML
     logging.info("Loading VPR packed netlist...")
@@ -1105,10 +1139,28 @@ def main():
     init_time = time.perf_counter() - init_time
     repack_time = time.perf_counter()
 
+    # Check if the repacking constraints do not refer to any non-existent nets
+    if repacking_constraints:
+        logging.info("Validating constraints...")
+
+        all_nets = set()
+        for clb_block in packed_netlist.blocks.values():
+            all_nets |= clb_block.get_nets()
+
+        constrained_nets = set([c.net for c in repacking_constraints])
+        invalid_nets = constrained_nets - all_nets
+
+        if invalid_nets:
+            logging.critical(
+                " Error: constraints refer to nonexistent net(s): {}".format(
+                    ", ".join(invalid_nets)
+                )
+            )
+            exit(-1)
+
     # Process netlist CLBs
     logging.info("Processing CLBs...")
 
-    removed_ios = set()
     leaf_block_names = {}
 
     route_through_net_ids = {}
@@ -1187,7 +1239,9 @@ def main():
 
             # There must be only a single repack target per block
             if len(candidates) > 1:
-                logging.critical("Multiple repack targets found!")
+                logging.critical(
+                    "Multiple repack targets found! {}".format(candidates)
+                )
                 exit(-1)
 
             # Store concrete correspondence
@@ -1222,13 +1276,12 @@ def main():
             src_pbtype = clb_pbtype.find(src_path)
             assert src_pbtype is not None, src_path
 
-            #            # Get the source BLIF model
-            #            assert src_pbtype.blif_model is not None
-            #            src_blif_model = src_pbtype.blif_model
-
             # Get the destination BLIF model
             assert dst_pbtype.blif_model is not None, dst_pbtype.name
             dst_blif_model = dst_pbtype.blif_model.split(maxsplit=1)[-1]
+
+            if dst_blif_model in [".input", ".output"]:
+                continue
 
             # Get the model object
             assert dst_blif_model in models, dst_blif_model
@@ -1237,10 +1290,6 @@ def main():
             # Find the cell in the netlist
             assert src_block.name in eblif.cells, src_block.name
             cell = eblif.cells[src_block.name]
-
-            # If the cell is an IOB then mark the top-level port to be removed
-            if cell.type in ["$input", "$output"]:
-                removed_ios.add(cell.name)
 
             # Store the leaf block name so that it can be restored after
             # repacking
@@ -1335,12 +1384,6 @@ def main():
             with open(fname, "w") as fp:
                 fp.write(graph.dump_dot(color_by="net", nets_only=True))
 
-    # Remove top-level ports from the packed netlist
-    for name in removed_ios:
-        for tag, ports in packed_netlist.ports.items():
-            if name in ports:
-                ports.remove(name)
-
     # Optional dump
     if args.dump_netlist:
         eblif.to_file("netlist.repacked.eblif")
@@ -1352,13 +1395,23 @@ def main():
     repack_time = time.perf_counter() - repack_time
     writeout_time = time.perf_counter()
 
+    # FIXME: The below code absorbs buffer LUTs because it couldn't be done
+    # in the beginning to preserve output names. However the code has evolved
+    # and now should correctly handle absorption of output nets into input
+    # nets not only the opposite as it did before. So theoretically the buffer
+    # absorption below may be removed and the invocation at the beginning of
+    # the flow changed to use outputs=True.
+
+    # Convert cells into top-level ports
+    eblif.convert_cells_to_ports()
+
     # Clean the circuit netlist again. Need to do it here again as LUT buffers
     # driving top-level inputs couldn't been swept before repacking as it
     # would cause top-level port renaming.
     logging.info("Cleaning repacked circuit netlist...")
     if absorb_buffer_luts:
 
-        net_map = netlist_cleaning.absorb_buffer_luts(eblif)
+        net_map = netlist_cleaning.absorb_buffer_luts(eblif, outputs=True)
 
         # Synchronize packed netlist net names
         for block in packed_netlist.blocks.values():
@@ -1367,9 +1420,6 @@ def main():
     # Optional dump
     if args.dump_netlist:
         eblif.to_file("netlist.repacked_and_cleaned.eblif")
-
-    # Convert cells into top-level ports
-    eblif.convert_cells_to_ports()
 
     # Write the circuit netlist
     logging.info("Writing EBLIF circuit netlist...")

@@ -8,7 +8,7 @@ dependencies:
   - litex-hub::icestorm=0.0_0719_g792cef0=20201120_145821
   - litex-hub::iverilog=s20150603_0957_gad862020=20201120_145821
   - litex-hub::openocd=0.10.0_1514_ga8edbd020=20201119_154304
-  - litex-hub::symbiflow-yosys-plugins=1.0.0_7_305_g9e969e2=20210415_092356
+  - litex-hub::symbiflow-yosys-plugins=1.0.0_7_307_gc14d794=20210420_072542
   - litex-hub::prjxray-tools=0.1_2842_g6867429c=20210301_104249
   - litex-hub::prjxray-db=0.0_248_g2e51ad3=20210312_125539
   - litex-hub::vtr-optimized=8.0.0_3452_ge7d45e013=20210318_102115

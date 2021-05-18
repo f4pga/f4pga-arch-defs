@@ -179,7 +179,7 @@ def vec_to_scalar(port_name):
         lsb = int(bus[:bus.find(':')])
         msb = int(bus[bus.find(':') + 1:])
         if lsb > msb:
-            for i in range(msb, lsb + 1):
+            for i in range(lsb, msb - 1, -1):
                 curr_port_name = port_name[:open_brace] + '[' + str(i) + ']'
                 scalar_ports.append(curr_port_name)
         else:
