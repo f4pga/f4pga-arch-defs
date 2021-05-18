@@ -52,14 +52,6 @@ def main():
         help='Specify library name'
     )
     parser.add_argument(
-        "--device_name",
-        "-d",
-        "-D",
-        type=str,
-        required=True,
-        help='Specify device name'
-    )
-    parser.add_argument(
         "--template_data_path",
         "-t",
         "-T",
@@ -120,15 +112,15 @@ def main():
 
     port_names = parse_xml(args.xml)
     create_lib(
-        port_names, args.device_name, args.template_data_path, csv_pin_data,
-        args.lib_name, args.lib, args.cell_name, assoc_clk
+        port_names, args.template_data_path, csv_pin_data, args.lib_name,
+        args.lib, args.cell_name, assoc_clk
     )
 
 
 # =============================================================================
 def create_lib(
-        port_names, device_name, template_data_path, csv_pin_data, lib_name,
-        lib_file_name, cell_name, assoc_clk
+        port_names, template_data_path, csv_pin_data, lib_name, lib_file_name,
+        cell_name, assoc_clk
 ):
     """
     Create lib file
@@ -137,14 +129,18 @@ def create_lib(
     curr_dir = os.path.dirname(os.path.abspath(__file__))
 
     common_lib_data = dict()
-    common_lib_data_file = template_data_path + "/" + device_name + "_common_lib_data.json"
+    common_lib_data_file = os.path.join(
+        template_data_path, "common_lib_data.json"
+    )
     with open(common_lib_data_file) as fp:
         common_lib_data = json.load(fp)
 
     today = date.today()
     curr_date = today.strftime("%B %d, %Y")
 
-    lib_header_tmpl = template_data_path + "/" + device_name + "_lib_header_template.txt"
+    lib_header_tmpl = os.path.join(
+        template_data_path, "lib_header_template.txt"
+    )
     header_templ_file = os.path.join(curr_dir, lib_header_tmpl)
     in_str = open(header_templ_file, 'r').read()
 
@@ -280,7 +276,9 @@ def create_lib(
             add_tab(2), f2a_bus_name
         )
 
-    dedicated_pin_tmpl = template_data_path + "/" + device_name + '_dedicated_pin_lib_data.txt'
+    dedicated_pin_tmpl = os.path.join(
+        template_data_path, 'dedicated_pin_lib_data.txt'
+    )
     dedicated_pin_lib_file = os.path.join(curr_dir, dedicated_pin_tmpl)
     dedicated_pin_data = open(dedicated_pin_lib_file, 'r').read()
 
