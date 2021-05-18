@@ -8,7 +8,7 @@
 -->
 <DEVICE name= "qlf_k4n8_umc22" family="qlf_k4n8" width="26" height="26" z="16">
   <IO>
-    <TOP_IO y="0">
+    <TOP_IO y="25">
         <CELL port_name="f2a_i" mapped_name="gfpga_pad_IO_F2A[0:383]" startx="1" endx="24"/>
         <CELL port_name="a2f_o" mapped_name="gfpga_pad_IO_A2F[0:383]" startx="1" endx="24"/>
     </TOP_IO>
@@ -16,7 +16,7 @@
         <CELL port_name="f2a_i" mapped_name="gfpga_pad_IO_F2A[384:767]" starty="24" endy="1"/>
         <CELL port_name="a2f_o" mapped_name="gfpga_pad_IO_A2F[384:767]" starty="24" endy="1"/>
     </RIGHT_IO>
-    <BOTTOM_IO y="25">
+    <BOTTOM_IO y="0">
         <CELL port_name="f2a_i" mapped_name="gfpga_pad_IO_F2A[768:1151]" startx="24" endx="1"/>
         <CELL port_name="a2f_o" mapped_name="gfpga_pad_IO_A2F[768:1151]" startx="24" endx="1"/>
     </BOTTOM_IO>

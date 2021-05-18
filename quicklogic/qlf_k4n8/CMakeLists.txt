@@ -14,12 +14,19 @@ add_subdirectory(techmap)
 # consider it. Each tile has a separate clock input multiplexer. Its selection
 # is established during the VPR packing stage.
 #
+# TODO: The LUT buffer absorption is currently turned off as the repacker
+#       inserts some LUT buffers to allow maintaining the top level IO ports.
+#       With the LUT buffer absorption enabled, the patched netlist and blif
+#       out of the repacker will be out of sync, causing a VPR failure. The solution
+#       likely requires a revision of the repacker code to correctly and robustly
+#       handle the top level I/Os.
 set(VPR_ARCH_ARGS "\
     --clock_modeling ideal \
     --place_delta_delay_matrix_calculation_method dijkstra \
     --place_delay_model delta_override \
     --router_lookahead extended_map \
-    --allow_dangling_combinational_nodes on "
+    --allow_dangling_combinational_nodes on \
+    --absorb_buffer_luts off "
 )
 
 # Define the architecture

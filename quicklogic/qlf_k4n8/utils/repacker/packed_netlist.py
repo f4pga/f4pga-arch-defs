@@ -433,16 +433,28 @@ class Block:
 
         def walk(block):
 
-            # Rename a leaf block
-            if block.is_leaf and not block.is_open:
-                block.name = net_map.get(block.name, block.name)
+            # Rename nets in port connections. Check whether the block itself
+            # should be renamed as well (output pads need to be).
+            rename_block = block.name.startswith("out:")
 
-            # Rename nets in port connections
             for port in block.ports.values():
                 for pin, conn in port.connections.items():
 
                     if isinstance(conn, str):
                         port.connections[pin] = net_map.get(conn, conn)
+
+                        if port.type == "output":
+                            rename_block = True
+
+            # Rename the leaf block if necessary
+            if block.is_leaf and not block.is_open and rename_block:
+
+                if block.name in net_map:
+                    block.name = net_map[block.name]
+                elif block.name.startswith("out:"):
+                    key = block.name[4:]
+                    if key in net_map:
+                        block.name = "out:" + net_map[key]
 
             # Recurse
             for child in block.blocks.values():

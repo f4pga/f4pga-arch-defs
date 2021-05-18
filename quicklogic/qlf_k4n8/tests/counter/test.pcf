@@ -1,2 +1,4 @@
-set_io led[0] user_OUT_B[0]
+set_io led[0] user_OUT_B[30]
 set_io led[1] user_OUT_T[11]
+set_io led[2] user_OUT_B[74]
+set_io led[3] user_OUT_R[35]

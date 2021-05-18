@@ -3,6 +3,7 @@ add_file_target(FILE adder_64.pcf)
 
 add_fpga_target(
   NAME adder_64-umc22-no-adder
+  TOP adder_64
   BOARD qlf_k4n8-qlf_k4n8_umc22_board
   SOURCES adder_64.v
   INPUT_IO_FILE adder_64.pcf
@@ -12,6 +13,7 @@ add_fpga_target(
 
 add_fpga_target(
   NAME adder_64-umc22-adder
+  TOP adder_64
   BOARD qlf_k4n8-qlf_k4n8_umc22_board
   SOURCES adder_64.v
   INPUT_IO_FILE adder_64.pcf
