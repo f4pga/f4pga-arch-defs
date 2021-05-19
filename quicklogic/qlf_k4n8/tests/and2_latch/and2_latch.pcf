@@ -1,5 +1,0 @@
-set_io c  user_OUT_B[7]
-set_io d  user_OUT_B[8]
-set_io clk user_IN_B[9]
-set_io a  user_IN_B[10]
-set_io b  user_IN_B[11]
