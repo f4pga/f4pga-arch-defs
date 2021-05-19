@@ -67,3 +67,6 @@
 [submodule "third_party/qlf-fasm"]
 	path = third_party/qlf-fasm
 	url = https://github.com/QuickLogic-Corp/ql_fasm.git
+[submodule "quicklogic/designs"]
+	path = quicklogic/designs
+	url = https://github.com/QuickLogic-Corp/ql_designs.git
