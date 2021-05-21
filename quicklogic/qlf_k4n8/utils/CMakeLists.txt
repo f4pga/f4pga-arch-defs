@@ -8,3 +8,5 @@ add_custom_target(all_python_tests
         ${PYTHON3} -m pytest --doctest-modules -vv
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
+
+add_dependencies(all_quicklogic_tests all_python_tests)
