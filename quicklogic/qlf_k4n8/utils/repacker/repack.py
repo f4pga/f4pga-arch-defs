@@ -729,10 +729,10 @@ def repack_netlist_cell(
         init = rotate_truth_table(cell.init, lut_rotation)
         init = "".join(["1" if x else "0" for x in init][::-1])
 
-        # Pad with 0s to match LUT width
-        assert (1 << lut_width) >= len(init), (lut_width, init)
-        pad_len = (1 << lut_width) - len(init)
-        init = "0" * pad_len + init
+        # Expand the truth table to match the physical LUT width. Do that by
+        # repeating the lower part of it until the desired length is attained.
+        while (len(init).bit_length() - 1) < lut_width:
+            init = init + init
 
         # Reverse LUT bit order
         init = init[::-1]
