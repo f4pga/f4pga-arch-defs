@@ -7,9 +7,6 @@
 [submodule "third_party/icestorm"]
 	path = third_party/icestorm
 	url = https://github.com/cliffordwolf/icestorm.git
-[submodule "third_party/fasm"]
-	path = third_party/fasm
-	url = https://github.com/SymbiFlow/fasm.git
 [submodule "third_party/symbiyosys"]
 	path = third_party/symbiyosys
 	url = https://github.com/YosysHQ/SymbiYosys.git
