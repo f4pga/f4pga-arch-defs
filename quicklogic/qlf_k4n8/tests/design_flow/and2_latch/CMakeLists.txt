@@ -4,7 +4,7 @@ add_file_target(FILE ${CURR_DIR}/and2_latch.v SCANNER_TYPE verilog)
 add_fpga_target(
   NAME and2_latch_test-umc22-no-adder
   TOP and2_latch
-  BOARD qlf_k4n8-qlf_k4n8_umc22_board
+  BOARD qlf_k4n8-qlf_k4n8_umc22_slow_board
   SOURCES ${CURR_DIR}/and2_latch.v
   EXPLICIT_ADD_FILE_TARGET
   DEFINES SYNTH_OPTS=-no_adder
@@ -13,7 +13,7 @@ add_fpga_target(
 add_fpga_target(
   NAME and2_latch_test-umc22-adder
   TOP and2_latch
-  BOARD qlf_k4n8-qlf_k4n8_umc22_board
+  BOARD qlf_k4n8-qlf_k4n8_umc22_slow_board
   SOURCES ${CURR_DIR}/and2_latch.v
   EXPLICIT_ADD_FILE_TARGET
   )

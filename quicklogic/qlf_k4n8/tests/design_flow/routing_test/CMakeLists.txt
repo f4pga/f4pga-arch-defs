@@ -4,7 +4,7 @@ add_file_target(FILE ${CURR_DIR}/routing_test.v SCANNER_TYPE verilog)
 add_fpga_target(
   NAME routing_test_test-umc22-no-adder
   TOP routing_test
-  BOARD qlf_k4n8-qlf_k4n8_umc22_board
+  BOARD qlf_k4n8-qlf_k4n8_umc22_slow_board
   SOURCES ${CURR_DIR}/routing_test.v
   EXPLICIT_ADD_FILE_TARGET
   DEFINES SYNTH_OPTS=-no_adder
@@ -13,7 +13,7 @@ add_fpga_target(
 add_fpga_target(
   NAME routing_test_test-umc22-adder
   TOP routing_test
-  BOARD qlf_k4n8-qlf_k4n8_umc22_board
+  BOARD qlf_k4n8-qlf_k4n8_umc22_slow_board
   SOURCES ${CURR_DIR}/routing_test.v
   EXPLICIT_ADD_FILE_TARGET
   )

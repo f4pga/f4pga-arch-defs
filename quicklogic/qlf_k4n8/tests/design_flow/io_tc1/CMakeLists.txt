@@ -7,9 +7,18 @@ add_file_target(FILE ${IO_TC1_DEMUX} SCANNER_TYPE verilog)
 add_file_target(FILE ${IO_TC1_MUX} SCANNER_TYPE verilog)
 
 add_fpga_target(
+  NAME io_tc1_test-umc22-no-adder
+  TOP io_tc1
+  BOARD qlf_k4n8-qlf_k4n8_umc22_slow_board
+  SOURCES ${IO_TC1} ${IO_TC1_DEMUX} ${IO_TC1_MUX}
+  EXPLICIT_ADD_FILE_TARGET
+  DEFINES SYNTH_OPTS=-no_adder
+  )
+
+add_fpga_target(
   NAME io_tc1_test-umc22-adder
   TOP io_tc1
-  BOARD qlf_k4n8-qlf_k4n8_umc22_board
+  BOARD qlf_k4n8-qlf_k4n8_umc22_slow_board
   SOURCES ${IO_TC1} ${IO_TC1_DEMUX} ${IO_TC1_MUX}
   EXPLICIT_ADD_FILE_TARGET
   )
