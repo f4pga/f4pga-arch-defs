@@ -5,7 +5,7 @@ add_file_target(FILE ${ADDER_M} SCANNER_TYPE verilog)
 add_fpga_target(
   NAME adder_max_test2-umc22-adder
   TOP adder_max
-  BOARD qlf_k4n8-qlf_k4n8_umc22_board
+  BOARD qlf_k4n8-qlf_k4n8_umc22_slow_board
   SOURCES ${ADDER_M}
   EXPLICIT_ADD_FILE_TARGET
   )

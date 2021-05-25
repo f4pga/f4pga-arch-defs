@@ -33,10 +33,10 @@ def test_lut_padding(monkeypatch, lut_width, lut_inputs):
     )
 
     vpr_arch = os.path.join(
-        qlfpga_plugins, "qlf_k4n8/vpr_arch/UMC22nm_vpr.xml"
+        qlfpga_plugins, "qlf_k4n8/slow/vpr_arch/UMC22nm_vpr.xml"
     )
     repacking_rules = os.path.join(
-        qlfpga_plugins, "qlf_k4n8/vpr_arch/repacking_rules.json"
+        qlfpga_plugins, "qlf_k4n8/repacking_rules.json"
     )
 
     eblif_ref = os.path.join(

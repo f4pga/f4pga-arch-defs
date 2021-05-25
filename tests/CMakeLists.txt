@@ -1,4 +1,4 @@
-set(FULL_BOARDS dummy_ice40_hx1k_tq144 qlf_k4n8-qlf_k4n8_umc22_board)
+set(FULL_BOARDS dummy_ice40_hx1k_tq144 qlf_k4n8-qlf_k4n8_umc22_slow_board)
 if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
 list(APPEND FULL_BOARDS dummy_artix7_xc7a50t-basys3_test)
 endif()
