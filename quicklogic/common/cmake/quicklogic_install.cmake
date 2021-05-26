@@ -23,7 +23,20 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
     return()
   endif ()
 
-  set(WRAPPERS env symbiflow_generate_constraints symbiflow_pack symbiflow_place symbiflow_route symbiflow_synth ql_symbiflow symbiflow_analysis symbiflow_repack symbiflow_write_fasm symbiflow_generate_bitstream)
+  set(WRAPPERS
+        env
+        ql_symbiflow
+        symbiflow_analysis
+        symbiflow_generate_bitstream
+        symbiflow_generate_constraints
+        symbiflow_generate_libfile
+        symbiflow_pack
+        symbiflow_place
+        symbiflow_repack
+        symbiflow_route
+        symbiflow_synth
+        symbiflow_write_fasm
+  )
 
   # Export VPR arguments
   list(JOIN VPR_BASE_ARGS " " VPR_BASE_ARGS)
@@ -64,6 +77,10 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/pinmap_parse.py
           DESTINATION bin/python
           PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
+
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/utils/create_lib.py
+	  DESTINATION bin/python
+	  PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
 
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_io_place.py
           DESTINATION bin/python
@@ -154,6 +171,10 @@ function(DEFINE_QL_DEVICE_CELLS_INSTALL_TARGET)
   install(FILES ${DEVICE_MERGED_FILE_LOCATION}
           DESTINATION "share/symbiflow/arch/${DEVICE}_${PACKAGE}"
           RENAME "arch_${DEVICE}_${PACKAGE}.xml")
+
+  # install lib files
+  install(DIRECTORY ${QLF_FPGA_DATABASE_DIR}/${FAMILY}/lib/
+          DESTINATION "share/symbiflow/arch/${DEVICE}_${PACKAGE}/lib")
 
   # Install device-specific cells sim and cells map files
   get_target_property(CELLS_SIM ${DEVICE_TYPE} CELLS_SIM)

@@ -4,6 +4,7 @@ channels:
   - litex-hub
 dependencies:
   - litex-hub::capnproto-java=0.1.5_0012_g44a8c1e=20201104_165332
+  - litex-hub::capnproto=0.8.0=20210316_201220
   - litex-hub::gcc-riscv64-elf-newlib=9.2.0=20201119_154229
   - litex-hub::icestorm=0.0_0719_g792cef0=20201120_145821
   - litex-hub::iverilog=s20150603_0957_gad862020=20201120_145821
