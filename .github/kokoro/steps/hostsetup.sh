@@ -14,6 +14,7 @@ echo "========================================"
 echo "Host adding PPAs"
 echo "----------------------------------------"
 wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | sudo apt-key add -
+curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | sudo bash
 sudo apt-add-repository 'deb https://apt.kitware.com/ubuntu/ xenial main'
 echo "----------------------------------------"
 
@@ -51,6 +52,7 @@ sudo apt-get install -y \
         curl \
         flex \
         git \
+        git-lfs \
         graphviz \
         inkscape \
         jq \
