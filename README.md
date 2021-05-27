@@ -11,6 +11,7 @@ concentrating on;
 
  * [Lattice iCE40](ice40)
  * [Xilinx Series 7 (Artix 7 and Zynq 7)](xc/xc7)
+ * [QuickLogic](quicklogic)
 
  * Kokoro Build Status
    * [![Test Architectures Status](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/testarch.svg)](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/testarch.html)
