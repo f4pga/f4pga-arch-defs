@@ -1,4 +1,7 @@
-`timescale 1ns/1ps
+// It looks like for the models to be correctly annotated with timings from
+// SDF in Icarus Verilog the timescale provided here must match the one in SDF.
+// VPR writes SDFs in picoseconds hence here it is set to picoseconds as well.
+`timescale 1ps/1ps
 
 // VPR routing interconnect module
 module fpga_interconnect(datain, dataout);
@@ -17,12 +20,15 @@ module fpga_interconnect(datain, dataout);
 endmodule
 
 
-module frac_lut4_arith (in, cin, lut4_out, cout);
+module frac_lut4_arith (\in[3] ,\in[2] ,\in[1] ,\in[0] ,cin, lut4_out, cout);
 
     parameter [15:0] LUT  = 16'd0;
     parameter [0: 0] MODE = 0;
 
-    input  [3:0] in;
+    input  [0:0] \in[3] ;
+    input  [0:0] \in[2] ;
+    input  [0:0] \in[1] ;
+    input  [0:0] \in[0] ;
     input  [0:0] cin;
     output [0:0] lut4_out;
     output [0:0] cout;
@@ -30,8 +36,8 @@ module frac_lut4_arith (in, cin, lut4_out, cout);
     // Mode bits of frac_lut4_arith are responsible for the LI2 mux which
     // selects between the LI2 and CIN inputs.
     wire [3:0] li = (MODE == 1'b1) ?
-        {in[3], cin,   in[1], in[0]} :
-        {in[3], in[2], in[1], in[0]};
+        {\in[3] ,cin,    \in[1] ,\in[0] } :
+        {\in[3] ,\in[2] ,\in[1] ,\in[0] };
 
     // Output function
     wire [7:0] s1 = li[0] ?
@@ -39,7 +45,7 @@ module frac_lut4_arith (in, cin, lut4_out, cout);
         {LUT[15], LUT[13], LUT[11], LUT[9], LUT[7], LUT[5], LUT[3], LUT[1]};
 
     wire [3:0] s2 = li[1] ?
-        {s1[6], s1[4], s1[2], s1[0]} : 
+        {s1[6], s1[4], s1[2], s1[0]} :
         {s1[7], s1[5], s1[3], s1[1]};
 
     wire [1:0] s3 = li[2] ?
@@ -47,16 +53,22 @@ module frac_lut4_arith (in, cin, lut4_out, cout);
         {s2[3], s2[1]};
 
     assign lut4_out = li[3] ? s3[0] : s3[1];
-    
+
     // Carry out function
     assign cout = s2[2] ? cin : s2[3];
 
     // Timing paths. The values are dummy and are intended to be replaced by
     // ones from a SDF file during simulation.
     specify
-        (in  *> lut4_out) = 0;
+        (\in[0] => lut4_out) = 0;
+        (\in[1] => lut4_out) = 0;
+        (\in[2] => lut4_out) = 0;
+        (\in[3] => lut4_out) = 0;
         (cin => lut4_out) = 0;
-        (in  *> cout) = 0;
+        (\in[0] => cout) = 0;
+        (\in[1] => cout) = 0;
+        (\in[2] => cout) = 0;
+        (\in[3] => cout) = 0;
         (cin => cout) = 0;
     endspecify
 

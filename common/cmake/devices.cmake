@@ -18,6 +18,8 @@ function(DEFINE_ARCH)
   #    PROTOTYPE_PART <prototype_part>
   #    YOSYS_SYNTH_SCRIPT <yosys_script>
   #    YOSYS_CONV_SCRIPT <yosys_script>
+  #    [SDC_PATCH_TOOL <path to a SDC file patching utility>]
+  #    [SDC_PATCH_TOOL_CMD <command to run SDC_PATCH_TOOL>]
   #    BITSTREAM_EXTENSION <ext>
   #    [VPR_ARCH_ARGS <arg list>]
   #    RR_PATCH_TOOL <path to rr_patch tool>
@@ -55,6 +57,7 @@ function(DEFINE_ARCH)
   #    BIT_TIME_CMD <command to run BIT_TIME>
   #    [RR_GRAPH_EXT <ext>]
   #    [NO_INSTALL]
+  #    [FIXUP_POST_SYNTHESIS_EXTRA_ARGS <extra args>]
   #   )
   # ~~~
   #
@@ -134,6 +137,15 @@ function(DEFINE_ARCH)
   # * OUT_PLACE - VPR .place file to be used by router
   # * VPR_ARCH  - Path to VPR architecture XML file
   #
+  # SDC_PATCH_TOOL allows to specify a utility that processes SDC constraints
+  #  file provided by a user prior to feedin it to VPR.
+  #
+  # SDC_PATCH_TOOL_CMD variables:
+  #
+  # * SDC_IN        - Path to the input (source) SDC file
+  # * SDC_OUT       - Path to the output (destination) SDC file
+  # * INPUT_IO_FILE - Path to the input PCF IO constraints file
+  #
   # HLC_TO_BIT_CMD variables:
   #
   # * HLC_TO_BIT - Value of HLC_TO_BIT property of <arch>.
@@ -148,6 +160,10 @@ function(DEFINE_ARCH)
   # * PACKAGE - Package of bitstream.
   # * OUT_BITSTREAM - Input path to bitstream.
   # * OUT_BIT_VERILOG - Output path to verilog version of bitstream.
+  #
+  # FIXUP_POST_SYNTHESIS_EXTRA_ARGS allows to provide extra arguments for
+  # the utils/vpr_fixup_post_synth.py script.
+  #
   set(options
     NO_PLACE_CONSTR
     NO_PINS
@@ -181,6 +197,8 @@ function(DEFINE_ARCH)
     PLACE_TOOL_CMD
     PLACE_CONSTR_TOOL
     PLACE_CONSTR_TOOL_CMD
+    SDC_PATCH_TOOL
+    SDC_PATCH_TOOL_CMD
     HLC_TO_BIT
     HLC_TO_BIT_CMD
     FASM_TO_BIT
@@ -195,6 +213,7 @@ function(DEFINE_ARCH)
     BIT_TIME_CMD
     RR_GRAPH_EXT
     ROUTE_CHAN_WIDTH
+    FIXUP_POST_SYNTHESIS_EXTRA_ARGS
   )
 
   set(
@@ -240,10 +259,13 @@ function(DEFINE_ARCH)
     CELLS_SIM
     RR_PATCH_TOOL
     RR_PATCH_CMD
+    SDC_PATCH_TOOL
+    SDC_PATCH_TOOL_CMD
     NET_PATCH_TOOL
     NET_PATCH_TOOL_CMD
     BIT_TO_FASM
     BIT_TO_FASM_CMD
+    FIXUP_POST_SYNTHESIS_EXTRA_ARGS
     )
 
   set(PLACE_ARGS
@@ -767,7 +789,7 @@ function(DEFINE_DEVICE)
       set(OUT_RR_REAL_FILENAME rr_graph_${DEVICE}_${PACKAGE}.rr_graph.real.bin)
       set(OUT_RR_REAL ${CMAKE_CURRENT_BINARY_DIR}/${OUT_RR_REAL_FILENAME})
       set(READ_RR ${OUT_RR_PATCHED})
-      set(READ_RR_FILENAME ${OUT_RR_PATCHED_FILENAME}) 
+      set(READ_RR_FILENAME ${OUT_RR_PATCHED_FILENAME})
     else()
       # Use the virtual rr_graph directly
       if(NOT DEFINED EXT_RR_GRAPH)
@@ -779,9 +801,9 @@ function(DEFINE_DEVICE)
         get_filename_component(OUT_RR_REAL          ${EXT_RR_GRAPH} REALPATH)
         get_filename_component(OUT_RR_REAL_FILENAME ${EXT_RR_GRAPH} NAME)
       endif()
-      
+
       set(READ_RR ${OUT_RR_REAL})
-      set(READ_RR_FILENAME ${OUT_RR_REAL_FILENAME}) 
+      set(READ_RR_FILENAME ${OUT_RR_REAL_FILENAME})
     endif()
 
     set_target_properties(
@@ -811,7 +833,7 @@ function(DEFINE_DEVICE)
     if(NOT ${NO_RR_PATCHING})
         list(APPEND OUTPUTS ${OUT_RR_REAL_FILENAME})
         list(APPEND ARGS --write_rr_graph ${OUT_RR_REAL_FILENAME})
-    endif() 
+    endif()
 
     set(CACHE_PREFIX rr_graph_${DEVICE}_${PACKAGE})
 
@@ -1653,6 +1675,7 @@ function(ADD_FPGA_TARGET)
     get_file_location(SDC_LOCATION ${OUT_SDC_REL})
     set(SDC_ARG --sdc_file ${SDC_LOCATION})
     set(SDC_FILE ${SDC_LOCATION})
+    append_file_dependency(SDC_DEPS ${OUT_SDC_REL})
     set(SDC_DEPS ${OUT_SDC_REL})
   endif()
 
@@ -1662,7 +1685,80 @@ function(ADD_FPGA_TARGET)
     set(SDC_ARG --sdc_file ${SDC_LOCATION})
     set(SDC_FILE ${SDC_LOCATION})
     set(SDC_DEPS ${ADD_FPGA_TARGET_INPUT_SDC_FILE})
+    append_file_dependency(SDC_DEPS ${ADD_FPGA_TARGET_INPUT_SDC_FILE})
   endif()
+
+  # Process SDC
+  # -------------------------------------------------------------------------
+  get_target_property(SDC_PATCH_TOOL     ${ARCH} SDC_PATCH_TOOL)
+  get_target_property(SDC_PATCH_TOOL_CMD ${ARCH} SDC_PATCH_TOOL_CMD)
+
+  if (NOT "${SDC_PATCH_TOOL}" MATCHES ".*-NOTFOUND" AND
+      NOT "${SDC_PATCH_TOOL}" STREQUAL "" AND
+      NOT "${SDC_FILE}" STREQUAL "" AND
+      NOT "${INPUT_IO_FILE}" STREQUAL "")
+    set(SDC_DEPS "")
+
+    set(IN_SDC ${SDC_FILE})
+
+    set(OUT_SDC ${OUT_LOCAL}/${TOP}.patched.sdc)
+    set(OUT_SDC_REL ${OUT_LOCAL_REL}/${TOP}.patched.sdc)
+
+    # Configure the base command
+    string(CONFIGURE ${SDC_PATCH_TOOL_CMD} SDC_PATCH_TOOL_CMD_FOR_TARGET)
+    separate_arguments(
+      SDC_PATCH_TOOL_CMD_FOR_TARGET_LIST UNIX_COMMAND ${SDC_PATCH_TOOL_CMD_FOR_TARGET}
+    )
+
+    # Configure and append device-specific extra args
+    get_target_property(SDC_PATCH_EXTRA_ARGS ${DEVICE} SDC_PATCH_EXTRA_ARGS)
+    if (NOT "${SDC_PATCH_EXTRA_ARGS}" MATCHES ".*NOTFOUND")
+      string(CONFIGURE ${SDC_PATCH_EXTRA_ARGS} SDC_PATCH_EXTRA_ARGS_FOR_TARGET)
+      separate_arguments(
+        SDC_PATCH_EXTRA_ARGS_FOR_TARGET_LIST UNIX_COMMAND ${SDC_PATCH_EXTRA_ARGS_FOR_TARGET}
+      )
+    else()
+      set(SDC_PATCH_EXTRA_ARGS_FOR_TARGET_LIST)
+    endif()
+
+    # Configure and append design-specific extra args
+    set(SDC_PATCH_DESIGN_EXTRA_ARGS ${ADD_FPGA_TARGET_SDC_PATCH_EXTRA_ARGS})
+    if (NOT "${SDC_PATCH_DESIGN_EXTRA_ARGS}" STREQUAL "")
+      string(CONFIGURE ${SDC_PATCH_DESIGN_EXTRA_ARGS} SDC_PATCH_DESIGN_EXTRA_ARGS_FOR_TARGET)
+      separate_arguments(
+        SDC_PATCH_DESIGN_EXTRA_ARGS_FOR_TARGET_LIST UNIX_COMMAND ${SDC_PATCH_DESIGN_EXTRA_ARGS_FOR_TARGET}
+      )
+    else()
+      set(SDC_PATCH_DESIGN_EXTRA_ARGS_FOR_TARGET_LIST)
+    endif()
+
+    # Extra dependencies
+    get_target_property(SDC_PATCH_DEPS ${DEVICE} SDC_PATCH_DEPS)
+    if ("${SDC_PATCH_DEPS}" MATCHES ".*NOTFOUND")
+      set(SDC_PATCH_DEPS)
+    endif ()
+
+    # Add targets for patched SDC
+    add_custom_command(
+      OUTPUT ${OUT_SDC}
+      DEPENDS ${SDC_DEPS} ${INPUT_IO_FILE} ${OUT_EBLIF} ${SDC_PATCH_TOOL} ${SDC_PATCH_DEPS}
+      COMMAND
+        ${SDC_PATCH_TOOL_CMD_FOR_TARGET_LIST}
+        ${SDC_PATCH_EXTRA_ARGS_FOR_TARGET_LIST}
+        ${SDC_PATCH_DESIGN_EXTRA_ARGS_FOR_TARGET_LIST}
+      WORKING_DIRECTORY ${OUT_LOCAL}
+    )
+
+    add_output_to_fpga_target(${NAME} PATCH_SDC ${OUT_SDC_REL})
+
+    # Use the patched SDC in VPR
+    append_file_dependency(VPR_DEPS ${OUT_SDC_REL})
+    set(SDC_ARG --sdc_file ${OUT_SDC})
+    set(SDC_FILE ${OUT_SDC})
+    set(SDC_DEPS "")
+    append_file_dependency(SDC_DEPS ${OUT_SDC_REL})
+
+  endif ()
 
   # Generate routing and generate HLC.
   set(OUT_ROUTE ${OUT_LOCAL}/${TOP}.route)
@@ -1998,7 +2094,7 @@ function(ADD_FPGA_TARGET)
     else()
       set(NET_PATCH_EXTRA_ARGS_FOR_TARGET_LIST)
     endif()
-    
+
     # Configure and append design-specific extra args
     set(NET_PATCH_DESIGN_EXTRA_ARGS ${ADD_FPGA_TARGET_NET_PATCH_EXTRA_ARGS})
     if (NOT "${NET_PATCH_DESIGN_EXTRA_ARGS}" STREQUAL "")
@@ -2141,18 +2237,32 @@ function(ADD_FPGA_TARGET)
   #-------------------------------------------------------------------------
   set(FIXUP_POST_SYNTHESIS ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_fixup_post_synth.py)
 
+  get_target_property(FIXUP_POST_SYNTHESIS_EXTRA_ARGS ${ARCH} FIXUP_POST_SYNTHESIS_EXTRA_ARGS)
+  if (NOT "${FIXUP_POST_SYNTHESIS_EXTRA_ARGS}" MATCHES ".*NOTFOUND" AND NOT "${FIXUP_POST_SYNTHESIS_EXTRA_ARGS}" STREQUAL "")
+    string(CONFIGURE ${FIXUP_POST_SYNTHESIS_EXTRA_ARGS} FIXUP_POST_SYNTHESIS_EXTRA_ARGS_FOR_TARGET)
+    separate_arguments(
+      FIXUP_POST_SYNTHESIS_EXTRA_ARGS_FOR_TARGET_LIST UNIX_COMMAND ${FIXUP_POST_SYNTHESIS_EXTRA_ARGS_FOR_TARGET}
+    )
+  else()
+    set(FIXUP_POST_SYNTHESIS_EXTRA_ARGS_FOR_TARGET_LIST)
+  endif()
+
   set(OUT_ANALYSIS ${OUT_LOCAL}/analysis.log)
   set(OUT_POST_SYNTHESIS_V ${OUT_LOCAL}/${TOP}_post_synthesis.v)
   set(OUT_POST_SYNTHESIS_BLIF ${OUT_LOCAL}/${TOP}_post_synthesis.blif)
+  set(OUT_POST_SYNTHESIS_SDF ${OUT_LOCAL}/${TOP}_post_synthesis.sdf)
   add_custom_command(
-    OUTPUT ${OUT_ANALYSIS} ${OUT_POST_SYNTHESIS_V} ${OUT_POST_SYNTHESIS_BLIF}
+    OUTPUT ${OUT_ANALYSIS} ${OUT_POST_SYNTHESIS_V} ${OUT_POST_SYNTHESIS_BLIF} ${OUT_POST_SYNTHESIS_SDF}
     DEPENDS ${OUT_ROUTE} ${VPR_DEPS} ${PYTHON3} ${FIXUP_POST_SYNTHESIS}
     COMMAND ${VPR_CMD} ${OUT_EBLIF} ${VPR_ARGS} --analysis --gen_post_synthesis_netlist on
     COMMAND ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log
         ${OUT_LOCAL}/analysis.log
     COMMAND ${PYTHON3} ${FIXUP_POST_SYNTHESIS}
-        -i ${OUT_POST_SYNTHESIS_V}
-        -o ${OUT_POST_SYNTHESIS_V}
+        --vlog-in ${OUT_POST_SYNTHESIS_V}
+        --vlog-out ${OUT_POST_SYNTHESIS_V}
+        --sdf-in ${OUT_POST_SYNTHESIS_SDF}
+        --sdf-out ${OUT_POST_SYNTHESIS_SDF}
+        ${FIXUP_POST_SYNTHESIS_EXTRA_ARGS_FOR_TARGET_LIST}
     WORKING_DIRECTORY ${OUT_LOCAL}
     )
   add_custom_target(${NAME}_analysis DEPENDS ${OUT_ANALYSIS})

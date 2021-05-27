@@ -38,6 +38,7 @@ from pb_rr_graph_netlist import load_clb_nets_into_pb_graph
 from pb_rr_graph_netlist import build_packed_netlist_from_pb_graph
 
 from pb_type import PbType, Model, PortType
+from lib.parse_pcf import parse_simple_pcf
 
 # =============================================================================
 
@@ -893,7 +894,7 @@ def expand_port_maps(rules, clb_pbtypes):
 # =============================================================================
 
 
-def load_repacking_constraints(json_root):
+def load_json_constraints(json_root):
     """
     Loads constraints for the repacker from a parsed JSON file
     """
@@ -922,6 +923,48 @@ def load_repacking_constraints(json_root):
                 constraint.pin
             )
         )
+
+    return constraints
+
+
+# =============================================================================
+
+
+def load_pcf_constraints(pcf):
+    """
+    Loads constraints for the repacker from a parsed PCF file
+    """
+
+    logging.debug(" Repacking constraints:")
+
+    constraints = []
+    for pcf_constr in parse_simple_pcf(pcf):
+        if (type(pcf_constr).__name__ == 'PcfClkConstraint'):
+
+            # There are only "clb" and "io" tile types
+            # We select the same global clock for
+            # each tile where net is used
+            constraint = RepackingConstraint(
+                net=pcf_constr.net, block_type='clb', port_spec=pcf_constr.pin
+            )
+            constraints.append(constraint)
+            logging.debug(
+                "  {}: {}.{}[{}]".format(
+                    constraint.net, constraint.block_type, constraint.port,
+                    constraint.pin
+                )
+            )
+
+            constraint = RepackingConstraint(
+                net=pcf_constr.net, block_type='io', port_spec=pcf_constr.pin
+            )
+            constraints.append(constraint)
+            logging.debug(
+                "  {}: {}.{}[{}]".format(
+                    constraint.net, constraint.block_type, constraint.port,
+                    constraint.pin
+                )
+            )
 
     return constraints
 
@@ -966,10 +1009,16 @@ def main():
         help="JSON file describing repacking rules"
     )
     parser.add_argument(
-        "--repacking-constraints",
+        "--json-constraints",
         type=str,
         default=None,
         help="JSON file describing repacking constraints"
+    )
+    parser.add_argument(
+        "--pcf-constraints",
+        type=str,
+        default=None,
+        help="PCF file describing repacking constraints"
     )
     parser.add_argument(
         "--eblif-in",
@@ -1092,15 +1141,22 @@ def main():
     expand_port_maps(repacking_rules, clb_pbtypes)
 
     # Load the repacking constraints if provided
-    if args.repacking_constraints is not None:
-        logging.info("Loading repacking constraints...")
 
-        with open(args.repacking_constraints, "r") as fp:
+    if args.json_constraints is not None:
+        logging.info("Loading JSON constraints...")
+
+        with open(args.json_constraints, "r") as fp:
             json_root = json.load(fp)
-            repacking_constraints = load_repacking_constraints(json_root)
+            repacking_constraints = load_json_constraints(json_root)
 
     else:
         repacking_constraints = []
+
+    if args.pcf_constraints is not None:
+        logging.info("Loading PCF constraints...")
+
+        with open(args.pcf_constraints, "r") as fp:
+            repacking_constraints.extend(load_pcf_constraints(fp))
 
     # Load the BLIF/EBLIF file
     logging.info("Loading BLIF/EBLIF circuit netlist...")

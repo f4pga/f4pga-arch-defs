@@ -1,0 +1,3 @@
+set_io in user_IN_T[0]
+set_clk clk[3] clk
+set_io out user_OUT_T[8]
