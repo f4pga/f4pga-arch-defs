@@ -11,7 +11,7 @@ add_fpga_target(
   INPUT_IO_FILE test.pcf
   INPUT_SDC_FILE counter_4clk.sdc
   EXPLICIT_ADD_FILE_TARGET
-  NET_PATCH_EXTRA_ARGS "--repacking-constraints ${CMAKE_CURRENT_SOURCE_DIR}/constraints.json"
+  NET_PATCH_EXTRA_ARGS "--pcf-constraints ${CMAKE_CURRENT_SOURCE_DIR}/test.pcf"
   DEFINES SYNTH_OPTS=-no_adder
 )
 
@@ -23,7 +23,7 @@ add_fpga_target(
   INPUT_IO_FILE test.pcf
   INPUT_SDC_FILE counter_4clk.sdc
   EXPLICIT_ADD_FILE_TARGET
-  NET_PATCH_EXTRA_ARGS "--repacking-constraints ${CMAKE_CURRENT_SOURCE_DIR}/constraints.json"
+  NET_PATCH_EXTRA_ARGS "--pcf-constraints ${CMAKE_CURRENT_SOURCE_DIR}/test.pcf"
 )
 
 add_dependencies(all_qlf_k4n8_tests_no_adder counter_4clk-umc22-no-adder_bit)
