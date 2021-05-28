@@ -1,0 +1,4 @@
+set_io shift_in user_IN_T[0]
+set_io clr user_IN_T[1]
+set_io shift_out user_OUT_T[10]
+
