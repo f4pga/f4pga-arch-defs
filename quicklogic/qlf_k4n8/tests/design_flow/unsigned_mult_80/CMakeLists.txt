@@ -18,5 +18,7 @@ add_fpga_target(
   EXPLICIT_ADD_FILE_TARGET
   )
 
-add_dependencies(all_qlf_k4n8_tests_no_adder unsigned_mult_80_test-umc22-no-adder_bit)
+# The no_adder version does not fit into the 24x24 device (requires 590 clb, have 576)
+#add_dependencies(all_qlf_k4n8_tests_no_adder unsigned_mult_80_test-umc22-no-adder_bit)
+
 add_dependencies(all_qlf_k4n8_tests_adder    unsigned_mult_80_test-umc22-adder_bit)
