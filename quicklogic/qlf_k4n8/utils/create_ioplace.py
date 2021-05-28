@@ -74,50 +74,51 @@ def gen_io_def(args):
                     sys.exit(1)
 
     for pcf_constraint in parse_simple_pcf(args.pcf):
-        pad_name = pcf_constraint.pad
-        if not io_place.is_net(pcf_constraint.net):
-            print(
-                'PCF constraint "{}" from line {} constraints net {} {}:\n{}'.
-                format(
-                    pcf_constraint.line_str, pcf_constraint.line_num,
-                    pcf_constraint.net, '\n'.join(io_place.get_nets()),
-                    "which is not in available netlist"
-                ),
-                file=sys.stderr
+        if (type(pcf_constraint).__name__ == 'PcfIoConstraint'):
+            pad_name = pcf_constraint.pad
+            if not io_place.is_net(pcf_constraint.net):
+                print(
+                    'PCF constraint "{}" from line {} constraints net {} {}:\n{}'
+                    .format(
+                        pcf_constraint.line_str, pcf_constraint.line_num,
+                        pcf_constraint.net, '\n'.join(io_place.get_nets()),
+                        "which is not in available netlist"
+                    ),
+                    file=sys.stderr
+                )
+                sys.exit(1)
+
+            if pad_name not in pad_map:
+                print(
+                    'PCF constraint "{}" from line {} constraints pad {} {}:\n{}'
+                    .format(
+                        pcf_constraint.line_str, pcf_constraint.line_num,
+                        pad_name, '\n'.join(sorted(pad_map.keys())),
+                        "which is not in available pad map"
+                    ),
+                    file=sys.stderr
+                )
+                sys.exit(1)
+
+            # Get the top-level block instance, strip its index
+            inst = io_place.get_top_level_block_instance_for_net(
+                pcf_constraint.net
             )
-            sys.exit(1)
+            if inst is None:
+                continue
 
-        if pad_name not in pad_map:
-            print(
-                'PCF constraint "{}" from line {} constraints pad {} {}:\n{}'.
-                format(
-                    pcf_constraint.line_str, pcf_constraint.line_num, pad_name,
-                    '\n'.join(sorted(pad_map.keys())),
-                    "which is not in available pad map"
-                ),
-                file=sys.stderr
+            match = BLOCK_INSTANCE_RE.match(inst)
+            assert match is not None, inst
+
+            inst = match.group("name")
+
+            # Constraint the net (block)
+            locs = pad_map[pad_name]
+            io_place.constrain_net(
+                net_name=pcf_constraint.net,
+                loc=locs,
+                comment=pcf_constraint.line_str
             )
-            sys.exit(1)
-
-        # Get the top-level block instance, strip its index
-        inst = io_place.get_top_level_block_instance_for_net(
-            pcf_constraint.net
-        )
-        if inst is None:
-            continue
-
-        match = BLOCK_INSTANCE_RE.match(inst)
-        assert match is not None, inst
-
-        inst = match.group("name")
-
-        # Constraint the net (block)
-        locs = pad_map[pad_name]
-        io_place.constrain_net(
-            net_name=pcf_constraint.net,
-            loc=locs,
-            comment=pcf_constraint.line_str
-        )
 
     if io_place.constraints:
         io_place.output_io_place(args.output)

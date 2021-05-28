@@ -18,5 +18,8 @@ run_vpr --analysis --gen_post_synthesis_netlist on --verify_file_digests off
 mv vpr_stdout.log analysis.log
 
 python3 ${FIXUP_POST_SYNTHESIS} \
-    -i ${TOP}_post_synthesis.v \
-    -o ${TOP}_post_synthesis.v
+    --vlog-in ${TOP}_post_synthesis.v \
+    --vlog-out ${TOP}_post_synthesis.v \
+    --sdf-in ${TOP}_post_synthesis.sdf \
+    --sdf-out ${TOP}_post_synthesis.sdf \
+    --split-ports
