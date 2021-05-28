@@ -70,6 +70,10 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
           DESTINATION share/symbiflow/scripts/${FAMILY})
 
   # install python scripts
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/convert_compile_opts.py
+          DESTINATION bin/python
+          PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
+
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/split_inouts.py
           DESTINATION bin/python
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
