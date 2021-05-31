@@ -1,0 +1,13 @@
+orientation,row,col,pin_num_in_cell,port_name,mapped_pin,GPIO_type
+TOP,,,,gfpga_pad_IO_top[0],0,GPIO_IN
+TOP,,,,gfpga_pad_IO_top[1],0,GPIO_OUT
+TOP,,,,gfpga_pad_IO_top[2],0,GPIO_EN
+TOP,,,,gfpga_pad_IO_top[4:63],user_IN_T[0:59]
+TOP,,,,gfpga_pad_IO_top[64:127],user_OUT_T[0:63]
+RIGHT,,,,gfpga_pad_IO_right[0:63],user_IN_R[0:63]
+RIGHT,,,,gfpga_pad_IO_right[64:127],user_OUT_R[0:63]
+BOTTOM,,,,gfpga_pad_IO_bot[0:63],user_IN_B[0:63]
+BOTTOM,,,,gfpga_pad_IO_bot[64:127],user_OUT_B[0:63]
+LEFT,,,,gfpga_pad_IO_left[0:63],user_IN_L[0:63]
+LEFT,,,,gfpga_pad_IO_left[64:127],user_OUT_L[0:63]
+

@@ -18,6 +18,10 @@ echo "------------------------------------------------------------"
 set +e
 (
 	set -e
+
+	# Getting file from git LFS storing
+	git submodule foreach git lfs pull
+
 	source env/conda/bin/activate symbiflow_arch_def_base
 	pushd build
 	export VPR_NUM_WORKERS=${CORES}
