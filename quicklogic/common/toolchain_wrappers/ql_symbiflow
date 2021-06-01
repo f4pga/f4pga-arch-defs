@@ -371,6 +371,13 @@ else
     SDC_MAKE="\${current_dir}/build/${TOP}_dummy.sdc"
 fi
 
+if ! [ -z "$CSV_PATH" ]; then
+    CSV_MAKE=$CSV_PATH
+else
+    touch ${CURR_DIR}/build/${TOP}_dummy.csv
+    CSV_MAKE="\${current_dir}/build/${TOP}_dummy.csv"
+fi
+
 echo -e ".PHONY:\${BUILDDIR}\n
 current_dir := $CURR_DIR\n\
 TOP := $TOP\n\
@@ -383,7 +390,7 @@ FAMILY := $FAMILY\n\
 ANALYSIS_CORNER := $PNR_CORNER\n\
 PNR_CORNER := $ANALYSIS_CORNER\n\
 PCF := $PCF_MAKE\n\
-PINMAP_CSV := $CSV_PATH\n\
+PINMAP_CSV := $CSV_MAKE\n\
 SDC_IN := $SDC_MAKE\n\
 BUILDDIR := build\n\n\
 SDC := \${current_dir}/\${BUILDDIR}/\${TOP}.sdc
