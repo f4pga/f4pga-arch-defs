@@ -19,7 +19,7 @@ add_custom_target(
   post_synthesis_comb
   COMMAND ${IVERILOG} -v -gspecify -o multiplier_8bit.vvp ${MULT_TB} ${POST_SYNTH_FILE} ${CELLS_SIM}
   DEPENDS ${IVERILOG}
-  COMMAND ${VVP} -v multiplier_8bit.vvp | egrep -q "PASS"
+  COMMAND ${VVP} -v multiplier_8bit.vvp -sdf-verbose | egrep -q "PASS"
   DEPENDS ${VVP}
   DEPENDS multiplier_8bit_test4-umc22-adder_analysis
   )

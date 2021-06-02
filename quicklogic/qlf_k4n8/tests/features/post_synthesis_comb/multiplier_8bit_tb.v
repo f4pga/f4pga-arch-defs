@@ -43,6 +43,7 @@ module multiplier_8bit_tb( );
   initial  begin
     $dumpfile("multiplier_8bit_tb.vcd");
     $dumpvars(0,multiplier_8bit_tb);
+    $sdf_annotate("multiplier_8bit_post_synthesis.sdf", DUT);
     $display("\t\ttime,\tx0,\ty0,\tmult_out"); 
     $monitor("%d :\t[%d] X\t[%d] \t= [%d]",$time,x0,y0,mult_out);
     if(status == 1'b0)
