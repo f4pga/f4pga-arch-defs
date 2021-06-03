@@ -432,10 +432,13 @@ if [ -f "$SOURCE/v_list_tmp" ]; then
 fi
 
 # FIXME: Some devices do not have fasm2bels yet
+RUN_TILL=""
 if [[ "$DEVICE" =~ ^(qlf_k4n8.*)$ ]]; then
     HAVE_FASM2BELS=0
+    RUN_TILL="bit"
 else
     HAVE_FASM2BELS=1
+    RUN_TILL="route"
 fi
 
 # For some devices do repacking between place and route
@@ -527,7 +530,7 @@ SDC_IN := $SDC_MAKE\n\
 BUILDDIR := build\n\n\
 SDC := \${current_dir}/\${BUILDDIR}/\${TOP}.sdc
 
-all: \${BUILDDIR}/\${TOP}.bit\n\
+all: \${BUILDDIR}/\${TOP}.${RUN_TILL}\n\
 \n\
 \${BUILDDIR}/\${TOP}.eblif: \${VERILOG} \${PCF}\n\
   ifneq (\"\$(wildcard \$(HEX_FILES))\",\"\")\n\
@@ -601,7 +604,7 @@ elif [[ ! -z "$OUT" && $1 == "-compile" ]];then
 else
   if [ $1 == "-compile" ]; then
   echo -e "Running Synth->Pack->Place->Route->FASM->bitstream"
-  	cd $SOURCE;make -f Makefile.symbiflow ${BUILDDIR}/${TOP}.bit  || exit
+  	cd $SOURCE;make -f Makefile.symbiflow ${BUILDDIR}/${TOP}.${RUN_TILL}  || exit
   fi
 fi
 
