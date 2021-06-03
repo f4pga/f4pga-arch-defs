@@ -92,6 +92,8 @@ function parse_args {
      export CORNER=$CORNER
      if [[ "$DEVICE" == "qlf_k4n8_qlf_k4n8" ]]; then
 	     DEVICE_1="qlf_k4n8-qlf_k4n8_umc22_${CORNER}"
+     elif [[ "$DEVICE" == "qlf_k6n10_qlf_k6n10" ]];then
+	     DEVICE_1="qlf_k6n10-qlf_k6n10_gf12"
      fi
      export TOP=$TOP
 
