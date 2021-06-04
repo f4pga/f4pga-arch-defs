@@ -55,5 +55,3 @@ define_ql_toolchain_target(
   SYNTH_SCRIPT ${FAMILY_DIR}/yosys/synth.tcl
   CONV_SCRIPT ${FAMILY_DIR}/yosys/conv.tcl
 )
-
-add_subdirectory(utils)
