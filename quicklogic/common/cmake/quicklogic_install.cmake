@@ -69,6 +69,27 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
   install(FILES ${VPR_CONFIG}
           DESTINATION share/symbiflow/scripts/${FAMILY})
 
+  # Example design to run through the flow
+  # FIXME: Installation of the example should me moved out of this function
+  # For now there is the following workaround which installs it only for qlf_k4n8
+  if(${FAMILY} STREQUAL "qlf_k4n8")
+    install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/tests/design_flow/counter_16bit/counter_16bit.v
+            DESTINATION share/symbiflow/tests/counter_16bit
+            PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
+    install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/tests/design_flow/counter_16bit/counter_16bit_tb.v
+            DESTINATION share/symbiflow/tests/counter_16bit
+            PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
+    install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/tests/design_flow/counter_16bit/counter_16bit.pcf
+  	  DESTINATION share/symbiflow/tests/counter_16bit
+            PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
+    install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/tests/design_flow/counter_16bit/pinmap_qlf_k4n8_umc22.csv
+  	  DESTINATION share/symbiflow/tests/counter_16bit
+  	  PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
+    install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/tests/design_flow/counter_16bit/counter_16bit.sdc
+            DESTINATION share/symbiflow/tests/counter_16bit
+            PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
+  endif()
+
   # install python scripts
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/convert_compile_opts.py
           DESTINATION bin/python
@@ -82,9 +103,9 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
           DESTINATION bin/python
           PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
 
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/utils/create_lib.py
-	  DESTINATION bin/python
-	  PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/create_lib.py
+          DESTINATION bin/python
+          PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
 
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_io_place.py
           DESTINATION bin/python
@@ -124,7 +145,7 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
     repack.py
   )
   foreach(NAME ${REPACKER_FILES})
-    install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/utils/repacker/${NAME}
+    install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/repacker/${NAME}
             DESTINATION bin/python/repacker
             PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
   endforeach()
@@ -141,12 +162,16 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
   install(FILES ${DEFINE_QL_TOOLCHAIN_TARGET_CONV_SCRIPT} ${DEFINE_QL_TOOLCHAIN_TARGET_SYNTH_SCRIPT}
           DESTINATION share/symbiflow/scripts/${FAMILY})
 
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/utils/create_ioplace.py
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/create_ioplace.py
           DESTINATION bin/python
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
-  install(DIRECTORY ${QLF_FPGA_DATABASE_DIR}/${FAMILY}/fasm_database/
-          DESTINATION share/symbiflow/fasm_database/${FAMILY})
+  # Install FASM database
+  set(FASM_DATABASE_DIR "${QLF_FPGA_DATABASE_DIR}/${FAMILY}/fasm_database/")
+  if(EXISTS "${FASM_DATABASE_DIR}" AND IS_DIRECTORY "${FASM_DATABASE_DIR}")
+    install(DIRECTORY ${QLF_FPGA_DATABASE_DIR}/${FAMILY}/fasm_database/
+            DESTINATION share/symbiflow/fasm_database/${FAMILY})
+  endif()
 
 endfunction()
 
