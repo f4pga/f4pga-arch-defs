@@ -5037,92 +5037,49 @@ output [15:0] DO
                                                   {CLKOUT6_CALC[31:30], CLKFBOUT_CALC[15:13],      CLKOUT6_CALC[26:0]};
 
   // Handle inputs that should have certain logic levels when left unconnected
-  generate if (_TECHMAP_CONSTMSK_CLKINSEL_ == 1) begin
-    localparam INV_CLKINSEL = !_TECHMAP_CONSTVAL_CLKINSEL_;
-    wire clkinsel = 1'b1;
-  end else if (_TECHMAP_CONSTVAL_CLKINSEL_ == 0) begin
-    localparam INV_CLKINSEL = IS_CLKINSEL_INVERTED;
-    wire clkinsel = 1'b1;
-  end else begin
-    localparam INV_CLKINSEL = IS_CLKINSEL_INVERTED;
-    wire clkinsel = CLKINSEL;
-  end endgenerate
+  localparam INV_CLKINSEL  = (_TECHMAP_CONSTMSK_CLKINSEL_ == 1) ? !_TECHMAP_CONSTVAL_CLKINSEL_ : IS_CLKINSEL_INVERTED;
 
-  generate if (_TECHMAP_CONSTMSK_PWRDWN_ == 1) begin
-    localparam INV_PWRDWN =  !_TECHMAP_CONSTVAL_PWRDWN_;
-    wire pwrdwn = 1'b1;
-  end else if (_TECHMAP_CONSTVAL_PWRDWN_ == 0) begin
-    localparam INV_PWRDWN = ~IS_PWRDWN_INVERTED;
-    wire pwrdwn = 1'b1;
-  end else begin
-    localparam INV_PWRDWN =  IS_PWRDWN_INVERTED;
-    wire pwrdwn = PWRDWN;
-  end endgenerate
+  wire clkinsel = (_TECHMAP_CONSTMSK_CLKINSEL_ == 1) ? 1'b1 :
+                  (_TECHMAP_CONSTVAL_CLKINSEL_ == 0) ? 1'b1 :
+                                                       CLKINSEL;
 
-  generate if (_TECHMAP_CONSTMSK_RST_ == 1) begin
-    localparam INV_RST =  !_TECHMAP_CONSTVAL_PWRDWN_;
-    wire rst = 1'b1;
-  end else if (_TECHMAP_CONSTVAL_RST_ == 0) begin
-    localparam INV_RST = ~IS_RST_INVERTED;
-    wire rst = 1'b1;
-  end else begin
-    localparam INV_RST =  IS_RST_INVERTED;
-    wire rst = RST;
-  end endgenerate
+  localparam INV_PWRDWN    = (_TECHMAP_CONSTMSK_PWRDWN_ == 1) ? !_TECHMAP_CONSTVAL_PWRDWN_ :
+                             (_TECHMAP_CONSTVAL_PWRDWN_ == 0) ? ~IS_PWRDWN_INVERTED :
+                                                                 IS_PWRDWN_INVERTED;
 
-  generate if (_TECHMAP_CONSTMSK_DCLK_ == 1)
-    wire dclk = _TECHMAP_CONSTVAL_DCLK_;
-  else if (_TECHMAP_CONSTVAL_DCLK_ == 0)
-    wire dclk = 1'b0;
-  else
-    wire dclk = DCLK;
-  endgenerate
+  wire pwrdwn   = (_TECHMAP_CONSTMSK_PWRDWN_ == 1) ? 1'b1 :
+                  (_TECHMAP_CONSTVAL_PWRDWN_ == 0) ? 1'b1 : PWRDWN;
+
+  localparam INV_RST    = (_TECHMAP_CONSTMSK_RST_ == 1) ? !_TECHMAP_CONSTVAL_RST_ :
+                          (_TECHMAP_CONSTVAL_RST_ == 0) ? ~IS_RST_INVERTED :
+                                                          IS_RST_INVERTED;
+
+  wire rst   = (_TECHMAP_CONSTMSK_RST_   == 1) ? 1'b1 :
+               (_TECHMAP_CONSTVAL_RST_   == 0) ? 1'b1 : RST;
+
+  wire dclk  = (_TECHMAP_CONSTMSK_DCLK_  == 1) ? _TECHMAP_CONSTVAL_DCLK_ :
+               (_TECHMAP_CONSTVAL_DCLK_  == 0) ? 1'b0 : DCLK;
+
+  wire den   = (_TECHMAP_CONSTMSK_DEN_   == 1) ? _TECHMAP_CONSTVAL_DEN_ :
+               (_TECHMAP_CONSTVAL_DEN_   == 0) ? 1'b0 : DEN;
+
+  wire dwe   = (_TECHMAP_CONSTMSK_DWE_   == 1) ? _TECHMAP_CONSTVAL_DWE_ :
+               (_TECHMAP_CONSTVAL_DWE_   == 0) ? 1'b0 : DWE;
   
-  generate if (_TECHMAP_CONSTMSK_DEN_ == 1)
-    wire den = _TECHMAP_CONSTVAL_DEN_;
-  else if (_TECHMAP_CONSTVAL_DEN_ == 0)
-    wire den = 1'b0;
-  else
-    wire den = DEN;
-  endgenerate
+  wire psclk = (_TECHMAP_CONSTMSK_PSCLK_ == 1) ? _TECHMAP_CONSTVAL_PSCLK_ :
+               (_TECHMAP_CONSTVAL_PSCLK_ == 0) ? 1'b0 : PSCLK;
+  
+  localparam INV_PSEN   = (_TECHMAP_CONSTMSK_PSEN_ == 1) ? !_TECHMAP_CONSTVAL_PSEN_ :
+                          (_TECHMAP_CONSTVAL_PSEN_ == 0) ? ~IS_PSEN_INVERTED :
+                                                            IS_PSEN_INVERTED;
+  wire psen  = (_TECHMAP_CONSTMSK_PSEN_ == 1) ? 1'b1 :
+               (_TECHMAP_CONSTVAL_PSEN_ == 0) ? 1'b1 : PSEN;
 
-  generate if (_TECHMAP_CONSTMSK_DWE_ == 1)
-    wire dwe = _TECHMAP_CONSTVAL_DWE_;
-  else if (_TECHMAP_CONSTVAL_DWE_ == 0)
-    wire dwe = 1'b0;
-  else
-    wire dwe = DWE;
-  endgenerate
-
-  generate if (_TECHMAP_CONSTMSK_PSCLK_ == 1)
-    wire psclk = _TECHMAP_CONSTVAL_PSCLK_;
-  else if (_TECHMAP_CONSTVAL_PSCLK_ == 0)
-    wire psclk = 1'b0;
-  else
-    wire psclk = PSCLK;
-  endgenerate
-
-  generate if (_TECHMAP_CONSTMSK_PSEN_ == 1) begin
-    localparam INV_PSEN =  !_TECHMAP_CONSTVAL_PSEN_;
-    wire psen = 1'b1;
-  end else if (_TECHMAP_CONSTVAL_PSEN_ == 0) begin
-    localparam INV_PSEN = ~IS_PSEN_INVERTED;
-    wire psen = 1'b1;
-  end else begin
-    localparam INV_PSEN =  IS_PSEN_INVERTED;
-    wire psen = PSEN;
-  end endgenerate
-
-  generate if (_TECHMAP_CONSTMSK_PSINCDEC_ == 1) begin
-    localparam INV_PSINCDEC =  !_TECHMAP_CONSTVAL_PSINCDEC_;
-    wire psincdec = 1'b1;
-  end else if (_TECHMAP_CONSTVAL_DWE_ == 0) begin
-    localparam INV_PSINCDEC = ~IS_PSINCDEC_INVERTED;
-    wire psincdec = 1'b1;
-  end else begin
-    localparam INV_PSINCDEC =  IS_PSINCDEC_INVERTED;
-    wire psincdec = PSINCDEC;
-  end endgenerate
+  localparam INV_PSINCDEC = (_TECHMAP_CONSTMSK_PSINCDEC_ == 1) ? !_TECHMAP_CONSTVAL_PSINCDEC_ :
+                            (_TECHMAP_CONSTVAL_PSINCDEC_ == 0) ? ~IS_PSINCDEC_INVERTED :
+                                                                  IS_PSINCDEC_INVERTED;
+  wire psincdec = (_TECHMAP_CONSTMSK_PSINCDEC_ == 1) ? 1'b1 :
+                  (_TECHMAP_CONSTVAL_PSINCDEC_ == 0) ? 1'b1 : PSINCDEC;
 
   // The substituted cell
   MMCME2_ADV_VPR #
