@@ -78,8 +78,8 @@ function(CHECK_INSTALL_LIST)
   # ~~~
 
   set(options)
-  set(oneValueArgs ENTITY INSTALL_LIST NO_INSTALL_LIST VAR)
-  set(multiValueArgs)
+  set(oneValueArgs ENTITY VAR)
+  set(multiValueArgs INSTALL_LIST NO_INSTALL_LIST)
   cmake_parse_arguments(
     CHECK_INSTALL_LIST
     "${options}"
