@@ -2,6 +2,7 @@ include(../common/cmake/quicklogic_board.cmake)
 include(../common/cmake/quicklogic_qlf_device.cmake)
 include(../common/cmake/quicklogic_qlf_arch.cmake)
 include(../common/cmake/quicklogic_install.cmake)
+include(../common/cmake/quicklogic_toolchain_test.cmake)
 
 get_filename_component(FAMILY ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 
