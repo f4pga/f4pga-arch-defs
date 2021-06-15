@@ -238,6 +238,9 @@ def remap_connections(design, module_name, net_map):
 
     # Process cells
     for name, cell in cells.items():
+        if "port_directions" not in cell:
+            continue
+
         port_directions = cell["port_directions"]
         connections = cell["connections"]
 

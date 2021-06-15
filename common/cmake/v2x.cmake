@@ -39,8 +39,6 @@ function(V2X)
   get_target_property_required(YOSYS env YOSYS)
   list(APPEND DEPENDS_LIST ${YOSYS})
 
-  set(V2X_DIR ${symbiflow-arch-defs_SOURCE_DIR}/third_party/python-symbiflow-v2x)
-
   set(REAL_SOURCE_LIST "")
   foreach(SRC ${V2X_SRCS})
     if(NOT "${SRC}" MATCHES "\\.sim\\.v$")
@@ -92,13 +90,11 @@ function(V2X)
     OUTPUT "${V2X_NAME}.pb_type.xml"
     DEPENDS
       ${DEPENDS_LIST}
-      ${V2X_DIR}/v2x/vlog_to_pbtype.py
     COMMAND
-    ${CMAKE_COMMAND} -E env YOSYS=${YOSYS} PYTHONPATH=${V2X_DIR}:${symbiflow-arch-defs_BINARY_DIR}/env/conda/lib/python3.7/site-packages
+    ${CMAKE_COMMAND} -E env YOSYS=${YOSYS}
       ${PYTHON3} -m v2x --mode=pb_type ${TOP_ARG}
       -o ${CMAKE_CURRENT_BINARY_DIR}/${V2X_NAME}.pb_type.xml ${FIRST_SOURCE}
       ${INCLUDE_ARG}
-    WORKING_DIRECTORY ${V2X_DIR}/v2x/
   )
   add_file_target(FILE "${V2X_NAME}.pb_type.xml" GENERATED)
   get_file_target(SRC_TARGET_NAME "${V2X_NAME}.pb_type.xml")
@@ -108,13 +104,11 @@ function(V2X)
     OUTPUT "${V2X_NAME}.model.xml"
     DEPENDS
       ${DEPENDS_LIST}
-      ${V2X_DIR}/v2x/vlog_to_model.py
     COMMAND
-    ${CMAKE_COMMAND} -E env YOSYS=${YOSYS} PYTHONPATH=${V2X_DIR}:${symbiflow-arch-defs_BINARY_DIR}/env/conda/lib/python3.7/site-packages
+    ${CMAKE_COMMAND} -E env YOSYS=${YOSYS}
       ${PYTHON3} -m v2x --mode=model ${TOP_ARG}
       -o ${CMAKE_CURRENT_BINARY_DIR}/${V2X_NAME}.model.xml ${FIRST_SOURCE}
       ${INCLUDE_ARG}
-    WORKING_DIRECTORY ${V2X_DIR}/v2x/
   )
   add_file_target(FILE "${V2X_NAME}.model.xml" GENERATED)
   get_file_target(SRC_TARGET_NAME "${V2X_NAME}.model.xml")
