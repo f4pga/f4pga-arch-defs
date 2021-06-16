@@ -15,6 +15,6 @@ function(add_binary_test test_name part_name device board)
 endfunction()
 
 
-add_binary_test(binary_toolchain_test_50t xc7a35tcpg236-1 xc7a50t_test basys3)
-add_binary_test(binary_toolchain_test_100t xc7a100tcsg324-1 xc7a100t_test arty-100t)
-add_binary_test(binary_toolchain_test_200t xc7a200tsbg484-1 xc7a200t_test nexys_video)
+add_binary_test(binary_toolchain_test_xc7_50t xc7a35tcpg236-1 xc7a50t_test basys3)
+add_binary_test(binary_toolchain_test_xc7_100t xc7a100tcsg324-1 xc7a100t_test arty-100t)
+add_binary_test(binary_toolchain_test_xc7_200t xc7a200tsbg484-1 xc7a200t_test nexys_video)
