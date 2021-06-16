@@ -25,7 +25,7 @@ conda update $CONDA_FLAGS -q conda
 curl https://storage.googleapis.com/symbiflow-arch-defs-install/quicklogic-arch-defs-63c3d8f9.tar.gz --output arch.tar.gz
 tar -C $INSTALL_DIR -xvf arch.tar.gz && rm arch.tar.gz
 conda install $CONDA_FLAGS -c litex-hub/label/main yosys="0.9_5266_g0fb4224e 20210301_104249_py37"
-conda install $CONDA_FLAGS -c litex-hub/label/main symbiflow-yosys-plugins="1.0.0_7_307_gc14d794=20210420_072542"
+conda install $CONDA_FLAGS -c litex-hub/label/main symbiflow-yosys-plugins="1.0.0_7_338_g93157fb=20210507_125510"
 conda install $CONDA_FLAGS -c litex-hub/label/main vtr-optimized="8.0.0_3614_gb3b34e77a 20210507_125510"
 conda install $CONDA_FLAGS -c litex-hub iverilog
 conda install $CONDA_FLAGS -c tfors gtkwave
