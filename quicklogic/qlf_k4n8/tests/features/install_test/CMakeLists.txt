@@ -10,12 +10,13 @@ function(add_binary_test target_name test_name family extra_args)
 
   set(TOOLCHAIN_COMMAND "\
     ql_symbiflow \
-    -synth \
+    -compile \
     -src ${CMAKE_CURRENT_SOURCE_DIR} \
     -d ${family} \
     -t top \
     -v ${SOURCES} \
-    -P ${PINMAP} "
+    -P ${PINMAP} \
+    -dump post_verilog"
   )
 
   if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${PCF}")
