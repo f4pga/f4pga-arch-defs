@@ -1,0 +1,6 @@
+include(quicklogic_board.cmake)
+include(quicklogic_device.cmake)
+include(quicklogic_install.cmake)
+include(quicklogic_qlf_arch.cmake)
+include(quicklogic_qlf_device.cmake)
+include(quicklogic_toolchain_test.cmake)
