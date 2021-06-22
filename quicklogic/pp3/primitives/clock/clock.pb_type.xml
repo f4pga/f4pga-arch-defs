@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" num_pb="1" name="CLOCK">
+  <output name="IC" num_pins="1"/>
+  <output name="OP" num_pins="1"/>
+  <pb_type num_pb="1" name="clock_buf">
+    <!--old_name CLOCK_CELL-->
+    <xi:include href="./clock_cell.pb_type.xml" xpointer="xpointer(pb_type/child::node()[local-name()!='metadata'])"/>
+    <metadata>
+      <meta name="fasm_features">INTERFACE.ASSP.INV.ASSPInvPortAlias</meta>
+    </metadata>
+  </pb_type>
+  <pb_type num_pb="1" name="inpad">
+    <!--old_name VPR_IPAD-->
+    <xi:include href="../vpr_pad/vpr_ipad.pb_type.xml" xpointer="xpointer(pb_type/child::node()[local-name()!='metadata'])"/>
+  </pb_type>
+  <interconnect>
+    <direct>
+      <port name="inpad" type="input" from="inpad"/>
+      <port name="I_PAD" type="output" from="clock_buf"/>
+      <pack_pattern name="IPAD_TO_CBUF" type="pack">
+        <port name="inpad" type="input" from="inpad"/>
+        <port name="I_PAD" type="output" from="clock_buf"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="O_CLK" type="input" from="clock_buf"/>
+      <port name="IC" type="output"/>
+    </direct>
+  </interconnect>
+</pb_type>

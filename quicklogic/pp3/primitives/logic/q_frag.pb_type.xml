@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='utf-8'?>
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" num_pb="1" name="Q_FRAG">
+  <blif_model>.subckt Q_FRAG</blif_model>
+  <clock name="QCK" num_pins="1"/>
+  <input name="CONST0" num_pins="1"/>
+  <input name="CONST1" num_pins="1"/>
+  <input name="QD" num_pins="1"/>
+  <input name="QEN" num_pins="1"/>
+  <input name="QRT" num_pins="1"/>
+  <input name="QST" num_pins="1"/>
+  <output name="QZ" num_pins="1"/>
+  <T_setup port="QD" clock="QCK" value="{setup_QCK_QDI}"/>
+  <T_hold port="QD" clock="QCK" value="{hold_QCK_QDI}"/>
+  <T_setup port="QEN" clock="QCK" value="{setup_QCK_QEN}"/>
+  <T_hold port="QEN" clock="QCK" value="{hold_QCK_QEN}"/>
+  <T_setup port="QRT" clock="QCK" value="1e-10"/>
+  <T_setup port="QST" clock="QCK" value="1e-10"/>
+  <T_clock_to_Q port="QZ" clock="QCK" max="{iopath_QCK_QZ}"/>
+  <metadata>
+    <meta name="fasm_params">ZINV.QCK=Z_QCKS</meta>
+  </metadata>
+</pb_type>

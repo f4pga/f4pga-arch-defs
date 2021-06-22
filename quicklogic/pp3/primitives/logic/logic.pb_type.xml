@@ -1,0 +1,569 @@
+<?xml version='1.0' encoding='utf-8'?>
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" num_pb="1" name="LOGIC">
+  <input name="BA1" num_pins="1"/>
+  <input name="BA2" num_pins="1"/>
+  <input name="BAB" num_pins="1"/>
+  <input name="BB1" num_pins="1"/>
+  <input name="BB2" num_pins="1"/>
+  <input name="BSL" num_pins="1"/>
+  <input name="F1" num_pins="1"/>
+  <input name="F2" num_pins="1"/>
+  <input name="FAKE_CONST" num_pins="1"/>
+  <input name="FS" num_pins="1"/>
+  <input name="QCK" num_pins="1"/>
+  <input name="QDI" num_pins="1"/>
+  <input name="QDS" num_pins="1"/>
+  <input name="QEN" num_pins="1"/>
+  <input name="QRT" num_pins="1"/>
+  <input name="QST" num_pins="1"/>
+  <input name="TA1" num_pins="1"/>
+  <input name="TA2" num_pins="1"/>
+  <input name="TAB" num_pins="1"/>
+  <input name="TB1" num_pins="1"/>
+  <input name="TB2" num_pins="1"/>
+  <input name="TBS" num_pins="1"/>
+  <input name="TSL" num_pins="1"/>
+  <output name="CZ" num_pins="1"/>
+  <output name="FZ" num_pins="1"/>
+  <output name="QZ" num_pins="1"/>
+  <output name="TZ" num_pins="1"/>
+  <mode name="MACRO">
+    <pb_type num_pb="1" name="MACRO">
+      <input name="BA1" num_pins="1"/>
+      <input name="BA2" num_pins="1"/>
+      <input name="BAB" num_pins="1"/>
+      <input name="BB1" num_pins="1"/>
+      <input name="BB2" num_pins="1"/>
+      <input name="BSL" num_pins="1"/>
+      <input name="F1" num_pins="1"/>
+      <input name="F2" num_pins="1"/>
+      <input name="FAKE_CONST" num_pins="1"/>
+      <input name="FS" num_pins="1"/>
+      <input name="QCK" num_pins="1"/>
+      <input name="QDI" num_pins="1"/>
+      <input name="QDS" num_pins="1"/>
+      <input name="QEN" num_pins="1"/>
+      <input name="QRT" num_pins="1"/>
+      <input name="QST" num_pins="1"/>
+      <input name="TA1" num_pins="1"/>
+      <input name="TA2" num_pins="1"/>
+      <input name="TAB" num_pins="1"/>
+      <input name="TB1" num_pins="1"/>
+      <input name="TB2" num_pins="1"/>
+      <input name="TBS" num_pins="1"/>
+      <input name="TSL" num_pins="1"/>
+      <output name="CZ" num_pins="1"/>
+      <output name="FZ" num_pins="1"/>
+      <output name="QZ" num_pins="1"/>
+      <output name="TZ" num_pins="1"/>
+      <pb_type num_pb="1" name="logic_macro">
+        <!--old_name LOGIC_MACRO-->
+        <xi:include href="./logic_macro.pb_type.xml" xpointer="xpointer(pb_type/child::node()[local-name()!='metadata'])"/>
+        <metadata>
+          <meta name="fasm_prefix">LOGIC.LOGIC</meta>
+          <meta name="fasm_params">INV.TA1=TAS1
+INV.TA2=TAS2
+INV.TB1=TBS1
+INV.TB2=TBS2
+INV.BA1=BAS1
+INV.BA2=BAS2
+INV.BB1=BBS1
+INV.BB2=BBS2
+ZINV.QCK=Z_QCKS</meta>
+        </metadata>
+      </pb_type>
+      <interconnect>
+        <direct>
+          <port name="BA1" type="input"/>
+          <port name="BA1" type="output" from="logic_macro"/>
+        </direct>
+        <direct>
+          <port name="BA2" type="input"/>
+          <port name="BA2" type="output" from="logic_macro"/>
+        </direct>
+        <direct>
+          <port name="BAB" type="input"/>
+          <port name="BAB" type="output" from="logic_macro"/>
+        </direct>
+        <direct>
+          <port name="BB1" type="input"/>
+          <port name="BB1" type="output" from="logic_macro"/>
+        </direct>
+        <direct>
+          <port name="BB2" type="input"/>
+          <port name="BB2" type="output" from="logic_macro"/>
+        </direct>
+        <direct>
+          <port name="BSL" type="input"/>
+          <port name="BSL" type="output" from="logic_macro"/>
+        </direct>
+        <direct>
+          <port name="F1" type="input"/>
+          <port name="F1" type="output" from="logic_macro"/>
+        </direct>
+        <direct>
+          <port name="F2" type="input"/>
+          <port name="F2" type="output" from="logic_macro"/>
+        </direct>
+        <direct>
+          <port name="FS" type="input"/>
+          <port name="FS" type="output" from="logic_macro"/>
+        </direct>
+        <direct>
+          <port name="QCK" type="input"/>
+          <port name="QCK" type="output" from="logic_macro"/>
+        </direct>
+        <direct>
+          <port name="QDI" type="input"/>
+          <port name="QDI" type="output" from="logic_macro"/>
+        </direct>
+        <direct>
+          <port name="QDS" type="input"/>
+          <port name="QDS" type="output" from="logic_macro"/>
+        </direct>
+        <direct>
+          <port name="QEN" type="input"/>
+          <port name="QEN" type="output" from="logic_macro"/>
+        </direct>
+        <direct>
+          <port name="QRT" type="input"/>
+          <port name="QRT" type="output" from="logic_macro"/>
+        </direct>
+        <direct>
+          <port name="QST" type="input"/>
+          <port name="QST" type="output" from="logic_macro"/>
+        </direct>
+        <direct>
+          <port name="TA1" type="input"/>
+          <port name="TA1" type="output" from="logic_macro"/>
+        </direct>
+        <direct>
+          <port name="TA2" type="input"/>
+          <port name="TA2" type="output" from="logic_macro"/>
+        </direct>
+        <direct>
+          <port name="TAB" type="input"/>
+          <port name="TAB" type="output" from="logic_macro"/>
+        </direct>
+        <direct>
+          <port name="TB1" type="input"/>
+          <port name="TB1" type="output" from="logic_macro"/>
+        </direct>
+        <direct>
+          <port name="TB2" type="input"/>
+          <port name="TB2" type="output" from="logic_macro"/>
+        </direct>
+        <direct>
+          <port name="TBS" type="input"/>
+          <port name="TBS" type="output" from="logic_macro"/>
+        </direct>
+        <direct>
+          <port name="TSL" type="input"/>
+          <port name="TSL" type="output" from="logic_macro"/>
+        </direct>
+        <direct>
+          <port name="CZ" type="input" from="logic_macro"/>
+          <port name="CZ" type="output"/>
+        </direct>
+        <direct>
+          <port name="FZ" type="input" from="logic_macro"/>
+          <port name="FZ" type="output"/>
+        </direct>
+        <direct>
+          <port name="QZ" type="input" from="logic_macro"/>
+          <port name="QZ" type="output"/>
+        </direct>
+        <direct>
+          <port name="TZ" type="input" from="logic_macro"/>
+          <port name="TZ" type="output"/>
+        </direct>
+      </interconnect>
+    </pb_type>
+    <interconnect>
+      <direct>
+        <port name="BA1" type="input"/>
+        <port name="BA1" type="output" from="MACRO"/>
+      </direct>
+      <direct>
+        <port name="BA2" type="input"/>
+        <port name="BA2" type="output" from="MACRO"/>
+      </direct>
+      <direct>
+        <port name="BAB" type="input"/>
+        <port name="BAB" type="output" from="MACRO"/>
+      </direct>
+      <direct>
+        <port name="BB1" type="input"/>
+        <port name="BB1" type="output" from="MACRO"/>
+      </direct>
+      <direct>
+        <port name="BB2" type="input"/>
+        <port name="BB2" type="output" from="MACRO"/>
+      </direct>
+      <direct>
+        <port name="BSL" type="input"/>
+        <port name="BSL" type="output" from="MACRO"/>
+      </direct>
+      <direct>
+        <port name="CZ" type="input" from="MACRO"/>
+        <port name="CZ" type="output"/>
+      </direct>
+      <direct>
+        <port name="F1" type="input"/>
+        <port name="F1" type="output" from="MACRO"/>
+      </direct>
+      <direct>
+        <port name="F2" type="input"/>
+        <port name="F2" type="output" from="MACRO"/>
+      </direct>
+      <direct>
+        <port name="FAKE_CONST" type="input"/>
+        <port name="FAKE_CONST" type="output" from="MACRO"/>
+      </direct>
+      <direct>
+        <port name="FS" type="input"/>
+        <port name="FS" type="output" from="MACRO"/>
+      </direct>
+      <direct>
+        <port name="FZ" type="input" from="MACRO"/>
+        <port name="FZ" type="output"/>
+      </direct>
+      <direct>
+        <port name="QCK" type="input"/>
+        <port name="QCK" type="output" from="MACRO"/>
+      </direct>
+      <direct>
+        <port name="QDI" type="input"/>
+        <port name="QDI" type="output" from="MACRO"/>
+      </direct>
+      <direct>
+        <port name="QDS" type="input"/>
+        <port name="QDS" type="output" from="MACRO"/>
+      </direct>
+      <direct>
+        <port name="QEN" type="input"/>
+        <port name="QEN" type="output" from="MACRO"/>
+      </direct>
+      <direct>
+        <port name="QRT" type="input"/>
+        <port name="QRT" type="output" from="MACRO"/>
+      </direct>
+      <direct>
+        <port name="QST" type="input"/>
+        <port name="QST" type="output" from="MACRO"/>
+      </direct>
+      <direct>
+        <port name="QZ" type="input" from="MACRO"/>
+        <port name="QZ" type="output"/>
+      </direct>
+      <direct>
+        <port name="TA1" type="input"/>
+        <port name="TA1" type="output" from="MACRO"/>
+      </direct>
+      <direct>
+        <port name="TA2" type="input"/>
+        <port name="TA2" type="output" from="MACRO"/>
+      </direct>
+      <direct>
+        <port name="TAB" type="input"/>
+        <port name="TAB" type="output" from="MACRO"/>
+      </direct>
+      <direct>
+        <port name="TB1" type="input"/>
+        <port name="TB1" type="output" from="MACRO"/>
+      </direct>
+      <direct>
+        <port name="TB2" type="input"/>
+        <port name="TB2" type="output" from="MACRO"/>
+      </direct>
+      <direct>
+        <port name="TBS" type="input"/>
+        <port name="TBS" type="output" from="MACRO"/>
+      </direct>
+      <direct>
+        <port name="TSL" type="input"/>
+        <port name="TSL" type="output" from="MACRO"/>
+      </direct>
+      <direct>
+        <port name="TZ" type="input" from="MACRO"/>
+        <port name="TZ" type="output"/>
+      </direct>
+    </interconnect>
+  </mode>
+  <mode name="FRAGS">
+    <pb_type num_pb="1" name="FRAGS">
+      <input name="BA1" num_pins="1"/>
+      <input name="BA2" num_pins="1"/>
+      <input name="BAB" num_pins="1"/>
+      <input name="BB1" num_pins="1"/>
+      <input name="BB2" num_pins="1"/>
+      <input name="BSL" num_pins="1"/>
+      <input name="F1" num_pins="1"/>
+      <input name="F2" num_pins="1"/>
+      <input name="FAKE_CONST" num_pins="1"/>
+      <input name="FS" num_pins="1"/>
+      <input name="QCK" num_pins="1"/>
+      <input name="QDI" num_pins="1"/>
+      <input name="QDS" num_pins="1"/>
+      <input name="QEN" num_pins="1"/>
+      <input name="QRT" num_pins="1"/>
+      <input name="QST" num_pins="1"/>
+      <input name="TA1" num_pins="1"/>
+      <input name="TA2" num_pins="1"/>
+      <input name="TAB" num_pins="1"/>
+      <input name="TB1" num_pins="1"/>
+      <input name="TB2" num_pins="1"/>
+      <input name="TBS" num_pins="1"/>
+      <input name="TSL" num_pins="1"/>
+      <output name="CZ" num_pins="1"/>
+      <output name="FZ" num_pins="1"/>
+      <output name="QZ" num_pins="1"/>
+      <output name="TZ" num_pins="1"/>
+      <pb_type num_pb="1" name="c_frag_modes">
+        <!--old_name C_FRAG_MODES-->
+        <xi:include href="./c_frag_modes.pb_type.xml" xpointer="xpointer(pb_type/child::node()[local-name()!='metadata'])"/>
+        <metadata>
+          <meta name="fasm_prefix">LOGIC.LOGIC</meta>
+        </metadata>
+      </pb_type>
+      <pb_type num_pb="1" name="f_frag">
+        <!--old_name F_FRAG-->
+        <xi:include href="./f_frag.pb_type.xml" xpointer="xpointer(pb_type/child::node()[local-name()!='metadata'])"/>
+      </pb_type>
+      <pb_type num_pb="1" name="q_frag_modes">
+        <!--old_name Q_FRAG_MODES-->
+        <xi:include href="./q_frag_modes.pb_type.xml" xpointer="xpointer(pb_type/child::node()[local-name()!='metadata'])"/>
+        <metadata>
+          <meta name="fasm_prefix">LOGIC.LOGIC</meta>
+        </metadata>
+      </pb_type>
+      <interconnect>
+        <direct>
+          <port name="BA1" type="input"/>
+          <port name="BA1" type="output" from="c_frag_modes"/>
+        </direct>
+        <direct>
+          <port name="BA2" type="input"/>
+          <port name="BA2" type="output" from="c_frag_modes"/>
+        </direct>
+        <direct>
+          <port name="BAB" type="input"/>
+          <port name="BAB" type="output" from="c_frag_modes"/>
+        </direct>
+        <direct>
+          <port name="BB1" type="input"/>
+          <port name="BB1" type="output" from="c_frag_modes"/>
+        </direct>
+        <direct>
+          <port name="BB2" type="input"/>
+          <port name="BB2" type="output" from="c_frag_modes"/>
+        </direct>
+        <direct>
+          <port name="BSL" type="input"/>
+          <port name="BSL" type="output" from="c_frag_modes"/>
+        </direct>
+        <direct>
+          <port name="TA1" type="input"/>
+          <port name="TA1" type="output" from="c_frag_modes"/>
+        </direct>
+        <direct>
+          <port name="TA2" type="input"/>
+          <port name="TA2" type="output" from="c_frag_modes"/>
+        </direct>
+        <direct>
+          <port name="TAB" type="input"/>
+          <port name="TAB" type="output" from="c_frag_modes"/>
+        </direct>
+        <direct>
+          <port name="TB1" type="input"/>
+          <port name="TB1" type="output" from="c_frag_modes"/>
+        </direct>
+        <direct>
+          <port name="TB2" type="input"/>
+          <port name="TB2" type="output" from="c_frag_modes"/>
+        </direct>
+        <direct>
+          <port name="TBS" type="input"/>
+          <port name="TBS" type="output" from="c_frag_modes"/>
+        </direct>
+        <direct>
+          <port name="TSL" type="input"/>
+          <port name="TSL" type="output" from="c_frag_modes"/>
+        </direct>
+        <direct>
+          <port name="CZ" type="input" from="c_frag_modes"/>
+          <port name="CZ" type="output"/>
+        </direct>
+        <direct>
+          <port name="CZ" type="input" from="c_frag_modes"/>
+          <port name="CZI" type="output" from="q_frag_modes"/>
+        </direct>
+        <direct>
+          <port name="TZ" type="input" from="c_frag_modes"/>
+          <port name="TZ" type="output"/>
+        </direct>
+        <direct>
+          <port name="F1" type="input"/>
+          <port name="F1" type="output" from="f_frag"/>
+        </direct>
+        <direct>
+          <port name="F2" type="input"/>
+          <port name="F2" type="output" from="f_frag"/>
+        </direct>
+        <direct>
+          <port name="FS" type="input"/>
+          <port name="FS" type="output" from="f_frag"/>
+        </direct>
+        <direct>
+          <port name="FZ" type="input" from="f_frag"/>
+          <port name="FZ" type="output"/>
+        </direct>
+        <direct>
+          <port name="FAKE_CONST" type="input"/>
+          <port name="FAKE_CONST" type="output" from="q_frag_modes"/>
+        </direct>
+        <direct>
+          <port name="QCK" type="input"/>
+          <port name="QCK" type="output" from="q_frag_modes"/>
+        </direct>
+        <direct>
+          <port name="QDI" type="input"/>
+          <port name="QDI" type="output" from="q_frag_modes"/>
+        </direct>
+        <direct>
+          <port name="QDS" type="input"/>
+          <port name="QDS" type="output" from="q_frag_modes"/>
+        </direct>
+        <direct>
+          <port name="QEN" type="input"/>
+          <port name="QEN" type="output" from="q_frag_modes"/>
+        </direct>
+        <direct>
+          <port name="QRT" type="input"/>
+          <port name="QRT" type="output" from="q_frag_modes"/>
+        </direct>
+        <direct>
+          <port name="QST" type="input"/>
+          <port name="QST" type="output" from="q_frag_modes"/>
+        </direct>
+        <direct>
+          <port name="QZ" type="input" from="q_frag_modes"/>
+          <port name="QZ" type="output"/>
+        </direct>
+      </interconnect>
+    </pb_type>
+    <interconnect>
+      <direct>
+        <port name="BA1" type="input"/>
+        <port name="BA1" type="output" from="FRAGS"/>
+      </direct>
+      <direct>
+        <port name="BA2" type="input"/>
+        <port name="BA2" type="output" from="FRAGS"/>
+      </direct>
+      <direct>
+        <port name="BAB" type="input"/>
+        <port name="BAB" type="output" from="FRAGS"/>
+      </direct>
+      <direct>
+        <port name="BB1" type="input"/>
+        <port name="BB1" type="output" from="FRAGS"/>
+      </direct>
+      <direct>
+        <port name="BB2" type="input"/>
+        <port name="BB2" type="output" from="FRAGS"/>
+      </direct>
+      <direct>
+        <port name="BSL" type="input"/>
+        <port name="BSL" type="output" from="FRAGS"/>
+      </direct>
+      <direct>
+        <port name="CZ" type="input" from="FRAGS"/>
+        <port name="CZ" type="output"/>
+      </direct>
+      <direct>
+        <port name="F1" type="input"/>
+        <port name="F1" type="output" from="FRAGS"/>
+      </direct>
+      <direct>
+        <port name="F2" type="input"/>
+        <port name="F2" type="output" from="FRAGS"/>
+      </direct>
+      <direct>
+        <port name="FAKE_CONST" type="input"/>
+        <port name="FAKE_CONST" type="output" from="FRAGS"/>
+      </direct>
+      <direct>
+        <port name="FS" type="input"/>
+        <port name="FS" type="output" from="FRAGS"/>
+      </direct>
+      <direct>
+        <port name="FZ" type="input" from="FRAGS"/>
+        <port name="FZ" type="output"/>
+      </direct>
+      <direct>
+        <port name="QCK" type="input"/>
+        <port name="QCK" type="output" from="FRAGS"/>
+      </direct>
+      <direct>
+        <port name="QDI" type="input"/>
+        <port name="QDI" type="output" from="FRAGS"/>
+      </direct>
+      <direct>
+        <port name="QDS" type="input"/>
+        <port name="QDS" type="output" from="FRAGS"/>
+      </direct>
+      <direct>
+        <port name="QEN" type="input"/>
+        <port name="QEN" type="output" from="FRAGS"/>
+      </direct>
+      <direct>
+        <port name="QRT" type="input"/>
+        <port name="QRT" type="output" from="FRAGS"/>
+      </direct>
+      <direct>
+        <port name="QST" type="input"/>
+        <port name="QST" type="output" from="FRAGS"/>
+      </direct>
+      <direct>
+        <port name="QZ" type="input" from="FRAGS"/>
+        <port name="QZ" type="output"/>
+      </direct>
+      <direct>
+        <port name="TA1" type="input"/>
+        <port name="TA1" type="output" from="FRAGS"/>
+      </direct>
+      <direct>
+        <port name="TA2" type="input"/>
+        <port name="TA2" type="output" from="FRAGS"/>
+      </direct>
+      <direct>
+        <port name="TAB" type="input"/>
+        <port name="TAB" type="output" from="FRAGS"/>
+      </direct>
+      <direct>
+        <port name="TB1" type="input"/>
+        <port name="TB1" type="output" from="FRAGS"/>
+      </direct>
+      <direct>
+        <port name="TB2" type="input"/>
+        <port name="TB2" type="output" from="FRAGS"/>
+      </direct>
+      <direct>
+        <port name="TBS" type="input"/>
+        <port name="TBS" type="output" from="FRAGS"/>
+      </direct>
+      <direct>
+        <port name="TSL" type="input"/>
+        <port name="TSL" type="output" from="FRAGS"/>
+      </direct>
+      <direct>
+        <port name="TZ" type="input" from="FRAGS"/>
+        <port name="TZ" type="output"/>
+      </direct>
+    </interconnect>
+  </mode>
+  <metadata>
+    <meta name="fasm_features">LOGIC.LOGIC.Ipwr_gates.J_pwr_st</meta>
+  </metadata>
+</pb_type>

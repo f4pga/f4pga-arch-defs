@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='utf-8'?>
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" num_pb="1" name="B_FRAG">
+  <blif_model>.subckt T_FRAG</blif_model>
+  <input name="TBS" num_pins="1"/>
+  <input name="XA1" num_pins="1"/>
+  <input name="XA2" num_pins="1"/>
+  <input name="XAB" num_pins="1"/>
+  <input name="XB1" num_pins="1"/>
+  <input name="XB2" num_pins="1"/>
+  <input name="XSL" num_pins="1"/>
+  <output name="XZ" num_pins="1"/>
+  <delay_constant in_port="TBS" out_port="XZ" max="{iopath_TBS_CZ}"/>
+  <delay_constant in_port="XA1" out_port="XZ" max="{iopath_BA1_CZ}"/>
+  <delay_constant in_port="XA2" out_port="XZ" max="{iopath_BA2_CZ}"/>
+  <delay_constant in_port="XAB" out_port="XZ" max="{iopath_BAB_CZ}"/>
+  <delay_constant in_port="XB1" out_port="XZ" max="{iopath_BB1_CZ}"/>
+  <delay_constant in_port="XB2" out_port="XZ" max="{iopath_BB2_CZ}"/>
+  <delay_constant in_port="XSL" out_port="XZ" max="{iopath_BSL_CZ}"/>
+  <metadata>
+    <meta name="fasm_params">INV.BA1=XAS1
+INV.BA2=XAS2
+INV.BB1=XBS1
+INV.BB2=XBS2</meta>
+  </metadata>
+</pb_type>
