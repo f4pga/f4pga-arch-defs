@@ -20,12 +20,10 @@ print_usage () {
     echo "                       [+define+<macro name>[=<macro value>]]"
     echo "                       [-f <additional compile command file>]"
     echo ""
-    echo "note: device and part parameters are required if xdc is passed"
     exit 1
 }
 
 VERILOG_FILES=()
-XDC_FILES=()
 TOP="top"
 DEVICE=""
 FAMILY=""
@@ -39,9 +37,6 @@ for arg in $@; do
         -t|--top)
             OPT="top"
             ;;
-#        -x|--xdc)
-#            OPT="xdc"
-#            ;;
         -v|--verilog)
             OPT="vlog"
             ;;
@@ -66,9 +61,6 @@ for arg in $@; do
                     TOP=$arg
                     OPT=""
                     ;;
-#                "xdc")
-#                    XDC_FILES+=($arg)
-#                    ;;
                 "vlog")
                     VERILOG_FILES+=($arg)
                     ;;
@@ -121,7 +113,6 @@ SYNTH_TCL_PATH=`realpath ${MYPATH}/../share/symbiflow/scripts/${FAMILY}/synth.tc
 CONV_TCL_PATH=`realpath ${MYPATH}/../share/symbiflow/scripts/${FAMILY}/conv.tcl`
 
 export USE_ROI="FALSE"
-export INPUT_XDC_FILES=${XDC_FILES[*]}
 export OUT_JSON=$TOP.json
 export SYNTH_JSON=${TOP}_io.json
 export OUT_SYNTH_V=${TOP}_synth.v
