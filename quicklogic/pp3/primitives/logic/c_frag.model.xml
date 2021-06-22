@@ -1,0 +1,23 @@
+<models xmlns:xi="http://www.w3.org/2001/XInclude">
+  <model name="C_FRAG">
+    <input_ports>
+      <port name="BA1" combinational_sink_ports="CZ"/>
+      <port name="BA2" combinational_sink_ports="CZ"/>
+      <port name="BAB" combinational_sink_ports="CZ"/>
+      <port name="BB1" combinational_sink_ports="CZ"/>
+      <port name="BB2" combinational_sink_ports="CZ"/>
+      <port name="BSL" combinational_sink_ports="CZ"/>
+      <port name="TA1" combinational_sink_ports="CZ TZ"/>
+      <port name="TA2" combinational_sink_ports="CZ TZ"/>
+      <port name="TAB" combinational_sink_ports="CZ TZ"/>
+      <port name="TB1" combinational_sink_ports="CZ TZ"/>
+      <port name="TB2" combinational_sink_ports="CZ TZ"/>
+      <port name="TBS" combinational_sink_ports="CZ"/>
+      <port name="TSL" combinational_sink_ports="CZ TZ"/>
+    </input_ports>
+    <output_ports>
+      <port name="CZ"/>
+      <port name="TZ"/>
+    </output_ports>
+  </model>
+</models>

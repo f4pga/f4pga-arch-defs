@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding='utf-8'?>
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" num_pb="1" name="VPR_OPAD">
+  <blif_model>.output</blif_model>
+  <input name="outpad" num_pins="1"/>
+</pb_type>

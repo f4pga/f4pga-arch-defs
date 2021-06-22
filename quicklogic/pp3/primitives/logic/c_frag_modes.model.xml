@@ -1,0 +1,5 @@
+<models xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="./b_frag.model.xml" xpointer="xpointer(models/child::node())"/>
+  <xi:include href="./c_frag.model.xml" xpointer="xpointer(models/child::node())"/>
+  <xi:include href="./t_frag.model.xml" xpointer="xpointer(models/child::node())"/>
+</models>

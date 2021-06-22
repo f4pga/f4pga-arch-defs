@@ -1,0 +1,34 @@
+<models xmlns:xi="http://www.w3.org/2001/XInclude">
+  <model name="LOGIC_MACRO">
+    <input_ports>
+      <port name="BA1" combinational_sink_ports="QZ CZ"/>
+      <port name="BA2" combinational_sink_ports="QZ CZ"/>
+      <port name="BAB" combinational_sink_ports="QZ CZ"/>
+      <port name="BB1" combinational_sink_ports="QZ CZ"/>
+      <port name="BB2" combinational_sink_ports="QZ CZ"/>
+      <port name="BSL" combinational_sink_ports="QZ CZ"/>
+      <port name="F1" combinational_sink_ports="FZ"/>
+      <port name="F2" combinational_sink_ports="FZ"/>
+      <port name="FS" combinational_sink_ports="FZ"/>
+      <port name="QCK" is_clock="1"/>
+      <port name="QDI" clock="QCK"/>
+      <port name="QDS" clock="QCK"/>
+      <port name="QEN" clock="QCK"/>
+      <port name="QRT" clock="QCK"/>
+      <port name="QST" clock="QCK"/>
+      <port name="TA1" combinational_sink_ports="QZ CZ TZ"/>
+      <port name="TA2" combinational_sink_ports="QZ CZ TZ"/>
+      <port name="TAB" combinational_sink_ports="QZ CZ TZ"/>
+      <port name="TB1" combinational_sink_ports="QZ CZ TZ"/>
+      <port name="TB2" combinational_sink_ports="QZ CZ TZ"/>
+      <port name="TBS" combinational_sink_ports="QZ CZ"/>
+      <port name="TSL" combinational_sink_ports="QZ CZ TZ"/>
+    </input_ports>
+    <output_ports>
+      <port name="CZ"/>
+      <port name="FZ"/>
+      <port name="QZ" clock="QCK"/>
+      <port name="TZ"/>
+    </output_ports>
+  </model>
+</models>

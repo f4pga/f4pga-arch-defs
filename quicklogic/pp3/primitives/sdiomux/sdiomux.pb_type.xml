@@ -1,0 +1,199 @@
+<?xml version='1.0' encoding='utf-8'?>
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" num_pb="1" name="SDIOMUX">
+  <input name="IE" num_pins="1"/>
+  <input name="OE" num_pins="1"/>
+  <input name="OQI" num_pins="1"/>
+  <output name="IZ" num_pins="1"/>
+  <mode name="INPUT">
+    <pb_type num_pb="1" name="INPUT">
+      <input name="IE" num_pins="1"/>
+      <input name="OE" num_pins="1"/>
+      <input name="OQI" num_pins="1"/>
+      <output name="IZ" num_pins="1"/>
+      <pb_type num_pb="1" name="inpad">
+        <!--old_name VPR_IPAD-->
+        <xi:include href="../vpr_pad/vpr_ipad.pb_type.xml" xpointer="xpointer(pb_type/child::node()[local-name()!='metadata'])"/>
+      </pb_type>
+      <pb_type num_pb="1" name="sdiomux">
+        <!--old_name SDIOMUX_CELL-->
+        <xi:include href="./sdiomux_cell.pb_type.xml" xpointer="xpointer(pb_type/child::node()[local-name()!='metadata'])"/>
+      </pb_type>
+      <interconnect>
+        <direct>
+          <port name="IE" type="input"/>
+          <port name="I_EN" type="output" from="sdiomux"/>
+        </direct>
+        <direct>
+          <port name="inpad" type="input" from="inpad"/>
+          <port name="I_PAD_$inp" type="output" from="sdiomux"/>
+          <pack_pattern name="IPAD_TO_SDIOMUX" type="pack">
+            <port name="inpad" type="input" from="inpad"/>
+            <port name="I_PAD_$inp" type="output" from="sdiomux"/>
+          </pack_pattern>
+        </direct>
+        <direct>
+          <port name="OQI" type="input"/>
+          <port name="O_DAT" type="output" from="sdiomux"/>
+        </direct>
+        <direct>
+          <port name="OE" type="input"/>
+          <port name="O_EN" type="output" from="sdiomux"/>
+        </direct>
+        <direct>
+          <port name="I_DAT" type="input" from="sdiomux"/>
+          <port name="IZ" type="output"/>
+        </direct>
+      </interconnect>
+    </pb_type>
+    <interconnect>
+      <direct>
+        <port name="IE" type="input"/>
+        <port name="IE" type="output" from="INPUT"/>
+      </direct>
+      <direct>
+        <port name="IZ" type="input" from="INPUT"/>
+        <port name="IZ" type="output"/>
+      </direct>
+      <direct>
+        <port name="OE" type="input"/>
+        <port name="OE" type="output" from="INPUT"/>
+      </direct>
+      <direct>
+        <port name="OQI" type="input"/>
+        <port name="OQI" type="output" from="INPUT"/>
+      </direct>
+    </interconnect>
+  </mode>
+  <mode name="OUTPUT">
+    <pb_type num_pb="1" name="OUTPUT">
+      <input name="IE" num_pins="1"/>
+      <input name="OE" num_pins="1"/>
+      <input name="OQI" num_pins="1"/>
+      <output name="IZ" num_pins="1"/>
+      <pb_type num_pb="1" name="outpad">
+        <!--old_name VPR_OPAD-->
+        <xi:include href="../vpr_pad/vpr_opad.pb_type.xml" xpointer="xpointer(pb_type/child::node()[local-name()!='metadata'])"/>
+      </pb_type>
+      <pb_type num_pb="1" name="sdiomux">
+        <!--old_name SDIOMUX_CELL-->
+        <xi:include href="./sdiomux_cell.pb_type.xml" xpointer="xpointer(pb_type/child::node()[local-name()!='metadata'])"/>
+      </pb_type>
+      <interconnect>
+        <direct>
+          <port name="O_PAD_$out" type="input" from="sdiomux"/>
+          <port name="outpad" type="output" from="outpad"/>
+          <pack_pattern name="SDIOMUX_TO_OPAD" type="pack">
+            <port name="O_PAD_$out" type="input" from="sdiomux"/>
+            <port name="outpad" type="output" from="outpad"/>
+          </pack_pattern>
+        </direct>
+        <direct>
+          <port name="IE" type="input"/>
+          <port name="I_EN" type="output" from="sdiomux"/>
+        </direct>
+        <direct>
+          <port name="OQI" type="input"/>
+          <port name="O_DAT" type="output" from="sdiomux"/>
+        </direct>
+        <direct>
+          <port name="OE" type="input"/>
+          <port name="O_EN" type="output" from="sdiomux"/>
+        </direct>
+        <direct>
+          <port name="I_DAT" type="input" from="sdiomux"/>
+          <port name="IZ" type="output"/>
+        </direct>
+      </interconnect>
+    </pb_type>
+    <interconnect>
+      <direct>
+        <port name="IE" type="input"/>
+        <port name="IE" type="output" from="OUTPUT"/>
+      </direct>
+      <direct>
+        <port name="IZ" type="input" from="OUTPUT"/>
+        <port name="IZ" type="output"/>
+      </direct>
+      <direct>
+        <port name="OE" type="input"/>
+        <port name="OE" type="output" from="OUTPUT"/>
+      </direct>
+      <direct>
+        <port name="OQI" type="input"/>
+        <port name="OQI" type="output" from="OUTPUT"/>
+      </direct>
+    </interconnect>
+  </mode>
+  <mode name="INOUT">
+    <pb_type num_pb="1" name="INOUT">
+      <input name="IE" num_pins="1"/>
+      <input name="OE" num_pins="1"/>
+      <input name="OQI" num_pins="1"/>
+      <output name="IZ" num_pins="1"/>
+      <pb_type num_pb="1" name="inpad">
+        <!--old_name VPR_IPAD-->
+        <xi:include href="../vpr_pad/vpr_ipad.pb_type.xml" xpointer="xpointer(pb_type/child::node()[local-name()!='metadata'])"/>
+      </pb_type>
+      <pb_type num_pb="1" name="outpad">
+        <!--old_name VPR_OPAD-->
+        <xi:include href="../vpr_pad/vpr_opad.pb_type.xml" xpointer="xpointer(pb_type/child::node()[local-name()!='metadata'])"/>
+      </pb_type>
+      <pb_type num_pb="1" name="sdiomux">
+        <!--old_name SDIOMUX_CELL-->
+        <xi:include href="./sdiomux_cell.pb_type.xml" xpointer="xpointer(pb_type/child::node()[local-name()!='metadata'])"/>
+      </pb_type>
+      <interconnect>
+        <direct>
+          <port name="O_PAD_$out" type="input" from="sdiomux"/>
+          <port name="outpad" type="output" from="outpad"/>
+          <pack_pattern name="IOPAD_TO_SDIOMUX" type="pack">
+            <port name="O_PAD_$out" type="input" from="sdiomux"/>
+            <port name="outpad" type="output" from="outpad"/>
+          </pack_pattern>
+        </direct>
+        <direct>
+          <port name="IE" type="input"/>
+          <port name="I_EN" type="output" from="sdiomux"/>
+        </direct>
+        <direct>
+          <port name="inpad" type="input" from="inpad"/>
+          <port name="I_PAD_$inp" type="output" from="sdiomux"/>
+          <pack_pattern name="IOPAD_TO_SDIOMUX" type="pack">
+            <port name="inpad" type="input" from="inpad"/>
+            <port name="I_PAD_$inp" type="output" from="sdiomux"/>
+          </pack_pattern>
+        </direct>
+        <direct>
+          <port name="OQI" type="input"/>
+          <port name="O_DAT" type="output" from="sdiomux"/>
+        </direct>
+        <direct>
+          <port name="OE" type="input"/>
+          <port name="O_EN" type="output" from="sdiomux"/>
+        </direct>
+        <direct>
+          <port name="I_DAT" type="input" from="sdiomux"/>
+          <port name="IZ" type="output"/>
+        </direct>
+      </interconnect>
+    </pb_type>
+    <interconnect>
+      <direct>
+        <port name="IE" type="input"/>
+        <port name="IE" type="output" from="INOUT"/>
+      </direct>
+      <direct>
+        <port name="IZ" type="input" from="INOUT"/>
+        <port name="IZ" type="output"/>
+      </direct>
+      <direct>
+        <port name="OE" type="input"/>
+        <port name="OE" type="output" from="INOUT"/>
+      </direct>
+      <direct>
+        <port name="OQI" type="input"/>
+        <port name="OQI" type="output" from="INOUT"/>
+      </direct>
+    </interconnect>
+  </mode>
+</pb_type>

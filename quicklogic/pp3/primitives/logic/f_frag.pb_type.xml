@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='utf-8'?>
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" num_pb="1" name="F_FRAG">
+  <blif_model>.subckt F_FRAG</blif_model>
+  <input name="F1" num_pins="1"/>
+  <input name="F2" num_pins="1"/>
+  <input name="FS" num_pins="1"/>
+  <output name="FZ" num_pins="1"/>
+  <delay_constant in_port="F1" out_port="FZ" max="{iopath_F1_FZ}"/>
+  <delay_constant in_port="F2" out_port="FZ" max="{iopath_F2_FZ}"/>
+  <delay_constant in_port="FS" out_port="FZ" max="{iopath_FS_FZ}"/>
+</pb_type>

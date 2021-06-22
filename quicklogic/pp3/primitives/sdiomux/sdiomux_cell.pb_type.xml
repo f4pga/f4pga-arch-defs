@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='utf-8'?>
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" num_pb="1" name="SDIOMUX_CELL">
+  <blif_model>.subckt SDIOMUX_CELL</blif_model>
+  <input name="I_EN" num_pins="1"/>
+  <input name="I_PAD_$inp" num_pins="1"/>
+  <input name="O_DAT" num_pins="1"/>
+  <input name="O_EN" num_pins="1"/>
+  <output name="I_DAT" num_pins="1"/>
+  <output name="O_PAD_$out" num_pins="1"/>
+  <delay_constant in_port="I_EN" out_port="I_DAT" max="{iopath_FBIO_In_En0_FBIO_In0}"/>
+  <delay_constant in_port="I_PAD_$inp" out_port="I_DAT" max="{iopath_IP_IZ}"/>
+  <delay_constant in_port="O_DAT" out_port="O_PAD_$out" max="{iopath_OQI_IP}"/>
+  <delay_constant in_port="O_EN" out_port="O_PAD_$out" max="{iopath_OE_IP}"/>
+</pb_type>
