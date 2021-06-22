@@ -189,7 +189,7 @@ def translate_options(opts):
             _, ext = os.path.splitext(f)
             if ext.replace(".", "") in libext:
                 fname = os.path.join(libdir, f)
-                cmd = "read_verilog -lib {}".format(quote(fname))
+                cmd = "read_verilog {}".format(quote(fname))
                 commands.append(cmd)
 
     return commands
