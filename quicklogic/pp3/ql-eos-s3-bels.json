@@ -1,0 +1,174 @@
+{
+    "ASSP": {
+        "ASSP": {
+            "PB-ASSP": [
+                "ASSPTMR.ASSPTMR"
+            ]
+        }
+    },
+    "MULT": {
+        "MULT": {
+            "PB-MULT": [
+                "MULT_sel_mul_32x32_EQ_1_Valid_mult0_EQ_1.BOTTOMMULT"
+            ]
+        }
+    },
+    "BIDIR": {
+        "bidir": {
+            "INPUT": [
+                "BIDIR3_ESEL_EQ_1_DS_EQ_1.IO2",
+                "BIDIR3_OSEL_EQ_1_IE_EQ_1_DS_EQ_1.IO2",
+                "BIDIR3_IE_EQ_0_INEN_EQ_1.IO2"
+            ],
+            "OUTPUT": [
+                "BIDIR3_ESEL_EQ_1_DS_EQ_1.IO2",
+                "BIDIR3_OSEL_EQ_1_IE_EQ_1_DS_EQ_1.IO2",
+                "BIDIR3_IE_EQ_0_INEN_EQ_1.IO2"
+            ],
+            "INOUT": [
+                "BIDIR3_ESEL_EQ_1_DS_EQ_1.IO2",
+                "BIDIR3_OSEL_EQ_1_IE_EQ_1_DS_EQ_1.IO2",
+                "BIDIR3_IE_EQ_0_INEN_EQ_1.IO2"
+            ]
+        }
+    },
+    "SDIOMUX": {
+        "sdiomux": {
+            "INPUT": [
+                "SDIOMUX.SFB_0_IO",
+                "SDIOMUX_IE_EQ_0_OE_EQ_0.SFB_0_IO",
+                "SDIOMUX_IE_EQ_1_OE_EQ_1.SFB_0_IO",
+                "ASSPTMR.ASSPTMR"
+            ],
+            "OUTPUT": [
+                "SDIOMUX.SFB_0_IO",
+                "SDIOMUX_IE_EQ_0_OE_EQ_0.SFB_0_IO",
+                "SDIOMUX_IE_EQ_1_OE_EQ_1.SFB_0_IO",
+                "ASSPTMR.ASSPTMR"
+            ],
+            "INOUT": [
+                "SDIOMUX.SFB_0_IO",
+                "SDIOMUX_IE_EQ_0_OE_EQ_0.SFB_0_IO",
+                "SDIOMUX_IE_EQ_1_OE_EQ_1.SFB_0_IO",
+                "ASSPTMR.ASSPTMR"
+            ]
+        }
+    },
+    "CLOCK": {
+        "clock_buf": {
+            "CLOCK": [
+                "CLOCK.CLOCK"
+            ]
+        }
+    },
+    "LOGIC": {
+        "logic_macro": {
+            "MACRO":[
+                "LOGIC3.LOGIC3",
+                "LOGIC3_TAB_EQ_0_TSL_EQ_0_TAS1_EQ_0.LOGIC3",
+                "LOGIC3_TAB_EQ_0_TSL_EQ_1_TAS2_EQ_0.LOGIC3",
+                "LOGIC3_TAB_EQ_1_TSL_EQ_0_TBS1_EQ_0.LOGIC3",
+                "LOGIC3_TAB_EQ_1_TSL_EQ_1_TBS2_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_1.LOGIC3",
+                "LOGIC3_TBS_EQ_0_TAB_EQ_0_TSL_EQ_0_TAS1_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_0_TAB_EQ_0_TSL_EQ_1_TAS2_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_0_TAB_EQ_1_TSL_EQ_0_TBS1_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_0_TAB_EQ_1_TSL_EQ_1_TBS2_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_1_BAB_EQ_0_BSL_EQ_0_BAS1_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_1_BAB_EQ_0_BSL_EQ_1_BAS2_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_1_BAB_EQ_1_BSL_EQ_0_BBS1_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_1_BAB_EQ_1_BSL_EQ_1_BBS2_EQ_0.LOGIC3",
+                "LOGIC3_QCKS_EQ_1.LOGIC3",
+                "LOGIC3_QRT_EQ_0_QST_EQ_0_QCKS_EQ_1.LOGIC3",
+                "LOGIC3_QDS_EQ_1_QEN_EQ_1_QRT_EQ_0_QST_EQ_0_QCKS_EQ_1.LOGIC3",
+                "LOGIC3_QEN_EQ_1_QRT_EQ_0_QST_EQ_0_QCKS_EQ_1.LOGIC3",
+                "LOGIC3.LOGIC3",
+                "LOGIC3_FS_EQ_0.LOGIC3", 
+                "LOGIC3_FS_EQ_1.LOGIC3"
+            ]
+        },
+        "c_frag": {
+            "SINGLE":[
+                "LOGIC3.LOGIC3",
+                "LOGIC3_TAB_EQ_0_TSL_EQ_0_TAS1_EQ_0.LOGIC3",
+                "LOGIC3_TAB_EQ_0_TSL_EQ_1_TAS2_EQ_0.LOGIC3",
+                "LOGIC3_TAB_EQ_1_TSL_EQ_0_TBS1_EQ_0.LOGIC3",
+                "LOGIC3_TAB_EQ_1_TSL_EQ_1_TBS2_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_1.LOGIC3",
+                "LOGIC3_TBS_EQ_0_TAB_EQ_0_TSL_EQ_0_TAS1_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_0_TAB_EQ_0_TSL_EQ_1_TAS2_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_0_TAB_EQ_1_TSL_EQ_0_TBS1_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_0_TAB_EQ_1_TSL_EQ_1_TBS2_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_1_BAB_EQ_0_BSL_EQ_0_BAS1_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_1_BAB_EQ_0_BSL_EQ_1_BAS2_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_1_BAB_EQ_1_BSL_EQ_0_BBS1_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_1_BAB_EQ_1_BSL_EQ_1_BBS2_EQ_0.LOGIC3"
+            ]
+        },
+        "t_frag": {
+            "SPLIT":[
+                "LOGIC3.LOGIC3",
+                "LOGIC3_TAB_EQ_0_TSL_EQ_0_TAS1_EQ_0.LOGIC3",
+                "LOGIC3_TAB_EQ_0_TSL_EQ_1_TAS2_EQ_0.LOGIC3",
+                "LOGIC3_TAB_EQ_1_TSL_EQ_0_TBS1_EQ_0.LOGIC3",
+                "LOGIC3_TAB_EQ_1_TSL_EQ_1_TBS2_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_1.LOGIC3",
+                "LOGIC3_TBS_EQ_0_TAB_EQ_0_TSL_EQ_0_TAS1_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_0_TAB_EQ_0_TSL_EQ_1_TAS2_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_0_TAB_EQ_1_TSL_EQ_0_TBS1_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_0_TAB_EQ_1_TSL_EQ_1_TBS2_EQ_0.LOGIC3"
+            ]
+        },
+        "b_frag": {
+            "SPLIT":[
+                "LOGIC3.LOGIC3",
+                "LOGIC3_TAB_EQ_0_TSL_EQ_0_TAS1_EQ_0.LOGIC3",
+                "LOGIC3_TAB_EQ_0_TSL_EQ_1_TAS2_EQ_0.LOGIC3",
+                "LOGIC3_TAB_EQ_1_TSL_EQ_0_TBS1_EQ_0.LOGIC3",
+                "LOGIC3_TAB_EQ_1_TSL_EQ_1_TBS2_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_1.LOGIC3",
+                "LOGIC3_TBS_EQ_1_BAB_EQ_0_BSL_EQ_0_BAS1_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_1_BAB_EQ_0_BSL_EQ_1_BAS2_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_1_BAB_EQ_1_BSL_EQ_0_BBS1_EQ_0.LOGIC3",
+                "LOGIC3_TBS_EQ_1_BAB_EQ_1_BSL_EQ_1_BBS2_EQ_0.LOGIC3"
+            ]
+        },
+        "q_frag": {
+            "INT":[
+                "LOGIC3_QCKS_EQ_1.LOGIC3",
+                "LOGIC3_QRT_EQ_0_QST_EQ_0_QCKS_EQ_1.LOGIC3",
+                "LOGIC3_QDS_EQ_1_QEN_EQ_1_QRT_EQ_0_QST_EQ_0_QCKS_EQ_1.LOGIC3",
+                "LOGIC3_QEN_EQ_1_QRT_EQ_0_QST_EQ_0_QCKS_EQ_1.LOGIC3"
+            ],
+            "EXT":[
+                "LOGIC3_QCKS_EQ_1.LOGIC3",
+                "LOGIC3_QRT_EQ_0_QST_EQ_0_QCKS_EQ_1.LOGIC3",
+                "LOGIC3_QDS_EQ_1_QEN_EQ_1_QRT_EQ_0_QST_EQ_0_QCKS_EQ_1.LOGIC3",
+                "LOGIC3_QEN_EQ_1_QRT_EQ_0_QST_EQ_0_QCKS_EQ_1.LOGIC3"
+            ]
+        },
+        "f_frag": {
+            "FRAGS":[
+                "LOGIC3.LOGIC3",
+                "LOGIC3_FS_EQ_0.LOGIC3", 
+                "LOGIC3_FS_EQ_1.LOGIC3"
+            ]
+        }
+    },
+    "GMUX": {
+        "gmux": {
+            "IP": [
+                "GMUX_IS0_EQ_0.GMUX",
+                "GMUX_IS0_EQ_1.GMUX"
+            ],
+            "IC": [
+                "GMUX_IS0_EQ_0.GMUX",
+                "GMUX_IS0_EQ_1.GMUX"
+            ]
+        }
+    }
+}
