@@ -5,114 +5,94 @@ MYPATH=`realpath $0`
 MYPATH=`dirname ${MYPATH}`
 
 SPLIT_INOUTS=`realpath ${MYPATH}/python/split_inouts.py`
+CONVERT_OPTS=`realpath ${MYPATH}/python/convert_compile_opts.py`
+
+print_usage () {
+    echo "Usage: symbiflow_synth  -v|--verilog <Verilog file list>"
+    echo "                       [-t|--top <top module name>]"
+    echo "                       [-F|--family <device family>]"
+    echo "                       [-d|--device <device type (e.g. qlf_k4n8)>]"
+    echo "                       [-P|--part <part name>]"
+    echo "                       [-p|--pcf <PCF IO constraints>]"
+    echo "                       [-y <Verilog library search path>"
+    echo "                       [+libext+<Verilog library file extension>]"
+    echo "                       [+incdir+<Verilog include path>]"
+    echo "                       [+define+<macro name>[=<macro value>]]"
+    echo "                       [-f <additional compile command file>]"
+    echo ""
+    exit 1
+}
 
 VERILOG_FILES=()
-XDC_FILES=()
-TOP=top
+TOP="top"
 DEVICE=""
 FAMILY=""
 PART=""
 PCF=""
+EXTRA_ARGS=()
 
-VERILOGLIST=0
-XDCLIST=0
-TOPNAME=0
-DEVICENAME=0
-FAMILYNAME=0
-PARTNAME=0
-PCFNAME=0
-
+OPT=""
 for arg in $@; do
-	echo $arg
-	case "$arg" in
-		-t|--top)
-			echo "adding top"
-			VERILOGLIST=0
-			XDCLIST=0
-			TOPNAME=1
-			DEVICENAME=0
-			FAMILYNAME=0
-			PARTNAME=0
-			PCFNAME=0
-			;;
-		-x|--xdc)
-			VERILOGLIST=0
-			XDCLIST=1
-			TOPNAME=0
-			DEVICENAME=0
-			FAMILYNAME=0
-			PARTNAME=0
-			PCFNAME=0
-			;;
-		-v|--verilog)
-			VERILOGLIST=1
-			XDCLIST=0
-			TOPNAME=0
-			DEVICENAME=0
-			FAMILYNAME=0
-			PARTNAME=0
-			PCFNAME=0
-			;;
-		-d|--device)
-			VERILOGLIST=0
-			XDCLIST=0
-			TOPNAME=0
-			DEVICENAME=1
-			FAMILYNAME=0
-			PARTNAME=0
-			PCFNAME=0
-			;;
-		-f|--family)
-			VERILOGLIST=0
-			XDCLIST=0
-			TOPNAME=0
-			DEVICENAME=0
-			FAMILYNAME=1
-			PARTNAME=0
-			PCFNAME=0
-			;;
-		-P|--part)
-			VERILOGLIST=0
-			XDCLIST=0
-			TOPNAME=0
-			DEVICENAME=0
-			FAMILYNAME=0
-			PARTNAME=1
-			PCFNAME=0
-			;;
-		-p|--pcf)
-			VERILOGLIST=0
-			XDCLIST=0
-			TOPNAME=0
-			DEVICENAME=0
-			FAMILYNAME=0
-			PARTNAME=0
-			PCFNAME=1
-			;;
-		*)
-			if [ $VERILOGLIST -eq 1 ]; then
-				VERILOG_FILES+=($arg)
-			elif [ $XDCLIST -eq 1 ]; then
-				XDC_FILES+=($arg)
-			elif [ $TOPNAME -eq 1 ]; then
-				TOP=$arg
-			elif [ $DEVICENAME -eq 1 ]; then
-				DEVICE=$arg
-			elif [ $FAMILYNAME -eq 1 ]; then
-				FAMILY=$arg
-			elif [ $PARTNAME -eq 1 ]; then
-				PART=$arg
-			elif [ $PCFNAME -eq 1 ]; then
-				PCF=$arg
-			else
-				echo "Usage: synth [-t|--top <top module name> -v|--verilog <Verilog files list> [-x|--xdc <XDC files list>]"
-				echo "             [-d|--device <device type (e.g. artix7)>] [-P|--part <part name>]"
-				echo "             [-f|--family <device family (pp3,ap3)>] [-P|--part <part name>]"
-				echo "note: device and part parameters are required if xdc is passed"
-				exit 1
-			fi
-			;;
-	esac
+    case $arg in
+        -t|--top)
+            OPT="top"
+            ;;
+        -v|--verilog)
+            OPT="vlog"
+            ;;
+        -d|--device)
+            OPT="dev"
+            ;;
+        -F|--family)
+            OPT="family"
+            ;;
+        -P|--part)
+            OPT="part"
+            ;;
+        -p|--pcf)
+            OPT="pcf"
+            ;;
+        -y|-f|+incdir+*|+libext+*|+define+*)
+            OPT="xtra"
+            ;;
+        *)
+            case $OPT in
+                "top")
+                    TOP=$arg
+                    OPT=""
+                    ;;
+                "vlog")
+                    VERILOG_FILES+=($arg)
+                    ;;
+                "dev")
+                    DEVICE=$arg
+                    OPT=""
+                    ;;
+                "family")
+                    FAMILY=$arg
+                    OPT=""
+                    ;;
+                "part")
+                    PART=$arg
+                    OPT=""
+                    ;;
+                "pcf")
+                    PCF=$arg
+                    OPT=""
+                    ;;
+                "xtra")
+                    ;;
+                *)
+                    print_usage
+                    ;;
+            esac
+            ;;
+    esac
+
+    if [ "$OPT" == "xtra" ]; then
+        EXTRA_ARGS+=($arg)
+    fi
+
 done
 
 if [ -z ${FAMILY} ]; then
@@ -133,7 +113,6 @@ SYNTH_TCL_PATH=`realpath ${MYPATH}/../share/symbiflow/scripts/${FAMILY}/synth.tc
 CONV_TCL_PATH=`realpath ${MYPATH}/../share/symbiflow/scripts/${FAMILY}/conv.tcl`
 
 export USE_ROI="FALSE"
-export INPUT_XDC_FILES=${XDC_FILES[*]}
 export OUT_JSON=$TOP.json
 export SYNTH_JSON=${TOP}_io.json
 export OUT_SYNTH_V=${TOP}_synth.v
@@ -154,8 +133,21 @@ else
 	export DEVICE_CELLS_MAP=
 fi
 
+YOSYS_COMMANDS=`echo ${EXTRA_ARGS[*]} | python3 ${CONVERT_OPTS}`
+YOSYS_COMMANDS="${YOSYS_COMMANDS//$'\n'/'; '}"
+
 LOG=${TOP}_synth.log
 
-yosys -p "tcl ${SYNTH_TCL_PATH}" -l $LOG ${VERILOG_FILES[*]}
+YOSYS_SCRIPT="tcl ${SYNTH_TCL_PATH}"
+
+for f in ${VERILOG_FILES[*]}; do
+    YOSYS_SCRIPT="read_verilog ${f}; $YOSYS_SCRIPT"
+done
+
+if [ ! -z "${YOSYS_COMMANDS}" ]; then
+    YOSYS_SCRIPT="$YOSYS_COMMANDS; $YOSYS_SCRIPT"
+fi
+
+yosys -p "${YOSYS_SCRIPT}" -l $LOG
 python3 ${SPLIT_INOUTS} -i ${OUT_JSON} -o ${SYNTH_JSON}
 yosys -p "read_json $SYNTH_JSON; tcl ${CONV_TCL_PATH}"

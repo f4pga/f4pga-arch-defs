@@ -32,7 +32,7 @@ set +e
 
 	# Testing installed toolchain
 	export CTEST_OUTPUT_ON_FAILURE=1
-	ctest -R binary_toolchain_test_counter
+	ctest -R binary_toolchain_test_qlf_k4n8*
 
 	BUILD_RESULT=$?
 	popd

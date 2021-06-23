@@ -1,0 +1,7 @@
+module add_3 (in, out);
+    input  wire [7:0] in;
+    output wire [7:0] out;
+
+    assign out = in + 3;
+
+endmodule
