@@ -25,14 +25,14 @@ set +e
 
 	# Run tests
 	ninja -j${MAX_CORES} all_quicklogic_tests
-	# If successful install the toolchain
+
+	# If successful install the toolchain and test it
 	if [ $? -eq 0 ]; then
 		ninja -j${MAX_CORES} install
-	fi
 
-	# Testing installed toolchain
-	export CTEST_OUTPUT_ON_FAILURE=1
-	ctest -R binary_toolchain_test_qlf_k4n8*
+    	export CTEST_OUTPUT_ON_FAILURE=1
+    	ctest -R binary_toolchain_test_qlf_k4n8* -VV
+	fi
 
 	BUILD_RESULT=$?
 	popd
