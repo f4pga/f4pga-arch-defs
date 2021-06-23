@@ -1,17 +1,14 @@
 #!/usr/bin/env python3
 import argparse
 import pickle
-import itertools
 import re
-
-import lxml.etree as ET
 
 from lib.rr_graph import tracks
 import lib.rr_graph.graph2 as rr
 import lib.rr_graph_xml.graph2 as rr_xml
 from lib import progressbar_utils
 
-from data_structs import *
+from data_structs import Loc, ConnectionType
 from utils import fixup_pin_name
 
 from rr_utils import add_node, add_track, add_edge, connect
@@ -162,7 +159,7 @@ class QmuxModel(object):
         for pin, pin_routes in self.ctrl_routes.items():
             for net in pin_routes.keys():
                 assert len(pin_routes[net]
-                           ) == 1, (cell.name, pin, net, pin_routes[net])
+                           ) == 1, (self.cell.name, pin, net, pin_routes[net])
                 pin_routes[net] = pin_routes[net][0]
 
         # Get segment id
@@ -225,7 +222,6 @@ class QmuxModel(object):
             switch_id = get_vpr_switch_for_clock_cell(
                 self.graph,
                 self.cell,
-                #pin,
                 "QCLKIN0",  # FIXME: Always use the QCLKIN0->IZ timing here
                 "IZ"
             )
@@ -270,9 +266,6 @@ class QmuxModel(object):
 
         # Format prefix
         prefix = "X{}Y{}.QMUX.QMUX".format(self.phy_loc.x, self.phy_loc.y)
-
-        # Get cell index
-        index = int(self.cell.name[-1])
 
         # Collect features
         for pin, net in pins.items():
@@ -1302,7 +1295,6 @@ def main():
         vpr_switchbox_types = db["vpr_switchbox_types"]
         vpr_switchbox_grid = db["vpr_switchbox_grid"]
         connections = db["connections"]
-        segments = db["segments"]
         switches = db["switches"]
 
     # Load the routing graph, build SOURCE -> OPIN and IPIN -> SINK edges.
@@ -1440,7 +1432,7 @@ def main():
         phy_loc = loc_map.bwd[cell.loc]
 
         if cell.type == "QMUX":
-            model = QmuxModel(
+            QmuxModel(
                 graph=xml_graph.graph,
                 cell=cell,
                 phy_loc=phy_loc,
@@ -1450,7 +1442,7 @@ def main():
             )
 
         if cell.type == "CAND":
-            model = CandModel(
+            CandModel(
                 graph=xml_graph.graph,
                 cell=cell,
                 phy_loc=phy_loc,
@@ -1512,8 +1504,9 @@ def main():
             loc = (src.loc.x_low, src.loc.y_low)
             connected_locs.add(loc)
 
-    non_empty_locs = set((loc.x, loc.y) for loc in xml_graph.graph.grid \
-                         if loc.block_type_id > 0)
+    non_empty_locs = set(
+        (loc.x, loc.y) for loc in xml_graph.graph.grid if loc.block_type_id > 0
+    )
 
     unconnected_locs = non_empty_locs - connected_locs
     for loc in unconnected_locs:
@@ -1527,14 +1520,13 @@ def main():
     # Write the routing graph
     nodes_obj = xml_graph.graph.nodes
     edges_obj = xml_graph.graph.edges
-    node_remap = lambda x: x
 
     print("Serializing the rr graph...")
     xml_graph.serialize_to_xml(
         channels_obj=channels_obj,
         nodes_obj=nodes_obj,
         edges_obj=yield_edges(edges_obj),
-        node_remap=node_remap,
+        node_remap=lambda x: x,
     )
 
 

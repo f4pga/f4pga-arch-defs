@@ -1,10 +1,9 @@
-import itertools
 import statistics
 
 from copy import deepcopy
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 
-from data_structs import *
+from data_structs import VprSwitch, MuxEdgeTiming, DriverTiming, SinkTiming
 from utils import yield_muxes, add_named_item
 
 # =============================================================================
@@ -79,7 +78,7 @@ def compute_switchbox_timing_model(switchbox, timing_data):
 
     The timing model assumes that each output of a mux has a certain resistance
     and constant propagation time. Then, every load has a capacitance which is
-    connected when it is active. All capacitances are identical. The input 
+    connected when it is active. All capacitances are identical. The input
     timing data does not allow to distinguish between them. Additionally, each
     load can have a constant propagation delay.
 

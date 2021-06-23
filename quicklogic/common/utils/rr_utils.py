@@ -1,4 +1,4 @@
-from data_structs import *
+from data_structs import Loc
 
 from lib.rr_graph import tracks
 import lib.rr_graph.graph2 as rr
@@ -143,8 +143,11 @@ def connect(
             segment_id = src_node.segment.segment_id
 
     # CHANX to CHANY or vice-versa
-    if src_node.type == rr.NodeType.CHANX and dst_node.type == rr.NodeType.CHANY or \
-       src_node.type == rr.NodeType.CHANY and dst_node.type == rr.NodeType.CHANX:
+    chanx_to_chany = src_node.type == rr.NodeType.CHANX and dst_node.type == rr.NodeType.CHANY
+    chany_to_chanx = src_node.type == rr.NodeType.CHANY and dst_node.type == rr.NodeType.CHANX
+    chany_to_chany = src_node.type == rr.NodeType.CHANY and dst_node.type == rr.NodeType.CHANY
+    chanx_to_chanx = src_node.type == rr.NodeType.CHANX and dst_node.type == rr.NodeType.CHANX
+    if chany_to_chanx or chanx_to_chany:
 
         # Check loc
         node_joint_location(src_node, dst_node)
@@ -155,8 +158,7 @@ def connect(
         )
 
     # CHANX to CHANX or CHANY to CHANY
-    elif src_node.type == rr.NodeType.CHANX and dst_node.type == rr.NodeType.CHANX or \
-         src_node.type == rr.NodeType.CHANY and dst_node.type == rr.NodeType.CHANY:
+    elif chany_to_chany or chanx_to_chanx:
 
         loc = node_joint_location(src_node, dst_node)
         direction = "X" if src_node.type == rr.NodeType.CHANY else "Y"

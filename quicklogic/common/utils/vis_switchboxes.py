@@ -3,7 +3,7 @@ import argparse
 
 import lxml.etree as ET
 
-from data_structs import *
+from data_structs import SwitchboxPinType
 from data_import import import_data
 
 # =============================================================================

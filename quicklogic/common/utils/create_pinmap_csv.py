@@ -2,8 +2,6 @@
 import argparse
 import pickle
 
-from data_structs import *
-
 # =============================================================================
 
 
@@ -80,7 +78,6 @@ def main():
     csv_lines = generate_pinmap_csv(package_pinmaps[args.package])
 
     # Write the pinmap CSV file
-    #args.o.write("name,x,y,z,type\n")
     args.o.write("\n".join(csv_lines) + "\n")
 
 
