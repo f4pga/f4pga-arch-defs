@@ -4,13 +4,12 @@ This utility generates a FASM file with a default bitstream configuration for
 the given device.
 """
 import argparse
-import random
 import colorsys
 from enum import Enum
 
 import lxml.etree as ET
 
-from data_structs import *
+from data_structs import PinDirection, SwitchboxPinType
 from data_import import import_data
 
 from utils import yield_muxes
@@ -322,11 +321,11 @@ class SwitchboxConfigBuilder:
         nets = sorted(list(nets))
         for i, net in enumerate(nets):
 
-            h = i / len(nets)
-            l = 0.33
-            s = 1.0
+            hue = i / len(nets)
+            light = 0.33
+            saturation = 1.0
 
-            r, g, b = colorsys.hls_to_rgb(h, l, s)
+            r, g, b = colorsys.hls_to_rgb(hue, light, saturation)
             color = "#{:02X}{:02X}{:02X}".format(
                 int(r * 255.0),
                 int(g * 255.0),
@@ -613,8 +612,10 @@ def main():
         print("", switchbox.type)
 
         # Identify all locations of the switchbox
-        locs = [loc for loc, type in switchbox_grid.items() \
-                if type == switchbox.type]
+        locs = [
+            loc for loc, type in switchbox_grid.items()
+            if type == switchbox.type
+        ]
 
         # Initialize the builder
         builder = SwitchboxConfigBuilder(switchbox)

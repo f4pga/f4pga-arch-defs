@@ -2,12 +2,11 @@
 import os
 import argparse
 import pickle
-from collections import namedtuple
 from collections import OrderedDict
 
 import lxml.etree as ET
 
-from data_structs import *
+from data_structs import ConnectionType, Loc
 
 from tile_import import make_top_level_pb_type
 from tile_import import make_top_level_tile

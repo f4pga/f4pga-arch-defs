@@ -13,8 +13,10 @@ import csv
 
 import lxml.etree as ET
 
-from data_structs import *
-from utils import yield_muxes, get_loc_of_cell, find_cell_in_tile, natural_keys, get_quadrant_for_loc
+from data_structs import Pin, PinDirection, Quadrant, ClockCell, Cell, CellType, \
+    Tile, TileType, Loc, SwitchboxPinLoc, SwitchboxPinType, Switchbox, SwitchboxPin, \
+    SwitchConnection, SwitchPin, PackagePin, OPPOSITE_DIRECTION
+from utils import yield_muxes, get_loc_of_cell, find_cell_in_tile, natural_keys
 from connections import build_connections, check_connections
 from connections import hop_to_str, get_name_and_hop, is_regular_hop_wire
 
@@ -72,7 +74,6 @@ def parse_library(xml_library):
             continue
 
         cell_type = xml_node.tag
-        cell_name = xml_node.get("name", xml_node.tag)
         cell_pins = []
 
         # Load pins
@@ -507,7 +508,6 @@ def parse_switchbox(xml_sbox, xml_common=None):
         # Process outputs
         switches = {}
         for xml_output in xml_stage.findall("Output"):
-            out_id = int(xml_output.attrib["Number"])
             out_switch_id = int(xml_output.attrib["SwitchNum"])
             out_pin_id = int(xml_output.attrib["SwitchOutputNum"])
             out_pin_name = xml_output.get("JointOutputName", None)
@@ -832,8 +832,11 @@ def parse_clock_network(xml_clock_network):
         )
 
         # Get the cell's pinmap
-        pin_map = {k: v for k, v in xml_cell.attrib.items() \
-            if k not in NON_PIN_TAGS}
+        pin_map = {
+            k: v
+            for k, v in xml_cell.attrib.items()
+            if k not in NON_PIN_TAGS
+        }
 
         # Return the cell
         return ClockCell(
@@ -1273,7 +1276,6 @@ def import_data(xml_root):
 
     # Get the "DeviceWireMappingTable" section
     xml_wiremap = xml_routing.find("DeviceWireMappingTable")
-    #assert xml_wiremap is not None
 
     if xml_wiremap is not None:
         # Import wire mapping

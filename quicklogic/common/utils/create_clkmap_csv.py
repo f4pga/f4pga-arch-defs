@@ -2,8 +2,6 @@
 import argparse
 import pickle
 
-from data_structs import *
-
 # =============================================================================
 
 

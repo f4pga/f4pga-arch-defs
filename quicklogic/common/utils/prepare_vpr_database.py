@@ -2,15 +2,16 @@
 import argparse
 import pickle
 import itertools
-import re
 import os
 from collections import defaultdict
 
 from sdf_timing import sdfparse
 from sdf_timing.utils import get_scale_seconds
 
-from data_structs import *
-from utils import yield_muxes, get_loc_of_cell, find_cell_in_tile
+from data_structs import Pin, PinDirection, Cell, CellType, ClockCell, Loc, LocMap, \
+    Tile, TileType, Connection, ConnectionLoc, ConnectionType, PackagePin, VprSwitch, \
+    VprSegment, Quadrant
+from utils import get_loc_of_cell, find_cell_in_tile
 from utils import get_pin_name
 
 from timing import compute_switchbox_timing_model
@@ -58,7 +59,7 @@ def is_loc_free(loc, tile_grid):
 
     if loc not in tile_grid:
         return True
-    if tile_grid[loc] == None:
+    if tile_grid[loc] is None:
         return True
 
     return False
@@ -746,7 +747,6 @@ def process_connections(
         if tile.type == "MULT":
             mult_locations[cell_name] = loc
 
-    ram_cell = 0
     for i, connection in enumerate(vpr_connections):
         # Process connection endpoints
         eps = [connection.src, connection.dst]
@@ -1160,27 +1160,31 @@ def main():
     add_synthetic_cell_and_tile_types(tile_types, vpr_cells_library)
 
     # Determine the grid offset so occupied locations start at GRID_MARGIN
-    tl_min = min([loc.x for loc in phy_tile_grid]), \
-             min([loc.y for loc in phy_tile_grid])
-    tl_max = max([loc.x for loc in phy_tile_grid]), \
-             max([loc.y for loc in phy_tile_grid])
+    tl_min = min([loc.x for loc in phy_tile_grid]), min(
+        [loc.y for loc in phy_tile_grid]
+    )
+    tl_max = max([loc.x for loc in phy_tile_grid]), max(
+        [loc.y for loc in phy_tile_grid]
+    )
 
-    sb_min = min([loc.x for loc in phy_switchbox_grid]), \
-             min([loc.y for loc in phy_switchbox_grid])
-    sb_max = max([loc.x for loc in phy_switchbox_grid]), \
-             max([loc.y for loc in phy_switchbox_grid])
+    sb_min = min([loc.x for loc in phy_switchbox_grid]), min(
+        [loc.y for loc in phy_switchbox_grid]
+    )
+    sb_max = max([loc.x for loc in phy_switchbox_grid]), max(
+        [loc.y for loc in phy_switchbox_grid]
+    )
 
     grid_min = min(tl_min[0], sb_min[0]), min(tl_min[1], sb_min[1])
     grid_max = max(tl_max[0], sb_max[0]), max(tl_max[1], sb_max[1])
 
     # Compute VPR grid offset w.r.t the physical grid and its size
-    grid_offset = GRID_MARGIN[0] - grid_min[0], \
-                  GRID_MARGIN[1] - grid_min[1]
+    grid_offset = GRID_MARGIN[0] - grid_min[0], GRID_MARGIN[1] - grid_min[1]
 
-    grid_size = GRID_MARGIN[0] + GRID_MARGIN[2] + \
-                (grid_max[0] - grid_min[0] + 1), \
-                GRID_MARGIN[1] + GRID_MARGIN[3] + \
-                (grid_max[1] - grid_min[1] + 1)
+    grid_size = GRID_MARGIN[0] + GRID_MARGIN[2] + (
+        grid_max[0] - grid_min[0] + 1
+    ), GRID_MARGIN[1] + GRID_MARGIN[3] + (
+        grid_max[1] - grid_min[1] + 1
+    )
 
     # Remap quadrant locations
     vpr_quadrants = {}
@@ -1285,72 +1289,75 @@ def main():
         xmax = max([loc.x for loc in vpr_tile_grid])
         ymax = max([loc.y for loc in vpr_tile_grid])
         for y in range(ymax + 1):
-            l = " {:>2}: ".format(y)
+            line = " {:>2}: ".format(y)
             for x in range(xmax + 1):
                 loc = Loc(x=x, y=y, z=0)
                 if loc not in vpr_tile_grid:
-                    l += " "
+                    line += " "
                 elif vpr_tile_grid[loc] is not None:
                     tile_type = vpr_tile_types[vpr_tile_grid[loc].type]
                     label = sorted(list(tile_type.cells.keys()))[0][0].upper()
-                    l += label
+                    line += label
                 else:
-                    l += "."
-            print(l)
+                    line += "."
+            print(line)
 
         # DBEUG
         print("Tile capacity / sub-tile count")
         xmax = max([loc.x for loc in vpr_tile_grid])
         ymax = max([loc.y for loc in vpr_tile_grid])
         for y in range(ymax + 1):
-            l = " {:>2}: ".format(y)
+            line = " {:>2}: ".format(y)
             for x in range(xmax + 1):
 
-                tiles = {loc: tile for loc, tile in vpr_tile_grid.items() if \
-                         loc.x == x and loc.y == y}
+                tiles = {
+                    loc: tile
+                    for loc, tile in vpr_tile_grid.items()
+                    if loc.x == x and loc.y == y
+                }
                 count = len([t for t in tiles.values() if t is not None])
 
                 if len(tiles) == 0:
-                    l += " "
+                    line += " "
                 elif count == 0:
-                    l += "."
+                    line += "."
                 else:
-                    l += "{:X}".format(count)
+                    line += "{:X}".format(count)
 
-            print(l)
+            print(line)
 
         # DEBUG
         print("Switchbox grid:")
         xmax = max([loc.x for loc in vpr_switchbox_grid])
         ymax = max([loc.y for loc in vpr_switchbox_grid])
         for y in range(ymax + 1):
-            l = " {:>2}: ".format(y)
+            line = " {:>2}: ".format(y)
             for x in range(xmax + 1):
                 loc = Loc(x=x, y=y, z=0)
                 if loc not in vpr_switchbox_grid:
-                    l += " "
+                    line += " "
                 elif vpr_switchbox_grid[loc] is not None:
-                    l += "X"
+                    line += "X"
                 else:
-                    l += "."
-            print(l)
+                    line += "."
+            print(line)
 
         # DBEUG
         print("Route-through global clock cells:")
         xmax = max([loc.x for loc in vpr_tile_grid])
         ymax = max([loc.y for loc in vpr_tile_grid])
         for y in range(ymax + 1):
-            l = " {:>2}: ".format(y)
+            line = " {:>2}: ".format(y)
             for x in range(xmax + 1):
                 loc = Loc(x=x, y=y, z=0)
 
                 for cell in vpr_clock_cells.values():
                     if cell.loc == loc:
-                        l += cell.name[0].upper()
+                        line += cell.name[0].upper()
                         break
                 else:
-                    l += "."
-            print(l)
+                    line += "."
+            print(line)
 
         # DEBUG
         print("VPR Segments:")

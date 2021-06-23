@@ -4,8 +4,9 @@ switchbox - tile connections.
 """
 import re
 
-from data_structs import *
-from utils import get_loc_of_cell, find_cell_in_tile
+from data_structs import SwitchboxPinType, Loc, OPPOSITE_DIRECTION, \
+    Connection, ConnectionLoc, ConnectionType, PinDirection
+from utils import find_cell_in_tile
 
 # =============================================================================
 
@@ -156,8 +157,10 @@ def build_tile_connections(
         switchbox = switchbox_types[switchbox_type]
 
         # Get pins
-        sbox_pins = [pin for pin in switchbox.pins if pin.type in \
-                    [SwitchboxPinType.LOCAL, SwitchboxPinType.FOREIGN]]
+        sbox_pins = [
+            pin for pin in switchbox.pins
+            if pin.type in [SwitchboxPinType.LOCAL, SwitchboxPinType.FOREIGN]
+        ]
 
         for sbox_pin in sbox_pins:
             tile = None
@@ -296,8 +299,8 @@ def build_hop_connections(switchbox_types, switchbox_grid):
 
             if len(src_pins) != 1:
                 print(
-                    "WARNING: No output pin '{}' in switchbox '{}' at '{}' for input '{}' of switchbox '{}' at '{}'"
-                    .format(
+                    "WARNING: No output pin '{}' in switchbox '{}'"
+                    " at '{}' for input '{}' of switchbox '{}' at '{}'".format(
                         hop_name, src_switchbox_type, src_loc, dst_pin.name,
                         dst_switchbox_type, dst_loc
                     )

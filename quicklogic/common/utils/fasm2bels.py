@@ -7,7 +7,7 @@ import fasm
 from connections import get_name_and_hop
 
 from pathlib import Path
-from data_structs import Loc, SwitchboxPinLoc, PinDirection, Tile, ConnectionType
+from data_structs import Loc, SwitchboxPinLoc, PinDirection, ConnectionType
 from utils import get_quadrant_for_loc
 from verilogmodule import VModule
 
@@ -52,7 +52,6 @@ class Fasm2Bels(object):
         # load vpr_db data
         self.quadrants = vpr_db["phy_quadrants"]
         self.cells_library = vpr_db["cells_library"]
-        #self.loc_map = db["loc_map"]
         self.vpr_tile_types = vpr_db["tile_types"]
         self.vpr_tile_grid = vpr_db["phy_tile_grid"]
         self.vpr_switchbox_types = vpr_db["switchbox_types"]
@@ -69,13 +68,10 @@ class Fasm2Bels(object):
         # TODO maybe this should be added in original vpr_tile_grid
         # set all cels in row 1 and column 2 to ASSP
         # In VPR grid, the ASSP tile is located in (1, 1)
-        numassp = 1
         assplocs = set()
         ramlocs = dict()
         multlocs = dict()
 
-        assp_tile = self.vpr_tile_grid[Loc(1, 1, 0)]
-        assp_cell = assp_tile.cells[0]
         for phy_loc, tile in self.vpr_tile_grid.items():
             tile_type = self.vpr_tile_types[tile.type]
             if "ASSP" in tile_type.cells:
@@ -424,10 +420,6 @@ class Fasm2Bels(object):
         keys = sorted(self.routingdata.keys(), key=lambda loc: (loc.x, loc.y))
         for loc in keys:
             routingfeatures = self.routingdata[loc]
-            # map location to VPR coordinates
-            #if phy_loc not in self.loc_map.fwd:
-            #    continue
-            #loc = self.loc_map.fwd[phy_loc]
 
             if loc in self.vpr_switchbox_grid:
                 typ = self.vpr_switchbox_grid[loc]
@@ -692,7 +684,8 @@ class Fasm2Bels(object):
         # Process GMUX
         gmux_map = dict()
         gmux_locs = [
-            l for l, t in self.vpr_tile_grid.items() if "GMUX" in t.type
+            loc for loc, tile in self.vpr_tile_grid.items()
+            if "GMUX" in tile.type
         ]
         for loc in gmux_locs:
 
@@ -760,7 +753,8 @@ class Fasm2Bels(object):
 
                     # The GMUX is implicit. Remove all connections to it
                     self.designconnections[loc] = {
-                        k: v for k, v in self.designconnections[loc].items() \
+                        k: v
+                        for k, v in self.designconnections[loc].items()
                         if not k.startswith(gmux)
                     }
 
@@ -769,8 +763,8 @@ class Fasm2Bels(object):
 
                     # Check if the IC pin has an active driver. If not then
                     # discard the mux.
-                    if connections.get("IC", (None, None))[1] in \
-                       [None, "GND", "VCC"]:
+                    if connections.get("IC", (None, None))[1] in [None, "GND",
+                                                                  "VCC"]:
                         continue
 
                     # Create a wire for the GMUX output
@@ -804,7 +798,8 @@ class Fasm2Bels(object):
         # Process QMUX
         qmux_map = defaultdict(lambda: dict())
         qmux_locs = [
-            l for l, t in self.vpr_tile_grid.items() if "QMUX" in t.type
+            loc for loc, tile in self.vpr_tile_grid.items()
+            if "QMUX" in tile.type
         ]
         for loc in qmux_locs:
 
@@ -855,8 +850,8 @@ class Fasm2Bels(object):
                 sel_map = self.get_gmux_for_qmux(qmux, loc)
 
                 # Static selection
-                sel = int(connections["IS0"][1] == "VCC") * 2 + \
-                      int(connections["IS1"][1] == "VCC")
+                sel = int(connections["IS0"][1] == "VCC"
+                          ) * 2 + int(connections["IS1"][1] == "VCC")
 
                 # Input from the routing network selected, create a new wire
                 if sel == 3:
@@ -891,7 +886,8 @@ class Fasm2Bels(object):
 
                     # The QMUX is implicit. Remove all connections to it
                     self.designconnections[loc] = {
-                        k: v for k, v in self.designconnections[loc].items() \
+                        k: v
+                        for k, v in self.designconnections[loc].items()
                         if not k.startswith(qmux)
                     }
 
@@ -1009,8 +1005,8 @@ class Fasm2Bels(object):
 def parse_pcf(pcf):
     pcf_data = {}
     with open(pcf, 'r') as fp:
-        for l in fp:
-            line = l.strip().split()
+        for line in fp:
+            line = line.strip().split()
             if len(line) < 3:
                 continue
             if len(line) > 3 and not line[3].startswith("#"):
@@ -1061,8 +1057,7 @@ if __name__ == '__main__':
         "--input-pcf",
         type=Path,
         required=False,
-        help=
-        "Pins constraint file. If provided the tool will use the info to keep the original io pins names"
+        help="Pins constraint file to maintain original pin names"
     )
 
     parser.add_argument("--output-pcf", type=Path, help="Output PCF file")

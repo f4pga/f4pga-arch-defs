@@ -149,8 +149,9 @@ mux_id        - Mux id within the switch
 pin_id        - Pin id of the mux
 pin_direction - Logical direction of the pin
 """
-SwitchboxPinLoc = namedtuple("SwitchboxPinLoc", \
-    "stage_id switch_id mux_id pin_id pin_direction")
+SwitchboxPinLoc = namedtuple(
+    "SwitchboxPinLoc", "stage_id switch_id mux_id pin_id pin_direction"
+)
 """
 A top-level switchbox pin.
 

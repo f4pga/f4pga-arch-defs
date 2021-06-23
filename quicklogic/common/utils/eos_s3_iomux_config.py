@@ -9,7 +9,6 @@ import csv
 import json
 import re
 import sys
-from collections import defaultdict
 
 from lib.parse_pcf import parse_simple_pcf
 from eblif import parse_blif
@@ -244,8 +243,8 @@ def main():
 
             if pad_name not in pad_map and pad_name not in pad_alias_map:
                 print(
-                    'PCF constraint "{}" from line {} constraints pad {} which is not in available pad map:\n{}'
-                    .format(
+                    "PCF constraint '{}' from line {} constraints pad {} "
+                    "which is not in available pad map:\n{}".format(
                         constraint.line_str, constraint.line_num, pad_name,
                         '\n'.join(sorted(pad_map.keys()))
                     ),
@@ -273,7 +272,9 @@ def main():
                 continue
 
             # Detect inouts:
-            if constraint.net + '_$inp' in eblif_inputs and constraint.net + '_$out' in eblif_outputs:
+            is_inout_in = constraint.net + '_$inp' in eblif_inputs
+            is_inout_out = constraint.net + '_$out' in eblif_outputs
+            if is_inout_in and is_inout_out:
                 pad_config = {
                     "ctrl_sel": "fabric",
                     "mode": "inout",
@@ -311,7 +312,6 @@ def main():
     elif args.output_format == "binary":
         # Output binary file: <REGADDR 4B><REGVAL 4B>...
         for adr in sorted(iomux_regs.keys()):
-            #print("0x{:08X}0x{:08X}".format(adr, iomux_regs[adr]))
             # first the address
             addr_bytes = int(adr).to_bytes(4, byteorder='little')
             # output the address as raw bytes, bypass the print(), LE, 4B
