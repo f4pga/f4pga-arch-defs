@@ -10,6 +10,8 @@ from sdf_timing.utils import get_scale_seconds
 
 from termcolor import colored
 
+DEBUG = 0
+
 
 def log(ltype, message, outdesc=None):
     """Prints log messages.
@@ -53,8 +55,8 @@ RAM_2X1_PORTS = {
         [
             # RAM part 1, port 1
             ["WIDTH_SELECT1_0", 2, None],
-            ["CLK1EN_0", 1, None],  #"CLK1_0"],
-            ["CS1_0", 1, None],  #"CLK1_0"],
+            ["CLK1EN_0", 1, None],  # "CLK1_0"],
+            ["CS1_0", 1, None],  # "CLK1_0"],
             ["A1_0", 11, "CLK1_0"],
             ["WD_0", 18, "CLK1_0"],
             ["WEN1_0", 2, "CLK1_0"],
@@ -62,8 +64,8 @@ RAM_2X1_PORTS = {
 
             # RAM part 1, port 2
             ["WIDTH_SELECT2_0", 2, None],
-            ["CLK2EN_0", 1, None],  #"CLK2_0"],
-            ["CS2_0", 1, None],  #"CLK2_0"],
+            ["CLK2EN_0", 1, None],  # "CLK2_0"],
+            ["CS2_0", 1, None],  # "CLK2_0"],
             ["A2_0", 11, "CLK2_0"],
             ["P2_0", 1, "CLK2_0"],
 
@@ -77,8 +79,8 @@ RAM_2X1_PORTS = {
 
             # RAM part 2, port 1
             ["WIDTH_SELECT1_1", 2, None],
-            ["CLK1EN_1", 1, None],  #"CLK1_1"],
-            ["CS1_1", 1, None],  #"CLK1_1"],
+            ["CLK1EN_1", 1, None],  # "CLK1_1"],
+            ["CS1_1", 1, None],  # "CLK1_1"],
             ["A1_1", 11, "CLK1_1"],
             ["WD_1", 18, "CLK1_1"],
             ["WEN1_1", 2, "CLK1_1"],
@@ -86,8 +88,8 @@ RAM_2X1_PORTS = {
 
             # RAM part 2, port 2
             ["WIDTH_SELECT2_1", 2, None],
-            ["CLK2EN_1", 1, None],  #"CLK2_1"],
-            ["CS2_1", 1, None],  #"CLK2_1"],
+            ["CLK2EN_1", 1, None],  # "CLK2_1"],
+            ["CS2_1", 1, None],  # "CLK2_1"],
             ["A2_1", 11, "CLK2_1"],
             ["P2_1", 1, "CLK2_1"],
 
@@ -889,23 +891,12 @@ def auto_interconnect(pb_type):
             yield port.attrib["name"], int(port.attrib["num_pins"]),
 
     # Get parent for the interconnect (can be either "mode" or "pb_type")
-    if pb_type.tag == "mode":
-        ic_parent = pb_type
-    else:
-        ic_parent = child.getparent()
+    assert pb_type.tag == "mode"
 
-    # Get logical parent (must be a "pb_type")
-    if ic_parent.tag == "pb_type":
-        pb_parent = ic_parent
-    else:
-        pb_parent = ic_parent.getparent()
-        assert pb_parent.tag == "pb_type"
+    pb_parent = pb_type.getparent()
+    assert pb_parent.tag == "pb_type"
 
-    # Get all children (if pb_type is "mode")
-    if pb_type.tag == "mode":
-        pb_children = list(pb_type.findall("pb_type"))
-    else:
-        pb_children = [pb_type]
+    pb_children = list(pb_type.findall("pb_type"))
 
     # Upstream ports
     parent_name = pb_parent.attrib["name"]
@@ -943,7 +934,7 @@ def auto_interconnect(pb_type):
             )
 
     # Create the interconnect
-    ic = ET.SubElement(ic_parent, "interconnect")
+    ic = ET.SubElement(pb_type, "interconnect")
 
     for child in sorted(children.keys()):
         child_ports = sorted(list(children[child]), key=lambda x: x[0])
@@ -1068,14 +1059,9 @@ def make_specify(ports, separator=";\n"):
 
     verilog += "\n  specify\n"
     for key in ["clock", "input", "output"]:
-        if key == "clock":
-            type = "input"
-        else:
-            type = key
-
         for name, width, assoc_clock in ports[key]:
             if key == "input":
-                if assoc_clock != None:
+                if assoc_clock is not None:
                     verilog += "      $setup({}, posedge {}, \"\"){}".format(
                         name, assoc_clock, separator
                     )
@@ -1083,7 +1069,7 @@ def make_specify(ports, separator=";\n"):
                         assoc_clock, name, separator
                     )
             elif key == "output":
-                if assoc_clock != None:
+                if assoc_clock is not None:
                     verilog += "      ({}*>{})=\"\"{}".format(
                         assoc_clock, name, separator
                     )
@@ -1109,10 +1095,10 @@ module {} (
 
     verilog += "  parameter [18431:0] INIT = 18432'bx;\n"
 
-    #Specify
+    # Specify
     verilog += make_specify(specify_ports)
 
-    #RAM2x1 cell instance
+    # RAM2x1 cell instance
     verilog += make_ram2x1_instance(ports)
 
     # Footer
@@ -1202,7 +1188,6 @@ def make_techmap(conditions):
             mode_name = make_mode_name(condition)
             model_name = "RAM_" + mode_name + "_VPR"
 
-            #verilog += "        {} RAM_{} # (\n".format(model_name, part)
             verilog += "        {} # (\n".format(model_name)
 
             if part == 0:
@@ -1249,8 +1234,8 @@ def make_techmap(conditions):
 
     # Non-split (concatenated) RAM mode
     verilog_cond = []
+    # It appears that only CONCAT_EN_0 needs to be set
     verilog_cond.append("(_TECHMAP_CONSTVAL_CONCAT_EN_0_ == 1'b1)")
-    # verilog_cond.append("(_TECHMAP_CONSTVAL_CONCAT_EN_1_ == 1'b1)") # It appears that only CONCAT_EN_0 needs to be set
     verilog_cond = " && ".join(verilog_cond)
     verilog += "  // Concatenated RAM\n"
     verilog += "  end else if({}) begin\n".format(verilog_cond)
@@ -1266,7 +1251,6 @@ def make_techmap(conditions):
                 continue
 
             cond_part = "(_TECHMAP_CONSTVAL_{}_0_ == {})".format(sig, val)
-            #cond_part = "(_TECHMAP_CONSTVAL_{}_1_ == {})".format(sig, val)
             verilog_cond.append(cond_part)
 
         verilog_cond = " && ".join(verilog_cond)
@@ -1390,10 +1374,6 @@ def main():
         # Initialize the top-level pb_type XML
         xml_pb_root = make_pb_type("RAM", RAM_2X1_PORTS, None)[0]
 
-        # meta data for fasm parameters
-        #xml_metadata = ET.SubElement(xml_pb_root, "metadata", {"name": "fasm_params"})
-        #xml_fasm = ET.SubElement(xml_pb_root, "meta", {"name": "fasm_params"})
-
         # Wrapper pb_type for split RAM (CONCAT_EN=0)
         xml_mode = ET.SubElement(xml_pb_root, "mode", {"name": "SING"})
 
@@ -1451,13 +1431,17 @@ def main():
                         normalized_names=normalized_names
                     )
 
-                    # DEBUG
-                    #                    print(" RAM_" + str(part))
-                    #                    for cname, cdata in timings.items():
-                    #                        print(" ", cname)
-                    #                        for iname, idata in cdata.items():
-                    #                            for tname, tdata in idata.items():
-                    #                                print("  ", tname, "src={}, dst={}".format(tdata["from_pin"], tdata["to_pin"]))
+                    if DEBUG:
+                        print(" RAM_" + str(part))
+                        for cname, cdata in timings.items():
+                            print(" ", cname)
+                            for iname, idata in cdata.items():
+                                for tname, tdata in idata.items():
+                                    print(
+                                        "  ", tname, "src={}, dst={}".format(
+                                            tdata["from_pin"], tdata["to_pin"]
+                                        )
+                                    )
 
                     # Make the mode XML
                     xml_mode = ET.SubElement(
@@ -1502,13 +1486,17 @@ def main():
                     all_timings, cond, None, normalized_names=normalized_names
                 )
 
-                # DEBUG
-                #                print(" Dual RAM")
-                #                for cname, cdata in timings.items():
-                #                    print(" ", cname)
-                #                    for iname, idata in cdata.items():
-                #                        for tname, tdata in idata.items():
-                #                            print("  ", tname, "src={}, dst={}".format(tdata["from_pin"], tdata["to_pin"]))
+                if DEBUG:
+                    print(" Dual RAM")
+                    for cname, cdata in timings.items():
+                        print(" ", cname)
+                        for iname, idata in cdata.items():
+                            for tname, tdata in idata.items():
+                                print(
+                                    "  ", tname, "src={}, dst={}".format(
+                                        tdata["from_pin"], tdata["to_pin"]
+                                    )
+                                )
 
                 # Make the mode XML
                 xml_mode = ET.SubElement(xml_dual, "mode", {"name": mode_name})
