@@ -8,7 +8,7 @@ BUILDDIR=build
 
 source ${MYPATH}/env
 source ${VPRPATH}/vpr_common
-VERSION="v1.3.3"
+VERSION="v2.0"
 
 if [ ! -n $1 ]; then
 echo "Please enter a valid command: Refer help ql_symbiflow --help"
@@ -46,282 +46,137 @@ MAX_CRITICALITY="0.0"
 JSON=""
 PNR_CORNER="slow"
 ANALYSIS_CORNER="slow"
+COMPILE_EXTRA_ARGS=()
 
-VERILOGLIST=0
-PCFNAME=0
-TOPNAME=0
-SOURCEDIR=0
-HELPNAME=0
-DEVICENAME=0
-PARTNAME=0
-SDCNAME=0
-OUTNAME=0
-ROUTE_NAME0=0
-JSON_NAME=0
-PNR_CORNER_NAME=0
-ANALYSIS_CORNER_NAME=0
-
-for arg_v in $@; do
-	echo $arg_v
-	case "$arg_v" in
+OPT=""
+for arg in $@; do
+    case $arg in
 		-src|--source)
-			VERILOGLIST=0
-			PCFNAME=0
-			TOPNAME=0
-			SOURCEDIR=1
-			HELPNAME=0
-			DEVICENAME=0
-			PARTNAME=0
-			SDCNAME=0
-			OUTNAME=0
-			ROUTE_NAME0=0
-			JSON_NAME=0
-			PNR_CORNER_NAME=0
-			ANALYSIS_CORNER_NAME=0
-			;;
+            OPT="src"
+            ;;
 		-t|--top)
-			VERILOGLIST=0
-			PCFNAME=0
-			TOPNAME=1
-			SOURCEDIR=0
-			HELPNAME=0
-			DEVICENAME=0
-			PARTNAME=0
-			SDCNAME=0
-			OUTNAME=0
-			ROUTE_NAME0=0
-			JSON_NAME=0
-			PNR_CORNER_NAME=0
-			ANALYSIS_CORNER_NAME=0
-			;;
+            OPT="top"
+            ;;
 		-v|--verilog)
-			VERILOGLIST=1
-			PCFNAME=0
-			TOPNAME=0
-			SOURCEDIR=0
-			HELPNAME=0
-			DEVICENAME=0
-			PARTNAME=0
-			SDCNAME=0
-			OUTNAME=0
-			ROUTE_NAME0=0
-			JSON_NAME=0
-			PNR_CORNER_NAME=0
-			ANALYSIS_CORNER_NAME=0
-			;;
+            OPT="vlog"
+            ;;
 		-d|--device)
-			VERILOGLIST=0
-			PCFNAME=0
-			TOPNAME=0
-			SOURCEDIR=0
-			HELPNAME=0
-			DEVICENAME=1
-			PARTNAME=0
-			SDCNAME=0
-			OUTNAME=0
-			ROUTE_NAME0=0
-			JSON_NAME=0
-			PNR_CORNER_NAME=0
-			ANALYSIS_CORNER_NAME=0
-			;;
-		-h|--help)
-			VERILOGLIST=0
-			PCFNAME=0
-			TOPNAME=0
-			SOURCEDIR=0
-			HELPNAME=1
-			DEVICENAME=0
-			PARTNAME=0
-			SDCNAME=0
-			OUTNAME=0
-			ROUTE_NAME0=0
-			JSON_NAME=0
-			PNR_CORNER_NAME=0
-			ANALYSIS_CORNER_NAME=0
-			;;
+            OPT="dev"
+            ;;
 		-p|--pcf)
-			VERILOGLIST=0
-			PCFNAME=1
-			TOPNAME=0
-			SOURCEDIR=0
-			HELPNAME=0
-			DEVICENAME=0
-			PARTNAME=0
-			SDCNAME=0
-			OUTNAME=0
-			ROUTE_NAME0=0
-			JSON_NAME=0
-			PNR_CORNER_NAME=0
-			ANALYSIS_CORNER_NAME=0
-			;;
+            OPT="pcf"
+            ;;
 		-P|--part)
-			VERILOGLIST=0
-			PCFNAME=0
-			TOPNAME=0
-			SOURCEDIR=0
-			HELPNAME=0
-			DEVICENAME=0
-			PARTNAME=1
-			SDCNAME=0
-			OUTNAME=0
-			ROUTE_NAME0=0
-			JSON_NAME=0
-			PNR_CORNER_NAME=0
-			ANALYSIS_CORNER_NAME=0
-			;;
+            OPT="part"
+            ;;
 		-j|--json)
-			VERILOGLIST=0
-			PCFNAME=0
-			TOPNAME=0
-			SOURCEDIR=0
-			HELPNAME=0
-			DEVICENAME=0
-			PARTNAME=0
-			SDCNAME=0
-			ROUTE_NAME0=0
-			OUTNAME=0
-			JSON_NAME=1
-			PNR_CORNER_NAME=0
-			ANALYSIS_CORNER_NAME=0
-			;;
+            OPT="json"
+            ;;
 		-s|--sdc)
-			VERILOGLIST=0
-			PCFNAME=0
-			TOPNAME=0
-			SOURCEDIR=0
-			HELPNAME=0
-			DEVICENAME=0
-			PARTNAME=0
-			SDCNAME=1
-			OUTNAME=0
-			ROUTE_NAME0=0
-			JSON_NAME=0
-			PNR_CORNER_NAME=0
-			ANALYSIS_CORNER_NAME=0
-			;;
+            OPT="sdc"
+            ;;
 		-r|--route_type)
-			VERILOGLIST=0
-			PCFNAME=0
-			TOPNAME=0
-			SOURCEDIR=0
-			HELPNAME=0
-			DEVICENAME=0
-			PARTNAME=0
-			SDCNAME=0
-			OUTNAME=0
-			ROUTE_NAME0=1
-			JSON_NAME=0
-			PNR_CORNER_NAME=0
-			ANALYSIS_CORNER_NAME=0
-			;;
+            OPT="route"
+            ;;
 		-pnr_corner)
-			VERILOGLIST=0
-			PCFNAME=0
-			TOPNAME=0
-			SOURCEDIR=0
-			HELPNAME=0
-			DEVICENAME=0
-			PARTNAME=0
-			SDCNAME=0
-			OUTNAME=0
-			ROUTE_NAME0=0
-			JSON_NAME=0
-			PNR_CORNER_NAME=1
-			ANALYSIS_CORNER_NAME=0
-			;;
+            OPT="pnr_corner"
+            ;;
 		-analysis_corner)
-			VERILOGLIST=0
-			PCFNAME=0
-			TOPNAME=0
-			SOURCEDIR=0
-			HELPNAME=0
-			DEVICENAME=0
-			PARTNAME=0
-			SDCNAME=0
-			OUTNAME=0
-			ROUTE_NAME0=0
-			JSON_NAME=0
-			PNR_CORNER_NAME=0
-			ANALYSIS_CORNER_NAME=1
-			;;
+            OPT="analysis_corner"
+            ;;
 		-dump)
-			VERILOGLIST=0
-			PCFNAME=0
-			TOPNAME=0
-			SOURCEDIR=0
-			HELPNAME=0
-			DEVICENAME=0
-			PARTNAME=0
-			SDCNAME=0
-			OUTNAME=1
-			ROUTE_NAME0=0
-			JSON_NAME=0
-			PNR_CORNER_NAME=0
-			ANALYSIS_CORNER_NAME=0
-			;;
+            OPT="dump"
+            ;;
 		-synth|-compile)
-			VERILOGLIST=0
-			PCFNAME=0
-			TOPNAME=0
-			SOURCEDIR=0
-			HELPNAME=0
-			DEVICENAME=0
-			PARTNAME=0
-			SDCNAME=0
-			OUTNAME=0
-			ROUTE_NAME0=0
-			JSON_NAME=0
-			PNR_CORNER_NAME=0
-			ANALYSIS_CORNER_NAME=0
-			;;
+            OPT="synth"
+            ;;
+        -y|+incdir+*|+libext+*|+define+*)
+            OPT="compile_xtra"
+            ;;
+        -f)
+            OPT="options_file"
+            ;;
+		-h|--help)
+            exit 0
+            ;;
+        *)
+            case $OPT in
+                "src")
+                    SOURCE=$arg
+                    OPT=""
+                    ;;
+                "top")
+                    TOP=$arg
+                    OPT=""
+                    ;;
+                "vlog")
+                    VERILOG_FILES+="$arg "
+                    ;;
+                "dev")
+                    DEVICE=$arg
+                    OPT=""
+                    ;;
+                "pcf")
+                    PCF=$arg
+                    OPT=""
+                    ;;
+                "part")
+                    PART=$arg
+                    OPT=""
+                    ;;
+                "json")
+                    JSON=$arg
+                    OPT=""
+                    ;;
+                "sdc")
+                    SDC=$arg
+                    OPT=""
+                    ;;
+                "route")
+                    ROUTE_FLAG0="$arg"
+                    ROUTE_FLAG0="${ROUTE_FLAG0,,}"
+                    OPT=""
+                    ;;
+                "pnr_corner")
+                    PNR_CORNER=$arg
+                    OPT=""
+                    ;;
+                "analysis_corner")
+                    ANALYSIS_CORNER=$arg
+                    OPT=""
+                    ;;
+                "dump")
+                    OUT+="$arg "
+                    ;;
+                "compile_xtra")
+                    ;;
+                "options_file")
+                    COMPILE_EXTRA_ARGS+=("-f \"`realpath $arg`\" ")
+                    ;;
+                *)
+                    echo "Refer help for more details: ql_symbiflow -h "
+                    exit 1
+                    ;;
+            esac
+        ;;
+    esac
 
-		*)
-			if [ $SOURCEDIR -eq 1 ]; then
-				SOURCE=$arg_v
-			elif [ $VERILOGLIST -eq 1 ]; then
-				VERILOG_FILES+="$arg_v "
-			elif [ $HELPNAME -eq 1 ]; then
-				echo ""
-			elif [ $TOPNAME -eq 1 ]; then
-				TOP=$arg_v
-			elif [ $DEVICENAME -eq 1 ]; then
-				DEVICE="${arg_v}"
-            	case ${DEVICE} in
-            		qlf_k4n8)
-				DEVICE="${DEVICE}_${DEVICE}"
-            			FAMILY="qlf_k4n8"
-            			;;
-            		*)
-            			echo "Unsupported device '${DEVICE}'"
-            			exit 1
-            			;;
-            	esac
-			elif [ $PCFNAME -eq 1 ]; then
-				PCF="$arg_v"
-			elif [ $JSON_NAME -eq 1 ]; then
-			       JSON="$arg_v"
-			elif [ $SDCNAME -eq 1 ]; then
-				SDC="$arg_v"
-			elif [ $ROUTE_NAME0 -eq 1 ]; then
-				ROUTE_FLAG0="$arg_v"
-				ROUTE_FLAG0="${ROUTE_FLAG0,,}"
-			elif [ $OUTNAME -eq 1 ]; then
-				OUT+="$arg_v "
-			elif [ $PARTNAME -eq 1 ]; then
-				PART="${arg_v}"
-			elif [ $PNR_CORNER_NAME -eq 1 ]; then
-				PNR_CORNER="${arg_v}"
-			elif [ $ANALYSIS_CORNER_NAME -eq 1 ]; then
-				ANALYSIS_CORNER="${arg_v}"
-			else
-				echo "Refer help for more details: ql_symbiflow -h "
-                                exit 1
+    if [ "$OPT" == "compile_xtra" ]; then
+        COMPILE_EXTRA_ARGS+=($arg)
+    fi
 
-			fi
-			;;
-	esac
 done
 
+case ${DEVICE} in
+	qlf_k4n8)
+        DEVICE="${DEVICE}_${DEVICE}"
+		FAMILY="qlf_k4n8"
+		;;
+	*)
+		echo "Unsupported device '${DEVICE}'"
+		exit 1
+		;;
+esac
 
 ##### Check if the source directory exists #####
 if [[ $1 == "-h" || $1 == "--help" ]];then
@@ -341,6 +196,9 @@ exit 0
 else
 if [ -f $SOURCE/v_list_tmp ];then
 rm -f $SOURCE/v_list_tmp
+fi
+if [ $VERILOG_FILES == "*.v" ];then
+        VERILOG_FILES=`cd ${SOURCE};ls *.v`
 fi
 echo "$VERILOG_FILES" >${SOURCE}/v_list
 fi
@@ -432,10 +290,13 @@ if [ -f "$SOURCE/v_list_tmp" ]; then
 fi
 
 # FIXME: Some devices do not have fasm2bels yet
+RUN_TILL=""
 if [[ "$DEVICE" =~ ^(qlf_k4n8.*)$ ]]; then
     HAVE_FASM2BELS=0
+    RUN_TILL="bit"
 else
     HAVE_FASM2BELS=1
+    RUN_TILL="route"
 fi
 
 # For some devices do repacking between place and route
@@ -510,6 +371,13 @@ else
     SDC_MAKE="\${current_dir}/build/${TOP}_dummy.sdc"
 fi
 
+if ! [ -z "$CSV_PATH" ]; then
+    CSV_MAKE=$CSV_PATH
+else
+    touch ${CURR_DIR}/build/${TOP}_dummy.csv
+    CSV_MAKE="\${current_dir}/build/${TOP}_dummy.csv"
+fi
+
 echo -e ".PHONY:\${BUILDDIR}\n
 current_dir := $CURR_DIR\n\
 TOP := $TOP\n\
@@ -522,18 +390,18 @@ FAMILY := $FAMILY\n\
 ANALYSIS_CORNER := $PNR_CORNER\n\
 PNR_CORNER := $ANALYSIS_CORNER\n\
 PCF := $PCF_MAKE\n\
-PINMAP_CSV := $CSV_PATH\n\
+PINMAP_CSV := $CSV_MAKE\n\
 SDC_IN := $SDC_MAKE\n\
 BUILDDIR := build\n\n\
 SDC := \${current_dir}/\${BUILDDIR}/\${TOP}.sdc
 
-all: \${BUILDDIR}/\${TOP}.bit\n\
+all: \${BUILDDIR}/\${TOP}.${RUN_TILL}\n\
 \n\
 \${BUILDDIR}/\${TOP}.eblif: \${VERILOG} \${PCF}\n\
   ifneq (\"\$(wildcard \$(HEX_FILES))\",\"\")\n\
 	\$(shell cp \${current_dir}/*.hex \${BUILDDIR})\n\
   endif\n\
-	cd \${BUILDDIR} && symbiflow_synth -t \${TOP} -v \${VERILOG} -f \${FAMILY} -d \${DEVICE} -p \${PCF} > $LOG_FILE 2>&1\n\
+	cd \${BUILDDIR} && symbiflow_synth -t \${TOP} -v \${VERILOG} -F \${FAMILY} -d \${DEVICE} -p \${PCF} ${COMPILE_EXTRA_ARGS[*]} > $LOG_FILE 2>&1\n\
 \n\
 \${BUILDDIR}/\${TOP}.sdc: \${BUILDDIR}/\${TOP}.eblif\n\
 	python3 ${PROCESS_SDC} --sdc-in \${SDC_IN} --sdc-out \$@ --pcf \${PCF} --eblif \${BUILDDIR}/\${TOP}.eblif --pin-map \${PINMAP_CSV}\n\
@@ -601,7 +469,7 @@ elif [[ ! -z "$OUT" && $1 == "-compile" ]];then
 else
   if [ $1 == "-compile" ]; then
   echo -e "Running Synth->Pack->Place->Route->FASM->bitstream"
-  	cd $SOURCE;make -f Makefile.symbiflow ${BUILDDIR}/${TOP}.bit  || exit
+  	cd $SOURCE;make -f Makefile.symbiflow ${BUILDDIR}/${TOP}.${RUN_TILL}  || exit
   fi
 fi
 

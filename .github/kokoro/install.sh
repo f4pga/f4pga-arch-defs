@@ -33,9 +33,7 @@ echo "----------------------------------------"
 	pushd build
 	export VPR_NUM_WORKERS=${CORES}
 	export CTEST_OUTPUT_ON_FAILURE=1
-	ctest -R binary_toolchain_test_50t -j${MAX_CORES}
-	ctest -R binary_toolchain_test_100t -j${MAX_CORES}
-	ctest -R binary_toolchain_test_200t -j${MAX_CORES}
+	ctest -R binary_toolchain_test_xc7* -j${MAX_CORES}
 	popd
 )
 echo "----------------------------------------"
