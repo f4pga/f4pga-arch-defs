@@ -1,5 +1,9 @@
 `timescale 1ns/10ps
 (* whitebox *)
+
+// This cell is necessary only for post-pnr simulation
+// as it is a cell emitted by VPR and not part of the
+// PP3 architecture
 module fpga_interconnect(
 		datain,
 		dataout
