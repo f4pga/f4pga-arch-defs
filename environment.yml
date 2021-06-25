@@ -27,7 +27,7 @@ dependencies:
   - libxml2>=2.9.10
   # openjdk, libuuid, pkg-config, and cython are required to build the fasm package's ANTLR backend.
   # They can be removed if fasm is packaged as a binary e.g. a wheel or Conda package.
-  - openjdk
+  - openjdk>=11.0.0
   - libuuid
   - pkg-config
   - cython
