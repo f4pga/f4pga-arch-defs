@@ -15,6 +15,7 @@ echo "Host adding PPAs"
 echo "----------------------------------------"
 wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | sudo apt-key add -
 sudo apt-add-repository 'deb https://apt.kitware.com/ubuntu/ xenial main'
+sudo add-apt-repository ppa:openjdk-r/ppa
 echo "----------------------------------------"
 
 echo
@@ -64,7 +65,8 @@ sudo apt-get install -y \
         python3-yaml \
         virtualenv \
         ninja-build \
-        pixz
+        pixz \
+        openjdk-11-jdk
 
 if [ -z "${BUILD_TOOL}" ]; then
     export BUILD_TOOL=make
@@ -77,6 +79,12 @@ echo "========================================"
 echo "Setting up environment env"
 echo "----------------------------------------"
 (
+	echo " Set JAVA 11 as default"
+	echo "----------------------------------------"
+	sudo update-alternatives --set java /usr/lib/jvm/java-11-openjdk-amd64/bin/java
+	java -version
+	echo "----------------------------------------"
+
 	echo
 	echo " Configuring CMake"
 	echo "----------------------------------------"
