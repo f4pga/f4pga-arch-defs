@@ -54,6 +54,7 @@ end
   initial  begin
   $dumpfile("counter_16bit_tb.vcd");
   $dumpvars(0,counter_16bit_tb);
+  $sdf_annotate("top_post_synthesis.sdf", DUT);
   $display("\t\ttime,\tclk,\treset,\tenable,\tcount"); 
   $monitor("%d,\t%b,\t%b,\t%b,\t%d",$time, clk,reset,enable,count);
   if(status == 1'b0)

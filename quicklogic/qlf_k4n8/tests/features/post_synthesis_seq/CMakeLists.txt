@@ -19,7 +19,7 @@ add_custom_target(
   post_synthesis_seq
   COMMAND ${IVERILOG} -v -gspecify -o counter_16bit.vvp ${COUNTER_TB} ${POST_SYNTH_FILE} ${CELLS_SIM}
   DEPENDS ${IVERILOG}
-  COMMAND ${VVP} -v counter_16bit.vvp | egrep -q -w "97"
+  COMMAND ${VVP} -v counter_16bit.vvp -sdf-verbose | egrep -q -w "97"
   DEPENDS ${VVP}
   DEPENDS counter_16bit_test4-umc22-adder_analysis
   )
