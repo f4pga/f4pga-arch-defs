@@ -1,5 +1,6 @@
 set_io enable user_IN_T[0]
 set_io reset user_IN_T[1]
+set_clk clk[0] clk
 set_io count[0] user_OUT_T[8]
 set_io count[1] user_OUT_T[9]
 set_io count[2] user_OUT_T[10]
