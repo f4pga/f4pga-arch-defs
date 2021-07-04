@@ -1,23 +1,13 @@
 //////////////////////////////////////////////////////////////////////////////////
-// Company: SymbiFlow
-// Engineer: Ajinkya.S.Raghuwanshi
-// 
 // Design Name: 2 bit BCD adder Block
 // Module Name: adder
 // Project Name: DSP48E1 use in Artix7 board
 // Target Devices: ARTIX7 Board
-// Tool Versions: 
 // Description: 
 //
 // This is a BCD adder module with DSP48E1 initantiated and
 // used in vivado.
-// Here we have only used the function or instruction : INST=  A * C
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
+// Here we have only used the function or instruction : INST=  A + C
 // 
 //////////////////////////////////////////////////////////////////////////////////
 

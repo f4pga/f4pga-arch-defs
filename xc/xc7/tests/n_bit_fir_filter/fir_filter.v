@@ -1,12 +1,8 @@
 //////////////////////////////////////////////////////////////////////////////////
-// Company: SymbbiFlow
-// Engineer: Ajinkya.S.Raghuwanshi
-// 
 // Design Name: n bit Fir filter
 // Module Name: fir_filter
 // Project Name: fir filter
-// Target Devices: ARTIX 7 Board
-// Tool Versions: 
+// Target Devices: ARTIX 7 Board 
 // Description: 
 // 
 // This module implements the n bit fir filter.
@@ -15,11 +11,6 @@
 // duration, because it settles to zero in finite time.
 // It is implemented by using multipliers, adders, etc.
 //
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
 

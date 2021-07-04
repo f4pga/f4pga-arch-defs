@@ -1,25 +1,16 @@
 //////////////////////////////////////////////////////////////////////////////////
-// Company: SymbiFlow
-// Engineer: Ajinkya.S.Raghuwanshi
-// 
+
 // Design Name: Pattern Recognition
 // Module Name: pattern
 // Project Name: DSP48E1 use in Artix7 board
 // Target Devices: ARTIX7 Board
-// Tool Versions: 
 // Description: 
 //
 // This is a module used to give the output as 1 
 // whenever the desired pattern provided in the input
 // is found to match the data in the register present 
 // inside the DSP.
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
+
 //////////////////////////////////////////////////////////////////////////////////
 
 

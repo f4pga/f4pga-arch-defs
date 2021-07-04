@@ -1,30 +1,20 @@
 //////////////////////////////////////////////////////////////////////////////////
-// Company: SymbiFlow
-// Engineer: Ajinkya.S.Raghuwanshi
-// 
 // Design Name: 2 bit BCD adder Block
 // Module Name: adder_tb
 // Project Name: DSP48E1 use in Artix7 board
 // Target Devices: ARTIX7 Board
-// Tool Versions: 
 // Description: 
 // 
 // Here we are testing the block by applying some 
 // user defined inputs to it 
 // But the inputs should be in the range provided by 
 // the register width.
-//
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
 
 
-// This is a testbench to test the working of the adder module
+// This is a testbench to test the working of the BCD adder module
 
 
 module adder_tb();

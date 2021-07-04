@@ -1,12 +1,8 @@
 //////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
 // Design Name: Multiply and Accumulate Block
 // Module Name: mac_tb
 // Project Name: DSP48E1 use in Artix7 board
-// Target Devices: ARTIX7 Board
-// Tool Versions: 
+// Target Devices: ARTIX7 Board 
 // Description: 
 // 
 // Here we are testing the block by applying some 
@@ -14,11 +10,6 @@
 // But the inputs should be in the range provided by 
 // the register width.
 //
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
