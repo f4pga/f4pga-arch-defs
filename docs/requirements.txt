@@ -1,3 +1,6 @@
-sphinx
+sphinx>=3.0
 sphinx_materialdesign_theme
+sphinxcontrib_hdl_diagrams
 sphinxcontrib-images
+symbolator
+Jinja2
