@@ -24,7 +24,7 @@ module multi_dsp(
   .CLK(clk),          // input wire CLK
   .CARRYIN(1'b0),  
   .A({{12{1'b0}},a}),              // input wire [17 : 0] A
-  .C({{48{1'b0}}),              
+  .C({48{1'b0}}),              
   .P(outp),             // output wire [35 : 0] P
   .B(b),                // input wire [17:0] B
   .D({25{1'b1}}),
@@ -59,13 +59,13 @@ module multi_dsp(
   .BCIN({18{1'b0}}),
   .PCIN({48{1'b0}}),
   .CARRYCASCIN(1'b0),
-  .MULTISIGNIN(1'b0),
+  .MULTSIGNIN(1'b0),
   .ACOUT(),
   .BCOUT(),
   .PCOUT(),
   .CARRYOUT(),
   .CARRYCASCOUT(),
-  .MULTISIGNOUT(),
+  .MULTSIGNOUT(),
   .PATTERNDETECT(),
   .PATTERNBDETECT(),
   .OVERFLOW(),
