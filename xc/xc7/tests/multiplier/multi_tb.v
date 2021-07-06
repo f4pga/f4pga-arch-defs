@@ -1,3 +1,13 @@
+// Copyright (C) 2021 The SymbiFlow Authors.
+//
+// Use of this source code is governed by a ISC-style
+// license that can be found in the LICENSE file or at
+// https://opensource.org/licenses/ISC
+//
+// SPDX-License-Identifier: ISC
+
+
+
 // Here we are testing the block by applying some 
 // user defined inputs to it 
 // But the inputs should be in the range provided by 

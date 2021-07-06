@@ -1,3 +1,13 @@
+// Copyright (C) 2021 The SymbiFlow Authors.
+//
+// Use of this source code is governed by a ISC-style
+// license that can be found in the LICENSE file or at
+// https://opensource.org/licenses/ISC
+//
+// SPDX-License-Identifier: ISC
+
+
+
 // This is a Multipy and accumulate module with DSP48E1 initantiated and
 // used in vivado.
 // Here we have only used the function or instruction : INST=  A * B + C
