@@ -1,0 +1,11 @@
+{
+    "platform_name": "arty_100",
+    "xdc": "arty.xdc",
+    "build_dir": "build/arty_100",
+
+    "synthesize": {
+        "sources": ["counter.v"],
+        "top": "counter",
+        "log": "counter_synth.log"
+    }
+}

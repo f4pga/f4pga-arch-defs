@@ -1,0 +1,9 @@
+{
+    "part_name": "xc7a35tcsg324-1",
+    "device": "xc7a100t_test",
+    "bitstream_device": "artix7",
+
+    "synthesize": {
+        "yosys_tcl": "/usr/local/share/symbiflow/scripts/xc7/synth.tcl"
+    }
+}
