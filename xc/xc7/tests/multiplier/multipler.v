@@ -1,16 +1,3 @@
-//////////////////////////////////////////////////////////////////////////////////
-// Design Name: Multiply  Block
-// Module Name: multi_dsp
-// Project Name: DSP48E1 use in Artix7 board
-// Target Devices: ARTIX7 Board
-// Description: 
-//
-// This is a Multipy module with DSP48E1 initantiated and
-// used in vivado.
-// Here we have only used the function or instruction : INST =  A * B 
-// 
-//////////////////////////////////////////////////////////////////////////////////
-
 // This is a Multipy module with DSP48E1 initantiated and
 // used in vivado.
 // Here we have only used the function or instruction : INST=  A * B
@@ -22,7 +9,7 @@ module multi_dsp(
     
     wire [47:0] outp;
     assign p = outp[35:0];
-    xbip_dsp48_macro_0  sum1 (
+    DSP48E1  sum1 (
   .CLK(clk),          // input wire CLK
   .CARRYIN(1'b0),  
   .A({{12{1'b0}},a}),              // input wire [17 : 0] A

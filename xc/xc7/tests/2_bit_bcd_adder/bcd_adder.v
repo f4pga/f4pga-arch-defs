@@ -1,19 +1,10 @@
-//////////////////////////////////////////////////////////////////////////////////
-// Design Name: 2 bit BCD adder Block
-// Module Name: adder
-// Project Name: DSP48E1 use in Artix7 board
-// Target Devices: ARTIX7 Board
+
 // Description: 
 //
 // This is a BCD adder module with DSP48E1 initantiated and
 // used in vivado.
 // Here we have only used the function or instruction : INST=  A + C
 // 
-//////////////////////////////////////////////////////////////////////////////////
-
-// This is a Multipy and accumulate module with DSP48E1 initantiated and
-// used in vivado.
-// Here we have only used the function or instruction : INST=  A + C
 
 module adder( 
     input [16:0] sw,
@@ -50,7 +41,7 @@ module bcd_fadd (
     assign sum_temp1 = outp[4:0];
 
 // Dsp block instantiation
-xbip_dsp48_macro_0  sum1 (
+DSP48E1  sum1 (
   .CLK(clk),          // input wire CLK
   .CARRYIN(cin),  // input wire CARRYIN
   .A({{26{1'b0}},a}),              // input wire [3 : 0] A

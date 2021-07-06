@@ -1,8 +1,3 @@
-//////////////////////////////////////////////////////////////////////////////////
-// Design Name: 2 bit BCD adder Block
-// Module Name: adder_tb
-// Project Name: DSP48E1 use in Artix7 board
-// Target Devices: ARTIX7 Board
 // Description: 
 // 
 // Here we are testing the block by applying some 
@@ -10,9 +5,6 @@
 // But the inputs should be in the range provided by 
 // the register width.
 // 
-//////////////////////////////////////////////////////////////////////////////////
-
-
 
 // This is a testbench to test the working of the BCD adder module
 

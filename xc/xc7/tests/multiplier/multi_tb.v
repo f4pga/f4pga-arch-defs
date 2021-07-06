@@ -1,21 +1,10 @@
-//////////////////////////////////////////////////////////////////////////////////
-// Design Name: Multiply and Accumulate Block
-// Module Name: mac_tb
-// Project Name: DSP48E1 use in Artix7 board
-// Target Devices: ARTIX7 Board 
-// Description: 
-// 
 // Here we are testing the block by applying some 
 // user defined inputs to it 
 // But the inputs should be in the range provided by 
 // the register width.
 //
-// 
-//////////////////////////////////////////////////////////////////////////////////
 
-
-
-// This is a testbench to test the working of the multiply and accumulate module
+// This is a testbench to test the working of the multiply module
 
 module mac_tb();
 reg [17:0] a,b;

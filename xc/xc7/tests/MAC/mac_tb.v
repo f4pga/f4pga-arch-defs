@@ -1,18 +1,9 @@
-//////////////////////////////////////////////////////////////////////////////////
-// Design Name: Multiply Block
-// Module Name: multi_tb
-// Project Name: DSP48E1 use in Artix7 board
-// Target Devices: ARTIX7 Board
 // Description: 
 // 
 // Here we are testing the block by applying some 
 // user defined inputs to it 
 // But the inputs should be in the range provided by 
 // the register width.
-// 
-//////////////////////////////////////////////////////////////////////////////////
-
-
 
 // This is a testbench to test the working of the multiply and accumulate module
 
