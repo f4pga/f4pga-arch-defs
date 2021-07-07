@@ -1,3 +1,4 @@
+add_subdirectory(utils)
 
 # Copy map files to binary dir.
 get_filename_component(FAMILY_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
