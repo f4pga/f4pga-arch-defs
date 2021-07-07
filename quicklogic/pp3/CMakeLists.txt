@@ -107,17 +107,16 @@ define_arch(
   USE_FASM
 )
 
-# TODO: re-enable the following once the various PRs get merged
-#add_subdirectory(devices)
-#include(boards.cmake)
-#add_subdirectory(tests)
+add_subdirectory(devices)
+include(boards.cmake)
+add_subdirectory(tests)
 
-#define_ql_toolchain_target(
-#  FAMILY pp3
-#  ARCH ql-s3
-#  ROUTE_CHAN_WIDTH 100
-#  CELLS_SIM ${CELLS_SIM_FILE}
-#  VPR_ARCH_ARGS ${VPR_ARCH_ARGS}
-#  CONV_SCRIPT ${YOSYS_CONV_SCRIPT}
-#  SYNTH_SCRIPT ${YOSYS_SYNTH_SCRIPT}
-#)
+define_ql_toolchain_target(
+  FAMILY pp3
+  ARCH ql-s3
+  ROUTE_CHAN_WIDTH 100
+  CELLS_SIM ${CELLS_SIM_FILE}
+  VPR_ARCH_ARGS ${VPR_ARCH_ARGS}
+  CONV_SCRIPT ${YOSYS_CONV_SCRIPT}
+  SYNTH_SCRIPT ${YOSYS_SYNTH_SCRIPT}
+)
