@@ -46,7 +46,7 @@ define_arch(
   VPR_ARCH_ARGS ${VPR_ARCH_ARGS}
 
   RR_PATCH_TOOL
-    ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/routing_import.py
+    ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/routing_import.py
   RR_PATCH_CMD "\${CMAKE_COMMAND} -E env \
     PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils:$PYTHONPATH \
     \${PYTHON3} \${RR_PATCH_TOOL} \
@@ -65,7 +65,7 @@ define_arch(
         --net \${OUT_NET}"
 
   PLACE_CONSTR_TOOL
-    ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/create_place_constraints.py
+    ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/create_place_constraints.py
   PLACE_CONSTR_TOOL_CMD "${CMAKE_COMMAND} -E env \
     PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils \
     \${PYTHON3} \${PLACE_CONSTR_TOOL} \
@@ -89,7 +89,7 @@ define_arch(
 
   NO_BIT_TO_BIN
   BIT_TO_V
-    ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/fasm2bels.py
+    ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/fasm2bels.py
   BIT_TO_V_CMD
     "${CMAKE_COMMAND} -E env PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils:$PYTHONPATH \
     \${PYTHON3} \${BIT_TO_V} \${OUT_BITSTREAM}
@@ -99,7 +99,7 @@ define_arch(
       --output-verilog \${OUT_BIT_VERILOG}
       --input-pcf \${INPUT_IO_FILE}"
   BIT_TO_V_DEPS
-    ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/verilogmodule.py
+    ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/verilogmodule.py
     ${CMAKE_CURRENT_BINARY_DIR}/devices/\${DEVICE_TYPE}/db_vpr.pickle
   NO_BIT_TIME
 
