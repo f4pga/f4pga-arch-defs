@@ -5,6 +5,7 @@ add_custom_target(all_ql_tests_prog)
 add_dependencies(all_ql_tests_prog all_ql_tests_bit)
 
 add_custom_target(all_ql_tests)
+add_dependencies(all_quicklogic_tests all_ql_tests)
 add_dependencies(all_ql_tests all_ql_tests_bit)
 add_dependencies(all_ql_tests all_ql_tests_bit_v)
 
