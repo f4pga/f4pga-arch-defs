@@ -1,0 +1,4 @@
+<models xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="./gmux_ic.model.xml" xpointer="xpointer(models/child::node())"/>
+  <xi:include href="./gmux_ip.model.xml" xpointer="xpointer(models/child::node())"/>
+</models>

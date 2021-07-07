@@ -1,0 +1,10 @@
+<models xmlns:xi="http://www.w3.org/2001/XInclude">
+  <model name="CLOCK_CELL">
+    <input_ports>
+      <port name="I_PAD" is_clock="1" combinational_sink_ports="O_CLK"/>
+    </input_ports>
+    <output_ports>
+      <port name="O_CLK"/>
+    </output_ports>
+  </model>
+</models>

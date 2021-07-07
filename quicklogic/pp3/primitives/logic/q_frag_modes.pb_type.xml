@@ -1,0 +1,204 @@
+<?xml version='1.0' encoding='utf-8'?>
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" num_pb="1" name="Q_FRAG_MODES">
+  <input name="CZI" num_pins="1"/>
+  <input name="FAKE_CONST" num_pins="1"/>
+  <input name="QCK" num_pins="1"/>
+  <input name="QDI" num_pins="1"/>
+  <input name="QDS" num_pins="1"/>
+  <input name="QEN" num_pins="1"/>
+  <input name="QRT" num_pins="1"/>
+  <input name="QST" num_pins="1"/>
+  <output name="QZ" num_pins="1"/>
+  <mode name="INT">
+    <pb_type num_pb="1" name="INT">
+      <input name="CZI" num_pins="1"/>
+      <input name="FAKE_CONST" num_pins="1"/>
+      <input name="QCK" num_pins="1"/>
+      <input name="QDI" num_pins="1"/>
+      <input name="QDS" num_pins="1"/>
+      <input name="QEN" num_pins="1"/>
+      <input name="QRT" num_pins="1"/>
+      <input name="QST" num_pins="1"/>
+      <output name="QZ" num_pins="1"/>
+      <pb_type num_pb="1" name="q_frag">
+        <!--old_name Q_FRAG-->
+        <xi:include href="./q_frag.pb_type.xml" xpointer="xpointer(pb_type/child::node()[local-name()!='metadata'])"/>
+        <metadata>
+          <meta name="fasm_params">ZINV.QCK=Z_QCKS</meta>
+        </metadata>
+      </pb_type>
+      <interconnect>
+        <direct>
+          <port name="QDS" type="input"/>
+          <port name="CONST0" type="output" from="q_frag"/>
+        </direct>
+        <direct>
+          <port name="FAKE_CONST" type="input"/>
+          <port name="CONST1" type="output" from="q_frag"/>
+        </direct>
+        <direct>
+          <port name="QCK" type="input"/>
+          <port name="QCK" type="output" from="q_frag"/>
+        </direct>
+        <direct>
+          <port name="CZI" type="input"/>
+          <port name="QD" type="output" from="q_frag"/>
+          <pack_pattern name="C_FRAG_to_FF" type="pack">
+            <port name="CZI" type="input"/>
+            <port name="QD" type="output" from="q_frag"/>
+          </pack_pattern>
+          <pack_pattern name="B_FRAG_to_FF" type="pack">
+            <port name="CZI" type="input"/>
+            <port name="QD" type="output" from="q_frag"/>
+          </pack_pattern>
+        </direct>
+        <direct>
+          <port name="QEN" type="input"/>
+          <port name="QEN" type="output" from="q_frag"/>
+        </direct>
+        <direct>
+          <port name="QRT" type="input"/>
+          <port name="QRT" type="output" from="q_frag"/>
+        </direct>
+        <direct>
+          <port name="QST" type="input"/>
+          <port name="QST" type="output" from="q_frag"/>
+        </direct>
+        <direct>
+          <port name="QZ" type="input" from="q_frag"/>
+          <port name="QZ" type="output"/>
+        </direct>
+      </interconnect>
+    </pb_type>
+    <interconnect>
+      <direct>
+        <port name="CZI" type="input"/>
+        <port name="CZI" type="output" from="INT"/>
+      </direct>
+      <direct>
+        <port name="FAKE_CONST" type="input"/>
+        <port name="FAKE_CONST" type="output" from="INT"/>
+      </direct>
+      <direct>
+        <port name="QCK" type="input"/>
+        <port name="QCK" type="output" from="INT"/>
+      </direct>
+      <direct>
+        <port name="QDI" type="input"/>
+        <port name="QDI" type="output" from="INT"/>
+      </direct>
+      <direct>
+        <port name="QDS" type="input"/>
+        <port name="QDS" type="output" from="INT"/>
+      </direct>
+      <direct>
+        <port name="QEN" type="input"/>
+        <port name="QEN" type="output" from="INT"/>
+      </direct>
+      <direct>
+        <port name="QRT" type="input"/>
+        <port name="QRT" type="output" from="INT"/>
+      </direct>
+      <direct>
+        <port name="QST" type="input"/>
+        <port name="QST" type="output" from="INT"/>
+      </direct>
+      <direct>
+        <port name="QZ" type="input" from="INT"/>
+        <port name="QZ" type="output"/>
+      </direct>
+    </interconnect>
+  </mode>
+  <mode name="EXT">
+    <pb_type num_pb="1" name="EXT">
+      <input name="CZI" num_pins="1"/>
+      <input name="FAKE_CONST" num_pins="1"/>
+      <input name="QCK" num_pins="1"/>
+      <input name="QDI" num_pins="1"/>
+      <input name="QDS" num_pins="1"/>
+      <input name="QEN" num_pins="1"/>
+      <input name="QRT" num_pins="1"/>
+      <input name="QST" num_pins="1"/>
+      <output name="QZ" num_pins="1"/>
+      <pb_type num_pb="1" name="q_frag">
+        <!--old_name Q_FRAG-->
+        <xi:include href="./q_frag.pb_type.xml" xpointer="xpointer(pb_type/child::node()[local-name()!='metadata'])"/>
+        <metadata>
+          <meta name="fasm_params">ZINV.QCK=Z_QCKS</meta>
+        </metadata>
+      </pb_type>
+      <interconnect>
+        <direct>
+          <port name="FAKE_CONST" type="input"/>
+          <port name="CONST0" type="output" from="q_frag"/>
+        </direct>
+        <direct>
+          <port name="QDS" type="input"/>
+          <port name="CONST1" type="output" from="q_frag"/>
+        </direct>
+        <direct>
+          <port name="QCK" type="input"/>
+          <port name="QCK" type="output" from="q_frag"/>
+        </direct>
+        <direct>
+          <port name="QDI" type="input"/>
+          <port name="QD" type="output" from="q_frag"/>
+        </direct>
+        <direct>
+          <port name="QEN" type="input"/>
+          <port name="QEN" type="output" from="q_frag"/>
+        </direct>
+        <direct>
+          <port name="QRT" type="input"/>
+          <port name="QRT" type="output" from="q_frag"/>
+        </direct>
+        <direct>
+          <port name="QST" type="input"/>
+          <port name="QST" type="output" from="q_frag"/>
+        </direct>
+        <direct>
+          <port name="QZ" type="input" from="q_frag"/>
+          <port name="QZ" type="output"/>
+        </direct>
+      </interconnect>
+    </pb_type>
+    <interconnect>
+      <direct>
+        <port name="CZI" type="input"/>
+        <port name="CZI" type="output" from="EXT"/>
+      </direct>
+      <direct>
+        <port name="FAKE_CONST" type="input"/>
+        <port name="FAKE_CONST" type="output" from="EXT"/>
+      </direct>
+      <direct>
+        <port name="QCK" type="input"/>
+        <port name="QCK" type="output" from="EXT"/>
+      </direct>
+      <direct>
+        <port name="QDI" type="input"/>
+        <port name="QDI" type="output" from="EXT"/>
+      </direct>
+      <direct>
+        <port name="QDS" type="input"/>
+        <port name="QDS" type="output" from="EXT"/>
+      </direct>
+      <direct>
+        <port name="QEN" type="input"/>
+        <port name="QEN" type="output" from="EXT"/>
+      </direct>
+      <direct>
+        <port name="QRT" type="input"/>
+        <port name="QRT" type="output" from="EXT"/>
+      </direct>
+      <direct>
+        <port name="QST" type="input"/>
+        <port name="QST" type="output" from="EXT"/>
+      </direct>
+      <direct>
+        <port name="QZ" type="input" from="EXT"/>
+        <port name="QZ" type="output"/>
+      </direct>
+    </interconnect>
+  </mode>
+</pb_type>

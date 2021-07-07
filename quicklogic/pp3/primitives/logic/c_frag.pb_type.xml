@@ -1,0 +1,48 @@
+<?xml version='1.0' encoding='utf-8'?>
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" num_pb="1" name="C_FRAG">
+  <blif_model>.subckt C_FRAG</blif_model>
+  <input name="BA1" num_pins="1"/>
+  <input name="BA2" num_pins="1"/>
+  <input name="BAB" num_pins="1"/>
+  <input name="BB1" num_pins="1"/>
+  <input name="BB2" num_pins="1"/>
+  <input name="BSL" num_pins="1"/>
+  <input name="TA1" num_pins="1"/>
+  <input name="TA2" num_pins="1"/>
+  <input name="TAB" num_pins="1"/>
+  <input name="TB1" num_pins="1"/>
+  <input name="TB2" num_pins="1"/>
+  <input name="TBS" num_pins="1"/>
+  <input name="TSL" num_pins="1"/>
+  <output name="CZ" num_pins="1"/>
+  <output name="TZ" num_pins="1"/>
+  <delay_constant in_port="BA1" out_port="CZ" max="{iopath_BA1_CZ}"/>
+  <delay_constant in_port="BA2" out_port="CZ" max="{iopath_BA2_CZ}"/>
+  <delay_constant in_port="BAB" out_port="CZ" max="{iopath_BAB_CZ}"/>
+  <delay_constant in_port="BB1" out_port="CZ" max="{iopath_BB1_CZ}"/>
+  <delay_constant in_port="BB2" out_port="CZ" max="{iopath_BB2_CZ}"/>
+  <delay_constant in_port="BSL" out_port="CZ" max="{iopath_BSL_CZ}"/>
+  <delay_constant in_port="TA1" out_port="CZ" max="{iopath_TA1_CZ}"/>
+  <delay_constant in_port="TA2" out_port="CZ" max="{iopath_TA2_CZ}"/>
+  <delay_constant in_port="TAB" out_port="CZ" max="{iopath_TAB_CZ}"/>
+  <delay_constant in_port="TB1" out_port="CZ" max="{iopath_TB1_CZ}"/>
+  <delay_constant in_port="TB2" out_port="CZ" max="{iopath_TB2_CZ}"/>
+  <delay_constant in_port="TBS" out_port="CZ" max="{iopath_TBS_CZ}"/>
+  <delay_constant in_port="TSL" out_port="CZ" max="{iopath_TSL_CZ}"/>
+  <delay_constant in_port="TA1" out_port="TZ" max="{iopath_TA1_TZ}"/>
+  <delay_constant in_port="TA2" out_port="TZ" max="{iopath_TA2_TZ}"/>
+  <delay_constant in_port="TAB" out_port="TZ" max="{iopath_TAB_TZ}"/>
+  <delay_constant in_port="TB1" out_port="TZ" max="{iopath_TB1_TZ}"/>
+  <delay_constant in_port="TB2" out_port="TZ" max="{iopath_TB2_TZ}"/>
+  <delay_constant in_port="TSL" out_port="TZ" max="{iopath_TSL_TZ}"/>
+  <metadata>
+    <meta name="fasm_params">INV.TA1=TAS1
+INV.TA2=TAS2
+INV.TB1=TBS1
+INV.TB2=TBS2
+INV.BA1=BAS1
+INV.BA2=BAS2
+INV.BB1=BBS1
+INV.BB2=BBS2</meta>
+  </metadata>
+</pb_type>

@@ -1,0 +1,55 @@
+<?xml version='1.0' encoding='utf-8'?>
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" num_pb="1" name="ASSP">
+  <blif_model>.subckt ASSP</blif_model>
+  <clock name="Sys_PKfb_Clk" num_pins="1"/>
+  <clock name="WB_CLK" num_pins="1"/>
+  <input name="Device_ID" num_pins="16"/>
+  <input name="FB_Busy" num_pins="1"/>
+  <input name="FB_Int_Clr" num_pins="8"/>
+  <input name="FB_PKfbData" num_pins="32"/>
+  <input name="FB_PKfbEOF" num_pins="1"/>
+  <input name="FB_PKfbPush" num_pins="4"/>
+  <input name="FB_PKfbSOF" num_pins="1"/>
+  <input name="FB_msg_out" num_pins="4"/>
+  <input name="SDMA_Req" num_pins="4"/>
+  <input name="SDMA_Sreq" num_pins="4"/>
+  <input name="SPIm_PEnable" num_pins="1"/>
+  <input name="SPIm_PWdata" num_pins="32"/>
+  <input name="SPIm_PWrite" num_pins="1"/>
+  <input name="SPIm_Paddr" num_pins="16"/>
+  <input name="Sys_PSel" num_pins="1"/>
+  <input name="WBs_ACK" num_pins="1"/>
+  <input name="WBs_RD_DAT" num_pins="32"/>
+  <output name="FB_PKfbOverflow" num_pins="1"/>
+  <output name="FB_Start" num_pins="1"/>
+  <output name="SDMA_Active" num_pins="4"/>
+  <output name="SDMA_Done" num_pins="4"/>
+  <output name="SPIm_PReady" num_pins="1"/>
+  <output name="SPIm_PSlvErr" num_pins="1"/>
+  <output name="SPIm_Prdata" num_pins="32"/>
+  <output name="Sensor_Int" num_pins="8"/>
+  <output name="Sys_Clk0" num_pins="1"/>
+  <output name="Sys_Clk0_Rst" num_pins="1"/>
+  <output name="Sys_Clk1" num_pins="1"/>
+  <output name="Sys_Clk1_Rst" num_pins="1"/>
+  <output name="Sys_PKfb_Rst" num_pins="1"/>
+  <output name="Sys_Pclk" num_pins="1"/>
+  <output name="Sys_Pclk_Rst" num_pins="1"/>
+  <output name="TimeStamp" num_pins="24"/>
+  <output name="WB_RST" num_pins="1"/>
+  <output name="WBs_ADR" num_pins="17"/>
+  <output name="WBs_BYTE_STB" num_pins="4"/>
+  <output name="WBs_CYC" num_pins="1"/>
+  <output name="WBs_RD" num_pins="1"/>
+  <output name="WBs_STB" num_pins="1"/>
+  <output name="WBs_WE" num_pins="1"/>
+  <output name="WBs_WR_DAT" num_pins="32"/>
+  <delay_matrix in_port="FB_PKfbPush" out_port="FB_PKfbOverflow" type="max">
+{iopath_FB_PKfbPush0_FB_PKfbOverflow} {iopath_FB_PKfbPush1_FB_PKfbOverflow} {iopath_FB_PKfbPush2_FB_PKfbOverflow} {iopath_FB_PKfbPush3_FB_PKfbOverflow}
+</delay_matrix>
+  <delay_constant in_port="Sys_PSel" out_port="SPIm_PReady" max="{iopath_Sys_PSel_SPIm_PReady}"/>
+  <delay_constant in_port="Sys_PSel" out_port="SPIm_PSlvErr" max="{iopath_Sys_PSel_SPIm_PSlvErr}"/>
+  <delay_matrix in_port="Sys_PSel" out_port="SPIm_Prdata" type="max">
+{iopath_Sys_PSel_SPIm_Prdata0} {iopath_Sys_PSel_SPIm_Prdata1} {iopath_Sys_PSel_SPIm_Prdata2} {iopath_Sys_PSel_SPIm_Prdata3} {iopath_Sys_PSel_SPIm_Prdata4} {iopath_Sys_PSel_SPIm_Prdata5} {iopath_Sys_PSel_SPIm_Prdata6} {iopath_Sys_PSel_SPIm_Prdata7} {iopath_Sys_PSel_SPIm_Prdata8} {iopath_Sys_PSel_SPIm_Prdata9} {iopath_Sys_PSel_SPIm_Prdata10} {iopath_Sys_PSel_SPIm_Prdata11} {iopath_Sys_PSel_SPIm_Prdata12} {iopath_Sys_PSel_SPIm_Prdata13} {iopath_Sys_PSel_SPIm_Prdata14} {iopath_Sys_PSel_SPIm_Prdata15} {iopath_Sys_PSel_SPIm_Prdata16} {iopath_Sys_PSel_SPIm_Prdata17} {iopath_Sys_PSel_SPIm_Prdata18} {iopath_Sys_PSel_SPIm_Prdata19} {iopath_Sys_PSel_SPIm_Prdata20} {iopath_Sys_PSel_SPIm_Prdata21} {iopath_Sys_PSel_SPIm_Prdata22} {iopath_Sys_PSel_SPIm_Prdata23} {iopath_Sys_PSel_SPIm_Prdata24} {iopath_Sys_PSel_SPIm_Prdata25} {iopath_Sys_PSel_SPIm_Prdata26} {iopath_Sys_PSel_SPIm_Prdata27} {iopath_Sys_PSel_SPIm_Prdata28} {iopath_Sys_PSel_SPIm_Prdata29} {iopath_Sys_PSel_SPIm_Prdata30} {iopath_Sys_PSel_SPIm_Prdata31}
+</delay_matrix>
+</pb_type>

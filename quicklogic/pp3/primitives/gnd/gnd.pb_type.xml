@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding='utf-8'?>
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" num_pb="1" name="GND">
+  <blif_model>.subckt GND</blif_model>
+  <output name="GND" num_pins="1"/>
+</pb_type>

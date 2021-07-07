@@ -1,0 +1,87 @@
+<?xml version='1.0' encoding='utf-8'?>
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" num_pb="1" name="LOGIC_MACRO">
+  <blif_model>.subckt LOGIC_MACRO</blif_model>
+  <clock name="QCK" num_pins="1"/>
+  <input name="BA1" num_pins="1"/>
+  <input name="BA2" num_pins="1"/>
+  <input name="BAB" num_pins="1"/>
+  <input name="BB1" num_pins="1"/>
+  <input name="BB2" num_pins="1"/>
+  <input name="BSL" num_pins="1"/>
+  <input name="F1" num_pins="1"/>
+  <input name="F2" num_pins="1"/>
+  <input name="FS" num_pins="1"/>
+  <input name="QDI" num_pins="1"/>
+  <input name="QDS" num_pins="1"/>
+  <input name="QEN" num_pins="1"/>
+  <input name="QRT" num_pins="1"/>
+  <input name="QST" num_pins="1"/>
+  <input name="TA1" num_pins="1"/>
+  <input name="TA2" num_pins="1"/>
+  <input name="TAB" num_pins="1"/>
+  <input name="TB1" num_pins="1"/>
+  <input name="TB2" num_pins="1"/>
+  <input name="TBS" num_pins="1"/>
+  <input name="TSL" num_pins="1"/>
+  <output name="CZ" num_pins="1"/>
+  <output name="FZ" num_pins="1"/>
+  <output name="QZ" num_pins="1"/>
+  <output name="TZ" num_pins="1"/>
+  <delay_constant in_port="BA1" out_port="CZ" max="{iopath_BA1_CZ}"/>
+  <delay_constant in_port="BA2" out_port="CZ" max="{iopath_BA2_CZ}"/>
+  <delay_constant in_port="BAB" out_port="CZ" max="{iopath_BAB_CZ}"/>
+  <delay_constant in_port="BB1" out_port="CZ" max="{iopath_BB1_CZ}"/>
+  <delay_constant in_port="BB2" out_port="CZ" max="{iopath_BB2_CZ}"/>
+  <delay_constant in_port="BSL" out_port="CZ" max="{iopath_BSL_CZ}"/>
+  <delay_constant in_port="TA1" out_port="CZ" max="{iopath_TA1_CZ}"/>
+  <delay_constant in_port="TA2" out_port="CZ" max="{iopath_TA2_CZ}"/>
+  <delay_constant in_port="TAB" out_port="CZ" max="{iopath_TAB_CZ}"/>
+  <delay_constant in_port="TB1" out_port="CZ" max="{iopath_TB1_CZ}"/>
+  <delay_constant in_port="TB2" out_port="CZ" max="{iopath_TB2_CZ}"/>
+  <delay_constant in_port="TBS" out_port="CZ" max="{iopath_TBS_CZ}"/>
+  <delay_constant in_port="TSL" out_port="CZ" max="{iopath_TSL_CZ}"/>
+  <delay_constant in_port="F1" out_port="FZ" max="{iopath_F1_FZ}"/>
+  <delay_constant in_port="F2" out_port="FZ" max="{iopath_F2_FZ}"/>
+  <delay_constant in_port="FS" out_port="FZ" max="{iopath_FS_FZ}"/>
+  <T_setup port="QDI" clock="QCK" value="{setup_QCK_QDI}"/>
+  <T_hold port="QDI" clock="QCK" value="{hold_QCK_QDI}"/>
+  <T_setup port="QDS" clock="QCK" value="{setup_QCK_QDS}"/>
+  <T_hold port="QDS" clock="QCK" value="{hold_QCK_QDS}"/>
+  <T_setup port="QEN" clock="QCK" value="{setup_QCK_QEN}"/>
+  <T_hold port="QEN" clock="QCK" value="{hold_QCK_QEN}"/>
+  <T_setup port="QRT" clock="QCK" value="1e-10"/>
+  <T_setup port="QST" clock="QCK" value="1e-10"/>
+  <T_setup port="QZ" clock="QCK" value="{setup_QCK_QDI}"/>
+  <T_hold port="QZ" clock="QCK" value="{hold_QCK_QDI}"/>
+  <T_clock_to_Q port="QZ" clock="QCK" max="{iopath_QCK_QZ}"/>
+  <delay_constant in_port="BA1" out_port="QZ" max="{iopath_BA1_CZ}"/>
+  <delay_constant in_port="BA2" out_port="QZ" max="{iopath_BA2_CZ}"/>
+  <delay_constant in_port="BAB" out_port="QZ" max="{iopath_BAB_CZ}"/>
+  <delay_constant in_port="BB1" out_port="QZ" max="{iopath_BB1_CZ}"/>
+  <delay_constant in_port="BB2" out_port="QZ" max="{iopath_BB2_CZ}"/>
+  <delay_constant in_port="BSL" out_port="QZ" max="{iopath_BSL_CZ}"/>
+  <delay_constant in_port="TA1" out_port="QZ" max="{iopath_TA1_CZ}"/>
+  <delay_constant in_port="TA2" out_port="QZ" max="{iopath_TA2_CZ}"/>
+  <delay_constant in_port="TAB" out_port="QZ" max="{iopath_TAB_CZ}"/>
+  <delay_constant in_port="TB1" out_port="QZ" max="{iopath_TB1_CZ}"/>
+  <delay_constant in_port="TB2" out_port="QZ" max="{iopath_TB2_CZ}"/>
+  <delay_constant in_port="TBS" out_port="QZ" max="{iopath_TBS_CZ}"/>
+  <delay_constant in_port="TSL" out_port="QZ" max="{iopath_TSL_CZ}"/>
+  <delay_constant in_port="TA1" out_port="TZ" max="{iopath_TA1_TZ}"/>
+  <delay_constant in_port="TA2" out_port="TZ" max="{iopath_TA2_TZ}"/>
+  <delay_constant in_port="TAB" out_port="TZ" max="{iopath_TAB_TZ}"/>
+  <delay_constant in_port="TB1" out_port="TZ" max="{iopath_TB1_TZ}"/>
+  <delay_constant in_port="TB2" out_port="TZ" max="{iopath_TB2_TZ}"/>
+  <delay_constant in_port="TSL" out_port="TZ" max="{iopath_TSL_TZ}"/>
+  <metadata>
+    <meta name="fasm_params">INV.TA1=TAS1
+INV.TA2=TAS2
+INV.TB1=TBS1
+INV.TB2=TBS2
+INV.BA1=BAS1
+INV.BA2=BAS2
+INV.BB1=BBS1
+INV.BB2=BBS2
+ZINV.QCK=Z_QCKS</meta>
+  </metadata>
+</pb_type>

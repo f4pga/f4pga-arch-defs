@@ -1,0 +1,124 @@
+{
+    "CONCAT_EN=0": {
+        "FIFO_EN=0": {
+            "PIPELINE_RD=0": {
+                "WIDTH_SELECT1=0,WIDTH_SELECT2=0": null,
+                "WIDTH_SELECT1=0,WIDTH_SELECT2=1": null,
+                "WIDTH_SELECT1=1,WIDTH_SELECT2=0": null,
+                "WIDTH_SELECT1=1,WIDTH_SELECT2=1": null
+            },
+            "PIPELINE_RD=1": {
+                "WIDTH_SELECT1=0,WIDTH_SELECT2=0": null,
+                "WIDTH_SELECT1=0,WIDTH_SELECT2=1": null,
+                "WIDTH_SELECT1=1,WIDTH_SELECT2=0": null,
+                "WIDTH_SELECT1=1,WIDTH_SELECT2=1": null
+            }
+        },
+        "FIFO_EN=1": {
+            "DIR=0": {
+                "PIPELINE_RD=0": {
+                    "WIDTH_SELECT1=0,WIDTH_SELECT2=0": null,
+                    "WIDTH_SELECT1=0,WIDTH_SELECT2=1": null,
+                    "WIDTH_SELECT1=1,WIDTH_SELECT2=0": null,
+                    "WIDTH_SELECT1=1,WIDTH_SELECT2=1": null
+                },
+                "PIPELINE_RD=1": {
+                    "WIDTH_SELECT1=0,WIDTH_SELECT2=0": null,
+                    "WIDTH_SELECT1=0,WIDTH_SELECT2=1": null,
+                    "WIDTH_SELECT1=1,WIDTH_SELECT2=0": null,
+                    "WIDTH_SELECT1=1,WIDTH_SELECT2=1": null
+                }
+            },
+            "DIR=1": {
+                "PIPELINE_RD=0": {
+                    "WIDTH_SELECT1=0,WIDTH_SELECT2=0": null,
+                    "WIDTH_SELECT1=0,WIDTH_SELECT2=1": null,
+                    "WIDTH_SELECT1=1,WIDTH_SELECT2=0": null,
+                    "WIDTH_SELECT1=1,WIDTH_SELECT2=1": null
+                },
+                "PIPELINE_RD=1": {
+                    "WIDTH_SELECT1=0,WIDTH_SELECT2=0": null,
+                    "WIDTH_SELECT1=0,WIDTH_SELECT2=1": null,
+                    "WIDTH_SELECT1=1,WIDTH_SELECT2=0": null,
+                    "WIDTH_SELECT1=1,WIDTH_SELECT2=1": null
+                }
+            }
+        }
+    },
+    "CONCAT_EN=1": {
+        "FIFO_EN=0": {
+            "PIPELINE_RD=0": {
+                "WIDTH_SELECT1=0,WIDTH_SELECT2=0": null,
+                "WIDTH_SELECT1=0,WIDTH_SELECT2=1": null,
+                "WIDTH_SELECT1=0,WIDTH_SELECT2=2": null,
+                "WIDTH_SELECT1=1,WIDTH_SELECT2=0": null,
+                "WIDTH_SELECT1=1,WIDTH_SELECT2=1": null,
+                "WIDTH_SELECT1=1,WIDTH_SELECT2=2": null,
+                "WIDTH_SELECT1=2,WIDTH_SELECT2=0": null,
+                "WIDTH_SELECT1=2,WIDTH_SELECT2=1": null,
+                "WIDTH_SELECT1=2,WIDTH_SELECT2=2": null
+            },
+            "PIPELINE_RD=1": {
+                "WIDTH_SELECT1=0,WIDTH_SELECT2=0": null,
+                "WIDTH_SELECT1=0,WIDTH_SELECT2=1": null,
+                "WIDTH_SELECT1=0,WIDTH_SELECT2=2": null,
+                "WIDTH_SELECT1=1,WIDTH_SELECT2=0": null,
+                "WIDTH_SELECT1=1,WIDTH_SELECT2=1": null,
+                "WIDTH_SELECT1=1,WIDTH_SELECT2=2": null,
+                "WIDTH_SELECT1=2,WIDTH_SELECT2=0": null,
+                "WIDTH_SELECT1=2,WIDTH_SELECT2=1": null,
+                "WIDTH_SELECT1=2,WIDTH_SELECT2=2": null
+            }
+        },
+        "FIFO_EN=1": {
+            "DIR=0": {
+                "PIPELINE_RD=0": {
+                    "WIDTH_SELECT1=0,WIDTH_SELECT2=0": null,
+                    "WIDTH_SELECT1=0,WIDTH_SELECT2=1": null,
+                    "WIDTH_SELECT1=0,WIDTH_SELECT2=2": null,
+                    "WIDTH_SELECT1=1,WIDTH_SELECT2=0": null,
+                    "WIDTH_SELECT1=1,WIDTH_SELECT2=1": null,
+                    "WIDTH_SELECT1=1,WIDTH_SELECT2=2": null,
+                    "WIDTH_SELECT1=2,WIDTH_SELECT2=0": null,
+                    "WIDTH_SELECT1=2,WIDTH_SELECT2=1": null,
+                    "WIDTH_SELECT1=2,WIDTH_SELECT2=2": null
+                },
+                "PIPELINE_RD=1": {
+                    "WIDTH_SELECT1=0,WIDTH_SELECT2=0": null,
+                    "WIDTH_SELECT1=0,WIDTH_SELECT2=1": null,
+                    "WIDTH_SELECT1=0,WIDTH_SELECT2=2": null,
+                    "WIDTH_SELECT1=1,WIDTH_SELECT2=0": null,
+                    "WIDTH_SELECT1=1,WIDTH_SELECT2=1": null,
+                    "WIDTH_SELECT1=1,WIDTH_SELECT2=2": null,
+                    "WIDTH_SELECT1=2,WIDTH_SELECT2=0": null,
+                    "WIDTH_SELECT1=2,WIDTH_SELECT2=1": null,
+                    "WIDTH_SELECT1=2,WIDTH_SELECT2=2": null
+                }
+            },
+            "DIR=1": {
+                "PIPELINE_RD=0": {
+                    "WIDTH_SELECT1=0,WIDTH_SELECT2=0": null,
+                    "WIDTH_SELECT1=0,WIDTH_SELECT2=1": null,
+                    "WIDTH_SELECT1=0,WIDTH_SELECT2=2": null,
+                    "WIDTH_SELECT1=1,WIDTH_SELECT2=0": null,
+                    "WIDTH_SELECT1=1,WIDTH_SELECT2=1": null,
+                    "WIDTH_SELECT1=1,WIDTH_SELECT2=2": null,
+                    "WIDTH_SELECT1=2,WIDTH_SELECT2=0": null,
+                    "WIDTH_SELECT1=2,WIDTH_SELECT2=1": null,
+                    "WIDTH_SELECT1=2,WIDTH_SELECT2=2": null
+                },
+                "PIPELINE_RD=1": {
+                    "WIDTH_SELECT1=0,WIDTH_SELECT2=0": null,
+                    "WIDTH_SELECT1=0,WIDTH_SELECT2=1": null,
+                    "WIDTH_SELECT1=0,WIDTH_SELECT2=2": null,
+                    "WIDTH_SELECT1=1,WIDTH_SELECT2=0": null,
+                    "WIDTH_SELECT1=1,WIDTH_SELECT2=1": null,
+                    "WIDTH_SELECT1=1,WIDTH_SELECT2=2": null,
+                    "WIDTH_SELECT1=2,WIDTH_SELECT2=0": null,
+                    "WIDTH_SELECT1=2,WIDTH_SELECT2=1": null,
+                    "WIDTH_SELECT1=2,WIDTH_SELECT2=2": null
+                }
+            }
+        }
+    }
+}

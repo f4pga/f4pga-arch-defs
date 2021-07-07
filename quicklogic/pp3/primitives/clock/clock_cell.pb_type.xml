@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='utf-8'?>
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" num_pb="1" name="CLOCK_CELL">
+  <blif_model>.subckt CLOCK_CELL</blif_model>
+  <clock name="I_PAD" num_pins="1"/>
+  <output name="O_CLK" num_pins="1"/>
+  <delay_constant in_port="I_PAD" out_port="O_CLK" max="{iopath_IP_IC}"/>
+  <metadata>
+    <meta name="fasm_features">INTERFACE.ASSP.INV.ASSPInvPortAlias</meta>
+  </metadata>
+</pb_type>

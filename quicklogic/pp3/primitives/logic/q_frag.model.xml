@@ -1,0 +1,16 @@
+<models xmlns:xi="http://www.w3.org/2001/XInclude">
+  <model name="Q_FRAG">
+    <input_ports>
+      <port name="CONST0"/>
+      <port name="CONST1"/>
+      <port name="QCK" is_clock="1"/>
+      <port name="QD" clock="QCK"/>
+      <port name="QEN" clock="QCK"/>
+      <port name="QRT" clock="QCK"/>
+      <port name="QST" clock="QCK"/>
+    </input_ports>
+    <output_ports>
+      <port name="QZ" clock="QCK"/>
+    </output_ports>
+  </model>
+</models>

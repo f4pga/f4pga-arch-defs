@@ -1,0 +1,350 @@
+<?xml version='1.0' encoding='utf-8'?>
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" num_pb="1" name="C_FRAG_MODES">
+  <input name="BA1" num_pins="1"/>
+  <input name="BA2" num_pins="1"/>
+  <input name="BAB" num_pins="1"/>
+  <input name="BB1" num_pins="1"/>
+  <input name="BB2" num_pins="1"/>
+  <input name="BSL" num_pins="1"/>
+  <input name="TA1" num_pins="1"/>
+  <input name="TA2" num_pins="1"/>
+  <input name="TAB" num_pins="1"/>
+  <input name="TB1" num_pins="1"/>
+  <input name="TB2" num_pins="1"/>
+  <input name="TBS" num_pins="1"/>
+  <input name="TSL" num_pins="1"/>
+  <output name="CZ" num_pins="1"/>
+  <output name="TZ" num_pins="1"/>
+  <mode name="SINGLE">
+    <pb_type num_pb="1" name="SINGLE">
+      <input name="BA1" num_pins="1"/>
+      <input name="BA2" num_pins="1"/>
+      <input name="BAB" num_pins="1"/>
+      <input name="BB1" num_pins="1"/>
+      <input name="BB2" num_pins="1"/>
+      <input name="BSL" num_pins="1"/>
+      <input name="TA1" num_pins="1"/>
+      <input name="TA2" num_pins="1"/>
+      <input name="TAB" num_pins="1"/>
+      <input name="TB1" num_pins="1"/>
+      <input name="TB2" num_pins="1"/>
+      <input name="TBS" num_pins="1"/>
+      <input name="TSL" num_pins="1"/>
+      <output name="CZ" num_pins="1"/>
+      <output name="TZ" num_pins="1"/>
+      <pb_type num_pb="1" name="c_frag">
+        <!--old_name C_FRAG-->
+        <xi:include href="./c_frag.pb_type.xml" xpointer="xpointer(pb_type/child::node()[local-name()!='metadata'])"/>
+        <metadata>
+          <meta name="fasm_params">INV.TA1=TAS1
+INV.TA2=TAS2
+INV.TB1=TBS1
+INV.TB2=TBS2
+INV.BA1=BAS1
+INV.BA2=BAS2
+INV.BB1=BBS1
+INV.BB2=BBS2</meta>
+        </metadata>
+      </pb_type>
+      <interconnect>
+        <direct>
+          <port name="BA1" type="input"/>
+          <port name="BA1" type="output" from="c_frag"/>
+        </direct>
+        <direct>
+          <port name="BA2" type="input"/>
+          <port name="BA2" type="output" from="c_frag"/>
+        </direct>
+        <direct>
+          <port name="BAB" type="input"/>
+          <port name="BAB" type="output" from="c_frag"/>
+        </direct>
+        <direct>
+          <port name="BB1" type="input"/>
+          <port name="BB1" type="output" from="c_frag"/>
+        </direct>
+        <direct>
+          <port name="BB2" type="input"/>
+          <port name="BB2" type="output" from="c_frag"/>
+        </direct>
+        <direct>
+          <port name="BSL" type="input"/>
+          <port name="BSL" type="output" from="c_frag"/>
+        </direct>
+        <direct>
+          <port name="TA1" type="input"/>
+          <port name="TA1" type="output" from="c_frag"/>
+        </direct>
+        <direct>
+          <port name="TA2" type="input"/>
+          <port name="TA2" type="output" from="c_frag"/>
+        </direct>
+        <direct>
+          <port name="TAB" type="input"/>
+          <port name="TAB" type="output" from="c_frag"/>
+        </direct>
+        <direct>
+          <port name="TB1" type="input"/>
+          <port name="TB1" type="output" from="c_frag"/>
+        </direct>
+        <direct>
+          <port name="TB2" type="input"/>
+          <port name="TB2" type="output" from="c_frag"/>
+        </direct>
+        <direct>
+          <port name="TBS" type="input"/>
+          <port name="TBS" type="output" from="c_frag"/>
+        </direct>
+        <direct>
+          <port name="TSL" type="input"/>
+          <port name="TSL" type="output" from="c_frag"/>
+        </direct>
+        <direct>
+          <port name="CZ" type="input" from="c_frag"/>
+          <port name="CZ" type="output"/>
+          <pack_pattern name="C_FRAG_to_FF" type="pack">
+            <port name="CZ" type="input" from="c_frag"/>
+            <port name="CZ" type="output"/>
+          </pack_pattern>
+        </direct>
+        <direct>
+          <port name="TZ" type="input" from="c_frag"/>
+          <port name="TZ" type="output"/>
+        </direct>
+      </interconnect>
+    </pb_type>
+    <interconnect>
+      <direct>
+        <port name="BA1" type="input"/>
+        <port name="BA1" type="output" from="SINGLE"/>
+      </direct>
+      <direct>
+        <port name="BA2" type="input"/>
+        <port name="BA2" type="output" from="SINGLE"/>
+      </direct>
+      <direct>
+        <port name="BAB" type="input"/>
+        <port name="BAB" type="output" from="SINGLE"/>
+      </direct>
+      <direct>
+        <port name="BB1" type="input"/>
+        <port name="BB1" type="output" from="SINGLE"/>
+      </direct>
+      <direct>
+        <port name="BB2" type="input"/>
+        <port name="BB2" type="output" from="SINGLE"/>
+      </direct>
+      <direct>
+        <port name="BSL" type="input"/>
+        <port name="BSL" type="output" from="SINGLE"/>
+      </direct>
+      <direct>
+        <port name="CZ" type="input" from="SINGLE"/>
+        <port name="CZ" type="output"/>
+      </direct>
+      <direct>
+        <port name="TA1" type="input"/>
+        <port name="TA1" type="output" from="SINGLE"/>
+      </direct>
+      <direct>
+        <port name="TA2" type="input"/>
+        <port name="TA2" type="output" from="SINGLE"/>
+      </direct>
+      <direct>
+        <port name="TAB" type="input"/>
+        <port name="TAB" type="output" from="SINGLE"/>
+      </direct>
+      <direct>
+        <port name="TB1" type="input"/>
+        <port name="TB1" type="output" from="SINGLE"/>
+      </direct>
+      <direct>
+        <port name="TB2" type="input"/>
+        <port name="TB2" type="output" from="SINGLE"/>
+      </direct>
+      <direct>
+        <port name="TBS" type="input"/>
+        <port name="TBS" type="output" from="SINGLE"/>
+      </direct>
+      <direct>
+        <port name="TSL" type="input"/>
+        <port name="TSL" type="output" from="SINGLE"/>
+      </direct>
+      <direct>
+        <port name="TZ" type="input" from="SINGLE"/>
+        <port name="TZ" type="output"/>
+      </direct>
+    </interconnect>
+  </mode>
+  <mode name="SPLIT">
+    <pb_type num_pb="1" name="SPLIT">
+      <input name="BA1" num_pins="1"/>
+      <input name="BA2" num_pins="1"/>
+      <input name="BAB" num_pins="1"/>
+      <input name="BB1" num_pins="1"/>
+      <input name="BB2" num_pins="1"/>
+      <input name="BSL" num_pins="1"/>
+      <input name="TA1" num_pins="1"/>
+      <input name="TA2" num_pins="1"/>
+      <input name="TAB" num_pins="1"/>
+      <input name="TB1" num_pins="1"/>
+      <input name="TB2" num_pins="1"/>
+      <input name="TBS" num_pins="1"/>
+      <input name="TSL" num_pins="1"/>
+      <output name="CZ" num_pins="1"/>
+      <output name="TZ" num_pins="1"/>
+      <pb_type num_pb="1" name="b_frag">
+        <!--old_name B_FRAG-->
+        <xi:include href="./b_frag.pb_type.xml" xpointer="xpointer(pb_type/child::node()[local-name()!='metadata'])"/>
+        <metadata>
+          <meta name="fasm_params">INV.BA1=XAS1
+INV.BA2=XAS2
+INV.BB1=XBS1
+INV.BB2=XBS2</meta>
+        </metadata>
+      </pb_type>
+      <pb_type num_pb="1" name="t_frag">
+        <!--old_name T_FRAG-->
+        <xi:include href="./t_frag.pb_type.xml" xpointer="xpointer(pb_type/child::node()[local-name()!='metadata'])"/>
+        <metadata>
+          <meta name="fasm_params">INV.TA1=XAS1
+INV.TA2=XAS2
+INV.TB1=XBS1
+INV.TB2=XBS2</meta>
+        </metadata>
+      </pb_type>
+      <interconnect>
+        <direct>
+          <port name="TBS" type="input"/>
+          <port name="TBS" type="output" from="b_frag"/>
+        </direct>
+        <direct>
+          <port name="TBS" type="input"/>
+          <port name="TBS" type="output" from="t_frag"/>
+        </direct>
+        <direct>
+          <port name="BA1" type="input"/>
+          <port name="XA1" type="output" from="b_frag"/>
+        </direct>
+        <direct>
+          <port name="BA2" type="input"/>
+          <port name="XA2" type="output" from="b_frag"/>
+        </direct>
+        <direct>
+          <port name="BAB" type="input"/>
+          <port name="XAB" type="output" from="b_frag"/>
+        </direct>
+        <direct>
+          <port name="BB1" type="input"/>
+          <port name="XB1" type="output" from="b_frag"/>
+        </direct>
+        <direct>
+          <port name="BB2" type="input"/>
+          <port name="XB2" type="output" from="b_frag"/>
+        </direct>
+        <direct>
+          <port name="BSL" type="input"/>
+          <port name="XSL" type="output" from="b_frag"/>
+        </direct>
+        <direct>
+          <port name="XZ" type="input" from="b_frag"/>
+          <port name="CZ" type="output"/>
+          <pack_pattern name="B_FRAG_to_FF" type="pack">
+            <port name="XZ" type="input" from="b_frag"/>
+            <port name="CZ" type="output"/>
+          </pack_pattern>
+        </direct>
+        <direct>
+          <port name="TA1" type="input"/>
+          <port name="XA1" type="output" from="t_frag"/>
+        </direct>
+        <direct>
+          <port name="TA2" type="input"/>
+          <port name="XA2" type="output" from="t_frag"/>
+        </direct>
+        <direct>
+          <port name="TAB" type="input"/>
+          <port name="XAB" type="output" from="t_frag"/>
+        </direct>
+        <direct>
+          <port name="TB1" type="input"/>
+          <port name="XB1" type="output" from="t_frag"/>
+        </direct>
+        <direct>
+          <port name="TB2" type="input"/>
+          <port name="XB2" type="output" from="t_frag"/>
+        </direct>
+        <direct>
+          <port name="TSL" type="input"/>
+          <port name="XSL" type="output" from="t_frag"/>
+        </direct>
+        <direct>
+          <port name="XZ" type="input" from="t_frag"/>
+          <port name="TZ" type="output"/>
+        </direct>
+      </interconnect>
+    </pb_type>
+    <interconnect>
+      <direct>
+        <port name="BA1" type="input"/>
+        <port name="BA1" type="output" from="SPLIT"/>
+      </direct>
+      <direct>
+        <port name="BA2" type="input"/>
+        <port name="BA2" type="output" from="SPLIT"/>
+      </direct>
+      <direct>
+        <port name="BAB" type="input"/>
+        <port name="BAB" type="output" from="SPLIT"/>
+      </direct>
+      <direct>
+        <port name="BB1" type="input"/>
+        <port name="BB1" type="output" from="SPLIT"/>
+      </direct>
+      <direct>
+        <port name="BB2" type="input"/>
+        <port name="BB2" type="output" from="SPLIT"/>
+      </direct>
+      <direct>
+        <port name="BSL" type="input"/>
+        <port name="BSL" type="output" from="SPLIT"/>
+      </direct>
+      <direct>
+        <port name="CZ" type="input" from="SPLIT"/>
+        <port name="CZ" type="output"/>
+      </direct>
+      <direct>
+        <port name="TA1" type="input"/>
+        <port name="TA1" type="output" from="SPLIT"/>
+      </direct>
+      <direct>
+        <port name="TA2" type="input"/>
+        <port name="TA2" type="output" from="SPLIT"/>
+      </direct>
+      <direct>
+        <port name="TAB" type="input"/>
+        <port name="TAB" type="output" from="SPLIT"/>
+      </direct>
+      <direct>
+        <port name="TB1" type="input"/>
+        <port name="TB1" type="output" from="SPLIT"/>
+      </direct>
+      <direct>
+        <port name="TB2" type="input"/>
+        <port name="TB2" type="output" from="SPLIT"/>
+      </direct>
+      <direct>
+        <port name="TBS" type="input"/>
+        <port name="TBS" type="output" from="SPLIT"/>
+      </direct>
+      <direct>
+        <port name="TSL" type="input"/>
+        <port name="TSL" type="output" from="SPLIT"/>
+      </direct>
+      <direct>
+        <port name="TZ" type="input" from="SPLIT"/>
+        <port name="TZ" type="output"/>
+      </direct>
+    </interconnect>
+  </mode>
+</pb_type>
