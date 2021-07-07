@@ -4,6 +4,8 @@
     "bitstream_device": "artix7",
 
     "synthesize": {
-        "yosys_tcl": "/usr/local/share/symbiflow/scripts/xc7/synth.tcl"
+        "synth_tcl": "/usr/local/share/symbiflow/scripts/xc7/synth.tcl",
+        "conv_tcl": "/usr/local/share/symbiflow/scripts/xc7/conv.tcl",
+        "techmap": "/usr/local/share/symbiflow/techmaps/xc7_vpr/techmap"
     }
 }
