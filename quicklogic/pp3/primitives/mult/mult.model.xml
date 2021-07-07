@@ -1,0 +1,13 @@
+<models xmlns:xi="http://www.w3.org/2001/XInclude">
+  <model name="MULT">
+    <input_ports>
+      <port name="Amult" combinational_sink_ports="Cmult"/>
+      <port name="Bmult" combinational_sink_ports="Cmult"/>
+      <port name="Valid_mult" combinational_sink_ports="Cmult"/>
+      <port name="sel_mul_32x32" combinational_sink_ports="Cmult"/>
+    </input_ports>
+    <output_ports>
+      <port name="Cmult"/>
+    </output_ports>
+  </model>
+</models>

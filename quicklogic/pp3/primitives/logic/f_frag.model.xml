@@ -1,0 +1,12 @@
+<models xmlns:xi="http://www.w3.org/2001/XInclude">
+  <model name="F_FRAG">
+    <input_ports>
+      <port name="F1" combinational_sink_ports="FZ"/>
+      <port name="F2" combinational_sink_ports="FZ"/>
+      <port name="FS" combinational_sink_ports="FZ"/>
+    </input_ports>
+    <output_ports>
+      <port name="FZ"/>
+    </output_ports>
+  </model>
+</models>

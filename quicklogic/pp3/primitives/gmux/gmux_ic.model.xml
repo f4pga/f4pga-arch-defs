@@ -1,0 +1,11 @@
+<models xmlns:xi="http://www.w3.org/2001/XInclude">
+  <model name="GMUX_IC">
+    <input_ports>
+      <port name="IC" is_clock="1" combinational_sink_ports="IZ"/>
+      <port name="IS0" combinational_sink_ports="IZ"/>
+    </input_ports>
+    <output_ports>
+      <port name="IZ"/>
+    </output_ports>
+  </model>
+</models>

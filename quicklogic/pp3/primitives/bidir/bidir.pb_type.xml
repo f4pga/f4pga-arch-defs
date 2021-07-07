@@ -1,0 +1,319 @@
+<?xml version='1.0' encoding='utf-8'?>
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" num_pb="1" name="BIDIR">
+  <clock name="IQC" num_pins="1"/>
+  <input name="IE" num_pins="1"/>
+  <input name="INEN" num_pins="1"/>
+  <input name="IQE" num_pins="1"/>
+  <input name="IQIN" num_pins="1"/>
+  <input name="IQR" num_pins="1"/>
+  <input name="OQE" num_pins="1"/>
+  <input name="OQI" num_pins="1"/>
+  <output name="IQZ" num_pins="1"/>
+  <output name="IZ" num_pins="1"/>
+  <mode name="INPUT">
+    <pb_type num_pb="1" name="INPUT">
+      <clock name="IQC" num_pins="1"/>
+      <input name="IE" num_pins="1"/>
+      <input name="INEN" num_pins="1"/>
+      <input name="IQE" num_pins="1"/>
+      <input name="IQIN" num_pins="1"/>
+      <input name="IQR" num_pins="1"/>
+      <input name="OQE" num_pins="1"/>
+      <input name="OQI" num_pins="1"/>
+      <output name="IQZ" num_pins="1"/>
+      <output name="IZ" num_pins="1"/>
+      <pb_type num_pb="1" name="bidir">
+        <!--old_name BIDIR_CELL-->
+        <xi:include href="./bidir_cell.pb_type.xml" xpointer="xpointer(pb_type/child::node()[local-name()!='metadata'])"/>
+        <metadata>
+          <meta name="fasm_prefix">INTERFACE.BIDIR</meta>
+          <meta name="fasm_params">INV.ESEL=ESEL
+INV.OSEL=OSEL
+INV.FIXHOLD=FIXHOLD
+INV.WPD=WPD
+INV.DS=DS</meta>
+        </metadata>
+      </pb_type>
+      <pb_type num_pb="1" name="inpad">
+        <!--old_name VPR_IPAD-->
+        <xi:include href="../vpr_pad/vpr_ipad.pb_type.xml" xpointer="xpointer(pb_type/child::node()[local-name()!='metadata'])"/>
+      </pb_type>
+      <interconnect>
+        <direct>
+          <port name="INEN" type="input"/>
+          <port name="I_EN" type="output" from="bidir"/>
+        </direct>
+        <direct>
+          <port name="inpad" type="input" from="inpad"/>
+          <port name="I_PAD_$inp" type="output" from="bidir"/>
+          <pack_pattern name="IPAD_TO_BIDIR" type="pack">
+            <port name="inpad" type="input" from="inpad"/>
+            <port name="I_PAD_$inp" type="output" from="bidir"/>
+          </pack_pattern>
+        </direct>
+        <direct>
+          <port name="OQI" type="input"/>
+          <port name="O_DAT" type="output" from="bidir"/>
+        </direct>
+        <direct>
+          <port name="IE" type="input"/>
+          <port name="O_EN" type="output" from="bidir"/>
+        </direct>
+        <direct>
+          <port name="I_DAT" type="input" from="bidir"/>
+          <port name="IZ" type="output"/>
+        </direct>
+      </interconnect>
+    </pb_type>
+    <interconnect>
+      <direct>
+        <port name="IE" type="input"/>
+        <port name="IE" type="output" from="INPUT"/>
+      </direct>
+      <direct>
+        <port name="INEN" type="input"/>
+        <port name="INEN" type="output" from="INPUT"/>
+      </direct>
+      <direct>
+        <port name="IQC" type="input"/>
+        <port name="IQC" type="output" from="INPUT"/>
+      </direct>
+      <direct>
+        <port name="IQE" type="input"/>
+        <port name="IQE" type="output" from="INPUT"/>
+      </direct>
+      <direct>
+        <port name="IQIN" type="input"/>
+        <port name="IQIN" type="output" from="INPUT"/>
+      </direct>
+      <direct>
+        <port name="IQR" type="input"/>
+        <port name="IQR" type="output" from="INPUT"/>
+      </direct>
+      <direct>
+        <port name="IQZ" type="input" from="INPUT"/>
+        <port name="IQZ" type="output"/>
+      </direct>
+      <direct>
+        <port name="IZ" type="input" from="INPUT"/>
+        <port name="IZ" type="output"/>
+      </direct>
+      <direct>
+        <port name="OQE" type="input"/>
+        <port name="OQE" type="output" from="INPUT"/>
+      </direct>
+      <direct>
+        <port name="OQI" type="input"/>
+        <port name="OQI" type="output" from="INPUT"/>
+      </direct>
+    </interconnect>
+  </mode>
+  <mode name="OUTPUT">
+    <pb_type num_pb="1" name="OUTPUT">
+      <clock name="IQC" num_pins="1"/>
+      <input name="IE" num_pins="1"/>
+      <input name="INEN" num_pins="1"/>
+      <input name="IQE" num_pins="1"/>
+      <input name="IQIN" num_pins="1"/>
+      <input name="IQR" num_pins="1"/>
+      <input name="OQE" num_pins="1"/>
+      <input name="OQI" num_pins="1"/>
+      <output name="IQZ" num_pins="1"/>
+      <output name="IZ" num_pins="1"/>
+      <pb_type num_pb="1" name="bidir">
+        <!--old_name BIDIR_CELL-->
+        <xi:include href="./bidir_cell.pb_type.xml" xpointer="xpointer(pb_type/child::node()[local-name()!='metadata'])"/>
+        <metadata>
+          <meta name="fasm_prefix">INTERFACE.BIDIR</meta>
+          <meta name="fasm_params">INV.ESEL=ESEL
+INV.OSEL=OSEL
+INV.FIXHOLD=FIXHOLD
+INV.WPD=WPD
+INV.DS=DS</meta>
+        </metadata>
+      </pb_type>
+      <pb_type num_pb="1" name="outpad">
+        <!--old_name VPR_OPAD-->
+        <xi:include href="../vpr_pad/vpr_opad.pb_type.xml" xpointer="xpointer(pb_type/child::node()[local-name()!='metadata'])"/>
+      </pb_type>
+      <interconnect>
+        <direct>
+          <port name="INEN" type="input"/>
+          <port name="I_EN" type="output" from="bidir"/>
+        </direct>
+        <direct>
+          <port name="OQI" type="input"/>
+          <port name="O_DAT" type="output" from="bidir"/>
+        </direct>
+        <direct>
+          <port name="IE" type="input"/>
+          <port name="O_EN" type="output" from="bidir"/>
+        </direct>
+        <direct>
+          <port name="I_DAT" type="input" from="bidir"/>
+          <port name="IZ" type="output"/>
+        </direct>
+        <direct>
+          <port name="O_PAD_$out" type="input" from="bidir"/>
+          <port name="outpad" type="output" from="outpad"/>
+          <pack_pattern name="BIDIR_TO_OPAD" type="pack">
+            <port name="O_PAD_$out" type="input" from="bidir"/>
+            <port name="outpad" type="output" from="outpad"/>
+          </pack_pattern>
+        </direct>
+      </interconnect>
+    </pb_type>
+    <interconnect>
+      <direct>
+        <port name="IE" type="input"/>
+        <port name="IE" type="output" from="OUTPUT"/>
+      </direct>
+      <direct>
+        <port name="INEN" type="input"/>
+        <port name="INEN" type="output" from="OUTPUT"/>
+      </direct>
+      <direct>
+        <port name="IQC" type="input"/>
+        <port name="IQC" type="output" from="OUTPUT"/>
+      </direct>
+      <direct>
+        <port name="IQE" type="input"/>
+        <port name="IQE" type="output" from="OUTPUT"/>
+      </direct>
+      <direct>
+        <port name="IQIN" type="input"/>
+        <port name="IQIN" type="output" from="OUTPUT"/>
+      </direct>
+      <direct>
+        <port name="IQR" type="input"/>
+        <port name="IQR" type="output" from="OUTPUT"/>
+      </direct>
+      <direct>
+        <port name="IQZ" type="input" from="OUTPUT"/>
+        <port name="IQZ" type="output"/>
+      </direct>
+      <direct>
+        <port name="IZ" type="input" from="OUTPUT"/>
+        <port name="IZ" type="output"/>
+      </direct>
+      <direct>
+        <port name="OQE" type="input"/>
+        <port name="OQE" type="output" from="OUTPUT"/>
+      </direct>
+      <direct>
+        <port name="OQI" type="input"/>
+        <port name="OQI" type="output" from="OUTPUT"/>
+      </direct>
+    </interconnect>
+  </mode>
+  <mode name="INOUT">
+    <pb_type num_pb="1" name="INOUT">
+      <clock name="IQC" num_pins="1"/>
+      <input name="IE" num_pins="1"/>
+      <input name="INEN" num_pins="1"/>
+      <input name="IQE" num_pins="1"/>
+      <input name="IQIN" num_pins="1"/>
+      <input name="IQR" num_pins="1"/>
+      <input name="OQE" num_pins="1"/>
+      <input name="OQI" num_pins="1"/>
+      <output name="IQZ" num_pins="1"/>
+      <output name="IZ" num_pins="1"/>
+      <pb_type num_pb="1" name="bidir">
+        <!--old_name BIDIR_CELL-->
+        <xi:include href="./bidir_cell.pb_type.xml" xpointer="xpointer(pb_type/child::node()[local-name()!='metadata'])"/>
+        <metadata>
+          <meta name="fasm_prefix">INTERFACE.BIDIR</meta>
+          <meta name="fasm_params">INV.ESEL=ESEL
+INV.OSEL=OSEL
+INV.FIXHOLD=FIXHOLD
+INV.WPD=WPD
+INV.DS=DS</meta>
+        </metadata>
+      </pb_type>
+      <pb_type num_pb="1" name="inpad">
+        <!--old_name VPR_IPAD-->
+        <xi:include href="../vpr_pad/vpr_ipad.pb_type.xml" xpointer="xpointer(pb_type/child::node()[local-name()!='metadata'])"/>
+      </pb_type>
+      <pb_type num_pb="1" name="outpad">
+        <!--old_name VPR_OPAD-->
+        <xi:include href="../vpr_pad/vpr_opad.pb_type.xml" xpointer="xpointer(pb_type/child::node()[local-name()!='metadata'])"/>
+      </pb_type>
+      <interconnect>
+        <direct>
+          <port name="INEN" type="input"/>
+          <port name="I_EN" type="output" from="bidir"/>
+        </direct>
+        <direct>
+          <port name="inpad" type="input" from="inpad"/>
+          <port name="I_PAD_$inp" type="output" from="bidir"/>
+          <pack_pattern name="IOPAD_TO_BIDIR" type="pack">
+            <port name="inpad" type="input" from="inpad"/>
+            <port name="I_PAD_$inp" type="output" from="bidir"/>
+          </pack_pattern>
+        </direct>
+        <direct>
+          <port name="OQI" type="input"/>
+          <port name="O_DAT" type="output" from="bidir"/>
+        </direct>
+        <direct>
+          <port name="IE" type="input"/>
+          <port name="O_EN" type="output" from="bidir"/>
+        </direct>
+        <direct>
+          <port name="I_DAT" type="input" from="bidir"/>
+          <port name="IZ" type="output"/>
+        </direct>
+        <direct>
+          <port name="O_PAD_$out" type="input" from="bidir"/>
+          <port name="outpad" type="output" from="outpad"/>
+          <pack_pattern name="IOPAD_TO_BIDIR" type="pack">
+            <port name="O_PAD_$out" type="input" from="bidir"/>
+            <port name="outpad" type="output" from="outpad"/>
+          </pack_pattern>
+        </direct>
+      </interconnect>
+    </pb_type>
+    <interconnect>
+      <direct>
+        <port name="IE" type="input"/>
+        <port name="IE" type="output" from="INOUT"/>
+      </direct>
+      <direct>
+        <port name="INEN" type="input"/>
+        <port name="INEN" type="output" from="INOUT"/>
+      </direct>
+      <direct>
+        <port name="IQC" type="input"/>
+        <port name="IQC" type="output" from="INOUT"/>
+      </direct>
+      <direct>
+        <port name="IQE" type="input"/>
+        <port name="IQE" type="output" from="INOUT"/>
+      </direct>
+      <direct>
+        <port name="IQIN" type="input"/>
+        <port name="IQIN" type="output" from="INOUT"/>
+      </direct>
+      <direct>
+        <port name="IQR" type="input"/>
+        <port name="IQR" type="output" from="INOUT"/>
+      </direct>
+      <direct>
+        <port name="IQZ" type="input" from="INOUT"/>
+        <port name="IQZ" type="output"/>
+      </direct>
+      <direct>
+        <port name="IZ" type="input" from="INOUT"/>
+        <port name="IZ" type="output"/>
+      </direct>
+      <direct>
+        <port name="OQE" type="input"/>
+        <port name="OQE" type="output" from="INOUT"/>
+      </direct>
+      <direct>
+        <port name="OQI" type="input"/>
+        <port name="OQI" type="output" from="INOUT"/>
+      </direct>
+    </interconnect>
+  </mode>
+</pb_type>

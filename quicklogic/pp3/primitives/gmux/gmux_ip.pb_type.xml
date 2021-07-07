@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='utf-8'?>
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" num_pb="1" name="GMUX_IP">
+  <blif_model>.subckt GMUX_IP</blif_model>
+  <clock name="IC" num_pins="1"/>
+  <clock name="IP" num_pins="1"/>
+  <input name="IS0" num_pins="1"/>
+  <output name="IZ" num_pins="1"/>
+  <delay_constant in_port="IC" out_port="IZ" max="{iopath_IC_IZ}"/>
+  <delay_constant in_port="IP" out_port="IZ" max="{iopath_IP_IZ}"/>
+  <delay_constant in_port="IS0" out_port="IZ" max="1e-10"/>
+  <metadata>
+    <meta name="fasm_features">I_invblock.I_J0.ZINV.IS0
+I_invblock.I_J1.ZINV.IS1
+I_invblock.I_J2.ZINV.IS0
+I_invblock.I_J3.ZINV.IS0
+I_invblock.I_J4.ZINV.IS1</meta>
+  </metadata>
+</pb_type>

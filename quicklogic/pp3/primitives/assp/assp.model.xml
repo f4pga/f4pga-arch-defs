@@ -1,0 +1,51 @@
+<models xmlns:xi="http://www.w3.org/2001/XInclude">
+  <model name="ASSP">
+    <input_ports>
+      <port name="Device_ID"/>
+      <port name="FB_Busy"/>
+      <port name="FB_Int_Clr"/>
+      <port name="FB_PKfbData"/>
+      <port name="FB_PKfbEOF"/>
+      <port name="FB_PKfbPush" combinational_sink_ports="FB_PKfbOverflow"/>
+      <port name="FB_PKfbSOF"/>
+      <port name="FB_msg_out"/>
+      <port name="SDMA_Req"/>
+      <port name="SDMA_Sreq"/>
+      <port name="SPIm_PEnable"/>
+      <port name="SPIm_PWdata"/>
+      <port name="SPIm_PWrite"/>
+      <port name="SPIm_Paddr"/>
+      <port name="Sys_PKfb_Clk" is_clock="1"/>
+      <port name="Sys_PSel" combinational_sink_ports="SPIm_Prdata SPIm_PSlvErr SPIm_PReady"/>
+      <port name="WB_CLK" is_clock="1"/>
+      <port name="WBs_ACK"/>
+      <port name="WBs_RD_DAT"/>
+    </input_ports>
+    <output_ports>
+      <port name="FB_PKfbOverflow"/>
+      <port name="FB_Start"/>
+      <port name="SDMA_Active"/>
+      <port name="SDMA_Done"/>
+      <port name="SPIm_PReady"/>
+      <port name="SPIm_PSlvErr"/>
+      <port name="SPIm_Prdata"/>
+      <port name="Sensor_Int"/>
+      <port name="Sys_Clk0" is_clock="1"/>
+      <port name="Sys_Clk0_Rst"/>
+      <port name="Sys_Clk1" is_clock="1"/>
+      <port name="Sys_Clk1_Rst"/>
+      <port name="Sys_PKfb_Rst"/>
+      <port name="Sys_Pclk" is_clock="1"/>
+      <port name="Sys_Pclk_Rst"/>
+      <port name="TimeStamp"/>
+      <port name="WB_RST"/>
+      <port name="WBs_ADR"/>
+      <port name="WBs_BYTE_STB"/>
+      <port name="WBs_CYC"/>
+      <port name="WBs_RD"/>
+      <port name="WBs_STB"/>
+      <port name="WBs_WE"/>
+      <port name="WBs_WR_DAT"/>
+    </output_ports>
+  </model>
+</models>

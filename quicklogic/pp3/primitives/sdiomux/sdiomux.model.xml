@@ -1,0 +1,5 @@
+<models xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="../vpr_pad/vpr_ipad.model.xml" xpointer="xpointer(models/child::node())"/>
+  <xi:include href="../vpr_pad/vpr_opad.model.xml" xpointer="xpointer(models/child::node())"/>
+  <xi:include href="./sdiomux_cell.model.xml" xpointer="xpointer(models/child::node())"/>
+</models>

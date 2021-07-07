@@ -1,0 +1,16 @@
+<models xmlns:xi="http://www.w3.org/2001/XInclude">
+  <model name="T_FRAG">
+    <input_ports>
+      <port name="TBS" combinational_sink_ports="XZ"/>
+      <port name="XA1" combinational_sink_ports="XZ"/>
+      <port name="XA2" combinational_sink_ports="XZ"/>
+      <port name="XAB" combinational_sink_ports="XZ"/>
+      <port name="XB1" combinational_sink_ports="XZ"/>
+      <port name="XB2" combinational_sink_ports="XZ"/>
+      <port name="XSL" combinational_sink_ports="XZ"/>
+    </input_ports>
+    <output_ports>
+      <port name="XZ"/>
+    </output_ports>
+  </model>
+</models>

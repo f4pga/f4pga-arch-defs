@@ -1,0 +1,115 @@
+<?xml version='1.0' encoding='utf-8'?>
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" num_pb="1" name="GMUX">
+  <input name="IC" num_pins="1"/>
+  <input name="IP" num_pins="1"/>
+  <input name="IS0" num_pins="1"/>
+  <output name="IZ" num_pins="1"/>
+  <mode name="IP">
+    <pb_type num_pb="1" name="IP">
+      <input name="IC" num_pins="1"/>
+      <input name="IP" num_pins="1"/>
+      <input name="IS0" num_pins="1"/>
+      <output name="IZ" num_pins="1"/>
+      <pb_type num_pb="1" name="gmux">
+        <!--old_name GMUX_IP-->
+        <xi:include href="./gmux_ip.pb_type.xml" xpointer="xpointer(pb_type/child::node()[local-name()!='metadata'])"/>
+        <metadata>
+          <meta name="fasm_prefix">GMUX.GMUX</meta>
+          <meta name="fasm_features">I_invblock.I_J0.ZINV.IS0
+I_invblock.I_J1.ZINV.IS1
+I_invblock.I_J2.ZINV.IS0
+I_invblock.I_J3.ZINV.IS0
+I_invblock.I_J4.ZINV.IS1</meta>
+        </metadata>
+      </pb_type>
+      <interconnect>
+        <direct>
+          <port name="IC" type="input"/>
+          <port name="IC" type="output" from="gmux"/>
+        </direct>
+        <direct>
+          <port name="IP" type="input"/>
+          <port name="IP" type="output" from="gmux"/>
+        </direct>
+        <direct>
+          <port name="IS0" type="input"/>
+          <port name="IS0" type="output" from="gmux"/>
+        </direct>
+        <direct>
+          <port name="IZ" type="input" from="gmux"/>
+          <port name="IZ" type="output"/>
+        </direct>
+      </interconnect>
+    </pb_type>
+    <interconnect>
+      <direct>
+        <port name="IC" type="input"/>
+        <port name="IC" type="output" from="IP"/>
+      </direct>
+      <direct>
+        <port name="IP" type="input"/>
+        <port name="IP" type="output" from="IP"/>
+      </direct>
+      <direct>
+        <port name="IS0" type="input"/>
+        <port name="IS0" type="output" from="IP"/>
+      </direct>
+      <direct>
+        <port name="IZ" type="input" from="IP"/>
+        <port name="IZ" type="output"/>
+      </direct>
+    </interconnect>
+  </mode>
+  <mode name="IC">
+    <pb_type num_pb="1" name="IC">
+      <input name="IC" num_pins="1"/>
+      <input name="IP" num_pins="1"/>
+      <input name="IS0" num_pins="1"/>
+      <output name="IZ" num_pins="1"/>
+      <pb_type num_pb="1" name="gmux">
+        <!--old_name GMUX_IC-->
+        <xi:include href="./gmux_ic.pb_type.xml" xpointer="xpointer(pb_type/child::node()[local-name()!='metadata'])"/>
+        <metadata>
+          <meta name="fasm_prefix">GMUX.GMUX</meta>
+          <meta name="fasm_features">I_invblock.I_J0.ZINV.IS0
+I_invblock.I_J1.ZINV.IS1
+I_invblock.I_J2.ZINV.IS0
+I_invblock.I_J3.ZINV.IS0
+I_invblock.I_J4.ZINV.IS1</meta>
+        </metadata>
+      </pb_type>
+      <interconnect>
+        <direct>
+          <port name="IC" type="input"/>
+          <port name="IC" type="output" from="gmux"/>
+        </direct>
+        <direct>
+          <port name="IS0" type="input"/>
+          <port name="IS0" type="output" from="gmux"/>
+        </direct>
+        <direct>
+          <port name="IZ" type="input" from="gmux"/>
+          <port name="IZ" type="output"/>
+        </direct>
+      </interconnect>
+    </pb_type>
+    <interconnect>
+      <direct>
+        <port name="IC" type="input"/>
+        <port name="IC" type="output" from="IC"/>
+      </direct>
+      <direct>
+        <port name="IP" type="input"/>
+        <port name="IP" type="output" from="IC"/>
+      </direct>
+      <direct>
+        <port name="IS0" type="input"/>
+        <port name="IS0" type="output" from="IC"/>
+      </direct>
+      <direct>
+        <port name="IZ" type="input" from="IC"/>
+        <port name="IZ" type="output"/>
+      </direct>
+    </interconnect>
+  </mode>
+</pb_type>
