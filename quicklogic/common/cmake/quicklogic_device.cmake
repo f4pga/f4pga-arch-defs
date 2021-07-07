@@ -50,7 +50,7 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   set(ROUTING_TIMING "${symbiflow-arch-defs_SOURCE_DIR}/third_party/${DEVICE}/Timing Data Files/${ROUTING_TIMING_FILE_NAME}")
 
   # Import data from the techfile
-  set(DATA_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/data_import.py)
+  set(DATA_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/utils/data_import.py)
   add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PHY_DB_FILE}
     COMMAND ${PYTHON3} ${DATA_IMPORT}
@@ -113,7 +113,7 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
 
 
   # Process the database, create the VPR database
-  set(PREPARE_VPR_DATABASE ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/prepare_vpr_database.py)
+  set(PREPARE_VPR_DATABASE ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/utils/prepare_vpr_database.py)
   get_file_target(PHY_DB_TARGET ${PHY_DB_FILE})
 
   if(NOT "${GRID_LIMIT}" STREQUAL "")
@@ -177,7 +177,7 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   add_file_target(FILE ${RAM_CELLS_MAP} GENERATED)
 
   # Generate the arch.xml
-  set(ARCH_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/arch_import.py)
+  set(ARCH_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/utils/arch_import.py)
   get_file_target(RAM_MODEL_XML_TARGET ${RAM_MODEL_XML})
   get_file_target(RAM_PBTYPE_XML_TARGET ${RAM_PBTYPE_XML})
 
