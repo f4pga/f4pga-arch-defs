@@ -8,6 +8,12 @@ include(cells_sim_gen.cmake)
 
 set(CELLS_SIM_FILE ${symbiflow-arch-defs_BINARY_DIR}/quicklogic/${FAMILY_NAME}/techmap/cells_sim.v)
 add_subdirectory(primitives)
+set(CELLS_MAP_DEST_DIR ${symbiflow-arch-defs_BINARY_DIR}/quicklogic/${FAMILY_NAME}/techmap/)
+file(COPY "techmap/cells_map.v"  DESTINATION ${CELLS_MAP_DEST_DIR})
+file(COPY "techmap/lut2tomux4.v" DESTINATION ${CELLS_MAP_DEST_DIR})
+file(COPY "techmap/lut2tomux2.v" DESTINATION ${CELLS_MAP_DEST_DIR})
+file(COPY "techmap/lut3tomux2.v" DESTINATION ${CELLS_MAP_DEST_DIR})
+file(COPY "techmap/mux4tomux2.v" DESTINATION ${CELLS_MAP_DEST_DIR})
 
 add_cells_sim_target(${CELLS_SIM_FILE} ${FAMILY_NAME})
 
