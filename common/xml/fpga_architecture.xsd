@@ -640,6 +640,7 @@
       <xs:element name="equivalent_sites" type="equivalent_sites"/>
       <xs:element name="pinlocations" type="pinlocations"/>
       <xs:element name="fc" type="fc"/>
+      <xs:element name="switchblock_locations" type="switchblock_locations"/>
     </xs:choice>
     <xs:attribute name="name" type="xs:string" use="required"/>
     <xs:attribute name="capacity" type="xs:int"/>
