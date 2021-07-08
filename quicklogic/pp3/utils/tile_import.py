@@ -271,9 +271,11 @@ def make_top_level_tile(
                     ["{}.{}".format(st_name, pin) for pin in pins]
                 )
 
-        # Switchbox locations
+        # Switchblocks locations
         # This is actually not needed in the end but has to be present to make
         # VPR happy
-        ET.SubElement(xml_sub_tile, "switchbox_locations", {"pattern": "all"})
+        ET.SubElement(
+            xml_sub_tile, "switchblock_locations", {"pattern": "all"}
+        )
 
     return xml_tile
