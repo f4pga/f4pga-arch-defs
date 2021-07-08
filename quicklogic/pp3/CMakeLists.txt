@@ -61,7 +61,7 @@ define_arch(
         --rr-graph-out \${OUT_RRXML_REAL}"
 
   PLACE_TOOL
-    ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/create_ioplace.py
+    ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/create_ioplace.py
   PLACE_TOOL_CMD "${CMAKE_COMMAND} -E env \
     PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils:$PYTHONPATH \
     ${PYTHON3} \${PLACE_TOOL} \
