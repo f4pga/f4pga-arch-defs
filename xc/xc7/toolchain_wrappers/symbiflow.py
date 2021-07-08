@@ -32,9 +32,9 @@ def setup_argparser():
     return parser
 
 # Execute subroutine
-def sub(*args, env=None):
+def sub(*args, env=None, cwd=None):
     # print(args)
-    out = subprocess.run(args, capture_output=True, env=env)
+    out = subprocess.run(args, capture_output=True, env=env, cwd=cwd)
     if out.returncode != 0:
         print(f'[ERROR]: {args[0]} non-zero return code.\n'
               f'stderr:\n{out.stderr.decode()}\n\n'
@@ -152,7 +152,7 @@ class VprArgs:
         }
 
 # Execute `vpr`
-def vpr(mode: str, vprargs: VprArgs):
+def vpr(mode: str, vprargs: VprArgs, cwd=None):
     modeargs = []
     if mode == "pack":
         modeargs = ['--pack']
@@ -164,7 +164,8 @@ def vpr(mode: str, vprargs: VprArgs):
                   '--read_rr_graph', vprargs.rr_graph,
                   '--read_router_lookahead', vprargs.lookahead,
                   '--read_placement_delay_lookup', vprargs.place_delay] +
-                  modeargs + vprargs.optional))
+                  modeargs + vprargs.optional),
+               cwd=cwd)
 
 
 """ def verify_flow(flow):
@@ -282,10 +283,11 @@ def stage_pack():
 
     print('Packing stage:')
     print('    [1/2]: Packing with VPR...')
-    r = vpr('pack', vpr_args)
+    r = vpr('pack', vpr_args, cwd=build_dir)
     # print(r.decode())
     print('    [2/2]: Moving log file...')
-    shutil.move('vpr_stdout.log', 'pack.log')
+    shutil.move(os.path.join(build_dir, 'vpr_stdout.log'),
+                os.path.join(build_dir, 'pack.log'))
 
 
 # -------------------------------------------------------------------------------
