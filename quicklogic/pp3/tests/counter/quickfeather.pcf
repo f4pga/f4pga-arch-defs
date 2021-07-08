@@ -1,4 +1,4 @@
-set_io led(0)   34
-set_io led(1)   39
-set_io led(2)   38
-set_io led(3)   IO_3
+set_io led[0]   34
+set_io led[1]   39
+set_io led[2]   38
+set_io led[3]   IO_3
