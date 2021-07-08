@@ -167,6 +167,13 @@ def vpr(mode: str, vprargs: VprArgs, cwd=None):
                   modeargs + vprargs.optional),
                cwd=cwd)
 
+def options_dict_to_list(opt_dict: dict):
+    opts = []
+    for key, val in opt_dict.items():
+        opts.append(key)
+        if not(type(val) is list and val == []):
+            opts.append(str(val))
+    return opts
 
 """ def verify_flow(flow):
     if not flow['platform_name']:
@@ -243,7 +250,20 @@ sdc = None
 if flow.get('sdc'):
     sdc = resolve_path(flow['sdc'])
 out_eblif = os.path.join(build_dir, top + '.eblif')
-vpr_options = list(map(subst_env, platform_flow['pack']['vpr_options']))
+
+platform_pack_vpr_options = {}
+if platform_flow.get('pack') and platform_flow['pack'].get('vpr_options'):
+    opt_dict = platform_flow['pack']['vpr_options']
+    platform_pack_vpr_options = \
+        dict([(k, subst_env(v)) for k, v in opt_dict.items()])
+project_pack_vpr_options = {}
+if flow.get('pack') and flow['pack'].get('vpr_options'):
+    opt_dict = flow['pack']['vpr_options']
+    project_pack_vpr_options = \
+        dict([(k, subst_env(v)) for k, v in opt_dict.items()])
+
+platform_pack_vpr_options.update(project_pack_vpr_options)
+
 
 
 if not os.path.isdir(build_dir):
@@ -279,7 +299,8 @@ def stage_pack():
     if not os.path.isfile(out_eblif):
         fatal(-1, f'The prerequisite file `{out_eblif}` does not  exist')
 
-    vpr_args = VprArgs(device, out_eblif, sdc_file=sdc, vpr_options=vpr_options)
+    vpr_args = VprArgs(device, out_eblif, sdc_file=sdc,
+                       vpr_options=options_dict_to_list(platform_pack_vpr_options))
 
     print('Packing stage:')
     print('    [1/2]: Packing with VPR...')

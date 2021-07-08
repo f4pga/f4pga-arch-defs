@@ -7,5 +7,9 @@
         "sources": ["counter.v"],
         "top": "top",
         "log": "counter_synth.log"
+    },
+
+    "pack": {
+        "vpr_options": {}
     }
 }
