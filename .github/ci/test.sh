@@ -33,6 +33,7 @@ end_section "symbiflow.build_all_rrgraph_xmls"
 make_target all_route_tests "Complete all routing tests"
 
 echo "Suppressing some xml linting, as the 5k/8k parts cannot be built on GH actions."
+MAKE_JOBS=1	# workaround for possible race condition
 make_target all_xml_lint "Complete all xmllint"
 
 # TODO: Check tests are broken, yosys regression?

@@ -1,3 +1,4 @@
+add_subdirectory(utils)
 
 # Copy map files to binary dir.
 get_filename_component(FAMILY_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
@@ -7,6 +8,12 @@ include(cells_sim_gen.cmake)
 
 set(CELLS_SIM_FILE ${symbiflow-arch-defs_BINARY_DIR}/quicklogic/${FAMILY_NAME}/techmap/cells_sim.v)
 add_subdirectory(primitives)
+set(CELLS_MAP_DEST_DIR ${symbiflow-arch-defs_BINARY_DIR}/quicklogic/${FAMILY_NAME}/techmap/)
+file(COPY "techmap/cells_map.v"  DESTINATION ${CELLS_MAP_DEST_DIR})
+file(COPY "techmap/lut2tomux4.v" DESTINATION ${CELLS_MAP_DEST_DIR})
+file(COPY "techmap/lut2tomux2.v" DESTINATION ${CELLS_MAP_DEST_DIR})
+file(COPY "techmap/lut3tomux2.v" DESTINATION ${CELLS_MAP_DEST_DIR})
+file(COPY "techmap/mux4tomux2.v" DESTINATION ${CELLS_MAP_DEST_DIR})
 
 add_cells_sim_target(${CELLS_SIM_FILE} ${FAMILY_NAME})
 
@@ -45,7 +52,7 @@ define_arch(
   VPR_ARCH_ARGS ${VPR_ARCH_ARGS}
 
   RR_PATCH_TOOL
-    ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/routing_import.py
+    ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/routing_import.py
   RR_PATCH_CMD "\${CMAKE_COMMAND} -E env \
     PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils:$PYTHONPATH \
     \${PYTHON3} \${RR_PATCH_TOOL} \
@@ -54,7 +61,7 @@ define_arch(
         --rr-graph-out \${OUT_RRXML_REAL}"
 
   PLACE_TOOL
-    ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/create_ioplace.py
+    ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/create_ioplace.py
   PLACE_TOOL_CMD "${CMAKE_COMMAND} -E env \
     PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils:$PYTHONPATH \
     ${PYTHON3} \${PLACE_TOOL} \
@@ -64,7 +71,7 @@ define_arch(
         --net \${OUT_NET}"
 
   PLACE_CONSTR_TOOL
-    ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/create_place_constraints.py
+    ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/create_place_constraints.py
   PLACE_CONSTR_TOOL_CMD "${CMAKE_COMMAND} -E env \
     PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils \
     \${PYTHON3} \${PLACE_CONSTR_TOOL} \
@@ -88,7 +95,7 @@ define_arch(
 
   NO_BIT_TO_BIN
   BIT_TO_V
-    ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/fasm2bels.py
+    ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/fasm2bels.py
   BIT_TO_V_CMD
     "${CMAKE_COMMAND} -E env PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils:$PYTHONPATH \
     \${PYTHON3} \${BIT_TO_V} \${OUT_BITSTREAM}
@@ -98,7 +105,7 @@ define_arch(
       --output-verilog \${OUT_BIT_VERILOG}
       --input-pcf \${INPUT_IO_FILE}"
   BIT_TO_V_DEPS
-    ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/verilogmodule.py
+    ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/verilogmodule.py
     ${CMAKE_CURRENT_BINARY_DIR}/devices/\${DEVICE_TYPE}/db_vpr.pickle
   NO_BIT_TIME
 
@@ -106,17 +113,16 @@ define_arch(
   USE_FASM
 )
 
-# TODO: re-enable the following once the various PRs get merged
-#add_subdirectory(devices)
-#include(boards.cmake)
-#add_subdirectory(tests)
+add_subdirectory(devices)
+include(boards.cmake)
+add_subdirectory(tests)
 
-#define_ql_toolchain_target(
-#  FAMILY pp3
-#  ARCH ql-s3
-#  ROUTE_CHAN_WIDTH 100
-#  CELLS_SIM ${CELLS_SIM_FILE}
-#  VPR_ARCH_ARGS ${VPR_ARCH_ARGS}
-#  CONV_SCRIPT ${YOSYS_CONV_SCRIPT}
-#  SYNTH_SCRIPT ${YOSYS_SYNTH_SCRIPT}
-#)
+define_ql_toolchain_target(
+  FAMILY pp3
+  ARCH ql-s3
+  ROUTE_CHAN_WIDTH 100
+  CELLS_SIM ${CELLS_SIM_FILE}
+  VPR_ARCH_ARGS ${VPR_ARCH_ARGS}
+  CONV_SCRIPT ${YOSYS_CONV_SCRIPT}
+  SYNTH_SCRIPT ${YOSYS_SYNTH_SCRIPT}
+)

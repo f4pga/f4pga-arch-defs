@@ -1,0 +1,8 @@
+.model top
+.inputs I
+.outputs O
+.subckt BIDIR_CELL I_DAT=x I_PAD_$inp=I
+.cname ibuf
+.subckt BIDIR_CELL O_DAT=x O_PAD_$out=O
+.cname obuf
+.end
