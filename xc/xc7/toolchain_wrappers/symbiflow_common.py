@@ -2,6 +2,9 @@ import subprocess
 import argparse
 import os
 import shutil
+import sys
+import json
+import re
 
 class VprArgs:
     arch_dir: str
@@ -13,7 +16,7 @@ class VprArgs:
     device_name: str
     eblif: str
     vpr_options: str
-    optional: list[str]
+    optional: list
 
     def __init__(self, mypath, args):
         self.arch_dir = \
@@ -97,3 +100,100 @@ def my_path():
 # Save VPR log
 def save_vpr_log(filename):
     shutil.move('vpr_stdout.log', filename)
+
+def fatal(code, message):
+    print(f'[FATAL ERROR]: {message}')
+    exit(code)
+
+def setup_stage_arg_parser():
+    parser = argparse.ArgumentParser(description="Parse flags")
+    parser.add_argument('-s', '--share', nargs=1, metavar='<share>',
+                        type=str, help='Symbiflow\'s "share" directory path')
+    parser.add_argument('-m', '--map', action='store_true',
+                        help='Perform `output name` <-> `file path` mapping '
+                             'instead of executing the stage.')
+    return parser
+
+class ResolutionEnv:
+    values: dict
+
+    def __init__(self, values={}):
+        self.values = values
+    
+    def __copy__(self):
+        return ResolutionEnv(self.values.copy())
+
+    def resolve(self, s):
+        if type(s) is str:
+            match_list = list(re.finditer('\$\{([^${}]*)\}', s))
+            # Assupmtion: re.finditer finds matches in a left-to-right order
+            match_list.reverse()
+            for match in match_list:
+                v = self.values.get(match.group(1))
+                if not v:
+                    continue
+                span = match.span()
+                s = s[:span[0]] + v + s[span[1]:]
+        elif type(s) is list:
+            s = list(map(self.resolve, s))
+        elif type(s) is dict:
+            s = dict([(k, self.resolve(v)) for k, v in s.items()])
+        return s
+
+
+    def add_values(self, values: dict):
+        for k, v in values.items():
+            self.values[k] = self.resolve(v)
+
+class Module:
+    no_of_phases: int
+    stage_name: str
+
+    def execute(self, share: str, config: dict, outputs: dict,
+                r_env: ResolutionEnv):
+        return None
+
+    def map_io(self, config: dict, r_env: ResolutionEnv):
+        return {}
+    
+    def __init__(self):
+        self.no_of_phases = 0
+        self.current_phase = 0
+        self.stage_name = '<BASE STAGE>'
+
+def do_module(module: Module):
+    parser = setup_stage_arg_parser()
+    args = parser.parse_args()
+    if not args.share:
+        fatal(-1, 'Symbiflow stage module requires "share" directory to be specified '
+            'using `-s` option.')
+    
+    share = os.path.realpath(args.share[0])
+
+    config_json = sys.stdin.read()
+    config = json.loads(config_json)
+
+    r_env = ResolutionEnv({
+        'shareDir': share
+    })
+    r_env.add_values(config['values'])
+
+    io_map = module.map_io(config, r_env)
+
+    if (args.map):
+        json_map = json.dumps(io_map)
+        print(json_map)
+        return
+    
+    print(f'Stage `{module.stage_name}`:')
+    current_phase = 0
+    for phase_msg in module.execute(share, config, io_map, r_env):
+        print(f'    [{current_phase}/P{module.no_of_phases}]: {phase_msg}')
+        current_phase += 1
+    print(f'Stage `{module.stage_name}` complete!')
+
+""" def verify_stage_input(input):
+    if not input.takes:
+        fatal(-1, 'Stage configuration has not `takes` section')
+    if not input.produces:
+        fatal(-1, 'Stage configuration has not `produces` section') """

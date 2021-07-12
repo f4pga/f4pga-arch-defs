@@ -5,17 +5,16 @@ import json
 import argparse
 import shutil
 import subprocess
+import re
+from copy import copy
+from sys import stdin
+from subprocess import Popen, PIPE, CalledProcessError
+from symbiflow_common import ResolutionEnv
 
 mypath = os.path.realpath(os.sys.argv[0])
 mypath = os.path.dirname(mypath)
 
 share_dir_path = os.path.realpath(os.path.join(mypath, '../share/symbiflow'))
-arch_dir_path = os.path.join(share_dir_path, 'arch')
-# techmap_path = os.path.join(share_dir_path, 'techmaps/xc7_vpr/techmap')
-utils_path = os.path.join(share_dir_path, 'scripts')
-# synth_tcl_path = os.path.join(utils_path, 'xc7/synth.tcl')
-# conv_tcl_path = os.path.join(utils_path, 'xc7/conv.tcl')
-split_inouts = os.path.join(utils_path, 'split_inouts.py')
 
 def fatal(code, message):
     print(f'[FATAL ERROR]: {message}')
@@ -25,10 +24,19 @@ def setup_argparser():
     parser = argparse.ArgumentParser(description="Execute SymbiFlow flow")
     parser.add_argument('flow', nargs=1, metavar='<flow path>', type=str,
                         help='Path to flow definition file')
-    parser.add_argument('-s', '--synth', action='store_true',
-                        help='Perform synthesis stage')
-    parser.add_argument('-p', '--pack', action='store_true',
-                        help='Perform packing stage')
+    parser.add_argument('-s', '--stage', metavar='<stage name>', type=str,
+                        help='Perform specified synthesis stage')
+    parser.add_argument('-a', '--autoflow', action='store_true',
+                        help='Execute as many following stages as possible')
+    parser.add_argument('-p', '--platform', nargs=1, metavar='<platform name>',
+                        help='Target platform name')
+    # Currently unsupported
+    parser.add_argument('-t', '--take_explicit_paths', nargs='+',
+                        metavar='<name=path, ...>', type=str,
+                        help='Specify stage inputs explicitely. This might be '
+                             'required if some files got renamed or deleted and '
+                             'symbiflow is unable to deduce the flow that lead to '
+                             'dependencies required by the requested stage')
     return parser
 
 # Execute subroutine
@@ -45,128 +53,6 @@ def sub(*args, env=None, cwd=None):
 def noisy_warnings(device):
     return 'noisy_warnings-' + device + '_pack.log'
 
-# Setup environmental variables for YOSYS TCL scripts
-def yosys_setup_tcl_env(build_dir, top, bitstream_device, part, techmap_path,
-                        out_json=None, out_sdc=None, synth_json=None,
-                        out_synth_v=None, out_eblif=None, out_fasm_extra=None,
-                        database_dir=None, use_roi=False, xdc_files=None):
-    if not out_json:
-        out_json = os.path.join(build_dir, top + '.json')
-    if not out_sdc:
-        out_sdc = os.path.join(build_dir, top + '.sdc')
-    if not synth_json:
-        synth_json = os.path.join(build_dir, top + '_io.json')
-    if not out_synth_v:
-        out_synth_v = os.path.join(build_dir, top + '_synth.v')
-    if not out_eblif:
-        out_eblif = os.path.join(build_dir, top + '.eblif')
-    if not out_fasm_extra:
-        out_fasm_extra = os.path.join(build_dir, top + '_fasm_extra.fasm')
-    if not database_dir:
-        database_dir = sub('prjxray-config').decode().replace('\n', '')
-    part_json_path = \
-        os.path.join(database_dir, bitstream_device, part, 'part.json')
-    env = {
-        'USE_ROI': 'FALSE',
-        'TOP': top,
-        'OUT_JSON': out_json,
-        'OUT_SDC': out_sdc,
-        'PART_JSON': os.path.realpath(part_json_path),
-        'OUT_FASM_EXTRA': out_fasm_extra,
-        'TECHMAP_PATH': techmap_path,
-        'OUT_SYNTH_V': out_synth_v,
-        'OUT_EBLIF': out_eblif,
-        'PYTHON3': shutil.which('python3'),
-        'UTILS_PATH': utils_path
-    }
-    if use_roi:
-        env['USE_ROI'] = 'TRUE'
-    if xdc_files:
-        env['INPUT_XDC_FILES'] = ' '.join(xdc_files)
-    return env
-        
-
-
-def yosys_synth(tcl, tcl_env, verilog_files=[], log=None):
-    # Set up environment for TCL weirdness
-    optional = []
-    if log:
-        optional += ['-l', log]
-    env = os.environ.copy()
-    env.update(tcl_env)
-    
-    # Execute YOSYS command
-    return sub(*(['yosys', '-p', 'tcl ' + tcl] + optional + verilog_files),
-               env=env)
-
-def yosys_conv(tcl, tcl_env, synth_json):
-    # Set up environment for TCL weirdness
-    env = os.environ.copy()
-    env.update(tcl_env)
-
-    # Execute YOSYS command
-    return sub('yosys', '-p', 'read_json ' + synth_json + '; tcl ' + tcl,
-               env=env)
-
-class VprArgs:
-    arch_dir: str
-    arch_def: str
-    lookahead: str
-    rr_graph: str
-    rr_graph_xml: str
-    place_delay: str
-    device_name: str
-    eblif: str
-    optional: list
-
-    def __init__(self, device, eblif, vpr_options=[], sdc_file=None):
-        self.arch_dir = arch_dir_path
-        self.arch_def = os.path.join(self.arch_dir, device, 'arch.timing.xml')
-        self.lookahead = \
-            os.path.join(self.arch_dir, device,
-                         'rr_graph_' + device + '.lookahead.bin')
-        self.rr_graph = \
-            os.path.join(self.arch_dir, device,
-                         'rr_graph_' + device + '.rr_graph.real.bin')
-        self.rr_graph_xml = \
-            os.path.join(self.arch_dir, device,
-                         'rr_graph_' + device + '.rr_graph.real.xml')
-        self.place_delay = \
-            os.path.join(self.arch_dir, device,
-                         'rr_graph_' + device + '.place_delay.bin')
-        self.device_name = device.replace('_', '-')
-        self.eblif = eblif
-        self.optional = vpr_options
-        if sdc_file:
-            self.optional += ['--sdc_file', sdc_file]
-    
-    def env(self):
-        return {
-            'ARCH_DIR': self.arch_dir,
-            'ARCH_DEF': self.arch_def,
-            'LOOKAHEAD': self.lookahead,
-            'RR_GRAPH': self.rr_graph,
-            'RR_GRAPH_XML': self.rr_graph_xml,
-            'PLACE_DELAY': self.place_delay,
-            'DEVICE_NAME': self.device_name
-        }
-
-# Execute `vpr`
-def vpr(mode: str, vprargs: VprArgs, cwd=None):
-    modeargs = []
-    if mode == "pack":
-        modeargs = ['--pack']
-
-    return sub(*(['vpr',
-                  vprargs.arch_def,
-                  vprargs.eblif,
-                  '--device', vprargs.device_name,
-                  '--read_rr_graph', vprargs.rr_graph,
-                  '--read_router_lookahead', vprargs.lookahead,
-                  '--read_placement_delay_lookup', vprargs.place_delay] +
-                  modeargs + vprargs.optional),
-               cwd=cwd)
-
 def options_dict_to_list(opt_dict: dict):
     opts = []
     for key, val in opt_dict.items():
@@ -175,29 +61,110 @@ def options_dict_to_list(opt_dict: dict):
             opts.append(str(val))
     return opts
 
-""" def verify_flow(flow):
-    if not flow['platform_name']:
-        fatal(-1, 'Flow is missing platform name')
-    if not (type(flow['platform_name']) is str):
-        fatal(-1, '`platform_name` field in flow definitionis is not a string.')
+class StageIO:
+    name: str
+    qualifier: str
+    auto_flow: bool
+
+    def __init__(self, encoded_name: str):
+        m = re.match('(->)?(!)?(\w+)(\?)?(->)?', encoded_name)
+        span = m.span()
+        if span[1] - span[0] != len(encoded_name):
+            self.qualifier = 'invalid'
+            return
+        m_in, m_not, m_name, m_maybe, m_out = m.groups()
+        if (not m_name) or (m_not and m_maybe) or (m_in and m_out) \
+                or (m_out and m_not):
+            self.qualifier = 'invalid'
+            return
+        self.name = m_name
+        if m_not:
+            self.qualifier = 'not'
+        elif m_maybe:
+            self.qualifier = 'maybe'
+        else:
+            self.qualifier = 'req'
+        if m_in or m_out:
+            self.auto_flow = True
+        else:
+            self.auto_flow = False
+    
+    def __repr__(self) -> str:
+        return 'StageIO { name: \'' + self.name + '\', qualifier: ' + \
+               self.qualifier + ', auto_flow: ' + str(self.auto_flow) + ' }'
+class Stage:
+    name: str
+    takes: list
+    produces: list
+    args: list
+    values: dict
+    module: str
+
+    def __init__(self, name, stage_def, r_env: ResolutionEnv):
+        if (not stage_def.get('takes')) or (not stage_def.get('produces')) or \
+                (not stage_def.get('module')):
+            raise Exception('Incorrect stage structure')
         
-    if not flow['synthesize']:
-        fatal(-1, '`synthsize` section in flow definitionis is missing.')
-    if not (type(flow['synthesize']) is dict):
-        fatal(-1, '`synthesize` section in flow definitionis not an object.')
+        values = stage_def.get('values')
+        if values:
+            r_env = copy(r_env)
+            platform_parse_values(values, r_env)
+        
+        self.takes = []
+        for input in stage_def['takes']:
+            io = StageIO(input)
+            if io.qualifier == 'invalid':
+                raise Exception(f'Invalid input token `{input}`')
+            self.takes.append(io)
+        
+        self.produces = []
+        for input in stage_def['takes']:
+            io = StageIO(input)
+            if io.qualifier == 'invalid':
+                raise Exception(f'Invalid input token {input}')
+            self.produces.append(io)
+        
+        self.args = stage_def['args'].copy()
+        values = stage_def.get('values')
+        if values:
+            self.values = r_env.resolve(values)
+        else:
+            self.values = []
+        self.module = stage_def['module']
+        self.name = name
 
-    if not flow['synthesize']['top']:
-        fatal(-1, '`synthsize.top` field in flow definitionis is missing.')
-    if not (type(flow['synthesize']['top']) is str):
-        fatal(-1, '`synthesize.top` field in flow definitionis is not a string.')
+    def __str__(self) -> str:
+        return f'Stage \'{self.name}\'  ' \
+               f'  values: {self.values}' \
+               f'  args: {self.args}' \
+               f'  takes: {self.takes}' \
+               f'  produces: {self.produces}'
 
-    if not flow['synthesize']['sources']:
-        fatal(-1, '`synthsize.sources` field in flow definitionis is missing.')
-    if not (type(flow['synthesize']['sources']) is list):
-        fatal(-1, '`synthesize.sources` field in flow definitionis is not a list. ') """
+def platform_parse_values(values: dict, r_env: ResolutionEnv):
+    for k, v in values.items():
+        vr = r_env.resolve(v)
+        r_env.values[k] = vr
+
+def platform_stages(platform_flow, r_env):
+    for stage_name, stage_def in platform_flow['stages'].items():
+        # print(stage_def)
+        yield Stage(stage_name, stage_def, r_env)
+
+def find_stage_by_name(name, stages: 'list[Stage]'):
+    m = [stage for stage in stages if stage.name == name]
+    if len(m) > 1:
+        fatal(f'Stage `{name}` is defined multiple times.')
+    if len(m) == 0:
+        return None
+    return m[0]
 
 parser = setup_argparser()
 args = parser.parse_args()
+
+if not args.platform:
+    fatal(-1, 'You have to specify a platform name wit `-p` option')
+
+platform_name = args.platform[0]
 
 flow_path = args.flow[0]
 
@@ -211,7 +178,7 @@ except FileNotFoundError as _:
 flow = json.loads(flow_def)
 # verify_flow(flow)
 
-platform_path = flow['platform_name'] + '.json'
+platform_path = platform_name + '.json'
 platform_def = None
 try:
     with open(platform_path) as platform_file:
@@ -223,6 +190,11 @@ except FileNotFoundError as _:
 
 platform_flow = json.loads(platform_def)
 device = platform_flow['device']
+
+r_env = ResolutionEnv({
+    "shareDir": share_dir_path,
+    "noisyWarnings": noisy_warnings(device)
+})
 
 def subst_env(s: str):
     s = s.replace('${shareDir}', share_dir_path)
@@ -236,85 +208,77 @@ def resolve_path(path: str):
     path = os.path.realpath(path)
     return path
 
-top = flow['synthesize']['top']
-build_dir = resolve_path(flow['build_dir'])
-out_json = os.path.join(build_dir, top + '.json')
-synth_json = os.path.join(build_dir, top + '_io.json')
-sources = \
-    list(map(resolve_path, flow['synthesize']['sources']))
-tcl_scripts = resolve_path(platform_flow['synthesize']['tcl_scripts'])
-synth_tcl = os.path.join(tcl_scripts, 'synth.tcl')
-conv_tcl = os.path.join(tcl_scripts, 'conv.tcl')
-techmap_path = resolve_path(platform_flow['synthesize']['techmap'])
-sdc = None
-if flow.get('sdc'):
-    sdc = resolve_path(flow['sdc'])
-out_eblif = os.path.join(build_dir, top + '.eblif')
+def run_module(path, mode, config):
+    mod_res = None
+    out = None
+    config_json = json.dumps(config)
+    if mode == 'map':
+        cmd = ['python3', path, '--map', '--share', share_dir_path]
+        with Popen(cmd, stdin=PIPE, stdout=PIPE) as p:
+            out = p.communicate(input=config_json.encode())[0]
+        mod_res = p
+    elif mode == 'exec':
+        cmd = ['python3', path, '--share', share_dir_path]
+        with Popen(cmd, stdout=PIPE, stdin=PIPE) as p:
+            p.stdin.write(config_json.encode())
+            p.stdin.flush()
+            while p.poll() is None:
+                print(p.stdout.readline())
+        mod_res = p
+    if mod_res.returncode != 0:
+        print(f'Module `{path}` failed with code {mod_res.returncode}')
+        exit(mod_res.returncode)
+    if out:
+        return json.loads(out.decode())
+    else:
+        return None
 
-platform_pack_vpr_options = {}
-if platform_flow.get('pack') and platform_flow['pack'].get('vpr_options'):
-    opt_dict = platform_flow['pack']['vpr_options']
-    platform_pack_vpr_options = \
-        dict([(k, subst_env(v)) for k, v in opt_dict.items()])
-project_pack_vpr_options = {}
-if flow.get('pack') and flow['pack'].get('vpr_options'):
-    opt_dict = flow['pack']['vpr_options']
-    project_pack_vpr_options = \
-        dict([(k, subst_env(v)) for k, v in opt_dict.items()])
+stages = list(platform_stages(platform_flow, r_env))
 
-platform_pack_vpr_options.update(project_pack_vpr_options)
+if len(stages) == 0:
+    fatal('Platform flow does not define any stage')
 
+stage = None
+if args.stage:
+    stage = find_stage_by_name(args.stage, stages)
+    if not stage:
+        fatal(-1, f'Stage {args.stage} is undefined')
+else:
+    stage = stages[0]
 
+p_flow = flow['platforms'][platform_name]
 
-if not os.path.isdir(build_dir):
-    os.makedirs(build_dir)
+stage_cfg = p_flow['stages'][stage.name]
 
-# -------------------------------------------------------------------------------
+# TODO: Implement filename deduction algorithm
+takes = stage_cfg['takes']
 
-def stage_synth():
-    yosys_tcl_env = \
-        yosys_setup_tcl_env(build_dir=build_dir,
-                            top=flow['synthesize']['top'],
-                            bitstream_device=platform_flow['bitstream_device'],
-                            part=platform_flow['part_name'],
-                            techmap_path=techmap_path,
-                            out_json=out_json,
-                            synth_json=synth_json,
-                            out_eblif=out_eblif,
-                            xdc_files=flow.get('xdc'))
-    
-    print('Synthesis stage:')
+module = os.path.realpath(os.path.join(mypath, r_env.resolve(stage.module)))
+print(f'Opening module `{module}`')
 
-    print(f'    [1/3] Sythesizing sources: {sources}')
-    yosys_synth(synth_tcl, yosys_tcl_env,
-                verilog_files=sources, log=(top + '_synth.log'))
-    print('    [2/3] Splitting in/outs...')
-    sub('python3', split_inouts, '-i', out_json, '-o', synth_json)
-    print('    [3/3] Converting...')
-    yosys_conv(conv_tcl, yosys_tcl_env, synth_json)
+platform_values =  platform_flow.get('values')
+if not platform_values:
+    platform_values = {}
+produces_explicit = p_flow.get('produces')
+if not produces_explicit:
+    produces_explicit = {}
+mod_config = {
+    'takes': stage_cfg['takes'],
+    'produces': produces_explicit,
+    'values': platform_values,
+    'args':stage_cfg['args']
+}
+mod_config['values'].update(stage.values)
+if p_flow.get('values'):
+    mod_config['values'].update(p_flow['values'])
+if stage_cfg.get('values'):
+    mod_config['values'].update(stage_cfg['values'])
 
-def stage_pack():
-    noisy_warnings(device)
+outputs = run_module(module, 'map', mod_config)
 
-    if not os.path.isfile(out_eblif):
-        fatal(-1, f'The prerequisite file `{out_eblif}` does not  exist')
+print(f'Ouputs: {outputs}')
+mod_config['produces'].update(outputs)
 
-    vpr_args = VprArgs(device, out_eblif, sdc_file=sdc,
-                       vpr_options=options_dict_to_list(platform_pack_vpr_options))
+run_module(module, 'exec', mod_config)
 
-    print('Packing stage:')
-    print('    [1/2]: Packing with VPR...')
-    r = vpr('pack', vpr_args, cwd=build_dir)
-    # print(r.decode())
-    print('    [2/2]: Moving log file...')
-    shutil.move(os.path.join(build_dir, 'vpr_stdout.log'),
-                os.path.join(build_dir, 'pack.log'))
-
-
-# -------------------------------------------------------------------------------
-
-if args.synth:
-    stage_synth()
-
-if args.pack:
-    stage_pack()
+print('Symbiflow: DONE')

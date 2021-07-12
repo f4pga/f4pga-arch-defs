@@ -1,6 +1,33 @@
 {
+    "platforms": {
+        "arty_100": {
+            "values": {
+                "top": "top",
+                "build_dir": "build/arty_100"
+            },
+            "stages": {
+                "synthesize": {
+                    "takes": {
+                        "sources": ["counter.v"],
+                        "xdc": ["arty.xdc"]
+                    },
+                    "produces": {
+                        "eblif": "${build_dir}/${top}.eblif",
+                        "fasm_extra": "${build_dir}/${top}_fasm_extra.fasm",
+                        "json": "${build_dir}/${top}.json",
+                        "synth_json": "${build_dir}/${top}_io.json",
+                        "sdc": "${build_dir}/${top}.sdc",
+                        "synth_v": "${build_dir}/${top}_synth.v"
+                    },
+                    "args": {
+                        "top": "${top}"
+                    }
+                }
+            }
+        }
+    },
+
     "platform_name": "arty_100",
-    "xdc": ["arty.xdc"],
     "build_dir": "build/arty_100",
 
     "synthesize": {
@@ -11,5 +38,9 @@
 
     "pack": {
         "vpr_options": {}
+    },
+
+    "place": {
+        "pcf": "path_to_pcf_file"
     }
 }
