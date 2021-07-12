@@ -31,7 +31,12 @@ set +e
 		ninja -j${MAX_CORES} install
 
     	export CTEST_OUTPUT_ON_FAILURE=1
-    	ctest -R binary_toolchain_test_qlf_k4n8* -VV
+	echo
+	echo "========================================"
+	echo "Testing installed toolchain on qlf_k4n8"
+	echo "----------------------------------------"
+	ctest -R binary_toolchain_test_qlf_k4n8* -VV
+	echo "----------------------------------------"
 	fi
 
 	BUILD_RESULT=$?
