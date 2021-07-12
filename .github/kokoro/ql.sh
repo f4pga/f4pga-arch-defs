@@ -35,7 +35,7 @@ set +e
 	echo "========================================"
 	echo "Testing installed toolchain on qlf_k4n8"
 	echo "----------------------------------------"
-	ctest -R "quicklogic_toolchain_test_.*_qlf_k4n8" -VV
+	ctest -j${MAX_CORES} -R "quicklogic_toolchain_test_.*_qlf_k4n8" -VV
 	echo "----------------------------------------"
 	fi
 
