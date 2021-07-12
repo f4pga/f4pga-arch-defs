@@ -37,6 +37,12 @@ set +e
 	echo "----------------------------------------"
 	ctest -j${MAX_CORES} -R "quicklogic_toolchain_test_.*_qlf_k4n8" -VV
 	echo "----------------------------------------"
+	echo
+	echo "========================================"
+	echo "Testing installed toolchain on ql_eos_s3"
+	echo "----------------------------------------"
+	ctest -j${MAX_CORES} -R "quicklogic_toolchain_test_.*_ql-eos-s3" -VV
+	echo "----------------------------------------"
 	fi
 
 	BUILD_RESULT=$?
