@@ -35,7 +35,7 @@ set +e
 	echo "========================================"
 	echo "Testing installed toolchain on qlf_k4n8"
 	echo "----------------------------------------"
-	ctest -R binary_toolchain_test_qlf_k4n8* -VV
+	ctest -R "quicklogic_toolchain_test_.*_qlf_k4n8" -VV
 	echo "----------------------------------------"
 	fi
 
