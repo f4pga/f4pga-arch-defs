@@ -280,19 +280,24 @@ function(DEFINE_QL_PINMAP_CSV_INSTALL_TARGET)
     DESTINATION "share/symbiflow/arch/${DEVICE}_${PACKAGE}/${PART}"
     RENAME "pinmap_${ADD_QUICKLOGIC_BOARD_FABRIC_PACKAGE}.csv")
 
-  get_target_property_required(PINMAP ${BOARD} PINMAP_XML)
-  get_file_location(PINMAP_XML_FILE ${PINMAP_XML})
-  get_filename_component(PINMAP_XML_FILE_REAL ${PINMAP_XML_FILE} REALPATH)
-  get_filename_component(PINMAP_XML_FILE_NAME ${PINMAP_XML_FILE} NAME)
-  append_file_dependency(DEPS ${PINMAP_XML})
-  add_custom_target(
-    "PINMAP_XML_INSTALL_${BOARD}_${DEVICE}_${PACKAGE}_${PINMAP_XML_FILE_NAME}"
-    ALL
-    DEPENDS ${DEPS}
-    )
-  install(FILES ${PINMAP_XML_FILE_REAL}
-    DESTINATION "share/symbiflow/arch/${DEVICE}_${PACKAGE}/${PART}"
-    RENAME "pinmap_${ADD_QUICKLOGIC_BOARD_FABRIC_PACKAGE}.xml")
+
+  if(NOT "${FAMILY}" STREQUAL "pp3")
+	  get_target_property_required(PINMAP ${BOARD} PINMAP_XML)
+	  get_file_location(PINMAP_XML_FILE ${PINMAP_XML})
+	  get_filename_component(PINMAP_XML_FILE_REAL ${PINMAP_XML_FILE} REALPATH)
+	  get_filename_component(PINMAP_XML_FILE_NAME ${PINMAP_XML_FILE} NAME)
+	  append_file_dependency(DEPS ${PINMAP_XML})
+	  add_custom_target(
+	  "PINMAP_XML_INSTALL_${BOARD}_${DEVICE}_${PACKAGE}_${PINMAP_XML_FILE_NAME}"
+	  ALL
+	  DEPENDS ${DEPS}
+	  )
+	  install(FILES ${PINMAP_XML_FILE_REAL}
+	  DESTINATION "share/symbiflow/arch/${DEVICE}_${PACKAGE}/${PART}"
+	  RENAME "pinmap_${ADD_QUICKLOGIC_BOARD_FABRIC_PACKAGE}.xml")
+  else()
+	  message(status ": workaround: skipping PINMAP_XML install for ${FAMILY} ${DEVICE}")
+  endif()
 
   get_target_property(CLKMAP ${BOARD} CLKMAP)
   if(NOT "${CLKMAP}" MATCHES ".*-NOTFOUND")
