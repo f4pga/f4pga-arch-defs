@@ -97,7 +97,6 @@ class SynthModule(Module):
     
     def execute(self, share: str, config: dict, outputs: dict,
                 r_env: ResolutionEnv):
-        print('penis')
         split_inouts = os.path.join(share, 'scripts/split_inouts.py')
         tcl_scripts = r_env.resolve(config['values']['tcl_scripts'])
         synth_tcl = os.path.join(tcl_scripts, 'synth.tcl')
