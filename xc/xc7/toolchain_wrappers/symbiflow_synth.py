@@ -86,40 +86,47 @@ class SynthModule(Module):
         mapping = {}
         for name, value in config['args'].items():
             if name == 'top':
-                mapping['eblif'] = r_env.resolve(value + '.eblif')
-                mapping['fasm_extra'] = r_env.resolve(value + '_fasm_extra.fasm')
-                mapping['json'] = r_env.resolve(value + '.json')
-                mapping['synth_json'] = r_env.resolve(value + '_io.json')
-                mapping['fasm_extra'] = r_env.resolve(value + '.sdc')
-                mapping['synth_v'] = r_env.resolve(value + '_synth.v')
+                mapping['eblif'] = \
+                    os.path.realpath(r_env.resolve(value + '.eblif'))
+                mapping['fasm_extra'] = \
+                    os.path.realpath(r_env.resolve(value + '_fasm_extra.fasm'))
+                mapping['json'] = os.path.realpath(r_env.resolve(value + '.json'))
+                mapping['synth_json'] = \
+                    os.path.realpath(r_env.resolve(value + '_io.json'))
+                mapping['sdc'] = os.path.realpath(r_env.resolve(value + '.sdc'))
+                mapping['synth_v'] = \
+                    os.path.realpath(r_env.resolve(value + '_synth.v'))
+        # TODO: This doesn't work for some weird reaason
         mapping.update(r_env.resolve(config['produces']))
         return mapping
     
     def execute(self, share: str, config: dict, outputs: dict,
                 r_env: ResolutionEnv):
+        print('xd')
         split_inouts = os.path.join(share, 'scripts/split_inouts.py')
         tcl_scripts = r_env.resolve(config['values']['tcl_scripts'])
         synth_tcl = os.path.join(tcl_scripts, 'synth.tcl')
         conv_tcl = os.path.join(tcl_scripts, 'conv.tcl')
 
         sources = list(map(r_env.resolve, config['takes']['sources']))
-        build_dir = r_env.resolve(build_dir=config['values']['build_dir'])
+        build_dir = r_env.resolve(config['values']['build_dir'])
         xdc_files = []
         out_json = outputs['json']
         synth_json = outputs['synth_json']
+        top = r_env.resolve(config['args']['top'])
         if config['takes'].get('xdc'):
             xdc_files = list(map(r_env.resolve, config['takes']['xdc']))
         tcl_env = yosys_setup_tcl_env(share=share, build_dir=build_dir,
-                                      top=config['args']['top'],
+                                      top=top,
                                       bitstream_device=\
                                           config['values']['bitstream_device'],
                                       part=config['values']['part_name'],
                                       techmap_path=config['values']['techmap'],
-                                      sources=sources, xdc_files=xdc_files,
-                                      out_json=out_json,
-                                      out_synth_json=synth_json,
+                                      xdc_files=xdc_files, out_json=out_json,
+                                      synth_json=synth_json,
                                       out_eblif=outputs['eblif'],
                                       out_sdc=outputs['sdc'],
+                                      out_fasm_extra=outputs['fasm_extra'],
                                       out_synth_v=outputs['synth_v'])
                             
         yield f'Sythesizing sources: {sources}...'

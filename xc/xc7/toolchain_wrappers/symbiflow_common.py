@@ -69,10 +69,14 @@ def setup_vpr_arg_parser():
                         type=str, help='Additional arguments for vpr command')
     return parser
 
-# Exwecute subroutine
-def sub(*args):
-    out = subprocess.run(args, capture_output=True)
+# Execute subroutine
+def sub(*args, env=None, cwd=None):
+    # print(args)
+    out = subprocess.run(args, capture_output=True, env=env, cwd=cwd)
     if out.returncode != 0:
+        print(f'[ERROR]: {args[0]} non-zero return code.\n'
+              f'stderr:\n{out.stderr.decode()}\n\n'
+              f'stdout:\n{out.stdout.decode()}\n')
         exit(out.returncode)
     return out.stdout
 
@@ -186,9 +190,9 @@ def do_module(module: Module):
         return
     
     print(f'Stage `{module.stage_name}`:')
-    current_phase = 0
+    current_phase = 1
     for phase_msg in module.execute(share, config, io_map, r_env):
-        print(f'    [{current_phase}/P{module.no_of_phases}]: {phase_msg}')
+        print(f'    [{current_phase}/{module.no_of_phases}]: {phase_msg}')
         current_phase += 1
     print(f'Stage `{module.stage_name}` complete!')
 

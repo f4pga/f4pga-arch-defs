@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+import sys
 import os
 import json
 import argparse
@@ -196,18 +197,6 @@ r_env = ResolutionEnv({
     "noisyWarnings": noisy_warnings(device)
 })
 
-def subst_env(s: str):
-    s = s.replace('${shareDir}', share_dir_path)
-    s = s.replace('${noisyWarnings}', noisy_warnings(device))
-    return s
-
-def resolve_path(path: str):
-    path = subst_env(path)
-    path = path.replace('//', '/')
-    path = path.replace('\\\\', '\\')
-    path = os.path.realpath(path)
-    return path
-
 def run_module(path, mode, config):
     mod_res = None
     out = None
@@ -218,12 +207,11 @@ def run_module(path, mode, config):
             out = p.communicate(input=config_json.encode())[0]
         mod_res = p
     elif mode == 'exec':
+        # XXX: THIS IS SOOOO UGLY
         cmd = ['python3', path, '--share', share_dir_path]
-        with Popen(cmd, stdout=PIPE, stdin=PIPE) as p:
+        with Popen(cmd, stdout=sys.stdout, stdin=PIPE, bufsize=1) as p:
             p.stdin.write(config_json.encode())
             p.stdin.flush()
-            while p.poll() is None:
-                print(p.stdout.readline())
         mod_res = p
     if mod_res.returncode != 0:
         print(f'Module `{path}` failed with code {mod_res.returncode}')
@@ -254,12 +242,11 @@ stage_cfg = p_flow['stages'][stage.name]
 takes = stage_cfg['takes']
 
 module = os.path.realpath(os.path.join(mypath, r_env.resolve(stage.module)))
-print(f'Opening module `{module}`')
 
 platform_values =  platform_flow.get('values')
 if not platform_values:
     platform_values = {}
-produces_explicit = p_flow.get('produces')
+produces_explicit = stage_cfg.get('produces')
 if not produces_explicit:
     produces_explicit = {}
 mod_config = {
@@ -276,7 +263,6 @@ if stage_cfg.get('values'):
 
 outputs = run_module(module, 'map', mod_config)
 
-print(f'Ouputs: {outputs}')
 mod_config['produces'].update(outputs)
 
 run_module(module, 'exec', mod_config)
