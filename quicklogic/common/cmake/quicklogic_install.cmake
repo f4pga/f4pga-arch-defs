@@ -162,6 +162,13 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
   install(FILES ${DEFINE_QL_TOOLCHAIN_TARGET_CONV_SCRIPT} ${DEFINE_QL_TOOLCHAIN_TARGET_SYNTH_SCRIPT}
           DESTINATION share/symbiflow/scripts/${FAMILY})
 
+  if("${FAMILY}" STREQUAL "pp3")
+	  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/yosys/pack.tcl
+		  DESTINATION share/symbiflow/scripts/${FAMILY})
+	  message(STATUS "Installing pack.tcl for ${FAMILY}")
+  endif()
+
+
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/create_ioplace.py
           DESTINATION bin/python
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
