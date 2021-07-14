@@ -10,16 +10,12 @@ import re
 from copy import copy
 from sys import stdin
 from subprocess import Popen, PIPE, CalledProcessError
-from symbiflow_common import ResolutionEnv
+from symbiflow_common import ResolutionEnv, noisy_warnings, fatal
 
 mypath = os.path.realpath(os.sys.argv[0])
 mypath = os.path.dirname(mypath)
 
 share_dir_path = os.path.realpath(os.path.join(mypath, '../share/symbiflow'))
-
-def fatal(code, message):
-    print(f'[FATAL ERROR]: {message}')
-    exit(code)
 
 def setup_argparser():
     parser = argparse.ArgumentParser(description="Execute SymbiFlow flow")
@@ -39,20 +35,6 @@ def setup_argparser():
                              'symbiflow is unable to deduce the flow that lead to '
                              'dependencies required by the requested stage')
     return parser
-
-# Execute subroutine
-def sub(*args, env=None, cwd=None):
-    # print(args)
-    out = subprocess.run(args, capture_output=True, env=env, cwd=cwd)
-    if out.returncode != 0:
-        print(f'[ERROR]: {args[0]} non-zero return code.\n'
-              f'stderr:\n{out.stderr.decode()}\n\n'
-              f'stdout:\n{out.stdout.decode()}\n')
-        exit(out.returncode)
-    return out.stdout
-
-def noisy_warnings(device):
-    return 'noisy_warnings-' + device + '_pack.log'
 
 def options_dict_to_list(opt_dict: dict):
     opts = []
@@ -234,7 +216,7 @@ if args.stage:
 else:
     stage = stages[0]
 
-p_flow = flow['platforms'][platform_name]
+p_flow = flow[platform_name]
 
 stage_cfg = p_flow['stages'][stage.name]
 
