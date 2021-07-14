@@ -209,9 +209,13 @@ function(DEFINE_QL_DEVICE_CELLS_INSTALL_TARGET)
           DESTINATION "share/symbiflow/arch/${DEVICE}_${PACKAGE}"
           RENAME "arch_${DEVICE}_${PACKAGE}.xml")
 
-  # install lib files
-  install(DIRECTORY ${QLF_FPGA_DATABASE_DIR}/${FAMILY}/lib/
-          DESTINATION "share/symbiflow/arch/${DEVICE}_${PACKAGE}/lib")
+  if(NOT "${DEVICE}" STREQUAL "ql-pp3e" AND NOT "${DEVICE}" STREQUAL "ql-eos-s3")
+	  # install lib files
+	  install(DIRECTORY ${QLF_FPGA_DATABASE_DIR}/${FAMILY}/lib/
+		  DESTINATION "share/symbiflow/arch/${DEVICE}_${PACKAGE}/lib")
+  else()
+	  message(status ": workaround: skipping lib install for ${DEVICE} device")
+  endif()
 
   # Install device-specific cells sim and cells map files
   get_target_property(CELLS_SIM ${DEVICE_TYPE} CELLS_SIM)
