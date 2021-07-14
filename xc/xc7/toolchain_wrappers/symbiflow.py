@@ -231,11 +231,14 @@ if not platform_values:
 produces_explicit = stage_cfg.get('produces')
 if not produces_explicit:
     produces_explicit = {}
+mod_args = stage_cfg.get('args')
+if not mod_args:
+    mod_args = {}
 mod_config = {
     'takes': stage_cfg['takes'],
     'produces': produces_explicit,
     'values': platform_values,
-    'args': stage_cfg['args'],
+    'args': mod_args,
     'platform': platform_name
 }
 mod_config['values'].update(stage.values)

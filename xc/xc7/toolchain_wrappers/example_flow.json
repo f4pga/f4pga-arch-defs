@@ -21,6 +21,12 @@
                 "args": {
                     "top": "${top}"
                 }
+            },
+            "pack": {
+                "takes": {
+                    "eblif": "${build_dir}/${top}.eblif",
+                    "sdc": "${build_dir}/${top}.sdc"
+                }
             }
         }
     }
