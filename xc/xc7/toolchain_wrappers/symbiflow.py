@@ -235,7 +235,8 @@ mod_config = {
     'takes': stage_cfg['takes'],
     'produces': produces_explicit,
     'values': platform_values,
-    'args':stage_cfg['args']
+    'args': stage_cfg['args'],
+    'platform': platform_name
 }
 mod_config['values'].update(stage.values)
 if p_flow.get('values'):

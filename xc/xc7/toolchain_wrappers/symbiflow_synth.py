@@ -4,16 +4,11 @@
 
 # ----------------------------------------------------------------------------- #
 
-import sys
 import os
 import shutil
-import symbiflow_common
 from symbiflow_common import *
 
 # ----------------------------------------------------------------------------- #
-
-mypath = os.path.realpath(sys.argv[0])
-mypath = os.path.dirname(mypath)
 
 # Setup environmental variables for YOSYS TCL scripts
 def yosys_setup_tcl_env(share, build_dir, top, bitstream_device, part,
@@ -96,7 +91,6 @@ class SynthModule(Module):
                 mapping['sdc'] = os.path.realpath(r_env.resolve(value + '.sdc'))
                 mapping['synth_v'] = \
                     os.path.realpath(r_env.resolve(value + '_synth.v'))
-        # TODO: This doesn't work for some weird reaason
         mapping.update(r_env.resolve(config['produces']))
         return mapping
     

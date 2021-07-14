@@ -15,41 +15,40 @@ class VprArgs:
     place_delay: str
     device_name: str
     eblif: str
-    vpr_options: str
     optional: list
 
-    def __init__(self, mypath, args):
-        self.arch_dir = \
-            os.path.join(mypath, '../share/symbiflow/arch/', args.device)
-        self.arch_dir = os.path.realpath(self.arch_dir)
-        self.arch_def = os.path.join(self.arch_dir, 'arch.timing.xml')
+    def __init__(self, share, device, eblif, vpr_options=[], sdc_file=None):
+        self.arch_dir = os.path.join(share, 'arch')
+        self.arch_def = os.path.join(self.arch_dir, device, 'arch.timing.xml')
         self.lookahead = \
-            os.path.join(self.arch_dir,
-                         'rr_graph_' + args.device + '.lookahead.bin')
+            os.path.join(self.arch_dir, device,
+                         'rr_graph_' + device + '.lookahead.bin')
         self.rr_graph = \
-            os.path.join(self.arch_dir,
-                         'rr_graph_' + args.device + '.rr_graph.real.bin')
+            os.path.join(self.arch_dir, device,
+                         'rr_graph_' + device + '.rr_graph.real.bin')
         self.rr_graph_xml = \
-            os.path.join(self.arch_dir,
-                         'rr_graph_' + args.device + '.rr_graph.real.xml')
+            os.path.join(self.arch_dir, device,
+                         'rr_graph_' + device + '.rr_graph.real.xml')
         self.place_delay = \
-            os.path.join(self.arch_dir,
-                         'rr_graph_' + args.device + '.place_delay.bin')
-        self.device_name = args.device.replace('_', '-')
-        self.eblif = args.eblif
-        self.vpr_options = args.vpr_options
-        self.optional = []
-        if args.sdc:
-            self.optional += ['--sdc_file', args.sdc]
+            os.path.join(self.arch_dir, device,
+                         'rr_graph_' + device + '.place_delay.bin')
+        self.device_name = device.replace('_', '-')
+        self.eblif = eblif
+        self.optional = vpr_options
+        if sdc_file:
+            self.optional += ['--sdc_file', sdc_file]
     
-    def export(self):
-        os.environ['ARCH_DIR'] = self.arch_dir
-        os.environ['ARCH_DEF'] = self.arch_def
-        os.environ['LOOKAHEAD'] = self.lookahead
-        os.environ['RR_GRAPH'] = self.rr_graph
-        os.environ['RR_GRAPH_XML'] = self.rr_graph_xml
-        os.environ['PLACE_DELAY'] = self.place_delay
-        os.environ['DEVICE_NAME'] = self.device_name
+    def env(self):
+        return {
+            'ARCH_DIR': self.arch_dir,
+            'ARCH_DEF': self.arch_def,
+            'LOOKAHEAD': self.lookahead,
+            'RR_GRAPH': self.rr_graph,
+            'RR_GRAPH_XML': self.rr_graph_xml,
+            'PLACE_DELAY': self.place_delay,
+            'DEVICE_NAME': self.device_name
+        }
+
 
 def setup_vpr_arg_parser():
     parser = argparse.ArgumentParser(description="Parse flags")
@@ -81,16 +80,28 @@ def sub(*args, env=None, cwd=None):
     return out.stdout
 
 # Execute `vpr`
-def vpr(vprargs: VprArgs):
-    return sub('vpr',
-               vprargs.arch_def,
-               vprargs.eblif,
-               '--device', vprargs.device_name,
-               vprargs.vpr_options,
-               '--read_rr_graph', vprargs.rr_graph,
-               '--read_router_lookahead', vprargs.lookahead,
-               'read_placement_delay_lookup', vprargs.place_delay,
-               *vprargs.optional)
+def vpr(mode: str, vprargs: VprArgs, cwd=None):
+    modeargs = []
+    if mode == "pack":
+        modeargs = ['--pack']
+
+    return sub(*(['vpr',
+                  vprargs.arch_def,
+                  vprargs.eblif,
+                  '--device', vprargs.device_name,
+                  '--read_rr_graph', vprargs.rr_graph,
+                  '--read_router_lookahead', vprargs.lookahead,
+                  '--read_placement_delay_lookup', vprargs.place_delay] +
+                  modeargs + vprargs.optional),
+               cwd=cwd)
+
+def options_dict_to_list(opt_dict: dict):
+    opts = []
+    for key, val in opt_dict.items():
+        opts.append(key)
+        if not(type(val) is list and val == []):
+            opts.append(str(val))
+    return opts
 
 # Emit some noisy warnings
 def noisy_warnings(device):
