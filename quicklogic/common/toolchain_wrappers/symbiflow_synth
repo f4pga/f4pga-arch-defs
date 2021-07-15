@@ -129,8 +129,18 @@ if [ -d "${DEVICE_PATH}/cells" ]; then
 	export DEVICE_CELLS_SIM=`find ${DEVICE_PATH}/cells -name "*_sim.v"`
 	export DEVICE_CELLS_MAP=`find ${DEVICE_PATH}/cells -name "*_map.v"`
 else
-	export DEVICE_CELLS_SIM=
-	export DEVICE_CELLS_MAP=
+	# pp3 family has different directory naming scheme
+	# the are named as ${DEVICE}_${PACKAGE}
+	# ${PACKAGE} is not known because it is not passed down in add_binary_toolchain_test
+	DEVICE_PATH=$(find $(realpath ${MYPATH}/../share/symbiflow/arch/) -type d -name "${DEVICE}*")
+	export PINMAP_FILE=${DEVICE_PATH}/${PINMAPCSV}
+	if [ -d "${DEVICE_PATH}/cells" ]; then
+		export DEVICE_CELLS_SIM=`find ${DEVICE_PATH}/cells -name "*_sim.v"`
+		export DEVICE_CELLS_MAP=`find ${DEVICE_PATH}/cells -name "*_map.v"`
+	else
+		export DEVICE_CELLS_SIM=
+		export DEVICE_CELLS_MAP=
+	fi
 fi
 
 YOSYS_COMMANDS=`echo ${EXTRA_ARGS[*]} | python3 ${CONVERT_OPTS}`
