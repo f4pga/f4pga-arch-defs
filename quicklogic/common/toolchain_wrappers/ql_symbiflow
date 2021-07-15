@@ -172,6 +172,10 @@ case ${DEVICE} in
         DEVICE="${DEVICE}_${DEVICE}"
 		FAMILY="qlf_k4n8"
 		;;
+	ql-eos-s3)
+        DEVICE="${DEVICE}"
+		FAMILY="pp3"
+		;;
 	*)
 		echo "Unsupported device '${DEVICE}'"
 		exit 1

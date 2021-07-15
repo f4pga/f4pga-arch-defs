@@ -22,3 +22,5 @@ add_subdirectory(btn_counter)
 # Test designs that use clock
 add_subdirectory(counter)
 
+add_subdirectory(features)
+

@@ -4,7 +4,7 @@ SCRIPT_SRC="$(realpath ${BASH_SOURCE[0]})"
 SCRIPT_DIR="$(dirname "${SCRIPT_SRC}")"
 INSTALL_DIR="$(pwd)/github/${KOKORO_DIR}/install"
 
-export CMAKE_FLAGS="-GNinja -DINSTALL_FAMILIES=qlf_k4n8 -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}"
+export CMAKE_FLAGS="-GNinja -DINSTALL_FAMILIES=qlf_k4n8,pp3 -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}"
 export BUILD_TOOL=ninja
 source ${SCRIPT_DIR}/common.sh
 
@@ -23,18 +23,30 @@ set +e
 	export VPR_NUM_WORKERS=${CORES}
 	set +e
 
+	BUILD_RESULT=0
+
 	# Run tests
-	ninja -j${MAX_CORES} all_quicklogic_tests
+	ninja -j${MAX_CORES} all_quicklogic_tests || BUILD_RESULT=$?
 
 	# If successful install the toolchain and test it
 	if [ $? -eq 0 ]; then
-		ninja -j${MAX_CORES} install
+		ninja -j${MAX_CORES} install || BUILD_RESULT=$?
 
-    	export CTEST_OUTPUT_ON_FAILURE=1
-    	ctest -R binary_toolchain_test_qlf_k4n8* -VV
+		export CTEST_OUTPUT_ON_FAILURE=1
+		echo
+		echo "========================================"
+		echo "Testing installed toolchain on qlf_k4n8"
+		echo "----------------------------------------"
+		ctest -j${MAX_CORES} -R "quicklogic_toolchain_test_.*_qlf_k4n8" -VV || BUILD_RESULT=$?
+		echo "----------------------------------------"
+		echo
+		echo "========================================"
+		echo "Testing installed toolchain on ql_eos_s3"
+		echo "----------------------------------------"
+		ctest -j${MAX_CORES} -R "quicklogic_toolchain_test_.*_ql-eos-s3" -VV || BUILD_RESULT=$?
+		echo "----------------------------------------"
 	fi
 
-	BUILD_RESULT=$?
 	popd
 	exit ${BUILD_RESULT}
 )

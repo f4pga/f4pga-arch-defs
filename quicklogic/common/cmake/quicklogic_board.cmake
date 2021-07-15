@@ -96,18 +96,13 @@ function(ADD_QUICKLOGIC_BOARD)
       CLKMAP ${CMAKE_CURRENT_SOURCE_DIR}/${CLKMAP_CSV}
     )
 
-    # FIXME: Disable installation of PP3 targets
-    if(NOT "${FAMILY}" STREQUAL "pp3")
-        define_ql_pinmap_csv_install_target(
-          PART ${PART}
-          BOARD ${BOARD}
-          DEVICE_TYPE ${DEVICE_TYPE}
-          DEVICE ${DEVICE}
-          PACKAGE ${PACKAGE}
-          )
-    else()
-        message(WARNING "FIXME: Skipping installation of ${FAMILY} '${BOARD}' board")
-    endif()
+    define_ql_pinmap_csv_install_target(
+      PART ${PART}
+      BOARD ${BOARD}
+      DEVICE_TYPE ${DEVICE_TYPE}
+      DEVICE ${DEVICE}
+      PACKAGE ${PACKAGE}
+    )
 
   # For AP3 architecture generate pinmap and clkmap CSV files using the techfile
   # and VPR grid map which is generated along rr graph patching

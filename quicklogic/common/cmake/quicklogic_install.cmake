@@ -162,6 +162,13 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
   install(FILES ${DEFINE_QL_TOOLCHAIN_TARGET_CONV_SCRIPT} ${DEFINE_QL_TOOLCHAIN_TARGET_SYNTH_SCRIPT}
           DESTINATION share/symbiflow/scripts/${FAMILY})
 
+  if("${FAMILY}" STREQUAL "pp3")
+	  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/yosys/pack.tcl
+		  DESTINATION share/symbiflow/scripts/${FAMILY})
+	  message(STATUS "Installing pack.tcl for ${FAMILY}")
+  endif()
+
+
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/create_ioplace.py
           DESTINATION bin/python
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
@@ -209,9 +216,13 @@ function(DEFINE_QL_DEVICE_CELLS_INSTALL_TARGET)
           DESTINATION "share/symbiflow/arch/${DEVICE}_${PACKAGE}"
           RENAME "arch_${DEVICE}_${PACKAGE}.xml")
 
-  # install lib files
-  install(DIRECTORY ${QLF_FPGA_DATABASE_DIR}/${FAMILY}/lib/
-          DESTINATION "share/symbiflow/arch/${DEVICE}_${PACKAGE}/lib")
+  if(NOT "${DEVICE}" STREQUAL "ql-pp3e" AND NOT "${DEVICE}" STREQUAL "ql-eos-s3")
+	  # install lib files
+	  install(DIRECTORY ${QLF_FPGA_DATABASE_DIR}/${FAMILY}/lib/
+		  DESTINATION "share/symbiflow/arch/${DEVICE}_${PACKAGE}/lib")
+  else()
+	  message(status ": workaround: skipping lib install for ${DEVICE} device")
+  endif()
 
   # Install device-specific cells sim and cells map files
   get_target_property(CELLS_SIM ${DEVICE_TYPE} CELLS_SIM)
@@ -280,19 +291,24 @@ function(DEFINE_QL_PINMAP_CSV_INSTALL_TARGET)
     DESTINATION "share/symbiflow/arch/${DEVICE}_${PACKAGE}/${PART}"
     RENAME "pinmap_${ADD_QUICKLOGIC_BOARD_FABRIC_PACKAGE}.csv")
 
-  get_target_property_required(PINMAP ${BOARD} PINMAP_XML)
-  get_file_location(PINMAP_XML_FILE ${PINMAP_XML})
-  get_filename_component(PINMAP_XML_FILE_REAL ${PINMAP_XML_FILE} REALPATH)
-  get_filename_component(PINMAP_XML_FILE_NAME ${PINMAP_XML_FILE} NAME)
-  append_file_dependency(DEPS ${PINMAP_XML})
-  add_custom_target(
-    "PINMAP_XML_INSTALL_${BOARD}_${DEVICE}_${PACKAGE}_${PINMAP_XML_FILE_NAME}"
-    ALL
-    DEPENDS ${DEPS}
-    )
-  install(FILES ${PINMAP_XML_FILE_REAL}
-    DESTINATION "share/symbiflow/arch/${DEVICE}_${PACKAGE}/${PART}"
-    RENAME "pinmap_${ADD_QUICKLOGIC_BOARD_FABRIC_PACKAGE}.xml")
+
+  if(NOT "${FAMILY}" STREQUAL "pp3")
+	  get_target_property_required(PINMAP ${BOARD} PINMAP_XML)
+	  get_file_location(PINMAP_XML_FILE ${PINMAP_XML})
+	  get_filename_component(PINMAP_XML_FILE_REAL ${PINMAP_XML_FILE} REALPATH)
+	  get_filename_component(PINMAP_XML_FILE_NAME ${PINMAP_XML_FILE} NAME)
+	  append_file_dependency(DEPS ${PINMAP_XML})
+	  add_custom_target(
+	  "PINMAP_XML_INSTALL_${BOARD}_${DEVICE}_${PACKAGE}_${PINMAP_XML_FILE_NAME}"
+	  ALL
+	  DEPENDS ${DEPS}
+	  )
+	  install(FILES ${PINMAP_XML_FILE_REAL}
+	  DESTINATION "share/symbiflow/arch/${DEVICE}_${PACKAGE}/${PART}"
+	  RENAME "pinmap_${ADD_QUICKLOGIC_BOARD_FABRIC_PACKAGE}.xml")
+  else()
+	  message(status ": workaround: skipping PINMAP_XML install for ${FAMILY} ${DEVICE}")
+  endif()
 
   get_target_property(CLKMAP ${BOARD} CLKMAP)
   if(NOT "${CLKMAP}" MATCHES ".*-NOTFOUND")
