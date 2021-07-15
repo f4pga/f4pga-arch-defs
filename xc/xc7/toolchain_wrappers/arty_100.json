@@ -90,7 +90,7 @@
                 "synth_json->",
                 "sdc->",
                 "synth_v->",
-                "log?"
+                "synth_log?"
             ],
             "args": [
                 "top"
@@ -106,7 +106,7 @@
                 "net->",
                 "util_rpt->",
                 "timing_rpt->",
-                "log?"
+                "pack_log?"
             ],
             "args": [
                 "vpr_options_overload"
