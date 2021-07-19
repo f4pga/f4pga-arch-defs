@@ -200,12 +200,12 @@ def do_module(module: Module):
         print(json_map)
         return
     
-    print(f'Stage `{module.stage_name}`:')
+    print(f'Executing module `{module.stage_name}`:')
     current_phase = 1
     for phase_msg in module.execute(share, config, io_map, r_env):
         print(f'    [{current_phase}/{module.no_of_phases}]: {phase_msg}')
         current_phase += 1
-    print(f'Stage `{module.stage_name}` complete!')
+    print(f'Module `{module.stage_name}` has finished its work!')
 
 """ def verify_stage_input(input):
     if not input.takes:

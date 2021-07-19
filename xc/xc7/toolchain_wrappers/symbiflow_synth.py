@@ -81,6 +81,7 @@ class SynthModule(Module):
         mapping = {}
         for name, value in config['args'].items():
             if name == 'top':
+                value = r_env.resolve(value)
                 mapping['eblif'] = \
                     os.path.realpath(r_env.resolve(value + '.eblif'))
                 mapping['fasm_extra'] = \
@@ -103,6 +104,7 @@ class SynthModule(Module):
 
         sources = list(map(r_env.resolve, config['takes']['sources']))
         build_dir = r_env.resolve(config['values']['build_dir'])
+        techmap_path = r_env.resolve(config['values']['techmap'])
         xdc_files = []
         out_json = outputs['json']
         synth_json = outputs['synth_json']
@@ -114,7 +116,7 @@ class SynthModule(Module):
                                       bitstream_device=\
                                           config['values']['bitstream_device'],
                                       part=config['values']['part_name'],
-                                      techmap_path=config['values']['techmap'],
+                                      techmap_path=techmap_path,
                                       xdc_files=xdc_files, out_json=out_json,
                                       synth_json=synth_json,
                                       out_eblif=outputs['eblif'],
@@ -132,7 +134,7 @@ class SynthModule(Module):
         yosys_conv(conv_tcl, tcl_env, synth_json)
     
     def __init__(self):
-        self.stage_name = 'Synthesis'
+        self.stage_name = 'synthesize'
         self.no_of_phases = 3
 
 

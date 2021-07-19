@@ -10,18 +10,24 @@ from symbiflow_common import *
 
 # ----------------------------------------------------------------------------- #
 
+DEFAULT_TIMING_RPT = 'pre_pack.report_timing.setup.rpt'
+DEFAULT_UTIL_RPT = 'packing_pin_util.rpt'
+
 class PackModule(Module):
     def map_io(self, config, r_env):
         mapping = {}
         for name, value in config['takes'].items():
             if name == 'eblif':
                 p = value
+                build_dir = os.path.dirname(p)
                 m = re.match('(.*)\\.[^.]*$', value)
                 if m:
                     p = m.groups()[0] 
                 mapping['net'] = p + '.net'
-                mapping['util_rpt'] = p + '_util.rpt'
-                mapping['timing_rpt'] = p + '_timing.rpt'
+                mapping['util_rpt'] = \
+                    os.path.join(build_dir, DEFAULT_UTIL_RPT)
+                mapping['timing_rpt'] = \
+                    os.path.join(build_dir, DEFAULT_TIMING_RPT)
         mapping.update(r_env.resolve(config['produces']))
         return mapping
     
@@ -46,15 +52,21 @@ class PackModule(Module):
         log = config['produces'].get('log')
         og_log = os.path.join(build_dir, 'vpr_stdout.log')
 
+        yield 'Moving/deleting files...'
         if log:
-            yield 'Moving log file...'
             shutil.move(og_log, log)
         else:
-            yield 'Deleting log file...'
             os.remove(og_log)
+        
+        timing_rpt = config.get('timing_rpt')
+        if timing_rpt:
+            shutil.move(os.path.join(build_dir, DEFAULT_TIMING_RPT), timing_rpt)
+        util_rpt = config.get('utiling_rpt')
+        if timing_rpt:
+            shutil.move(os.path.join(build_dir, DEFAULT_UTIL_RPT), util_rpt)
     
     def __init__(self):
-        self.stage_name = 'Packing'
+        self.stage_name = 'pack'
         self.no_of_phases = 2
 
 do_module(PackModule())
