@@ -15,6 +15,7 @@ quicklogic_define_device_type(
     LOGIC
     CLOCK BIDIR
     GMUX
+    ASSPL ASSPR
   RAM_TIMING_SDF RAM_COM_BC_120V
   RAM_PBTYPE_COPY ram2.pb_type.xml
 )

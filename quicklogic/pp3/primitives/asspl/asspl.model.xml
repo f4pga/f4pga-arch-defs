@@ -1,0 +1,90 @@
+<models xmlns:xi="http://www.w3.org/2001/XInclude">
+  <model name="ASSPL">
+    <input_ports>
+      <port name="SEL_18_top"/>
+      <port name="SEL_18_bottom"/>
+      <port name="SEL_18_left"/>
+      <port name="SEL_18_right"/>
+      <port name="SPI_CLK" is_clock="1"/>
+      <port name="default_SPI_IO_mux"/>
+      <port name="SPI_SSn"/>
+      <port name="SPI_MOSI"/>
+      <port name="RAM8K_P1_mux"/>
+      <port name="RAM8K_RM_af"/>
+      <port name="RAM8K_RME_af"/>
+      <port name="RAM8K_P0_CLK" is_clock="1"/>
+      <port name="af_burnin_mode"/>
+      <port name="osc_en"/>
+      <port name="osc_fsel"/>
+      <port name="osc_sel"/>
+      <port name="RAM8K_P0_WR_DATA"/>
+      <port name="RAM8K_P0_WR_BE"/>
+      <port name="af_spi_cpha"/>
+      <port name="af_spi_cpol"/>
+      <port name="af_spi_lsbf"/>
+      <port name="RAM8K_P0_WR_EN"/>
+      <port name="RAM8K_TEST1_af"/>
+      <port name="RAM8K_P0_ADDR "/>
+      <port name="RAM8K_P1_CLK" is_clock="1"/>
+      <port name="RAM8K_P1_ADDR"/>
+      <port name="RAM8K_P1_RD_EN"/>
+      <port name="RESET_n"/>
+      <port name="RAM8K_fifo_en"/>
+      <port name="int_i"/>
+      <port name="reg_clk_int" is_clock="1"/>
+      <port name="reg_wr_en_int"/>
+      <port name="reg_rd_en_int"/>
+      <port name="reg_wr_data_int"/>
+      <port name="drive_io_en_4"/>
+      <port name="drive_io_en_5"/>
+      <port name="reg_addr_int"/>
+      <port name="A2F_Status"/>
+      <port name="af_fpga_int_en"/>
+      <port name="af_dev_id"/>
+      <port name="A2F_GP_IN"/>
+      <port name="A2F_RD_DATA"/>
+      <port name="A2F_ACK"/>
+      <port name="Amult0"/>
+      <port name="drive_io_en_2"/>
+      <port name="drive_io_en_3"/>
+      <port name="drive_io_en_0"/>
+      <port name="drive_io_en_1"/>
+      <port name="Bmult0"/>
+      <port name="RAM0_CLK" is_clock="1"/>
+      <port name="Valid_mult0"/>
+      <port name="af_opt_0"/>
+      <port name="af_opt_1"/>
+      <port name="RAM0_RM_af"/>
+      <port name="RAM0_RME_af"/>
+      <port name="af_plat_id"/>
+      <port name="RAM0_WR_DATA"/>
+      <port name="RAM0_WR_BE"/>
+      <port name="RAM0_RD_EN"/>
+      <port name="RAM0_WR_EN"/>
+      <port name="RAM0_TEST1_af"/>
+      <port name="RAM0_ADDR"/>
+    </input_ports>
+    <output_ports>
+      <port name="SPI_MISO"/>
+      <port name="SPI_MISOe"/>
+      <port name="RAM8K_P1_RD_DATA"/>
+      <port name="SYSCLK_x2"/>
+      <port name="SYSCLK"/>
+      <port name="fast_clk_out"/>
+      <port name="RAM8K_fifo_almost_full"/>
+      <port name="RAM8K_fifo_full_flag"/>
+      <port name="RAM8K_fifo_almost_empty"/>
+      <port name="RAM8K_fifo_empty_flag"/>
+      <port name="int_o"/>
+      <port name="reg_rd_data_int"/>
+      <port name="A2F_Control"/>
+      <port name="A2F_GP_OUT"/>
+      <port name="A2F_REQ"/>
+      <port name="A2F_RWn"/>
+      <port name="A2F_WR_DATA"/>
+      <port name="A2F_ADDR"/>
+      <port name="Cmult0"/>
+      <port name="RAM0_RD_DATA"/>
+    </output_ports>
+  </model>
+</models>

@@ -1,0 +1,71 @@
+<models xmlns:xi="http://www.w3.org/2001/XInclude">
+  <model name="ASSPR">
+    <input_ports>
+      <port name="RAM1_CLK" is_clock="1"/>
+      <port name="RAM1_RM_af"/>
+      <port name="RAM1_RME_af"/>
+      <port name="RAM1_WR_DATA"/>
+      <port name="RAM1_WR_BE"/>
+      <port name="RAM1_RD_EN"/>
+      <port name="RAM1_WR_EN"/>
+      <port name="RAM1_TEST1_af"/>
+      <port name="RAM1_ADDR"/>
+      <port name="Amult1"/>
+      <port name="Bmult1"/>
+      <port name="wb_rst"/>
+      <port name="Valid_mult1"/>
+      <port name="wb_adr"/>
+      <port name="arst"/>
+      <port name="wb_dat_i"/>
+      <port name="wb_we"/>
+      <port name="wb_stb"/>
+      <port name="wb_cyc"/>
+      <port name="rxack_stick_en_i"/>
+      <port name="rxack_clr_i"/>
+      <port name="al_stick_en_i"/>
+      <port name="RAM2_P0_CLK" is_clock="1"/>
+      <port name="al_clr_i"/>
+      <port name="RAM3_P0_WR_EN"/>
+      <port name="RAM2_RM_af"/>
+      <port name="RAM2_RME_af"/>
+      <port name="RAM2_P0_WR_DATA"/>
+      <port name="RAM2_P0_WR_BE"/>
+      <port name="RAM2_P0_WR_EN"/>
+      <port name="RAM2_TEST1_af"/>
+      <port name="RAM2_P0_ADDR"/>
+      <port name="wb_clk" is_clock="1"/>
+      <port name="RAM2_P1_ADDR"/>
+      <port name="RAM2_P1_CLK" is_clock="1"/>
+      <port name="RAM2_P1_RD_EN"/>
+      <port name="RAM3_P0_CLK" is_clock="1"/>
+      <port name="RAM3_RM_af"/>
+      <port name="RAM3_RME_af"/>
+      <port name="RAM3_P0_WR_DATA"/>
+      <port name="RAM3_TEST1_af"/>
+      <port name="RAM3_P0_ADDR"/>
+      <port name="RAM3_P1_CLK" is_clock="1"/>
+      <port name="RAM3_P1_ADDR"/>
+      <port name="RAM3_P1_RD_EN"/>
+      <port name="SDA_i"/>
+      <port name="SCL_i"/>
+    </input_ports>
+    <output_ports>
+      <port name="RAM1_RD_DATA"/>
+      <port name="Cmult1"/>
+      <port name="wb_dat_o"/>
+      <port name="wb_ack"/>
+      <port name="wb_inta"/>
+      <port name="rxack_o"/>
+      <port name="al_o"/>
+      <port name="tip_o"/>
+      <port name="i2c_busy_o"/>
+      <port name="RAM2_P1_RD_DATA"/>
+      <port name="RAM3_P1_RD_DATA"/>
+      <port name="SDA_oen"/>
+      <port name="SDA_o"/>
+      <port name="SCL_oen"/>
+      <port name="SCL_o"/>
+      <port name="DrivingI2cBusOut"/>
+    </output_ports>
+  </model>
+</models>

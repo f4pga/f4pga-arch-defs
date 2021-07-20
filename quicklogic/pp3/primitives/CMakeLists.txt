@@ -9,3 +9,6 @@ add_subdirectory(logic)
 add_subdirectory(mult)
 add_subdirectory(sdiomux)
 add_subdirectory(vcc)
+add_subdirectory(asspl)
+add_subdirectory(asspr)
+
