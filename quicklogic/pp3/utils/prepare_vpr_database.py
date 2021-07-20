@@ -192,6 +192,8 @@ def strip_cells(tile, cell_types, tile_types, cells_library):
 
     return new_tile
 
+# =============================================================================
+
 
 def process_tilegrid(
         tile_types,
@@ -338,9 +340,9 @@ def process_tilegrid(
                     type=new_type.type, name=tile.name, cells=cells
                 )
 
-# Mults and RAMs occupy multiple cells
-# We'll create a synthetic tile with a single cell for each
-# RAM and MULT block
+        # Mults and RAMs occupy multiple cells
+        # We'll create a synthetic tile with a single cell for each
+        # RAM and MULT block
         if "RAM" in tile_type.cells or "MULT" in tile_type.cells:
             for cell in tile.cells:
                 # Check if the current location is not taken
@@ -483,6 +485,25 @@ def process_tilegrid(
         # SDIOMUX IO cells
         tile_type = tile_types["ASSP"]
         tile_type.pins = [p for p in tile_type.pins if "FBIO_" not in p.name]
+
+    # Find ASSPL and ASSPR tiles (PP3E)
+    for tile_type_name in (set(["ASSPL", "ASSPR"]) & set(tile_types.keys())):
+
+        # Set ASSP VPR tile location, verify that it is empty
+        assp_loc = {
+            "ASSPL": Loc(x=2, y=grid_size[1] // 2, z=0),
+            "ASSPR": Loc(x=grid_size[0] - 2, y=grid_size[1] // 2, z=0),
+        }[tile_type_name]
+        assert is_loc_free(vpr_tile_grid, assp_loc), (tile_type_name, assp_loc)
+
+        # Place the ASSP tile
+        vpr_tile_grid[assp_loc] = Tile(
+            type=tile_type_name,
+            name=tile_type_name,
+            cells=[Cell(
+                type=tile_type_name, index=0, name=tile_type_name, alias=None)
+            ]
+        )
 
     # Insert synthetic VCC and GND source tiles.
     # FIXME: This assumes that the locations specified are empty!
