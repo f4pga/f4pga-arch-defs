@@ -1,40 +1,54 @@
 #!/usr/bin/python3
 
-import hashlib
+import os
+import zlib
 import json
 
 def get_file_hash(path: str):
     with open(path) as f:
         b = f.read()
-        return hashlib.sha256(b).hexdigest()
+        return str(zlib.adler32(b.encode()))
 
 class SymbiCache:
     hashes: 'dict[str, str]'
     status: 'dict[str, str]'
     cachefile_path: str
 
-    def __init__(self, chachefile_path):
-        with open(chachefile_path, 'r') as f:
-            self.hashes = json.loads(f)
+    def __init__(self, cachefile_path):
+        try:
+            with open(cachefile_path, 'r') as f:
+                self.hashes = json.loads(f.read())
+        except IOError:
+            print('Couldn\'t open Symbiflow cache file.')
+            self.hashes = {}
         self.status = {}
-        self.new_files = {}
-        self.cachefile_path = chachefile_path
+        self.cachefile_path = cachefile_path
     
-    def file_changed(self, path: str):
-        cached_status = self.status.get(path)
-        if cached_status:
-            return cached_status == 'changed'
+    def update(self, path: str):
+        if not (os.path.isfile(path) or os.path.islink(path)):
+            if self.status.get(path):
+                self.status.pop(path)
+            if self.hashes.get(path):
+                self.hashes.pop(path)
+            return
         hash = get_file_hash(path)
         last_hash = self.hashes.get(path)
         if hash != last_hash:
+            print(f'{path} changed')
             self.status[path] = 'changed'
             self.hashes[path] = hash
             return True
         else:
             self.status[path] = 'same'
             return False
+    
+    def get_status(self, path: str):
+        s = self.status.get(path)
+        if not s:
+            return 'untracked'
+        return s
 
     def save(self):
         with open(self.cachefile_path, 'w') as f:
-            b = json.dumps(self.hashes)
+            b = json.dumps(self.hashes, indent=4)
             f.write(b)
