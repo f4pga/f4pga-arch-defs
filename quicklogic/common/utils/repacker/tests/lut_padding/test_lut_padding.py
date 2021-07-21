@@ -28,8 +28,8 @@ def test_lut_padding(monkeypatch, lut_width, lut_inputs):
     basedir = os.path.dirname(__file__)
 
     qlfpga_plugins = os.path.join(
-        basedir, "..", "..", "..", "..", "..", "..", "third_party",
-        "qlfpga-symbiflow-plugins"
+        basedir, "..", "..", "..", "..", "..", "..", "build", "quicklogic",
+        "third_party", "qlfpga-symbiflow-plugins"
     )
 
     vpr_arch = os.path.join(
