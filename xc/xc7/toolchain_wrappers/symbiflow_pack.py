@@ -16,18 +16,19 @@ DEFAULT_UTIL_RPT = 'packing_pin_util.rpt'
 class PackModule(Module):
     def map_io(self, config, r_env):
         mapping = {}
-        for name, value in config['takes'].items():
-            if name == 'eblif':
-                p = value
-                build_dir = os.path.dirname(p)
-                m = re.match('(.*)\\.[^.]*$', value)
-                if m:
-                    p = m.groups()[0] 
-                mapping['net'] = p + '.net'
-                mapping['util_rpt'] = \
-                    os.path.join(build_dir, DEFAULT_UTIL_RPT)
-                mapping['timing_rpt'] = \
-                    os.path.join(build_dir, DEFAULT_TIMING_RPT)
+
+        eblif = config['takes'].get('eblif')
+        if eblif:
+            p = eblif
+            build_dir = os.path.dirname(p)
+            m = re.match('(.*)\\.[^.]*$', eblif)
+            if m:
+                p = m.groups()[0] 
+            mapping['net'] = p + '.net'
+            mapping['util_rpt'] = \
+                os.path.join(build_dir, DEFAULT_UTIL_RPT)
+            mapping['timing_rpt'] = \
+                os.path.join(build_dir, DEFAULT_TIMING_RPT)
         mapping.update(r_env.resolve(config['produces']))
         return mapping
     

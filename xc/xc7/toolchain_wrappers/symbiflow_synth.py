@@ -79,19 +79,20 @@ def yosys_conv(tcl, tcl_env, synth_json):
 class SynthModule(Module):
     def map_io(self, config, r_env):
         mapping = {}
-        for name, value in config['args'].items():
-            if name == 'top':
-                value = r_env.resolve(value)
-                mapping['eblif'] = \
-                    os.path.realpath(r_env.resolve(value + '.eblif'))
-                mapping['fasm_extra'] = \
-                    os.path.realpath(r_env.resolve(value + '_fasm_extra.fasm'))
-                mapping['json'] = os.path.realpath(r_env.resolve(value + '.json'))
-                mapping['synth_json'] = \
-                    os.path.realpath(r_env.resolve(value + '_io.json'))
-                mapping['sdc'] = os.path.realpath(r_env.resolve(value + '.sdc'))
-                mapping['synth_v'] = \
-                    os.path.realpath(r_env.resolve(value + '_synth.v'))
+        args = config.get('args')
+        top = config['args'].get('top') if args else None
+        if top:
+            top = r_env.resolve(top)
+            mapping['eblif'] = \
+                os.path.realpath(r_env.resolve(top + '.eblif'))
+            mapping['fasm_extra'] = \
+                os.path.realpath(r_env.resolve(top + '_fasm_extra.fasm'))
+            mapping['json'] = os.path.realpath(r_env.resolve(top + '.json'))
+            mapping['synth_json'] = \
+                os.path.realpath(r_env.resolve(top + '_io.json'))
+            mapping['sdc'] = os.path.realpath(r_env.resolve(top + '.sdc'))
+            mapping['synth_v'] = \
+                os.path.realpath(r_env.resolve(top + '_synth.v'))
         mapping.update(r_env.resolve(config['produces']))
         return mapping
     
@@ -125,7 +126,7 @@ class SynthModule(Module):
                                       out_synth_v=outputs['synth_v'])
                             
         yield f'Sythesizing sources: {sources}...'
-        yosys_synth(synth_tcl, tcl_env, sources, config['produces'].get('log'))
+        yosys_synth(synth_tcl, tcl_env, sources, outputs.get('log'))
 
         yield f'Splitting in/outs...'
         sub('python3', split_inouts, '-i', out_json, '-o', synth_json)
