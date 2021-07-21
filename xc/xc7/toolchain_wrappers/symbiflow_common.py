@@ -84,6 +84,8 @@ def vpr(mode: str, vprargs: VprArgs, cwd=None):
     modeargs = []
     if mode == "pack":
         modeargs = ['--pack']
+    elif mode == "place":
+        modeargs = ['--place']
 
     return sub(*(['vpr',
                   vprargs.arch_def,
