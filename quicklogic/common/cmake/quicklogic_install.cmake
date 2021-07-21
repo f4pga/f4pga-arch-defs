@@ -218,8 +218,10 @@ function(DEFINE_QL_DEVICE_CELLS_INSTALL_TARGET)
 
   if(NOT "${DEVICE}" STREQUAL "ql-pp3e" AND NOT "${DEVICE}" STREQUAL "ql-eos-s3")
 	  # install lib files
-	  install(DIRECTORY ${QLF_FPGA_DATABASE_DIR}/${FAMILY}/lib/
-		  DESTINATION "share/symbiflow/arch/${DEVICE}_${PACKAGE}/lib")
+	  if(EXISTS "${QLF_FPGA_DATABASE_DIR}/${FAMILY}/lib" AND IS_DIRECTORY "${QLF_FPGA_DATABASE_DIR}/${FAMILY}/lib")
+		install(DIRECTORY ${QLF_FPGA_DATABASE_DIR}/${FAMILY}/lib/
+			DESTINATION "share/symbiflow/arch/${DEVICE}_${PACKAGE}/lib")
+	  endif()
   else()
 	  message(status ": workaround: skipping lib install for ${DEVICE} device")
   endif()
