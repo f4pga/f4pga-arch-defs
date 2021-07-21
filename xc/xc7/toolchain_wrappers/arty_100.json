@@ -1,48 +1,6 @@
 {
-    "part_name": "xc7a35tcsg324-1",
-    "device": "xc7a100t_test",
-    "bitstream_device": "artix7",
-
-    "synthesize": {
-        "tcl_scripts": "${shareDir}/scripts/xc7",
-        "techmap": "${shareDir}/techmaps/xc7_vpr/techmap"
-    },
-
-    "pack": {
-        "vpr_options": {
-            "--max_router_iterations": "500",
-            "--routing_failure_predictor": "off",
-            "--router_high_fanout_threshold": "-1",
-            "--constant_net_method": "route",
-            "--route_chan_width": "500",
-            "--router_heap": "bucket",
-            "--clock_modeling": "route",
-            "--place_delta_delay_matrix_calculation_method": "dijkstra",
-            "--place_delay_model": "delta",
-            "--router_lookahead": "extended_map",
-            "--check_route": "quick",
-            "--strict_checks": "off",
-            "--allow_dangling_combinational_nodes": "on",
-            "--disable_errors": "check_unbuffered_edges:check_route",
-            "--congested_routing_iteration_threshold": "0.8",
-            "--incremental_reroute_delay_ripup": "off",
-            "--base_cost_type": "delay_normalized_length_bounded",
-            "--bb_factor": "10",
-            "--acc_fac": "0.7",
-            "--astar_fac": "1.8",
-            "--initial_pres_fac": "2.828",
-            "--pres_fac_mult": "1.2",
-            "--check_rr_graph": "off",
-            "--suppress_warnings": "${noisyWarnings},sum_pin_class:check_unbuffered_edges:load_rr_indexed_data_T_values:check_rr_node:trans_per_R:check_route:set_rr_graph_tool_comment:calculate_average_switch"
-        }
-    },
-
-    "place": {
-        "pinmap_device": "path_to_pinmap_xml"
-    },
-
     "values": {
-        "part_name": "xc7a35tcsg324-1",
+        "part_name": "xc7a100tcsg324-1",
         "device": "xc7a100t_test",
         "bitstream_device": "artix7",
         "vpr_options": {
@@ -75,6 +33,7 @@
 
     "stages": {
         "synthesize": {
+            "module": "symbiflow_synth.py",
             "values": {
                 "tcl_scripts": "${shareDir}/scripts/xc7",
                 "techmap": "${shareDir}/techmaps/xc7_vpr/techmap"
@@ -94,10 +53,10 @@
             ],
             "args": [
                 "top"
-            ],
-            "module": "symbiflow_synth.py"
+            ]
         },
         "pack": {
+            "module": "symbiflow_pack.py",
             "takes": [
                 "->eblif",
                 "->sdc?"
@@ -110,8 +69,56 @@
             ],
             "args": [
                 "vpr_options_overload"
+            ]
+        },
+        "gen_ioplace": {
+            "module": "symbiflow_ioplace.py",
+            "values": {
+                "pinmap": "${shareDir}/arch/${device}/${part_name}/pinmap.csv"
+            },
+            "takes": [
+                "->eblif",
+                "->net",
+                "->pcf?"
             ],
-            "module": "symbiflow_pack.py"
+            "produces": [
+                "io_place->"
+            ]
+        },
+        "gen_place_constraints": {
+            "module": "symbiflow_place_constraints.py",
+            "takes": [
+                "->eblif",
+                "->net",
+                "->io_place"
+            ],
+            "produces": [
+                "place_constraints->"
+            ]
+        },
+        "place": {
+            "module": "symbiflow_place.py",
+            "values": {
+                "pinmap_device": "path_to_pinmap_xml"
+            },
+            "takes": [
+                "->eblif",
+                "->place_constraints?",
+                "->io_place?"
+            ],
+            "produces": [
+                "place->"
+            ]
+        }
+    },
+
+    "meta": {
+        "dependency_info": {
+            "sources": "Verilog source files (list)",
+            "xdc": "Xilinx's XDC constraint files (list)",
+            "eblif": "Synthesised circuit description EBLIF file",
+            "synth_log": "Synthesis stage log file",
+            "pack_log": "Pack stage log file"
         }
     }
 }
