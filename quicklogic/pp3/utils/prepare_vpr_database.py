@@ -720,7 +720,11 @@ def process_connections(
         )
 
     # Find locations of "special" tiles
-    special_tile_loc = {"ASSP": None}
+    special_tile_loc = {
+        "ASSP": None,
+        "ASSPL": None,
+        "ASSPR": None,
+    }
 
     for loc, tile in vpr_tile_grid.items():
         if tile is not None and tile.type in special_tile_loc:
