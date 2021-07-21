@@ -1,28 +1,64 @@
 #!/usr/bin/python3
 
-import shutil
+# Symbiflow Stage Module
+
+# ----------------------------------------------------------------------------- #
+
+import os
 from symbiflow_common import *
 
-mypath = my_path()
-parser = setup_vpr_arg_parser()
-parser.add_argument('-n', '--net', nargs='+', metavar='<net file>',
-                    type=str, help='NET filename')
-args = parser.parse_args()
-vprargs = VprArgs(mypath, args)
-vprargs += ['--fix_clusters', 'constraints.place', '--place']
-vprargs.export()
+# ----------------------------------------------------------------------------- #
 
-if not args.net:
-    print('Please provide NET filename')
-    exit(1)
+def place_constraints_file(config: dict, r_env: ResolutionEnv):
+    dummy =- False
+    p = config['takes'].get('place_constraints')
+    if not p:
+        p = config['takes'].get('io_place')
+    if not p:
+        dummy = True
+        p = config['takes']['eblif']
+    p = r_env.resolve(p)
+    m = re.match('(.*)\\.[^.]*$', p)
+    if m:
+        p = m.groups()[0]
+    
+    return r_env.resolve(m + '.vpr.place'), dummy
 
-noisy_warnings()
+class PlaceModule(Module):
+    def map_io(self, config: dict, r_env: ResolutionEnv):
+        mapping = {}
+        p, _ = place_constraints_file(config, r_env)
+        m = re.match('(.*)\\.[^.]*$', p)
+        if m:
+            p = m.groups()[0]
+        
+        mapping['place'] = m + '.vpr.place'
+        mapping.update(r_env.resolve(config['produces']))
+        return mapping
+    
+    def execute(self, share: str, config: dict, outputs: dict,
+                r_env: ResolutionEnv):
+        place_constraints, dummy = place_constraints_file(config, r_env)
+        if dummy:
+            with open(place_constraints, 'wb') as f:
+                f.write(b'')
+        
+        device = config['values']['device']
+        eblif = r_env.resolve(config['takes']['eblif'])
 
-print('Generating constraints...\n')
+        build_dir = os.path.realpath(os.path.dirname(eblif))
 
-sub('symbiflow_generate_constraints',
-    args.eblif, args.net, args.part, vprargs.arch_def, args.pcf)
+        vpr_options = ['--fix_clusters', place_constraints]
+        
+        yield 'Running VPR...'
+        vprargs = VprArgs(share, device, eblif, vpr_options=vpr_options)
+        vpr('place', vprargs, cwd=build_dir)
 
-vpr(vprargs)
+        yield 'Saving log...'
+        save_vpr_log('place.log')
 
-save_vpr_log('place.log')
+    def __init__(self):
+        self.stage_name = 'pack'
+        self.no_of_phases = 2
+
+do_module(PlaceModule())
