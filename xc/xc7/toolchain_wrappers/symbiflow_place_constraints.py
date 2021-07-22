@@ -19,7 +19,7 @@ class IOPlaceModule(Module):
         if m:
             p = m.groups()[0]
 
-        mapping['place_constraints'] = p + '.place'
+        mapping['place_constraints'] = p + '.preplace'
 
         mapping.update(r_env.resolve(config['produces']))
         return mapping

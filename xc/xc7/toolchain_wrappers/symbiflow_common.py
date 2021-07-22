@@ -75,7 +75,7 @@ def sub(*args, env=None, cwd=None):
     if out.returncode != 0:
         print(f'[ERROR]: {args[0]} non-zero return code.\n'
               f'stderr:\n{out.stderr.decode()}\n\n'
-              f'stdout:\n{out.stdout.decode()}\n')
+              )
         exit(out.returncode)
     return out.stdout
 
@@ -115,8 +115,8 @@ def my_path():
     return os.path.dirname(mypath)
 
 # Save VPR log
-def save_vpr_log(filename):
-    shutil.move('vpr_stdout.log', filename)
+def save_vpr_log(filename, build_dir=''):
+    shutil.move(os.path.join(build_dir, 'vpr_stdout.log'), filename)
 
 def fatal(code, message):
     print(f'[FATAL ERROR]: {message}')
