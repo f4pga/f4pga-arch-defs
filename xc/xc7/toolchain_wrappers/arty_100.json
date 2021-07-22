@@ -118,6 +118,16 @@
             "produces": [
                 "route->"
             ]
+        },
+        "fasm": {
+            "module": "symbiflow_fasm.py",
+            "takes": [
+                "->eblif",
+                "->fasm_extra?"
+            ],
+            "produces": [
+                "fasm->"
+            ]
         }
     },
 
