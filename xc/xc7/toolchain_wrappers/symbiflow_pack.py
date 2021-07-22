@@ -59,10 +59,10 @@ class PackModule(Module):
         else:
             os.remove(og_log)
         
-        timing_rpt = config.get('timing_rpt')
+        timing_rpt = config['produces'].get('timing_rpt')
         if timing_rpt:
             shutil.move(os.path.join(build_dir, DEFAULT_TIMING_RPT), timing_rpt)
-        util_rpt = config.get('utiling_rpt')
+        util_rpt = config['produces'].get('utili_rpt')
         if timing_rpt:
             shutil.move(os.path.join(build_dir, DEFAULT_UTIL_RPT), util_rpt)
     
