@@ -54,7 +54,7 @@ class PlaceModule(Module):
         device = config['values']['device']
         eblif = os.path.realpath(r_env.resolve(config['takes']['eblif']))
 
-        build_dir = os.path.realpath(os.path.dirname(eblif))
+        build_dir = os.path.dirname(eblif)
 
         vpr_options = ['--fix_clusters', place_constraints]
         platform_pack_vpr_options = config['values'].get('vpr_options')

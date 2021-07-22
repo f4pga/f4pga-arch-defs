@@ -82,10 +82,12 @@ def sub(*args, env=None, cwd=None):
 # Execute `vpr`
 def vpr(mode: str, vprargs: VprArgs, cwd=None):
     modeargs = []
-    if mode == "pack":
+    if mode == 'pack':
         modeargs = ['--pack']
-    elif mode == "place":
+    elif mode == 'place':
         modeargs = ['--place']
+    elif mode == 'route':
+        modeargs = ['--route']
 
     return sub(*(['vpr',
                   vprargs.arch_def,

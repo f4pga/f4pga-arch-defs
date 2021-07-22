@@ -107,7 +107,16 @@
                 "->io_place?"
             ],
             "produces": [
-                "place->"
+                "place"
+            ]
+        },
+        "route": {
+            "module":  "symbiflow_route.py",
+            "takes": [
+                "->eblif"
+            ],
+            "produces": [
+                "route->"
             ]
         }
     },
