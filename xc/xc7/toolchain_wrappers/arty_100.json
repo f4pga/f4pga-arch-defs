@@ -31,113 +31,23 @@
         }
     },
 
-    "stages": {
-        "synthesize": {
-            "module": "symbiflow_synth.py",
+    "modules": [
+        "symbiflow_synth.py",
+        "symbiflow_pack.py",
+        "symbiflow_ioplace.py",
+        "symbiflow_place_constraints.py",
+        "symbiflow_place.py",
+        "symbiflow_route.py",
+        "symbiflow_fasm.py",
+        "symbiflow_bitstream.py"
+    ],
+
+    "module_options": {
+        "symbiflow_synth.py": {
             "values": {
                 "tcl_scripts": "${shareDir}/scripts/xc7",
                 "techmap": "${shareDir}/techmaps/xc7_vpr/techmap"
-            },
-            "takes": [
-                "sources",
-                "xdc?"
-            ],
-            "produces": [
-                "eblif->",
-                "fasm_extra?->",
-                "json->",
-                "synth_json->",
-                "sdc->",
-                "synth_v->",
-                "synth_log?"
-            ],
-            "args": [
-                "top"
-            ]
-        },
-        "pack": {
-            "module": "symbiflow_pack.py",
-            "takes": [
-                "->eblif",
-                "->sdc?"
-            ],
-            "produces": [
-                "net->",
-                "util_rpt->",
-                "timing_rpt->",
-                "pack_log?"
-            ],
-            "args": [
-                "vpr_options_overload"
-            ]
-        },
-        "gen_ioplace": {
-            "module": "symbiflow_ioplace.py",
-            "values": {
-                "pinmap": "${shareDir}/arch/${device}/${part_name}/pinmap.csv"
-            },
-            "takes": [
-                "->eblif",
-                "->net",
-                "->pcf?"
-            ],
-            "produces": [
-                "io_place->"
-            ]
-        },
-        "gen_place_constraints": {
-            "module": "symbiflow_place_constraints.py",
-            "takes": [
-                "->eblif",
-                "->net",
-                "->io_place"
-            ],
-            "produces": [
-                "place_constraints->"
-            ]
-        },
-        "place": {
-            "module": "symbiflow_place.py",
-            "values": {
-                "pinmap_device": "path_to_pinmap_xml"
-            },
-            "takes": [
-                "->eblif",
-                "->place_constraints?",
-                "->io_place?"
-            ],
-            "produces": [
-                "place"
-            ]
-        },
-        "route": {
-            "module":  "symbiflow_route.py",
-            "takes": [
-                "->eblif"
-            ],
-            "produces": [
-                "route->"
-            ]
-        },
-        "fasm": {
-            "module": "symbiflow_fasm.py",
-            "takes": [
-                "->eblif",
-                "->fasm_extra?"
-            ],
-            "produces": [
-                "fasm->"
-            ]
-        }
-    },
-
-    "meta": {
-        "dependency_info": {
-            "sources": "Verilog source files (list)",
-            "xdc": "Xilinx's XDC constraint files (list)",
-            "eblif": "Synthesised circuit description EBLIF file",
-            "synth_log": "Synthesis stage log file",
-            "pack_log": "Pack stage log file"
+            }
         }
     }
 }

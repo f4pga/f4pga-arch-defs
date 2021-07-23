@@ -131,6 +131,9 @@ def setup_stage_arg_parser():
     parser.add_argument('-m', '--map', action='store_true',
                         help='Perform `output name` <-> `file path` mapping '
                              'instead of executing the stage.')
+    parser.add_argument('-i', '--io', action='store_true',
+                        help='Return a JSON containing module input/output '
+                             'declarations and metadata')
     return parser
 
 class ResolutionEnv:
@@ -167,6 +170,9 @@ class ResolutionEnv:
 class Module:
     no_of_phases: int
     stage_name: str
+    takes: 'list[str]'
+    produces: 'list[str]'
+    prod_meta: 'dict[str, str]'
 
     def execute(self, share: str, config: dict, outputs: dict,
                 r_env: ResolutionEnv):
@@ -179,10 +185,35 @@ class Module:
         self.no_of_phases = 0
         self.current_phase = 0
         self.stage_name = '<BASE STAGE>'
+        self.prod_meta = {}
+
+def get_mod_metadata(module: Module):
+    meta = {}
+    has_meta = hasattr(module, 'prod_meta')
+    for prod in module.produces:
+        prod = prod.replace('?', '')
+        if not has_meta:
+            meta[prod] = '<no descritption>'
+            continue
+        prod_meta = module.prod_meta.get(prod)
+        meta[prod] = prod_meta if prod_meta else '<no description>'
+    return meta
 
 def do_module(module: Module):
     parser = setup_stage_arg_parser()
     args = parser.parse_args()
+
+    if args.io:
+        io = {
+            'name': module.stage_name,
+            'takes': module.takes,
+            'produces': module.produces,
+            'meta': get_mod_metadata(module)
+        }
+        io_json = json.dumps(io)
+        print(io_json)
+        exit(0)
+
     if not args.share:
         fatal(-1, 'Symbiflow stage module requires "share" directory to be specified '
             'using `-s` option.')
@@ -210,9 +241,3 @@ def do_module(module: Module):
         print(f'    [{current_phase}/{module.no_of_phases}]: {phase_msg}')
         current_phase += 1
     print(f'Module `{module.stage_name}` has finished its work!')
-
-""" def verify_stage_input(input):
-    if not input.takes:
-        fatal(-1, 'Stage configuration has not `takes` section')
-    if not input.produces:
-        fatal(-1, 'Stage configuration has not `produces` section') """

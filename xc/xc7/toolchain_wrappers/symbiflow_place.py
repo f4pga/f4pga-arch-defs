@@ -83,5 +83,11 @@ class PlaceModule(Module):
     def __init__(self):
         self.stage_name = 'place'
         self.no_of_phases = 2
+        self.takes = [
+            'eblif',
+            'place_constraints?',
+            'io_place?'
+        ]
+        self.produces = [ 'place' ]
 
 do_module(PlaceModule())

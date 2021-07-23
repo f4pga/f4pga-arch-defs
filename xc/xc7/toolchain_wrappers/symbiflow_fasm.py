@@ -28,6 +28,7 @@ def fasm_output_name(eblif: str):
     return p + '.fasm'
 
 class FasmModule(Module):
+
     def map_io(self, config: dict, r_env: ResolutionEnv):
         mapping = {}
         eblif = r_env.resolve(config['takes']['eblif'])
@@ -72,5 +73,13 @@ class FasmModule(Module):
     def __init__(self):
         self.stage_name = 'fasm'
         self.no_of_phases = 2
+        self.takes = [
+            'eblif',
+            'net',
+            'place',
+            'route',
+            'fasm_extra?'
+        ]
+        self.produces = [ 'fasm' ]
 
 do_module(FasmModule())

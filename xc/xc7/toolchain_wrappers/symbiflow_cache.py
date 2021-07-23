@@ -5,9 +5,9 @@ import zlib
 import json
 
 def get_file_hash(path: str):
-    with open(path) as f:
+    with open(path, 'rb') as f:
         b = f.read()
-        return str(zlib.adler32(b.encode()))
+        return str(zlib.adler32(b))
 
 class SymbiCache:
     hashes: 'dict[str, str]'

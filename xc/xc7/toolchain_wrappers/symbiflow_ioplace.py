@@ -55,6 +55,12 @@ class IOPlaceModule(Module):
     def __init__(self):
         self.stage_name = 'io_place'
         self.no_of_phases = 2
+        self.takes = [
+            'eblif',
+            'net',
+            'pcf?'
+        ]
+        self.produces = [ 'io_place' ]
 
 
 

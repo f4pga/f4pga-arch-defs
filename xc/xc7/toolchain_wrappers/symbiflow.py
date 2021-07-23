@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+import subprocess
 import sys
 import os
 import json
@@ -25,12 +26,12 @@ def setup_argparser():
                         help='Path to flow definition file')
     parser.add_argument('-t', '--target', metavar='<target name>', type=str,
                         help='Perform stages necessary to acquire target')
-    parser.add_argument('-a', '--autoflow', action='store_true',
-                        help='Execute as many following stages as possible')
     parser.add_argument('-p', '--platform', nargs=1, metavar='<platform name>',
                         help='Target platform name')
     parser.add_argument('-P', '--pretend', action='store_true',
                         help='Show dependency resolution without executing flow')
+    parser.add_argument('-i', '--info', action='store_true',
+                        help='Display info about available targets')
     # Currently unsupported
     parser.add_argument('-T', '--take_explicit_paths', nargs='+',
                         metavar='<name=path, ...>', type=str,
@@ -56,6 +57,10 @@ def run_module(path, mode, config):
             p.stdin.write(config_json.encode())
             p.stdin.flush()
         mod_res = p
+    elif mode == 'io':
+        p = subprocess.run(['python3', path, '--io'], stdout=PIPE)
+        mod_res = p
+        out = p.stdout
     if mod_res.returncode != 0:
         print(f'Module `{path}` failed with code {mod_res.returncode}')
         exit(mod_res.returncode)
@@ -102,39 +107,47 @@ class Stage:
     args: 'list[str]'
     values: 'dict[str, ]'
     module: str
+    meta: 'dict[str, str]'
 
-    def __init__(self, name, stage_def, r_env: ResolutionEnv, bin='./'):
-        if (not stage_def.get('takes')) or (not stage_def.get('produces')) or \
-                (not stage_def.get('module')):
-            raise Exception(f'Incorrect stage structure (stage `{name}`)')
+    def __init__(self, mod_path, mod_opts, r_env: ResolutionEnv, bin='./'):
+        self.module = os.path.join(bin, mod_path)
         
-        values = stage_def.get('values')
+        if not os.path.isfile(self.module) and not os.path.islink(self.module):
+            raise Exception(f'Module file {self.module} does not exist')
+        
+        mod_io = run_module(self.module, 'io', None)
+        self.name = mod_io['name']
+
+        if not mod_opts:
+            mod_opts = {}
+        
+        values = mod_opts.get('values')
         if values:
             r_env = copy(r_env)
             platform_parse_values(values, r_env)
         
         self.takes = []
-        for input in stage_def['takes']:
+        for input in mod_io['takes']:
             io = StageIO(input)
             if io.qualifier == 'invalid':
                 raise Exception(f'Invalid input token `{input}`')
             self.takes.append(io)
         
         self.produces = []
-        for input in stage_def['produces']:
+        for input in mod_io['produces']:
             io = StageIO(input)
             if io.qualifier == 'invalid':
                 raise Exception(f'Invalid input token {input}')
             self.produces.append(io)
         
-        self.args = stage_def['args'].copy() if stage_def.get('args') else {}
-        values = stage_def.get('values')
+        self.meta = mod_io['meta']
+        
+        self.args = mod_opts['args'].copy() if mod_opts.get('args') else {}
+        values = mod_opts.get('values')
         if values:
             self.values = r_env.resolve(values)
         else:
-            self.values = []
-        self.module = os.path.join(bin, stage_def['module'])
-        self.name = name
+            self.values = {}
 
     def __repr__(self) -> str:
         return 'Stage \'' + self.name + '\' {' \
@@ -149,9 +162,11 @@ def platform_parse_values(values: dict, r_env: ResolutionEnv):
         r_env.values[k] = vr
 
 def platform_stages(platform_flow, r_env, bin='./'):
-    for stage_name, stage_def in platform_flow['stages'].items():
-        # print(stage_def)
-        yield Stage(stage_name, stage_def, r_env, bin=bin)
+    module_options = platform_flow.get('module_options')
+    for module_path in platform_flow['modules']:
+        mod_opts = module_options.get(module_path) if module_options else None
+        yield Stage(module_path, mod_opts, r_env, bin=bin)
+        
 
 def req_exists(r):
     if type(r) is str:
@@ -312,7 +327,7 @@ def dep_differ(paths, symbicache: SymbiCache):
 def dep_will_differ(target: str, paths, os_map: 'dict[str, Stage]',
                     rerun_stages: 'set[str]', symbicache: SymbiCache):
     provider = os_map.get(target)
-    print(f'depdif {target}: {paths}, prov: {provider.name if provider else None}')
+    # print(f'depdif {target}: {paths}, prov: {provider.name if provider else None}')
     if provider:
         return (provider.name in rerun_stages) or dep_differ(paths, symbicache)
     return dep_differ(paths, symbicache)
@@ -328,14 +343,14 @@ def resolve_dependencies(target: str, os_map: 'dict[str, Stage]',
     # Check if dependency is already resolved
     paths = dep_paths.get(target)
     if paths and not os_map.get(target):
-        print(f'{target} not in os_map')
+        # print(f'{target} not in os_map')
         return
     # Check if a stage can provide the required dependency
     provider = os_map.get(target)
-    print(f'PROV: {provider.name if provider else None}')
+    # print(f'PROV: {provider.name if provider else None}')
     if provider and provider.name not in stages_checked:
         for take in provider.takes:
-            print(f'take {take.name}')
+            # print(f'take {take.name}')
             resolve_dependencies(take.name, os_map, platform_name, values,
                                  p_flow, r_env, dep_paths, config_paths,
                                  stages_checked, rerun_stages, symbicache)
@@ -349,8 +364,6 @@ def resolve_dependencies(target: str, os_map: 'dict[str, Stage]',
             
             if dep_will_differ(take.name, take_paths, os_map, rerun_stages,
                                symbicache):
-                print(f'Dependency `{take.name} has changed. '
-                      f'Causes {provider.name} to rerun')
                 rerun_stages.add(provider.name)
         
         stages_checked.add(provider.name)
@@ -408,6 +421,31 @@ def update_dep_statuses(paths, symbicache: SymbiCache):
         for _, p in paths.items():
             update_dep_statuses(p, symbicache)
 
+def display_dep_info(stages: 'Iterable[Stage]'):
+    print('Platform dependencies/targets:')
+    longest_out_name_len = 0
+    for stage in stages:
+        for out in stage.produces:
+            l = len(out.name)
+            if l > longest_out_name_len:
+                longest_out_name_len = l
+    
+    desc_indent = longest_out_name_len + 7
+    nl_indentstr = '\n'
+    for _ in range(0, desc_indent):
+        nl_indentstr += ' '
+
+    for stage in stages:
+        for out in stage.produces:
+            pname = Style.BRIGHT + out.name + Style.RESET_ALL
+            indent = ''
+            for _ in range(0, desc_indent - len(pname) + 3):
+                indent += ' '
+            pgen = f'{Style.DIM}module: `{stage.name}`{Style.RESET_ALL}'
+            pdesc = stage.meta[out.name].replace('\n', nl_indentstr)
+            print(f'    {Style.BRIGHT + out.name + Style.RESET_ALL}:'
+                  f'{indent}{pdesc}{nl_indentstr}{pgen}')
+
 parser = setup_argparser()
 args = parser.parse_args()
 
@@ -428,7 +466,6 @@ except FileNotFoundError as _:
     fatal(-1, 'The provided flow definition file does not exist')
 
 flow = json.loads(flow_def)
-# verify_flow(flow)
 
 platform_path = platform_name + '.json'
 platform_def = None
@@ -453,13 +490,18 @@ p_flow_values = p_flow.get('values')
 if p_flow_values:
     r_env.add_values(p_flow_values)
 
+print('Scanning modules...')
 stages = list(platform_stages(platform_flow, r_env, bin=mypath))
 
 if len(stages) == 0:
     fatal(-1, 'Platform flow does not define any stage')
 
+if args.info:
+    display_dep_info(stages)
+    exit(0)
+
 if not args.target:
-    fatal(-1, 'Please specify desiored target usinf `--target` option')
+    fatal(-1, 'Please specify desired target using `--target` option')
 
 os_map = map_outputs_to_stages(stages)
 stage = os_map.get(args.target)
@@ -473,8 +515,8 @@ dep_paths = dict(filter_existing_deps(config_paths, symbicache))
 values = get_flow_values(platform_flow, flow, platform_name)
 rerun_stages = set()
 
-print(f'Cache status: {symbicache.status}')
-print(f'dep_paths: {dep_paths}')
+# print(f'Cache status: {symbicache.status}')
+# print(f'dep_paths: {dep_paths}')
 resolve_dependencies(args.target, os_map, platform_name, values, p_flow, r_env,
                      dep_paths, config_paths, set(), rerun_stages, symbicache)
 
@@ -483,7 +525,7 @@ print_dependency_availability(stages, dep_paths, os_map, symbicache,
                               rerun_stages)
 print('')
 
-print(f'Stages to rerun: {rerun_stages}')
+# print(f'Stages to rerun: {rerun_stages}')
 
 if args.pretend:
     exit(0)

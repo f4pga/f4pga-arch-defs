@@ -51,5 +51,7 @@ class RouteModule(Module):
     def __init__(self):
         self.stage_name = 'route'
         self.no_of_phases = 2
+        self.takes = [ 'eblif' ]
+        self.produces = [ 'route' ]
 
 do_module(RouteModule())

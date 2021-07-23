@@ -69,5 +69,15 @@ class PackModule(Module):
     def __init__(self):
         self.stage_name = 'pack'
         self.no_of_phases = 2
+        self.takes = [
+            'eblif',
+            'sdc?'
+        ]
+        self.produces = [
+            'net',
+            'util_rpt',
+            'timing_rpt',
+            'pack_log?'
+        ]
 
 do_module(PackModule())

@@ -63,7 +63,11 @@ class IOPlaceModule(Module):
     def __init__(self):
         self.stage_name = 'place_constraints'
         self.no_of_phases = 2
-
-
+        self.takes = [
+            'eblif',
+            'net',
+            'io_place'
+        ]
+        self.produces = [ 'place_constraints' ]
 
 do_module(IOPlaceModule())
