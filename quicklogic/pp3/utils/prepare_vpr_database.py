@@ -734,8 +734,9 @@ def process_connections(
         "MULT": {},
     }
 
-    # Corner case cell name re-mapping
+    # ASSP cell name mapping
     cell_map = {
+        "ASSPTMR": "ASSP",
         "LEFTASSP": "ASSPL",
         "RIGHTASSP": "ASSPR",
     }
