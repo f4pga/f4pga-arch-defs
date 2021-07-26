@@ -1,5 +1,5 @@
 <models xmlns:xi="http://www.w3.org/2001/XInclude">
-  <model name="ASSPR">
+  <model name="ASSPR" never_prune="true">
     <input_ports>
       <port name="RAM1_CLK" is_clock="1"/>
       <port name="RAM1_RM_af"/>

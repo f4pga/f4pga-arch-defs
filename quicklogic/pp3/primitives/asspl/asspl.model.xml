@@ -1,5 +1,5 @@
 <models xmlns:xi="http://www.w3.org/2001/XInclude">
-  <model name="ASSPL">
+  <model name="ASSPL" never_prune="true">
     <input_ports>
       <port name="SEL_18_top"/>
       <port name="SEL_18_bottom"/>
