@@ -20,7 +20,7 @@
         },
         "stages": {
             "synthesize": {
-                "args": {
+                "values": {
                     "top": "${top}"
                 }
             }

@@ -7,6 +7,7 @@
 import os
 import shutil
 from symbiflow_common import *
+from symbiflow_module import *
 
 # ----------------------------------------------------------------------------- #
 
@@ -77,56 +78,51 @@ def yosys_conv(tcl, tcl_env, synth_json):
 # ----------------------------------------------------------------------------- #
 
 class SynthModule(Module):
-    def map_io(self, config, r_env):
+    def map_io(self, ctx: ModuleContext):
         mapping = {}
-        args = config.get('args')
-        top = config['args'].get('top') if args else None
+        top = ctx.value_maybe('top')
         if top:
-            top = r_env.resolve(top)
-            mapping['eblif'] = \
-                os.path.realpath(r_env.resolve(top + '.eblif'))
-            mapping['fasm_extra'] = \
-                os.path.realpath(r_env.resolve(top + '_fasm_extra.fasm'))
-            mapping['json'] = os.path.realpath(r_env.resolve(top + '.json'))
-            mapping['synth_json'] = \
-                os.path.realpath(r_env.resolve(top + '_io.json'))
-            mapping['sdc'] = os.path.realpath(r_env.resolve(top + '.sdc'))
-            mapping['synth_v'] = \
-                os.path.realpath(r_env.resolve(top + '_synth.v'))
-        mapping.update(r_env.resolve(config['produces']))
+            mapping['eblif'] = os.path.realpath(top + '.eblif')
+            mapping['fasm_extra'] = os.path.realpath(top + '_fasm_extra.fasm')
+            mapping['json'] = os.path.realpath(top + '.json')
+            mapping['synth_json'] = os.path.realpath(top + '_io.json')
+            mapping['sdc'] = os.path.realpath(top + '.sdc')
+            mapping['synth_v'] = os.path.realpath(top + '_synth.v')
+        mapping.update(ctx.r_env.resolve(ctx.produces))
         return mapping
     
-    def execute(self, share: str, config: dict, outputs: dict,
-                r_env: ResolutionEnv):
-        split_inouts = os.path.join(share, 'scripts/split_inouts.py')
-        tcl_scripts = r_env.resolve(config['values']['tcl_scripts'])
+    def execute(self, ctx: ModuleContext):
+        split_inouts = os.path.join(ctx.share, 'scripts/split_inouts.py')
+        tcl_scripts = ctx.value_require('tcl_scripts')
         synth_tcl = os.path.join(tcl_scripts, 'synth.tcl')
         conv_tcl = os.path.join(tcl_scripts, 'conv.tcl')
 
-        sources = list(map(r_env.resolve, config['takes']['sources']))
-        build_dir = r_env.resolve(config['values']['build_dir'])
-        techmap_path = r_env.resolve(config['values']['techmap'])
-        xdc_files = []
-        out_json = outputs['json']
-        synth_json = outputs['synth_json']
-        top = r_env.resolve(config['args']['top'])
-        if config['takes'].get('xdc'):
-            xdc_files = list(map(r_env.resolve, config['takes']['xdc']))
-        tcl_env = yosys_setup_tcl_env(share=share, build_dir=build_dir,
+        sources = ctx.take_require('sources')
+        out_json = ctx.output('json')
+        build_dir = os.path.dirname(out_json)
+        techmap_path = ctx.value_require('techmap')
+        synth_json = ctx.output('synth_json')
+        top = ctx.value_maybe('top')
+        if not top:
+            top = 'top'
+        xdc_files = ctx.take_maybe('xdc')
+        if not xdc_files:
+            xdc_files = []
+        tcl_env = yosys_setup_tcl_env(share=ctx.share, build_dir=build_dir,
                                       top=top,
                                       bitstream_device=\
-                                          config['values']['bitstream_device'],
-                                      part=config['values']['part_name'],
+                                          ctx.value_require('bitstream_device'),
+                                      part=ctx.value_require('part_name'),
                                       techmap_path=techmap_path,
                                       xdc_files=xdc_files, out_json=out_json,
                                       synth_json=synth_json,
-                                      out_eblif=outputs['eblif'],
-                                      out_sdc=outputs['sdc'],
-                                      out_fasm_extra=outputs['fasm_extra'],
-                                      out_synth_v=outputs['synth_v'])
+                                      out_eblif=ctx.output('eblif'),
+                                      out_sdc=ctx.output('sdc'),
+                                      out_fasm_extra=ctx.output('fasm_extra'),
+                                      out_synth_v=ctx.output('synth_v'))
                             
         yield f'Sythesizing sources: {sources}...'
-        yosys_synth(synth_tcl, tcl_env, sources, outputs.get('log'))
+        yosys_synth(synth_tcl, tcl_env, sources, ctx.output('log'))
 
         yield f'Splitting in/outs...'
         sub('python3', split_inouts, '-i', out_json, '-o', synth_json)

@@ -6,6 +6,7 @@
 
 import os
 from symbiflow_common import *
+from symbiflow_module import *
 
 # ----------------------------------------------------------------------------- #
 
@@ -17,18 +18,17 @@ def bitstream_output_name(fasm: str):
     return p + '.bit'
 
 class BitstreamModule(Module):
-    def map_io(self, config: dict, r_env: ResolutionEnv):
+    def map_io(self, ctx: ModuleContext):
         mapping = {}
-        oname = r_env.resolve(bitstream_output_name(config['takes']['fasm']))
+        oname = bitstream_output_name(ctx.take_require('fasm'))
         mapping['bitstream'] = oname
-        mapping.update(r_env.resolve(config['produces']))
+        mapping.update(ctx.r_env.resolve(ctx.produces))
         return mapping
     
-    def execute(self, share: str, config: dict, outputs: dict,
-                r_env: ResolutionEnv):
-        fasm = os.path.realpath(r_env.resolve(config['takes']['fasm']))
-        bitstream_device = r_env.resolve(config['values']['bitstream_device'])
-        part = r_env.resolve(config['values']['part_name'])
+    def execute(self, ctx: ModuleContext):
+        fasm = os.path.realpath(ctx.take_require('fasm'))
+        bitstream_device = ctx.value_require('bitstream_device')
+        part = ctx.value_require('part_name')
         database = sub('prjxray-config').decode().replace('\n', '')
         database = os.path.join(database, bitstream_device)
 
@@ -41,7 +41,7 @@ class BitstreamModule(Module):
                '--emit_pudc_b_pullup',
                '--fn_in', fasm,
                '--frm2bit', 'xc7frames2bit',
-               '--bit_out', outputs['bitstream']
+               '--bit_out', ctx.output('bitstream')
                ]))
     
     def __init__(self):

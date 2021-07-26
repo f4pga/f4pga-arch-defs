@@ -11,6 +11,7 @@ from subprocess import Popen, PIPE
 from typing import Iterable
 from colorama import Fore, Style
 from symbiflow_common import ResolutionEnv, noisy_warnings, fatal
+from symbiflow_module import *
 from symbiflow_cache import SymbiCache
 
 SYMBICACHEPATH = '.symbicache'

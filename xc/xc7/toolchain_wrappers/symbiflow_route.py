@@ -7,6 +7,7 @@
 import os
 import shutil
 from symbiflow_common import *
+from symbiflow_module import *
 
 # ----------------------------------------------------------------------------- #
 
@@ -18,32 +19,31 @@ def route_place_file(eblif: str):
     return p + '.route' 
 
 class RouteModule(Module):
-    def map_io(self, config: dict, r_env: ResolutionEnv):
+    def map_io(self, ctx: ModuleContext):
         mapping = {}
-        eblif = r_env.resolve(config['takes']['eblif'])
+        eblif =ctx.take_require('eblif')
         mapping['route'] = route_place_file(eblif)
-        mapping.update(r_env.resolve(config['produces']))
+        mapping.update(ctx.r_env.resolve(ctx.produces))
         return mapping
     
-    def execute(self, share: str, config: dict, outputs: dict,
-                r_env: ResolutionEnv):
+    def execute(self, ctx: ModuleContext):
         
-        device = config['values']['device']
-        eblif = os.path.realpath(config['takes']['eblif'])
+        device = ctx.value_require('device')
+        eblif = os.path.realpath(ctx.take_require('eblif'))
         build_dir = os.path.dirname(eblif)
 
         vpr_options = []
-        platform_pack_vpr_options = config['values'].get('vpr_options')
+        platform_pack_vpr_options = ctx.value_maybe('vpr_options')
         if platform_pack_vpr_options:
             vpr_options = options_dict_to_list(platform_pack_vpr_options)
         
-        vprargs = VprArgs(share, device, eblif, vpr_options=vpr_options)
+        vprargs = VprArgs(ctx.share, device, eblif, vpr_options=vpr_options)
 
         yield 'Routing with VPR...'
         vpr('route', vprargs, cwd=build_dir)
 
-        if config['produces'].get('route'):
-            shutil.move(route_place_file(eblif), outputs['route'])
+        if ctx.is_output_explicit('route'):
+            shutil.move(route_place_file(eblif), ctx.output('route'))
 
         yield 'Saving log...'
         save_vpr_log('route.log', build_dir=build_dir)

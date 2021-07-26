@@ -6,6 +6,7 @@
 
 import os
 from symbiflow_common import *
+from symbiflow_module import *
 
 # ----------------------------------------------------------------------------- #
 
@@ -18,52 +19,50 @@ def default_output_name(place_constraints):
         p += '.place'
     return p
 
-def place_constraints_file(config: dict, r_env: ResolutionEnv):
+def place_constraints_file(ctx: ModuleContext):
     dummy =- False
-    p = config['takes'].get('place_constraints')
+    p = ctx.take_maybe('place_constraints')
     if not p:
-        p = config['takes'].get('io_place')
+        p = ctx.take_maybe('io_place')
     if not p:
         dummy = True
-        p = config['takes']['eblif']
-    p = r_env.resolve(p)
+        p = ctx.take_require('eblif')
     if dummy:
         m = re.match('(.*)\\.[^.]*$', p)
         if m:
             p = m.groups()[0] + '.place'
     
-    return r_env.resolve(p), dummy
+    return p, dummy
 
 class PlaceModule(Module):
-    def map_io(self, config: dict, r_env: ResolutionEnv):
+    def map_io(self, ctx: ModuleContext):
         mapping = {}
-        p, _ = place_constraints_file(config, r_env)
+        p, _ = place_constraints_file(ctx)
         
         mapping['place'] = default_output_name(p)
-        mapping.update(r_env.resolve(config['produces']))
+        mapping.update(ctx.r_env.resolve(ctx.produces))
         return mapping
     
-    def execute(self, share: str, config: dict, outputs: dict,
-                r_env: ResolutionEnv):
-        place_constraints, dummy = place_constraints_file(config, r_env)
+    def execute(self, ctx: ModuleContext):
+        place_constraints, dummy = place_constraints_file(ctx)
         place_constraints = os.path.realpath(place_constraints)
         if dummy:
             with open(place_constraints, 'wb') as f:
                 f.write(b'')
         
-        device = config['values']['device']
-        eblif = os.path.realpath(r_env.resolve(config['takes']['eblif']))
+        device = ctx.value_require('device')
+        eblif = os.path.realpath(ctx.take_require('eblif'))
 
         build_dir = os.path.dirname(eblif)
 
         vpr_options = ['--fix_clusters', place_constraints]
-        platform_pack_vpr_options = config['values'].get('vpr_options')
+        platform_pack_vpr_options = ctx.value_maybe('vpr_options')
         if platform_pack_vpr_options:
             vpr_options += options_dict_to_list(platform_pack_vpr_options)
 
         
         yield 'Running VPR...'
-        vprargs = VprArgs(share, device, eblif, vpr_options=vpr_options)
+        vprargs = VprArgs(ctx.share, device, eblif, vpr_options=vpr_options)
         vpr('place', vprargs, cwd=build_dir)
         
         # VPR names output on its own. If user requested another name, the
@@ -73,9 +72,9 @@ class PlaceModule(Module):
         # when the problem gets tackled, we should keep in mind that VPR-based
         # modules may produce some temporary files with names that differ from
         # the ones in flow configuration.
-        if config['produces'].get('place'):
+        if ctx.is_output_explicit('place'):
             output_file = default_output_name(place_constraints)
-            shutil.move(output_file, outputs['place'])
+            shutil.move(output_file, ctx.output('place'))
 
         yield 'Saving log...'
         save_vpr_log('place.log', build_dir=build_dir)

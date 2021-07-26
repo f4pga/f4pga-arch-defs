@@ -6,13 +6,14 @@
 
 import os
 from symbiflow_common import *
+from symbiflow_module import *
 
 # ----------------------------------------------------------------------------- #
 
 class IOPlaceModule(Module):
-    def map_io(self, config: dict, r_env: ResolutionEnv):
+    def map_io(self, ctx: ModuleContext):
         mapping = {}
-        net = config['takes']['net']
+        net = ctx.take_require('net')
 
         p = net
         m = re.match('(.*)\\.[^.]*$', net)
@@ -21,25 +22,24 @@ class IOPlaceModule(Module):
 
         mapping['place_constraints'] = p + '.preplace'
 
-        mapping.update(r_env.resolve(config['produces']))
+        mapping.update(ctx.r_env.resolve(ctx.produces))
         return mapping
 
-    def execute(self, share: str, config: dict, outputs: dict,
-                r_env: ResolutionEnv):
-        eblif = r_env.resolve(config['takes']['eblif'])
-        net = r_env.resolve(config['takes']['net'])
-        ioplace = r_env.resolve(config['takes']['io_place'])
-        place_constraints = r_env.resolve(outputs['place_constraints'])
+    def execute(self, ctx: ModuleContext):
+        eblif = ctx.take_require('eblif')
+        net = ctx.take_require('net')
+        ioplace = ctx.take_require('io_place')
+        place_constraints = ctx.output('place_constraints')
 
-        part = config['values']['part_name']
-        device = config['values']['device']
+        part = ctx.value_require('part_name')
+        device = ctx.value_require('device')
 
-        arch_dir = os.path.join(share, 'arch')
+        arch_dir = os.path.join(ctx.share, 'arch')
         arch_def = os.path.join(arch_dir, device, 'arch.timing.xml')
 
         constr_gen = \
-            os.path.join(share, 'scripts/prjxray_create_place_constraints.py')
-        vpr_grid_map = os.path.join(share, 'arch', device, 'vpr_grid_map.csv')
+            os.path.join(ctx.share, 'scripts/prjxray_create_place_constraints.py')
+        vpr_grid_map = os.path.join(ctx.share, 'arch', device, 'vpr_grid_map.csv')
 
         if not os.path.isfile(vpr_grid_map) and not os.path.islink(vpr_grid_map):
             fatal(-1, f'Gridmap file \"{vpr_grid_map}\" not found')
