@@ -192,6 +192,7 @@ def strip_cells(tile, cell_types, tile_types, cells_library):
 
     return new_tile
 
+
 # =============================================================================
 
 
@@ -500,8 +501,13 @@ def process_tilegrid(
         vpr_tile_grid[assp_loc] = Tile(
             type=tile_type_name,
             name=tile_type_name,
-            cells=[Cell(
-                type=tile_type_name, index=0, name=tile_type_name, alias=None)
+            cells=[
+                Cell(
+                    type=tile_type_name,
+                    index=0,
+                    name=tile_type_name,
+                    alias=None
+                )
             ]
         )
 
