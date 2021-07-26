@@ -776,6 +776,11 @@ def parse_port_mapping_table(xml_root, switchbox_grid):
                 pin_name = index_xml.attrib["Mapped_Interface_Name"]
                 output_num = index_xml.attrib["SwitchOutputNum"]
 
+                # FIXME: This is a crude fix for a quirk in port naming
+                # for PP3e
+                if pin_name.startswith("A2F_hw_r_"):
+                    pin_name = pin_name.replace("A2F_hw_r_", "A2F_HW_r_")
+
                 # Determine the mapped port direction
                 if output_num == "-1":
                     pin_direction = PinDirection.INPUT
@@ -974,6 +979,7 @@ def specialize_switchboxes_with_port_maps(
 
         # Remap pin names
         did_remap = False
+        used_keys = set()
         for stage, switch, mux in yield_muxes(new_switchbox):
 
             # Remap output
@@ -985,6 +991,7 @@ def specialize_switchboxes_with_port_maps(
             for key in keys:
                 if key in port_map:
                     did_remap = True
+                    used_keys.add(key)
                     mux.output = SwitchPin(
                         id=pin.id,
                         name=port_map[key],
@@ -996,12 +1003,29 @@ def specialize_switchboxes_with_port_maps(
             for pin in mux.inputs.values():
                 key = (pin.name, pin.direction)
                 if key in port_map:
+
                     did_remap = True
+                    used_keys.add(key)
                     mux.inputs[pin.id] = SwitchPin(
                         id=pin.id,
                         name=port_map[key],
                         direction=pin.direction,
                     )
+
+        # Report unmatched port maps
+        unused_keys = set(port_map.keys()) - used_keys
+        if unused_keys:
+
+            print(
+                "WARNING: {} pins of the switchbox '{}' at '{}' "
+                "were not remapped:".format(
+                    len(unused_keys),
+                    switchbox_type,
+                    loc
+                ))
+
+            for key in unused_keys:
+                print("", "'{}' <-> '{}'".format(key[0], port_map[key]))
 
         # Nothing remapped, discard the new switchbox
         if not did_remap:
