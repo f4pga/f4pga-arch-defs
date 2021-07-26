@@ -719,60 +719,35 @@ def process_connections(
             src=eps[0], dst=eps[1], is_direct=connection.is_direct
         )
 
-    # Find locations of "special" tiles
-    special_tile_loc = {
-        "ASSP": None,
-        "ASSPL": None,
-        "ASSPR": None,
+    # Localize special cells that require connection endpoint remapping
+    special_cell_loc = {
+        "ASSP": {},
+        "ASSPL": {},
+        "ASSPR": {},
+        "RAM": {},
+        "MULT": {},
+    }
+
+    # Corner case cell name re-mapping
+    cell_map = {
+        "LEFTASSP": "ASSPL",
+        "RIGHTASSP": "ASSPR",
     }
 
     for loc, tile in vpr_tile_grid.items():
-        if tile is not None and tile.type in special_tile_loc:
-            assert special_tile_loc[tile.type] is None, tile
-            special_tile_loc[tile.type] = loc
-
-    # Map connections going to/from them to their locations in the VPR grid
-    for i, connection in enumerate(vpr_connections):
-
-        # Process connection endpoints
-        eps = [connection.src, connection.dst]
-        for j, ep in enumerate(eps):
-
-            if ep.type != ConnectionType.TILE:
-                continue
-
-            cell_name, pin = ep.pin.split("_", maxsplit=1)
-            cell_type = cell_name[:-1]
-            # FIXME: The above will fail on cell with index >= 10
-
-            if cell_type in special_tile_loc:
-                loc = special_tile_loc[cell_type]
-
-                eps[j] = ConnectionLoc(
-                    loc=loc,
-                    pin=ep.pin,
-                    type=ep.type,
-                )
-
-        # Modify the connection
-        vpr_connections[i] = Connection(
-            src=eps[0], dst=eps[1], is_direct=connection.is_direct
-        )
-
-    # handle RAM and MULT locations
-    ram_locations = {}
-    mult_locations = {}
-    for loc, tile in vpr_tile_grid.items():
         if tile is None:
             continue
-        cell = tile.cells[0]
-        cell_name = cell.name
-        if tile.type == "RAM":
-            ram_locations[cell_name] = loc
-        if tile.type == "MULT":
-            mult_locations[cell_name] = loc
 
+        if len(tile.cells) != 1:
+            continue
+
+        cell = tile.cells[0]
+        if cell.type in special_cell_loc:
+            special_cell_loc[cell.type][cell.name] = loc
+
+    # Remap special cell connections
     for i, connection in enumerate(vpr_connections):
+
         # Process connection endpoints
         eps = [connection.src, connection.dst]
         for j, ep in enumerate(eps):
@@ -784,23 +759,21 @@ def process_connections(
             cell_type = cell_name[:-1]
             # FIXME: The above will fail on cell with index >= 10
 
-            # We handle on MULT and RAM here
-            if cell_type != "MULT" and cell_type != "RAM":
+            # We handle only special cells
+            if cell_type not in special_cell_loc:
                 continue
 
-            loc = loc_map.bwd[ep.loc]
-            tile = phy_tile_grid[loc]
-            cell = [cell for cell in tile.cells if cell.type == cell_type]
+            phy_loc = loc_map.bwd[ep.loc]
+            tile = phy_tile_grid[phy_loc]
+            cells = [cell for cell in tile.cells if cell.type == cell_type]
 
-            cell_name = cell[0].name
+            assert cells
+            cell_name = cell_map.get(cells[0].name, cells[0].name)
 
-            if cell_type == "MULT":
-                loc = mult_locations[cell_name]
-            else:
-                loc = ram_locations[cell_name]
-
+            # Remap loc
+            vpr_loc = special_cell_loc[cell_type][cell_name]
             eps[j] = ConnectionLoc(
-                loc=loc,
+                loc=vpr_loc,
                 pin=ep.pin,
                 type=ep.type,
             )
