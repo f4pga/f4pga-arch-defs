@@ -62,8 +62,8 @@ class PackModule(Module):
         timing_rpt = config['produces'].get('timing_rpt')
         if timing_rpt:
             shutil.move(os.path.join(build_dir, DEFAULT_TIMING_RPT), timing_rpt)
-        util_rpt = config['produces'].get('utili_rpt')
-        if timing_rpt:
+        util_rpt = config['produces'].get('util_rpt')
+        if util_rpt:
             shutil.move(os.path.join(build_dir, DEFAULT_UTIL_RPT), util_rpt)
     
     def __init__(self):
