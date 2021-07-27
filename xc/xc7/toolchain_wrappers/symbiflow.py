@@ -21,6 +21,7 @@ mypath = os.path.dirname(mypath)
 
 share_dir_path = os.path.realpath(os.path.join(mypath, '../share/symbiflow'))
 
+# Set up argument parser for the program. Pretty self-explanatory.
 def setup_argparser():
     parser = argparse.ArgumentParser(description="Execute SymbiFlow flow")
     parser.add_argument('flow', nargs=1, metavar='<flow path>', type=str,
@@ -38,10 +39,15 @@ def setup_argparser():
                         metavar='<name=path, ...>', type=str,
                         help='Specify stage inputs explicitely. This might be '
                              'required if some files got renamed or deleted and '
-                             'symbiflow is unable to deduce the flow that lead to '
-                             'dependencies required by the requested stage')
+                             'symbiflow is unable to deduce the flow that lead '
+                             'to dependencies required by the requested stage')
     return parser
 
+# Runs module in on of the following modes:
+# * 'map' - return output paths for given input. The result should be a
+#           dictionary that maps dependency names to paths.
+# * 'exec' - execute module for given inputs.
+# * 'io' - provide useful metdata for the user.
 def run_module(path, mode, config):
     mod_res = None
     out = None
@@ -73,11 +79,16 @@ def run_module(path, mode, config):
     else:
         return None
 
+# Stage dependency input/output
 class StageIO:
-    name: str
-    qualifier: str
-    auto_flow: bool
+    name: str         # A symbolic name given to the dependency
+    qualifier: str    # Either `req` or `maybe`. Tells whether the dependency is
+                      # required or optional
+    auto_flow: bool   # TODO: remove this
 
+    # Encoded name feauters special characters that imply certain qualifiers.
+    # Any name that ends with '?' is treated as with 'maybe' qualifier.
+    # The '?' Symbol is then dropped from the dependency name.
     def __init__(self, encoded_name: str):
         m = re.match('(->)?(!)?(\w+)(\?)?(->)?', encoded_name)
         span = m.span()
@@ -105,13 +116,21 @@ class StageIO:
         return 'StageIO { name: \'' + self.name + '\', qualifier: ' + \
                self.qualifier + ', auto_flow: ' + str(self.auto_flow) + ' }'
 class Stage:
-    name: str
-    takes: 'list[StageIO]'
-    produces: 'list[StageIO]'
-    args: 'list[str]'
-    values: 'dict[str, ]'
-    module: str
-    meta: 'dict[str, str]'
+    name: str                  #   Name of the stage (module's name)
+    takes: 'list[StageIO]'     #   List of symbolic names of dependencies used by
+                               # the stage
+    produces: 'list[StageIO]'  #   List of symbolic names of dependencies 
+                               # produced by the stage
+    args: 'list[str]'          # TODO: remove this
+    values: 'dict[str, ]'      #   Values used by the stage. The dictionary
+                               # maps value's symbolic names to values that will
+                               # overload `values` input for a given module.
+                               # What makes values different from `takes` is that
+                               # they don't have to be paths, and if they are,
+                               # the files they point to are not tracked.
+    module: str                #   Path to the associated module
+    meta: 'dict[str, str]'     #   Stage's metadata extracted from module's
+                               # output.
 
     def __init__(self, mod_path, mod_opts, r_env: ResolutionEnv, bin='./'):
         self.module = os.path.join(bin, mod_path)
@@ -128,7 +147,7 @@ class Stage:
         values = mod_opts.get('values')
         if values:
             r_env = copy(r_env)
-            platform_parse_values(values, r_env)
+            _platform_parse_values(values, r_env)
         
         self.takes = []
         for input in mod_io['takes']:
@@ -160,18 +179,19 @@ class Stage:
                f' takes: {self.takes},' \
                f' produces: {self.produces} ' + '}'
 
-def platform_parse_values(values: dict, r_env: ResolutionEnv):
+def _platform_parse_values(values: dict, r_env: ResolutionEnv):
     for k, v in values.items():
         vr = r_env.resolve(v)
         r_env.values[k] = vr
 
+# Iterates over all stages available in a given flow.
 def platform_stages(platform_flow, r_env, bin='./'):
     module_options = platform_flow.get('module_options')
     for module_path in platform_flow['modules']:
         mod_opts = module_options.get(module_path) if module_options else None
         yield Stage(module_path, mod_opts, r_env, bin=bin)
         
-
+# Checks whether a dependency exists on a drive.
 def req_exists(r):
     if type(r) is str:
         if not os.path.isfile(r) and not os.path.islink(r):
@@ -183,6 +203,8 @@ def req_exists(r):
                         'paths, or path lists')
     return True
 
+# Associates a stage with every possible output.
+# This is commonly refferef to as `os_map` (output-stage-map) through the code.
 def map_outputs_to_stages(stages: 'list[Stage]'):
     os_map: 'dict[str, Stage]' = {} # Output-Stage map
     for stage in stages:
@@ -196,6 +218,7 @@ def map_outputs_to_stages(stages: 'list[Stage]'):
                                  'provider at most.')
     return os_map
 
+# Get dependencies that were explicitely specified by the user.
 def get_explicit_deps(flow: dict, platform_name: str, r_env: ResolutionEnv):
     deps = {}
     if flow.get('dependencies'):
@@ -231,7 +254,6 @@ def print_dependency_availability(stages: 'Iterable[Stage]',
             exists = req_exists(paths)
             provider = os_map.get(dep_name)
             rerun = provider.name in rerun_stages if provider else False
-            #print(f'{dep_name} : {paths}')
             if exists and not rerun:
                 if dep_differ(paths, symbicache):
                     status = Fore.GREEN + '[N]' + Fore.RESET
@@ -273,6 +295,7 @@ def get_stage_values_override(og_values: dict, stage: Stage):
     values.update(stage.values)
     return values
 
+# TODO: Remove this
 def get_stage_cfg_args(stage: Stage, p_flow: dict):
     stages_cfg = p_flow.get('stages')
     if not stages:
@@ -331,7 +354,6 @@ def dep_differ(paths, symbicache: SymbiCache):
 def dep_will_differ(target: str, paths, os_map: 'dict[str, Stage]',
                     rerun_stages: 'set[str]', symbicache: SymbiCache):
     provider = os_map.get(target)
-    # print(f'depdif {target}: {paths}, prov: {provider.name if provider else None}')
     if provider:
         return (provider.name in rerun_stages) or dep_differ(paths, symbicache)
     return dep_differ(paths, symbicache)
@@ -343,15 +365,12 @@ def resolve_dependencies(target: str, os_map: 'dict[str, Stage]',
                          stages_checked: 'set[str]', rerun_stages: 'set[str]',
                          symbicache: SymbiCache):
     # TODO: Drop support for `not` qualifier
-    # print(f'Resolving dependency {target}')
     # Check if dependency is already resolved
     paths = dep_paths.get(target)
     if paths and not os_map.get(target):
-        # print(f'{target} not in os_map')
         return
     # Check if a stage can provide the required dependency
     provider = os_map.get(target)
-    # print(f'PROV: {provider.name if provider else None}')
     if provider and provider.name not in stages_checked:
         for take in provider.takes:
             # print(f'take {take.name}')
@@ -519,8 +538,6 @@ dep_paths = dict(filter_existing_deps(config_paths, symbicache))
 values = get_flow_values(platform_flow, flow, platform_name)
 rerun_stages = set()
 
-# print(f'Cache status: {symbicache.status}')
-# print(f'dep_paths: {dep_paths}')
 resolve_dependencies(args.target, os_map, platform_name, values, p_flow, r_env,
                      dep_paths, config_paths, set(), rerun_stages, symbicache)
 
@@ -528,8 +545,6 @@ print('\nProject status:')
 print_dependency_availability(stages, dep_paths, os_map, symbicache,
                               rerun_stages)
 print('')
-
-# print(f'Stages to rerun: {rerun_stages}')
 
 if args.pretend:
     exit(0)

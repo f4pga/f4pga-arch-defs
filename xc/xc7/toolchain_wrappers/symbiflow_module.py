@@ -4,6 +4,11 @@ import json
 from types import SimpleNamespace
 from symbiflow_common import *
 
+# A `Module` is a wrapper for whatever tool is used in a flow.
+# Modules can request dependencies, values and are guranteed to have all the
+# required ones present when entering `exec` mode.
+# They also have to specify what dependencies they produce and create the files
+# for these dependencies.
 class Module:
     no_of_phases: int
     stage_name: str
@@ -12,10 +17,15 @@ class Module:
     values: 'list[str]'
     prod_meta: 'dict[str, str]'
 
+    # Executes module. Use yield to print a message informing about current
+    # execution phase.
+    # `ctx` is `ModuleContext`.
     def execute(self, ctx):
         return None
 
-    def map_io(self, config: dict, r_env: ResolutionEnv):
+    # Returns paths for ouputs derived from given inputs.
+    # `ctx` is `ModuleContext`.
+    def map_io(self, ctx):
         return {}
     
     def __init__(self):
@@ -31,19 +41,29 @@ def _decompose_depname(name: str):
         name = name[:len(name) - 1]
     return name, required
 
+# A class for object holding mappings for dependencies and values as well as
+# other information needed during modules execution.
 class ModuleContext:
-    share: str
-    takes: SimpleNamespace
-    produces: SimpleNamespace
-    outputs: SimpleNamespace
-    values: SimpleNamespace
-    r_env: ResolutionEnv
-    module_name: str
+    share: str                 #   Absolute path to Symbiflow's share directory
+    takes: SimpleNamespace     #   Maps symbolic dependency names to relative
+                               # paths.
+    produces: SimpleNamespace  #   Contains mappings for explicitely specified
+                               # dependencies. Useful mostly for checking for
+                               # on-demand optional outputs (such as logs)
+                               # with `is_output_explicit` method.
+    outputs: SimpleNamespace   #   Contains mappings for all available outputs.
+    values: SimpleNamespace    #   Contains all available requested values. 
+    r_env: ResolutionEnv       # `ResolutionEnvironmet` object holding mappings
+                               # for current scope.
+    module_name: str           # Name of the module.
     
+    # True if user has explicitely specified output's path.
     def is_output_explicit(self, name: str):
         o = getattr(self.produces, name)
         return o is not None
 
+    # Add attribute for a dependency or panic if a required dependency has not
+    # been given to the module on its input.
     def _getreqmaybe(self, obj, deps: 'list[str]', deps_cfg: 'dict[str, ]'):
         for name in deps:
             name, required = _decompose_depname(name)
@@ -53,6 +73,7 @@ class ModuleContext:
                           f'`{self.module_name}` but wasn\'t provided')
             setattr(obj, name, self.r_env.resolve(value))
 
+    # `config` should be a dictionary given as modules input.
     def __init__(self, module: Module, config: 'dict[str, ]',
                  r_env: ResolutionEnv, share: str):
         self.module_name = module.stage_name
@@ -75,6 +96,7 @@ class ModuleContext:
 
         self._getreqmaybe(self.outputs, module.produces, outputs)
 
+# get descriptions for produced dependencies.
 def get_mod_metadata(module: Module):
     meta = {}
     has_meta = hasattr(module, 'prod_meta')
@@ -87,6 +109,8 @@ def get_mod_metadata(module: Module):
         meta[prod] = prod_meta if prod_meta else '<no description>'
     return meta
 
+# Call it at the end of module's script. Wraps the module to be used
+# through shell.
 def do_module(module: Module):
     parser = setup_stage_arg_parser()
     args = parser.parse_args()
