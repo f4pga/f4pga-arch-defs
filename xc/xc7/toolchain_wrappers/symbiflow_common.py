@@ -32,7 +32,7 @@ class VprArgs:
             os.path.join(self.arch_dir, device,
                          'rr_graph_' + device + '.place_delay.bin')
         self.device_name = device.replace('_', '-')
-        self.eblif = eblif
+        self.eblif = os.path.realpath(eblif)
         self.optional = vpr_options
         if sdc_file:
             self.optional += ['--sdc_file', sdc_file]

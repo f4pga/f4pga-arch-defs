@@ -21,29 +21,24 @@ def route_place_file(eblif: str):
 class RouteModule(Module):
     def map_io(self, ctx: ModuleContext):
         mapping = {}
-        eblif =ctx.take_require('eblif')
-        mapping['route'] = route_place_file(eblif)
-        mapping.update(ctx.r_env.resolve(ctx.produces))
+        mapping['route'] = route_place_file(ctx.takes.eblif)
         return mapping
     
     def execute(self, ctx: ModuleContext):
-        
-        device = ctx.value_require('device')
-        eblif = os.path.realpath(ctx.take_require('eblif'))
-        build_dir = os.path.dirname(eblif)
+        build_dir = os.path.dirname(ctx.takes.eblif)
 
         vpr_options = []
-        platform_pack_vpr_options = ctx.value_maybe('vpr_options')
-        if platform_pack_vpr_options:
-            vpr_options = options_dict_to_list(platform_pack_vpr_options)
+        if ctx.values.vpr_options:
+            vpr_options = options_dict_to_list(ctx.values.vpr_options)
         
-        vprargs = VprArgs(ctx.share, device, eblif, vpr_options=vpr_options)
+        vprargs = VprArgs(ctx.share, ctx.values.device, ctx.takes.eblif,
+                          vpr_options=vpr_options)
 
         yield 'Routing with VPR...'
         vpr('route', vprargs, cwd=build_dir)
 
         if ctx.is_output_explicit('route'):
-            shutil.move(route_place_file(eblif), ctx.output('route'))
+            shutil.move(route_place_file(ctx.takes.eblif), ctx.outputs.route)
 
         yield 'Saving log...'
         save_vpr_log('route.log', build_dir=build_dir)
@@ -53,5 +48,9 @@ class RouteModule(Module):
         self.no_of_phases = 2
         self.takes = [ 'eblif' ]
         self.produces = [ 'route' ]
+        self.values = [
+            'device',
+            'vpr_options?'
+        ]
 
 do_module(RouteModule())

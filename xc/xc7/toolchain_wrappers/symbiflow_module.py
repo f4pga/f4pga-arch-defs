@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+from types import SimpleNamespace
 from symbiflow_common import *
 
 class Module:
@@ -8,6 +9,7 @@ class Module:
     stage_name: str
     takes: 'list[str]'
     produces: 'list[str]'
+    values: 'list[str]'
     prod_meta: 'dict[str, str]'
 
     def execute(self, ctx):
@@ -22,52 +24,56 @@ class Module:
         self.stage_name = '<BASE STAGE>'
         self.prod_meta = {}
 
+def _decompose_depname(name: str):
+    required = True
+    if name[len(name) - 1] == '?':
+        required = False
+        name = name[:len(name) - 1]
+    return name, required
+
 class ModuleContext:
     share: str
-    takes: 'dict[str, ]'
-    produces: 'dict[str, ]'
-    outputs: 'dict[str, ]'
-    values: 'dict[str, ]'
+    takes: SimpleNamespace
+    produces: SimpleNamespace
+    outputs: SimpleNamespace
+    values: SimpleNamespace
     r_env: ResolutionEnv
     module_name: str
-
-    def take_require(self, name: str):
-        take = self.takes.get(name)
-        if take is None:
-            fatal(-1, f'Required input `{name}` for module `{self.module_name}` '
-                       'was not supplied.')
-        return take
-    
-    def value_require(self, name: str):
-        value = self.values.get(name)
-        if value is None:
-            fatal(-1, f'Required value `{name}` for module `{self.module_name}` '
-                       'was not supplied.')
-        return self.r_env.resolve(value)
-
-    def take_maybe(self, name: str):
-        return self.r_env.resolve(self.takes.get(name))
-    
-    def value_maybe(self, name: str):
-        return self.r_env.resolve(self.values.get(name))
-    
-    # Un-usable in map_io mode!
-    def output(self, name: str):
-        return self.r_env.resolve(self.outputs.get(name))
     
     def is_output_explicit(self, name: str):
-        o = self.produces.get(name)
+        o = getattr(self.produces, name)
         return o is not None
+
+    def _getreqmaybe(self, obj, deps: 'list[str]', deps_cfg: 'dict[str, ]'):
+        for name in deps:
+            name, required = _decompose_depname(name)
+            value = deps_cfg.get(name)
+            if value is None and required:
+                fatal(-1, f'Dependency `{name}` is required by module '
+                          f'`{self.module_name}` but wasn\'t provided')
+            setattr(obj, name, self.r_env.resolve(value))
 
     def __init__(self, module: Module, config: 'dict[str, ]',
                  r_env: ResolutionEnv, share: str):
         self.module_name = module.stage_name
-        self.takes = config['takes']
-        self.produces = config['produces']
-        self.values = config['values']
+        self.takes = SimpleNamespace()
+        self.produces = SimpleNamespace()
+        self.values = SimpleNamespace()
+        self.outputs = SimpleNamespace()
         self.r_env = r_env
         self.share = share
-        self.outputs = module.map_io(self)
+
+        self._getreqmaybe(self.takes, module.takes, config['takes'])
+        self._getreqmaybe(self.values, module.values, config['values'])
+
+        produces_resolved = self.r_env.resolve(config['produces'])
+        for name, value in produces_resolved.items():
+            setattr(self.produces, name, value)
+
+        outputs = module.map_io(self)
+        outputs.update(produces_resolved)
+
+        self._getreqmaybe(self.outputs, module.produces, outputs)
 
 def get_mod_metadata(module: Module):
     meta = {}
@@ -113,7 +119,7 @@ def do_module(module: Module):
     mod_ctx = ModuleContext(module, config, r_env, share)
 
     if (args.map):
-        json_map = json.dumps(mod_ctx.outputs)
+        json_map = json.dumps(vars(mod_ctx.outputs))
         print(json_map)
         return
     

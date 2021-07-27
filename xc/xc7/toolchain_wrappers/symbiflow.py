@@ -63,7 +63,10 @@ def run_module(path, mode, config):
         mod_res = p
         out = p.stdout
     if mod_res.returncode != 0:
-        print(f'Module `{path}` failed with code {mod_res.returncode}')
+        print(f'Module `{path}` failed with code {mod_res.returncode}\n'
+              f'MODE: \'{mode}\'\n\n'
+              f'{Style.BRIGHT}stdout:{Style.RESET_ALL}\n{out}\n\n'
+              f'{Style.BRIGHT}stderr:{Style.RESET_ALL}\n{mod_res.stderr}\n\n')
         exit(mod_res.returncode)
     if out:
         return json.loads(out.decode())

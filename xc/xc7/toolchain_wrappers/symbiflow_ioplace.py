@@ -13,43 +13,35 @@ from symbiflow_module import *
 class IOPlaceModule(Module):
     def map_io(self, ctx: ModuleContext):
         mapping = {}
-        net = ctx.take_require('net')
 
-        p = net
-        m = re.match('(.*)\\.[^.]*$', net)
+        p = ctx.takes.net
+        m = re.match('(.*)\\.[^.]*$', ctx.takes.net)
         if m:
             p = m.groups()[0]
 
         mapping['io_place'] = p + '.ioplace'
 
-        mapping.update(ctx.r_env.resolve(ctx.produces))
         return mapping
 
     def execute(self, ctx: ModuleContext):
-        eblif = ctx.take_require('eblif')
-        net = ctx.take_require('net')
-        pcf = ctx.take_maybe('pcf')
-        part = ctx.value_require('part_name')
-        device = ctx.value_require('device')
-        ioplace = ctx.output('io_place')
-
         io_gen = os.path.join(ctx.share, 'scripts/prjxray_create_ioplace.py')
-        pinmap = os.path.join(ctx.share, 'arch', device, part, 'pinmap.csv')
+        pinmap = os.path.join(ctx.share, 'arch', ctx.values.device,
+                              ctx.values.part_name, 'pinmap.csv')
 
         if not os.path.isfile(pinmap) and not os.path.islink(pinmap):
             fatal(-1, f'Pinmap file \"{pinmap}\" not found')
         
-        pcf_opts = ['--pcf', pcf] if pcf else []
+        pcf_opts = ['--pcf', ctx.takes.pcf] if ctx.takes.pcf else []
     
         yield 'Generating io.place...'
         data = sub(*(['python3', io_gen,
-                      '--blif', eblif,
+                      '--blif', ctx.takes.eblif,
                       '--map', pinmap,
-                      '--net', net]
+                      '--net', ctx.takes.net]
                       + pcf_opts))
         
         yield 'Saving ioplace data...'
-        with open(ioplace, 'wb') as f:
+        with open(ctx.outputs.io_place, 'wb') as f:
             f.write(data)
 
     def __init__(self):
@@ -61,6 +53,10 @@ class IOPlaceModule(Module):
             'pcf?'
         ]
         self.produces = [ 'io_place' ]
+        self.values = [
+            'device',
+            'part_name'
+        ]
 
 
 

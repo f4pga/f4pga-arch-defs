@@ -21,12 +21,12 @@ def default_output_name(place_constraints):
 
 def place_constraints_file(ctx: ModuleContext):
     dummy =- False
-    p = ctx.take_maybe('place_constraints')
+    p = ctx.takes.place_constraints
     if not p:
-        p = ctx.take_maybe('io_place')
+        p = ctx.takes.io_place
     if not p:
         dummy = True
-        p = ctx.take_require('eblif')
+        p = ctx.takes.eblif
     if dummy:
         m = re.match('(.*)\\.[^.]*$', p)
         if m:
@@ -40,7 +40,6 @@ class PlaceModule(Module):
         p, _ = place_constraints_file(ctx)
         
         mapping['place'] = default_output_name(p)
-        mapping.update(ctx.r_env.resolve(ctx.produces))
         return mapping
     
     def execute(self, ctx: ModuleContext):
@@ -50,19 +49,16 @@ class PlaceModule(Module):
             with open(place_constraints, 'wb') as f:
                 f.write(b'')
         
-        device = ctx.value_require('device')
-        eblif = os.path.realpath(ctx.take_require('eblif'))
-
-        build_dir = os.path.dirname(eblif)
+        build_dir = os.path.dirname(ctx.takes.eblif)
 
         vpr_options = ['--fix_clusters', place_constraints]
-        platform_pack_vpr_options = ctx.value_maybe('vpr_options')
-        if platform_pack_vpr_options:
-            vpr_options += options_dict_to_list(platform_pack_vpr_options)
+        if ctx.values.vpr_options:
+            vpr_options += options_dict_to_list(ctx.values.vpr_options)
 
         
         yield 'Running VPR...'
-        vprargs = VprArgs(ctx.share, device, eblif, vpr_options=vpr_options)
+        vprargs = VprArgs(ctx.share, ctx.values.device, ctx.takes.eblif,
+                          vpr_options=vpr_options)
         vpr('place', vprargs, cwd=build_dir)
         
         # VPR names output on its own. If user requested another name, the
@@ -74,7 +70,7 @@ class PlaceModule(Module):
         # the ones in flow configuration.
         if ctx.is_output_explicit('place'):
             output_file = default_output_name(place_constraints)
-            shutil.move(output_file, ctx.output('place'))
+            shutil.move(output_file, ctx.outputs.place)
 
         yield 'Saving log...'
         save_vpr_log('place.log', build_dir=build_dir)
@@ -88,5 +84,9 @@ class PlaceModule(Module):
             'io_place?'
         ]
         self.produces = [ 'place' ]
+        self.values = [
+            'device',
+            'vpr_options?'
+        ]
 
 do_module(PlaceModule())

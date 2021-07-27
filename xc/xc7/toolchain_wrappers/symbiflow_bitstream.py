@@ -20,28 +20,24 @@ def bitstream_output_name(fasm: str):
 class BitstreamModule(Module):
     def map_io(self, ctx: ModuleContext):
         mapping = {}
-        oname = bitstream_output_name(ctx.take_require('fasm'))
-        mapping['bitstream'] = oname
-        mapping.update(ctx.r_env.resolve(ctx.produces))
+        mapping['bitstream'] = bitstream_output_name(ctx.takes.fasm)
         return mapping
     
     def execute(self, ctx: ModuleContext):
-        fasm = os.path.realpath(ctx.take_require('fasm'))
-        bitstream_device = ctx.value_require('bitstream_device')
-        part = ctx.value_require('part_name')
         database = sub('prjxray-config').decode().replace('\n', '')
-        database = os.path.join(database, bitstream_device)
+        database = os.path.join(database, ctx.values.bitstream_device)
 
         yield 'Compiling FASM to bitstream...'
         sub(*(['xcfasm',
                '--db-root', database,
-               '--part', part,
-               '--part_file', os.path.join(database, part, 'part.yaml'),
+               '--part', ctx.values.part_name,
+               '--part_file', os.path.join(database, ctx.values.part_name,
+                                           'part.yaml'),
                '--sparse',
                '--emit_pudc_b_pullup',
-               '--fn_in', fasm,
+               '--fn_in', os.path.realpath(ctx.takes.fasm),
                '--frm2bit', 'xc7frames2bit',
-               '--bit_out', ctx.output('bitstream')
+               '--bit_out', ctx.outputs.bitstream
                ]))
     
     def __init__(self):
@@ -49,5 +45,9 @@ class BitstreamModule(Module):
         self.no_of_phases = 1
         self.takes = [ 'fasm' ]
         self.produces = [ 'bitstream' ]
+        self.values = [
+            'part_name',
+            'bitstream_device'
+        ]
 
 do_module(BitstreamModule())

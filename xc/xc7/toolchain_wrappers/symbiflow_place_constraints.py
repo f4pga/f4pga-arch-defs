@@ -13,7 +13,7 @@ from symbiflow_module import *
 class IOPlaceModule(Module):
     def map_io(self, ctx: ModuleContext):
         mapping = {}
-        net = ctx.take_require('net')
+        net = ctx.takes.net
 
         p = net
         m = re.match('(.*)\\.[^.]*$', net)
@@ -22,24 +22,16 @@ class IOPlaceModule(Module):
 
         mapping['place_constraints'] = p + '.preplace'
 
-        mapping.update(ctx.r_env.resolve(ctx.produces))
         return mapping
 
     def execute(self, ctx: ModuleContext):
-        eblif = ctx.take_require('eblif')
-        net = ctx.take_require('net')
-        ioplace = ctx.take_require('io_place')
-        place_constraints = ctx.output('place_constraints')
-
-        part = ctx.value_require('part_name')
-        device = ctx.value_require('device')
-
         arch_dir = os.path.join(ctx.share, 'arch')
-        arch_def = os.path.join(arch_dir, device, 'arch.timing.xml')
+        arch_def = os.path.join(arch_dir, ctx.values.device, 'arch.timing.xml')
 
-        constr_gen = \
-            os.path.join(ctx.share, 'scripts/prjxray_create_place_constraints.py')
-        vpr_grid_map = os.path.join(ctx.share, 'arch', device, 'vpr_grid_map.csv')
+        constr_gen = os.path.join(ctx.share,
+                                  'scripts/prjxray_create_place_constraints.py')
+        vpr_grid_map = os.path.join(ctx.share, 'arch', ctx.values.device,
+                                    'vpr_grid_map.csv')
 
         if not os.path.isfile(vpr_grid_map) and not os.path.islink(vpr_grid_map):
             fatal(-1, f'Gridmap file \"{vpr_grid_map}\" not found')
@@ -48,16 +40,16 @@ class IOPlaceModule(Module):
         
         yield 'Generating .place...'
         data = sub('python3', constr_gen,
-                   '--net', net,
+                   '--net', ctx.takes.net,
                    '--arch', arch_def,
-                   '--blif', eblif,
+                   '--blif', ctx.takes.eblif,
                    '--vpr_grid_map', vpr_grid_map,
-                   '--input', ioplace,
+                   '--input', ctx.takes.io_place,
                    '--db_root', database,
-                   '--part', part)
+                   '--part', ctx.values.part_name)
         
         yield 'Saving place constraint data...'
-        with open(place_constraints, 'wb') as f:
+        with open(ctx.outputs.place_constraints, 'wb') as f:
             f.write(data)
 
     def __init__(self):
@@ -69,5 +61,9 @@ class IOPlaceModule(Module):
             'io_place'
         ]
         self.produces = [ 'place_constraints' ]
+        self.values = [
+            'device',
+            'part_name'
+        ]
 
 do_module(IOPlaceModule())

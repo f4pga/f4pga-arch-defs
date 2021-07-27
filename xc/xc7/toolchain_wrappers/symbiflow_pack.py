@@ -18,10 +18,9 @@ class PackModule(Module):
     def map_io(self, ctx: ModuleContext):
         mapping = {}
 
-        eblif = ctx.take_require('eblif')
-        p = eblif
+        p = ctx.takes.eblif
         build_dir = os.path.dirname(p)
-        m = re.match('(.*)\\.[^.]*$', eblif)
+        m = re.match('(.*)\\.[^.]*$', ctx.takes.eblif)
         if m:
             p = m.groups()[0] 
         mapping['net'] = p + '.net'
@@ -29,41 +28,38 @@ class PackModule(Module):
             os.path.join(build_dir, DEFAULT_UTIL_RPT)
         mapping['timing_rpt'] = \
             os.path.join(build_dir, DEFAULT_TIMING_RPT)
-        mapping.update(ctx.r_env.resolve(ctx.produces))
+        
         return mapping
     
     def execute(self, ctx: ModuleContext):
-        eblif = os.path.realpath(ctx.take_require('eblif'))
-        sdc = os.path.realpath(ctx.take_maybe('sdc'))
-        device = ctx.value_require('device')
-        platform_pack_vpr_options = ctx.value_maybe('vpr_options')
+        eblif = os.path.realpath(ctx.takes.eblif)
+        sdc = os.path.realpath(ctx.takes.sdc) if ctx.takes.sdc else None
         vpr_options = []
-        if platform_pack_vpr_options:
-            vpr_options = options_dict_to_list(platform_pack_vpr_options)
-        vpr_args = VprArgs(ctx.share, device, eblif, sdc_file=sdc,
+        if ctx.values.vpr_options:
+            vpr_options = options_dict_to_list(ctx.values.vpr_options)
+        vpr_args = VprArgs(ctx.share, ctx.values.device, eblif, sdc_file=sdc,
                            vpr_options=vpr_options)
-        build_dir = os.path.dirname(ctx.output('net'))
+        build_dir = os.path.dirname(ctx.outputs.net)
 
-        noisy_warnings(device)
+        noisy_warnings(ctx.values.device)
 
         yield 'Packing with VPR...'
         vpr('pack', vpr_args, cwd=build_dir)
 
-        log = ctx.output('log')
         og_log = os.path.join(build_dir, 'vpr_stdout.log')
 
         yield 'Moving/deleting files...'
-        if log:
-            shutil.move(og_log, log)
+        if ctx.outputs.pack_log:
+            shutil.move(og_log, ctx.outputs.pack_log)
         else:
             os.remove(og_log)
         
-        timing_rpt = ctx.output('timing_rpt')
-        if timing_rpt:
-            shutil.move(os.path.join(build_dir, DEFAULT_TIMING_RPT), timing_rpt)
-        util_rpt = ctx.output('util_rpt')
-        if util_rpt:
-            shutil.move(os.path.join(build_dir, DEFAULT_UTIL_RPT), util_rpt)
+        if ctx.outputs.timing_rpt:
+            shutil.move(os.path.join(build_dir, DEFAULT_TIMING_RPT),
+                        ctx.outputs.timing_rpt)
+        if ctx.outputs.util_rpt:
+            shutil.move(os.path.join(build_dir, DEFAULT_UTIL_RPT),
+                        ctx.outputs.util_rpt)
     
     def __init__(self):
         self.stage_name = 'pack'
@@ -77,6 +73,10 @@ class PackModule(Module):
             'util_rpt',
             'timing_rpt',
             'pack_log?'
+        ]
+        self.values = [
+            'device',
+            'vpr_options?'
         ]
 
 do_module(PackModule())
