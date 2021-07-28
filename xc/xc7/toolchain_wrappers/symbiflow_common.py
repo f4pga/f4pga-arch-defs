@@ -5,6 +5,7 @@ import shutil
 import sys
 import re
 
+# Represents argument list for VPR (Versatile Place and Route)
 class VprArgs:
     arch_dir: str
     arch_def: str
@@ -48,7 +49,7 @@ class VprArgs:
             'DEVICE_NAME': self.device_name
         }
 
-
+# TODO: Remove this
 def setup_vpr_arg_parser():
     parser = argparse.ArgumentParser(description="Parse flags")
     parser.add_argument('-d', '--device', nargs=1, metavar='<device>',
@@ -98,6 +99,8 @@ def vpr(mode: str, vprargs: VprArgs, cwd=None):
                   modeargs + vprargs.optional),
                cwd=cwd)
 
+# Converts a dictionary of named options for CLI program to a list.
+# Example: { "option_name": "value" } -> [ "--option_name", "value" ]
 def options_dict_to_list(opt_dict: dict):
     opts = []
     for key, val in opt_dict.items():
@@ -115,14 +118,17 @@ def my_path():
     mypath = os.path.realpath(sys.argv[0])
     return os.path.dirname(mypath)
 
-# Save VPR log
+# Save VPR logc (moves the default output file into a desired path)
 def save_vpr_log(filename, build_dir=''):
     shutil.move(os.path.join(build_dir, 'vpr_stdout.log'), filename)
 
+# Print a message informing about an error that has occured and terminate program
+# with a given return code.
 def fatal(code, message):
     print(f'[FATAL ERROR]: {message}')
     exit(code)
 
+# TODO: Move this to symbiflow_module
 def setup_stage_arg_parser():
     parser = argparse.ArgumentParser(description="Parse flags")
     parser.add_argument('-s', '--share', nargs=1, metavar='<share>',
@@ -135,6 +141,12 @@ def setup_stage_arg_parser():
                              'declarations and metadata')
     return parser
 
+# ResolutionEnv is used to hold onto mappings for variables used in flow and
+# perform text substitutions using those variables.
+# Variables can be referred in any "resolvable" string using the following
+# syntax: 'Some static text ${variable_name}'. The '${variable_name}' part
+# will be replaced by the value associated with name 'variable_name', is such
+# mapping exists.
 class ResolutionEnv:
     values: dict
 
@@ -144,6 +156,9 @@ class ResolutionEnv:
     def __copy__(self):
         return ResolutionEnv(self.values.copy())
 
+    # Perform resolution on `s`.
+    # `s` can be a `str`, a `dict` with arbitrary keys and resolvable values,
+    # or a `list` of resolvable values.
     def resolve(self, s):
         if type(s) is str:
             match_list = list(re.finditer('\$\{([^${}]*)\}', s))
@@ -161,6 +176,7 @@ class ResolutionEnv:
             s = dict([(k, self.resolve(v)) for k, v in s.items()])
         return s
 
+    # Add mappings from `values`
     def add_values(self, values: dict):
         for k, v in values.items():
             self.values[k] = self.resolve(v)

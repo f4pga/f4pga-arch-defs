@@ -1,3 +1,5 @@
+# Here are the things necessary to write a symbiflow Module
+
 import os
 import sys
 import json
