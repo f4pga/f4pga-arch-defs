@@ -5,7 +5,7 @@ switchbox - tile connections.
 import re
 
 from data_structs import SwitchboxPinType, Loc, OPPOSITE_DIRECTION, \
-    Connection, ConnectionLoc, ConnectionType, PinDirection
+    Connection, ConnectionLoc, ConnectionType, PinDirection, TilePin
 from utils import find_cell_in_tile
 
 # =============================================================================
@@ -200,10 +200,8 @@ def build_tile_connections(
                         tile_pin = pin
                         break
 
-                    # Split the pin name into cell name + pin name, check only
-                    # if the latter matches.
-                    cell, name = pin.name.split("_", maxsplit=1)
-                    if name == pin_name:
+                    # Check if only the pin name matches
+                    if pin.name.pin == pin_name:
                         tile_pin = pin
                         break
             else:
@@ -380,8 +378,10 @@ def build_gmux_qmux_connections(
                 dst_cell = find_cell_in_tile(clock_cell.name, dst_tile)
                 dst_type = ConnectionType.TILE
 
-                dst_pin_name = "{}{}_{}".format(
-                    dst_cell.type, dst_cell.index, pin_name
+                dst_pin_name = TilePin(
+                    cell = dst_cell.type,
+                    index = dst_cell.index,
+                    pin = pin_name
                 )
 
             # This pin connects to a global clock wire
@@ -407,8 +407,10 @@ def build_gmux_qmux_connections(
 
                     # Connect to the cell
                     src_type = ConnectionType.TILE
-                    src_pin_name = "{}{}_{}".format(
-                        src_cell.type, src_cell.index, "IC"
+                    src_pin_name = TilePin(
+                        cell = src_cell.type,
+                        index = src_cell.index,
+                        pin = "IC"
                     )
 
                     is_direct = True
@@ -428,8 +430,10 @@ def build_gmux_qmux_connections(
                         src_cell = find_cell_in_tile(other_cell.name, src_tile)
                         src_type = ConnectionType.TILE
 
-                        src_pin_name = "{}{}_{}".format(
-                            src_cell.type, src_cell.index, "IZ"
+                        src_pin_name = TilePin(
+                            cell = src_cell.type,
+                            index = src_cell.index,
+                            pin = "IZ"
                         )
 
                     is_direct = False

@@ -74,7 +74,19 @@ Cell = namedtuple("Cell", "type index name alias")
 
 # =============================================================================
 
+# A tile pin reference
+TilePin = namedtuple("TilePin", "cell index pin")
 
+TilePin.__str__ = lambda self: "{}{}_{}".format(
+    self.cell, self.index, self.pin)
+
+TilePin.__eq__ = lambda self, other: str(self) == str(other)
+
+TilePin.__ne__ = lambda self, other: str(self) != str(other)
+
+TilePin.__contains__ = lambda self, key: key in str(self)
+
+# Tile type
 class TileType(object):
     """
     A tile type representation. The Quicklogic FPGA fabric does not define tiles.
@@ -97,11 +109,13 @@ class TileType(object):
         for cell_type, cell_count in self.cells.items():
             for i in range(cell_count):
                 for pin in cells_library[cell_type].pins:
-                    name = "{}{}_{}".format(cell_type, i, pin.name)
-
                     self.pins.append(
                         Pin(
-                            name=name,
+                            name=TilePin(
+                                cell=cell_type,
+                                index=i,
+                                pin=pin.name
+                            ),
                             direction=pin.direction,
                             attrib=pin.attrib
                         )
@@ -318,7 +332,6 @@ class ConnectionType(Enum):
     TILE = 2  # Connection to a pin of a tile
     CLOCK = 3  # Connection to a global clock network cell modelled using
     # routing resources only.
-
 
 # A connection endpoint location. Specifies location, pin name and connection
 # type.

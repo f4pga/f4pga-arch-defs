@@ -6,7 +6,7 @@ from collections import defaultdict
 
 import lxml.etree as ET
 
-from data_structs import PinDirection
+from data_structs import PinDirection, TilePin
 from utils import fixup_pin_name, get_pin_name
 
 # =============================================================================
@@ -44,7 +44,7 @@ def add_ports(xml_parent, pins, buses=True):
             else:
                 pinlist[name] = max(pinlist[name], idx + 1)
         else:
-            name = fixup_pin_name(pin.name)
+            name = fixup_pin_name(str(pin.name))
             pinlist[name] = 1
 
     # Generate the pinout
@@ -100,27 +100,20 @@ def make_top_level_pb_type(tile_type, nsmap):
             }
         )
 
-    def tile_pin_to_cell_pin(name):
-        match = re.match(r"^([A-Za-z_]+)([0-9]+)_(.*)$", name)
-        assert match is not None, name
-
-        return "{}[{}].{}".format(
-            match.group(1), match.group(2), match.group(3)
-        )
-
     # Generate the interconnect
     xml_ic = ET.SubElement(xml_pb, "interconnect")
 
     for pin in tile_type.pins:
-        name, idx = get_pin_name(pin.name)
 
-        if tile_type.fake_const_pin and name == "FAKE_CONST":
+        # Skip the fake constant input pin
+        if tile_type.fake_const_pin and pin.name == "FAKE_CONST":
             continue
 
-        cell_pin = name if idx is None else "{}[{}]".format(name, idx)
-        tile_pin = fixup_pin_name(pin.name)
+        cell_pin = "{}[{}].{}".format(
+            pin.name.cell, pin.name.index, pin.name.pin
+        )
 
-        cell_pin = tile_pin_to_cell_pin(cell_pin)
+        tile_pin = fixup_pin_name(str(pin.name))
         tile_pin = "{}.{}".format(pb_name, tile_pin)
 
         if pin.direction == PinDirection.INPUT:

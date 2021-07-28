@@ -411,7 +411,9 @@ def get_node_id_for_tile_pin(graph, loc, tile_type, pin_name):
 
     # First try without the capacity prefix
     if loc.z == 0:
-        rr_pin_name = "TL-{}.{}[0]".format(tile_type, fixup_pin_name(pin_name))
+        rr_pin_name = "TL-{}.{}[0]".format(
+            tile_type, fixup_pin_name(str(pin_name))
+        )
 
         try:
             nodes = graph.get_nodes_for_pin((loc.x, loc.y), rr_pin_name)
@@ -421,7 +423,7 @@ def get_node_id_for_tile_pin(graph, loc, tile_type, pin_name):
     # Didn't find, try with the capacity prefix
     if nodes is None:
         rr_pin_name = "TL-{}[{}].{}[0]".format(
-            tile_type, loc.z, fixup_pin_name(pin_name)
+            tile_type, loc.z, fixup_pin_name(str(pin_name))
         )
 
         try:
@@ -946,7 +948,7 @@ def populate_direct_connections(graph, connections, connection_loc_to_node):
     for connection in bar(conns):
 
         # Get segment id and switch id
-        if connection.src.pin.startswith("CLOCK"):
+        if str(connection.src.pin).startswith("CLOCK"):
             switch_id = graph.get_delayless_switch_id()
 
         else:
