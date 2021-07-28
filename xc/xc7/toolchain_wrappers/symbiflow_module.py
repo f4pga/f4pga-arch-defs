@@ -36,13 +36,6 @@ class Module:
         self.stage_name = '<BASE STAGE>'
         self.prod_meta = {}
 
-def _decompose_depname(name: str):
-    required = True
-    if name[len(name) - 1] == '?':
-        required = False
-        name = name[:len(name) - 1]
-    return name, required
-
 # A class for object holding mappings for dependencies and values as well as
 # other information needed during modules execution.
 class ModuleContext:
@@ -68,7 +61,7 @@ class ModuleContext:
     # been given to the module on its input.
     def _getreqmaybe(self, obj, deps: 'list[str]', deps_cfg: 'dict[str, ]'):
         for name in deps:
-            name, required = _decompose_depname(name)
+            name, required = decompose_depname(name)
             value = deps_cfg.get(name)
             if value is None and required:
                 fatal(-1, f'Dependency `{name}` is required by module '

@@ -5,7 +5,6 @@ import sys
 import os
 import json
 import argparse
-import re
 from copy import copy
 from subprocess import Popen, PIPE
 from typing import Iterable
@@ -81,47 +80,24 @@ def run_module(path, mode, config):
 
 # Stage dependency input/output
 class StageIO:
-    name: str         # A symbolic name given to the dependency
-    qualifier: str    # Either `req` or `maybe`. Tells whether the dependency is
-                      # required or optional
-    auto_flow: bool   # TODO: remove this
+    name: str       # A symbolic name given to the dependency
+    required: bool  # True if the dependency is marked as 'necessary'/'required'
 
     # Encoded name feauters special characters that imply certain qualifiers.
     # Any name that ends with '?' is treated as with 'maybe' qualifier.
     # The '?' Symbol is then dropped from the dependency name.
     def __init__(self, encoded_name: str):
-        m = re.match('(->)?(!)?(\w+)(\?)?(->)?', encoded_name)
-        span = m.span()
-        if span[1] - span[0] != len(encoded_name):
-            self.qualifier = 'invalid'
-            return
-        m_in, m_not, m_name, m_maybe, m_out = m.groups()
-        if (not m_name) or (m_not and m_maybe) or (m_in and m_out) \
-                or (m_out and m_not):
-            self.qualifier = 'invalid'
-            return
-        self.name = m_name
-        if m_not:
-            self.qualifier = 'not'
-        elif m_maybe:
-            self.qualifier = 'maybe'
-        else:
-            self.qualifier = 'req'
-        if m_in or m_out:
-            self.auto_flow = True
-        else:
-            self.auto_flow = False
+        self.name, self.required = decompose_depname(encoded_name)
     
     def __repr__(self) -> str:
-        return 'StageIO { name: \'' + self.name + '\', qualifier: ' + \
-               self.qualifier + ', auto_flow: ' + str(self.auto_flow) + ' }'
+        return 'StageIO { name: \'' + self.name + '\', required: ' + \
+               self.required + ', auto_flow: ' + str(self.auto_flow) + ' }'
 class Stage:
     name: str                  #   Name of the stage (module's name)
     takes: 'list[StageIO]'     #   List of symbolic names of dependencies used by
                                # the stage
     produces: 'list[StageIO]'  #   List of symbolic names of dependencies 
                                # produced by the stage
-    args: 'list[str]'          # TODO: remove this
     values: 'dict[str, ]'      #   Values used by the stage. The dictionary
                                # maps value's symbolic names to values that will
                                # overload `values` input for a given module.
@@ -152,15 +128,11 @@ class Stage:
         self.takes = []
         for input in mod_io['takes']:
             io = StageIO(input)
-            if io.qualifier == 'invalid':
-                raise Exception(f'Invalid input token `{input}`')
             self.takes.append(io)
         
         self.produces = []
         for input in mod_io['produces']:
             io = StageIO(input)
-            if io.qualifier == 'invalid':
-                raise Exception(f'Invalid input token {input}')
             self.produces.append(io)
         
         self.meta = mod_io['meta']
@@ -294,27 +266,13 @@ def get_stage_values_override(og_values: dict, stage: Stage):
     values = og_values.copy()
     values.update(stage.values)
     return values
-
-# TODO: Remove this
-def get_stage_cfg_args(stage: Stage, p_flow: dict):
-    stages_cfg = p_flow.get('stages')
-    if not stages:
-        return
-    stage_cfg = stages_cfg.get(stage.name)
-    if not stage_cfg:
-        return {}
-    arg_cfg = stage_cfg.get('args')
-    if arg_cfg:
-        return arg_cfg
-    else:
-        return {}
     
-def prepare_stage_input(stage: Stage, platform_name: str, values: dict, args,
+def prepare_stage_input(stage: Stage, platform_name: str, values: dict,
                         dep_paths: 'dict[str, ]', config_paths: 'dict[str, ]'):
     takes = {}
     for take in stage.takes:
         paths = dep_paths.get(take.name)
-        if paths: # Some takes may have 'maybe' qualifier and thus are not required
+        if paths: # Some takes may be not required
             takes[take.name] = paths
     
     produces = {}
@@ -327,12 +285,12 @@ def prepare_stage_input(stage: Stage, platform_name: str, values: dict, args,
     stage_mod_cfg = {
         'takes': takes,
         'produces': produces,
-        'args': args,
         'values': values,
         'platform': platform_name
     }
     return stage_mod_cfg
 
+# Check if a dependency differs from its last version
 def dep_differ(paths, symbicache: SymbiCache):
     if type(paths) is str:
         s = symbicache.get_status(paths)
@@ -351,6 +309,8 @@ def dep_differ(paths, symbicache: SymbiCache):
                 return True
     return False
 
+# Check if a dependency or any of the dependencies it depends on differ from
+# their last versions.
 def dep_will_differ(target: str, paths, os_map: 'dict[str, Stage]',
                     rerun_stages: 'set[str]', symbicache: SymbiCache):
     provider = os_map.get(target)
@@ -364,7 +324,6 @@ def resolve_dependencies(target: str, os_map: 'dict[str, Stage]',
                          dep_paths: 'dict[str, ]', config_paths: 'dict[str, ]',
                          stages_checked: 'set[str]', rerun_stages: 'set[str]',
                          symbicache: SymbiCache):
-    # TODO: Drop support for `not` qualifier
     # Check if dependency is already resolved
     paths = dep_paths.get(target)
     if paths and not os_map.get(target):
@@ -373,14 +332,13 @@ def resolve_dependencies(target: str, os_map: 'dict[str, Stage]',
     provider = os_map.get(target)
     if provider and provider.name not in stages_checked:
         for take in provider.takes:
-            # print(f'take {take.name}')
             resolve_dependencies(take.name, os_map, platform_name, values,
                                  p_flow, r_env, dep_paths, config_paths,
                                  stages_checked, rerun_stages, symbicache)
-            # If any of the required dependencies is unavailable, then the provider
-            # stage cannot be run
+            # If any of the required dependencies is unavailable, then the
+            # provider stage cannot be run
             take_paths = dep_paths.get(take.name)
-            if not take_paths and take.qualifier == 'req':
+            if not take_paths and take.required:
                 print(f'    Stage `{provider.name}` is unreachable due to unmet '
                     f'dependency {take.name}')
                 return
@@ -392,9 +350,8 @@ def resolve_dependencies(target: str, os_map: 'dict[str, Stage]',
         stages_checked.add(provider.name)
         # Prepare input for map mode
         stage_values = get_stage_values_override(values, provider)
-        stage_args = get_stage_cfg_args(provider, p_flow)
         mod_input = prepare_stage_input(provider, platform_name, stage_values,
-                                        stage_args, dep_paths, config_paths)
+                                        dep_paths, config_paths)
         # Query module for its outputs
         outputs = run_module(provider.module, 'map', mod_input)
         dep_paths.update(outputs)
@@ -417,16 +374,14 @@ def execute_flow(target: str, values: 'dict[str, ]',
             for p_dep in provider.takes:
                 execute_flow(p_dep.name, values, os_map, dep_paths, rerun_stages)
                 p_dep_paths = dep_paths.get(p_dep.name)
-                if p_dep.qualifier == 'req' and not req_exists(p_dep_paths):
+                if p_dep.required and not req_exists(p_dep_paths):
                     fatal(-1, f'Can\'t produce promised dependency '
                               f'`{p_dep.name}`. Something went wrong.')
 
             # Prepare inputs
             stage_values = get_stage_values_override(values, provider)
-            stage_args = get_stage_cfg_args(provider, p_flow)
             mod_input = prepare_stage_input(provider, platform_name,
-                                            stage_values, stage_args, dep_paths,
-                                            {})
+                                            stage_values, dep_paths, {})
             # Run module
             run_module(provider.module, 'exec', mod_input)
 

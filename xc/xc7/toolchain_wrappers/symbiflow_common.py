@@ -5,6 +5,17 @@ import shutil
 import sys
 import re
 
+# Returns decoded dependency name along with a bool telling whether the
+# dependency is required.
+# Examples: "required_dep" -> ("required_dep", True)
+#           "maybe_dep?" -> ("maybe_dep", False)
+def decompose_depname(name: str):
+    required = True
+    if name[len(name) - 1] == '?':
+        required = False
+        name = name[:len(name) - 1]
+    return name, required
+
 # Represents argument list for VPR (Versatile Place and Route)
 class VprArgs:
     arch_dir: str
@@ -37,36 +48,6 @@ class VprArgs:
         self.optional = vpr_options
         if sdc_file:
             self.optional += ['--sdc_file', sdc_file]
-    
-    def env(self):
-        return {
-            'ARCH_DIR': self.arch_dir,
-            'ARCH_DEF': self.arch_def,
-            'LOOKAHEAD': self.lookahead,
-            'RR_GRAPH': self.rr_graph,
-            'RR_GRAPH_XML': self.rr_graph_xml,
-            'PLACE_DELAY': self.place_delay,
-            'DEVICE_NAME': self.device_name
-        }
-
-# TODO: Remove this
-def setup_vpr_arg_parser():
-    parser = argparse.ArgumentParser(description="Parse flags")
-    parser.add_argument('-d', '--device', nargs=1, metavar='<device>',
-                        type=str, help='Device type (e.g. artix7)')
-    parser.add_argument('-e', '--eblif', nargs=1, metavar='<eblif file>',
-                        type=str, help='EBLIF filename')
-    parser.add_argument('-p', '--pcf', nargs=1, metavar='<pcf file>',
-                        type=str, help='PCF filename')
-    parser.add_argument('-P', '--part', nargs=1, metavar='<name>',
-                        type=str, help='Part name')
-    parser.add_argument('-s', '--sdc', nargs=1, metavar='<sdc file>',
-                        type=str, help='SDC file')
-    parser.add_argument('-a', '--additional_vpr_options', metavar='<opts>',
-                        type=str, help='Additional VPR options')
-    parser.add_argument('additional_vpr_args', nargs='*', metavar='<args>',
-                        type=str, help='Additional arguments for vpr command')
-    return parser
 
 # Execute subroutine
 def sub(*args, env=None, cwd=None):
