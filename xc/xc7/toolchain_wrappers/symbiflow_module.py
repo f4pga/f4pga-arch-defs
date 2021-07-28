@@ -5,6 +5,7 @@ import sys
 import json
 from types import SimpleNamespace
 from symbiflow_common import *
+from colorama import Fore, Style
 
 # A `Module` is a wrapper for whatever tool is used in a flow.
 # Modules can request dependencies, values and are guranteed to have all the
@@ -155,9 +156,12 @@ def do_module(module: Module):
         return
     
     
-    print(f'Executing module `{module.stage_name}`:')
+    print( 'Executing module'
+          f'`{Style.BRIGHT + module.stage_name + Style.RESET_ALL}`:')
     current_phase = 1
     for phase_msg in module.execute(mod_ctx):
-        print(f'    [{current_phase}/{module.no_of_phases}]: {phase_msg}')
+        print(f'    {Style.BRIGHT}[{current_phase}/{module.no_of_phases}]'
+            f'{Style.RESET_ALL}: {phase_msg}')
         current_phase += 1
-    print(f'Module `{module.stage_name}` has finished its work!')
+    print(f'Module `{Style.BRIGHT + module.stage_name + Style.RESET_ALL}` '
+           'has finished its work!')
