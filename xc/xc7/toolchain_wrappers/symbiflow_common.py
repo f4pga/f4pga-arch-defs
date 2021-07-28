@@ -109,19 +109,6 @@ def fatal(code, message):
     print(f'[FATAL ERROR]: {message}')
     exit(code)
 
-# TODO: Move this to symbiflow_module
-def setup_stage_arg_parser():
-    parser = argparse.ArgumentParser(description="Parse flags")
-    parser.add_argument('-s', '--share', nargs=1, metavar='<share>',
-                        type=str, help='Symbiflow\'s "share" directory path')
-    parser.add_argument('-m', '--map', action='store_true',
-                        help='Perform `output name` <-> `file path` mapping '
-                             'instead of executing the stage.')
-    parser.add_argument('-i', '--io', action='store_true',
-                        help='Return a JSON containing module input/output '
-                             'declarations and metadata')
-    return parser
-
 # ResolutionEnv is used to hold onto mappings for variables used in flow and
 # perform text substitutions using those variables.
 # Variables can be referred in any "resolvable" string using the following

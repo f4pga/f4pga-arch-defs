@@ -104,10 +104,22 @@ def get_mod_metadata(module: Module):
         meta[prod] = prod_meta if prod_meta else '<no description>'
     return meta
 
+def setup_module_arg_parser():
+    parser = argparse.ArgumentParser(description="Parse flags")
+    parser.add_argument('-s', '--share', nargs=1, metavar='<share>',
+                        type=str, help='Symbiflow\'s "share" directory path')
+    parser.add_argument('-m', '--map', action='store_true',
+                        help='Perform `output name` <-> `file path` mapping '
+                             'instead of executing the stage.')
+    parser.add_argument('-i', '--io', action='store_true',
+                        help='Return a JSON containing module input/output '
+                             'declarations and metadata')
+    return parser
+
 # Call it at the end of module's script. Wraps the module to be used
 # through shell.
 def do_module(module: Module):
-    parser = setup_stage_arg_parser()
+    parser = setup_module_arg_parser()
     args = parser.parse_args()
 
     if args.io:
