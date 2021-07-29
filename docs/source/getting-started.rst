@@ -76,7 +76,7 @@ The last step is to load the bitstream to your platform.
 The final output file can be found in the appropriate test directory, i.e:
 ``build/xc/xc7/tests/counter/counter_arty/artix7-xc7a50t-arty-swbut-roi-virt-xc7a50t-arty-swbut-test/top.bit``
 
-The loading proces may be different for every vendor.
+The loading process may be different for every vendor.
 For convenience the ``prog`` targets are provided for this purpose, e.g.:
 
 .. code-block:: bash
