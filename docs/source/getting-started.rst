@@ -20,31 +20,42 @@ Clone repository
 Prepare environment
 -------------------
 
-Download all the necessary packages and databases into an isolated environment:
+Download all the necessary packages, tools and databases into an isolated conda environment:
 
 .. code-block:: bash
 
     cd symbiflow-arch-defs
     make env
 
+This also checks out all the submodules and generates the build system (``Make``) from the CMake configuration.
+
 Build example
 -------------
 
-Enter the appropriate test build directory, depending on your target architecture and invoke the appropriate make target.
+While different architectures provide different build targets, there are some targets that should exist for all architectures.
 
-Build directories depend on the architecture.
-Because of that, depending on the chosen target, a different toolchain backend will be used.
+Each architecture has its own toolchain backend that will be called during build.
 (See `Project X-Ray <https://prjxray.readthedocs.io/en/latest/>`_
 and `Project Trellis <https://prjtrellis.readthedocs.io/en/latest/>`_ for more information)
 
-Moreover, it is worth to note that target names have the form <*testname_platform_outputformat*>.
-
-Assuming that you would like to generate bitstream ``.bit`` file with the counter example for the Arty board, which uses Xilinx Artix-7 FPGA, you will type:
+For development purposes a set of test designs are included for each supported architecture. In order to perform a build
+of a test design with the ``Make`` build system enter the appropriate test build directory specific to your target architecture
+and invoke desired make target.
+Assuming that you would like to generate the bitstream ``.bit`` file with the counter example for the Arty board, which uses Xilinx Artix-7 FPGA,
+you will execute the following:
 
 .. code-block:: bash
 
     cd build/xc/xc7/tests/counter
     make counter_arty_bit
+
+.. note::
+
+   Test design targets names are based on the following naming convention:  ``<design>_<platform>_<target_step>``, where ``<target_step>`` is the actual step to be done, e.g.: ``bit``, ``place``, ``route``, ``prog``.
+
+.. warning::
+
+    Generating architecture files is expected to take a long time to build, even on fast machines.
 
 Load bitstream
 --------------
@@ -54,7 +65,7 @@ The final output file can be found in the appropriate test directory, i.e:
 ``build/xc/xc7/tests/counter/counter_arty/artix7-xc7a50t-arty-swbut-roi-virt-xc7a50t-arty-swbut-test/top.bit``
 
 The loading proces may be different for every vendor.
-For convenience a target is provided for this purpose, e.g.:
+For convenience the ``prog`` targets are provided for this purpose, e.g.:
 
 .. code-block:: bash
 
