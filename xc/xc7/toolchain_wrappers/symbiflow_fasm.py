@@ -62,8 +62,8 @@ class FasmModule(Module):
         else:
             yield 'No extra FASM to append'
     
-    def __init__(self):
-        self.stage_name = 'fasm'
+    def __init__(self, _):
+        self.name = 'fasm'
         self.no_of_phases = 2
         self.takes = [
             'eblif',
@@ -78,4 +78,4 @@ class FasmModule(Module):
             'vpr_options?'
         ]
 
-do_module(FasmModule())
+do_module(FasmModule)

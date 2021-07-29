@@ -64,9 +64,10 @@ def run_module(path, mode, config):
             p.stdin.flush()
         mod_res = p
     elif mode == 'io':
-        p = subprocess.run(['python3', path, '--io'], stdout=PIPE)
+        cmd = ['python3', path, '--io']
+        with Popen(cmd, stdin=PIPE, stdout=PIPE) as p:
+            out = p.communicate(input=config_json.encode())[0]
         mod_res = p
-        out = p.stdout
     if mod_res.returncode != 0:
         print(f'Module `{path}` failed with code {mod_res.returncode}\n'
               f'MODE: \'{mode}\'\n\n'
@@ -98,7 +99,7 @@ class Stage:
                                # the stage
     produces: 'list[StageIO]'  #   List of symbolic names of dependencies 
                                # produced by the stage
-    values: 'dict[str, ]'      #   Values used by the stage. The dictionary
+    value_ovds: 'dict[str, ]'  #   Values used by the stage. The dictionary
                                # maps value's symbolic names to values that will
                                # overload `values` input for a given module.
                                # What makes values different from `takes` is that
@@ -107,23 +108,32 @@ class Stage:
     module: str                #   Path to the associated module
     meta: 'dict[str, str]'     #   Stage's metadata extracted from module's
                                # output.
+    params: object             #   Module-specific parameters required to
+                               # instatntiate the module.
 
-    def __init__(self, mod_path, mod_opts, r_env: ResolutionEnv, bin='./'):
+    def __init__(self, name: str, mod_path: str, mod_opts,
+                 r_env: ResolutionEnv, bin='./'):
         self.module = os.path.join(bin, mod_path)
         
         if not os.path.isfile(self.module) and not os.path.islink(self.module):
             raise Exception(f'Module file {self.module} does not exist')
         
-        mod_io = run_module(self.module, 'io', None)
-        self.name = mod_io['name']
-
         if not mod_opts:
             mod_opts = {}
-        
+
+        self.params = mod_opts.get('params')
+
         values = mod_opts.get('values')
         if values:
             r_env = copy(r_env)
-            _platform_parse_values(values, r_env)
+            values = dict(_platform_parse_values(values, r_env))
+            self.value_ovds = values
+        else:
+            self.value_ovds = {}
+
+        io_config = prepare_stage_io_input(self)
+        mod_io = run_module(self.module, 'io', io_config)
+        self.name = name
         
         self.takes = []
         for input in mod_io['takes']:
@@ -136,37 +146,33 @@ class Stage:
             self.produces.append(io)
         
         self.meta = mod_io['meta']
-        
-        self.args = mod_opts['args'].copy() if mod_opts.get('args') else {}
-        values = mod_opts.get('values')
-        if values:
-            self.values = r_env.resolve(values)
-        else:
-            self.values = {}
 
     def __repr__(self) -> str:
         return 'Stage \'' + self.name + '\' {' \
-               f' values: {self.values},' \
+               f' value_overrides: {self.value_ovds},' \
                f' args: {self.args},' \
                f' takes: {self.takes},' \
                f' produces: {self.produces} ' + '}'
 
+# Resolve and yield values while adding the to `r_env` for further rosolutions.
 def _platform_parse_values(values: dict, r_env: ResolutionEnv):
     for k, v in values.items():
         vr = r_env.resolve(v)
         r_env.values[k] = vr
+        yield k, vr
 
 # Iterates over all stages available in a given flow.
 def platform_stages(platform_flow, r_env, bin='./'):
     module_options = platform_flow.get('module_options')
-    for module_path in platform_flow['modules']:
-        mod_opts = module_options.get(module_path) if module_options else None
-        yield Stage(module_path, mod_opts, r_env, bin=bin)
+    for stage_name, module_path in platform_flow['modules'].items():
+        mod_opts = module_options.get(stage_name) if module_options else None
+        yield Stage(stage_name, module_path, mod_opts, r_env, bin=bin)
         
 # Checks whether a dependency exists on a drive.
 def req_exists(r):
     if type(r) is str:
-        if not os.path.isfile(r) and not os.path.islink(r):
+        if not os.path.isfile(r) and not os.path.islink(r) \
+                and not os.path.isdir(r):
             return False
     elif type(r) is list:
         return not (False in map(req_exists, r))
@@ -264,9 +270,12 @@ def get_flow_values(platform_flow: dict, flow: dict, platform_name):
 
 def get_stage_values_override(og_values: dict, stage: Stage):
     values = og_values.copy()
-    values.update(stage.values)
+    values.update(stage.value_ovds)
     return values
-    
+
+def prepare_stage_io_input(stage: Stage):
+    return { 'params': stage.params } if stage.params is not None else {}
+
 def prepare_stage_input(stage: Stage, platform_name: str, values: dict,
                         dep_paths: 'dict[str, ]', config_paths: 'dict[str, ]'):
     takes = {}
@@ -286,8 +295,10 @@ def prepare_stage_input(stage: Stage, platform_name: str, values: dict,
         'takes': takes,
         'produces': produces,
         'values': values,
-        'platform': platform_name
+        'platform': platform_name,
     }
+    if stage.params is not None:
+        stage_mod_cfg['params'] = stage.params
     return stage_mod_cfg
 
 # Check if a dependency differs from its last version
@@ -339,8 +350,10 @@ def resolve_dependencies(target: str, os_map: 'dict[str, Stage]',
             # provider stage cannot be run
             take_paths = dep_paths.get(take.name)
             if not take_paths and take.required:
-                print(f'    Stage `{provider.name}` is unreachable due to unmet '
-                    f'dependency {take.name}')
+                print( '    Stage '
+                      f'`{Style.BRIGHT + provider.name + Style.RESET_ALL}` is'
+                       'unreachable due to unmet dependency '
+                      f'`{Style.BRIGHT + take.name + Style.RESET_ALL}`')
                 return
             
             if dep_will_differ(take.name, take_paths, os_map, rerun_stages,

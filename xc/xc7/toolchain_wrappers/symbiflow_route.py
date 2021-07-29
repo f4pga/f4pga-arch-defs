@@ -43,8 +43,8 @@ class RouteModule(Module):
         yield 'Saving log...'
         save_vpr_log('route.log', build_dir=build_dir)
         
-    def __init__(self):
-        self.stage_name = 'route'
+    def __init__(self, _):
+        self.name = 'route'
         self.no_of_phases = 2
         self.takes = [ 'eblif' ]
         self.produces = [ 'route' ]
@@ -53,4 +53,4 @@ class RouteModule(Module):
             'vpr_options?'
         ]
 
-do_module(RouteModule())
+do_module(RouteModule)

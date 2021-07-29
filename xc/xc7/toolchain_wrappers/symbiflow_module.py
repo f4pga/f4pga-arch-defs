@@ -14,7 +14,7 @@ from colorama import Fore, Style
 # for these dependencies.
 class Module:
     no_of_phases: int
-    stage_name: str
+    name: str
     takes: 'list[str]'
     produces: 'list[str]'
     values: 'list[str]'
@@ -31,10 +31,10 @@ class Module:
     def map_io(self, ctx):
         return {}
     
-    def __init__(self):
+    def __init__(self, params: 'dict[str, ] | None'):
         self.no_of_phases = 0
         self.current_phase = 0
-        self.stage_name = '<BASE STAGE>'
+        self.name = '<BASE STAGE>'
         self.prod_meta = {}
 
 # A class for object holding mappings for dependencies and values as well as
@@ -72,7 +72,7 @@ class ModuleContext:
     # `config` should be a dictionary given as modules input.
     def __init__(self, module: Module, config: 'dict[str, ]',
                  r_env: ResolutionEnv, share: str):
-        self.module_name = module.stage_name
+        self.module_name = module.name
         self.takes = SimpleNamespace()
         self.produces = SimpleNamespace()
         self.values = SimpleNamespace()
@@ -119,13 +119,17 @@ def setup_module_arg_parser():
 
 # Call it at the end of module's script. Wraps the module to be used
 # through shell.
-def do_module(module: Module):
+def do_module(module_ctor):
     parser = setup_module_arg_parser()
     args = parser.parse_args()
+    config_json = sys.stdin.read()
+    config = json.loads(config_json)
+
+    module: Module = module_ctor(config.get('params'))
 
     if args.io:
         io = {
-            'name': module.stage_name,
+            'name': module.name,
             'takes': module.takes,
             'produces': module.produces,
             'meta': get_mod_metadata(module)
@@ -140,8 +144,6 @@ def do_module(module: Module):
     
     share = os.path.realpath(args.share[0])
 
-    config_json = sys.stdin.read()
-    config = json.loads(config_json)
 
     r_env = ResolutionEnv({
         'shareDir': share
@@ -156,12 +158,12 @@ def do_module(module: Module):
         return
     
     
-    print( 'Executing module'
-          f'`{Style.BRIGHT + module.stage_name + Style.RESET_ALL}`:')
+    print( 'Executing module '
+          f'`{Style.BRIGHT + module.name + Style.RESET_ALL}`:')
     current_phase = 1
     for phase_msg in module.execute(mod_ctx):
         print(f'    {Style.BRIGHT}[{current_phase}/{module.no_of_phases}]'
             f'{Style.RESET_ALL}: {phase_msg}')
         current_phase += 1
-    print(f'Module `{Style.BRIGHT + module.stage_name + Style.RESET_ALL}` '
+    print(f'Module `{Style.BRIGHT + module.name + Style.RESET_ALL}` '
            'has finished its work!')

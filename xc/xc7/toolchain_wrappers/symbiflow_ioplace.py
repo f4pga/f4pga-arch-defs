@@ -44,8 +44,8 @@ class IOPlaceModule(Module):
         with open(ctx.outputs.io_place, 'wb') as f:
             f.write(data)
 
-    def __init__(self):
-        self.stage_name = 'io_place'
+    def __init__(self, _):
+        self.name = 'io_place'
         self.no_of_phases = 2
         self.takes = [
             'eblif',
@@ -60,4 +60,4 @@ class IOPlaceModule(Module):
 
 
 
-do_module(IOPlaceModule())
+do_module(IOPlaceModule)

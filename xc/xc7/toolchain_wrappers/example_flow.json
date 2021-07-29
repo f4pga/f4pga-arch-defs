@@ -1,6 +1,7 @@
 {
     "dependencies": {
         "sources": ["counter.v"],
+        "xdc": ["arty.xdc"],
         "synth_log": "synth.log",
         "pack_log": "pack.log"
     },
@@ -8,22 +9,6 @@
         "values": {
             "top": "top",
             "build_dir": "build/arty_100"
-        },
-        "dependencies": {
-            "xdc": ["arty.xdc"],
-            "eblif": "${build_dir}/${top}.eblif",
-            "fasm_extra": "${build_dir}/${top}_fasm_extra.fasm",
-            "json": "${build_dir}/${top}.json",
-            "synth_json": "${build_dir}/${top}_io.json",
-            "sdc": "${build_dir}/${top}.sdc",
-            "synth_v": "${build_dir}/${top}_synth.v"
-        },
-        "stages": {
-            "synthesize": {
-                "values": {
-                    "top": "${top}"
-                }
-            }
         }
     },
     "arty_35": {
@@ -39,13 +24,6 @@
             "synth_json": "${build_dir}/${top}_io.json",
             "sdc": "${build_dir}/${top}.sdc",
             "synth_v": "${build_dir}/${top}_synth.v"
-        },
-        "stages": {
-            "synthesize": {
-                "args": {
-                    "top": "${top}"
-                }
-            }
         }
     }
 }

@@ -35,13 +35,16 @@ class SymbiCache:
     # Add/remove a file to.from the tracked files, update checksum
     # if necessary and calculate status.
     def update(self, path: str):
-        if not (os.path.isfile(path) or os.path.islink(path)):
+        isdir = os.path.isdir(path)
+        if not (os.path.isfile(path) or os.path.islink(path) or isdir):
             if self.status.get(path):
                 self.status.pop(path)
             if self.hashes.get(path):
                 self.hashes.pop(path)
-            return
-        hash = get_file_hash(path)
+            return True
+        hash = 0 # Directories always get '0' hash.
+        if not isdir:
+            hash = get_file_hash(path)
         last_hash = self.hashes.get(path)
         if hash != last_hash:
             print(f'{path} changed')

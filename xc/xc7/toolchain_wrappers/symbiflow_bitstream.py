@@ -40,8 +40,8 @@ class BitstreamModule(Module):
                '--bit_out', ctx.outputs.bitstream
                ]))
     
-    def __init__(self):
-        self.stage_name = 'bitstream'
+    def __init__(self, _):
+        self.name = 'bitstream'
         self.no_of_phases = 1
         self.takes = [ 'fasm' ]
         self.produces = [ 'bitstream' ]
@@ -50,4 +50,4 @@ class BitstreamModule(Module):
             'bitstream_device'
         ]
 
-do_module(BitstreamModule())
+do_module(BitstreamModule)

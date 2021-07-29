@@ -80,14 +80,17 @@ def yosys_conv(tcl, tcl_env, synth_json):
 class SynthModule(Module):
     def map_io(self, ctx: ModuleContext):
         mapping = {}
+
         top = ctx.values.top
+        if ctx.takes.build_dir:
+            top = os.path.join(ctx.takes.build_dir, top)
         if top:
-            mapping['eblif'] = os.path.realpath(top + '.eblif')
-            mapping['fasm_extra'] = os.path.realpath(top + '_fasm_extra.fasm')
-            mapping['json'] = os.path.realpath(top + '.json')
-            mapping['synth_json'] = os.path.realpath(top + '_io.json')
-            mapping['sdc'] = os.path.realpath(top + '.sdc')
-            mapping['synth_v'] = os.path.realpath(top + '_synth.v')
+            mapping['eblif'] = top + '.eblif'
+            mapping['fasm_extra'] = top + '_fasm_extra.fasm'
+            mapping['json'] = top + '.json'
+            mapping['synth_json'] = top + '_io.json'
+            mapping['sdc'] = top + '.sdc'
+            mapping['synth_v'] = top + '_synth.v'
         return mapping
     
     def execute(self, ctx: ModuleContext):
@@ -123,12 +126,13 @@ class SynthModule(Module):
         yield f'Converting...'
         yosys_conv(conv_tcl, tcl_env, ctx.outputs.synth_json)
     
-    def __init__(self):
-        self.stage_name = 'synthesize'
+    def __init__(self, _):
+        self.name = 'synthesize'
         self.no_of_phases = 3
         self.takes = [
             'sources',
-            'xdc?'
+            'xdc?',
+            'build_dir?'
         ]
         self.produces = [
             'eblif',
@@ -153,4 +157,4 @@ class SynthModule(Module):
             'synth_log': 'YOSYS synthesis log'
         }
 
-do_module(SynthModule())
+do_module(SynthModule)

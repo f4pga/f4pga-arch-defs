@@ -52,8 +52,8 @@ class IOPlaceModule(Module):
         with open(ctx.outputs.place_constraints, 'wb') as f:
             f.write(data)
 
-    def __init__(self):
-        self.stage_name = 'place_constraints'
+    def __init__(self, _):
+        self.name = 'place_constraints'
         self.no_of_phases = 2
         self.takes = [
             'eblif',
@@ -66,4 +66,4 @@ class IOPlaceModule(Module):
             'part_name'
         ]
 
-do_module(IOPlaceModule())
+do_module(IOPlaceModule)

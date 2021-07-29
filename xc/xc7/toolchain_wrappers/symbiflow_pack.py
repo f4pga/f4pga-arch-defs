@@ -61,8 +61,8 @@ class PackModule(Module):
             shutil.move(os.path.join(build_dir, DEFAULT_UTIL_RPT),
                         ctx.outputs.util_rpt)
     
-    def __init__(self):
-        self.stage_name = 'pack'
+    def __init__(self, _):
+        self.name = 'pack'
         self.no_of_phases = 2
         self.takes = [
             'eblif',
@@ -79,4 +79,4 @@ class PackModule(Module):
             'vpr_options?'
         ]
 
-do_module(PackModule())
+do_module(PackModule)

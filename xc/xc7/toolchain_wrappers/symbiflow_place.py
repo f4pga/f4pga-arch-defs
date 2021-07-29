@@ -75,8 +75,8 @@ class PlaceModule(Module):
         yield 'Saving log...'
         save_vpr_log('place.log', build_dir=build_dir)
 
-    def __init__(self):
-        self.stage_name = 'place'
+    def __init__(self, _):
+        self.name = 'place'
         self.no_of_phases = 2
         self.takes = [
             'eblif',
@@ -89,4 +89,4 @@ class PlaceModule(Module):
             'vpr_options?'
         ]
 
-do_module(PlaceModule())
+do_module(PlaceModule)
