@@ -2,9 +2,9 @@
 Getting Started with SymbiFlow Toolchain development
 ====================================================
 
-.. note::
+.. warning::
 
-   If you are looking for user documentation, please look at https://github.com/SymbiFlow/symbiflow-examples instead.
+   This documentation explains the first steps in the development of the toolchain itself. If you are looking for the **user documentation**, please look at https://github.com/SymbiFlow/symbiflow-examples instead.
 
 This section provides an introduction on how to get started with the development of the SymbiFlow toolchain.
 In order to generate a bitstream (or any intermediate file format), you can use one of the toolchain tests.
