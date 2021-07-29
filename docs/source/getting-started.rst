@@ -27,7 +27,12 @@ Download all the necessary packages, tools and databases into an isolated conda 
     cd symbiflow-arch-defs
     make env
 
-This also checks out all the submodules and generates the build system (``Make``) from the CMake configuration.
+This also checks out all the submodules and generates the build system (``Make`` or ``Ninja``) from the CMake configuration.
+If you want to use the ``Ninja`` build tool add this line before calling ``make env``:
+
+.. code-block:: bash
+
+    export CMAKE_FLAGS="-GNinja"
 
 Build example
 -------------
@@ -48,6 +53,13 @@ you will execute the following:
 
     cd build/xc/xc7/tests/counter
     make counter_arty_bit
+
+If you use ``Ninja`` then the target is accessible from root build directory:
+
+.. code-block:: bash
+
+    cd build
+    ninja counter_arty_bit
 
 .. note::
 
@@ -70,6 +82,12 @@ For convenience the ``prog`` targets are provided for this purpose, e.g.:
 .. code-block:: bash
 
     make counter_arty_prog
+
+or for ``Ninja``:
+
+.. code-block:: bash
+
+    ninja counter_arty_prog
 
 However, this can be done with any tool of your choice, such as `Vivado` or `xc3sprog`.
 
