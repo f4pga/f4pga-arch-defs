@@ -5,7 +5,7 @@ module ASSP_RAM512X32B (
   input  wire [3:0]  RAM_RM_af,
   input  wire        RAM_RME_af,
   input  wire [31:0] RAM_P0_WR_DATA,
-  input  wire [3:0]  RAM_P0_WR_BE,
+  //input  wire [3:0]  RAM_P0_WR_BE,
   input  wire        RAM_P0_WR_EN,
   input  wire        RAM_TEST1_af,
   input  wire [8:0]  RAM_P0_ADDR,
