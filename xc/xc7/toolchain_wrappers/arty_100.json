@@ -32,15 +32,15 @@
     },
 
     "modules": {
-        "mk_build_dir": "symbiflow_mkdirs.py",
-        "synth": "symbiflow_synth.py",
-        "pack": "symbiflow_pack.py",
-        "ioplace": "symbiflow_ioplace.py",
-        "place_constraints": "symbiflow_place_constraints.py",
-        "place": "symbiflow_place.py",
-        "route": "symbiflow_route.py",
-        "fasm": "symbiflow_fasm.py",
-        "bitstream": "symbiflow_bitstream.py"
+        "mk_build_dir": "common:mkdirs",
+        "synth": "common:synth",
+        "pack": "common:pack",
+        "ioplace": "common:ioplace",
+        "place_constraints": "common:place_constraints",
+        "place": "common:place",
+        "route": "common:route",
+        "fasm": "common:fasm",
+        "bitstream": "xc7:bitstream"
     },
 
     "module_options": {

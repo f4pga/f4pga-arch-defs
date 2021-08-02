@@ -5,8 +5,8 @@
 # ----------------------------------------------------------------------------- #
 
 import os
-from symbiflow_common import *
-from symbiflow_module import *
+from sf_common import *
+from sf_module import *
 
 # ----------------------------------------------------------------------------- #
 

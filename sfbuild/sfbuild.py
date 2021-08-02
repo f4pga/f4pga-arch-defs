@@ -19,6 +19,7 @@ that uses sfbuild. Iontains project-specific definitions needed within the flow,
 such as list of source code files.
 """
 
+from re import split
 import sys
 import os
 import json
@@ -111,6 +112,33 @@ class StageIO:
     def __repr__(self) -> str:
         return 'StageIO { name: \'' + self.name + '\', required: ' + \
                self.required + ', auto_flow: ' + str(self.auto_flow) + ' }'
+
+sfbuild_home = mypath
+sfbuild_home_dirs = os.listdir(sfbuild_home)
+sfbuild_module_dirs = [dir for dir in sfbuild_home_dirs
+                            if os.path.isdir(dir) and
+                            re.match('sf_.*_modules$', dir)]
+sfbuild_module_collection_name_to_path = \
+    dict([(re.match('sf_(.*)_modules$', moddir).groups()[0],
+           os.path.join(sfbuild_home, moddir))
+          for moddir in sfbuild_module_dirs])
+
+"""Resolves module location from modulestr"""
+def resolve_modstr(modstr: str):
+    sl = modstr.split(':')
+    if len(sl) > 2:
+        raise Exception('Incorrect module sysntax. '
+                        'Expected one \':\' or one \'::\'')
+    if len(sl) < 2:
+        return modstr
+    collection_name = sl[0]
+    module_filename = sl[1] + '.py'
+
+    col_path = sfbuild_module_collection_name_to_path.get(collection_name)
+    if not col_path:
+        fatal(-1, f'Module collection {collection_name} dioes not exist')
+    return os.path.join(col_path, module_filename)
+
 class Stage:
     name: str                  #   Name of the stage (module's name)
     takes: 'list[StageIO]'     #   List of symbolic names of dependencies used by
@@ -129,7 +157,7 @@ class Stage:
     params: object             #   Module-specific parameters required to
                                # instatntiate the module.
 
-    def __init__(self, name: str, mod_path: str, mod_opts,
+    def __init__(self, name: str, modstr: str, mod_opts,
                  r_env: ResolutionEnv, bin='./'):
         self.module = os.path.join(bin, mod_path)
         
@@ -183,9 +211,9 @@ def import_values(values: dict, r_env: ResolutionEnv):
 def platform_stages(platform_flow, r_env, bin='./'):
     #TODO options overriding
     module_options = platform_flow.get('module_options')
-    for stage_name, module_path in platform_flow['modules'].items():
+    for stage_name, modulestr in platform_flow['modules'].items():
         mod_opts = module_options.get(stage_name) if module_options else None
-        yield Stage(stage_name, module_path, mod_opts, r_env, bin=bin)
+        yield Stage(stage_name, modulestr, mod_opts, r_env, bin=bin)
         
 # Checks whether a dependency exists on a drive.
 def req_exists(r):
