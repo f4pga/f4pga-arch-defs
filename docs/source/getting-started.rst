@@ -76,8 +76,11 @@ The last step is to load the bitstream to your platform.
 The final output file can be found in the appropriate test directory, i.e:
 ``build/xc/xc7/tests/counter/counter_arty/artix7-xc7a50t-arty-swbut-roi-virt-xc7a50t-arty-swbut-test/top.bit``
 
-The loading process may be different for every vendor.
-For convenience the ``prog`` targets are provided for this purpose, e.g.:
+For every board the loading process may be different and different tools will be required.
+``OpenOCD`` is the most widely used tool for loading bitstream in the Symbiflow Toolchain. It is provided as a conda
+package during the environment setup and ``CMake`` keeps track of its executable. Other programming tools used in Symbiflow that are automatically downloaded and referenced by ``CMake`` are ``tinyfpgab`` and ``tinyprog``.
+
+For convenience the ``prog`` targets are provided for loading the bitstream, e.g.:
 
 .. code-block:: bash
 
@@ -89,7 +92,9 @@ or for ``Ninja``:
 
     ninja counter_arty_prog
 
-However, this can be done with any tool of your choice, such as `Vivado` or `xc3sprog`.
+.. note::
+
+        Loading the bitstream into an FPGA can be done outside of the Symbiflow with tools that support the target architecture, such as for example `Vivado` or `xc3sprog` for Xilinx 7-Series FPGAs or ``iceprog`` for Lattice iCE40.
 
 Vivado
 ++++++
