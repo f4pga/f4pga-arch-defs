@@ -1410,7 +1410,146 @@ module qlal3_right_assp_macro (
 endmodule
 
 // ============================================================================
-// Multipliers
+// PP3e ASSPL and ASSPR cells
+
+module qlal3_mult_32x32_cell (
+    input  [31:0] Amult,
+    input  [31:0] Bmult,
+    input         Valid_mult,
+    output [63:0] Cmult
+);
+
+    ASSP_MULT _TECHMAP_REPLACE_ (
+        .Amult      (Amult),
+        .Bmult      (Bmult),
+        .Valid_mult (Valid_mult),
+        .Cmult      (Cmult)
+    );
+
+endmodule
+
+module qlal3_ram_512x36_cell (
+    input  [ 8:0] RAM_ADDR,
+    input         RAM_CLK,
+    input         RAM_CLKS,
+    output [35:0] RAM_RD_DATA,
+    input         RAM_RD_EN,
+    input         RAM_RME_af,
+    input  [ 3:0] RAM_RM_af,
+    input         RAM_TEST1_af,
+    input  [ 3:0] RAM_WR_BE,
+    input  [35:0] RAM_WR_DATA,
+    input         RAM_WR_EN
+);
+
+    // TODO: Map RAM_CLKS to a parameter controlling clock inversion
+    // TODO: Handle unconnected inputs
+
+    ASSP_RAM512X36B _TECHMAP_REPLACE_ (
+        .RAM_ADDR       (RAM_ADDR),
+        .RAM_CLK        (RAM_CLK),
+        .RAM_RD_DATA    (RAM_RD_DATA),
+        .RAM_RD_EN      (RAM_RD_EN),
+        .RAM_RME_af     (RAM_RME_af),
+        .RAM_RM_af      (RAM_RM_af),
+        .RAM_TEST1_af   (RAM_TEST1_af),
+        .RAM_WR_BE      (RAM_WR_BE),
+        .RAM_WR_DATA    (RAM_WR_DATA),
+        .RAM_WR_EN      (RAM_WR_EN)
+    );
+
+endmodule
+
+module qlal3_ram_512x32_cell (
+    input  [ 8:0] RAM_P0_ADDR,
+    input         RAM_P0_CLK,
+    input         RAM_P0_CLKS,
+    input  [ 3:0] RAM_P0_WR_BE,
+    input  [31:0] RAM_P0_WR_DATA,
+    input         RAM_P0_WR_EN,
+    input  [ 8:0] RAM_P1_ADDR,
+    input         RAM_P1_CLK,
+    input         RAM_P1_CLKS,
+    output [31:0] RAM_P1_RD_DATA,
+    input         RAM_P1_RD_EN,
+    input         RAM_RME_af,
+    input  [ 3:0] RAM_RM_af,
+    input         RAM_TEST1_af,
+);
+
+    // TODO: Map RAM_P0_CLKS and RAM_P1_CLKS to parameters controlling clock
+    // inversion.
+    // TODO: Handle unconnected inputs
+
+    ASSP_RAM512X32B _TECHMAP_REPLACE_ (
+        .RAM_P0_ADDR    (RAM_P0_ADDR),
+        .RAM_P0_CLK     (RAM_P0_CLK),
+        //.RAM_P0_WR_BE   (RAM_P0_WR_BE),
+        .RAM_P0_WR_DATA (RAM_P0_WR_DATA),
+        .RAM_P0_WR_EN   (RAM_P0_WR_EN),
+        .RAM_P1_ADDR    (RAM_P1_ADDR),
+        .RAM_P1_CLK     (RAM_P1_CLK),
+        .RAM_P1_RD_DATA (RAM_P1_RD_DATA),
+        .RAM_P1_RD_EN   (RAM_P1_RD_EN),
+        .RAM_RME_af     (RAM_RME_af),
+        .RAM_RM_af      (RAM_RM_af),
+        .RAM_TEST1_af   (RAM_TEST1_af)
+    );
+
+endmodule
+
+module qlal3_ram_4096x17_cell (
+    input  [11:0] RAM_P0_ADDR,
+    input         RAM_P0_CLK,
+    input         RAM_P0_CLKS,
+    input  [ 1:0] RAM_P0_WR_BE,
+    input  [16:0] RAM_P0_WR_DATA,
+    input         RAM_P0_WR_EN,
+    input  [11:0] RAM_P1_ADDR,
+    input         RAM_P1_CLK,
+    input         RAM_P1_CLKS,
+    output [16:0] RAM_P1_RD_DATA,
+    input         RAM_P1_RD_EN,
+    input         RAM_P1_mux,
+    input         RAM_RME_af,
+    input  [ 3:0] RAM_RM_af,
+    input         RAM_TEST1_af,
+    output        RAM_fifo_almost_empty,
+    output        RAM_fifo_almost_full,
+    output [ 3:0] RAM_fifo_empty_flag,
+    input         RAM_fifo_en,
+    output [ 3:0] RAM_fifo_full_flag
+);
+
+    // TODO: Map RAM_P0_CLKS and RAM_P1_CLKS to parameters controlling clock
+    // inversion.
+    // TODO: Handle unconnected inputs
+
+    ASSP_RAM4096X17B _TECHMAP_REPLACE_ (
+        .RAM_P0_ADDR            (RAM_P0_ADDR),
+        .RAM_P0_CLK             (RAM_P0_CLK),
+        .RAM_P0_WR_BE           (RAM_P0_WR_BE),
+        .RAM_P0_WR_DATA         (RAM_P0_WR_DATA),
+        .RAM_P0_WR_EN           (RAM_P0_WR_EN),
+        .RAM_P1_ADDR            (RAM_P1_ADDR),
+        .RAM_P1_CLK             (RAM_P1_CLK),
+        .RAM_P1_RD_DATA         (RAM_P1_RD_DATA),
+        .RAM_P1_RD_EN           (RAM_P1_RD_EN),
+        .RAM_P1_mux             (RAM_P1_mux),
+        .RAM_RME_af             (RAM_RME_af),
+        .RAM_RM_af              (RAM_RM_af),
+        .RAM_TEST1_af           (RAM_TEST1_af),
+        .RAM_fifo_almost_empty  (RAM_fifo_almost_empty),
+        .RAM_fifo_almost_full   (RAM_fifo_almost_full),
+        .RAM_fifo_empty_flag    (RAM_fifo_empty_flag),
+        .RAM_fifo_en            (RAM_fifo_en),
+        .RAM_fifo_full_flag     (RAM_fifo_full_flag)
+    );
+
+endmodule
+
+// ============================================================================
+// Multipliers (EOS-S3)
 
 module qlal4s3_mult_32x32_cell (
     input [31:0] Amult,
