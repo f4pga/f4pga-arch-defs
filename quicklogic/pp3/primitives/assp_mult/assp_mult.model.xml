@@ -1,0 +1,12 @@
+<models xmlns:xi="http://www.w3.org/2001/XInclude">
+  <model name="ASSP_MULT">
+    <input_ports>
+      <port name="Amult"/>
+      <port name="Bmult"/>
+      <port name="Valid_mult"/>
+    </input_ports>
+    <output_ports>
+      <port name="Cmult"/>
+    </output_ports>
+  </model>
+</models>

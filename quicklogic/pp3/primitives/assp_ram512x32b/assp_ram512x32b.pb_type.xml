@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='utf-8'?>
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" num_pins="1" name="ASSP_RAM512X32B">
+  <blif_model>.subckt ASSP_RAM512X32B</blif_model>
+  <clock  name="RAM_P0_CLK" num_pins="1"/>
+  <input  name="RAM_RM_af" num_pins="4"/>
+  <input  name="RAM_RME_af" num_pins="1"/>
+  <input  name="RAM_P0_WR_DATA" num_pins="32"/>
+  <input  name="RAM_P0_WR_BE" num_pins="4"/>
+  <input  name="RAM_P0_WR_EN" num_pins="1"/>
+  <input  name="RAM_TEST1_af" num_pins="1"/>
+  <input  name="RAM_P0_ADDR" num_pins="9"/>
+  <input  name="RAM_P1_ADDR" num_pins="9"/>
+  <clock  name="RAM_P1_CLK" num_pins="1"/>
+  <input  name="RAM_P1_RD_EN" num_pins="1"/>
+  <output name="RAM_P1_RD_DATA" num_pins="32"/>
+</pb_type>

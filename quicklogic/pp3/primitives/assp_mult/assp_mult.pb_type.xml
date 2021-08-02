@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='utf-8'?>
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" num_pb="1" name="ASSP_MULT">
+  <blif_model>.subckt ASSP_MULT</blif_model>
+  <input name="Amult" num_pins="32"/>
+  <input name="Bmult" num_pins="32"/>
+  <input name="Valid_mult" num_pins="1"/>
+  <output name="Cmult" num_pins="64"/>
+</pb_type>

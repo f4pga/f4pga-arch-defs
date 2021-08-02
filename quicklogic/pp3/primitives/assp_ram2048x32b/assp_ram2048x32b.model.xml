@@ -1,0 +1,26 @@
+<models xmlns:xi="http://www.w3.org/2001/XInclude">
+  <model name="ASSP_RAM2048X32B">
+    <input_ports>
+      <port name="RAM_P1_mux"/>
+      <port name="RAM_RM_af"/>
+      <port name="RAM_RME_af"/>
+      <port name="RAM_P0_CLK" is_clock="1"/>
+      <port name="RAM_P0_WR_DATA"/>
+      <port name="RAM_P0_WR_BE"/>
+      <port name="RAM_P0_WR_EN"/>
+      <port name="RAM_TEST1_af"/>
+      <port name="RAM_P0_ADDR "/>
+      <port name="RAM_P1_CLK" is_clock="1"/>
+      <port name="RAM_P1_ADDR"/>
+      <port name="RAM_P1_RD_EN"/>
+      <port name="RAM_fifo_en"/>
+    </input_ports>
+    <output_ports>
+      <port name="RAM_P1_RD_DATA"/>
+      <port name="RAM_fifo_almost_full"/>
+      <port name="RAM_fifo_full_flag"/>
+      <port name="RAM_fifo_almost_empty"/>
+      <port name="RAM_fifo_empty_flag"/>
+    </output_ports>
+  </model>
+</models>
