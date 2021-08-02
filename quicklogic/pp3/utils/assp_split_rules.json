@@ -19,7 +19,7 @@
             "offset": [0, -1, 0],
             "cells": [
                 {
-                    "type": "ASSP_RAM2048X32B",
+                    "type": "ASSP_RAM4096X17B",
                     "name": "ASSP_RAM8K",
                     "port_map": {
                         "RAM8K_P0_ADDR": "RAM_P0_ADDR",

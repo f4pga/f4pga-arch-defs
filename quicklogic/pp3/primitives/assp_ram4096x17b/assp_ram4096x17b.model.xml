@@ -1,5 +1,5 @@
 <models xmlns:xi="http://www.w3.org/2001/XInclude">
-  <model name="ASSP_RAM2048X32B">
+  <model name="ASSP_RAM4096X17B">
     <input_ports>
       <port name="RAM_P1_mux"/>
       <port name="RAM_RM_af"/>
