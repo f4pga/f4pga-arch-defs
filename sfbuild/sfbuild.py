@@ -158,8 +158,8 @@ class Stage:
                                # instatntiate the module.
 
     def __init__(self, name: str, modstr: str, mod_opts,
-                 r_env: ResolutionEnv, bin='./'):
-        self.module = os.path.join(bin, mod_path)
+                 r_env: ResolutionEnv):
+        self.module = resolve_modstr(modstr)
         
         if not os.path.isfile(self.module) and not os.path.islink(self.module):
             raise Exception(f'Module file {self.module} does not exist')
