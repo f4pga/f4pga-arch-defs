@@ -13,7 +13,6 @@ include(common/cmake/devices.cmake)
 include(common/cmake/tools.cmake)
 include(common/cmake/sv2v.cmake)
 include(common/cmake/litex.cmake)
-include(sfbuild/install.cmake)
 
 # Parse lists of architectures / devices to be installed
 parse_install_lists()
@@ -100,6 +99,7 @@ add_subdirectory(ice40)
 add_subdirectory(quicklogic)
 add_subdirectory(testarch)
 add_subdirectory(tests)
+add_subdirectory(sfbuild)
 
 get_target_property_required(YAPF env YAPF)
 add_custom_target(
@@ -241,5 +241,3 @@ add_custom_target(docs)
 add_custom_target(print_qor
     COMMAND ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/print_qor.py ${symbiflow-arch-defs_BINARY_DIR}
     )
-
-add_custom_target(sfbuild)

@@ -37,7 +37,7 @@ SYMBICACHEPATH = '.symbicache'
 mypath = os.path.realpath(os.sys.argv[0])
 mypath = os.path.dirname(mypath)
 
-share_dir_path = os.path.realpath(os.path.join(mypath, '../share/symbiflow'))
+share_dir_path = os.path.realpath(os.path.join(mypath, '../../share/symbiflow'))
 
 # Set up argument parser for the program. Pretty self-explanatory.
 def setup_argparser():
@@ -115,9 +115,8 @@ class StageIO:
 
 sfbuild_home = mypath
 sfbuild_home_dirs = os.listdir(sfbuild_home)
-sfbuild_module_dirs = [dir for dir in sfbuild_home_dirs
-                            if os.path.isdir(dir) and
-                            re.match('sf_.*_modules$', dir)]
+sfbuild_module_dirs = \
+    [dir for dir in sfbuild_home_dirs if re.match('sf_.*_modules$', dir)]
 sfbuild_module_collection_name_to_path = \
     dict([(re.match('sf_(.*)_modules$', moddir).groups()[0],
            os.path.join(sfbuild_home, moddir))
@@ -136,7 +135,7 @@ def resolve_modstr(modstr: str):
 
     col_path = sfbuild_module_collection_name_to_path.get(collection_name)
     if not col_path:
-        fatal(-1, f'Module collection {collection_name} dioes not exist')
+        fatal(-1, f'Module collection {collection_name} does not exist')
     return os.path.join(col_path, module_filename)
 
 class Stage:
@@ -208,12 +207,12 @@ def import_values(values: dict, r_env: ResolutionEnv):
         yield k, vr
 
 # Iterates over all stages available in a given flow.
-def platform_stages(platform_flow, r_env, bin='./'):
+def platform_stages(platform_flow, r_env):
     #TODO options overriding
     module_options = platform_flow.get('module_options')
     for stage_name, modulestr in platform_flow['modules'].items():
         mod_opts = module_options.get(stage_name) if module_options else None
-        yield Stage(stage_name, modulestr, mod_opts, r_env, bin=bin)
+        yield Stage(stage_name, modulestr, mod_opts, r_env)
         
 # Checks whether a dependency exists on a drive.
 def req_exists(r):
@@ -505,14 +504,15 @@ except FileNotFoundError as _:
 
 flow = json.loads(flow_def)
 
-platform_path = platform_name + '.json'
+platform_path = os.path.join(mypath, 'platforms', platform_name + '.json')
+print(platform_path)
 platform_def = None
 try:
     with open(platform_path) as platform_file:
         platform_def = platform_file.read()
 except FileNotFoundError as _:
     fatal(-1, f'The platform flow definition file {platform_path} for the platform '
-          f'{flow["platform_name"]} referenced in flow definition file {flow_path} '
+          f'{platform_name} referenced in flow definition file {flow_path} '
           'cannot be found.')
 
 platform_flow = json.loads(platform_def)
@@ -529,7 +529,7 @@ if p_flow_values:
     r_env.add_values(p_flow_values)
 
 print('Scanning modules...')
-stages = list(platform_stages(platform_flow, r_env, bin=mypath))
+stages = list(platform_stages(platform_flow, r_env))
 
 if len(stages) == 0:
     fatal(-1, 'Platform flow does not define any stage')

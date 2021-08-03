@@ -6,8 +6,8 @@
 
 import os
 import shutil
-from ..sf_common import *
-from ..sf_module import *
+from sf_common import *
+from sf_module import *
 
 # ----------------------------------------------------------------------------- #
 

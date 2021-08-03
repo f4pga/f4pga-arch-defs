@@ -38,19 +38,7 @@ function(DEFINE_XC_TOOLCHAIN_TARGET)
     symbiflow_route
     symbiflow_synth
     symbiflow_write_bitstream
-    symbiflow_write_fasm
-    symbiflow.py
-    symbiflow_synth.py
-    symbiflow_pack.py
-    symbiflow_ioplace.py
-    symbiflow_place_constraints.py
-    symbiflow_place.py
-    symbiflow_route.py
-    symbiflow_fasm.py
-    symbiflow_bitstream.py
-    symbiflow_common.py
-    symbiflow_module.py
-    symbiflow_cache.py)
+    symbiflow_write_fasm)
   set(TOOLCHAIN_WRAPPERS)
 
   foreach(WRAPPER ${WRAPPERS})

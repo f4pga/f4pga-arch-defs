@@ -12,8 +12,8 @@ lazily create the directories if they become necessary. """
 # ----------------------------------------------------------------------------- #
 
 import os
-from ..sf_common import *
-from ..sf_module import *
+from sf_common import *
+from sf_module import *
 
 # ----------------------------------------------------------------------------- #
 

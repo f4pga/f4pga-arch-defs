@@ -5,6 +5,12 @@
 # ----------------------------------------------------------------------------- #
 
 import os
+
+# Dumb hack to avoid the need to install sfbuild package 
+import sys
+mypath = os.path.realpath(os.sys.argv[0])
+sys.path.append(os.path.join(mypath, '../'))
+
 from sf_common import *
 from sf_module import *
 

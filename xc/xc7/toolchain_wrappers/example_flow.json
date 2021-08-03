@@ -5,25 +5,17 @@
         "synth_log": "synth.log",
         "pack_log": "pack.log"
     },
-    "arty_100": {
+    "xc7a100t": {
         "values": {
             "top": "top",
             "build_dir": "build/arty_100"
         }
     },
-    "arty_35": {
+    "xc7a50t": {
         "values": {
             "top": "top",
-            "build_dir": "build/arty_35"
-        },
-        "dependencies": {
-            "xdc": ["arty.xdc"],
-            "eblif": "${build_dir}/${top}.eblif",
-            "fasm_extra": "${build_dir}/${top}_fasm_extra.fasm",
-            "json": "${build_dir}/${top}.json",
-            "synth_json": "${build_dir}/${top}_io.json",
-            "sdc": "${build_dir}/${top}.sdc",
-            "synth_v": "${build_dir}/${top}_synth.v"
+            "build_dir": "build/arty_35",
+            "part": "xc7a35tcpg236-1"
         }
     }
 }
