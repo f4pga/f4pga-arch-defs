@@ -1,7 +1,0 @@
-setup.py
-sf_module/__init__.py
-sf_module.egg-info/PKG-INFO
-sf_module.egg-info/SOURCES.txt
-sf_module.egg-info/dependency_links.txt
-sf_module.egg-info/requires.txt
-sf_module.egg-info/top_level.txt

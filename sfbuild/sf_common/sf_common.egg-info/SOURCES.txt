@@ -1,6 +1,0 @@
-setup.py
-sf_common/__init__.py
-sf_common.egg-info/PKG-INFO
-sf_common.egg-info/SOURCES.txt
-sf_common.egg-info/dependency_links.txt
-sf_common.egg-info/top_level.txt

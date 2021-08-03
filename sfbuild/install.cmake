@@ -81,10 +81,8 @@ function(DEFINE_SF_BUILD_TARGET)
   else()
     set(_PIP_ARGS "--user")
   endif()
-  # Install sf_commmon and sf_module as python packages
-  set(PYTHON_COMMON_PKG_INSTALL_CODE "execute_process(COMMAND ${Python3_EXECUTABLE} -m pip install -e ${CMAKE_CURRENT_BINARY_DIR}/sf_common ${_PIP_ARGS})")
-  set(PYTHON_MODULE_PKG_INSTALL_CODE "execute_process(COMMAND ${Python3_EXECUTABLE} -m pip install -e ${CMAKE_CURRENT_BINARY_DIR}/sf_module ${_PIP_ARGS})")
-  install(CODE ${PYTHON_COMMON_PKG_INSTALL_CODE})
-  install(CODE ${PYTHON_MODULE_PKG_INSTALL_CODE})
+  # Install sfbuild package *this will allow users to acces python modules required to write their Symbiflow Modules.
+  set(PYTHON_PKG_INSTALL_CODE "execute_process(COMMAND ${Python3_EXECUTABLE} -m pip install -e ${CMAKE_CURRENT_BINARY_DIR} ${_PIP_ARGS})")
+  install(CODE ${PYTHON_PKG_INSTALL_CODE})
 
 endfunction()
