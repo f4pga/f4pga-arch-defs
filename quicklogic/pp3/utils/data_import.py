@@ -1019,10 +1019,9 @@ def specialize_switchboxes_with_port_maps(
             print(
                 "WARNING: {} pins of the switchbox '{}' at '{}' "
                 "were not remapped:".format(
-                    len(unused_keys),
-                    switchbox_type,
-                    loc
-                ))
+                    len(unused_keys), switchbox_type, loc
+                )
+            )
 
             for key in unused_keys:
                 print("", "'{}' <-> '{}'".format(key[0], port_map[key]))

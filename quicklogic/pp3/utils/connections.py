@@ -379,9 +379,7 @@ def build_gmux_qmux_connections(
                 dst_type = ConnectionType.TILE
 
                 dst_pin_name = TilePin(
-                    cell = dst_cell.type,
-                    index = dst_cell.index,
-                    pin = pin_name
+                    cell=dst_cell.type, index=dst_cell.index, pin=pin_name
                 )
 
             # This pin connects to a global clock wire
@@ -408,9 +406,7 @@ def build_gmux_qmux_connections(
                     # Connect to the cell
                     src_type = ConnectionType.TILE
                     src_pin_name = TilePin(
-                        cell = src_cell.type,
-                        index = src_cell.index,
-                        pin = "IC"
+                        cell=src_cell.type, index=src_cell.index, pin="IC"
                     )
 
                     is_direct = True
@@ -431,9 +427,7 @@ def build_gmux_qmux_connections(
                         src_type = ConnectionType.TILE
 
                         src_pin_name = TilePin(
-                            cell = src_cell.type,
-                            index = src_cell.index,
-                            pin = "IZ"
+                            cell=src_cell.type, index=src_cell.index, pin="IZ"
                         )
 
                     is_direct = False

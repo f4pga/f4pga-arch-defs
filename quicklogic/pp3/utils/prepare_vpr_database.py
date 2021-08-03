@@ -108,6 +108,7 @@ def expand_port_map(port_map, cell):
 
     return pin_map
 
+
 # =============================================================================
 
 
@@ -148,7 +149,7 @@ def process_cells_library(cells_library, assp_split_rules=None):
             vpr_cells_library[cell_type] = cell
 
         # ASSP cell to be split
-        elif cell_type in assp_split_rules:            
+        elif cell_type in assp_split_rules:
             org_pins = {pin.name: pin for pin in cell.pins}
 
             # Apply each rule
@@ -165,10 +166,10 @@ def process_cells_library(cells_library, assp_split_rules=None):
 
                         # The pin must exist
                         if org_name not in org_pins:
-                            print("ERROR: The cell '{}' does not have port '{}'".format(
-                                cell_type,
-                                org_name
-                            ))
+                            print(
+                                "ERROR: The cell '{}' does not have port '{}'".
+                                format(cell_type, org_name)
+                            )
                             errors = True
                             continue
 
@@ -182,10 +183,10 @@ def process_cells_library(cells_library, assp_split_rules=None):
 
                         # Check for name conflict
                         if pin.name in cell_pins:
-                            print("ERROR: The pin '{}' of cell type '{}' is already mapped".format(
-                                    pin.name,
-                                    new_cell_type
-                                ))
+                            print(
+                                "ERROR: The pin '{}' of cell type '{}' is already mapped"
+                                .format(pin.name, new_cell_type)
+                            )
                             errors = True
                             continue
 
@@ -199,15 +200,17 @@ def process_cells_library(cells_library, assp_split_rules=None):
                         # FIXME: Compare pin attributes too
                         if set(cell_pins.keys()) != \
                            set([p.name for p in vpr_cells_library[new_cell_type].pins]):
-                            print("ERROR: Mismatch in the new cell type '{}'".format(new_cell_type))
+                            print(
+                                "ERROR: Mismatch in the new cell type '{}'".
+                                format(new_cell_type)
+                            )
                             errors = True
                             continue
 
                     # Create the new cell
                     else:
                         vpr_cells_library[new_cell_type] = CellType(
-                            type=new_cell_type,
-                            pins=list(cell_pins.values())
+                            type=new_cell_type, pins=list(cell_pins.values())
                         )
 
         # Passthrough
@@ -610,12 +613,14 @@ def process_tilegrid(
 
                 # Collect cells
                 for i, cell_rule in enumerate(tile_rule["cells"]):
-                    cells.append(Cell(
-                        type=cell_rule["type"],
-                        name=cell_rule["name"],
-                        index=i,
-                        alias=None
-                    ))
+                    cells.append(
+                        Cell(
+                            type=cell_rule["type"],
+                            name=cell_rule["name"],
+                            index=i,
+                            alias=None
+                        )
+                    )
 
                 # Make a new tile type (or use an existing one)
                 new_tile_type = make_tile_type(
@@ -635,9 +640,7 @@ def process_tilegrid(
                 # Place the tile
                 new_tile_name = "{}_X{}Y{}".format(new_tile_type.type, *loc)
                 vpr_tile_grid[loc] = Tile(
-                    type=new_tile_type.type,
-                    name=new_tile_name,
-                    cells=cells
+                    type=new_tile_type.type, name=new_tile_name, cells=cells
                 )
 
         # Do not split
@@ -651,12 +654,14 @@ def process_tilegrid(
             vpr_tile_grid[assp_loc] = Tile(
                 type=tile_type_name,
                 name=tile_type_name,
-                cells=[Cell(
-                    type=tile_type_name,
-                    index=0,
-                    name=tile_type_name,
-                    alias=None
-                )]
+                cells=[
+                    Cell(
+                        type=tile_type_name,
+                        index=0,
+                        name=tile_type_name,
+                        alias=None
+                    )
+                ]
             )
 
     # Remove "FBIO_*" pins from the ASSP tile. These pins are handled by
@@ -745,7 +750,13 @@ def process_switchbox_grid(
 
 
 def process_connections(
-        phy_connections, loc_map, vpr_tile_grid, phy_tile_grid, cells_library, grid_limit=None, assp_split_rules=None
+        phy_connections,
+        loc_map,
+        vpr_tile_grid,
+        phy_tile_grid,
+        cells_library,
+        grid_limit=None,
+        assp_split_rules=None
 ):
     """
     Process the connection list.
@@ -778,11 +789,7 @@ def process_connections(
             if "GMUX" in ep.pin and ep.type == ConnectionType.TILE:
 
                 # Modify the cell name, use always "GMUX0"
-                vpr_pin = TilePin(
-                    cell = ep.pin.cell,
-                    index = 0,
-                    pin = ep.pin.pin
-                )
+                vpr_pin = TilePin(cell=ep.pin.cell, index=0, pin=ep.pin.pin)
 
                 # Modify the location according to the cell index
                 z = ep.pin.index
@@ -866,9 +873,9 @@ def process_connections(
             cell = find_cell_in_tile(cell_name, vpr_tile_grid[new_loc])
 
             new_pin = TilePin(
-                cell = cell.type,
-                index = cell.index,
-                pin = SDIOMUX_PIN_MAP[pin_name]
+                cell=cell.type,
+                index=cell.index,
+                pin=SDIOMUX_PIN_MAP[pin_name]
             )
 
             eps[j] = ConnectionLoc(
@@ -891,7 +898,11 @@ def process_connections(
 
     # Types of "special" physical cells
     special_cell_types = {
-        "ASSP", "ASSPL", "ASSPR", "RAM", "MULT",
+        "ASSP",
+        "ASSPL",
+        "ASSPR",
+        "RAM",
+        "MULT",
     }
 
     # "Special" VPR cell location map
@@ -942,7 +953,7 @@ def process_connections(
             # Check if this connection refers to a pin of a split ASSP tile
             if ep.pin.cell in assp_split_rules:
                 ep_pin = None
-                ep_loc = None            
+                ep_loc = None
 
                 # Find the new location
                 for tile_rule in assp_split_rules[ep.pin.cell]:
@@ -954,16 +965,15 @@ def process_connections(
 
                         # Expand the port map
                         pin_map = expand_port_map(
-                            cell_rule["port_map"],
-                            cells_library[ep.pin.cell]
+                            cell_rule["port_map"], cells_library[ep.pin.cell]
                         )
 
                         # Got the matching pin
                         if ep.pin.pin in pin_map:
                             ep_pin = TilePin(
-                                cell = cell_rule["type"],
-                                index = int(cell_rule.get("index", 0)),
-                                pin = pin_map[ep.pin.pin]
+                                cell=cell_rule["type"],
+                                index=int(cell_rule.get("index", 0)),
+                                pin=pin_map[ep.pin.pin]
                             )
                             ep_loc = vpr_loc
                             break
@@ -986,8 +996,9 @@ def process_connections(
 
                 # Look for the cell type in the physical tile the connection
                 # refers to
-                cells = [cell for cell in phy_tile.cells \
-                         if cell.type == ep.pin.cell]
+                cells = [
+                    cell for cell in phy_tile.cells if cell.type == ep.pin.cell
+                ]
                 assert cells
                 phy_cell = cells[0].name
 
@@ -1008,9 +1019,11 @@ def process_connections(
 
         # Modify the connection and add it
         if keep:
-            vpr_connections.append(Connection(
-                src=eps[0], dst=eps[1], is_direct=connection.is_direct
-            ))
+            vpr_connections.append(
+                Connection(
+                    src=eps[0], dst=eps[1], is_direct=connection.is_direct
+                )
+            )
 
     # A QMUX should have 3 QCLKIN inputs but accorting to the EOS S3/PP3E
     # techfile it has only one. It is assumed then when "QCLKIN0=GMUX_1" then
@@ -1381,7 +1394,9 @@ def main():
         cell_timings = None
 
     # Load ASSP split rules
-    fname = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assp_split_rules.json")
+    fname = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "assp_split_rules.json"
+    )
     if os.path.isfile(fname):
         with open(fname, "r") as fp:
             assp_split_rules = json.load(fp)
