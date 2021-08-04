@@ -24,6 +24,9 @@ function(ADD_QUICKLOGIC_PLUGINS)
   # File with pointer to the latest version of qlfpga plugins
   add_custom_command(
 	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${QLFPGA_LATEST}
+    COMMAND
+        ${CMAKE_COMMAND} -E make_directory
+            ${QLFPGA_BASE_DIR}
 	COMMAND bash -c
 		'wget ${QLFPGA_LATEST_URL} -O ${QLFPGA_LATEST}'
 	COMMENT "Generating ${QLFPGA_LATEST}"
@@ -56,10 +59,15 @@ function(ADD_QUICKLOGIC_PLUGINS)
 endfunction()
 
 function(FETCH_QLFPGA FILE_PATH FILE_REL_PATH)
+
+  get_filename_component(FILE_DIRECTORY ${FILE_PATH} DIRECTORY)
+  get_file_target(QLFPGA_LATEST_TARGET ${QLFPGA_LATEST})
+
   add_custom_command(
 	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${FILE_PATH}
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${FILE_DIRECTORY}
 	COMMAND bash -c 'wget `cat ${QLFPGA_LATEST}`/${FILE_REL_PATH} -O ${FILE_PATH}'
-	DEPENDS ${QLFPGA_LATEST}
+	DEPENDS ${QLFPGA_LATEST_TARGET}
 	COMMENT "Generating ${FILE_PATH}"
   )
   add_file_target(FILE ${FILE_PATH} GENERATED)

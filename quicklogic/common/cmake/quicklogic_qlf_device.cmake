@@ -49,14 +49,23 @@ function(QUICKLOGIC_DEFINE_QLF_DEVICE)
 
   # .......................................................
 
-  # Copy VPR arch XML
   set(ARCH_XML_NAME ${DEVICE}.arch.xml)
 
+  # If there is a file target then depend on it
+  get_file_target(ARCH_XML_TARGET ${ARCH_XML})
+  if (TARGET "${ARCH_XML_TARGET}")
+    set(ARCH_XML_DEP ${ARCH_XML_TARGET})
+    get_file_location(ARCH_XML ${ARCH_XML})
+  else ()
+    set(ARCH_XML_DEP ${ARCH_XML})
+  endif ()
+
+  # Copy VPR arch XML
   add_custom_command(
     OUTPUT
       ${CMAKE_CURRENT_BINARY_DIR}/${ARCH_XML_NAME}
     DEPENDS
-      ${ARCH_XML}
+      ${ARCH_XML_DEP}
     COMMAND
       ${CMAKE_COMMAND} -E copy
         ${ARCH_XML}
@@ -69,6 +78,15 @@ function(QUICKLOGIC_DEFINE_QLF_DEVICE)
 
   set(RR_GRAPH_FOR_DEVICE ${DEVICE}.rr_graph.bin)
 
+  # If there is a file target then depend on it
+  get_file_target(RR_GRAPH_TARGET ${RR_GRAPH})
+  if (TARGET "${RR_GRAPH_TARGET}")
+    set(RR_GRAPH_DEP ${RR_GRAPH_TARGET})
+    get_file_location(RR_GRAPH ${RR_GRAPH})
+  else ()
+    set(RR_GRAPH_DEP ${RR_GRAPH})
+  endif ()
+
   # If the routing graph is compressed uncompress it
   if ("${RR_GRAPH}" MATCHES ".*\\.gz$")
 
@@ -76,7 +94,7 @@ function(QUICKLOGIC_DEFINE_QLF_DEVICE)
       OUTPUT
         ${CMAKE_CURRENT_BINARY_DIR}/${RR_GRAPH_FOR_DEVICE}
       DEPENDS
-        ${RR_GRAPH}
+        ${RR_GRAPH_DEP}
       COMMAND
         ${CMAKE_COMMAND} -E copy
           ${RR_GRAPH}
@@ -92,7 +110,7 @@ function(QUICKLOGIC_DEFINE_QLF_DEVICE)
       OUTPUT
         ${CMAKE_CURRENT_BINARY_DIR}/${RR_GRAPH_FOR_DEVICE}
       DEPENDS
-        ${RR_GRAPH}
+        ${RR_GRAPH_DEP}
       COMMAND
         ${CMAKE_COMMAND} -E copy
           ${RR_GRAPH}
@@ -105,15 +123,23 @@ function(QUICKLOGIC_DEFINE_QLF_DEVICE)
 
   # .......................................................
 
-  # Copy repacking rules
   set(REPACKING_RULES_NAME ${DEVICE}.repacking_rules.json)
 
+  # If there is a file target then depend on it
+  get_file_target(REPACKING_RULES_TARGET ${REPACKING_RULES})
+  if (TARGET "${REPACKING_RULES_TARGET}")
+    set(REPACKING_RULES_DEP ${REPACKING_RULES_TARGET})
+    get_file_location(REPACKING_RULES ${REPACKING_RULES})
+  else ()
+    set(REPACKING_RULES_DEP ${REPACKING_RULES})
+  endif ()
+
+  # Copy repacking rules
   add_custom_command(
     OUTPUT
       ${CMAKE_CURRENT_BINARY_DIR}/${REPACKING_RULES_NAME}
     DEPENDS
-      ${ARCH_XML}
-      ${REPACKING_RULES}
+      ${REPACKING_RULES_DEP}
     COMMAND
       ${CMAKE_COMMAND} -E copy
         ${REPACKING_RULES}
