@@ -181,7 +181,7 @@ dependency resolution.
 | long       | short | arguments              | description                                     |
 |------------|:-----:|------------------------|-------------------------------------------------|
 | --platform | -p    | device name            | Specify target device name (eg. x7a100t)        |
-| --target   | -t    | target dependency name | Specify arget to produce                        |
+| --target   | -t    | target dependency name | Specify target to produce                       |
 | --info     | -i    | -                      | Display information about available targets     |
 | --pretend  | -P    | -                      | Resolve dependencies without executing the flow |
 
@@ -219,10 +219,11 @@ The letters in the boxes describe the status of a dependency which's name is nex
 to the box.
 
  * **X** - dependency unresolved. This isn't always a bad sign. Some dependencies
-   are not required to, such as "`pcf`". Also, even if there are dependencies which
-   may be resolved, but play no role in building the target, the _dependency
-   reososolution algorithm_ may skip them completely and thus report them as
-   unresolved. This doesn't necessarily mean they can't be built.
+   are not required to, such as "`pcf`".
+ * **U** - dependency unreachable. The dependency has a module that could produce
+   it, but the module's dependencies are unresolved. This doesn't say whether the
+   dependency was necessary or not. Also note that if the dependenecy plays no role
+   in building the target the _resolution algorithm_ will skip it and it will be reported as unreachable, even if it can be built as a target.
  * **O** - dependency present, unchanged. This dependency is already built and is
    confirmed to stay unchanged during flow execution.
  * **N** - dependency present, new/changed. This dependency is already present on 
@@ -248,10 +249,10 @@ colon:
 * In case of dependencies which do not require execution of any modules, only
   a path or list of paths to file(s)/directory(ies) that will be displayed
 
-* In case of unresolved dependencies, which are never produced by any module,
-  a text sying "`MISSING`" will be displayed
-* In case of unresolved dependencies, which could be produced by some module
-  a name of such module will be displayed followed by "`-> ???`".
+* In case of unresolved dependencies (**X**), which are never produced by any
+  module, a text sying "`MISSING`" will be displayed
+* In case of unreachable dependencies, a name of such module  that could produce
+  them will be displayed followed by "`-> ???`".
 
 There's currently a small issue when printing information about dependencies, where
 "**S**"s get recognised as "**R**"s. This doesn't affect the build process tho.
