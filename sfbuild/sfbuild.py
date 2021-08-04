@@ -61,6 +61,10 @@ def setup_argparser():
                              'to dependencies required by the requested stage')
     return parser
 
+# Workaround for CMake failing to install sfbuild package properly.
+mod_sfbuild_env = os.environ.copy()
+mod_sfbuild_env['PYTHONPATH'] = os.path.realpath(mypath)
+
 # Runs module in on of the following modes:
 # * 'map' - return output paths for given input. The result should be a
 #           dictionary that maps dependency names to paths.
@@ -72,19 +76,20 @@ def run_module(path, mode, config):
     config_json = json.dumps(config)
     if mode == 'map':
         cmd = ['python3', path, '--map', '--share', share_dir_path]
-        with Popen(cmd, stdin=PIPE, stdout=PIPE) as p:
+        with Popen(cmd, stdin=PIPE, stdout=PIPE, env=mod_sfbuild_env) as p:
             out = p.communicate(input=config_json.encode())[0]
         mod_res = p
     elif mode == 'exec':
         # XXX: THIS IS SOOOO UGLY
         cmd = ['python3', path, '--share', share_dir_path]
-        with Popen(cmd, stdout=sys.stdout, stdin=PIPE, bufsize=1) as p:
+        with Popen(cmd, stdout=sys.stdout, stdin=PIPE, bufsize=1,
+                   env=mod_sfbuild_env) as p:
             p.stdin.write(config_json.encode())
             p.stdin.flush()
         mod_res = p
     elif mode == 'io':
         cmd = ['python3', path, '--io']
-        with Popen(cmd, stdin=PIPE, stdout=PIPE) as p:
+        with Popen(cmd, stdin=PIPE, stdout=PIPE, env=mod_sfbuild_env) as p:
             out = p.communicate(input=config_json.encode())[0]
         mod_res = p
     if mod_res.returncode != 0:

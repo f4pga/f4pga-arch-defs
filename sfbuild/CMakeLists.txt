@@ -141,5 +141,15 @@ else()
 endif()
 
 # Install sfbuild python package *this will allow users to access python modules required to write their Symbiflow Modules.
-set(PYTHON_PKG_INSTALL_CODE "execute_process(COMMAND ${Python3_EXECUTABLE} -m pip install -e ${CMAKE_INSTALL_PREFIX}/bin/sfbuild ${_PIP_ARGS})")
-install(CODE ${PYTHON_PKG_INSTALL_CODE})
+
+# ! THIS IS NOT WORKING.
+# For some reason running ${Python3_EXECUTABLE} -m pip install -e ${CMAKE_INSTALL_PREFIX}/bin/sfbuild ${_PIP_ARGS}
+# does not install the package correctly. Most likely the pip module is not he one provided by conda, but idk.
+# Calling which pip3 in CMake with conda's virtualenv also seems to fail.
+# Currently the sfbuild python module needs to be installed manually if you want to be able to access it anywhere.
+
+# set(PIP3)
+# execute_process(COMMAND "which pip3"
+#                 OUTPUT_VARIABLE PIP3)
+# set(PYTHON_PKG_INSTALL_CODE "execute_process(COMMAND ${PIP3} install -e ${CMAKE_INSTALL_PREFIX}/bin/sfbuild ${_PIP_ARGS})")
+# install(CODE ${PYTHON_PKG_INSTALL_CODE})
