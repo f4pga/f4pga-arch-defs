@@ -11,7 +11,7 @@ run to use _**sfbuild**_.
 
 -------------------------------------------------------------------------------------
 
-## I just got a project that uses sfbuild and I want to make a bitstream
+## "I just got a project that uses sfbuild and I want to make a bitstream"
 
 Go to the project directory and run the following line:
 ```
@@ -217,7 +217,6 @@ Example:
 $ python3 /path/to/sfbuild.py flow.json -p x7a50t -i
 ```
 ```
-[...]
 Platform dependencies/targets:
     build_dir:          <no descritption>
                         module: `mk_build_dir`
@@ -232,8 +231,9 @@ Platform dependencies/targets:
                         module: `synth`
     sdc:                <no description>
                         module: `synth`
-[...]
 ```
+
+_This is only a snippet of the entire output_
 
 ### Summary of all available sfbuild options
 
