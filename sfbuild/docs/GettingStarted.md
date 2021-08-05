@@ -11,9 +11,29 @@ run to use _**sfbuild**_.
 
 -------------------------------------------------------------------------------------
 
+## I just got a project that uses sfbuild and I want to make a bitstream
+
+Go to the project directory and run the following line:
+```
+python3 /path/to/sfbuild.py flow.json -p platform_name -t bitstream
+```
+
+Substitute `platform_name` by the name of the target platform (eg. `x7a50t`).
+`flow.json` should be a **project's flow configuration** file included with the
+project. If you are unsure if you got the right file, you can check an example of
+the contents of such file shown in the "_Using sfbuild to build a target_" section.
+
+The location of the file containing bitstream will be indicated by sfbuild after the
+flow completes. Look for a line like this one on stdout.:
+
+```
+Target `bitstream` -> build/arty_35/top.bit
+```
+
 ## Fundamental concepts
 
-If you want just see sfbuild in action, you can skip this section for now.
+If you want to create a new sfbuild project, it's highly recommended that you
+read this section first.
 
 ### sfbuild
 
@@ -130,7 +150,8 @@ python3 /path/to/sfbuild.py flow.json -p platform_device_name -t target_name
 ```
 where `flow.json` is a path to **projects's flow configuration**
 
-For example, let's consider the following **projects's flow configuration**:
+For example, let's consider the following
+**projects's flow configuration (flow.json)**:
 
 ```json
 {
@@ -173,10 +194,25 @@ following command:
 python3 /path/to/sfbuild.py flow.json -p x7a50t -t bitstream
 ```
 
-You can also add a `--pretend` (`-P`) option if you just want to see the results of
-dependency resolution.
+### Pretend mode
 
-### sfbuild options
+You can also add a `--pretend` (`-P`) option if you just want to see the results of
+dependency resolution for a specified target without building it. This is useful
+when you just want to know what files will be generated and where wilh they be
+stored.
+
+### Info mode
+
+Modules have the ability to include description to the dependencies they produce.
+
+Running _**sfbuild**_ with `--info` (`-i`) flag allows youn to see descriptions of
+these dependencies. This option doesn't require a target to be specified, but you
+still have to provuide a flow configuration and platform name.
+
+This is still an experimental option, most targets currently lack descriptions
+and no information whether the output is _on-demand_ is currently dispalyed.
+
+### Summary of all available sfbuild options
 
 | long       | short | arguments              | description                                     |
 |------------|:-----:|------------------------|-------------------------------------------------|
