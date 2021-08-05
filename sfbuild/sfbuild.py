@@ -70,7 +70,7 @@ mod_sfbuild_env['PYTHONPATH'] = os.path.realpath(mypath)
 #           dictionary that maps dependency names to paths.
 # * 'exec' - execute module for given inputs.
 # * 'io' - provide useful metdata for the user.
-def run_module(path, mode, config):
+def _run_module(path, mode, config):
     mod_res = None
     out = None
     config_json = json.dumps(config)
@@ -182,7 +182,7 @@ class Stage:
             self.value_ovds = {}
 
         io_config = prepare_stage_io_input(self)
-        mod_io = run_module(self.module, 'io', io_config)
+        mod_io = _run_module(self.module, 'io', io_config)
         self.name = name
         
         self.takes = []
@@ -248,72 +248,30 @@ def map_outputs_to_stages(stages: 'list[Stage]'):
     return os_map
 
 # Get dependencies that were explicitely specified by the user.
-def get_explicit_deps(flow: dict, platform_name: str, r_env: ResolutionEnv):
+def get_explicit_deps(flow_cfg: dict, platform_name: str, r_env: ResolutionEnv):
     deps = {}
-    if flow.get('dependencies'):
-        deps.update(r_env.resolve(flow['dependencies']))
-    if flow[platform_name].get('dependencies'):
-        deps.update(r_env.resolve(flow[platform_name]['dependencies']))
+    if flow_cfg.get('dependencies'):
+        deps.update(r_env.resolve(flow_cfg['dependencies']))
+    if flow_cfg[platform_name].get('dependencies'):
+        deps.update(r_env.resolve(flow_cfg[platform_name]['dependencies']))
     return deps
 
 def filter_existing_deps(deps: 'dict[str, ]', symbicache):
     return [(n, p) for n, p in deps.items() \
             if req_exists(p)] # and not dep_differ(p, symbicache)]
 
-def print_dependency_availability(stages: 'Iterable[Stage]',
-                                  dep_paths: 'dict[str, str]',
-                                  os_map: 'dict[str, Stage]',
-                                  symbicache: SymbiCache,
-                                  rerun_stages: 'set[str]'):
-    dependencies: 'set[str]' = set()
-    for stage in stages:
-        for take in stage.takes:
-            dependencies.add(take.name)
-        for prod in stage.produces:
-            dependencies.add(prod.name)
-    
-    dependencies = list(dependencies)
-    dependencies.sort()
-
-    for dep_name in dependencies:
-        status = Fore.RED + '[X]' + Fore.RESET
-        source = Fore.YELLOW + 'MISSING' + Fore.RESET
-        paths = dep_paths.get(dep_name)
-        if paths:
-            exists = req_exists(paths)
-            provider = os_map.get(dep_name)
-            rerun = provider.name in rerun_stages if provider else False
-            if exists and not rerun:
-                if dep_differ(paths, symbicache):
-                    status = Fore.GREEN + '[N]' + Fore.RESET
-                else:
-                    status = Fore.GREEN + '[O]' + Fore.RESET
-                source = paths
-            elif provider:
-                if rerun:
-                    status = Fore.YELLOW + '[R]' + Fore.RESET
-                else:
-                    status = Fore.YELLOW + '[S]' + Fore.RESET
-                source = f'{Fore.BLUE + os_map[dep_name].name + Fore.RESET} ' \
-                         f'-> {paths}'
-        elif os_map.get(dep_name):
-            status = Fore.RED + '[U]' + Fore.RESET
-            source = f'{Fore.BLUE + os_map[dep_name].name + Fore.RESET} -> ???'
-        
-        print(f'    {Style.BRIGHT + status} {dep_name + Style.RESET_ALL}: {source}')
-
-def get_flow_values(platform_flow: dict, flow: dict, platform_name):
+def get_flow_values(platform_flow: dict, flow_cfg: dict, platform_name):
     values = {}
 
     platform_flow_values = platform_flow.get('values')
     if platform_flow_values:
         values.update(platform_flow_values)
     
-    project_flow_values = flow.get('values')
+    project_flow_values = flow_cfg.get('values')
     if project_flow_values:
         values.update(project_flow_values)
     
-    project_flow_platform_values = flow[platform_name].get('values')
+    project_flow_platform_values = flow_cfg[platform_name].get('values')
     if project_flow_platform_values:
         values.update(project_flow_platform_values)
 
@@ -352,116 +310,203 @@ def prepare_stage_input(stage: Stage, platform_name: str, values: dict,
         stage_mod_cfg['params'] = stage.params
     return stage_mod_cfg
 
-# Check if a dependency differs from its last version
-def dep_differ(paths, symbicache: SymbiCache):
+def update_dep_statuses(paths, consumer: str, symbicache: SymbiCache):
     if type(paths) is str:
-        s = symbicache.get_status(paths)
-        if s == 'untracked':
-            symbicache.update(paths)
-        return symbicache.get_status(paths) != 'same'
+        symbicache.update(paths, consumer)
     elif type(paths) is list:
         for p in paths:
-            s = symbicache.get_status(p)
-            if s != 'same':
-                return True
+            update_dep_statuses(p, consumer, symbicache)
     elif type(paths) is dict:
-        for _, p in paths:
-            s = symbicache.get_status(p)
-            if s != 'same':
-                return True
+        for _, p in paths.items():
+            update_dep_statuses(p, consumer, symbicache)
+
+# Check if a dependency differs from its last version, lackof dependency is
+# treated as "differs"
+def dep_differ(paths, consumer: str, symbicache: SymbiCache):
+    if type(paths) is str:
+        s = symbicache.get_status(paths, consumer)
+        if s == 'untracked':
+            symbicache.update(paths, consumer)
+        return symbicache.get_status(paths, consumer) != 'same'
+    elif type(paths) is list:
+        return True in [dep_differ(p, consumer, symbicache) for p in paths]
+    elif type(paths) is dict:
+        return True in [dep_differ(p, consumer, symbicache) \
+                        for _, p in paths.items()]
     return False
 
 # Check if a dependency or any of the dependencies it depends on differ from
 # their last versions.
-def dep_will_differ(target: str, paths, os_map: 'dict[str, Stage]',
-                    rerun_stages: 'set[str]', symbicache: SymbiCache):
+def dep_will_differ(target: str, paths, consumer: str,
+                    os_map: 'dict[str, Stage]', rerun_stages: 'set[str]',
+                    symbicache: SymbiCache):
     provider = os_map.get(target)
     if provider:
-        return (provider.name in rerun_stages) or dep_differ(paths, symbicache)
-    return dep_differ(paths, symbicache)
+        return (provider.name in rerun_stages) or \
+               dep_differ(paths, consumer, symbicache)
+    return dep_differ(paths, consumer, symbicache)
 
-def resolve_dependencies(target: str, os_map: 'dict[str, Stage]',
-                         platform_name: str, values: 'dict[str, ]',
-                         p_flow: dict, r_env: ResolutionEnv,
-                         dep_paths: 'dict[str, ]', config_paths: 'dict[str, ]',
-                         stages_checked: 'set[str]', rerun_stages: 'set[str]',
-                         symbicache: SymbiCache):
-    # Check if dependency is already resolved
-    paths = dep_paths.get(target)
-    if paths and not os_map.get(target):
-        return
-    # Check if a stage can provide the required dependency
-    provider = os_map.get(target)
-    if provider and provider.name not in stages_checked:
+def _print_unreachable_stage_message(provider: Stage, take: str):
+    print( '    Stage '
+          f'`{Style.BRIGHT + provider.name + Style.RESET_ALL}` is '
+          'unreachable due to unmet dependency '
+          f'`{Style.BRIGHT + take.name + Style.RESET_ALL}`')
+
+def config_and_run_module(stage: Stage, platform_name: str,
+                          values: 'dict[str, ]',
+                          dep_paths: 'dict[str, str | list[str]]',
+                          config_paths: 'dict[str, str | list[str]]',
+                          mode: str):
+    stage_values = get_stage_values_override(values, stage)
+    mod_input = prepare_stage_input(stage, platform_name, stage_values,
+                                    dep_paths, config_paths)
+    return _run_module(stage.module, mode, mod_input)
+
+class Flow:
+    target: str
+    platform_name: str
+    # dependency-producer map
+    os_map: 'dict[str, Stage]'
+    # Values in global scope 
+    values: 'dict[str, ]'
+    # Paths resolved for dependencies
+    dep_paths: 'dict[str, str | list[str]]'
+    # Explicit configs for dependency paths
+    config_paths: 'dict[str, str | list[str]]'
+    # Stages that need to be run
+    run_stages: 'set[str]'
+    # Number of stages that relied on outdated version of a (checked) dependency
+    deps_rebuilds: 'dict[str, int]'
+    symbicache: SymbiCache
+
+    def __init__(self, target: str, stages: 'list[Stage]',
+                 platform_name: str, values: 'dict[str, ]',
+                 config_paths: 'dict[str, ]',
+                 symbicache: SymbiCache):
+        self.target = target
+        self.platform_name = platform_name
+        self.os_map = map_outputs_to_stages(stages)
+        self.config_paths = config_paths
+        self.dep_paths = dict(filter_existing_deps(config_paths, symbicache))
+        self.run_stages = set()
+        self.symbicache = symbicache
+        self.values = values
+        self.deps_rebuilds = {}
+
+        self._resolve_dependencies(self.target, set())
+    
+    def _resolve_dependencies(self, dep: str, stages_checked: 'set[str]'):
+        # Initialize the dependency status if necessary
+        if self.deps_rebuilds.get(dep) is None:
+            self.deps_rebuilds[dep] = 0
+        # Check if an explicit dependency is already resolved
+        paths = self.dep_paths.get(dep)
+        if paths and not self.os_map.get(dep):
+            return
+        # Check if a stage can provide the required dependency
+        provider = self.os_map.get(dep)
+        if not provider or provider.name in stages_checked:
+            return
         for take in provider.takes:
-            resolve_dependencies(take.name, os_map, platform_name, values,
-                                 p_flow, r_env, dep_paths, config_paths,
-                                 stages_checked, rerun_stages, symbicache)
+            self._resolve_dependencies(take.name, stages_checked)
             # If any of the required dependencies is unavailable, then the
             # provider stage cannot be run
-            take_paths = dep_paths.get(take.name)
+            take_paths = self.dep_paths.get(take.name)
+
             if not take_paths and take.required:
-                print( '    Stage '
-                      f'`{Style.BRIGHT + provider.name + Style.RESET_ALL}` is'
-                       'unreachable due to unmet dependency '
-                      f'`{Style.BRIGHT + take.name + Style.RESET_ALL}`')
+                _print_unreachable_stage_message(provider, take)
                 return
             
-            if dep_will_differ(take.name, take_paths, os_map, rerun_stages,
-                               symbicache):
-                rerun_stages.add(provider.name)
-        
+            if dep_will_differ(take.name, take_paths, provider.name,
+                                   self.os_map,  self.run_stages,
+                                   self.symbicache):
+                # print(f'{take.name} will differ for {provider.name}')
+                self.run_stages.add(provider.name)
+                self.deps_rebuilds[take.name] += 1
+            
+        outputs = config_and_run_module(provider, self.platform_name,
+                                        self.values, self.dep_paths,
+                                        self.config_paths, 'map')
         stages_checked.add(provider.name)
-        # Prepare input for map mode
-        stage_values = get_stage_values_override(values, provider)
-        mod_input = prepare_stage_input(provider, platform_name, stage_values,
-                                        dep_paths, config_paths)
-        # Query module for its outputs
-        outputs = run_module(provider.module, 'map', mod_input)
-        dep_paths.update(outputs)
-                
-def execute_flow(target: str, values: 'dict[str, ]',
-                 os_map: 'dict[str, Stage]', 
-                 dep_paths: 'dict[str, bool]',
-                 rerun_stages: 'set[str]'):
-    paths = dep_paths.get(target)
-    provider = os_map.get(target)
-    rerun = (provider.name in rerun_stages) if provider else False
-    if paths:
-        if req_exists(paths) and not rerun:
+        self.dep_paths.update(outputs)
+
+        for _, out_paths in outputs.items():
+            if not req_exists(out_paths):
+                self.run_stages.add(provider.name)
+    
+    def print_resolved_dependencies(self):
+        deps = list(self.deps_rebuilds.keys())
+        deps.sort()
+
+        for dep in deps:
+            status = Fore.RED + '[X]' + Fore.RESET
+            source = Fore.YELLOW + 'MISSING' + Fore.RESET
+            paths = self.dep_paths.get(dep)
+
+            if paths:
+                exists = req_exists(paths)
+                provider = self.os_map.get(dep)
+                if provider and provider.name in self.run_stages:
+                    if exists:
+                        status = Fore.YELLOW + '[R]' + Fore.RESET
+                    else:
+                        status = Fore.YELLOW + '[S]' + Fore.RESET
+                    source = f'{Fore.BLUE + os_map[dep].name + Fore.RESET} ' \
+                            f'-> {paths}'
+                elif exists:
+                    if self.deps_rebuilds[dep] > 0:
+                        status = Fore.GREEN + '[N]' + Fore.RESET
+                    else:
+                        status = Fore.GREEN + '[O]' + Fore.RESET
+                    source = paths
+            elif os_map.get(dep):
+                status = Fore.RED + '[U]' + Fore.RESET
+                source = \
+                    f'{Fore.BLUE + os_map[dep].name + Fore.RESET} -> ???'
+        
+            print(f'    {Style.BRIGHT + status} {dep + Style.RESET_ALL}:  {source}')
+
+    def _build_dep(self, dep):
+        paths = self.dep_paths.get(dep)
+        provider = self.os_map.get(dep)
+        run = (provider.name in self.run_stages) if provider else False
+        if not paths:
+            print(f'Dependency {dep} is unresolved.')
+            return False
+        
+        if req_exists(paths) and not run:
             return True
         else:
-            
             if not provider:
                 fatal(-1, 'Something went wrong')
-            
+
             for p_dep in provider.takes:
-                execute_flow(p_dep.name, values, os_map, dep_paths, rerun_stages)
-                p_dep_paths = dep_paths.get(p_dep.name)
+                produced = self._build_dep(p_dep.name)
+                if not produced:
+                    continue
+                update_dep_statuses(self.dep_paths[p_dep.name], provider.name,
+                                    self.symbicache)
+                p_dep_paths = self.dep_paths.get(p_dep.name)
                 if p_dep.required and not req_exists(p_dep_paths):
                     fatal(-1, f'Can\'t produce promised dependency '
                               f'`{p_dep.name}`. Something went wrong.')
+            
+            config_and_run_module(provider, self.platform_name, self.values,
+                                  self.dep_paths, self.config_paths, 'exec')
 
-            # Prepare inputs
-            stage_values = get_stage_values_override(values, provider)
-            mod_input = prepare_stage_input(provider, platform_name,
-                                            stage_values, dep_paths, {})
-            # Run module
-            run_module(provider.module, 'exec', mod_input)
-
-            rerun_stages.discard(provider.name)
-
-            return req_exists(paths)
-
-def update_dep_statuses(paths, symbicache: SymbiCache):
-    if type(paths) is str:
-        symbicache.update(paths)
-    elif type(paths) is list:
-        for p in paths:
-            update_dep_statuses(p, symbicache)
-    elif type(paths) is dict:
-        for _, p in paths.items():
-            update_dep_statuses(p, symbicache)
+            self.run_stages.discard(provider.name)
+            
+            if not req_exists(paths):
+                fatal(-1, f'Stage `{provider.name}`` did not produce promised '
+                          f'dependency `{dep}`')
+        return True
+    
+    def execute(self):
+        self._build_dep(self.target)
+        update_dep_statuses(self.dep_paths[self.target], '__target',
+                            self.symbicache)
+        print(f'Target `{Style.BRIGHT + args.target + Style.RESET_ALL}` -> '
+              f'{self.dep_paths[args.target]}')
 
 def display_dep_info(stages: 'Iterable[Stage]'):
     print('Platform dependencies/targets:')
@@ -488,10 +533,15 @@ def display_dep_info(stages: 'Iterable[Stage]'):
             print(f'    {Style.BRIGHT + out.name + Style.RESET_ALL}:'
                   f'{indent}{pdesc}{nl_indentstr}{pgen}')
 
+def sfbuild_done():
+    print(f'sfbuild: {Style.BRIGHT + Fore.GREEN}DONE'
+          f'{Style.RESET_ALL + Fore.RESET}')
+    exit(0)
+
 parser = setup_argparser()
 args = parser.parse_args()
 
-print('Symbiflow Build System')
+print('sfbuild: Symbiflow Build System')
 
 if not args.platform:
     fatal(-1, 'You have to specify a platform name with `-p` option')
@@ -500,17 +550,16 @@ platform_name = args.platform[0]
 
 flow_path = args.flow[0]
 
-flow_def = None
+flow_cfg_json = None
 try:
-    with open(flow_path, 'r') as flow_def_file:
-        flow_def = flow_def_file.read()
+    with open(flow_path, 'r') as flow_cfg_file:
+        flow_cfg_json = flow_cfg_file.read()
 except FileNotFoundError as _:
     fatal(-1, 'The provided flow definition file does not exist')
 
-flow = json.loads(flow_def)
+flow_cfg = json.loads(flow_cfg_json)
 
 platform_path = os.path.join(mypath, 'platforms', platform_name + '.json')
-print(platform_path)
 platform_def = None
 try:
     with open(platform_path) as platform_file:
@@ -522,14 +571,14 @@ except FileNotFoundError as _:
 
 platform_flow = json.loads(platform_def)
 device = platform_flow['values']['device']
-p_flow = flow[platform_name]
+p_flow_cfg = flow_cfg[platform_name]
 
 r_env = ResolutionEnv({
     "shareDir": share_dir_path,
     "noisyWarnings": noisy_warnings(device)
 })
 
-p_flow_values = p_flow.get('values')
+p_flow_values = p_flow_cfg.get('values')
 if p_flow_values:
     r_env.add_values(p_flow_values)
 
@@ -541,7 +590,7 @@ if len(stages) == 0:
 
 if args.info:
     display_dep_info(stages)
-    exit(0)
+    sfbuild_done()
 
 if not args.target:
     fatal(-1, 'Please specify desired target using `--target` option')
@@ -549,34 +598,30 @@ if not args.target:
 os_map = map_outputs_to_stages(stages)
 stage = os_map.get(args.target)
 
-symbicache = SymbiCache(SYMBICACHEPATH)
+config_paths: 'dict[str, ]' = get_explicit_deps(flow_cfg, platform_name, r_env)
+# ???
+# update_dep_statuses(config_paths, symbicache)
 
-config_paths: 'dict[str, ]' = get_explicit_deps(flow, platform_name, r_env)
-update_dep_statuses(config_paths, symbicache)
+values = get_flow_values(platform_flow, flow_cfg, platform_name)
 
-dep_paths = dict(filter_existing_deps(config_paths, symbicache))
-values = get_flow_values(platform_flow, flow, platform_name)
-rerun_stages = set()
-
-resolve_dependencies(args.target, os_map, platform_name, values, p_flow, r_env,
-                     dep_paths, config_paths, set(), rerun_stages, symbicache)
+flow = Flow(
+    target=args.target,
+    stages=stages,
+    platform_name=platform_name,
+    values=get_flow_values(platform_flow, flow_cfg, platform_name),
+    config_paths=get_explicit_deps(flow_cfg, platform_name, r_env),
+    symbicache=SymbiCache(SYMBICACHEPATH)
+)
 
 print('\nProject status:')
-print_dependency_availability(stages, dep_paths, os_map, symbicache,
-                              rerun_stages)
+flow.print_resolved_dependencies()
 print('')
 
 if args.pretend:
-    exit(0)
+    sfbuild_done()
 
-r = execute_flow(args.target, values, os_map, dep_paths, rerun_stages)
+flow.execute()
 
-update_dep_statuses(dep_paths, symbicache)
-symbicache.save()
+flow.symbicache.save()
 
-if dep_paths.get(args.target):
-    print(f'Target `{Style.BRIGHT + args.target + Style.RESET_ALL}` -> '
-          f'{dep_paths[args.target]}')
-
-print(f'Symbiflow: {Style.BRIGHT + Fore.GREEN}DONE'
-      f'{Style.RESET_ALL + Fore.RESET}')
+sfbuild_done()
