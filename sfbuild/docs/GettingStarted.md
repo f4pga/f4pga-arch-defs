@@ -1,4 +1,5 @@
 # sfbuild
+
 ## Getting started
 
 To use _**sfbuild**_ you need a working python 3 installation which should be icluded
@@ -9,11 +10,8 @@ in progress. _**sfbuild**_'s installation directory is `bin/sfbuild`, under your
 _**Symbiflow**_ installation directory. `sfbuild.py` is the script that you should
 run to use _**sfbuild**_.
 
--------------------------------------------------------------------------------------
-
-## "I just got a project that uses sfbuild and I want to make a bitstream"
-
-Go to the project directory and run the following line:
+To get started with a project that already uses sfbuild, go to the project's
+directory and run the following line to build a bitstream:
 ```
 $ python3 /path/to/sfbuild.py flow.json -p platform_name -t bitstream
 ```
@@ -29,6 +27,8 @@ flow completes. Look for a line like this one on stdout.:
 ```
 Target `bitstream` -> build/arty_35/top.bit
 ```
+
+-------------------------------------------------------------------------------------
 
 ## Fundamental concepts
 
