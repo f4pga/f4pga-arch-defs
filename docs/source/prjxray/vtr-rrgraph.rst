@@ -351,7 +351,7 @@ a notable exception being the wires with `LL>11 <https://infoscience.epfl.ch/rec
 by a _BEG suffix and the terminus by an _END suffix. Hence, PIPs connect the _END end to the _BEG end. In Symbiflow, the _BEG suffix is kept when defining all wire types.
 
 VPR offers the INC_DIR and DEC_DIR values of the direction attribute of the `nodes <https://docs.verilogtorouting.org/en/latest/vpr/file_formats/#nodes>`_ of the routing graph for describing unidirectional wires.
-For instance a CHANX node with INC_DIR would correspond to an EE wire. However, it also offers the BI_DIR value which designates that a wire
+For instance, a CHANX node with INC_DIR would correspond to an EE wire. However, it also offers the BI_DIR value which designates that a wire
 can be traversed in both directions. Symbiflow represents all channel wires as BI_DIR. Note that 1) the multiplexer driving the wire is represented
 in the VPR routing graph as a collection of edges incident to a common node representing the wire itself, which has no orientation on its own and 2)
 edges in a graph can be oriented, not nodes. Hence, this way of modeling is perfectly valid, even if INC_DIR may be a more common way of representing
