@@ -299,6 +299,10 @@ set_io clk {}
     BUFG bufg (.I(clk), .O(clk_bufg));
 """
 
+    verilog += """
+    wire inp_b[{}:0];
+""".format(len(in_terms) - 1)
+
     # Input buffers + registers
     index = 0
     for in_term in in_terms:
@@ -314,8 +318,6 @@ set_io clk {}
         used_iobanks.add(iobank)
 
         verilog += """
-    wire inp_b[{index}];
-
     IBUF # ({params}) ibuf_{index} (
     .I(inp[{index}]),
     .O(inp_b[{index}])
@@ -323,7 +325,7 @@ set_io clk {}
 
     always @(posedge clk_bufg)
         led[{index}] <= inp_b[{index}];
-        """.format(
+""".format(
             params=",".join(
                 [".{}({})".format(k, v) for k, v in params.items()]
             ),
@@ -545,7 +547,7 @@ set_io clk {}
     .O(out_p[{index}]),
     .OB(out_n[{index}])
     );
-            """.format(
+""".format(
                 params=",".join(
                     [".{}({})".format(k, v) for k, v in params.items()]
                 ),
@@ -604,6 +606,10 @@ set_io clk {}
     BUFG bufg (.I(clk), .O(clk_bufg));
 """
 
+    verilog += """
+    wire inp_b[{}:0];
+""".format(len(in_terms) - 1)
+
     # Input buffers + registers
     index = 0
     for in_term in in_terms:
@@ -619,8 +625,6 @@ set_io clk {}
         used_iobanks.add(iobank)
 
         verilog += """
-    wire inp_b[{index}];
-
     IBUFDS # ({params}) ibuf_{index} (
     .I(inp_p[{index}]),
     .IB(inp_n[{index}]),
@@ -629,7 +633,7 @@ set_io clk {}
 
     always @(posedge clk_bufg)
         led[{index}] <= inp_b[{index}];
-        """.format(
+""".format(
             params=",".join(
                 [".{}({})".format(k, v) for k, v in params.items()]
             ),
@@ -753,7 +757,7 @@ set_io clk {}
     .IO(ino_p[{index}]),
     .IOB(ino_n[{index}])
     );
-            """.format(
+""".format(
                 params=",".join(
                     [".{}({})".format(k, v) for k, v in params.items()]
                 ),
