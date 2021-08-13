@@ -1,8 +1,8 @@
 quicklogic_define_device(
   FAMILY pp3
   ARCH ql-s3
-  DEVICES ql-eos-s3 ql-pp3e
-  PACKAGES wlcsp wlcsp
+  DEVICES ql-eos-s3 ql-pp3e ql-pp3
+  PACKAGES wlcsp wlcsp wlcsp
 )
 
 define_ql_device_cells_install_target(
@@ -14,5 +14,11 @@ define_ql_device_cells_install_target(
 define_ql_device_cells_install_target(
   DEVICE ql-pp3e
   DEVICE_TYPE ql-pp3e-virt
+  PACKAGE wlcsp
+)
+
+define_ql_device_cells_install_target(
+  DEVICE ql-pp3
+  DEVICE_TYPE ql-pp3-virt
   PACKAGE wlcsp
 )

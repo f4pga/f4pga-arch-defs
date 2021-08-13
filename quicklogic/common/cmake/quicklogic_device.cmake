@@ -45,9 +45,14 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   set(VPR_DB_FILE "db_vpr.pickle")
   set(ARCH_XML "arch.xml")
 
+  set(DEVICE_DIR_DATA ${DEVICE})
+  if(${DEVICE} STREQUAL "ql-pp3")
+    set(DEVICE_DIR_DATA "ql-pp3e")
+  endif()
+
   # The techfile and routing timing file
-  set(TECHFILE "${symbiflow-arch-defs_SOURCE_DIR}/third_party/${DEVICE}/Device Architecture Files/${TECHFILE_NAME}")
-  set(ROUTING_TIMING "${symbiflow-arch-defs_SOURCE_DIR}/third_party/${DEVICE}/Timing Data Files/${ROUTING_TIMING_FILE_NAME}")
+  set(TECHFILE "${symbiflow-arch-defs_SOURCE_DIR}/third_party/${DEVICE_DIR_DATA}/Device Architecture Files/${TECHFILE_NAME}")
+  set(ROUTING_TIMING "${symbiflow-arch-defs_SOURCE_DIR}/third_party/${DEVICE_DIR_DATA}/Timing Data Files/${ROUTING_TIMING_FILE_NAME}")
 
   # Import data from the techfile
   set(DATA_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/utils/data_import.py)
@@ -62,7 +67,7 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   add_file_target(FILE ${PHY_DB_FILE} GENERATED)
 
   # Generate SDF files with timing data
-  set(LIB_TIMING_DIR "${symbiflow-arch-defs_SOURCE_DIR}/third_party/${DEVICE}/Timing Data Files/")
+  set(LIB_TIMING_DIR "${symbiflow-arch-defs_SOURCE_DIR}/third_party/${DEVICE_DIR_DATA}/Timing Data Files/")
   set(SDF_TIMING_DIR "sdf")
 
   get_target_property_required(QUICKLOGIC_TIMINGS_IMPORTER env QUICKLOGIC_TIMINGS_IMPORTER)
