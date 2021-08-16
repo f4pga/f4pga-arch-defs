@@ -2721,7 +2721,7 @@ function(generate_pinmap)
 
   add_custom_command(
     OUTPUT ${GENERATE_PINMAP_NAME}.json
-    COMMAND ${QUIET_CMD} ${YOSYS} -p "write_json ${CMAKE_CURRENT_BINARY_DIR}/${GENERATE_PINMAP_NAME}.json" ${SOURCE_FILES}
+    COMMAND ${QUIET_CMD} ${YOSYS} -p \"proc $<SEMICOLON> write_json ${CMAKE_CURRENT_BINARY_DIR}/${GENERATE_PINMAP_NAME}.json\" -l ${CMAKE_CURRENT_BINARY_DIR}/${GENERATE_PINMAP_NAME}.json.log ${SOURCE_FILES}
     DEPENDS
       ${QUIET_CMD}
       ${YOSYS}

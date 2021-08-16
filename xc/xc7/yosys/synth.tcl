@@ -14,9 +14,14 @@ source [file join [file normalize [info script]] .. utils.tcl]
 # -flatten is used to ensure that the output eblif has only one module.
 # Some of symbiflow expects eblifs with only one module.
 #
+# To solve the carry chain congestion at the output, the synthesis step
+# needs to be executed two times.
+# abc9 seems to cause troubles if called multiple times in the flow, therefore
+# it gets called only at the last synthesis step
+#
 # Do not infer IOBs for targets that use a ROI.
 if { $::env(USE_ROI) == "TRUE" } {
-    synth_xilinx -flatten -abc9 -nosrl -noclkbuf -nodsp -noiopad -nowidelut
+    synth_xilinx -flatten -nosrl -noclkbuf -nodsp -noiopad -nowidelut
 } else {
     # Read Yosys baseline library first.
     read_verilog -lib -specify +/xilinx/cells_sim.v
@@ -35,7 +40,7 @@ if { $::env(USE_ROI) == "TRUE" } {
     }
 
     # Start flow after library reading
-    synth_xilinx -flatten -abc9 -nosrl -noclkbuf -nodsp -iopad -nowidelut -run prepare:check
+    synth_xilinx -flatten -nosrl -noclkbuf -nodsp -iopad -nowidelut -run prepare:check
 }
 
 # Check that post-synthesis cells match libraries.
@@ -132,7 +137,10 @@ read_verilog -specify -lib $::env(TECHMAP_PATH)/cells_sim.v
 #
 
 techmap -map  $::env(TECHMAP_PATH)/carry_map.v
+
+clean_processes
 write_json $::env(OUT_JSON).carry_fixup.json
+
 exec $::env(PYTHON3) $::env(UTILS_PATH)/fix_xc7_carry.py < $::env(OUT_JSON).carry_fixup.json > $::env(OUT_JSON).carry_fixup_out.json
 design -push
 read_json $::env(OUT_JSON).carry_fixup_out.json
@@ -181,6 +189,7 @@ stat
 attrmap -remove hdlname
 
 # Write the design in JSON format.
+clean_processes
 write_json $::env(OUT_JSON)
 # Write the design in Verilog format.
 write_verilog $::env(OUT_SYNTH_V)
