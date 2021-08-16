@@ -1,5 +1,7 @@
 yosys -import
 
+source [file join [file normalize [info script]] .. utils.tcl]
+
 synth_ice40 -nocarry
 
 # opt_expr -undriven makes sure all nets are driven, if only by the $undef
@@ -11,5 +13,6 @@ opt_clean
 attrmap -remove hdlname
 
 setundef -zero -params
+clean_processes
 write_json $::env(OUT_JSON)
 write_verilog $::env(OUT_SYNTH_V)
