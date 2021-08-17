@@ -2,10 +2,11 @@ function(ADD_JLINK_OUTPUT)
   # ~~~
   # ADD_JLINK_OUTPUT(
   #   PARENT <fpga target name>
+  #   IOMUX_JSON <json iomux config>
   #   )
   # ~~~
   set(options)
-  set(oneValueArgs PARENT)
+  set(oneValueArgs PARENT IOMUX_JSON)
   set(multiValueArgs)
   cmake_parse_arguments(
     ADD_JLINK_OUTPUT
@@ -16,9 +17,9 @@ function(ADD_JLINK_OUTPUT)
   )
 
   set(PARENT ${ADD_JLINK_OUTPUT_PARENT})
+  set(IOMUX_JSON ${ADD_JLINK_OUTPUT_IOMUX_JSON})
 
   get_target_property_required(PYTHON3 env PYTHON3)
-  get_target_property_required(PYTHON3_TARGET env PYTHON3_TARGET)
 
   get_target_property_required(EBLIF ${PARENT} EBLIF)
   get_target_property_required(PCF ${PARENT} INPUT_IO_FILE)
@@ -36,19 +37,30 @@ function(ADD_JLINK_OUTPUT)
   set(PINMAP ${symbiflow-arch-defs_BINARY_DIR}/quicklogic/pp3/${BOARD}_pinmap.csv)
 
   # Generate a JLINK script that sets IOMUX configuration.
-  set(IOMUX_CONFIG_GEN ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/utils/eos_s3_iomux_config.py)
+  set(IOMUX_CONFIG_GEN ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/eos_s3_iomux_config.py)
   set(IOMUX_CONFIG "top_iomux.jlink")
+
+  set(IOMUX_CONFIG_DEPS)
+  set(IOMUX_CONFIG_ARGS "")
+  if(DEFINED IOMUX_JSON)
+    get_file_location(JSON_LOC ${IOMUX_JSON})
+    get_file_target(JSON_DEP ${IOMUX_JSON})
+    set(IOMUX_CONFIG_ARGS --json ${JSON_LOC})
+    set(IOMUX_CONFIG_DEPS ${JSON_DEP})
+  else()
+    set(IOMUX_CONFIG_ARGS --eblif ${EBLIF_LOC} --pcf ${PCF_LOC})
+    set(IOMUX_CONFIG_DEPS ${EBLIF} ${PCF})
+  endif()
 
   add_custom_command(
     OUTPUT ${WORK_DIR}/${IOMUX_CONFIG}
     COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils:$PYTHONPATH
       ${PYTHON3} ${IOMUX_CONFIG_GEN}
-        --eblif ${EBLIF_LOC}
-        --pcf ${PCF_LOC}
+        ${IOMUX_CONFIG_ARGS}
         --map ${PINMAP}
         --output-format jlink
         >${WORK_DIR}/${IOMUX_CONFIG}
-    DEPENDS ${PYTHON3_TARGET} ${IOMUX_CONFIG_GEN} ${EBLIF} ${PCF}
+    DEPENDS ${IOMUX_CONFIG_GEN} ${IOMUX_CONFIG_DEPS}
   )
 
   add_file_target(FILE ${WORK_DIR_REL}/${IOMUX_CONFIG} GENERATED)
@@ -60,7 +72,7 @@ function(ADD_JLINK_OUTPUT)
   add_custom_command(
     OUTPUT ${WORK_DIR}/${BIT_AS_JLINK}
     COMMAND ${PYTHON3} ${BIT_TO_JLINK} ${BITSTREAM_LOC} ${WORK_DIR}/${BIT_AS_JLINK}
-    DEPENDS ${PYTHON3_TARGET} ${BIT_TO_JLINK} ${BITSTREAM}
+    DEPENDS ${BIT_TO_JLINK} ${BITSTREAM}
   )
 
   add_file_target(FILE ${WORK_DIR_REL}/${BIT_AS_JLINK} GENERATED)
