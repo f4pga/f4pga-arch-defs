@@ -22,3 +22,13 @@ add_dependencies(all_quick_tests wire-ql-chandalar_route)
 
 add_dependencies(all_ql_tests wire-ql-chandalar_route)
 add_dependencies(all_ql_tests wire-ql-jimbob4_route)
+
+add_fpga_target(
+  NAME wire-ql-jimbob4-pp3
+  BOARD jimbob4-pp3
+  SOURCES wire.v
+  INPUT_IO_FILE jimbob4.pcf
+  EXPLICIT_ADD_FILE_TARGET
+  )
+
+add_dependencies(all_ql_tests wire-ql-jimbob4-pp3_route)
