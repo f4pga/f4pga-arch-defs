@@ -66,9 +66,10 @@ add_jlink_output(
   PARENT btn_counter-ql-jimbob4
 )
 
- add_dependencies(all_ql_tests btn_counter-ql-jimbob4_bit)
- add_dependencies(all_ql_tests btn_counter-ql-jimbob4_jlink)
- add_dependencies(all_ql_tests btn_counter-ql-jimbob4_openocd)
+ add_dependencies(all_ql_tests btn_counter-ql-jimbob4_route)
+ #add_dependencies(all_ql_tests btn_counter-ql-jimbob4_bit)
+ #add_dependencies(all_ql_tests btn_counter-ql-jimbob4_jlink)
+ #add_dependencies(all_ql_tests btn_counter-ql-jimbob4_openocd)
 
  add_fpga_target(
   NAME btn_counter-ql-jimbob4-pp3
@@ -86,6 +87,7 @@ add_jlink_output(
   PARENT btn_counter-ql-jimbob4-pp3
 )
 
- add_dependencies(all_ql_tests btn_counter-ql-jimbob4-pp3_bit)
- add_dependencies(all_ql_tests btn_counter-ql-jimbob4-pp3_jlink)
- add_dependencies(all_ql_tests btn_counter-ql-jimbob4-pp3_openocd)
+ add_dependencies(all_ql_tests btn_counter-ql-jimbob4-pp3_route)
+ #add_dependencies(all_ql_tests btn_counter-ql-jimbob4-pp3_bit)
+ #add_dependencies(all_ql_tests btn_counter-ql-jimbob4-pp3_jlink)
+ #add_dependencies(all_ql_tests btn_counter-ql-jimbob4-pp3_openocd)
