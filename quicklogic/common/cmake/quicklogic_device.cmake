@@ -47,11 +47,11 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
 
   set(DEVICE_DIR_DATA ${DEVICE})
   if(${DEVICE} STREQUAL "ql-pp3")
-    set(DEVICE_DIR_DATA "ql-pp3e")
+	  set(DEVICE_DIR_DATA "ql-pp3e")	# FIXME: use PP3 timing data when it will be available
   endif()
 
   # The techfile and routing timing file
-  set(TECHFILE "${symbiflow-arch-defs_SOURCE_DIR}/third_party/${DEVICE_DIR_DATA}/Device Architecture Files/${TECHFILE_NAME}")
+  set(TECHFILE "${symbiflow-arch-defs_SOURCE_DIR}/third_party/${DEVICE}/Device Architecture Files/${TECHFILE_NAME}")
   set(ROUTING_TIMING "${symbiflow-arch-defs_SOURCE_DIR}/third_party/${DEVICE_DIR_DATA}/Timing Data Files/${ROUTING_TIMING_FILE_NAME}")
 
   # Import data from the techfile
