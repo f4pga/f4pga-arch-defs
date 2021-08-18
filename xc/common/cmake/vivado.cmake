@@ -642,6 +642,7 @@ function(CREATE_DCP_BY_INTERCHANGE)
     COMMAND ${CMAKE_COMMAND} -E echo "set_property CONFIG_VOLTAGE 3.3 [current_design]"                >> ${RUNME}
     COMMAND ${CMAKE_COMMAND} -E echo "set_property BITSTREAM.GENERAL.PERFRAMECRC YES [current_design]" >> ${RUNME}
     COMMAND ${CMAKE_COMMAND} -E echo "set_property IS_ENABLED 0 [get_drc_checks {LUTLP-1}]"            >> ${RUNME}
+    COMMAND ${CMAKE_COMMAND} -E echo "set_property IS_ENABLED 0 [get_drc_checks {RTRES-2}]"            >> ${RUNME}
     COMMAND ${CMAKE_COMMAND} -E echo "report_utilization -file ${NAME}_utilization.rpt"                >> ${RUNME}
     COMMAND ${CMAKE_COMMAND} -E echo "report_clock_utilization -file ${NAME}_clock_utilization.rpt"    >> ${RUNME}
     COMMAND ${CMAKE_COMMAND} -E echo "report_timing_summary -datasheet -max_paths 10 -file ${NAME}_timing_summary.rpt" >> ${RUNME}
