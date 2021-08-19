@@ -54,7 +54,7 @@ if { [info exists ::env(INPUT_XDC_FILES)] && $::env(INPUT_XDC_FILES) != "" } {
   propagate_clocks
 }
 
-update_pll_params
+update_pll_and_mmcm_params
 
 # Write the SDC file
 #

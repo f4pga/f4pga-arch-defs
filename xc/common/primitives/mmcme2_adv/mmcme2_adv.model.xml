@@ -1,0 +1,185 @@
+<models>
+  <model name="MMCME2_ADV_VPR">
+    <input_ports>
+      <port is_clock="1" name="DCLK"/>
+      <port clock="DCLK" name="DEN"/>
+      <port clock="DCLK" name="DWE"/>
+      <port clock="DCLK" name="DADDR0"/>
+      <port clock="DCLK" name="DADDR1"/>
+      <port clock="DCLK" name="DADDR2"/>
+      <port clock="DCLK" name="DADDR3"/>
+      <port clock="DCLK" name="DADDR4"/>
+      <port clock="DCLK" name="DADDR5"/>
+      <port clock="DCLK" name="DADDR6"/>
+      <port clock="DCLK" name="DI0"/>
+      <port clock="DCLK" name="DI1"/>
+      <port clock="DCLK" name="DI2"/>
+      <port clock="DCLK" name="DI3"/>
+      <port clock="DCLK" name="DI4"/>
+      <port clock="DCLK" name="DI5"/>
+      <port clock="DCLK" name="DI6"/>
+      <port clock="DCLK" name="DI7"/>
+      <port clock="DCLK" name="DI8"/>
+      <port clock="DCLK" name="DI9"/>
+      <port clock="DCLK" name="DI10"/>
+      <port clock="DCLK" name="DI11"/>
+      <port clock="DCLK" name="DI12"/>
+      <port clock="DCLK" name="DI13"/>
+      <port clock="DCLK" name="DI14"/>
+      <port clock="DCLK" name="DI15"/>
+
+      <port is_clock="1" name="PSCLK"/>
+      <port clock="PSCLK" name="PSEN"/>
+      <port clock="PSCLK" name="PSINCDEC"/>
+
+      <port is_clock="1" name="CLKFBIN"/>
+      <port is_clock="1" name="CLKIN1"/>
+      <port is_clock="1" name="CLKIN2"/>
+
+      <port name="CLKINSEL"/>
+      <port name="PWRDWN"/>
+      <port name="RST" combinational_sink_ports="LOCKED"/>
+
+      <port name="TESTIN0"/>
+      <port name="TESTIN1"/>
+      <port name="TESTIN2"/>
+      <port name="TESTIN3"/>
+      <port name="TESTIN4"/>
+      <port name="TESTIN5"/>
+      <port name="TESTIN6"/>
+      <port name="TESTIN7"/>
+      <port name="TESTIN8"/>
+      <port name="TESTIN9"/>
+      <port name="TESTIN10"/>
+      <port name="TESTIN11"/>
+      <port name="TESTIN12"/>
+      <port name="TESTIN13"/>
+      <port name="TESTIN14"/>
+      <port name="TESTIN15"/>
+      <port name="TESTIN16"/>
+      <port name="TESTIN17"/>
+      <port name="TESTIN18"/>
+      <port name="TESTIN19"/>
+      <port name="TESTIN20"/>
+      <port name="TESTIN21"/>
+      <port name="TESTIN22"/>
+      <port name="TESTIN23"/>
+      <port name="TESTIN24"/>
+      <port name="TESTIN25"/>
+      <port name="TESTIN26"/>
+      <port name="TESTIN27"/>
+      <port name="TESTIN28"/>
+      <port name="TESTIN29"/>
+      <port name="TESTIN30"/>
+      <port name="TESTIN31"/>
+
+    </input_ports>
+    <output_ports>
+      <port clock="DCLK" name="DO0"/>
+      <port clock="DCLK" name="DO1"/>
+      <port clock="DCLK" name="DO2"/>
+      <port clock="DCLK" name="DO3"/>
+      <port clock="DCLK" name="DO4"/>
+      <port clock="DCLK" name="DO5"/>
+      <port clock="DCLK" name="DO6"/>
+      <port clock="DCLK" name="DO7"/>
+      <port clock="DCLK" name="DO8"/>
+      <port clock="DCLK" name="DO9"/>
+      <port clock="DCLK" name="DO10"/>
+      <port clock="DCLK" name="DO11"/>
+      <port clock="DCLK" name="DO12"/>
+      <port clock="DCLK" name="DO13"/>
+      <port clock="DCLK" name="DO14"/>
+      <port clock="DCLK" name="DO15"/>
+      <port clock="DCLK" name="DRDY"/>
+
+      <port clock="PSCLK" name="PSDONE"/>
+
+      <port is_clock="1" name="CLKFBOUT"/>
+      <port is_clock="1" name="CLKFBOUTB"/>
+      <port is_clock="1" name="CLKOUT0"/>
+      <port is_clock="1" name="CLKOUT0B"/>
+      <port is_clock="1" name="CLKOUT1"/>
+      <port is_clock="1" name="CLKOUT1B"/>
+      <port is_clock="1" name="CLKOUT2"/>
+      <port is_clock="1" name="CLKOUT2B"/>
+      <port is_clock="1" name="CLKOUT3"/>
+      <port is_clock="1" name="CLKOUT3B"/>
+      <port is_clock="1" name="CLKOUT4"/>
+      <port is_clock="1" name="CLKOUT5"/>
+      <port is_clock="1" name="CLKOUT6"/>
+
+      <port name="LOCKED"/>
+
+      <port name="CLKINSTOPPED"/>
+      <port name="CLKFBSTOPPED"/>
+
+      <port name="TESTOUT0"/>
+      <port name="TESTOUT1"/>
+      <port name="TESTOUT2"/>
+      <port name="TESTOUT3"/>
+      <port name="TESTOUT4"/>
+      <port name="TESTOUT5"/>
+      <port name="TESTOUT6"/>
+      <port name="TESTOUT7"/>
+      <port name="TESTOUT8"/>
+      <port name="TESTOUT9"/>
+      <port name="TESTOUT10"/>
+      <port name="TESTOUT11"/>
+      <port name="TESTOUT12"/>
+      <port name="TESTOUT13"/>
+      <port name="TESTOUT14"/>
+      <port name="TESTOUT15"/>
+      <port name="TESTOUT16"/>
+      <port name="TESTOUT17"/>
+      <port name="TESTOUT18"/>
+      <port name="TESTOUT19"/>
+      <port name="TESTOUT20"/>
+      <port name="TESTOUT21"/>
+      <port name="TESTOUT22"/>
+      <port name="TESTOUT23"/>
+      <port name="TESTOUT24"/>
+      <port name="TESTOUT25"/>
+      <port name="TESTOUT26"/>
+      <port name="TESTOUT27"/>
+      <port name="TESTOUT28"/>
+      <port name="TESTOUT29"/>
+      <port name="TESTOUT30"/>
+      <port name="TESTOUT31"/>
+      <port name="TESTOUT32"/>
+      <port name="TESTOUT33"/>
+      <port name="TESTOUT34"/>
+      <port name="TESTOUT35"/>
+      <port name="TESTOUT36"/>
+      <port name="TESTOUT37"/>
+      <port name="TESTOUT38"/>
+      <port name="TESTOUT39"/>
+      <port name="TESTOUT40"/>
+      <port name="TESTOUT41"/>
+      <port name="TESTOUT42"/>
+      <port name="TESTOUT43"/>
+      <port name="TESTOUT44"/>
+      <port name="TESTOUT45"/>
+      <port name="TESTOUT46"/>
+      <port name="TESTOUT47"/>
+      <port name="TESTOUT48"/>
+      <port name="TESTOUT49"/>
+      <port name="TESTOUT50"/>
+      <port name="TESTOUT51"/>
+      <port name="TESTOUT52"/>
+      <port name="TESTOUT53"/>
+      <port name="TESTOUT54"/>
+      <port name="TESTOUT55"/>
+      <port name="TESTOUT56"/>
+      <port name="TESTOUT57"/>
+      <port name="TESTOUT58"/>
+      <port name="TESTOUT59"/>
+      <port name="TESTOUT60"/>
+      <port name="TESTOUT61"/>
+      <port name="TESTOUT62"/>
+      <port name="TESTOUT63"/>
+
+      <port name="TMUXOUT"/>
+    </output_ports>
+  </model>
+</models>

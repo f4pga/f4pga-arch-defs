@@ -5,19 +5,29 @@
 proc multiply_param { cell param_name multiplier } {
     set param_value [getparam $param_name $cell]
     if {$param_value ne ""} {
-        set new_param_value [expr int(round($param_value * $multiplier))]
+        set new_param_value [expr int(round([expr $param_value * $multiplier]))]
         setparam -set $param_name $new_param_value $cell
         puts "Updated parameter $param_name of cell $cell from $param_value to $new_param_value"
     }
 }
 
-proc update_pll_params {} {
+proc update_pll_and_mmcm_params {} {
     foreach cell [selection_to_tcl_list "t:PLLE2_ADV"] {
         multiply_param $cell "CLKFBOUT_PHASE" 1000
         for {set output 0} {$output < 6} {incr output} {
             multiply_param $cell "CLKOUT${output}_PHASE" 1000
             multiply_param $cell "CLKOUT${output}_DUTY_CYCLE" 100000
         }
+    }
+
+    foreach cell [selection_to_tcl_list "t:MMCME2_ADV"] {
+        multiply_param $cell "CLKFBOUT_PHASE" 1000
+        for {set output 0} {$output < 7} {incr output} {
+            multiply_param $cell "CLKOUT${output}_PHASE" 1000
+            multiply_param $cell "CLKOUT${output}_DUTY_CYCLE" 100000
+        }
+        multiply_param $cell "CLKFBOUT_MULT_F" 1000
+        multiply_param $cell "CLKOUT0_DIVIDE_F" 1000
     }
 }
 

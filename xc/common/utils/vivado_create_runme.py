@@ -10,7 +10,7 @@ def create_runme(f_out, args):
 create_project -force -part {part} design design
 
 read_verilog {bit_v}
-synth_design -top {top}
+synth_design -top {top} -bufg 0
 
 write_checkpoint -force design_{name}_pre_source.dcp
 
