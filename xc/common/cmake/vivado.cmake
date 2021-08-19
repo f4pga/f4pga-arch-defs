@@ -602,6 +602,7 @@ function(CREATE_DCP_BY_INTERCHANGE)
 
   add_custom_command(
       OUTPUT ${WORK_DIR}/${NAME}.dcp
+      COMMAND ${CMAKE_COMMAND} -E make_directory ${WORK_DIR}
       COMMAND ${CMAKE_COMMAND} -E env
         JAVA=${JAVA}
         RAPIDWRIGHT_PATH=${RAPIDWRIGHT_PATH}
@@ -634,12 +635,14 @@ function(CREATE_DCP_BY_INTERCHANGE)
 
   add_custom_command(
     OUTPUT ${WORK_DIR}/${NAME}_runme.tcl
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${WORK_DIR}
     COMMAND ${CMAKE_COMMAND} -E echo "open_checkpoint ${NAME}.dcp"                                     >  ${RUNME}
     COMMAND ${CMAKE_COMMAND} -E echo "${XDC_EXTRA_ARGS}"                                               >> ${RUNME}
     COMMAND ${CMAKE_COMMAND} -E echo "set_property CFGBVS VCCO [current_design]"                       >> ${RUNME}
     COMMAND ${CMAKE_COMMAND} -E echo "set_property CONFIG_VOLTAGE 3.3 [current_design]"                >> ${RUNME}
     COMMAND ${CMAKE_COMMAND} -E echo "set_property BITSTREAM.GENERAL.PERFRAMECRC YES [current_design]" >> ${RUNME}
     COMMAND ${CMAKE_COMMAND} -E echo "set_property IS_ENABLED 0 [get_drc_checks {LUTLP-1}]"            >> ${RUNME}
+    COMMAND ${CMAKE_COMMAND} -E echo "set_property IS_ENABLED 0 [get_drc_checks {RTRES-2}]"            >> ${RUNME}
     COMMAND ${CMAKE_COMMAND} -E echo "report_utilization -file ${NAME}_utilization.rpt"                >> ${RUNME}
     COMMAND ${CMAKE_COMMAND} -E echo "report_clock_utilization -file ${NAME}_clock_utilization.rpt"    >> ${RUNME}
     COMMAND ${CMAKE_COMMAND} -E echo "report_timing_summary -datasheet -max_paths 10 -file ${NAME}_timing_summary.rpt" >> ${RUNME}

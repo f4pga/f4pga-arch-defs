@@ -25,6 +25,31 @@ CLOCKS = {
             "type":
                 "PLLE2_ADV",
         },
+    "MMCME2_ADV_VPR":
+        {
+            "sinks":
+                frozenset(("CLKFBIN", "CLKIN1", "CLKIN2", "DCLK", "PSCLK")),
+            "sources":
+                frozenset(
+                    (
+                        "CLKFBOUT",
+                        "CLKFBOUTB",
+                        "CLKOUT0",
+                        "CLKOUT0B",
+                        "CLKOUT1",
+                        "CLKOUT1B",
+                        "CLKOUT2",
+                        "CLKOUT2B",
+                        "CLKOUT3",
+                        "CLKOUT3B",
+                        "CLKOUT4",
+                        "CLKOUT5",
+                        "CLKOUT6",
+                    )
+                ),
+            "type":
+                "MMCME2_ADV",
+        },
     "BUFGCTRL_VPR":
         {
             "sinks": frozenset(("I0", "I1")),
@@ -259,6 +284,7 @@ class ClockPlacer(object):
             'BOT': [],
         }
         self.pll_cmts = set()
+        self.mmcm_cmts = set()
         self.gtp_cmts = set()
 
         cmt_dict = vpr_grid.get_cmt_dict()
@@ -307,6 +333,9 @@ class ClockPlacer(object):
             assert "IBUFDS_GTE2" in site_type_dict
             for _, _, clk_region in site_type_dict['IBUFDS_GTE2']:
                 self.gtp_cmts.add(clk_region)
+
+        for _, _, clk_region in site_type_dict['MMCME2_ADV']:
+            self.mmcm_cmts.add(clk_region)
 
         self.input_pins = {}
         if not self.roi:
@@ -522,6 +551,11 @@ class ClockPlacer(object):
                 if CLOCKS[clock['subckt']]['type'] == 'PLLE2_ADV':
                     problem.addConstraint(
                         lambda cmt: cmt in self.pll_cmts, (clock_name, )
+                    )
+
+                if CLOCKS[clock['subckt']]['type'] == 'MMCME2_ADV':
+                    problem.addConstraint(
+                        lambda cmt: cmt in self.mmcm_cmts, (clock_name, )
                     )
 
                 if net in self.input_pins:
