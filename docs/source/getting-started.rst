@@ -140,22 +140,3 @@ You can also list the supported boards, cables and fpgas:
 If you encounter any issues, please refer to the `OpenFPGALoader README <https://github.com/trabucayre/openFPGALoader#readme>`_
 as it provides more useful information on the usage of the tool.
 
-Vivado
-++++++
-
-For programming the Arty Board with ``Vivado``, open the program in GUI mode and choose the ``Open Target`` option from
-``Flow Navigator \ Program and Debug \ Open Hardware Manager``.
-After right-clicking on the chip icon in the newly-opened ``Hardware`` window, you will see the ``Program Device`` option in the context menu.
-The option  will open an appropriate Manager for programming the chip.
-Select the location of the bitstream file and click ``Program``.
-
-xc3sprog
-++++++++
-
-Alternatively, you can use other tools like `xc3sprog <https://github.com/matrix-io/xc3sprog>`_
-which allow programming the chip directly from a console.
-For Arty Board you can do it with the following command:
-
-.. code-block:: bash
-
-   xc3sprog -c nexys4 bitstream.bit
