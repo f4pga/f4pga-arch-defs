@@ -1,7 +1,6 @@
 name: update_conda_lock
 
 on:
-  pull_request:
   push:
   schedule:
     - cron: '0 3 * * *'
@@ -21,6 +20,7 @@ jobs:
         ref:         'master'    # It will be the PR's base
 
     - name: Update Lock and Issue a Pull Request
+      if: ${{ github.ref == 'refs/heads/master' }}
       uses: SymbiFlow/actions/update_conda_lock@7a34d4c1a27dc369cfc618ae0902fcfaf1a36c59
       with:
         branch_name_core: 'update_conda_lock'
