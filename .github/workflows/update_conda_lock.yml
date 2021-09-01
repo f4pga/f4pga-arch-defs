@@ -21,7 +21,7 @@ jobs:
 
     - name: Update Lock and Issue a Pull Request
       if: ${{ github.ref == 'refs/heads/master' }}
-      uses: SymbiFlow/actions/update_conda_lock@7a34d4c1a27dc369cfc618ae0902fcfaf1a36c59
+      uses: SymbiFlow/actions/update_conda_lock@3fdc436e761a6312c3e0a554f18b727c34434106
       with:
         branch_name_core: 'update_conda_lock'
         conda_lock_file:  'conda_lock.yml'
