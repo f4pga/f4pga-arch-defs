@@ -58,7 +58,7 @@ dependencies:
   - pcre=8.45=h295c915_0
   - pip=21.2.2=py37h06a4308_0
   - pkg-config=0.29.2=h1bed415_8
-  - prjxray-db=0.0_248_g2e51ad3=20210312_125539
+  - prjxray-db=0.0_253_gcd41f08=20210818_135210
   - prjxray-tools=0.1_2842_g6867429c=20210301_104249
   - pycodestyle=2.7.0=pyhd3eb1b0_0
   - pyflakes=2.3.1=pyhd3eb1b0_0
