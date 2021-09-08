@@ -27,3 +27,5 @@ jobs:
         conda_lock_file:  'conda_lock.yml'
         environment_file: 'environment.yml'
         gh_access_token:  ${{ secrets.GITHUB_TOKEN }}
+        user_email: 'foss-fpga-tools@google.com'
+        user_name: 'SymbiFlow Robot'
