@@ -4152,7 +4152,7 @@ endmodule
 module PLLE2_BASE
 (
 input         CLKFBIN,
-input         CLKIN,
+input         CLKIN1,
 
 output        CLKFBOUT,
 output        CLKOUT0,
@@ -4162,12 +4162,14 @@ output        CLKOUT3,
 output        CLKOUT4,
 output        CLKOUT5,
 
+input         PWRDWN,
 input         RST,
 output        LOCKED
 );
 
   parameter IS_CLKINSEL_INVERTED = 1'b0;
   parameter IS_RST_INVERTED = 1'b0;
+  parameter IS_PWRDWN_INVERTED = 1'b0;
 
   parameter BANDWIDTH = "OPTIMIZED";
   parameter STARTUP_WAIT = "FALSE";
@@ -4209,7 +4211,7 @@ output        LOCKED
   (
   .IS_CLKINSEL_INVERTED(IS_CLKINSEL_INVERTED),
   .IS_RST_INVERTED(IS_RST_INVERTED),
-  .IS_PWRDWN_INVERTED(1'b0),
+  .IS_PWRDWN_INVERTED(IS_PWRDWN_INVERTED),
 
   .BANDWIDTH(BANDWIDTH),
   .STARTUP_WAIT(STARTUP_WAIT),
@@ -4249,7 +4251,7 @@ output        LOCKED
   _TECHMAP_REPLACE_
   (
   .CLKFBIN(CLKFBIN),
-  .CLKIN1(CLKIN),
+  .CLKIN1(CLKIN1),
   .CLKINSEL(1'b1),
 
   .CLKFBOUT(CLKFBOUT),
@@ -4260,7 +4262,7 @@ output        LOCKED
   .CLKOUT4(CLKOUT4),
   .CLKOUT5(CLKOUT5),
 
-  .PWRDWN(1'b0),
+  .PWRDWN(PWRDWN),
   .RST(RST),
   .LOCKED(LOCKED),
 

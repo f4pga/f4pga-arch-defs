@@ -55,6 +55,7 @@ function(COMMON_VIVADO_TARGETS)
         ${WORK_DIR}/design_${NAME}_route_status.rpt
     COMMAND ${CMAKE_COMMAND} -E remove -f ${WORK_DIR}/design_${NAME}.dcp
     COMMAND ${CMAKE_COMMAND} -E remove -f ${WORK_DIR}/design_${NAME}.xpr
+    COMMAND cat ${CMAKE_CURRENT_BINARY_DIR}/${NAME}_runme.tcl
     COMMAND ${PRJRAY_DIR}/utils/vivado.sh -mode batch -source
         ${CMAKE_CURRENT_BINARY_DIR}/${NAME}_runme.tcl
         > ${CMAKE_CURRENT_BINARY_DIR}/${WORK_DIR}/vivado.stdout.log
@@ -661,6 +662,7 @@ function(CREATE_DCP_BY_INTERCHANGE)
         ${WORK_DIR}/${NAME}_power.rpt
         ${WORK_DIR}/${NAME}_timing_summary.rpt
         ${WORK_DIR}/${NAME}_route_status.rpt
+    COMMAND cat ${RUNME}
     COMMAND ${CMAKE_COMMAND} -E env XRAY_VIVADO_SETTINGS=$ENV{URAY_VIVADO_SETTINGS} ${PRJRAY_DIR}/utils/vivado.sh -mode batch -source ${RUNME}
         > ${CMAKE_CURRENT_BINARY_DIR}/${WORK_DIR}/vivado.stdout.log
     WORKING_DIRECTORY ${WORK_DIR}
