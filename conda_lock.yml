@@ -88,7 +88,7 @@ dependencies:
     - certifi==2021.5.30
     - cffi==1.14.6
     - chardet==4.0.0
-    - charset-normalizer==2.0.4
+    - charset-normalizer==2.0.5
     - colorama==0.4.4
     - cryptography==3.4.8
     - cssselect2==0.4.1
@@ -123,7 +123,7 @@ dependencies:
     - Pillow==8.3.2
     - pluggy==1.0.0
     - ply==3.11
-    - progressbar2==3.53.2
+    - progressbar2==3.53.3
     - py==1.10.0
     - pycapnp==1.0.0b1
     - pycparser==2.20
