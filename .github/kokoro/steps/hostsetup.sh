@@ -14,26 +14,29 @@ echo "========================================"
 echo "Update the CA certificates"
 echo "----------------------------------------"
 sudo apt-get install -y ca-certificates
+echo "----------------------------------------"
 sudo update-ca-certificates
-echo
+echo "----------------------------------------"
 
 echo
 echo "========================================"
-echo "Host not verifying certificate name matches server name"
+echo "Remove the expire letsencrypt.org cert "
 echo "----------------------------------------"
-echo | sudo tee -a /etc/apt/apt.conf.d/80-ignore-ssl-issues <<EOF
-// Do not verify peer certificate
-Acquire::https::Verify-Peer "false";
-// Do not verify that certificate name matches server name
-Acquire::https::Verify-Host "false";
-EOF
+wget https://helloworld.letsencrypt.org/ || true
 echo "----------------------------------------"
+sudo rm /usr/share/ca-certificates/mozilla/DST_Root_CA_X3.crt
+echo "----------------------------------------"
+sudo update-ca-certificates
+echo "----------------------------------------"
+wget https://helloworld.letsencrypt.org/ || true
+echo "----------------------------------------"
+
 
 echo
 echo "========================================"
 echo "Host adding PPAs"
 echo "----------------------------------------"
-wget --no-check-certificate -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | sudo apt-key add -
+wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | sudo apt-key add -
 sudo apt-add-repository 'deb https://apt.kitware.com/ubuntu/ xenial main'
 sudo add-apt-repository ppa:openjdk-r/ppa
 echo "----------------------------------------"
