@@ -60,6 +60,10 @@ add_file_target(FILE mmcm_int_basys3_bottom.v SCANNER_TYPE verilog)
 add_file_target(FILE mmcm_buf_basys3_bottom.v SCANNER_TYPE verilog)
 add_file_target(FILE mmcm_ext_basys3_bottom.v SCANNER_TYPE verilog)
 add_file_target(FILE mmcm_int_frac_basys3_bottom.v SCANNER_TYPE verilog)
+add_file_target(FILE mmcm_int_frac_basys3_bottom.v SCANNER_TYPE verilog)
+
+add_file_target(FILE clock_tester.v SCANNER_TYPE verilog)
+add_file_target(FILE frequency_test.v SCANNER_TYPE verilog)
 
 add_fpga_target(
   NAME mmcm_packing
@@ -101,6 +105,14 @@ add_fpga_target(
   EXPLICIT_ADD_FILE_TARGET
   )
 
+  add_fpga_target(
+  NAME frequency_test
+  BOARD basys3-bottom
+  SOURCES frequency_test.v
+  INPUT_IO_FILE ${COMMON}/basys3_bottom_frequency.pcf
+  EXPLICIT_ADD_FILE_TARGET
+  )
+
 
 add_vivado_target(
   NAME mmcm_packing_vivado
@@ -137,6 +149,13 @@ add_vivado_target(
 add_vivado_target(
   NAME mmcm_int_frac_basys3_vivado
   PARENT_NAME mmcm_int_frac_basys3
+  CLOCK_PINS clk
+  CLOCK_PERIODS 10.0
+  )
+
+add_vivado_target(
+  NAME frequency_test_vivado
+  PARENT_NAME frequency_test
   CLOCK_PINS clk
   CLOCK_PERIODS 10.0
   )
