@@ -60,7 +60,6 @@ add_file_target(FILE mmcm_int_basys3_bottom.v SCANNER_TYPE verilog)
 add_file_target(FILE mmcm_buf_basys3_bottom.v SCANNER_TYPE verilog)
 add_file_target(FILE mmcm_ext_basys3_bottom.v SCANNER_TYPE verilog)
 add_file_target(FILE mmcm_int_frac_basys3_bottom.v SCANNER_TYPE verilog)
-add_file_target(FILE mmcm_int_frac_basys3_bottom.v SCANNER_TYPE verilog)
 
 add_file_target(FILE clock_tester.v SCANNER_TYPE verilog)
 add_file_target(FILE frequency_test.v SCANNER_TYPE verilog)
@@ -163,6 +162,7 @@ add_vivado_target(
 # =============================================================================
 
 set(TEST_TARGETS
+  frequency_test
   mmcm_packing
   mmcm_int_basys3
   mmcm_int_frac_basys3
