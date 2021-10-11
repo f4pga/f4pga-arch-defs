@@ -121,6 +121,11 @@ make dram_test_64x1d_vivado
  * [wavedrom](https://wavedrom.com/)
    Tool for generating waveform / timing diagrams.
 
+## Pre-built architecture files
+
+The Continuous Integration system builds and uploads the various architecture data files.
+A set of latest architecture build artifact links is generated and uploaded to a dedicated [GCS bucket](https://storage.cloud.google.com/symbiflow-arch-defs-gha/).
+
 ## Resource Requirements
 
 To run examples provided, please make sure these resources are available:
