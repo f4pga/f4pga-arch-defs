@@ -9,6 +9,8 @@ get_target_property_required(ARCH ${DEVICE} ARCH)
 # Symmetric modes only
 set(BRAM18_WIDTHS 1 2 4 9 18)
 set(BRAM36_WIDTHS 1 2 4 9 18 36)
+set(BRAM64_WIDTHS 1 2 4)
+set(BRAM72_WIDTHS 9 18 36 72)
 
 add_file_target(FILE bram_test.v SCANNER_TYPE verilog)
 
@@ -17,7 +19,7 @@ set(GENERATE_DEPS ${CMAKE_CURRENT_SOURCE_DIR}/generate_test.py ${PYTHON3})
 
 add_custom_target(all_xc7_bram_diff_fasm)
 set(ANY_BRAM_DIFF_FASM FALSE)
-foreach(type 18 36)
+foreach(type 18 36 64 72)
     foreach(width ${BRAM${type}_WIDTHS})
         set(FNAME ${BASE_TEST_NAME}_${type}_${width}.v)
         add_custom_command(

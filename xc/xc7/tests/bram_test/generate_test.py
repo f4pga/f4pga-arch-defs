@@ -45,6 +45,14 @@ BRAM_TYPE_WIDTH = {
     (36, 9): BramConfig(9, 12, 4096),
     (36, 18): BramConfig(18, 11, 2048),
     (36, 36): BramConfig(18, 10, 1024),
+    # UG473 Table 1-14
+    (64, 1): BramConfig(1, 15, 32768),
+    (64, 2): BramConfig(2, 14, 16384),
+    (64, 4): BramConfig(4, 13, 8192),
+    (72, 9): BramConfig(9, 12, 4096),
+    (72, 18): BramConfig(18, 11, 2048),
+    (72, 36): BramConfig(36, 10, 1024),
+    (72, 72): BramConfig(72, 9, 512),
 }
 
 
