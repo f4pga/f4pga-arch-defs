@@ -1,8 +1,10 @@
+`include "clock_tester.v"
+
 `default_nettype none
 `timescale 1ns / 1ps
 
 module top (
-    input  wire clk_100m,     
+    input  wire clk,     
     input  wire rst,     
     output wire  [2:0] led
     );
@@ -21,7 +23,7 @@ module top (
         .CLKOUT1_DIVIDE(1),  
         .DIVCLK_DIVIDE(1)
     ) MMCME2_ADV_inst (
-        .CLKIN1(clk_100m),
+        .CLKIN1(clk),
         .RST(rst),
         .CLKOUT0(clk_out_mmcm),
         .LOCKED(locked_mmcm),
@@ -50,7 +52,7 @@ module top (
         .CLKOUT1_DIVIDE(1),  
         .DIVCLK_DIVIDE(1)
     ) PLLE2_ADV_inst (
-        .CLKIN1(clk_100m),
+        .CLKIN1(clk),
         .RST(rst),
         .CLKOUT0(clk_out_pll),
         .LOCKED(locked_pll),
@@ -68,7 +70,7 @@ module top (
     BUFG bufg_clk_mmcm(.I(clk_out_mmcm), .O(clk_buff_mmcm));
 
 
-    clock_tester #(100000000) T0 (clk_100m, led[0]);
+    clock_tester #(100000000) T0 (clk, led[0]);
     clock_tester #(25000000) T1 (clk_buff_pll, led[1]);
     clock_tester #(25000000) T2 (clk_buff_mmcm, led[2]);
 
