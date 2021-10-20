@@ -96,6 +96,19 @@ add_vivado_target(
   PARENT_NAME counter_arty100t
 )
 
+add_file_target(FILE counter_nexys.v SCANNER_TYPE verilog)
+add_fpga_target(
+  NAME counter_nexys
+  BOARD nexys
+  SOURCES counter_nexys.v
+  INPUT_IO_FILE ${COMMON}/nexys_swbut.pcf
+  EXPLICIT_ADD_FILE_TARGET
+)
+
+add_vivado_target(
+  NAME counter_nexys_vivado
+  PARENT_NAME counter_nexys
+)
 
 add_file_target(FILE counter_nexys_video.v SCANNER_TYPE verilog)
 add_fpga_target(

@@ -1,0 +1,22 @@
+# clk
+set_io clk E3
+
+# sw[7:0]
+set_io sw[0] J15
+set_io sw[1] L16
+set_io sw[2] M13
+set_io sw[3] R15
+set_io sw[4] R17
+set_io sw[5] T18
+set_io sw[6] U18
+set_io sw[7] R13
+
+# led[7:0]
+set_io led[0] H17
+set_io led[1] K15
+set_io led[2] J13
+set_io led[3] N14
+set_io led[4] R18
+set_io led[5] V17
+set_io led[6] U16
+set_io led[7] V16
