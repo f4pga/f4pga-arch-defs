@@ -97,6 +97,14 @@ add_xc_board(
 )
 
 add_xc_board(
+  BOARD nexys
+  DEVICE xc7a50t
+  PACKAGE test
+  PROG_CMD "${OPENOCD} -f ${PRJXRAY_DIR}/utils/openocd/board-digilent-basys3.cfg -c \\\"init $<SEMICOLON> pld load 0 \${OUT_BIN} $<SEMICOLON> exit\\\""
+  PART xc7a50tcsg324-1
+)
+
+add_xc_board(
   BOARD netv2-a100t
   DEVICE xc7a100t
   PACKAGE test
