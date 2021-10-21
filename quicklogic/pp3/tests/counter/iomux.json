@@ -1,0 +1,13 @@
+{
+    "pads": {
+        "3": {
+            "func_sel": 0,
+            "ctrl_sel": "fabric",
+            "mode": "none",
+            "pull": "none",
+            "drive": 2,
+            "slew": "slow",
+            "schmitt": 0
+        }
+    }
+}

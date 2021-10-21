@@ -1,6 +1,7 @@
 add_file_target(FILE counter.v SCANNER_TYPE verilog)
 add_file_target(FILE chandalar.pcf)
 add_file_target(FILE quickfeather.pcf)
+add_file_target(FILE iomux.json)
 
 add_fpga_target(
   NAME counter-ql-chandalar
@@ -38,6 +39,7 @@ add_fpga_target(
 
 add_jlink_output(
   PARENT counter-ql-quickfeather
+  IOMUX_JSON iomux.json
 )
 
 add_openocd_output(

@@ -76,3 +76,6 @@
 [submodule "quicklogic/common/utils/quicklogic-timings-importer"]
 	path = quicklogic/common/utils/quicklogic-timings-importer
 	url = https://github.com/QuickLogic-Corp/quicklogic-timings-importer.git
+[submodule "quicklogic/common/utils/quicklogic-fasm"]
+	path = quicklogic/common/utils/quicklogic-fasm
+	url = https://github.com/QuickLogic-Corp/quicklogic-fasm.git

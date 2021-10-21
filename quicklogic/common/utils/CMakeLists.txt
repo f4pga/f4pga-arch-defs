@@ -5,7 +5,7 @@ add_custom_target(all_python_tests
     COMMAND
         ${CMAKE_COMMAND} -E env
         PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils:${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils:$PYTHONPATH
-        ${PYTHON3} -m pytest --doctest-modules -vv
+        ${PYTHON3} -m pytest --ignore quicklogic-fasm --doctest-modules -vv
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
