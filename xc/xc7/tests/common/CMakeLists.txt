@@ -36,6 +36,9 @@ add_file_target(FILE nexys_video.xdc)
 add_file_target(FILE nexys_video_noclk.xdc)
 add_file_target(FILE nexys_video_gtp_channel.pcf)
 
+# Nexys
+add_file_target(FILE nexys_swbut.pcf)
+
 # NeTV2 xc7a100t variant constraint files
 add_file_target(FILE netv2_a100t_pcie_complex.xdc)
 
