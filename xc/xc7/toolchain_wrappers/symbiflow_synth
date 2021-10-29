@@ -18,12 +18,14 @@ XDC_FILES=()
 TOP=top
 DEVICE="*"
 PART=""
+FRONTEND=verilog
 
 VERILOGLIST=0
 XDCLIST=0
 TOPNAME=0
 DEVICENAME=0
 PARTNAME=0
+FRONTENDNAME=0
 
 for arg in $@; do
 	echo $arg
@@ -35,6 +37,7 @@ for arg in $@; do
 			TOPNAME=1
 			DEVICENAME=0
 			PARTNAME=0
+			FRONTENDNAME=0
 			;;
 		-x|--xdc)
 			VERILOGLIST=0
@@ -42,6 +45,7 @@ for arg in $@; do
 			TOPNAME=0
 			DEVICENAME=0
 			PARTNAME=0
+			FRONTENDNAME=0
 			;;
 		-v|--verilog)
 			VERILOGLIST=1
@@ -49,6 +53,7 @@ for arg in $@; do
 			TOPNAME=0
 			DEVICENAME=0
 			PARTNAME=0
+			FRONTENDNAME=0
 			;;
 		-d|--device)
 			VERILOGLIST=0
@@ -56,6 +61,7 @@ for arg in $@; do
 			TOPNAME=0
 			DEVICENAME=1
 			PARTNAME=0
+			FRONTENDNAME=0
 			;;
 		-p|--part)
 			VERILOGLIST=0
@@ -63,6 +69,15 @@ for arg in $@; do
 			TOPNAME=0
 			DEVICENAME=0
 			PARTNAME=1
+			FRONTENDNAME=0
+			;;
+		-f|--frontend)
+			VERILOGLIST=0
+			XDCLIST=0
+			TOPNAME=0
+			DEVICENAME=0
+			PARTNAME=0
+			FRONTENDNAME=1
 			;;
 		*)
 			if [ $VERILOGLIST -eq 1 ]; then
@@ -75,9 +90,11 @@ for arg in $@; do
 				DEVICE=$arg
 			elif [ $PARTNAME -eq 1 ]; then
 				PART=$arg
+			elif [ $FRONTENDNAME -eq 1 ]; then
+				FRONTEND=$arg
 			else
 				echo "Usage: synth [-t|--top <top module name> -v|--verilog <Verilog files list> [-x|--xdc <XDC files list>]"
-				echo "             [-d|--device <device type (e.g. artix7)>] [-p|--part <part name>]"
+				echo "             [-d|--device <device type (e.g. artix7)>] [-p|--part <part name>] [-f|--frontend <frontend name>]"
 				echo "note: device and part parameters are required if xdc is passed"
 				exit 1
 			fi
@@ -105,6 +122,6 @@ export OUT_FASM_EXTRA=${TOP}_fasm_extra.fasm
 export PYTHON3=${PYTHON3:=$(which python3)}
 LOG=${TOP}_synth.log
 
-yosys -p "tcl ${SYNTH_TCL_PATH}" -l $LOG ${VERILOG_FILES[*]}
+yosys -p "tcl ${SYNTH_TCL_PATH}" -l $LOG ${VERILOG_FILES[*]} -f ${FRONTEND}
 python3 ${SPLIT_INOUTS} -i ${OUT_JSON} -o ${SYNTH_JSON}
 yosys -p "read_json $SYNTH_JSON; tcl ${CONV_TCL_PATH}"
