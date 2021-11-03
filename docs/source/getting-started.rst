@@ -94,24 +94,49 @@ or for ``Ninja``:
 
 .. note::
 
-        Loading the bitstream into an FPGA can be done outside of the Symbiflow with tools that support the target architecture, such as for example `Vivado` or `xc3sprog` for Xilinx 7-Series FPGAs or ``iceprog`` for Lattice iCE40.
+        Loading the bitstream into an FPGA can be done outside of the Symbiflow.
+        There are multiple tools for loading bitstreams into FPGA development boards.
+        Typically, each tool supports a specific target family or the lines
+        of products of a vendor. Some of the most known are listed in `hdl/constraints/prog <https://github.com/hdl/constraints/tree/main/prog>`_
 
-Vivado
-++++++
+OpenFPGALoader
+++++++++++++++
 
-For programming the Arty Board with ``Vivado``, open the program in GUI mode and choose the ``Open Target`` option from
-``Flow Navigator \ Program and Debug \ Open Hardware Manager``.
-After right-clicking on the chip icon in the newly-opened ``Hardware`` window, you will see the ``Program Device`` option in the context menu.
-The option  will open an appropriate Manager for programming the chip.
-Select the location of the bitstream file and click ``Program``.
+OpenFPGALoader is an universal utility for programming the FPGA devices that is
+a great alternative to OpenOCD. It supports many different boards with FPGAs
+based on the architectures including xc7, ECP5, iCE40 and many more. It can utilize
+a variety of the programming adapters based on JTAG, DAP interface, ORBTrace,
+DFU and FTDI chips.
 
-xc3sprog
-++++++++
+Installing OpenFPGALoader
+*************************
 
-Alternatively, you can use other tools like `xc3sprog <https://github.com/matrix-io/xc3sprog>`_
-which allow programming the chip directly from a console.
-For Arty Board you can do it with the following command:
+OpenFPGALoader is available in several packaging solutions. It can be installed
+with distribution specific package managers on Arch Linux and Fedora.
+There are also prebuilt packages available in `conda <https://anaconda.org/litex-hub/openfpgaloader>`_
+or packages in tool `repository <https://github.com/trabucayre/openFPGALoader/releases>`_.
+OpenFPGALoader can also be built from sources. For installation guidelines
+using both prebuilt packages and building from source please refer to instructions in `readme <https://github.com/trabucayre/openFPGALoader/blob/master/INSTALL.md>`_.
+
+Usage
+*****
+
+For programming the FPGA use one of these commands:
 
 .. code-block:: bash
 
-   xc3sprog -c nexys4 bitstream.bit
+        openFPGALoader -b <board> <bitstream>           # (e.g. arty)
+        openFPGALoader -c <cable> <bitstream>           # (e.g. digilent)
+        openFPGALoader -d <device> <bitstream>          # (e.g. /dev/ttyUSB0)
+
+You can also list the supported boards, cables and fpgas:
+
+.. code-block:: bash
+
+        openFPGALoader --list-boards
+        openFPGALoader --list-cables
+        openFPGALoader --list-fpga
+
+If you encounter any issues, please refer to the `OpenFPGALoader README <https://github.com/trabucayre/openFPGALoader#readme>`_
+as it provides more useful information on the usage of the tool.
+
