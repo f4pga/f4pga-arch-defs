@@ -37,13 +37,23 @@ The repo includes;
 The documentation can be generated using Sphinx.
 
 # Getting Started
+Instructions were verified to work for Debian 11. Please let us know if you have information on other distributions.
 
+### Step 1: ###
 To initialize submodules and setup the CMake build system, from the root of the `symbiflow-arch-defs` directory run:
 
 ```
 make env
 ```
 
+### Step 2: ###
+Change directory to enter CMake build system:
+
+```
+cd build
+```
+
+### Step 3: ###
 To build all demo bitstreams there are 3 useful targets:
 
 ```
