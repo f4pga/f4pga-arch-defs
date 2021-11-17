@@ -26,7 +26,7 @@ set +e
 	BUILD_RESULT=0
 
 	# Run tests
-	ninja -j${MAX_CORES} all_quicklogic_tests || BUILD_RESULT=$?
+	ninja -j${MAX_CORES} all_quicklogic_tests -k 0 || BUILD_RESULT=$?
 
 	# If successful install the toolchain and test it
 	if [ $? -eq 0 ]; then
