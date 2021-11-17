@@ -1,5 +1,5 @@
 set(SHIFT_REG_8 ${QL_DESIGNS_DIR}/shift_reg_8/shift_reg_8.v)
-add_file_target(FILE shift_reg_8.sdc SCANNER_TYPE)
+add_file_target(FILE shift_reg_8.sdc)
 add_file_target(FILE shift_reg_8.pcf)
 
 add_fpga_target(
