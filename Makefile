@@ -26,6 +26,7 @@ clean::
 # Conda Lock contains all dependencies. PIP often fails if a package is both
 # specified to be installed directly and as a dependency of another package.
 env:: export PIP_NO_DEPS = true
+env:: export PIP_NO_CACHE_DIR = true
 env:: | $(CONDA_ENV_PYTHON)
 	git submodule init
 	git submodule update --init --recursive
