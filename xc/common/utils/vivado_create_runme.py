@@ -58,6 +58,7 @@ set_property CFGBVS VCCO [current_design]
 set_property CONFIG_VOLTAGE 3.3 [current_design]
 set_property BITSTREAM.GENERAL.PERFRAMECRC YES [current_design]
 set_property IS_ENABLED 0 [get_drc_checks {{LUTLP-1}}]
+set_property IS_ENABLED 0 [get_drc_checks {{RTRES-2}}]
 
 report_utilization -file design_{name}_utilization.rpt
 report_clock_utilization -file design_{name}_clock_utilization.rpt
@@ -113,6 +114,7 @@ set_property CFGBVS VCCO [current_design]
 set_property CONFIG_VOLTAGE 3.3 [current_design]
 set_property BITSTREAM.GENERAL.PERFRAMECRC YES [current_design]
 set_property IS_ENABLED 0 [get_drc_checks {{LUTLP-1}}]
+set_property IS_ENABLED 0 [get_drc_checks {{RTRES-2}}]
 
 report_utilization -file design_{name}_utilization.rpt
 report_clock_utilization -file design_{name}_clock_utilization.rpt
