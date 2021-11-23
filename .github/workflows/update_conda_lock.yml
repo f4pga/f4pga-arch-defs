@@ -30,6 +30,7 @@ jobs:
       uses: peter-evans/create-pull-request@v3
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
+        author: GitHub <noreply@github.com>
         commit-message: "[BOT] Conda Lock Update"
         title: "[BOT] Conda Lock Update"
         body: Pull Request created by the conda lock update workflow.
