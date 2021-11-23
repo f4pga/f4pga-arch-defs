@@ -84,6 +84,7 @@ dependencies:
   - zipp=3.6.0=pyhd3eb1b0_0
   - zlib=1.2.11=h7b6447c_3
   - zstd=1.4.9=haebb681_0
+  - packaging=21.3
   - pip:
     - Arpeggio==1.10.2
     - attrs==21.2.0
