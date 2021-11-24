@@ -44,7 +44,7 @@ To initialize submodules and setup the CMake build system, from the root of the 
 make env
 ```
 
-To build all demo bitstreams there are 3 useful targets:
+To build all demo bitstreams there are 3 useful targets (run these commands in `symbiflow-arch-defs/build`):
 
 ```
 # Build all demo bitstreams, targetting all architectures
