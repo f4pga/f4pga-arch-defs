@@ -3,6 +3,11 @@ TOP_DIR := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 REQUIREMENTS_FILE := requirements.txt
 ENVIRONMENT_FILE := conda_lock.yml
 
+# Module qlfpga-symbiflow-plugins requires git-lfs to be installed on system
+ifeq (, $(shell which git-lfs))
+ $(error "No git-lfs in your path, consider doing 'apt-get install git-lfs' or similar for your system.")
+ endif
+
 third_party/make-env/conda.mk:
 	git submodule init
 	git submodule update --init --recursive
