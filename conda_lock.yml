@@ -22,6 +22,7 @@ dependencies:
   - gcc-riscv64-elf-newlib=9.2.0=20201119_154229
   - gcc-riscv64-elf-nostdc=9.2.0=20210923_213204
   - gmp=6.2.1=h2531618_2
+  - gperftools=2.9.1_3_gc259412=20211122_104637
   - icestorm=0.0_0719_g792cef0=20201120_145821
   - icu=58.2=he6710b0_3
   - importlib-metadata=4.8.1=py37h06a4308_0
@@ -40,6 +41,7 @@ dependencies:
   - libnghttp2=1.46.0=hce63b2e_0
   - libssh2=1.9.0=h1ba5d50_1
   - libstdcxx-ng=9.3.0=hd4cf53a_17
+  - libunwind=1.5.0=h295c915_1
   - libusb=1.0.20=20210923_083448
   - libuuid=1.0.3=h7f8727e_2
   - libuv=1.40.0=h7b6447c_0
@@ -56,30 +58,33 @@ dependencies:
   - openocd=0.10.0_1514_ga8edbd020=20201119_154304
   - openssl=1.1.1l=h7f8727e_0
   - pcre=8.45=h295c915_0
+  - perl=5.26.2=h14c3975_0
   - pip=21.2.2=py37h06a4308_0
   - pkg-config=0.29.2=h1bed415_8
-  - prjxray-db=0.0_253_gcd41f08=20211005_122659
-  - prjxray-tools=0.1_2934_g60168e9b=20211005_122659
+  - prjxray-db=0.0_253_gcd41f08=20211122_104637
+  - prjxray-tools=0.1_2934_g60168e9b=20211122_104637
   - pycodestyle=2.7.0=pyhd3eb1b0_0
   - pyflakes=2.3.1=pyhd3eb1b0_0
   - python=3.7.11=h12debd9_0
   - readline=8.1=h27cfd23_0
   - rhash=1.4.1=h3c74f83_1
-  - setuptools=52.0.0=py37h06a4308_0
+  - setuptools=58.0.4=py37h06a4308_0
   - sqlite=3.36.0=hc218d9a_0
+  - surelog=0.0_3772_gcbc0a3aee=20211122_104637_py37
   - swig=4.0.2=h295c915_4
-  - symbiflow-yosys-plugins=1.0.0_7_413_gae520b9=20211005_122659
+  - symbiflow-yosys-plugins=1.0.0_7_505_g82afdb5=20211122_104637
   - tbb=2020.3=hfd86e86_0
   - tk=8.6.11=h1ccaba5_0
   - typing_extensions=3.10.0.2=pyh06a4308_0
-  - vtr-optimized=8.0.0_4914_gbae983f4e=20211005_122659
+  - vtr-optimized=8.0.0_4980_gd735a4694=20211122_104637
   - wheel=0.37.0=pyhd3eb1b0_1
   - xz=5.2.5=h7b6447c_0
-  - yosys=0.11_7_g4bf8deacb=20211005_122659_py37
+  - yosys=0.11_48_g113c94384=20211122_104637_py37
   - zachjs-sv2v=0.0.5_0025_ge9f9696=20201120_205532
   - zipp=3.6.0=pyhd3eb1b0_0
   - zlib=1.2.11=h7b6447c_3
   - zstd=1.4.9=haebb681_0
+  - packaging=21.3
   - pip:
     - Arpeggio==1.10.2
     - attrs==21.2.0
@@ -90,14 +95,14 @@ dependencies:
     - chardet==4.0.0
     - charset-normalizer==2.0.7
     - colorama==0.4.4
-    - cryptography==35.0.0
+    - cryptography==36.0.0
     - cssselect2==0.4.1
     - cycler==0.11.0
     - defusedxml==0.7.1
     - edalize @ git+https://github.com/lowRISC/edalize.git@23e1beab41508e13c565125e5edcadb86b0032f6
     - fasm==0.0.2.post80
     - fasm-utils @ git+https://github.com/QuickLogic-Corp/quicklogic-fasm-utils@3d6a375ddb6b55aaa5a59d99e44a207d4c18709f
-    - fonttools==4.28.1
+    - fonttools==4.28.2
     - fusesoc @ git+https://github.com/lowRISC/fusesoc.git@14dfc825ced58fe1fb343662fa80fc4fbd0fdc50
     - gitdb==4.0.9
     - GitPython==3.1.24
@@ -145,6 +150,7 @@ dependencies:
     - requests==2.26.0
     - rr-graph @ git+https://github.com/SymbiFlow/symbiflow-rr-graph.git@f0c41b77ad25b3afc438f4a7bff4c2297f6587d5
     - scipy==1.7.2
+    - setuptools-scm==6.3.2
     - simplejson==3.17.6
     - simplesat==0.8.2
     - six==1.16.0
@@ -153,7 +159,7 @@ dependencies:
     - svgwrite==1.4.1
     - termcolor==1.1.0
     - textX==2.3.0
-    - tinycss2==1.1.0
+    - tinycss2==1.1.1
     - tinyfpgab==1.1.0
     - tinyprog==1.0.21
     - toml==0.10.2
