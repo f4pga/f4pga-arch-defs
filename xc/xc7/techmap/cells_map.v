@@ -4790,7 +4790,7 @@ output [15:0] DO
 
   parameter BANDWIDTH = "OPTIMIZED";
   parameter STARTUP_WAIT = "FALSE";
-  parameter COMPENSATION = "ZHOLD";
+  parameter COMPENSATION = "INTERNAL";
 
   parameter CLKIN1_PERIOD = 0.0;
   parameter REF_JITTER1 = 0.01;
