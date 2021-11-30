@@ -25,8 +25,13 @@ jobs:
         conda_lock_file:  'conda_lock.yml'
         environment_file: 'environment.yml'
 
+    - name: Check diff
+      id: check-diff
+      run: |
+        if [[ $(git status --porcelain --ignore-submodules)  ]]; then echo "::set_output name=changes::true"; else echo "::set_output name=changes::false"; fi
+
     - name: Issue Pull Request
-      if: ${{ github.ref == 'refs/heads/master' }}
+      if: ${{ github.ref == 'refs/heads/master' && steps.check-diff.outputs.changes == 'true' }}
       uses: peter-evans/create-pull-request@v3
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
