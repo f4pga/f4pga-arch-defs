@@ -8,6 +8,12 @@ jobs:
     runs-on: ubuntu-18.04
     steps:
 
+    - name: Setup
+      run: |
+        which git-lfs || true
+        sudo apt-get remove -y git-lfs
+        which git-lfs || true
+
     - uses: actions/checkout@v2
       with:
         submodules: recursive
