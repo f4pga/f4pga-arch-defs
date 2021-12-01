@@ -10,9 +10,26 @@ jobs:
 
     - name: Setup
       run: |
+        echo "::group::Current ~/.gitconfig"
+        cat ~/.gitconfig || true
+        echo "::endgroup::"
+
+        # We need to setup git-lfs so that after we remove it, git-lfs usage
+        # will cause failure.
+        echo "::group::Setup git-lfs"
+        git lfs install
+        cat ~/.gitconfig || true
+        echo "::endgroup::"
+
+        echo "::group::Remove git-lfs"
         which git-lfs || true
         sudo apt-get remove -y git-lfs
         which git-lfs || true
+        echo "::endgroup::"
+
+        echo "::group::Final ~/.gitconfig"
+        cat ~/.gitconfig || true
+        echo "::endgroup::"
 
     - uses: actions/checkout@v2
       with:
