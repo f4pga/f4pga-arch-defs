@@ -170,7 +170,7 @@ end else begin
     .CLKOUT5    (clk[5]),
     .CLKOUT6    () // Deliberately disconnected
     );
-end 
+end endgenerate
 
 generate if (FEEDBACK == "INTERNAL") begin
     assign clk_fb_i = clk_fb_o;
