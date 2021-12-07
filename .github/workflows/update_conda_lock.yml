@@ -28,7 +28,7 @@ jobs:
     - name: Check diff
       id: check-diff
       run: |
-        if [[ $(git status --porcelain --ignore-submodules)  ]]; then echo "::set_output name=changes::true"; else echo "::set_output name=changes::false"; fi
+        if [[ $(git status --porcelain --ignore-submodules)  ]]; then echo "::set-output name=changes::true"; else echo "::set-output name=changes::false"; fi
 
     - name: Issue Pull Request
       if: ${{ github.ref == 'refs/heads/master' && steps.check-diff.outputs.changes == 'true' }}
