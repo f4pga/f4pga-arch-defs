@@ -25,7 +25,7 @@ dependencies:
   - gperftools=2.9.1_3_gc259412=20211122_104637
   - icestorm=0.0_0719_g792cef0=20201120_145821
   - icu=58.2=he6710b0_3
-  - importlib-metadata=4.8.1=py37h06a4308_0
+  - importlib-metadata=4.8.2=py37h06a4308_0
   - isl=0.21=20210924_145025
   - iverilog=s20150603_0957_gad862020=20201120_145821
   - krb5=1.19.2=hac12032_0
@@ -94,7 +94,7 @@ dependencies:
     - certifi==2021.10.8
     - cffi==1.15.0
     - chardet==4.0.0
-    - charset-normalizer==2.0.8
+    - charset-normalizer==2.0.9
     - colorama==0.4.4
     - cryptography==36.0.0
     - cssselect2==0.4.1
@@ -103,7 +103,7 @@ dependencies:
     - edalize @ git+https://github.com/lowRISC/edalize.git@23e1beab41508e13c565125e5edcadb86b0032f6
     - fasm==0.0.2.post80
     - fasm-utils @ git+https://github.com/QuickLogic-Corp/quicklogic-fasm-utils@3d6a375ddb6b55aaa5a59d99e44a207d4c18709f
-    - fonttools==4.28.2
+    - fonttools==4.28.3
     - fusesoc @ git+https://github.com/lowRISC/fusesoc.git@14dfc825ced58fe1fb343662fa80fc4fbd0fdc50
     - gitdb==4.0.9
     - GitPython==3.1.24
@@ -141,7 +141,7 @@ dependencies:
     - python-constraint==1.4.0
     - python-dateutil==2.8.2
     - python-fpga-interchange @ git+https://github.com/SymbiFlow/python-fpga-interchange.git@b13ee55ebce358a488fe9087f3b4f1bf087a0f24
-    - python-sat==0.1.7.dev14
+    - python-sat==0.1.7.dev15
     - python-utils==2.5.6
     - pyusb==1.2.1
     - PyYAML==6.0
