@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='utf-8'?>
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" num_pb="1" name="ASSP_RAM4096X17B">
+  <blif_model>.subckt ASSP_RAM4096X17B</blif_model>
+  <input  name="RAM_P1_mux" num_pins="1"/>
+  <input  name="RAM_RM_af" num_pins="4"/>
+  <input  name="RAM_RME_af" num_pins="1"/>
+  <clock  name="RAM_P0_CLK" num_pins="1"/>
+  <input  name="RAM_P0_WR_DATA" num_pins="17"/>
+  <input  name="RAM_P0_WR_BE" num_pins="2"/>
+  <input  name="RAM_P0_WR_EN" num_pins="1"/>
+  <input  name="RAM_TEST1_af" num_pins="1"/>
+  <input  name="RAM_P0_ADDR" num_pins="12"/>
+  <clock  name="RAM_P1_CLK" num_pins="1"/>
+  <input  name="RAM_P1_ADDR" num_pins="12"/>
+  <input  name="RAM_P1_RD_EN" num_pins="1"/>
+  <input  name="RAM_fifo_en" num_pins="1"/>
+  <output name="RAM_P1_RD_DATA" num_pins="17"/>
+  <output name="RAM_fifo_almost_full" num_pins="1"/>
+  <output name="RAM_fifo_full_flag" num_pins="4"/>
+  <output name="RAM_fifo_almost_empty" num_pins="1"/>
+  <output name="RAM_fifo_empty_flag" num_pins="4"/>
+</pb_type>

@@ -3,14 +3,17 @@ import argparse
 import pickle
 import itertools
 import os
+import re
 from collections import defaultdict
+
+import simplejson as json
 
 from sdf_timing import sdfparse
 from sdf_timing.utils import get_scale_seconds
 
 from data_structs import Pin, PinDirection, Cell, CellType, ClockCell, Loc, LocMap, \
     Tile, TileType, Connection, ConnectionLoc, ConnectionType, PackagePin, VprSwitch, \
-    VprSegment, Quadrant
+    VprSegment, Quadrant, TilePin
 from utils import get_loc_of_cell, find_cell_in_tile
 from utils import get_pin_name
 
@@ -65,15 +68,61 @@ def is_loc_free(loc, tile_grid):
     return False
 
 
+def expand_port_map(port_map, cell):
+    """
+    Expand a cell port map to account for individual pins.
+
+    The function searches for a pin in the list of cell pins. When one is not
+    found then it looks for all pins that begin with its name followed by
+    an index in square brackets. For each found match a new mapping is added
+    that encounters for the index.
+    """
+
+    # Get pins
+    pins = set([p.name for p in cell.pins])
+
+    # Expand ports to individual pins
+    pin_map = {}
+    for old_name, new_name in port_map.items():
+
+        # Simple straightforward case
+        if old_name in pins:
+            pin_map[old_name] = new_name
+            continue
+
+        # Check for indices
+        regex = r"{}\[(?P<idx>[0-9]+)\]".format(old_name)
+        found = False
+        for name in pins:
+            match = re.fullmatch(regex, name)
+            if match is not None:
+                index = int(match.group("idx"))
+                old_name_i = "{}[{}]".format(old_name, index)
+                new_name_i = "{}[{}]".format(new_name, index)
+                pin_map[old_name_i] = new_name_i
+                found = True
+
+        # Not found, leave the port name untouched
+        if not found:
+            pin_map[old_name] = new_name
+
+    return pin_map
+
+
 # =============================================================================
 
 
-def process_cells_library(cells_library):
+def process_cells_library(cells_library, assp_split_rules=None):
     """
     Processes the cells library, modifies some of them according to
     requirements of their VPR representation
     """
+
+    errors = False
     vpr_cells_library = {}
+
+    if not assp_split_rules:
+        assp_split_rules = {}
 
     for cell_type, cell in cells_library.items():
 
@@ -96,8 +145,81 @@ def process_cells_library(cells_library):
                 type=cell_type, pins=cell_pins
             )
 
-        # Copy the cell
-        vpr_cells_library[cell_type] = cell
+            # Copy the cell
+            vpr_cells_library[cell_type] = cell
+
+        # ASSP cell to be split
+        elif cell_type in assp_split_rules:
+            org_pins = {pin.name: pin for pin in cell.pins}
+
+            # Apply each rule
+            for tile_rule in assp_split_rules[cell_type]:
+                for cell_rule in tile_rule["cells"]:
+                    new_cell_type = cell_rule["type"]
+
+                    # Expand the port map
+                    pin_map = expand_port_map(cell_rule["port_map"], cell)
+
+                    # Collect and rename pins
+                    cell_pins = {}
+                    for org_name, new_name in pin_map.items():
+
+                        # The pin must exist
+                        if org_name not in org_pins:
+                            print(
+                                "ERROR: The cell '{}' does not have port '{}'".
+                                format(cell_type, org_name)
+                            )
+                            errors = True
+                            continue
+
+                        # Remap the pin
+                        pin = org_pins[org_name]
+                        pin = Pin(
+                            name=new_name,
+                            direction=pin.direction,
+                            attrib=pin.attrib,
+                        )
+
+                        # Check for name conflict
+                        if pin.name in cell_pins:
+                            print(
+                                "ERROR: The pin '{}' of cell type '{}' is already mapped"
+                                .format(pin.name, new_cell_type)
+                            )
+                            errors = True
+                            continue
+
+                        # Add the pin
+                        cell_pins[pin.name] = pin
+
+                    # If there is an existing cell of the same type already
+                    # defined compare it
+                    if new_cell_type in vpr_cells_library:
+
+                        # FIXME: Compare pin attributes too
+                        if set(cell_pins.keys()) != \
+                           set([p.name for p in vpr_cells_library[new_cell_type].pins]):
+                            print(
+                                "ERROR: Mismatch in the new cell type '{}'".
+                                format(new_cell_type)
+                            )
+                            errors = True
+                            continue
+
+                    # Create the new cell
+                    else:
+                        vpr_cells_library[new_cell_type] = CellType(
+                            type=new_cell_type, pins=list(cell_pins.values())
+                        )
+
+        # Passthrough
+        else:
+            vpr_cells_library[cell_type] = cell
+
+    # Encountered errors. Exit.
+    if errors:
+        exit(-1)
 
     return vpr_cells_library
 
@@ -193,6 +315,9 @@ def strip_cells(tile, cell_types, tile_types, cells_library):
     return new_tile
 
 
+# =============================================================================
+
+
 def process_tilegrid(
         tile_types,
         tile_grid,
@@ -200,7 +325,8 @@ def process_tilegrid(
         cells_library,
         grid_size,
         grid_offset,
-        grid_limit=None
+        grid_limit=None,
+        assp_split_rules=None,
 ):
     """
     Processes the tilegrid. May add/remove tiles. Returns a new one.
@@ -212,6 +338,9 @@ def process_tilegrid(
     ram_blocks = []
     mult_blocks = []
     vpr_clock_cells = {}
+
+    if not assp_split_rules:
+        assp_split_rules = {}
 
     def add_loc_map(phy_loc, vpr_loc):
         fwd_loc_map[phy_loc] = vpr_loc
@@ -338,9 +467,9 @@ def process_tilegrid(
                     type=new_type.type, name=tile.name, cells=cells
                 )
 
-# Mults and RAMs occupy multiple cells
-# We'll create a synthetic tile with a single cell for each
-# RAM and MULT block
+        # Mults and RAMs occupy multiple cells
+        # We'll create a synthetic tile with a single cell for each
+        # RAM and MULT block
         if "RAM" in tile_type.cells or "MULT" in tile_type.cells:
             for cell in tile.cells:
                 # Check if the current location is not taken
@@ -466,21 +595,78 @@ def process_tilegrid(
     # Find the ASSP tile. There are multiple tiles that contain the ASSP cell
     # but in fact there is only one ASSP cell for the whole FPGA which is
     # "distributed" along top and left edge of the grid.
+    assp_types = set(["ASSP", "ASSPL", "ASSPR"]) & set(tile_types.keys())
+    for tile_type_name in assp_types:
+
+        assp_loc = {
+            "ASSP": Loc(x=1, y=1, z=0),
+            "ASSPL": Loc(x=2, y=grid_size[1] // 2, z=0),
+            "ASSPR": Loc(x=grid_size[0] - 2, y=grid_size[1] // 2, z=0),
+        }[tile_type_name]
+
+        # Split the ASSP tile type
+        if tile_type_name in assp_split_rules:
+
+            # Create new tile types and tiles
+            for tile_rule in assp_split_rules[tile_type_name]:
+                cells = []
+
+                # Collect cells
+                for i, cell_rule in enumerate(tile_rule["cells"]):
+                    cells.append(
+                        Cell(
+                            type=cell_rule["type"],
+                            name=cell_rule["name"],
+                            index=i,
+                            alias=None
+                        )
+                    )
+
+                # Make a new tile type (or use an existing one)
+                new_tile_type = make_tile_type(
+                    cells, cells_library, tile_types
+                )
+
+                # Determine location
+                offset = tile_rule.get("offset", [0, 0, 0])
+                loc = Loc(
+                    x=assp_loc.x + offset[0],
+                    y=assp_loc.y + offset[1],
+                    z=assp_loc.z + offset[2],
+                )
+                assert is_loc_free(vpr_tile_grid, loc), \
+                    (new_tile_type.name, loc)
+
+                # Place the tile
+                new_tile_name = "{}_X{}Y{}".format(new_tile_type.type, *loc)
+                vpr_tile_grid[loc] = Tile(
+                    type=new_tile_type.type, name=new_tile_name, cells=cells
+                )
+
+        # Do not split
+        else:
+
+            # Verify that the location is free
+            assert is_loc_free(vpr_tile_grid, assp_loc), \
+                (tile_type_name, assp_loc)
+
+            # Place the ASSP tile
+            vpr_tile_grid[assp_loc] = Tile(
+                type=tile_type_name,
+                name=tile_type_name,
+                cells=[
+                    Cell(
+                        type=tile_type_name,
+                        index=0,
+                        name=tile_type_name,
+                        alias=None
+                    )
+                ]
+            )
+
+    # Remove "FBIO_*" pins from the ASSP tile. These pins are handled by
+    # SDIOMUX IO cells
     if "ASSP" in tile_types:
-
-        # Verify that the location is empty
-        assp_loc = Loc(x=1, y=1, z=0)
-        assert is_loc_free(vpr_tile_grid, assp_loc), ("ASSP", assp_loc)
-
-        # Place the ASSP tile
-        vpr_tile_grid[assp_loc] = Tile(
-            type="ASSP",
-            name="ASSP",
-            cells=[Cell(type="ASSP", index=0, name="ASSP", alias=None)]
-        )
-
-        # Remove "FBIO_*" pins from the ASSP tile. These pins are handled by
-        # SDIOMUX IO cells
         tile_type = tile_types["ASSP"]
         tile_type.pins = [p for p in tile_type.pins if "FBIO_" not in p.name]
 
@@ -564,7 +750,13 @@ def process_switchbox_grid(
 
 
 def process_connections(
-        phy_connections, loc_map, vpr_tile_grid, phy_tile_grid, grid_limit=None
+        phy_connections,
+        loc_map,
+        vpr_tile_grid,
+        phy_tile_grid,
+        cells_library,
+        grid_limit=None,
+        assp_split_rules=None
 ):
     """
     Process the connection list.
@@ -597,11 +789,10 @@ def process_connections(
             if "GMUX" in ep.pin and ep.type == ConnectionType.TILE:
 
                 # Modify the cell name, use always "GMUX0"
-                cell, pin = ep.pin.split("_", maxsplit=1)
-                vpr_pin = "GMUX0_{}".format(pin)
+                vpr_pin = TilePin(cell=ep.pin.cell, index=0, pin=ep.pin.pin)
 
                 # Modify the location according to the cell index
-                z = int(cell[-1])  # FIXME: Assuming indices 0-9
+                z = ep.pin.index
                 vpr_loc = Loc(vpr_loc.x, vpr_loc.y, z)
 
             # Update the endpoint
@@ -620,7 +811,7 @@ def process_connections(
         for j, ep in enumerate(eps):
 
             # This endpoint is not relevant to a CLOCK cell
-            if not ep.pin.startswith("CLOCK"):
+            if not str(ep.pin).startswith("CLOCK"):
                 continue
 
             # The endpoint location points to a BIDIR tile. Find the assocated
@@ -662,19 +853,17 @@ def process_connections(
         for j, ep in enumerate(eps):
 
             # Must have "ASSP" and "FBIO_" in name and refer to a tile.
-            if "ASSP" not in ep.pin:
-                continue
-            if "FBIO_" not in ep.pin:
-                continue
             if ep.type != ConnectionType.TILE:
                 continue
+            if ep.pin.cell != "ASSP":
+                continue
+            if "FBIO_" not in ep.pin.pin:
+                continue
+            print(ep)
 
             # Get the pin name and index
-            pin_name, pin_index = get_pin_name(ep.pin)
+            pin_name, pin_index = get_pin_name(ep.pin.pin)
             assert pin_index is not None, ep
-
-            # Strip cell name
-            pin_name = pin_name.split("_", maxsplit=1)[1]
 
             # Find where is an SDIOMUX cell for that index
             cell_name = "SFB_{}_IO".format(pin_index)
@@ -683,8 +872,10 @@ def process_connections(
             new_loc = get_loc_of_cell(cell_name, vpr_tile_grid)
             cell = find_cell_in_tile(cell_name, vpr_tile_grid[new_loc])
 
-            new_pin = "{}{}_{}".format(
-                cell.type, cell.index, SDIOMUX_PIN_MAP[pin_name]
+            new_pin = TilePin(
+                cell=cell.type,
+                index=cell.index,
+                pin=SDIOMUX_PIN_MAP[pin_name]
             )
 
             eps[j] = ConnectionLoc(
@@ -698,56 +889,56 @@ def process_connections(
             src=eps[0], dst=eps[1], is_direct=connection.is_direct
         )
 
-    # Find locations of "special" tiles
-    special_tile_loc = {"ASSP": None}
+    # ASSP cell name map
+    assp_name_map = {
+        "ASSPTMR": "ASSP",
+        "LEFTASSP": "ASSPL",
+        "RIGHTASSP": "ASSPR",
+    }
 
-    for loc, tile in vpr_tile_grid.items():
-        if tile is not None and tile.type in special_tile_loc:
-            assert special_tile_loc[tile.type] is None, tile
-            special_tile_loc[tile.type] = loc
+    # Types of "special" physical cells
+    special_cell_types = {
+        "ASSP",
+        "ASSPL",
+        "ASSPR",
+        "RAM",
+        "MULT",
+    }
 
-    # Map connections going to/from them to their locations in the VPR grid
-    for i, connection in enumerate(vpr_connections):
+    # "Special" VPR cell location map
+    special_cell_loc = {
+        "ASSP": {},
+        "ASSPL": {},
+        "ASSPR": {},
+        "RAM": {},
+        "MULT": {},
+    }
 
-        # Process connection endpoints
-        eps = [connection.src, connection.dst]
-        for j, ep in enumerate(eps):
+    # Add cells that are result of ASSP tile split, update the cell name map
+    for phy_cell_type, rules in assp_split_rules.items():
+        for tile_rule in rules:
+            for cell_rule in tile_rule["cells"]:
+                cell_type = cell_rule["type"]
 
-            if ep.type != ConnectionType.TILE:
-                continue
+                special_cell_loc[cell_type] = {}
 
-            cell_name, pin = ep.pin.split("_", maxsplit=1)
-            cell_type = cell_name[:-1]
-            # FIXME: The above will fail on cell with index >= 10
-
-            if cell_type in special_tile_loc:
-                loc = special_tile_loc[cell_type]
-
-                eps[j] = ConnectionLoc(
-                    loc=loc,
-                    pin=ep.pin,
-                    type=ep.type,
-                )
-
-        # Modify the connection
-        vpr_connections[i] = Connection(
-            src=eps[0], dst=eps[1], is_direct=connection.is_direct
-        )
-
-    # handle RAM and MULT locations
-    ram_locations = {}
-    mult_locations = {}
+    # Localize special cells that require connection endpoint remapping
     for loc, tile in vpr_tile_grid.items():
         if tile is None:
             continue
-        cell = tile.cells[0]
-        cell_name = cell.name
-        if tile.type == "RAM":
-            ram_locations[cell_name] = loc
-        if tile.type == "MULT":
-            mult_locations[cell_name] = loc
 
-    for i, connection in enumerate(vpr_connections):
+        for cell in tile.cells:
+            if cell.type in special_cell_loc:
+                assert cell.name not in special_cell_loc[cell.type], \
+                    (cell.type, cell.name)
+                special_cell_loc[cell.type][cell.name] = loc
+
+    # Remap special cell connections. Remove non-relevant connections if needed
+    cur_connections = vpr_connections
+    vpr_connections = []
+    for i, connection in enumerate(cur_connections):
+        keep = True
+
         # Process connection endpoints
         eps = [connection.src, connection.dst]
         for j, ep in enumerate(eps):
@@ -755,35 +946,84 @@ def process_connections(
             if ep.type != ConnectionType.TILE:
                 continue
 
-            cell_name, pin = ep.pin.split("_", maxsplit=1)
-            cell_type = cell_name[:-1]
-            # FIXME: The above will fail on cell with index >= 10
-
-            # We handle on MULT and RAM here
-            if cell_type != "MULT" and cell_type != "RAM":
+            # We handle only special cells
+            if ep.pin.cell not in special_cell_types:
                 continue
 
-            loc = loc_map.bwd[ep.loc]
-            tile = phy_tile_grid[loc]
-            cell = [cell for cell in tile.cells if cell.type == cell_type]
+            # Check if this connection refers to a pin of a split ASSP tile
+            if ep.pin.cell in assp_split_rules:
+                ep_pin = None
+                ep_loc = None
 
-            cell_name = cell[0].name
+                # Find the new location
+                for tile_rule in assp_split_rules[ep.pin.cell]:
+                    for cell_rule in tile_rule["cells"]:
+                        cell_type = cell_rule["type"]
+                        cell_name = cell_rule["name"]
 
-            if cell_type == "MULT":
-                loc = mult_locations[cell_name]
+                        vpr_loc = special_cell_loc[cell_type][cell_name]
+
+                        # Expand the port map
+                        pin_map = expand_port_map(
+                            cell_rule["port_map"], cells_library[ep.pin.cell]
+                        )
+
+                        # Got the matching pin
+                        if ep.pin.pin in pin_map:
+                            ep_pin = TilePin(
+                                cell=cell_rule["type"],
+                                index=int(cell_rule.get("index", 0)),
+                                pin=pin_map[ep.pin.pin]
+                            )
+                            ep_loc = vpr_loc
+                            break
+
+                    if ep_loc is not None:
+                        break
+
+                # If a location was not found then it means that a pin is not
+                # to be used. So remove the whole connection
+                if ep_loc is None:
+                    keep = False
+                    break
+
+            # This is not part of a split ASSP
             else:
-                loc = ram_locations[cell_name]
 
+                # Get the physical location and tile
+                phy_loc = loc_map.bwd[ep.loc]
+                phy_tile = phy_tile_grid[phy_loc]
+
+                # Look for the cell type in the physical tile the connection
+                # refers to
+                cells = [
+                    cell for cell in phy_tile.cells if cell.type == ep.pin.cell
+                ]
+                assert cells
+                phy_cell = cells[0].name
+
+                # Remap the physical cell name if applicable
+                cell_name = assp_name_map.get(phy_cell, phy_cell)
+
+                ep_pin = ep.pin
+                ep_loc = special_cell_loc[ep.pin.cell][cell_name]
+
+            # Update the endpoint
+            print(eps[j])
             eps[j] = ConnectionLoc(
-                loc=loc,
-                pin=ep.pin,
+                loc=ep_loc,
+                pin=ep_pin,
                 type=ep.type,
             )
+            print("->", eps[j])
 
-        # Modify the connection
-        vpr_connections[i] = Connection(
-            src=eps[0], dst=eps[1], is_direct=connection.is_direct
-        )
+        # Modify the connection and add it
+        if keep:
+            vpr_connections.append(
+                Connection(
+                    src=eps[0], dst=eps[1], is_direct=connection.is_direct
+                )
+            )
 
     # A QMUX should have 3 QCLKIN inputs but accorting to the EOS S3/PP3E
     # techfile it has only one. It is assumed then when "QCLKIN0=GMUX_1" then
@@ -801,7 +1041,9 @@ def process_connections(
         if not dst_cell_name.startswith("QMUX") or dst_pin != "QCLKIN0":
             continue
 
-        src_cell_name, src_pin = connection.src.pin.split("_", maxsplit=1)
+        src_cell_name = "{}{}".format(
+            connection.src.pin.cell, connection.src.pin.index
+        )
         if not src_cell_name.startswith("GMUX"):
             continue
 
@@ -812,6 +1054,10 @@ def process_connections(
         for i in [1, 2]:
             gmux_idx = (gmux_base + i) % 5
 
+            gmux_pin = TilePin(cell="GMUX", index=0, pin="IZ")
+            if connection.src.type != ConnectionType.TILE:
+                gmux_pin = str(gmux_pin)
+
             c = Connection(
                 src=ConnectionLoc(
                     loc=Loc(
@@ -819,7 +1065,7 @@ def process_connections(
                         y=connection.src.loc.y,
                         z=gmux_idx
                     ),
-                    pin="GMUX0_IZ",
+                    pin=gmux_pin,
                     type=connection.src.type
                 ),
                 dst=ConnectionLoc(
@@ -844,14 +1090,8 @@ def process_connections(
             if ep.type != ConnectionType.TILE:
                 continue
 
-            cell_name, pin = ep.pin.split("_", maxsplit=1)
-
-            cell_index = int(cell_name[-1])
-            cell_type = cell_name[:-1]
-            # FIXME: The above will fail on cell with index >= 10
-
             # Only QMUX
-            if cell_type != "QMUX":
+            if ep.pin.cell != "QMUX":
                 continue
 
             # Get the physical tile
@@ -861,7 +1101,7 @@ def process_connections(
             # Find the cell in the tile
             cells = [
                 c for c in tile.cells
-                if c.type == "QMUX" and c.index == cell_index
+                if c.type == "QMUX" and c.index == ep.pin.index
             ]
             assert len(cells) == 1
             cell = cells[0]
@@ -869,7 +1109,7 @@ def process_connections(
             # Modify the endpoint
             eps[j] = ConnectionLoc(
                 loc=ep.loc,
-                pin="{}.{}".format(cell.name, pin),
+                pin="{}.{}".format(cell.name, ep.pin.pin),
                 type=ConnectionType.CLOCK,
             )
 
@@ -1153,8 +1393,18 @@ def main():
     else:
         cell_timings = None
 
+    # Load ASSP split rules
+    fname = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "assp_split_rules.json"
+    )
+    if os.path.isfile(fname):
+        with open(fname, "r") as fp:
+            assp_split_rules = json.load(fp)
+    else:
+        assp_split_rules = {}
+
     # Process the cells library
-    vpr_cells_library = process_cells_library(cells_library)
+    vpr_cells_library = process_cells_library(cells_library, assp_split_rules)
 
     # Add synthetic stuff
     add_synthetic_cell_and_tile_types(tile_types, vpr_cells_library)
@@ -1200,7 +1450,7 @@ def main():
     # Process the tilegrid
     vpr_tile_grid, vpr_clock_cells, loc_map = process_tilegrid(
         tile_types, phy_tile_grid, phy_clock_cells, vpr_cells_library,
-        grid_size, grid_offset, grid_limit
+        grid_size, grid_offset, grid_limit, assp_split_rules
     )
 
     # Process the switchbox grid
@@ -1210,7 +1460,8 @@ def main():
 
     # Process connections
     connections = process_connections(
-        connections, loc_map, vpr_tile_grid, phy_tile_grid, grid_limit
+        connections, loc_map, vpr_tile_grid, phy_tile_grid, cells_library,
+        grid_limit, assp_split_rules
     )
 
     # Process package pinmaps

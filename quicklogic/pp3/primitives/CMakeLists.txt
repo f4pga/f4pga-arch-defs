@@ -9,3 +9,8 @@ add_subdirectory(logic)
 add_subdirectory(mult)
 add_subdirectory(sdiomux)
 add_subdirectory(vcc)
+add_subdirectory(assp_mult)
+add_subdirectory(assp_ram4096x17b)
+add_subdirectory(assp_ram512x36b)
+add_subdirectory(assp_ram512x32b)
+

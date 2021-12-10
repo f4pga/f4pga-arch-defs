@@ -1,0 +1,151 @@
+{
+    "ASSPL": [
+        {
+            "offset": [0, 1, 0],
+            "cells": [
+                {
+                    "type": "ASSP_MULT",
+                    "name": "ASSP_MULT_L",
+                    "port_map": {
+                        "Amult0": "Amult",
+                        "Bmult0": "Bmult",
+                        "Valid_mult0": "Valid_mult",
+                        "Cmult0": "Cmult"
+                    }
+                }
+            ]
+        },
+        {
+            "offset": [0, -1, 0],
+            "cells": [
+                {
+                    "type": "ASSP_RAM4096X17B",
+                    "name": "ASSP_RAM8K",
+                    "port_map": {
+                        "RAM8K_P0_ADDR": "RAM_P0_ADDR",
+                        "RAM8K_P0_CLK": "RAM_P0_CLK",
+                        "RAM8K_P0_WR_BE": "RAM_P0_WR_BE",
+                        "RAM8K_P0_WR_DATA": "RAM_P0_WR_DATA",
+                        "RAM8K_P0_WR_EN": "RAM_P0_WR_EN",
+                        "RAM8K_P1_ADDR": "RAM_P1_ADDR",
+                        "RAM8K_P1_CLK": "RAM_P1_CLK",
+                        "RAM8K_P1_RD_DATA": "RAM_P1_RD_DATA",
+                        "RAM8K_P1_RD_EN": "RAM_P1_RD_EN",
+                        "RAM8K_P1_mux": "RAM_P1_mux",
+                        "RAM8K_RME_af": "RAM_RME_af",
+                        "RAM8K_RM_af": "RAM_RM_af",
+                        "RAM8K_TEST1_af": "RAM_TEST1_af",
+                        "RAM8K_fifo_almost_empty": "RAM_fifo_almost_empty",
+                        "RAM8K_fifo_almost_full": "RAM_fifo_almost_full",
+                        "RAM8K_fifo_empty_flag": "RAM_fifo_empty_flag",
+                        "RAM8K_fifo_en": "RAM_fifo_en",
+                        "RAM8K_fifo_full_flag": "RAM_fifo_full_flag"
+                    }
+                }
+            ]
+        },
+        {
+            "offset": [0, -2, 0],
+            "cells": [
+                {
+                    "type": "ASSP_RAM512X36B",
+                    "name": "ASSP_RAM0",
+                    "port_map": {
+                        "RAM0_ADDR": "RAM_ADDR",
+                        "RAM0_CLK": "RAM_CLK",
+                        "RAM0_RD_DATA": "RAM_RD_DATA",
+                        "RAM0_RD_EN": "RAM_RD_EN",
+                        "RAM0_RME_af": "RAM_RME_af",
+                        "RAM0_RM_af": "RAM_RM_af",
+                        "RAM0_TEST1_af": "RAM_TEST1_af",
+                        "RAM0_WR_BE": "RAM_WR_BE",
+                        "RAM0_WR_DATA": "RAM_WR_DATA",
+                        "RAM0_WR_EN": "RAM_WR_EN"
+                    }
+                }
+            ]
+        }
+    ],
+    "ASSPR": [
+        {
+            "offset": [0, 1, 0],
+            "cells": [
+                {
+                    "type": "ASSP_MULT",
+                    "name": "ASSP_MULT_R",
+                    "port_map": {
+                        "Amult1": "Amult",
+                        "Bmult1": "Bmult",
+                        "Valid_mult1": "Valid_mult",
+                        "Cmult1": "Cmult"
+                    }
+                }
+            ]
+        },
+        {
+            "offset": [0, -1, 0],
+            "cells": [
+                {
+                    "type": "ASSP_RAM512X36B",
+                    "name": "ASSP_RAM1",
+                    "port_map": {
+                        "RAM1_ADDR": "RAM_ADDR",
+                        "RAM1_CLK": "RAM_CLK",
+                        "RAM1_RD_DATA": "RAM_RD_DATA",
+                        "RAM1_RD_EN": "RAM_RD_EN",
+                        "RAM1_RME_af": "RAM_RME_af",
+                        "RAM1_RM_af": "RAM_RM_af",
+                        "RAM1_TEST1_af": "RAM_TEST1_af",
+                        "RAM1_WR_BE": "RAM_WR_BE",
+                        "RAM1_WR_DATA": "RAM_WR_DATA",
+                        "RAM1_WR_EN": "RAM_WR_EN"
+                    }
+                }
+            ]
+        },
+        {
+            "offset": [0, -2, 0],
+            "cells": [
+                {
+                    "type": "ASSP_RAM512X32B",
+                    "name": "ASSP_RAM2",
+                    "port_map": {
+                        "RAM2_P0_ADDR": "RAM_P0_ADDR",
+                        "RAM2_P0_CLK": "RAM_P0_CLK",
+                        "RAM2_P0_WR_DATA": "RAM_P0_WR_DATA",
+                        "RAM2_P0_WR_EN": "RAM_P0_WR_EN",
+                        "RAM2_P1_ADDR": "RAM_P1_ADDR",
+                        "RAM2_P1_CLK": "RAM_P1_CLK",
+                        "RAM2_P1_RD_DATA": "RAM_P1_RD_DATA",
+                        "RAM2_P1_RD_EN": "RAM_P1_RD_EN",
+                        "RAM2_RME_af": "RAM_RME_af",
+                        "RAM2_RM_af": "RAM_RM_af",
+                        "RAM2_TEST1_af": "RAM_TEST1_af"
+                    }
+                }
+            ]
+        },
+        {
+            "offset": [0, -3, 0],
+            "cells": [
+                {
+                    "type": "ASSP_RAM512X32B",
+                    "name": "ASSP_RAM3",
+                    "port_map": {
+                        "RAM3_P0_ADDR": "RAM_P0_ADDR",
+                        "RAM3_P0_CLK": "RAM_P0_CLK",
+                        "RAM3_P0_WR_DATA": "RAM_P0_WR_DATA",
+                        "RAM3_P0_WR_EN": "RAM_P0_WR_EN",
+                        "RAM3_P1_ADDR": "RAM_P1_ADDR",
+                        "RAM3_P1_CLK": "RAM_P1_CLK",
+                        "RAM3_P1_RD_DATA": "RAM_P1_RD_DATA",
+                        "RAM3_P1_RD_EN": "RAM_P1_RD_EN",
+                        "RAM3_RME_af": "RAM_RME_af",
+                        "RAM3_RM_af": "RAM_RM_af",
+                        "RAM3_TEST1_af": "RAM_TEST1_af"
+                    }
+                }
+            ]
+        }
+    ]
+}

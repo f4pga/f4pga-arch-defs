@@ -521,8 +521,10 @@ class Fasm2Bels(object):
             if dst.loc != loc or "GMUX" not in dst.pin:
                 continue
 
+            cell = "{}{}".format(dst.pin.cell, dst.pin.index)
+            pin = dst.pin.pin
+
             # GMUX cells are named "GMUX<index>".
-            cell, pin = dst.pin.split("_", maxsplit=1)
             match = re.match(r"GMUX(?P<idx>[0-9]+)", cell)
             if match is None:
                 continue
@@ -536,7 +538,8 @@ class Fasm2Bels(object):
                 continue
 
             # Must go from CLOCK<n>.IC pin
-            cell, pin = connection.src.pin.split("_", maxsplit=1)
+            cell = connection.src.pin.cell
+            pin = connection.src.pin.pin
             if not cell.startswith("CLOCK") or pin != "IC":
                 continue
 
@@ -592,7 +595,8 @@ class Fasm2Bels(object):
             qclkin_idx = int(match.group("idx"))
 
             # Get the source endpoint of the connection
-            cell, pin = connection.src.pin.split("_", maxsplit=1)
+            # (cast to string as here we may encounter not only TilePin)
+            cell, pin = str(connection.src.pin).split("_", maxsplit=1)
             match = re.match(r"GMUX(?P<idx>[0-9]+)", cell)
             if match is None:
                 continue

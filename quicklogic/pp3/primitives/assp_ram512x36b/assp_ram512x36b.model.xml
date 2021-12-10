@@ -1,0 +1,18 @@
+<models xmlns:xi="http://www.w3.org/2001/XInclude">
+  <model name="ASSP_RAM512X36B">
+    <input_ports>
+      <port name="RAM_CLK" is_clock="1"/>
+      <port name="RAM_RM_af"/>
+      <port name="RAM_RME_af"/>
+      <port name="RAM_WR_DATA"/>
+      <port name="RAM_WR_BE"/>
+      <port name="RAM_RD_EN"/>
+      <port name="RAM_WR_EN"/>
+      <port name="RAM_TEST1_af"/>
+      <port name="RAM_ADDR"/>
+    </input_ports>
+    <output_ports>
+      <port name="RAM_RD_DATA"/>
+    </output_ports>
+  </model>
+</models>
