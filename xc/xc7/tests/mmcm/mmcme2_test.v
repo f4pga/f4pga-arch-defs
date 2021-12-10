@@ -44,68 +44,133 @@ wire clk_fb_i;
 wire [5:0] clk;
 wire [5:0] gclk;
 
-MMCME2_ADV #
-(
-.BANDWIDTH          ("HIGH"),
-.COMPENSATION       ((FEEDBACK == "EXTERNAL") ? "EXTERNAL" : "INTERNAL"),
+generate if (FEEDBACK == "NONE") begin
 
-.CLKIN1_PERIOD      (20.0),  // 50MHz
-.CLKIN2_PERIOD      (10.0),  // 100MHz
+    MMCME2_ADV #
+    (
+    .BANDWIDTH          ("HIGH"),
 
-.CLKFBOUT_MULT_F    (CLKFBOUT_MULT_F),
-.CLKFBOUT_PHASE     (0),
+    .CLKIN1_PERIOD      (20.0),  // 50MHz
+    .CLKIN2_PERIOD      (10.0),  // 100MHz
 
-.CLKOUT0_DIVIDE_F   (CLKOUT0_DIVIDE_F),
-.CLKOUT0_DUTY_CYCLE (0.50),
-.CLKOUT0_PHASE      (45.0),
+    .CLKFBOUT_MULT_F    (CLKFBOUT_MULT_F),
+    .CLKFBOUT_PHASE     (0),
 
-.CLKOUT1_DIVIDE     (32),
-.CLKOUT1_DUTY_CYCLE (0.53125),
-.CLKOUT1_PHASE      (90.0),
+    .CLKOUT0_DIVIDE_F   (CLKOUT0_DIVIDE_F),
+    .CLKOUT0_DUTY_CYCLE (0.50),
+    .CLKOUT0_PHASE      (45.0),
 
-.CLKOUT2_DIVIDE     (48),
-.CLKOUT2_DUTY_CYCLE (0.50),
-.CLKOUT2_PHASE      (135.0),
+    .CLKOUT1_DIVIDE     (32),
+    .CLKOUT1_DUTY_CYCLE (0.53125),
+    .CLKOUT1_PHASE      (90.0),
 
-.CLKOUT3_DIVIDE     (64),
-.CLKOUT3_DUTY_CYCLE (0.50),
-.CLKOUT3_PHASE      (45.0),
+    .CLKOUT2_DIVIDE     (48),
+    .CLKOUT2_DUTY_CYCLE (0.50),
+    .CLKOUT2_PHASE      (135.0),
 
-.CLKOUT4_DIVIDE     (80),
-.CLKOUT4_DUTY_CYCLE (0.50),
-.CLKOUT4_PHASE      (90.0),
+    .CLKOUT3_DIVIDE     (64),
+    .CLKOUT3_DUTY_CYCLE (0.50),
+    .CLKOUT3_PHASE      (45.0),
 
-.CLKOUT5_DIVIDE     (96),
-.CLKOUT5_DUTY_CYCLE (0.50),
-.CLKOUT5_PHASE      (135.0),
+    .CLKOUT4_DIVIDE     (80),
+    .CLKOUT4_DUTY_CYCLE (0.50),
+    .CLKOUT4_PHASE      (90.0),
 
-.CLKOUT6_DIVIDE     (1),
-.CLKOUT6_DUTY_CYCLE (0.50),
-.CLKOUT6_PHASE      (0.0),
+    .CLKOUT5_DIVIDE     (96),
+    .CLKOUT5_DUTY_CYCLE (0.50),
+    .CLKOUT5_PHASE      (135.0),
 
-.STARTUP_WAIT       ("FALSE")
-)
-mmcm
-(
-.CLKIN1     (clk50),
-.CLKIN2     (clk100),
-.CLKINSEL   (I_CLKINSEL),
+    .CLKOUT6_DIVIDE     (1),
+    .CLKOUT6_DUTY_CYCLE (0.50),
+    .CLKOUT6_PHASE      (0.0),
 
-.RST        (RST),
-.PWRDWN     (I_PWRDWN),
-.LOCKED     (O_LOCKED),
+    .STARTUP_WAIT       ("FALSE")
+    )
+    mmcm
+    (
+    .CLKIN1     (clk50),
+    .CLKIN2     (clk100),
+    .CLKINSEL   (I_CLKINSEL),
 
-.CLKFBIN    (clk_fb_i),
-.CLKFBOUT   (clk_fb_o),
+    .RST        (RST),
+    .PWRDWN     (I_PWRDWN),
+    .LOCKED     (O_LOCKED),
 
-.CLKOUT0    (clk[0]),
-.CLKOUT1    (clk[1]),
-.CLKOUT2    (clk[2]),
-.CLKOUT3    (clk[3]),
-.CLKOUT4    (clk[4]),
-.CLKOUT5    (clk[5]),
-.CLKOUT6    () // Deliberately disconnected
-);
+    .CLKFBIN    (clk_fb_i),
+    .CLKFBOUT   (clk_fb_o),
+
+    .CLKOUT0    (clk[0]),
+    .CLKOUT1    (clk[1]),
+    .CLKOUT2    (clk[2]),
+    .CLKOUT3    (clk[3]),
+    .CLKOUT4    (clk[4]),
+    .CLKOUT5    (clk[5]),
+    .CLKOUT6    () // Deliberately disconnected
+    );
+end else begin
+    MMCME2_ADV #
+    (
+    .BANDWIDTH          ("HIGH"),
+    .COMPENSATION       ((FEEDBACK == "EXTERNAL") ? "EXTERNAL" : "INTERNAL"),
+
+    .CLKIN1_PERIOD      (20.0),  // 50MHz
+    .CLKIN2_PERIOD      (10.0),  // 100MHz
+
+    .CLKFBOUT_MULT_F    (CLKFBOUT_MULT_F),
+    .CLKFBOUT_PHASE     (0),
+
+    .CLKOUT0_DIVIDE_F   (CLKOUT0_DIVIDE_F),
+    .CLKOUT0_DUTY_CYCLE (0.50),
+    .CLKOUT0_PHASE      (45.0),
+
+    .CLKOUT1_DIVIDE     (32),
+    .CLKOUT1_DUTY_CYCLE (0.53125),
+    .CLKOUT1_PHASE      (90.0),
+
+    .CLKOUT2_DIVIDE     (48),
+    .CLKOUT2_DUTY_CYCLE (0.50),
+    .CLKOUT2_PHASE      (135.0),
+
+    .CLKOUT3_DIVIDE     (64),
+    .CLKOUT3_DUTY_CYCLE (0.50),
+    .CLKOUT3_PHASE      (45.0),
+
+    .CLKOUT4_DIVIDE     (80),
+    .CLKOUT4_DUTY_CYCLE (0.50),
+    .CLKOUT4_PHASE      (90.0),
+
+    .CLKOUT5_DIVIDE     (96),
+    .CLKOUT5_DUTY_CYCLE (0.50),
+    .CLKOUT5_PHASE      (135.0),
+
+    .CLKOUT6_DIVIDE     (1),
+    .CLKOUT6_DUTY_CYCLE (0.50),
+    .CLKOUT6_PHASE      (0.0),
+
+    .STARTUP_WAIT       ("FALSE")
+    )
+    mmcm
+    (
+    .CLKIN1     (clk50),
+    .CLKIN2     (clk100),
+    .CLKINSEL   (I_CLKINSEL),
+
+    .RST        (RST),
+    .PWRDWN     (I_PWRDWN),
+    .LOCKED     (O_LOCKED),
+
+    .CLKFBIN    (clk_fb_i),
+    .CLKFBOUT   (clk_fb_o),
+
+    .CLKOUT0    (clk[0]),
+    .CLKOUT1    (clk[1]),
+    .CLKOUT2    (clk[2]),
+    .CLKOUT3    (clk[3]),
+    .CLKOUT4    (clk[4]),
+    .CLKOUT5    (clk[5]),
+    .CLKOUT6    () // Deliberately disconnected
+    );
+end endgenerate
 
 generate if (FEEDBACK == "INTERNAL") begin
     assign clk_fb_i = clk_fb_o;
