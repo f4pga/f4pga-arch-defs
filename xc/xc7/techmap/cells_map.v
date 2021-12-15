@@ -29,6 +29,25 @@ end
 
 endmodule
 
+module FD (output reg Q, input C, D);
+
+parameter [0:0] INIT = 1'b0;
+
+wire CE_SIG;
+wire SR_SIG;
+
+CESR_MUX cesr_mux(
+    .CE(1'b1),
+    .SR(1'b0),
+    .CE_OUT(CE_SIG),
+    .SR_OUT(SR_SIG)
+);
+
+FDRE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|0))
+  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(CE_SIG), .R(SR_SIG));
+
+endmodule
+
 module FDRE (output reg Q, input C, CE, D, R);
 
 parameter [0:0] INIT = 1'b0;
