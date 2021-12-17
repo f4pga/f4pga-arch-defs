@@ -400,6 +400,25 @@
         </metadata>
       </pb_type>
 
+      <pb_type name="BDI1MUX_ROUTING" num_pb="1">
+        <input name="DI" num_pins="1"/>
+        <input name="STUB" num_pins="1"/>
+        <input name="BI" num_pins="1"/>
+        <output name="DI1" num_pins="1"/>
+        <mode name="default">
+          <interconnect>
+            <mux input="BDI1MUX_ROUTING.DI BDI1MUX_ROUTING.STUB BDI1MUX_ROUTING.BI" name="BDI1MUX" output="BDI1MUX_ROUTING.DI1">
+              <metadata>
+                <meta name="fasm_mux">
+                  BDI1MUX_ROUTING.DI = BLUT.DI1MUX.DI_CMC31
+                  BDI1MUX_ROUTING.STUB = BLUT.DI1MUX.DI_CMC31
+                  BDI1MUX_ROUTING.BI = BLUT.DI1MUX.BI
+                </meta>
+              </metadata>
+            </mux>
+          </interconnect>
+        </mode>
+      </pb_type>
       <interconnect>
         <!-- The DLUT must be in RAM-mode for any of the RAM's to work.
             As a corollary, a DRAM requires the clock, so only turn on the
@@ -510,19 +529,19 @@
           </metadata>
           <pack_pattern in_port="DI64_STUB[0].DO" name="DRAM_DP" out_port="C_DRAM.DI1" />
         </mux>
-        <mux name="BDI1MUX" input="SLICEM_MODES.DI DI64_STUB[1].DO SLICEM_MODES.BI" output="B_DRAM.DI1">
+
+        <!-- To enforce that AD1MUX gets the BDI input from the output of the BDI1MUX as specified
+             in the Series7 arcitecture, a "routing" pb type is used to correctly drive the BDI pin
+        -->
+        <direct input="SLICEM_MODES.DI" name="BDI1MUX_ROUTING.DI" output="BDI1MUX_ROUTING.DI"/>
+        <direct input="DI64_STUB[1].DO" name="BDI1MUX_ROUTING.DO" output="BDI1MUX_ROUTING.STUB"/>
+        <direct input="SLICEM_MODES.BI" name="BDI1MUX_ROUTING.BI" output="BDI1MUX_ROUTING.BI"/>
+        <direct input="BDI1MUX_ROUTING.DI1" name="BDI1MUX_ROUTING.DI1" output="B_DRAM.DI1"/>
+
+        <mux name="ADI1MUX" input="BDI1MUX_ROUTING.DI1 DI64_STUB[2].DO SLICEM_MODES.BI SLICEM_MODES.AI" output="A_DRAM.DI1">
           <metadata>
             <meta name="fasm_mux">
-              SLICEM_MODES.DI = BLUT.DI1MUX.DI_CMC31
-              DI64_STUB[1].DO = BLUT.DI1MUX.DI_CMC31
-              SLICEM_MODES.BI = BLUT.DI1MUX.BI
-            </meta>
-          </metadata>
-        </mux>
-        <mux name="ADI1MUX" input="SLICEM_MODES.DI DI64_STUB[2].DO SLICEM_MODES.BI SLICEM_MODES.AI" output="A_DRAM.DI1">
-          <metadata>
-            <meta name="fasm_mux">
-              SLICEM_MODES.DI = ALUT.DI1MUX.BDI1_BMC31,BLUT.DI1MUX.DI_CMC31
+              BDI1MUX_ROUTING.DI1 = ALUT.DI1MUX.BDI1_BMC31,BLUT.DI1MUX.DI_CMC31
               DI64_STUB[2].DO = ALUT.DI1MUX.BDI1_BMC31
               SLICEM_MODES.BI = ALUT.DI1MUX.BDI1_BMC31,BLUT.DI1MUX.BI
               SLICEM_MODES.AI = ALUT.DI1MUX.AI
