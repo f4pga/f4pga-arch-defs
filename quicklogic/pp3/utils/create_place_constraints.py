@@ -8,6 +8,32 @@ import eblif
 # =============================================================================
 
 
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
+
+
+def get_cell_connection(cell, pin):
+    """
+    Returns the name of the net connected to the given cell pin. Returns None
+    if unconnected
+    """
+
+    # Only for subckt
+    assert cell["type"] == "subckt"
+
+    # Find the connection and return it
+    for i in range(1, len(cell["args"])):
+        p, net = cell["args"][i].split("=")
+        if p == pin:
+            return net
+
+    # Not found
+    return None
+
+
+# =============================================================================
+
+
 def main():
     parser = argparse.ArgumentParser(
         description='Creates placement constraints other than IOs'
@@ -90,8 +116,8 @@ def main():
     # GMUXes.
     clock_connections = []
 
-    IOB_CELL = ("CLOCK_CELL", "I_PAD", "O_CLK")
-    BUF_CELL = ("GMUX_IP", "IP", "IZ")
+    IOB_CELL = {"type": "CLOCK_CELL", "ipin": "I_PAD", "opin": "O_CLK"}
+    BUF_CELL = {"type": "GMUX_IP", "ipin": "IP", "opin": "IZ"}
 
     for inp_net in eblif_data["inputs"]["args"]:
 
@@ -101,39 +127,32 @@ def main():
 
         # Search for a CLOCK cell connected to that net
         for cell in eblif_data["subckt"]:
-            if cell["type"] == "subckt" and cell["args"][0] == IOB_CELL[0]:
-                iob_cell = cell
-
+            if cell["type"] == "subckt" and cell["args"][0] == IOB_CELL["type"]:
+                net = get_cell_connection(cell, IOB_CELL["ipin"])
+                if net == inp_net:
+                    iob_cell = cell
+                    break
         else:
             continue
 
-        # Get the CLOCK to GMUX net
-        for i in range(1, len(iob_cell["args"])):
-            pin, net = iob_cell["args"][i].split("=")
-
-            if pin == IOB_CELL[2]:
-                con_net = net
-                break
-
-        else:
+        # Get the output net of the CLOCK cell
+        con_net = get_cell_connection(iob_cell, IOB_CELL["opin"])
+        if not con_net:
             continue
 
         # Search for a GMUX connected to the CLOCK cell
         for cell in eblif_data["subckt"]:
-            if cell["type"] == "subckt" and cell["args"][0] == BUF_CELL[0]:
-                buf_cell = cell
+            if cell["type"] == "subckt" and cell["args"][0] == BUF_CELL["type"]:
+                net = get_cell_connection(cell, BUF_CELL["ipin"])
+                if net == con_net:
+                    buf_cell = cell
+                    break
         else:
             continue
 
         # Get the output net of the GMUX
-        for i in range(1, len(buf_cell["args"])):
-            pin, net = buf_cell["args"][i].split("=")
-
-            if pin == BUF_CELL[2]:
-                clk_net = net
-                break
-
-        else:
+        clk_net = get_cell_connection(buf_cell, BUF_CELL["opin"])
+        if not clk_net:
             continue
 
         # Store data
@@ -146,8 +165,8 @@ def main():
 
         src_loc = io_constraints[inp_net]
         if src_loc not in clock_to_gmux:
-            print(
-                "ERROR: No GMUX location fro input CLOCK pad for net '{}' at {}"
+            eprint(
+                "ERROR: No GMUX location for input CLOCK pad for net '{}' at {}"
                 .format(inp_net, src_loc)
             )
             continue

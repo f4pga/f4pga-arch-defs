@@ -776,6 +776,10 @@ def parse_port_mapping_table(xml_root, switchbox_grid):
                 pin_name = index_xml.attrib["Mapped_Interface_Name"]
                 output_num = index_xml.attrib["SwitchOutputNum"]
 
+                # Skip this index - empty switchbox
+                if (pin_name == "-1"):
+                    continue
+
                 # Determine the mapped port direction
                 if output_num == "-1":
                     pin_direction = PinDirection.INPUT

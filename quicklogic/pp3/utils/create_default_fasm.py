@@ -17,6 +17,7 @@ from utils import yield_muxes
 from switchbox_model import SwitchboxModel
 
 # =============================================================================
+duplicate = {}
 
 
 class SwitchboxConfigBuilder:
@@ -124,6 +125,22 @@ class SwitchboxConfigBuilder:
                     key = (pin_loc.stage_id, pin_loc.switch_id, pin_loc.mux_id)
                     assert key in nodes, key
                     node = nodes[key]
+
+                    key = (
+                        self.switchbox.type, pin_loc.stage_id,
+                        pin_loc.switch_id, pin_loc.mux_id
+                    )
+                    if (key in duplicate  # Mux has multiple inputs selected
+                            and (pin_loc.pin_id in duplicate[key]
+                                 )  # Current selection is duplicate
+                            and not (key[0].startswith("SB_TOP_IFC"))
+                        ):  # Ignore TOP switchboxes
+                        print(
+                            "Warning: duplicate: {} - {}".format(
+                                key, pin_loc.pin_id
+                            )
+                        )
+                        continue
 
                     # Append reference to the input pin to the node
                     key = pin.name
@@ -606,6 +623,23 @@ def main():
             return 4
 
         return 99
+
+    # Scan for duplicates
+    for switchbox in switchbox_types.values():
+        for pin in switchbox.pins:
+            pinmap = {}
+            for pin_loc in pin.locs:
+                key = (
+                    switchbox.type, pin_loc.stage_id, pin_loc.switch_id,
+                    pin_loc.mux_id
+                )
+                if (key not in pinmap):
+                    pinmap[key] = pin_loc.pin_id
+                else:
+                    if key in duplicate:
+                        duplicate[key].append(pin_loc.pin_id)
+                    else:
+                        duplicate[key] = [pin_loc.pin_id]
 
     # Process each switchbox type
     for switchbox in switchbox_types.values():
