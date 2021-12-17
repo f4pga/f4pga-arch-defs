@@ -1,0 +1,2 @@
+set_io clk_i G6 # Clock
+set_io rst_i B4

@@ -1,0 +1,8 @@
+set_io b F6
+set_io cb C4
+set_io clk C4 # Clock
+set_io cr D6
+set_io ena F4
+set_io g H8
+set_io r A5
+set_io y H1

@@ -1,0 +1,9 @@
+set_io clk_out1 B2
+set_io clk_out2 B3
+set_io clk_out3 A4
+set_io clk_out4 B5
+set_io clk_out5 E8
+set_io tff_out H7
+
+
+

@@ -1,0 +1,5 @@
+set_io clk1 H6 # Clock
+set_io clk2 A3 # Clock
+set_io clk3 C4 # Clock
+set_io out1x[0] A4
+set_io reset D7

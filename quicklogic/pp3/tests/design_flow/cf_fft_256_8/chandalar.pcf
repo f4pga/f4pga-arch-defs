@@ -1,0 +1,9 @@
+set_io clock_c A5
+set_io data_0_i B3
+set_io data_0_o B5
+set_io data_1_i B4
+set_io data_1_o E2
+set_io enable_i G1
+set_io reset_i H4
+set_io sync_i F6
+set_io sync_o G7

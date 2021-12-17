@@ -1,0 +1,9 @@
+set_io clk C4 # Clock
+set_io din A1
+set_io dout C3
+set_io douten G2
+set_io dstrb E3
+set_io ena F2
+set_io qnt_cnt B3
+set_io qnt_val B2
+set_io rst H6

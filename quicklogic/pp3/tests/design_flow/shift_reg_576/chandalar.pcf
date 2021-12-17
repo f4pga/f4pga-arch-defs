@@ -1,0 +1,4 @@
+set_io clk G6 # Clock
+set_io clr G7
+set_io shift_in B2
+set_io shift_out F3

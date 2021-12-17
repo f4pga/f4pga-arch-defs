@@ -1,0 +1,14 @@
+set_io Clock_i A3
+set_io CpuScl G1
+set_io CpuSda F7
+set_io IR_Emitter_Gpio_Port_io[0] B1
+set_io IR_Emitter_Gpio_Port_io[1] B2
+set_io IR_Emitter_Gpio_Port_io[2] D6
+set_io IR_Emitter_Gpio_Port_io[3] E3
+set_io IR_Emitter_Gpio_Port_io[4] H4
+set_io IR_Emitter_Gpio_Port_io[5] F1
+set_io IR_Emitter_Gpio_Port_io[6] F2
+set_io IR_Emitter_Gpio_Port_io[7] D1
+set_io IR_Emitter_Interrupt_o E7
+set_io IR_LED_En D2
+set_io Reset_i_N H8
