@@ -6,8 +6,6 @@ add_subdirectory(lut3)
 add_subdirectory(lut4)
 add_subdirectory(consts)
 
-# Test designs controlled by buttons
-add_subdirectory(btn_counter)
-
-# Test designs that use clock
 add_subdirectory(counter)
+add_subdirectory(counter_gclk)
+add_subdirectory(counter_assp)

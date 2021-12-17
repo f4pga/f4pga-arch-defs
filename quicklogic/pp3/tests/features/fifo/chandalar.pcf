@@ -1,0 +1,2 @@
+set_io Push_Clk A3
+set_io Pop_Clk C4

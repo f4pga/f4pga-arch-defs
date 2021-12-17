@@ -1,0 +1,5 @@
+set_io cipher_out H7
+set_io clk G7 # Clock
+set_io data_in A4
+set_io data_rdy[0] G1
+set_io data_rdy[1] B4

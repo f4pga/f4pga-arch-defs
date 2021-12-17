@@ -1,0 +1,5 @@
+set_io clk      A4
+set_io led[0]   A2
+set_io led[1]   A3
+set_io led[2]   A6
+set_io led[3]   A7

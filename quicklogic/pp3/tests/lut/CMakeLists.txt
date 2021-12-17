@@ -36,13 +36,46 @@ add_fpga_target(
   EXPLICIT_ADD_FILE_TARGET
   )
 
-add_dependencies(all_ql_tests lut1-ql-chandalar_route)
-add_dependencies(all_ql_tests lut2-ql-chandalar_route)
-add_dependencies(all_ql_tests lut3-ql-chandalar_route)
-add_dependencies(all_ql_tests lut4-ql-chandalar_route)
+add_dependencies(all_eos_s3_tests lut1-ql-chandalar_route)
+add_dependencies(all_eos_s3_tests lut2-ql-chandalar_route)
+add_dependencies(all_eos_s3_tests lut3-ql-chandalar_route)
+add_dependencies(all_eos_s3_tests lut4-ql-chandalar_route)
 
 
-add_dependencies(all_quick_tests lut1-ql-chandalar_bit)
-add_dependencies(all_quick_tests lut2-ql-chandalar_bit)
-add_dependencies(all_quick_tests lut3-ql-chandalar_bit)
-add_dependencies(all_quick_tests lut4-ql-chandalar_bit)
+
+add_fpga_target(
+  NAME lut1-ql-jimbob4
+  BOARD jimbob4
+  SOURCES lut1.v
+  INPUT_IO_FILE jimbob4.pcf
+  EXPLICIT_ADD_FILE_TARGET
+  )
+
+add_fpga_target(
+  NAME lut2-ql-jimbob4
+  BOARD jimbob4
+  SOURCES lut2.v
+  INPUT_IO_FILE jimbob4.pcf
+  EXPLICIT_ADD_FILE_TARGET
+  )
+
+add_fpga_target(
+  NAME lut3-ql-jimbob4
+  BOARD jimbob4
+  SOURCES lut3.v
+  INPUT_IO_FILE jimbob4.pcf
+  EXPLICIT_ADD_FILE_TARGET
+  )
+
+add_fpga_target(
+  NAME lut4-ql-jimbob4
+  BOARD jimbob4
+  SOURCES lut4.v
+  INPUT_IO_FILE jimbob4.pcf
+  EXPLICIT_ADD_FILE_TARGET
+  )
+
+add_dependencies(all_pp3e_tests lut1-ql-jimbob4_route)
+add_dependencies(all_pp3e_tests lut2-ql-jimbob4_route)
+add_dependencies(all_pp3e_tests lut3-ql-jimbob4_route)
+add_dependencies(all_pp3e_tests lut4-ql-jimbob4_route)

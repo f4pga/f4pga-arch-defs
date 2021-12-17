@@ -1,0 +1,20 @@
+set_io ap_clk H6 # Clock
+set_io ap_done F1
+set_io ap_idle F5
+set_io ap_rst A5
+set_io ap_start B5
+set_io db_dout H4
+set_io db_empty_n B2
+set_io db_read H7
+set_io del E1
+set_io ins H6
+set_io prev_score_dout A1
+set_io prev_score_empty_n B3
+set_io prev_score_read E7
+set_io query_dout H2
+set_io query_empty_n F4
+set_io query_read C4
+set_io score_din F6
+set_io score_full_n F7
+set_io score_write G5
+set_io subs H1

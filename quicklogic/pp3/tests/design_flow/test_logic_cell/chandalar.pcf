@@ -1,0 +1,17 @@
+set_io clk B1
+set_io ff_in_sel A1
+set_io fs_in C3
+set_io bb2_in B3
+set_io ba1_in A2
+set_io tb1_in B2
+set_io ta2_in A3
+set_io tsel_in C4
+set_io tabsel_in B4
+set_io bsel_in A4
+set_io babsel_in C5
+set_io tbsel_in B5
+set_io ff_out D6
+set_io f_out A5
+set_io t_out C6
+set_io c_out E7
+

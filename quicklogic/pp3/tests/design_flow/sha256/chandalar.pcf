@@ -1,0 +1,7 @@
+set_io clk_i C4 # Clock
+set_io cmd_i A4
+set_io cmd_o H4
+set_io cmd_w_i B4
+set_io rst_i F4
+set_io text_i G8
+set_io text_o D7

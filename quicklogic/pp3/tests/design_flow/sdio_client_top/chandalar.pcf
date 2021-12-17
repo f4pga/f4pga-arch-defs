@@ -1,0 +1,21 @@
+set_io cd_disable A3
+set_io led B3
+set_io osc_st D6
+set_io power_gd G7
+set_io resetn F1
+set_io sd_pwr_onn C3
+set_io sdclk C4 # Clock
+set_io sdcmd F4
+set_io sddat C6
+set_io sram_addr A1
+set_io sram_csn1 H2
+set_io sram_csn2 D7
+set_io sram_data F2
+set_io sram_lbn F7
+set_io sram_nor_flash_ry_byn H5
+set_io sram_nor_flash_wppn B2
+set_io sram_oen D2
+set_io sram_onn E8
+set_io sram_resetn G2
+set_io sram_ubn D1
+set_io sram_wen A5

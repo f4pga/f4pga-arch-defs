@@ -1,0 +1,2 @@
+set_io WClk A3
+set_io RClk C4
