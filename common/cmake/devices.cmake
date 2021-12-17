@@ -57,7 +57,6 @@ function(DEFINE_ARCH)
   #    BIT_TIME_CMD <command to run BIT_TIME>
   #    [RR_GRAPH_EXT <ext>]
   #    [NO_INSTALL]
-  #    [FIXUP_POST_SYNTHESIS_EXTRA_ARGS <extra args>]
   #   )
   # ~~~
   #
@@ -161,9 +160,6 @@ function(DEFINE_ARCH)
   # * OUT_BITSTREAM - Input path to bitstream.
   # * OUT_BIT_VERILOG - Output path to verilog version of bitstream.
   #
-  # FIXUP_POST_SYNTHESIS_EXTRA_ARGS allows to provide extra arguments for
-  # the utils/vpr_fixup_post_synth.py script.
-  #
   set(options
     NO_PLACE_CONSTR
     NO_PINS
@@ -213,7 +209,6 @@ function(DEFINE_ARCH)
     BIT_TIME_CMD
     RR_GRAPH_EXT
     ROUTE_CHAN_WIDTH
-    FIXUP_POST_SYNTHESIS_EXTRA_ARGS
   )
 
   set(
@@ -265,7 +260,6 @@ function(DEFINE_ARCH)
     NET_PATCH_TOOL_CMD
     BIT_TO_FASM
     BIT_TO_FASM_CMD
-    FIXUP_POST_SYNTHESIS_EXTRA_ARGS
     )
 
   set(PLACE_ARGS
@@ -1332,9 +1326,11 @@ function(ADD_FPGA_TARGET)
   #   [INPUT_XDC_FILES <input_xdc_files>]
   #   [INPUT_SDC_FILE <input_sdc_file>]
   #   [EXPLICIT_ADD_FILE_TARGET]
+  #   [AUTO_ADD_FILE_TARGET]
   #   [EMIT_CHECK_TESTS EQUIV_CHECK_SCRIPT <yosys to script verify two bitstreams gold and gate>]
   #   [NO_SYNTHESIS]
   #   [ASSERT_BLOCK_TYPES_ARE_USED <usage_spec>]
+  #   [ASSERT_TIMING <timing_spec>]
   #   [DEFINES <definitions>]
   #   [BIT_TO_V_EXTRA_ARGS]
   #   [NET_PATCH_EXTRA_ARGS]
@@ -1344,8 +1340,15 @@ function(ADD_FPGA_TARGET)
   #
   # ADD_FPGA_TARGET defines a FPGA build targetting a specific board.  By
   # default input files (SOURCES, TESTBENCH_SOURCES, INPUT_IO_FILE) will be
-  # implicitly passed to ADD_FILE_TARGET.  If EXPLICIT_ADD_FILE_TARGET is
+  # implicitly passed to ADD_FILE_TARGET. If EXPLICIT_ADD_FILE_TARGET is
   # supplied, this behavior is supressed.
+  # When AUTO_ADD_FILE_TARGETS is specified file targets will be created only if
+  # they do not exist already. AUTO_ADD_FILE_TARGETS is useful when multiple
+  # test designs share the same source files and there is no immediate possibility
+  # for putting CMakeLists.txt files along with them to define targets for
+  # EXPLICIT_ADD_FILE_TARGET. This is used for example in QuickLogic tests,
+  # there is a separate submodule with test designs that are used by
+  # multiple architectures (pp3, qlf_k4n8).
   #
   # TOP is the name of the top-level module in the design.  If no supplied,
   # TOP is set to "top".
@@ -1366,6 +1369,12 @@ function(ADD_FPGA_TARGET)
   # block types against <usage_spec> which is a comma-separated list of
   # relational expressions regarding the usage of block types, e.g:
   # 	ASSERT_BLOCK_TYPES_ARE_USED	PB-CLOCK=1,PB-GMUX=1,PB-BIDIR=4
+  # supported operators: =, <, <=, >, >=
+  #
+  # ASSERT_TIMING enables tests that verify the timings of routed design
+  # against <timing_spec> which is a comma-separated list of
+  # relational expressions regarding design timing parameters, e.g:
+  # 	ASSERT_TIMING	fmax>=20.5
   # supported operators: =, <, <=, >, >=
   #
   # DEFINES is a list of environment variables to be defined during Yosys
@@ -1400,8 +1409,8 @@ function(ADD_FPGA_TARGET)
   # * ${TOP}.route - Place and routed design (http://docs.verilogtorouting.org/en/latest/vpr/file_formats/#routing-file-format-route)
   # * ${TOP}.${BITSTREAM_EXTENSION} - Bitstream for target.
   #
-  set(options EXPLICIT_ADD_FILE_TARGET EMIT_CHECK_TESTS NO_SYNTHESIS ROUTE_ONLY INSTALL_CIRCUIT)
-  set(oneValueArgs NAME TOP BOARD INPUT_IO_FILE EQUIV_CHECK_SCRIPT AUTOSIM_CYCLES ASSERT_BLOCK_TYPES_ARE_USED INPUT_SDC_FILE)
+  set(options EXPLICIT_ADD_FILE_TARGET AUTO_ADD_FILE_TARGET EMIT_CHECK_TESTS NO_SYNTHESIS ROUTE_ONLY INSTALL_CIRCUIT)
+  set(oneValueArgs NAME TOP BOARD INPUT_IO_FILE EQUIV_CHECK_SCRIPT AUTOSIM_CYCLES ASSERT_BLOCK_TYPES_ARE_USED ASSERT_TIMING INPUT_SDC_FILE)
   set(multiValueArgs SOURCES TESTBENCH_SOURCES DEFINES BIT_TO_V_EXTRA_ARGS INPUT_XDC_FILES NET_PATCH_EXTRA_ARGS)
   cmake_parse_arguments(
     ADD_FPGA_TARGET
@@ -1475,25 +1484,46 @@ function(ADD_FPGA_TARGET)
   if(NOT ${ADD_FPGA_TARGET_EXPLICIT_ADD_FILE_TARGET})
     if(NOT ${ADD_FPGA_TARGET_NO_SYNTHESIS})
       foreach(SRC ${ADD_FPGA_TARGET_SOURCES})
-        add_file_target(FILE ${SRC} SCANNER_TYPE verilog)
+        get_file_target(FILE_TARGET ${SRC})
+        if(NOT ${ADD_FPGA_TARGET_AUTO_ADD_FILE_TARGET} OR NOT TARGET ${FILE_TARGET})
+          add_file_target(FILE ${SRC} SCANNER_TYPE verilog)
+        endif()
       endforeach()
     else()
       foreach(SRC ${ADD_FPGA_TARGET_SOURCES})
-        add_file_target(FILE ${SRC})
+        get_file_target(FILE_TARGET ${SRC})
+        if(NOT ${ADD_FPGA_TARGET_AUTO_ADD_FILE_TARGET} OR NOT TARGET ${FILE_TARGET})
+          add_file_target(FILE ${SRC})
+        endif()
       endforeach()
     endif()
+
     foreach(SRC ${ADD_FPGA_TARGET_TESTBENCH_SOURCES})
-      add_file_target(FILE ${SRC} SCANNER_TYPE verilog)
+      get_file_target(FILE_TARGET ${SRC})
+      if(NOT ${ADD_FPGA_TARGET_AUTO_ADD_FILE_TARGET} OR NOT TARGET ${FILE_TARGET})
+        add_file_target(FILE ${SRC} SCANNER_TYPE verilog)
+      endif()
     endforeach()
 
     if(NOT "${ADD_FPGA_TARGET_INPUT_IO_FILE}" STREQUAL "")
-      add_file_target(FILE ${ADD_FPGA_TARGET_INPUT_IO_FILE})
+      get_file_target(FILE_TARGET ${ADD_FPGA_TARGET_INPUT_IO_FILE})
+      if(NOT ${ADD_FPGA_TARGET_AUTO_ADD_FILE_TARGET} OR NOT TARGET ${FILE_TARGET})
+        add_file_target(FILE ${ADD_FPGA_TARGET_INPUT_IO_FILE})
+      endif()
     endif()
+
     foreach(XDC ${ADD_FPGA_TARGET_INPUT_XDC_FILES})
-      add_file_target(FILE ${XDC})
+      get_file_target(FILE_TARGET ${XDC})
+      if(NOT ${ADD_FPGA_TARGET_AUTO_ADD_FILE_TARGET} OR NOT TARGET ${FILE_TARGET})
+        add_file_target(FILE ${XDC})
+      endif()
     endforeach()
+
     if(NOT "${ADD_FPGA_TARGET_INPUT_SDC_FILE}" STREQUAL "")
-      add_file_target(FILE ${ADD_FPGA_TARGET_INPUT_SDC_FILE})
+      get_file_target(FILE_TARGET ${SDC})
+      if(NOT ${ADD_FPGA_TARGET_AUTO_ADD_FILE_TARGET} OR NOT TARGET ${FILE_TARGET})
+        add_file_target(FILE ${ADD_FPGA_TARGET_INPUT_SDC_FILE})
+      endif()
     endif()
   endif()
 
@@ -1617,6 +1647,8 @@ function(ADD_FPGA_TARGET)
           ${QUIET_CMD} ${YOSYS} -r ${TOP} -p "${COMPLETE_YOSYS_SYNTH_SCRIPT}" -l ${OUT_JSON_SYNTH}.log ${SOURCE_FILES}
       COMMAND
         ${CMAKE_COMMAND} -E touch ${OUT_FASM_EXTRA}
+      COMMAND
+        ${CMAKE_COMMAND} -E touch ${OUT_SDC}
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       VERBATIM
     )
@@ -1703,7 +1735,6 @@ function(ADD_FPGA_TARGET)
       NOT "${SDC_PATCH_TOOL}" STREQUAL "" AND
       NOT "${SDC_FILE}" STREQUAL "" AND
       NOT "${INPUT_IO_FILE}" STREQUAL "")
-    set(SDC_DEPS "")
 
     set(IN_SDC ${SDC_FILE})
 
@@ -2145,13 +2176,20 @@ function(ADD_FPGA_TARGET)
 
   # Generate routing.
   # -------------------------------------------------------------------------
+  set(ROUTE_LOG ${OUT_LOCAL}/route.log)
+
+  if(NOT "${ADD_FPGA_TARGET_ASSERT_TIMING}" STREQUAL "")
+      set(TIMING_SUMMARY ${OUT_LOCAL}/timing_summary.json)
+      list(APPEND VPR_ARGS --write_timing_summary ${TIMING_SUMMARY})
+  endif()
+
   add_custom_command(
-    OUTPUT ${OUT_ROUTE}
+    OUTPUT ${OUT_ROUTE} ${ROUTE_LOG} ${TIMING_SUMMARY}
     DEPENDS ${OUT_NET} ${OUT_PLACE} ${VPR_DEPS}
     COMMAND ${VPR_CMD} ${OUT_EBLIF} ${VPR_ARGS} --route
     COMMAND
       ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log
-        ${OUT_LOCAL}/route.log
+      ${ROUTE_LOG}
     WORKING_DIRECTORY ${OUT_LOCAL}
   )
   add_custom_target(${NAME}_route DEPENDS ${OUT_ROUTE})
@@ -2165,10 +2203,21 @@ function(ADD_FPGA_TARGET)
     COMMAND ${VPR_CMD} ${OUT_EBLIF} ${VPR_ARGS} --echo_file on --route
     COMMAND
       ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/echo/vpr_stdout.log
-        ${OUT_LOCAL}/echo/route.log
+      ${OUT_LOCAL}/echo/route.log
     WORKING_DIRECTORY ${OUT_LOCAL}/echo
   )
   add_custom_target(${NAME}_route_echo DEPENDS ${ECHO_ATOM_NETLIST_ORIG})
+
+  if(NOT "${ADD_FPGA_TARGET_ASSERT_TIMING}" STREQUAL "")
+      set(TIMING_UTIL ${symbiflow-arch-defs_SOURCE_DIR}/utils/report_timing.py)
+      add_custom_target(
+          ${NAME}_assert_timing
+          COMMAND ${PYTHON3} ${TIMING_UTIL}
+            --assert \"${ADD_FPGA_TARGET_ASSERT_TIMING}\"
+            ${TIMING_SUMMARY}
+          DEPENDS ${PYTHON3} ${TIMING_UTIL} ${TIMING_SUMMARY}
+          )
+  endif()
 
   if(${ADD_FPGA_TARGET_ROUTE_ONLY})
     return()
@@ -2246,34 +2295,17 @@ function(ADD_FPGA_TARGET)
 
   # Generate analysis.
   #-------------------------------------------------------------------------
-  set(FIXUP_POST_SYNTHESIS ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_fixup_post_synth.py)
-
-  get_target_property(FIXUP_POST_SYNTHESIS_EXTRA_ARGS ${ARCH} FIXUP_POST_SYNTHESIS_EXTRA_ARGS)
-  if (NOT "${FIXUP_POST_SYNTHESIS_EXTRA_ARGS}" MATCHES ".*NOTFOUND" AND NOT "${FIXUP_POST_SYNTHESIS_EXTRA_ARGS}" STREQUAL "")
-    string(CONFIGURE ${FIXUP_POST_SYNTHESIS_EXTRA_ARGS} FIXUP_POST_SYNTHESIS_EXTRA_ARGS_FOR_TARGET)
-    separate_arguments(
-      FIXUP_POST_SYNTHESIS_EXTRA_ARGS_FOR_TARGET_LIST UNIX_COMMAND ${FIXUP_POST_SYNTHESIS_EXTRA_ARGS_FOR_TARGET}
-    )
-  else()
-    set(FIXUP_POST_SYNTHESIS_EXTRA_ARGS_FOR_TARGET_LIST)
-  endif()
 
   set(OUT_ANALYSIS ${OUT_LOCAL}/analysis.log)
   set(OUT_POST_SYNTHESIS_V ${OUT_LOCAL}/${TOP}_post_synthesis.v)
   set(OUT_POST_SYNTHESIS_BLIF ${OUT_LOCAL}/${TOP}_post_synthesis.blif)
   set(OUT_POST_SYNTHESIS_SDF ${OUT_LOCAL}/${TOP}_post_synthesis.sdf)
   add_custom_command(
-    OUTPUT ${OUT_ANALYSIS} ${OUT_POST_SYNTHESIS_V} ${OUT_POST_SYNTHESIS_BLIF} ${OUT_POST_SYNTHESIS_SDF}
-    DEPENDS ${OUT_ROUTE} ${VPR_DEPS} ${PYTHON3} ${FIXUP_POST_SYNTHESIS}
+    OUTPUT ${OUT_ANALYSIS}
+    DEPENDS ${OUT_ROUTE} ${VPR_DEPS} ${PYTHON3}
     COMMAND ${VPR_CMD} ${OUT_EBLIF} ${VPR_ARGS} --analysis --gen_post_synthesis_netlist on
     COMMAND ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log
         ${OUT_LOCAL}/analysis.log
-    COMMAND ${PYTHON3} ${FIXUP_POST_SYNTHESIS}
-        --vlog-in ${OUT_POST_SYNTHESIS_V}
-        --vlog-out ${OUT_POST_SYNTHESIS_V}
-        --sdf-in ${OUT_POST_SYNTHESIS_SDF}
-        --sdf-out ${OUT_POST_SYNTHESIS_SDF}
-        ${FIXUP_POST_SYNTHESIS_EXTRA_ARGS_FOR_TARGET_LIST}
     WORKING_DIRECTORY ${OUT_LOCAL}
     )
   add_custom_target(${NAME}_analysis DEPENDS ${OUT_ANALYSIS})
