@@ -1608,7 +1608,7 @@ function(ADD_FPGA_TARGET)
           PINMAP_FILE=${PINMAP}
           PYTHON3=${PYTHON3}
           ${ADD_FPGA_TARGET_DEFINES}
-          ${QUIET_CMD} ${YOSYS} -p "${COMPLETE_YOSYS_SYNTH_SCRIPT}" -l ${OUT_JSON_SYNTH}.log ${SOURCE_FILES}
+          ${QUIET_CMD} ${YOSYS} -r ${TOP} -p "${COMPLETE_YOSYS_SYNTH_SCRIPT}" -l ${OUT_JSON_SYNTH}.log ${SOURCE_FILES}
       COMMAND
         ${CMAKE_COMMAND} -E touch ${OUT_FASM_EXTRA}
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
@@ -2703,7 +2703,9 @@ function(generate_pinmap)
   get_target_property_required(PYTHON3 env PYTHON3)
   get_target_property_required(QUIET_CMD env QUIET_CMD)
 
+  set(NAME ${GENERATE_PINMAP_NAME})
   set(BOARD ${GENERATE_PINMAP_BOARD})
+  set(TOP ${GENERATE_PINMAP_TOP})
   get_target_property_required(DEVICE ${BOARD} DEVICE)
   get_target_property_required(PACKAGE ${BOARD} PACKAGE)
   get_target_property_required(PINMAP_FILE ${BOARD} PINMAP)
@@ -2720,8 +2722,8 @@ function(generate_pinmap)
   endforeach()
 
   add_custom_command(
-    OUTPUT ${GENERATE_PINMAP_NAME}.json
-    COMMAND ${QUIET_CMD} ${YOSYS} -p \"proc $<SEMICOLON> write_json ${CMAKE_CURRENT_BINARY_DIR}/${GENERATE_PINMAP_NAME}.json\" -l ${CMAKE_CURRENT_BINARY_DIR}/${GENERATE_PINMAP_NAME}.json.log ${SOURCE_FILES}
+    OUTPUT ${NAME}.json
+    COMMAND ${QUIET_CMD} ${YOSYS} -r ${TOP} -p \"proc $<SEMICOLON> write_json ${CMAKE_CURRENT_BINARY_DIR}/${NAME}.json\" -l ${CMAKE_CURRENT_BINARY_DIR}/${NAME}.json.log ${SOURCE_FILES}
     DEPENDS
       ${QUIET_CMD}
       ${YOSYS}
@@ -2730,16 +2732,16 @@ function(generate_pinmap)
     )
 
   add_custom_command(
-    OUTPUT ${GENERATE_PINMAP_NAME}
+    OUTPUT ${NAME}
     COMMAND ${PYTHON3} ${CREATE_PINMAP}
-      --design_json ${CMAKE_CURRENT_BINARY_DIR}/${GENERATE_PINMAP_NAME}.json
+      --design_json ${CMAKE_CURRENT_BINARY_DIR}/${NAME}.json
       --pinmap_csv ${PINMAP}
-      --module ${GENERATE_PINMAP_TOP} > ${CMAKE_CURRENT_BINARY_DIR}/${GENERATE_PINMAP_NAME}
+      --module ${TOP} > ${CMAKE_CURRENT_BINARY_DIR}/${NAME}
     DEPENDS
       ${PYTHON3}
       ${CREATE_PINMAP}
       ${PINMAP} ${PINMAP_TARGET}
-      ${GENERATE_PINMAP_NAME}.json
+      ${NAME}.json
     )
 
   add_file_target(FILE ${GENERATE_PINMAP_NAME} GENERATED)
