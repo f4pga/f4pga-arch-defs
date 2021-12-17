@@ -4,8 +4,8 @@ set -e
 MYPATH=`realpath $0`
 MYPATH=`dirname ${MYPATH}`
 
-OPTS=d:f:r:b:
-LONGOPTS=device:,fasm:,format:,bit:
+OPTS=d:f:r:b:P:
+LONGOPTS=device:,fasm:,format:,bit:,part:
 
 PARSED_OPTS=`getopt --options=${OPTS} --longoptions=${LONGOPTS} --name $0 -- "$@"`
 eval set -- "${PARSED_OPTS}"
@@ -14,6 +14,7 @@ DEVICE=""
 FASM=""
 BIT=""
 BIT_FORMAT="4byte"
+PART=""
 
 while true; do
 	case "$1" in
@@ -31,6 +32,10 @@ while true; do
 			;;
 		-b|--bit)
 			BIT=$2
+			shift 2
+			;;
+		-P|--part)
+			PART=$2
 			shift 2
 			;;
 		--)
@@ -54,9 +59,17 @@ if [ -z $BIT ]; then
 		exit 1
 fi
 
-QLF_FASM=`which qlf_fasm`
+# qlf
+if [[ "$DEVICE" =~ ^(qlf_k4n8.*)$ ]]; then
+    QLF_FASM=`which qlf_fasm`
+    DB_ROOT=`realpath ${MYPATH}/../share/symbiflow/fasm_database/${DEVICE}`
+    ${QLF_FASM} --db-root ${DB_ROOT} --format ${BIT_FORMAT} --assemble $FASM $BIT
 
-DB_ROOT=`realpath ${MYPATH}/../share/symbiflow/fasm_database/${DEVICE}`
+elif [[ "$DEVICE" =~ ^(ql-eos-s3|ql-pp3e)$ ]]; then
+    qlfasm --dev-type ${DEVICE} ${FASM} ${BIT}
 
-${QLF_FASM} --db-root ${DB_ROOT} --format ${BIT_FORMAT} --assemble $FASM $BIT
+else
 
+    echo "ERROR: Unsupported device '${DEVICE}' for bitstream generation"
+    exit -1
+fi

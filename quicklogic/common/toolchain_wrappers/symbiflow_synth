@@ -118,12 +118,15 @@ export SYNTH_JSON=${TOP}_io.json
 export OUT_SYNTH_V=${TOP}_synth.v
 export OUT_EBLIF=${TOP}.eblif
 export OUT_FASM_EXTRA=${TOP}_fasm_extra.fasm
+export UTILS_PATH=`realpath ${MYPATH}/python`
+export PYTHON3=`which python3`
 
 if [ -s $PCF ]; then
     export PCF_FILE=$PCF
 fi
 
 DEVICE_PATH=`realpath ${MYPATH}/../share/symbiflow/arch/${DEVICE}_${DEVICE}`
+
 export PINMAP_FILE=${DEVICE_PATH}/${PINMAPCSV}
 if [ -d "${DEVICE_PATH}/cells" ]; then
 	export DEVICE_CELLS_SIM=`find ${DEVICE_PATH}/cells -name "*_sim.v"`
@@ -132,7 +135,7 @@ else
 	# pp3 family has different directory naming scheme
 	# the are named as ${DEVICE}_${PACKAGE}
 	# ${PACKAGE} is not known because it is not passed down in add_binary_toolchain_test
-	DEVICE_PATH=$(find $(realpath ${MYPATH}/../share/symbiflow/arch/) -type d -name "${DEVICE}*")
+	DEVICE_PATH=$(find $(realpath ${MYPATH}/../share/symbiflow/arch/) -type d -name "${DEVICE}_*")
 	export PINMAP_FILE=${DEVICE_PATH}/${PINMAPCSV}
 	if [ -d "${DEVICE_PATH}/cells" ]; then
 		export DEVICE_CELLS_SIM=`find ${DEVICE_PATH}/cells -name "*_sim.v"`
