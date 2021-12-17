@@ -1,3 +1,4 @@
+`timescale 1ps/1ps
 (* whitebox *)
 module GND (
     output wire GND

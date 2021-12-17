@@ -1,3 +1,4 @@
+`timescale 1ps/1ps
 (* whitebox *)
 (* FASM_FEATURES="I_invblock.I_J0.ZINV.IS0;I_invblock.I_J1.ZINV.IS1;I_invblock.I_J2.ZINV.IS0;I_invblock.I_J3.ZINV.IS0;I_invblock.I_J4.ZINV.IS1" *)
 module GMUX_IC (IC, IS0, IZ);

@@ -1,4 +1,4 @@
-`timescale 1ns/10ps
+`timescale 1ps/1ps
 (* FASM_PARAMS="ZINV.QCK=Z_QCKS" *)
 (* whitebox *)
 module Q_FRAG (QCK, QST, QRT, QEN, QZ, QD, CONST0, CONST1);
@@ -39,7 +39,8 @@ module Q_FRAG (QCK, QST, QRT, QEN, QZ, QD, CONST0, CONST1);
     output reg  QZ;
     
     specify
-        (QCK => QZ) = (0,0);
+        // FIXME: VPR recognizes only posedges
+        (posedge QCK => (QZ +: QD)) = 0;
         $setup(QD, posedge QCK, "");
         $hold(posedge QCK, QD, "");
         $setup(QST, posedge QCK, "");
