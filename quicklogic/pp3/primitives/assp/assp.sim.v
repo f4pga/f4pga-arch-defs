@@ -1,4 +1,5 @@
-`timescale 1ns/10ps
+`timescale 1ps/1ps
+
 (* whitebox *)
 (* keep *)
 module ASSP (

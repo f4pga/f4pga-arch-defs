@@ -1,4 +1,4 @@
-`timescale 1ns/10ps
+`timescale 1ps/1ps
 (* FASM_PARAMS="INV.TA1=XAS1;INV.TA2=XAS2;INV.TB1=XBS1;INV.TB2=XBS2" *)
 (* MODEL_NAME="T_FRAG" *)
 (* whitebox *)

@@ -1,4 +1,4 @@
-`timescale 1ns/10ps
+`timescale 1ps/1ps
 (* whitebox *)
 
 // This cell is necessary only for post-pnr simulation
