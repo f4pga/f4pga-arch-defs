@@ -3,7 +3,6 @@ add_file_target(FILE ${CURR_DIR}/multi_enc_decx2x4.v SCANNER_TYPE verilog)
 add_file_target(FILE ${CURR_DIR}/topenc_decx2.v SCANNER_TYPE verilog)
 add_file_target(FILE ${CURR_DIR}/encoder.v SCANNER_TYPE verilog)
 add_file_target(FILE ${CURR_DIR}/decoder.v SCANNER_TYPE verilog)
-add_file_target(FILE ${CURR_DIR}/adder_8.v SCANNER_TYPE verilog)
 
 add_fpga_target(
   NAME multi_enc_decx2x4_test-umc22-no-adder
@@ -14,7 +13,6 @@ add_fpga_target(
     ${CURR_DIR}/topenc_decx2.v
     ${CURR_DIR}/encoder.v
     ${CURR_DIR}/decoder.v
-    ${CURR_DIR}/adder_8.v
   EXPLICIT_ADD_FILE_TARGET
   DEFINES SYNTH_OPTS=-no_adder
   )
@@ -28,7 +26,6 @@ add_fpga_target(
     ${CURR_DIR}/topenc_decx2.v
     ${CURR_DIR}/encoder.v
     ${CURR_DIR}/decoder.v
-    ${CURR_DIR}/adder_8.v
   EXPLICIT_ADD_FILE_TARGET
   )
 
