@@ -76,6 +76,117 @@ def split_sdf_ports(code):
 # =============================================================================
 
 
+def merge_verilog_ports(code):
+
+    to_merge = {}
+
+    def module_def_sub_func(match):
+        """
+        Replaces single bit ports with multi-bit ports in module IO definition
+        """
+
+        def replace_ports(match):
+            """
+            Creates single multi-bit port definition
+            """
+            base = match.group("base")
+            port_def = "\n    {} [{}:{}] {},".format(
+                to_merge[base]["direction"], to_merge[base]["max"],
+                to_merge[base]["min"], base
+            )
+            return port_def
+
+        module_def_s = match.group(0)
+
+        # Find all single bit ports that can be converted to multi bit ones
+        matches = re.finditer(
+            r"\s*(?P<direction>(input|output|inout))\s+"
+            r"(?P<port>\\(?P<base>\S+)\[(?P<index>[0-9]+)\])", module_def_s
+        )
+        # Gather data about ports
+        for match in matches:
+            if (match is not None):
+                base = match.group("base")
+                index = match.group("index")
+                direction = match.group("direction")
+                if (base in to_merge.keys()):
+                    assert direction == to_merge[base][
+                        "direction"
+                    ], "Port direction inconsistency for port {}".format(base)
+                    to_merge[base]["ids"].append(int(index))
+                    if (int(index) < to_merge[base]["min"]):
+                        to_merge[base]["min"] = int(index)
+                    if (int(index) > to_merge[base]["max"]):
+                        to_merge[base]["max"] = int(index)
+                else:
+                    to_merge[base] = {
+                        "direction": direction,
+                        "ids": [int(index)],
+                        "min": int(index),
+                        "max": int(index)
+                    }
+
+        # Check index consistency
+        for base, specs in to_merge.items():
+            specs["ids"].sort()
+            assert list(
+                range(specs["min"], specs["max"] + 1)
+            ) == specs["ids"], "Port indexes inconsistency for port {}".format(
+                base
+            )
+
+        # Replace zero-indexed ports with multi-bit ports
+        module_def_s = re.sub(
+            r"\s*(?P<direction>(input|output|inout))\s+"
+            r"(?P<port>\\(?P<base>\S+)\[(?P<index>0)\]\s*,?)", replace_ports,
+            module_def_s
+        )
+
+        # remove non-zero-indexed ports
+        module_def_s = re.sub(
+            r"\s*(?P<direction>(input|output|inout))\s+"
+            r"(?P<port>\\(?P<base>\S+)\[(?P<index>[1-9]+[0-9]*)\]\s*,?)", "",
+            module_def_s
+        )
+
+        # Ensure that there is no colon at the last line of the module IO definition
+        module_def_s = re.sub(r",\s*\)\s*;", ");", module_def_s)
+
+        return module_def_s
+
+    def port_usage_sub_func(match):
+        """
+        Creates single multi-bit port definition
+        """
+        base = match.group("base")
+        index = match.group("index")
+        trailing_ws = match.group(0)[-1]
+        port_usage = "{}[{}]{}".format(base, index, trailing_ws)
+        return port_usage
+
+    # Find module IO definition and substitute it
+    code = re.sub(
+        r"\s*module\s+\S+\s*\([\s\S]*?\);",
+        module_def_sub_func,
+        code,
+        flags=re.DOTALL
+    )
+
+    # Find all other occurances of excaped identifiers for single bit ports
+    # and substitute them with indexed multi bit ports
+    code = re.sub(
+        r"\\(?P<base>\S+)\[(?P<index>[0-9]+)\]\s",
+        port_usage_sub_func,
+        code,
+        flags=re.DOTALL
+    )
+
+    return code
+
+
+# =============================================================================
+
+
 def main():
 
     # Parse arguments
@@ -153,15 +264,22 @@ def main():
 
         code = re.sub(r"\(\s*(?P<val>[01_]+)\s*\)", sub_func, code)
 
-        # Split ports
-        if args.split_ports:
-            code = split_verilog_ports(code)
-
         # Write the output verilog file
         fname = args.vlog_out
         if not fname:
             root, ext = os.path.splitext(args.vlog_in)
             fname = "{}.fixed{}".format(root, ext)
+
+        # Split ports
+        if args.split_ports:
+            code = split_verilog_ports(code)
+            with open(fname, "w") as fp:
+                fp.write(code)
+
+            # Make sure ports are not split
+            code = merge_verilog_ports(code)
+            root, ext = os.path.splitext(fname)
+            fname = "{}.no_split{}".format(root, ext)
 
         with open(fname, "w") as fp:
             fp.write(code)

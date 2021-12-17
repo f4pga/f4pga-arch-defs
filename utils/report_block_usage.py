@@ -1,6 +1,12 @@
 import argparse
 import json
+import re
+
 from lib.parse_usage import parse_usage
+
+USAGE_SPEC = re.compile(
+    r"(?P<type>[A-Za-z0-9_-]+)(?P<op>=|<|<=|>=|>)(?P<val>[0-9]+)"
+)
 
 
 def main():
@@ -30,21 +36,33 @@ def main():
         print(json.dumps(usage, indent=2))
 
     if args.assert_usage:
-        blocks = dict(b.split('=') for b in args.assert_usage.split(','))
+        for usage_spec in args.assert_usage.split(","):
 
-        for block in usage:
-            if block in blocks:
-                assert usage[block] == int(
-                    blocks[block]
-                ), 'Expect usage of block {} = {}, found {}'.format(
-                    block, int(blocks[block]), usage[block]
-                )
+            match = USAGE_SPEC.fullmatch(usage_spec)
+            assert match is not None, usage_spec
+
+            type = match.group("type")
+            op = match.group("op")
+            val = int(match.group("val"))
+
+            count = int(usage.get(type, 0))
+
+            msg = "Expect usage of block {} {} {}, found {}".format(
+                type, op, val, count
+            )
+
+            if op == "=":
+                assert count == val, msg
+            elif op == "<":
+                assert count < val, msg
+            elif op == "<=":
+                assert count <= val, msg
+            elif op == ">":
+                assert count > val, msg
+            elif op == ">=":
+                assert count >= val, msg
             else:
-                assert usage[
-                    block
-                ] == 0, 'Expect usage of block {} = 0, found {}'.format(
-                    block, usage[block]
-                )
+                assert False, op
 
 
 if __name__ == "__main__":

@@ -1,6 +1,8 @@
 import re
 
-USAGE_PATTERN = re.compile(r'^Netlist +([0-9]+)\sblocks of type: (.*)$')
+USAGE_PATTERN = re.compile(
+    r'^Netlist\s(?P<type>[A-Za-z0-9_-]+)\sblocks:\s(?P<count>[0-9]+)'
+)
 
 
 def parse_usage(pack_log):
@@ -17,4 +19,4 @@ def parse_usage(pack_log):
         for line in f:
             m = re.match(USAGE_PATTERN, line.strip())
             if m:
-                yield (m.group(2), int(m.group(1)))
+                yield (m.group("type"), int(m.group("count")))
