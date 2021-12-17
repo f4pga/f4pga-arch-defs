@@ -85,6 +85,7 @@ define_arch(
     ${QLFASM}
   FASM_TO_BIT_CMD "\${PYTHON3} \
     \${QLFASM} \
+    --no-default-bitstream --dev-type \${DEVICE}
         \${OUT_FASM}
         \${OUT_BITSTREAM}
         \${FASM_TO_BIT_EXTRA_ARGS}"
@@ -99,10 +100,11 @@ define_arch(
   BIT_TO_V_CMD
     "${CMAKE_COMMAND} -E env PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils:$PYTHONPATH \
     \${PYTHON3} \${BIT_TO_V} \${OUT_BITSTREAM}
-      --vpr-db ${CMAKE_CURRENT_BINARY_DIR}/devices/\${DEVICE_TYPE}/db_phy.pickle
-      --package-name PD64
+      --phy-db ${CMAKE_CURRENT_BINARY_DIR}/devices/\${DEVICE_TYPE}/db_phy.pickle
       --input-type bitstream
       --output-verilog \${OUT_BIT_VERILOG}
+      --output-pcf \${OUT_BIT_VERILOG}.pcf
+      --output-qcf \${OUT_BIT_VERILOG}.qcf
       --input-pcf \${INPUT_IO_FILE}"
   BIT_TO_V_DEPS
     ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/verilogmodule.py
@@ -111,6 +113,9 @@ define_arch(
 
   ROUTE_CHAN_WIDTH 100
   USE_FASM
+
+  FIXUP_POST_SYNTHESIS_EXTRA_ARGS
+    --split-ports
 )
 
 add_subdirectory(devices)
