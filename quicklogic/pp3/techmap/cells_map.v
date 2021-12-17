@@ -1085,7 +1085,7 @@ endmodule /* qlal4s3_32x32_mult_cell */
 module qlal4s3_mult_16x16_cell (
     input [15:0] Amult,
     input [15:0] Bmult,
-    input [1:0] Valid_mult,
+    input Valid_mult,
     output [31:0] Cmult);
 
     wire [31:0] Amult_int;
@@ -1094,14 +1094,13 @@ module qlal4s3_mult_16x16_cell (
 
     assign Amult_int = {16'b0, Amult};
     assign Bmult_int = {16'b0, Bmult};
-    assign Cmult = Cmult_int[15:0];
 
     MULT #() _TECHMAP_REPLACE_
     (
       .Amult(Amult_int),
       .Bmult(Bmult_int),
-      .Valid_mult(Valid_mult),
-      .Cmult(Cmult_int),
+      .Valid_mult({1'b0, Valid_mult}),
+      .Cmult(Cmult),
       .sel_mul_32x32(1'b0)
     );
 
