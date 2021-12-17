@@ -1,5 +1,6 @@
 add_file_target(FILE ext_counter.v SCANNER_TYPE verilog)
 add_file_target(FILE chandalar.pcf)
+add_file_target(FILE jimbob4.pcf)
 
 add_fpga_target(
   NAME ext_counter-ql-chandalar

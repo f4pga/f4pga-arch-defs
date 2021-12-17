@@ -3,6 +3,7 @@ add_file_target(FILE lut2.v SCANNER_TYPE verilog)
 add_file_target(FILE lut3.v SCANNER_TYPE verilog)
 add_file_target(FILE lut4.v SCANNER_TYPE verilog)
 add_file_target(FILE chandalar.pcf)
+add_file_target(FILE jimbob4.pcf)
 
 add_fpga_target(
   NAME lut1-ql-chandalar
