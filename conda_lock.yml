@@ -145,7 +145,7 @@ dependencies:
     - python-utils==2.5.6
     - pyusb==1.2.1
     - PyYAML==6.0
-    - quicklogic-fasm @ git+https://github.com/QuickLogic-Corp/quicklogic-fasm.git@57b6e60574a9d483dc94710d0d3ff42a62b4ec41
+    - quicklogic-fasm @ git+https://github.com/QuickLogic-Corp/quicklogic-fasm.git@d525679a4b62d674f5941f366ac54a4629eeabd9
     - requests==2.26.0
     - rr-graph @ git+https://github.com/SymbiFlow/symbiflow-rr-graph.git@f0c41b77ad25b3afc438f4a7bff4c2297f6587d5
     - scipy==1.7.3
