@@ -272,8 +272,16 @@ def main():
                 continue
 
             # Detect inouts:
-            is_inout_in = constraint.net + '_$inp' in eblif_inputs
-            is_inout_out = constraint.net + '_$out' in eblif_outputs
+            def inout_name(name, suffix):
+                expr = r"(?P<name>.*)(?P<index>\[[0-9]+\])$"
+                match = re.fullmatch(expr, name)
+                if match is not None:
+                    return match.group("name") + suffix + match.group("index")
+                return name + suffix
+
+            is_inout_in = inout_name(constraint.net, "_$inp") in eblif_inputs
+            is_inout_out = inout_name(constraint.net, '_$out') in eblif_outputs
+
             if is_inout_in and is_inout_out:
                 pad_config = {
                     "ctrl_sel": "fabric",
