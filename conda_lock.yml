@@ -72,19 +72,19 @@ dependencies:
   - rhash=1.4.1=h3c74f83_1
   - setuptools=58.0.4=py37h06a4308_0
   - sqlite=3.36.0=hc218d9a_0
-  - surelog=0.0_3886_g5d4071e40=20211214_154543_py37
+  - surelog=0.0_3902_gea4079be3=20211214_154543_py37
   - swig=4.0.2=h295c915_4
-  - symbiflow-yosys-plugins=1.0.0_7_534_g3fb0f3b=20211214_154543
+  - symbiflow-yosys-plugins=1.0.0_7_537_gb40f6cd=20211214_154543
   - tbb=2020.3=hfd86e86_0
   - tk=8.6.11=h1ccaba5_0
   - typing_extensions=3.10.0.2=pyh06a4308_0
   - vtr-optimized=8.0.0_5030_g6aa520950=20211214_154543
   - wheel=0.37.0=pyhd3eb1b0_1
   - xz=5.2.5=h7b6447c_0
-  - yosys=0.12_30_g5dadcc85b=20211214_154543_py37
+  - yosys=0.12_36_ged4642e18=20211214_154543_py37
   - zachjs-sv2v=0.0.5_0025_ge9f9696=20201120_205532
   - zipp=3.6.0=pyhd3eb1b0_0
-  - zlib=1.2.11=h7b6447c_3
+  - zlib=1.2.11=h7f8727e_4
   - zstd=1.4.9=haebb681_0
   - pip:
     - Arpeggio==1.10.2
@@ -103,7 +103,7 @@ dependencies:
     - edalize @ git+https://github.com/lowRISC/edalize.git@23e1beab41508e13c565125e5edcadb86b0032f6
     - fasm==0.0.2.post80
     - fasm-utils @ git+https://github.com/QuickLogic-Corp/quicklogic-fasm-utils@3d6a375ddb6b55aaa5a59d99e44a207d4c18709f
-    - fonttools==4.28.3
+    - fonttools==4.28.4
     - fusesoc @ git+https://github.com/lowRISC/fusesoc.git@14dfc825ced58fe1fb343662fa80fc4fbd0fdc50
     - gitdb==4.0.9
     - GitPython==3.1.24
@@ -115,7 +115,7 @@ dependencies:
     - intervaltree==3.1.0
     - Jinja2==3.0.3
     - jsonmerge==1.8.0
-    - jsonschema==4.2.1
+    - jsonschema==4.3.1
     - kiwisolver==1.3.2
     - lxml==4.7.1
     - Mako==1.1.6
@@ -142,7 +142,7 @@ dependencies:
     - python-dateutil==2.8.2
     - python-fpga-interchange @ git+https://github.com/SymbiFlow/python-fpga-interchange.git@b13ee55ebce358a488fe9087f3b4f1bf087a0f24
     - python-sat==0.1.7.dev15
-    - python-utils==2.5.6
+    - python-utils==2.6.3
     - pyusb==1.2.1
     - PyYAML==6.0
     - quicklogic-fasm @ git+https://github.com/QuickLogic-Corp/quicklogic-fasm.git@57b6e60574a9d483dc94710d0d3ff42a62b4ec41
