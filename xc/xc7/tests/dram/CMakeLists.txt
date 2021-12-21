@@ -1,13 +1,13 @@
 add_custom_target(test_dram_packing)
 
-function(dram_tests dram_num_instances dram_mode outpad inpad enable_vivado_target)
+function(dram_tests dram_num_instances dram_mode outpad inpad blk_tl_slicem enable_vivado_target)
   add_file_target(FILE dram_${dram_num_instances}_${dram_mode}.v SCANNER_TYPE verilog)
   add_fpga_target(
     NAME dram_${dram_num_instances}_${dram_mode}
     BOARD basys3
     SOURCES dram_${dram_num_instances}_${dram_mode}.v
     INPUT_IO_FILE ${COMMON}/basys3.pcf
-    ASSERT_USAGE SYN-OUTPAD=${outpad},SYN-INPAD=${inpad},BLK-TL-SLICEM=1
+    ASSERT_USAGE SYN-OUTPAD=${outpad},SYN-INPAD=${inpad},BLK-TL-SLICEM=${blk_tl_slicem}
     EXPLICIT_ADD_FILE_TARGET
     )
 
@@ -27,15 +27,15 @@ function(dram_tests dram_num_instances dram_mode outpad inpad enable_vivado_targ
 
 endfunction()
 
-# dram_tests(<dram_num_instances> <dram_mode> <syn_outpad_assert_usage> <syn_inpad_assert_usage> <enable_vivado_target>)
-dram_tests(4 32x1s 17 18 Y)
-dram_tests(8 32x1s 17 18 Y)
-dram_tests(2 32x1d 17 18 Y)
-dram_tests(4 32x2s 17 18 Y)
-dram_tests(2 64x1d 17 18 Y)
-dram_tests(4 64x1s 17 18 Y)
-dram_tests(2 128x1s 17 18 Y)
-dram_tests(1 128x1d 17 18 Y)
-dram_tests(1 256x1s 17 18 Y)
-dram_tests(1 32m 17 18 Y)
-dram_tests(1 64m 17 18 Y)
+# dram_tests(<dram_num_instances> <dram_mode> <syn_outpad_assert_usage> <syn_inpad_assert_usage> <blk_tl_slicem_assert_usage> <enable_vivado_target>)
+dram_tests(4 32x1s 17 18 1 Y)
+dram_tests(8 32x1s 17 18 1 Y)
+dram_tests(2 32x1d 17 18 1 Y)
+dram_tests(4 32x2s 17 18 1 Y)
+dram_tests(2 64x1d 17 18 1 Y)
+dram_tests(4 64x1s 17 18 1 Y)
+dram_tests(2 128x1s 17 18 1 Y)
+dram_tests(1 128x1d 17 18 1 Y)
+dram_tests(1 256x1s 17 18 1 Y)
+dram_tests(1 32m 17 18 1 Y)
+dram_tests(1 64m 17 18 1 Y)
