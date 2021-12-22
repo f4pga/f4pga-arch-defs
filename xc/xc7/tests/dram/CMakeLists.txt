@@ -29,7 +29,9 @@ endfunction()
 
 # dram_tests(<dram_num_instances> <dram_mode> <syn_outpad_assert_usage> <syn_inpad_assert_usage> <blk_tl_slicem_assert_usage> <enable_vivado_target>)
 dram_tests(4 32x1s 17 18 1 Y)
-dram_tests(8 32x1s 17 18 1 Y)
+# Design uses 8 RAM32X1S primitives. Each primitive occupy 1 LUT and
+# there are 4 LUTs per SLICE so 2 SLICEM are required
+dram_tests(8 32x1s 17 18 2 Y)
 dram_tests(2 32x1d 17 18 1 Y)
 dram_tests(4 32x2s 17 18 1 Y)
 dram_tests(2 64x1d 17 18 1 Y)
