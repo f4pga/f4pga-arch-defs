@@ -1873,7 +1873,7 @@ function(ADD_FPGA_TARGET)
       add_custom_target(
           ${NAME}_assert_usage
           COMMAND ${PYTHON3} ${USAGE_UTIL}
-            --assert_usage ${ADD_FPGA_TARGET_ASSERT_USAGE}
+            --assert_usage \"${ADD_FPGA_TARGET_ASSERT_USAGE}\"
             ${OUT_LOCAL}/pack.log
           DEPENDS ${PYTHON3} ${USAGE_UTIL} ${OUT_LOCAL}/pack.log
           )
