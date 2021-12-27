@@ -1362,6 +1362,12 @@ function(ADD_FPGA_TARGET)
   #
   # If NO_SYNTHESIS is supplied, <source list> must be 1 eblif file.
   #
+  # ASSERT_USAGE enables tests that verify the usage of specific block types
+  # against <usage_spec> which is a comma-separated list of
+  # relational expressions regarding the usage of block types, e.g:
+  # 	ASSERT_USAGE	PB-CLOCK=1,PB-GMUX=1,PB-BIDIR=4
+  # supported operators: =, <, <=, >, >=
+  #
   # DEFINES is a list of environment variables to be defined during Yosys
   # invocation.
   #
