@@ -186,8 +186,17 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
 
   # Install FASM database
   set(FASM_DATABASE_DIR "${QLF_FPGA_DATABASE_DIR}/${FAMILY}/fasm_database/")
-  if(EXISTS "${FASM_DATABASE_DIR}" AND IS_DIRECTORY "${FASM_DATABASE_DIR}")
-    install(DIRECTORY ${QLF_FPGA_DATABASE_DIR}/${FAMILY}/fasm_database/
+  if("${FAMILY}" STREQUAL "qlf_k4n8")
+    get_file_target(FASM_DATABASE_TARGET "/${FASM_DATABASE_DIR}")
+    get_file_location(FASM_DATABASE "/${FASM_DATABASE_DIR}")
+    add_custom_target("FASM_DB_INSTALL_${FAMILY}_FASM_DATABASE"
+	  ALL
+	  DEPENDS ${FASM_DATABASE_TARGET} ${FASM_DATABASE}
+    )
+    install(DIRECTORY ${CMAKE_BINARY_DIR}/${FASM_DATABASE_DIR}
+	    DESTINATION share/symbiflow/fasm_database/${FAMILY})
+  elseif(EXISTS "${FASM_DATABASE_DIR}" AND IS_DIRECTORY "${FASM_DATABASE_DIR}")
+    install(DIRECTORY ${FASM_DATABASE_DIR}
             DESTINATION share/symbiflow/fasm_database/${FAMILY})
   endif()
 

@@ -40,10 +40,10 @@ function(QUICKLOGIC_DEFINE_QLF_ARCH)
   set(ARCH_DIR ${QLF_FPGA_PLUGINS_DIR}/${ARCH})
   set(ARCH_DIR_REL ${QLF_FPGA_DATABASE_DIR}/${ARCH})
   set(QLFPGA_FASM_DATABASE_LOC ${ARCH_DIR}/fasm_database)
-  set(QLFPGA_FASM_DATABASE_LOC_REL ${ARCH_DIR_REL}/fasm_database)
+  set(QLFPGA_FASM_DATABASE_LOC_REL ${symbiflow-arch-defs_BINARY_DIR}/${ARCH_DIR_REL}/fasm_database)
 
   set(FASM_TO_BIT_DEPS "")
-  append_file_dependency(FASM_TO_BIT_DEPS ${QLFPGA_FASM_DATABASE_LOC})
+  append_file_dependency(FASM_TO_BIT_DEPS /${QLFPGA_FASM_DATABASE_LOC})
 
   # Define the architecture
   define_arch(
