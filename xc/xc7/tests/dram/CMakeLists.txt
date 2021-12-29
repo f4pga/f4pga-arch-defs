@@ -7,7 +7,7 @@ function(dram_tests dram_num_instances dram_mode outpad inpad blk_tl_slicem enab
     BOARD basys3
     SOURCES dram_${dram_num_instances}_${dram_mode}.v
     INPUT_IO_FILE ${COMMON}/basys3.pcf
-    ASSERT_USAGE SYN-OUTPAD=${outpad},SYN-INPAD=${inpad},BLK-TL-SLICEM=${blk_tl_slicem}
+    ASSERT_BLOCK_TYPES_ARE_USED SYN-OUTPAD=${outpad},SYN-INPAD=${inpad},BLK-TL-SLICEM=${blk_tl_slicem}
     EXPLICIT_ADD_FILE_TARGET
     )
 

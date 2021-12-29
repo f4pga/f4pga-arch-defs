@@ -1334,7 +1334,7 @@ function(ADD_FPGA_TARGET)
   #   [EXPLICIT_ADD_FILE_TARGET]
   #   [EMIT_CHECK_TESTS EQUIV_CHECK_SCRIPT <yosys to script verify two bitstreams gold and gate>]
   #   [NO_SYNTHESIS]
-  #   [ASSERT_USAGE <usage_spec>]
+  #   [ASSERT_BLOCK_TYPES_ARE_USED <usage_spec>]
   #   [DEFINES <definitions>]
   #   [BIT_TO_V_EXTRA_ARGS]
   #   [NET_PATCH_EXTRA_ARGS]
@@ -1362,10 +1362,10 @@ function(ADD_FPGA_TARGET)
   #
   # If NO_SYNTHESIS is supplied, <source list> must be 1 eblif file.
   #
-  # ASSERT_USAGE enables tests that verify the usage of specific block types
-  # against <usage_spec> which is a comma-separated list of
+  # ASSERT_BLOCK_TYPES_ARE_USED enables tests that verify the usage of specific
+  # block types against <usage_spec> which is a comma-separated list of
   # relational expressions regarding the usage of block types, e.g:
-  # 	ASSERT_USAGE	PB-CLOCK=1,PB-GMUX=1,PB-BIDIR=4
+  # 	ASSERT_BLOCK_TYPES_ARE_USED	PB-CLOCK=1,PB-GMUX=1,PB-BIDIR=4
   # supported operators: =, <, <=, >, >=
   #
   # DEFINES is a list of environment variables to be defined during Yosys
@@ -1401,7 +1401,7 @@ function(ADD_FPGA_TARGET)
   # * ${TOP}.${BITSTREAM_EXTENSION} - Bitstream for target.
   #
   set(options EXPLICIT_ADD_FILE_TARGET EMIT_CHECK_TESTS NO_SYNTHESIS ROUTE_ONLY INSTALL_CIRCUIT)
-  set(oneValueArgs NAME TOP BOARD INPUT_IO_FILE EQUIV_CHECK_SCRIPT AUTOSIM_CYCLES ASSERT_USAGE INPUT_SDC_FILE)
+  set(oneValueArgs NAME TOP BOARD INPUT_IO_FILE EQUIV_CHECK_SCRIPT AUTOSIM_CYCLES ASSERT_BLOCK_TYPES_ARE_USED INPUT_SDC_FILE)
   set(multiValueArgs SOURCES TESTBENCH_SOURCES DEFINES BIT_TO_V_EXTRA_ARGS INPUT_XDC_FILES NET_PATCH_EXTRA_ARGS)
   cmake_parse_arguments(
     ADD_FPGA_TARGET
@@ -1868,12 +1868,12 @@ function(ADD_FPGA_TARGET)
 
   add_output_to_fpga_target(${NAME} NET ${OUT_NET_REL})
 
-  if(NOT "${ADD_FPGA_TARGET_ASSERT_USAGE}" STREQUAL "")
+  if(NOT "${ADD_FPGA_TARGET_ASSERT_BLOCK_TYPES_ARE_USED}" STREQUAL "")
       set(USAGE_UTIL ${symbiflow-arch-defs_SOURCE_DIR}/utils/report_block_usage.py)
       add_custom_target(
           ${NAME}_assert_usage
           COMMAND ${PYTHON3} ${USAGE_UTIL}
-            --assert_usage \"${ADD_FPGA_TARGET_ASSERT_USAGE}\"
+            --assert_usage \"${ADD_FPGA_TARGET_ASSERT_BLOCK_TYPES_ARE_USED}\"
             ${OUT_LOCAL}/pack.log
           DEPENDS ${PYTHON3} ${USAGE_UTIL} ${OUT_LOCAL}/pack.log
           )

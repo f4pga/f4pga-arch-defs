@@ -21,8 +21,8 @@
 Uses parse_usage to extract block usage information from VPR pack log and
 reports it or verifies the information against expressions passed in
 --assert-usage argument.
-It is used in ASSERT_USAGE test cases to catch any regressions to design
-implementation that would affect block usage.
+It is used in ASSERT_BLOCK_TYPES_ARE_USED test cases to catch any regressions
+to design implementation that would affect block usage.
 """
 
 import argparse
