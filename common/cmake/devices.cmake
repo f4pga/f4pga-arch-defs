@@ -1857,8 +1857,13 @@ function(ADD_FPGA_TARGET)
   set(OUT_NET ${OUT_LOCAL}/${TOP}.net)
   set(OUT_NET_REL ${OUT_LOCAL_REL}/${TOP}.net)
 
+  if(NOT "${ADD_FPGA_TARGET_ASSERT_BLOCK_TYPES_ARE_USED}" STREQUAL "")
+    set(BLOCK_USAGE ${OUT_LOCAL}/block_usage.json)
+    list(APPEND VPR_ARGS --write_block_usage ${BLOCK_USAGE})
+  endif()
+
   add_custom_command(
-    OUTPUT ${OUT_NET} ${OUT_LOCAL}/pack.log
+    OUTPUT ${OUT_NET} ${OUT_LOCAL}/pack.log ${BLOCK_USAGE}
     DEPENDS ${VPR_DEPS}
     COMMAND ${VPR_CMD} ${OUT_EBLIF} ${VPR_ARGS} --pack
     COMMAND
@@ -1874,8 +1879,8 @@ function(ADD_FPGA_TARGET)
           ${NAME}_assert_usage
           COMMAND ${PYTHON3} ${USAGE_UTIL}
             --assert_usage \"${ADD_FPGA_TARGET_ASSERT_BLOCK_TYPES_ARE_USED}\"
-            ${OUT_LOCAL}/pack.log
-          DEPENDS ${PYTHON3} ${USAGE_UTIL} ${OUT_LOCAL}/pack.log
+            ${OUT_LOCAL}/block_usage.json
+          DEPENDS ${PYTHON3} ${USAGE_UTIL} ${BLOCK_USAGE}
           )
   endif()
 

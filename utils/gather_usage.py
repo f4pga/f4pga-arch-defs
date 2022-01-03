@@ -7,24 +7,23 @@ import argparse
 import re
 import json
 import os
-from lib.parse_usage import parse_usage
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Walks tree and gathers usage numbers from pack.log."
+        description="Walks tree and gathers usage from block_usage files."
     )
 
     parser.add_argument(
         '--root_dir',
         required=True,
-        help="Root directory to scan for pack.log files."
+        help="Root directory to scan for block_usage.json files."
     )
     parser.add_argument(
         '--filter',
         required=True,
         help=  # noqa: E251
-        "Python regular expression used to filter the complete path to pack.log files."
+        "Python regular expression used to filter the complete path to block_usage.json files."
     )
 
     args = parser.parse_args()
@@ -34,22 +33,25 @@ def main():
     usage_logs = {}
 
     for root, dirs, files in os.walk(args.root_dir):
-        if 'pack.log' not in files:
+        if 'block_usage.json' not in files:
             continue
 
-        pack_log = os.path.join(root, 'pack.log')
+        block_usage_json = os.path.join(root, 'block_usage.json')
 
-        if not filt.search(pack_log):
+        if not filt.search(block_usage_json):
             continue
 
-        parent_dir, _ = os.path.split(pack_log)
+        with open(block_usage_json):
+            block_usage = json.loads(block_usage_json)
+
+        parent_dir, _ = os.path.split(block_usage_json)
         pparent_dir, device_tuple = os.path.split(parent_dir)
         _, target = os.path.split(pparent_dir)
 
         usage_logs[target] = {
             'path': parent_dir,
             'device_tuple': device_tuple,
-            'usage': dict(parse_usage(pack_log)),
+            'usage': block_usage['blocks'],
         }
 
     print(json.dumps(usage_logs, indent=2))

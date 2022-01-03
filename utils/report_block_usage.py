@@ -18,7 +18,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 """
-Uses parse_usage to extract block usage information from VPR pack log and
+Extracts block usage information from VPR block usage json summary and
 reports it or verifies the information against expressions passed in
 --assert-usage argument.
 It is used in ASSERT_BLOCK_TYPES_ARE_USED test cases to catch any regressions
@@ -29,8 +29,6 @@ import argparse
 import json
 import re
 
-from lib.parse_usage import parse_usage
-
 USAGE_SPEC = re.compile(
     r"(?P<type>[A-Za-z0-9_-]+)(?P<op>=|<|<=|>=|>)(?P<val>[0-9]+)"
 )
@@ -38,9 +36,9 @@ USAGE_SPEC = re.compile(
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Converts VPR pack.log into usage numbers."
+        description="Converts VPR block_usage.json into usage numbers."
     )
-    parser.add_argument('pack_log')
+    parser.add_argument('block_usage')
     parser.add_argument(
         '--assert_usage',
         help='Comma seperate block name list with expected usage stats.'
@@ -54,10 +52,9 @@ def main():
 
     args = parser.parse_args()
 
-    usage = {}
-
-    for block, count in parse_usage(args.pack_log):
-        usage[block] = count
+    with open(args.block_usage) as f:
+        usage_report = json.load(f)
+    usage = usage_report['blocks']
 
     if args.print_usage:
         print(json.dumps(usage, indent=2))
