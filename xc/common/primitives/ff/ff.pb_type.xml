@@ -523,7 +523,10 @@
       <direct   name="Q"        input="LDPE_or_LDCE.Q"   output="SLICE_FF.Q"      />
     </interconnect>
     <metadata>
-      <meta name="fasm_features">LATCH</meta>
+      <meta name="fasm_features">
+        LATCH
+        CLKINV
+      </meta>
     </metadata>
   </mode>
   <metadata>

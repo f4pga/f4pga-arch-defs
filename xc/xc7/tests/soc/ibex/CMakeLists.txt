@@ -64,16 +64,14 @@ add_sv2v_target(
 
 # Arty Board
 #
-add_file_target(FILE pins_artya7.sdc)
-add_file_target(FILE pins_artya7.pcf)
+add_file_target(FILE pins_artya7.xdc)
 
 add_fpga_target(
   NAME ibex_arty
   BOARD arty-full
   TOP top_artya7
   SOURCES ibex_sv2v.v
-  INPUT_IO_FILE pins_artya7.pcf
-  INPUT_SDC_FILE pins_artya7.sdc
+  INPUT_XDC_FILE pins_artya7.xdc
   EXPLICIT_ADD_FILE_TARGET
   INSTALL_CIRCUIT
 )
@@ -85,16 +83,14 @@ add_vivado_target(
 
 # Nexys Video Board
 
-add_file_target(FILE pins_nexys_video.sdc)
-add_file_target(FILE pins_nexys_video.pcf)
+add_file_target(FILE pins_nexys_video.xdc)
 
 add_fpga_target(
   NAME ibex_nexys_video
   BOARD nexys_video-mid
   TOP top_artya7
   SOURCES ibex_sv2v.v
-  INPUT_IO_FILE pins_nexys_video.pcf
-  INPUT_SDC_FILE pins_nexys_video.sdc
+  INPUT_XDC_FILE pins_nexys_video.xdc
   EXPLICIT_ADD_FILE_TARGET
 )
 
