@@ -2297,13 +2297,13 @@ function(ADD_FPGA_TARGET)
   #-------------------------------------------------------------------------
 
   set(OUT_ANALYSIS ${OUT_LOCAL}/analysis.log)
-  set(OUT_POST_SYNTHESIS_V ${OUT_LOCAL}/${TOP}_post_synthesis.v)
+  set(OUT_POST_SYNTHESIS_V ${OUT_LOCAL}/${TOP}_merged_post_implementation.v)
   set(OUT_POST_SYNTHESIS_BLIF ${OUT_LOCAL}/${TOP}_post_synthesis.blif)
   set(OUT_POST_SYNTHESIS_SDF ${OUT_LOCAL}/${TOP}_post_synthesis.sdf)
   add_custom_command(
     OUTPUT ${OUT_ANALYSIS}
     DEPENDS ${OUT_ROUTE} ${VPR_DEPS} ${PYTHON3}
-    COMMAND ${VPR_CMD} ${OUT_EBLIF} ${VPR_ARGS} --analysis --gen_post_synthesis_netlist on
+    COMMAND ${VPR_CMD} ${OUT_EBLIF} ${VPR_ARGS} --analysis --gen_post_synthesis_netlist on --gen_post_implementation_merged_netlist on
     COMMAND ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log
         ${OUT_LOCAL}/analysis.log
     WORKING_DIRECTORY ${OUT_LOCAL}
