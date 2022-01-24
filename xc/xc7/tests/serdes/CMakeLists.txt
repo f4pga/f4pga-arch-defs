@@ -1,5 +1,6 @@
 add_file_target(FILE serdes_test.v SCANNER_TYPE verilog)
 add_file_target(FILE serdes_test_idelay.v SCANNER_TYPE verilog)
+add_file_target(FILE serdes_test_oversample.v SCANNER_TYPE verilog)
 add_file_target(FILE basys3.pcf)
 
 add_custom_target(all_serdes_test)
@@ -81,3 +82,23 @@ serdes_test(8 SDR)
 serdes_test(4 DDR)
 serdes_test(6 DDR)
 serdes_test(8 DDR)
+
+# Oversample
+add_fpga_target(
+  NAME serdes_basys3_oversample
+  BOARD basys3-bottom
+  SOURCES
+    serdes_basys3_oversample.v
+    serdes_test_oversample.v
+  INPUT_IO_FILE basys3.pcf
+  EXPLICIT_ADD_FILE_TARGET
+)
+
+add_vivado_target(
+  NAME serdes_basys3_oversample_vivado
+  PARENT_NAME serdes_basys3_oversample
+  )
+
+add_dependencies(all_serdes_test
+  serdes_basys3_oversample_bit
+)
