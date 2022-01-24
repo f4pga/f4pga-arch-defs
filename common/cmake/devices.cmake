@@ -2303,7 +2303,7 @@ function(ADD_FPGA_TARGET)
   add_custom_command(
     OUTPUT ${OUT_ANALYSIS}
     DEPENDS ${OUT_ROUTE} ${VPR_DEPS} ${PYTHON3}
-    COMMAND ${VPR_CMD} ${OUT_EBLIF} ${VPR_ARGS} --analysis --gen_post_synthesis_netlist on --gen_post_implementation_merged_netlist on
+    COMMAND ${VPR_CMD} ${OUT_EBLIF} ${VPR_ARGS} --analysis --gen_post_synthesis_netlist on --gen_post_implementation_merged_netlist on --post_synth_netlist_unconn_inputs nets --post_synth_netlist_unconn_outputs nets
     COMMAND ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log
         ${OUT_LOCAL}/analysis.log
     WORKING_DIRECTORY ${OUT_LOCAL}
