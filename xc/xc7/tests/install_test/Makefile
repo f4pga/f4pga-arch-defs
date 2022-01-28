@@ -10,13 +10,19 @@ XDC=${current_dir}/${BOARD}.xdc
 BUILDDIR:=build_${BOARD}
 ADDITIONAL_VPR_OPTIONS="--seed 1024"
 
+# Determine if we should use uhdm-plugin to read sources
+ifneq (${SURELOG_CMD},)
+	SURELOG_OPT := -s ${SURELOG_CMD}
+	BUILDDIR = build_${BOARD}_surelog
+endif
+
 all: ${BUILDDIR}/${TOP}.bit
 
 ${BUILDDIR}:
 	mkdir ${BUILDDIR}
 
 ${BUILDDIR}/${TOP}.eblif: | ${BUILDDIR}
-	cd ${BUILDDIR} && symbiflow_synth -t ${TOP} -v ${VERILOG} -d ${BITSTREAM_DEVICE} -p ${PARTNAME} -x ${XDC}
+	cd ${BUILDDIR} && symbiflow_synth -t ${TOP} ${SURELOG_OPT} -v ${VERILOG} -d ${BITSTREAM_DEVICE} -p ${PARTNAME} -x ${XDC}
 
 ${BUILDDIR}/${TOP}.net: ${BUILDDIR}/${TOP}.eblif
 	cd ${BUILDDIR} && symbiflow_pack -e ${TOP}.eblif -d ${DEVICE} -a ${ADDITIONAL_VPR_OPTIONS}
