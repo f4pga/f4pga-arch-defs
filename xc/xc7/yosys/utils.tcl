@@ -43,3 +43,23 @@ proc clean_processes {} {
     proc_memwr
     proc_clean
 }
+
+proc json2eblif {out_eblif} {
+    # Clean
+    opt_clean
+
+    # Designs that directly tie OPAD's to constants cannot use the dedicate
+    # constant network as an artifact of the way the ROI is configured.
+    # Until the ROI is removed, enable designs to selectively disable the dedicated
+    # constant network.
+    if { [info exists ::env(USE_LUT_CONSTANTS)] } {
+	write_blif -attr -cname -param \
+	    $out_eblif
+    } else {
+	write_blif -attr -cname -param \
+	    -true VCC VCC \
+	    -false GND GND \
+	    -undef VCC VCC \
+	    $out_eblif
+    }
+}
