@@ -6,6 +6,7 @@ add_custom_target(all_python_tests
         ${CMAKE_COMMAND} -E env
         PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils:${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils:$PYTHONPATH
         ${PYTHON3} -m pytest --doctest-modules -vv
+    DEPENDS qlfpga_plugins
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 

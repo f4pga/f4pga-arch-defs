@@ -30,8 +30,11 @@ if { $::env(USE_ROI) == "TRUE" } {
     # Overwrite some models (e.g. IBUF with more parameters)
     read_verilog -lib $::env(TECHMAP_PATH)/iobs.v
 
-    # Re-targetting FD to FDREs
-    techmap -map  $::env(TECHMAP_PATH)/retarget.v
+    # TODO: This should eventually end up in upstream Yosys
+    #       as models such as FD are not currently supported
+    #       as being used in old FPGAs (e.g. Spartan6)
+    # Read in unsupported models
+    read_verilog -lib $::env(TECHMAP_PATH)/retarget.v
 
     if { [info exists ::env(TOP)] && $::env(TOP) != "" } {
         hierarchy -check -top $::env(TOP)

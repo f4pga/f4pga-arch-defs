@@ -29,6 +29,25 @@ end
 
 endmodule
 
+module FD (output reg Q, input C, D);
+
+parameter [0:0] INIT = 1'b0;
+
+wire CE_SIG;
+wire SR_SIG;
+
+CESR_MUX cesr_mux(
+    .CE(1'b1),
+    .SR(1'b0),
+    .CE_OUT(CE_SIG),
+    .SR_OUT(SR_SIG)
+);
+
+FDRE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|0))
+  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(CE_SIG), .R(SR_SIG));
+
+endmodule
+
 module FDRE (output reg Q, input C, CE, D, R);
 
 parameter [0:0] INIT = 1'b0;
@@ -4790,7 +4809,17 @@ output [15:0] DO
 
   parameter BANDWIDTH = "OPTIMIZED";
   parameter STARTUP_WAIT = "FALSE";
-  parameter COMPENSATION = "ZHOLD";
+
+// Previously, the default COMPENSATION value was ZHOLD, resulting in non-functional 
+//   bitstreams when the feedback loop is closed on-chip.
+  // Setting it to INTERNAL as the default creates working bitstreams for that case.
+// This bug was not previously uncovered since the MMCM tests all explicitly
+//   specified a COMPENSATION value so the ZHOLD default was never used.
+// Setting it here in the techmapper means that existing code using on-chip 
+//   MMCM feedback without specifying a COMPENSATION value can be ported 
+//   unmodified into the toolflow and will result in functional bitstreams.
+// A test was added to test the case when relying on the default COMPENSATION value.
+  parameter COMPENSATION = "INTERNAL";
 
   parameter CLKIN1_PERIOD = 0.0;
   parameter REF_JITTER1 = 0.01;

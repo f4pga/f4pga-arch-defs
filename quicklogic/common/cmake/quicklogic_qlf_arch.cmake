@@ -37,6 +37,14 @@ function(QUICKLOGIC_DEFINE_QLF_ARCH)
 
   set(SDC_PATCH_TOOL ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/process_sdc_constraints.py)
 
+  set(ARCH_DIR ${QLF_FPGA_PLUGINS_DIR}/${ARCH})
+  set(ARCH_DIR_REL ${QLF_FPGA_DATABASE_DIR}/${ARCH})
+  set(QLFPGA_FASM_DATABASE_LOC ${ARCH_DIR}/fasm_database)
+  set(QLFPGA_FASM_DATABASE_LOC_REL ${ARCH_DIR_REL}/fasm_database)
+
+  set(FASM_TO_BIT_DEPS "")
+  append_file_dependency(FASM_TO_BIT_DEPS ${QLFPGA_FASM_DATABASE_LOC})
+
   # Define the architecture
   define_arch(
     FAMILY ${FAMILY}
@@ -96,18 +104,19 @@ function(QUICKLOGIC_DEFINE_QLF_ARCH)
     FASM_TO_BIT_CMD "${CMAKE_COMMAND} -E env \
       PYTHONPATH=${symbiflow-arch-defs_BINARY_DIR}/env/conda/lib/python3.7/site-packages \
       \${QUIET_CMD} \${FASM_TO_BIT} \
-        --db-root ${QLF_FPGA_DATABASE_DIR}/${ARCH}/fasm_database \
+        --db-root ${QLFPGA_FASM_DATABASE_LOC_REL} \
         --assemble \
         --format 4byte \
         \${OUT_FASM} \
         \${OUT_BITSTREAM} "
+    FASM_TO_BIT_DEPS ${FASM_TO_BIT_DEPS}
 
     BIN_EXTENSION bin
     BIT_TO_BIN ${QLF_FASM}
     BIT_TO_BIN_CMD "${CMAKE_COMMAND} -E env \
       PYTHONPATH=${symbiflow-arch-defs_BINARY_DIR}/env/conda/lib/python3.7/site-packages \
       \${QUIET_CMD} \${FASM_TO_BIT} \
-        --db-root ${QLF_FPGA_DATABASE_DIR}/${ARCH}/fasm_database \
+        --db-root ${QLFPGA_FASM_DATABASE_LOC_REL} \
         --assemble \
         --format txt \
         \${OUT_FASM} \
@@ -117,7 +126,7 @@ function(QUICKLOGIC_DEFINE_QLF_ARCH)
     BIT_TO_FASM_CMD "${CMAKE_COMMAND} -E env \
       PYTHONPATH=${symbiflow-arch-defs_BINARY_DIR}/env/conda/lib/python3.7/site-packages \
       \${QUIET_CMD} \${BIT_TO_FASM} \
-        --db-root ${QLF_FPGA_DATABASE_DIR}/${ARCH}/fasm_database \
+        --db-root ${QLFPGA_FASM_DATABASE_LOC_REL} \
         --disassemble \
         --format 4byte \
         \${OUT_BITSTREAM} \

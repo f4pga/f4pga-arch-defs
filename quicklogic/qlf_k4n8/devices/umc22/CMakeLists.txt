@@ -1,31 +1,37 @@
 set(ARCH qlf_k4n8)
 
-set(ARCH_DIR ${QLF_FPGA_DATABASE_DIR}/${ARCH})
-
+set(ARCH_DIR ${QLF_FPGA_PLUGINS_DIR}/${ARCH})
 set(FAST_CORNER_ARCH_DIR ${ARCH_DIR}/fast)
+set(SLOW_CORNER_ARCH_DIR ${ARCH_DIR}/slow)
+
+set(QLFPGA_REPACKING_RULES_LOC ${ARCH_DIR}/repacking_rules.json)
+set(QLFPGA_FAST_ARCH_XML_LOC ${FAST_CORNER_ARCH_DIR}/vpr_arch/UMC22nm_vpr.xml)
+set(QLFPGA_FAST_RR_GRAPH_LOC ${FAST_CORNER_ARCH_DIR}/vpr_rr_graph/UMC22nm_vpr.bin.gz)
+set(QLFPGA_SLOW_ARCH_XML_LOC ${SLOW_CORNER_ARCH_DIR}/vpr_arch/UMC22nm_vpr.xml)
+set(QLFPGA_SLOW_RR_GRAPH_LOC ${SLOW_CORNER_ARCH_DIR}/vpr_rr_graph/UMC22nm_vpr.bin.gz)
+
 quicklogic_define_qlf_device (
   NAME     ${ARCH}_umc22_fast
   ARCH     ${ARCH}
   FAMILY   ${ARCH}
   LAYOUT   24x24
-  ARCH_XML ${FAST_CORNER_ARCH_DIR}/vpr_arch/UMC22nm_vpr.xml
-  RR_GRAPH ${FAST_CORNER_ARCH_DIR}/vpr_rr_graph/UMC22nm_vpr.bin.gz
+  ARCH_XML ${QLFPGA_FAST_ARCH_XML_LOC}
+  RR_GRAPH ${QLFPGA_FAST_RR_GRAPH_LOC}
 
-  REPACKING_RULES ${ARCH_DIR}/repacking_rules.json
+  REPACKING_RULES ${QLFPGA_REPACKING_RULES_LOC}
 
   ROUTE_CHAN_WIDTH 60
 )
 
-set(SLOW_CORNER_ARCH_DIR ${ARCH_DIR}/slow)
 quicklogic_define_qlf_device (
   NAME     ${ARCH}_umc22_slow
   ARCH     ${ARCH}
   FAMILY   ${ARCH}
   LAYOUT   24x24
-  ARCH_XML ${SLOW_CORNER_ARCH_DIR}/vpr_arch/UMC22nm_vpr.xml
-  RR_GRAPH ${SLOW_CORNER_ARCH_DIR}/vpr_rr_graph/UMC22nm_vpr.bin.gz
+  ARCH_XML ${QLFPGA_SLOW_ARCH_XML_LOC}
+  RR_GRAPH ${QLFPGA_SLOW_RR_GRAPH_LOC}
 
-  REPACKING_RULES ${ARCH_DIR}/repacking_rules.json
+  REPACKING_RULES ${QLFPGA_REPACKING_RULES_LOC}
 
   ROUTE_CHAN_WIDTH 60
 )

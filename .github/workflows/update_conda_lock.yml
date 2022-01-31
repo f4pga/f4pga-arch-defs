@@ -17,15 +17,29 @@ jobs:
       with:
         fetch-depth: 0
         submodules:  'recursive'
-        ref:         'master'    # It will be the PR's base
+        ssh-key: ${{ secrets.SSH_DEPLOY_KEY }}
 
-    - name: Update Lock and Issue a Pull Request
-      if: ${{ github.ref == 'refs/heads/master' }}
-      uses: SymbiFlow/actions/update_conda_lock@3fdc436e761a6312c3e0a554f18b727c34434106
+    - name: Update Conda Lock
+      uses: SymbiFlow/actions/update_conda_lock@c6142a4ec7859653352757eb8f7c4630f63f96e3
       with:
-        branch_name_core: 'update_conda_lock'
         conda_lock_file:  'conda_lock.yml'
         environment_file: 'environment.yml'
-        gh_access_token:  ${{ secrets.GITHUB_TOKEN }}
-        user_email: 'foss-fpga-tools@google.com'
-        user_name: 'SymbiFlow Robot'
+
+    - name: Check diff
+      id: check-diff
+      run: |
+        if [[ $(git status --porcelain --ignore-submodules)  ]]; then echo "::set-output name=changes::true"; else echo "::set-output name=changes::false"; fi
+
+    - name: Issue Pull Request
+      if: ${{ github.ref == 'refs/heads/master' && steps.check-diff.outputs.changes == 'true' }}
+      uses: peter-evans/create-pull-request@v3
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        author: GitHub <noreply@github.com>
+        commit-message: "[BOT] Conda Lock Update"
+        title: "[BOT] Conda Lock Update"
+        body: Pull Request created by the conda lock update workflow.
+        branch: bot-conda-lock-update
+        labels: bot-conda-lock-update,kokoro:force-run,merge-if-green
+        delete-branch: true
+        signoff: true

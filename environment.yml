@@ -14,6 +14,7 @@ dependencies:
   - litex-hub::vtr-optimized
   - litex-hub::yosys
   - litex-hub::symbiflow-yosys-plugins
+  - litex-hub::surelog
   - litex-hub::zachjs-sv2v=0.0.5_0025_ge9f9696=20201120_205532
   - cmake
   - make
@@ -31,6 +32,11 @@ dependencies:
   - libuuid
   - pkg-config
   - cython
+  # Building using the conda_lock.yml file  with --no-deps requires the packaging library,
+  # which may not be installed prior to installing the various packages. This enables to have
+  # the python library in the conda environment before running pip. Unclear when this can be removed,
+  # possibly upon further setuptools or pkg-config updates.
+  - packaging=21.3
   - pip
   - pip:
     - -r requirements.txt

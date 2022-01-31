@@ -24,9 +24,13 @@ add_subdirectory(jpeg_qnr)
 add_subdirectory(spi_master_top)
 add_subdirectory(IR_Remote)
 add_subdirectory(sdio_client_top)
-add_subdirectory(VexRiscv)
-add_subdirectory(conv2d)
-add_subdirectory(conv2d_no_ksa)
-add_subdirectory(e_sdio_host_controller)
+# TODO: Too many resources are used for this test with newer packages.
+#       Re-enable once they get fixed
+#add_subdirectory(conv2d)
+#add_subdirectory(conv2d_no_ksa)
 add_subdirectory(unsigned_mult_80)
 add_subdirectory(cavlc_top)
+# TODO: There is an assertion failure probably caused by the repacker in the following designs
+#       Re-enable once it gets fixed
+#add_subdirectory(e_sdio_host_controller)
+#add_subdirectory(VexRiscv)

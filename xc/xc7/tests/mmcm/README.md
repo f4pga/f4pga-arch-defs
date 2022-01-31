@@ -20,6 +20,7 @@ LEDs:
 
 There are 3 test variants:
 - `mmcm_int_basys3` - Internal feedback
+- `mmcm_int_basys3` - Internal feedback but no COMPENSATION specified in order to test default value in techmapper
 - `mmcm_buf_basys3` - Feedback through a BUFG
 - `mmcm_ext_basys3` - External feedback. Need to short `JC.1` and `JC.2` on the Basys3 board.
 

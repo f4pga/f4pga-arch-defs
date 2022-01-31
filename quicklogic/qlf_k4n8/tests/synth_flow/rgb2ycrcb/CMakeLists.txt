@@ -3,7 +3,7 @@ add_file_target(FILE ${CURR_DIR}/rgb2ycrcb.v SCANNER_TYPE verilog)
 
 add_fpga_target(
   NAME rgb2ycrcb_test-umc22-no-adder
-  TOP rgb2ycrcb
+  TOP top
   BOARD qlf_k4n8-qlf_k4n8_umc22_slow_board
   SOURCES ${CURR_DIR}/rgb2ycrcb.v
   EXPLICIT_ADD_FILE_TARGET
@@ -12,7 +12,7 @@ add_fpga_target(
 
 add_fpga_target(
   NAME rgb2ycrcb_test-umc22-adder
-  TOP rgb2ycrcb
+  TOP top
   BOARD qlf_k4n8-qlf_k4n8_umc22_slow_board
   SOURCES ${CURR_DIR}/rgb2ycrcb.v
   EXPLICIT_ADD_FILE_TARGET
