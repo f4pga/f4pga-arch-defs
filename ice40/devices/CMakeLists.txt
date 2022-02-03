@@ -48,8 +48,8 @@ define_ice40_device(
 
 define_ice40_device(DEVICE lp1k DEVICE_TYPE top-routing-virt PACKAGES qn84)
 
-if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
+if (NOT LIGHT_BUILD)
 define_ice40_device(DEVICE hx8k DEVICE_TYPE top-routing-virt PACKAGES ct256)
 define_ice40_device(DEVICE lp8k DEVICE_TYPE top-routing-virt PACKAGES cm81)
 define_ice40_device(DEVICE up5k DEVICE_TYPE top-routing-virt PACKAGES sg48)
-endif (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
+endif (NOT LIGHT_BUILD)
