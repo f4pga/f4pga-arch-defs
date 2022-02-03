@@ -33,7 +33,7 @@ add_custom_command(
     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/utils/rom_generator.py ${PYTHON3}
 )
 
-if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
+if (NOT LIGHT_BUILD)
 
 function(SCALABLE_PROC)
   set(options)
@@ -142,4 +142,4 @@ add_vivado_target(
     CLOCK_PERIODS 10.0
     )
 
-endif (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
+endif (NOT LIGHT_BUILD)

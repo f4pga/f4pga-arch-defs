@@ -10,7 +10,7 @@ add_file_target(FILE hx8k-b-evn.pcf)
 add_file_target(FILE basys3.pcf)
 add_file_target(FILE basys3.sdc)
 
-if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
+if (NOT LIGHT_BUILD)
 add_fpga_target(
   NAME murax
   BOARD hx8k-b-evn
@@ -128,5 +128,5 @@ endforeach()
 
 # ============================================================================
 
-endif (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
+endif (NOT LIGHT_BUILD)
 
