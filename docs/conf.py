@@ -25,6 +25,7 @@ master_doc = 'index'
 
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.extlinks',
     'sphinxcontrib.images',
 ]
 
@@ -96,3 +97,14 @@ texinfo_documents = [
         'f4pga-arch-defs', 'One line description of project.', 'Miscellaneous'
     ),
 ]
+
+# -- Sphinx.Ext.ExtLinks ---------------------------------------------------------------------------
+
+extlinks = {
+   'wikipedia': ('https://en.wikipedia.org/wiki/%s', 'wikipedia:'),
+   'gh':        ('https://github.com/%s', 'gh:'),
+   'ghsharp': ('https://github.com/SymbiFlow/symbiflow-arch-defs/issues/%s', '#'),
+   'ghissue': ('https://github.com/SymbiFlow/symbiflow-arch-defs/issues/%s', 'issue #'),
+   'ghpull':  ('https://github.com/SymbiFlow/symbiflow-arch-defs/pull/%s', 'pull request #'),
+   'ghsrc':   ('https://github.com/SymbiFlow/symbiflow-arch-defs/blob/master/%s', '')
+}
