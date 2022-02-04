@@ -26,6 +26,7 @@ master_doc = 'index'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.extlinks',
+    'sphinx.ext.intersphinx',
     'sphinxcontrib.images',
 ]
 
@@ -97,6 +98,14 @@ texinfo_documents = [
         'f4pga-arch-defs', 'One line description of project.', 'Miscellaneous'
     ),
 ]
+
+# -- Sphinx.Ext.InterSphinx ------------------------------------------------------------------------
+
+intersphinx_mapping = {
+   'python':    ('https://docs.python.org/3.6/', None),
+   'symbiflow': ('https://symbiflow.readthedocs.io/en/latest/', None),
+   'examples':  ('https://symbiflow-examples.readthedocs.io/en/latest', None)
+}
 
 # -- Sphinx.Ext.ExtLinks ---------------------------------------------------------------------------
 
