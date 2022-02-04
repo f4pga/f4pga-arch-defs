@@ -102,9 +102,10 @@ texinfo_documents = [
 # -- Sphinx.Ext.InterSphinx ------------------------------------------------------------------------
 
 intersphinx_mapping = {
-   'python':    ('https://docs.python.org/3.6/', None),
-   'symbiflow': ('https://symbiflow.readthedocs.io/en/latest/', None),
-   'examples':  ('https://symbiflow-examples.readthedocs.io/en/latest', None)
+   'python':      ('https://docs.python.org/3.6/', None),
+   'symbiflow':   ('https://symbiflow.readthedocs.io/en/latest/', None),
+   'examples':    ('https://symbiflow-examples.readthedocs.io/en/latest', None),
+   'constraints': ('https://hdl.github.io/constraints/', None),
 }
 
 # -- Sphinx.Ext.ExtLinks ---------------------------------------------------------------------------
