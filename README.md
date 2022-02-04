@@ -37,7 +37,11 @@ The repo includes;
 The documentation can be generated using Sphinx.
 
 # Getting Started
-
+Before initializing submodules, your system should have CMake. CMake is a cross-platform and open software tool designed to build, test, and package the software.
+```
+Installing on Linux systems:
+From the Ubuntu application menu, launch the "Ubuntu Software Install". On the Ubuntu Software Search Bar at the top type CMake and press Enter. Press install beside the CMake icon.
+```
 To initialize submodules and setup the CMake build system, from the root of the `symbiflow-arch-defs` directory run:
 
 ```
