@@ -329,6 +329,44 @@ Point Bag to CHANX / CHANY decomposition
    Currently this logic does not optimize for the lowest required
    track count, instead aiming to be correct first.
 
+A note on 7-series channel wires
+--------------------------------
+
+Most of the channel wires in the 7-series FPGAs are named using the following convention:
+
+DDLL,
+
+where DD is a direction in NN, SS, EE, WW, NE, NW, SE, SW, standing for
+north, south, east, west, northeast, northwest, southeast, and southwest, respectively,
+and LL is an integer corresponding to the Manhattan length of the wire in the number of tiles it spans.
+Wires with LL=1 occur twice as often as the others, and the two copies of each are designated as NR and NL for NN,
+SR and SL for SS, etc. For more details as well as exceptions to the above convention, please see the following `paper <https://infoscience.epfl.ch/record/282696?ln=en>`_.
+
+
+Symbiflow representation of channel wires
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Most of the channel wires in the 7-series FPGAs are unidirectional meaning that they can pass signals only from a strictly defined starting end;
+a notable exception being the wires with `LL>11 <https://infoscience.epfl.ch/record/282696?ln=en>`_. Vivado typically designates the starting end
+by a _BEG suffix and the terminus by an _END suffix. Hence, PIPs connect the _END end to the _BEG end. In Symbiflow, the _BEG suffix is kept when defining all wire types.
+
+VPR offers the INC_DIR and DEC_DIR values of the direction attribute of the `nodes <https://docs.verilogtorouting.org/en/latest/vpr/file_formats/#nodes>`_ of the routing graph for describing unidirectional wires.
+For instance, a CHANX node with INC_DIR would correspond to an EE wire. However, it also offers the BI_DIR value which designates that a wire
+can be traversed in both directions. Symbiflow represents all channel wires as BI_DIR. Note that 1) the multiplexer driving the wire is represented
+in the VPR routing graph as a collection of edges incident to a common node representing the wire itself, which has no orientation on its own and 2)
+edges in a graph can be oriented, not nodes. Hence, this way of modeling is perfectly valid, even if INC_DIR may be a more common way of representing
+an EE wire.
+
+In order for the routing results to be legal, each unidirectional wire must be driven from its starting end, despite the fact that VPR would tolerate a BI_DIR wire
+being driven from the terminus. For example, if an EE2 wire is represented by a node with xlow="37" and xhigh="39" (exact numbers are arbitrary), its parents in the 
+routing graph should end closer to its start end in column 37. Note here that Symbiflow assumes that the y-axis points `down <https://github.com/SymbiFlow/symbiflow-arch-defs/blob/ca89898ab44cb5fd429968cc99a60feb53cb22c9/utils/tile_splitter/grid.py#L62>`_, whereas VPR assumes that it points `up <https://docs.verilogtorouting.org/en/latest/vpr/file_formats/#id3>`_.
+Hence, the start row of an NN2 wire with ylow="19" and yhigh="21" is 21, for example.
+
+An example of an actual wire and the section of the VPR routing graph which models it is given in the figure below.
+
+.. figure:: ../images/prjxray/ee2_example.svg
+
+
 Pin assignment
 --------------
 
