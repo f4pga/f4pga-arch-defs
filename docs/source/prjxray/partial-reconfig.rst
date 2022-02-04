@@ -1,30 +1,34 @@
-=================
 Xilinx 7 Series SymbiFlow Partial Reconfiguration Flow
-=================
+######################################################
 
 Note: SymbiFlow currently does not support partial bitstream generation. This is a goal in the future, but at the moment partial FASM must be concatenated with an overlay to generate a full bitstream.
 
 Background
-=================
+==========
 
 Partition Regions
 -----------------
+
 In this documentation the terms partition region and region of interest (ROI) are used interchangeably to refer to some smaller portion of a larger FPGA architecture.  This region may or may not align with frame boundaries, but the most tested use-case is for partition regions that are one clock region tall.
 
 Overlay Architecture
 --------------------
+
 The overlay architecture is essentially the "inverse" of all the partition regions in a design; it includes everything in the full device that is not in a partition region.  Typically this includes chip IOs and the PS region if the chip has one.
 
 Synthetic IO Tiles (Synth IOs)
 ------------------------------
+
 Synthetic IO tiles are "fake" IOs inserted into the partition region architecture so VPR will route top level IOs to a specific graph node. This method allows partition region architectures to interface with each other and the overlay.
 
 Vivado Node vs Wire
 -------------------
+
 A wire is a small electrically connected part of the FPGA contained within a single tile. A Vivado node is an electrically connected collection of wires that can span multiple tiles.
 
 Flow Overview
 =============
+
 A simplified view of the partition region flow is as follows:
 
 -  Define each partition region architecture
@@ -41,6 +45,7 @@ A simplified view of the partition region flow is as follows:
 
 Partition Region Example (switch_processing)
 ============================================
+
 This example contains two partition regions that are each about the size of one clock region.
 
 The goal of this test is to have two partition regions with identical interfaces so switch "data" can be passed through each region before being displayed on LEDs. Each partition region can then have an arbitrary module mapped to it that processes the data in some way before the output. The example modules used currently are an add_1 module, a blink module, and an identity module.
@@ -525,6 +530,7 @@ All of the following snippets are from `xc/xc7/tests/switch_processing/CMakeList
 .. _xc/xc7/tests/switch_processing/CMakeLists.txt: https://github.com/SymbiFlow/symbiflow-arch-defs/blob/master/xc/xc7/tests/switch_processing/CMakeLists.txt
 
 .. code-block:: RST
+
 	add_file_target(FILE switch_processing_add_1.v SCANNER_TYPE verilog)
 	add_fpga_target(
 	  NAME switch_processing_arty_add_1_pr1
@@ -563,6 +569,7 @@ All of the following snippets are from `xc/xc7/tests/switch_processing/CMakeList
 Here the add_1 and blink modules are mapped to pr1 and pr2 respectively. The identity function is then also mapped to each partition region.
 
 .. code-block:: RST
+
 	add_file_target(FILE switch_processing_arty_overlay.v SCANNER_TYPE verilog)
 	add_fpga_target(
 	  NAME switch_processing_arty_overlay
@@ -575,6 +582,7 @@ Here the add_1 and blink modules are mapped to pr1 and pr2 respectively. The ide
 Here the overlay verilog is mapped to the overlay architecture. This overlay verilog connects switches to the input of the first partition region, connects the output of the first partition region to the input of the second partition region, and then connects the output of the second partition region to LEDs.
 
 .. code-block:: RST
+
 	add_bitstream_target(
 	  NAME switch_processing_arty_both_merged
 	  USE_FASM
