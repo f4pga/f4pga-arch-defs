@@ -102,19 +102,32 @@ texinfo_documents = [
 # -- Sphinx.Ext.InterSphinx ------------------------------------------------------------------------
 
 intersphinx_mapping = {
-   'python':      ('https://docs.python.org/3.6/', None),
-   'symbiflow':   ('https://symbiflow.readthedocs.io/en/latest/', None),
-   'examples':    ('https://symbiflow-examples.readthedocs.io/en/latest', None),
-   'constraints': ('https://hdl.github.io/constraints/', None),
+    'python': ('https://docs.python.org/3.6/', None),
+    'symbiflow': ('https://symbiflow.readthedocs.io/en/latest/', None),
+    'examples': ('https://symbiflow-examples.readthedocs.io/en/latest', None),
+    'constraints': ('https://hdl.github.io/constraints/', None),
 }
 
 # -- Sphinx.Ext.ExtLinks ---------------------------------------------------------------------------
 
 extlinks = {
-   'wikipedia': ('https://en.wikipedia.org/wiki/%s', 'wikipedia:'),
-   'gh':        ('https://github.com/%s', 'gh:'),
-   'ghsharp': ('https://github.com/SymbiFlow/symbiflow-arch-defs/issues/%s', '#'),
-   'ghissue': ('https://github.com/SymbiFlow/symbiflow-arch-defs/issues/%s', 'issue #'),
-   'ghpull':  ('https://github.com/SymbiFlow/symbiflow-arch-defs/pull/%s', 'pull request #'),
-   'ghsrc':   ('https://github.com/SymbiFlow/symbiflow-arch-defs/blob/master/%s', '')
+    'wikipedia': ('https://en.wikipedia.org/wiki/%s', 'wikipedia:'),
+    'gh': ('https://github.com/%s', 'gh:'),
+    'ghsharp':
+        ('https://github.com/SymbiFlow/symbiflow-arch-defs/issues/%s', '#'),
+    'ghissue':
+        (
+            'https://github.com/SymbiFlow/symbiflow-arch-defs/issues/%s',
+            'issue #'
+        ),
+    'ghpull':
+        (
+            'https://github.com/SymbiFlow/symbiflow-arch-defs/pull/%s',
+            'pull request #'
+        ),
+    'ghsrc':
+        (
+            'https://github.com/SymbiFlow/symbiflow-arch-defs/blob/master/%s',
+            ''
+        )
 }
