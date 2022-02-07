@@ -72,9 +72,9 @@ dependencies:
   - rhash=1.4.1=h3c74f83_1
   - setuptools=58.0.4=py37h06a4308_0
   - sqlite=3.37.0=hc218d9a_0
-  - surelog=0.0_4027_g84b7eb870=20220114_081711_py37
+  - surelog=0.0_4154_ga3df4fddd=20220202_022309_py37
   - swig=4.0.2=h295c915_4
-  - symbiflow-yosys-plugins=1.0.0_7_599_gdb3a9c7=20220114_081711
+  - symbiflow-yosys-plugins=1.0.0_7_634_gd7ec931=20220202_022309
   - tbb=2020.3=hfd86e86_0
   - tk=8.6.11=h1ccaba5_0
   - typing_extensions=3.10.0.2=pyh06a4308_0
