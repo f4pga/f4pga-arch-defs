@@ -1,6 +1,5 @@
-=================
 VPR routing graph
-=================
+#################
 
 Database Contents
 =================
@@ -382,7 +381,7 @@ they also have FASM metadata to enable the **pip** in the bitstream.
       destinations with the same switch
 
 On the ROI and synthetic tiles
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 To avoid requiring support for IOB and clock networks for initial
 bringup activities, an ROI harness is used. The ROI harness brings some
