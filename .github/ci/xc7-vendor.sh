@@ -7,6 +7,10 @@ enable_vivado 2017.2
 
 export CMAKE_FLAGS="-GNinja"
 
+# Fix Xilinx TCL app store issues with multiple jobs:
+# https://support.xilinx.com/s/article/63253?language=en_US
+export XILINX_LOCAL_USER_DATA="no"
+
 source $(dirname "$0")/setup.sh
 
 set -e
