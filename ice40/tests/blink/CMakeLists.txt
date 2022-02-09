@@ -1,8 +1,8 @@
 set(BOARDS iceblink40-lp1k icestick)
 
-if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
+if (NOT LIGHT_BUILD)
 list(APPEND BOARDS hx8k-b-evn icevision tinyfpga-b2 tinyfpga-bx)
-endif (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
+endif (NOT LIGHT_BUILD)
 
 add_fpga_target_boards(
   NAME blink

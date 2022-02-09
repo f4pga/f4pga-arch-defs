@@ -49,27 +49,30 @@ fi
 
 function make_target() {
   target=$1
+  max_fail_tests=${3:-1}
 
-  if [ ! -v MAKE_JOBS ]; then
-    export MAKE_JOBS=$(nproc)
-    echo "Setting MAKE_JOBS to $MAKE_JOBS"
+  if [ ! -v MAX_CORES ]; then
+	  export MAX_CORES=$(nproc)
+    echo "Setting MAX_CORES to $MAX_CORES"
   fi;
 
-  export VPR_NUM_WORKERS=${MAKE_JOBS}
+
+
+  export VPR_NUM_WORKERS=${MAX_CORES}
 
   start_section "symbiflow.$target" "$2"
-  make_status=0
-  make -k -j${MAKE_JOBS} $target || make_status=$?
+  ninja_status=0
+  ninja -k$max_fail_tests -j${MAX_CORES} $target || ninja_status=$?
   end_section "symbiflow.$target"
 
   # When the build fails, produce the failure output in a clear way
-  if [ ${MAKE_JOBS} -ne 1 -a $make_status -ne 0 ]; then
+  if [ ${MAX_CORES} -ne 1 -a $ninja_status -ne 0 ]; then
     start_section "symbiflow.failure" "${RED}Build failure output..${NC}"
-    make -j1 $target
+    ninja -j1 $target
     end_section "symbiflow.failure"
     exit 1
   else
-    return $make_status
+    return $ninja_status
   fi
 }
 
@@ -90,6 +93,14 @@ function end_section() {
 	action_fold end "$1"
 }
 
-export PATH=$PWD/env/conda/bin:$PATH
-export CC=gcc-6
-export CXX=g++-6
+function enable_vivado() {
+    echo
+    echo "======================================="
+    echo "Creating Vivado Symbolic Link"
+    echo "---------------------------------------"
+	ln -s /mnt/aux/Xilinx /opt/Xilinx
+	ls /opt/Xilinx/Vivado
+	export XRAY_VIVADO_SETTINGS="/opt/Xilinx/Vivado/$1/settings64.sh"
+	source /opt/Xilinx/Vivado/$1/settings64.sh
+	vivado -version
+}
