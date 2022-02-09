@@ -34,7 +34,7 @@ set(ENV_DIR ${symbiflow-arch-defs_SOURCE_DIR}/env/conda/envs/symbiflow_arch_def_
 set(YOSYS_DATADIR ${ENV_DIR}/share/yosys CACHE PATH "Path to yosys data directory")
 set(OPENOCD_DATADIR ${ENV_DIR}/share/openocd CACHE PATH "Path to openocd data directory")
 set(VPR_CAPNP_SCHEMA_DIR ${ENV_DIR}/share/vtr CACHE PATH "Path to VPR schema directory")
-
+option(LIGHT_BUILD "Perform a light build for a quicker CI check" OFF)
 
 setup_env()
 add_env_executable(EXE yosys REQUIRED)
@@ -92,9 +92,9 @@ add_subdirectory(utils)
 add_subdirectory(vpr)
 add_subdirectory(library)
 # Disable 7-series support in CI because it consumes too much memory.
-if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
-add_subdirectory(xc)
-endif (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
+if (NOT LIGHT_BUILD)
+  add_subdirectory(xc)
+endif()
 add_subdirectory(ice40)
 add_subdirectory(quicklogic)
 add_subdirectory(testarch)
@@ -130,7 +130,7 @@ add_dependencies(all_ice40_route_tests
     all_dummy_ice40_hx1k_tq144_route
     )
 
-if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
+if (NOT LIGHT_BUILD)
 add_dependencies(all_ice40_demos
     all_icevision_bin
     all_hx8k-b-evn_bin
@@ -159,7 +159,7 @@ add_dependencies(all_quicklogic
 add_custom_target(all_xc7_route_tests)
 
 
-if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
+if (NOT LIGHT_BUILD)
 add_dependencies(all_xc7_route_tests
     all_dummy_artix7_xc7a50t-arty-swbut_test_route
     all_dummy_artix7_xc7a50t-arty-uart_test_route
@@ -168,7 +168,7 @@ add_dependencies(all_xc7_route_tests
 endif()
 
 add_custom_target(all_xc7_demos)
-if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
+if (NOT LIGHT_BUILD)
 add_dependencies(all_xc7_demos
     all_arty-swbut_bin
     all_arty-uart_bin
@@ -186,7 +186,7 @@ add_dependencies(all_xc7_demos
 endif()
 
 add_custom_target(all_xc7_diff_fasm)
-if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
+if (NOT LIGHT_BUILD)
 add_dependencies(all_xc7_diff_fasm
     all_artix7_diff_fasm
     all_artix7_100t_diff_fasm
@@ -201,14 +201,14 @@ add_dependencies(all_xc7
     all_xc7_route_tests
     all_xc7_tests
     )
-if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
+if (NOT LIGHT_BUILD)
 add_dependencies(all_xc7
     test_dram_packing
     )
 endif()
 
 add_custom_target(all_xc7_200t)
-if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
+if (NOT LIGHT_BUILD)
 add_dependencies(all_xc7_200t
     all_nexys_video_bin
     all_nexys_video-mid_bin

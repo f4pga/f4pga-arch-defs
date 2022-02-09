@@ -46,7 +46,7 @@ define_ice40_board(
   PACKAGE qn84
 )
 
-if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
+if (NOT LIGHT_BUILD)
 
 # iCE40-HX8K Breakout Board Evaluation Kit
 # iCE40-HX8K-CT256
@@ -90,4 +90,4 @@ define_ice40_board(
   PROG_CMD "${TINYPROG} -p \${OUT_BIN}"
 )
 
-endif (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
+endif (NOT LIGHT_BUILD)

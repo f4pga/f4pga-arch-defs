@@ -1,5 +1,5 @@
 set(FULL_BOARDS dummy_ice40_hx1k_tq144 qlf_k4n8-qlf_k4n8_umc22_slow_board)
-if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
+if (NOT LIGHT_BUILD)
 list(APPEND FULL_BOARDS dummy_artix7_xc7a50t-basys3_test)
 endif()
 set(SMALL_BOARDS dummy_testarch_4x4_dummy dummy_testarch_10x10_dummy)

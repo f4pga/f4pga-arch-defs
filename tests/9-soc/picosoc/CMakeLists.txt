@@ -1,4 +1,4 @@
-if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
+if (NOT LIGHT_BUILD)
 
 add_file_target(FILE spiflash.v SCANNER_TYPE verilog)
 
@@ -204,4 +204,4 @@ endforeach()
 
 # ============================================================================
 
-endif (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
+endif (NOT LIGHT_BUILD)

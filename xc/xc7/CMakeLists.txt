@@ -36,8 +36,6 @@ get_target_property_required(PYTEST env PYTEST)
 
 add_custom_target(
   test_python_xc7
-  DEPENDS
-    conda_pytest all_pip
   COMMAND ${CMAKE_COMMAND} -E env
     PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/third_party/prjxray:${symbiflow-arch-defs_SOURCE_DIR}/utils:${symbiflow-arch-defs_SOURCE_DIR}/third_party/prjxray/third_party/fasm
      ${PYTEST} --doctest-modules -vv
