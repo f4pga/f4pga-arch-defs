@@ -13,10 +13,15 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
+
 # import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
@@ -151,7 +156,11 @@ html_theme_options = {
     'show_footer': True
 }
 
-# -- Options for HTMLHelp output ------------------------------------------
+html_logo = str(ROOT / 'images/logo.svg')
+
+html_favicon = str(ROOT / 'images/favicon.svg')
+
+# -- Options for HTMLHelp output -------------------------------------------------------------------
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'symbiflow-arch-defsdoc'
