@@ -15,8 +15,6 @@
 
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent
-
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
@@ -100,7 +98,7 @@ html_theme = 'sphinx_materialdesign_theme'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-# html_static_path = ['_static']
+html_static_path = ['_static']
 
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
@@ -156,9 +154,8 @@ html_theme_options = {
     'show_footer': True
 }
 
-html_logo = str(ROOT / 'images/logo.svg')
-
-html_favicon = str(ROOT / 'images/favicon.svg')
+html_logo = str(Path(html_static_path[0]) / 'logo.svg')
+html_favicon = str(Path(html_static_path[0]) / 'favicon.svg')
 
 # -- Options for HTMLHelp output -------------------------------------------------------------------
 
