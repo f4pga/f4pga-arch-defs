@@ -104,3 +104,10 @@ function enable_vivado() {
 	source /opt/Xilinx/Vivado/$1/settings64.sh
 	vivado -version
 }
+
+function heading() {
+    echo
+    echo "========================================"
+    echo "$@"
+    echo "----------------------------------------"
+}

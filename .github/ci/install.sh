@@ -16,10 +16,7 @@ popd
 
 cp environment.yml install/
 
-echo
-echo "========================================"
-echo "Running installed toolchain tests"
-echo "----------------------------------------"
+heading "Running installed toolchain tests"
 (
 	pushd build
 	export VPR_NUM_WORKERS=${MAX_CORES}
@@ -29,10 +26,7 @@ echo "----------------------------------------"
 )
 echo "----------------------------------------"
 
-echo
-echo "========================================"
-echo "Compressing and uploading install dir"
-echo "----------------------------------------"
+heading "Compressing and uploading install dir"
 (
 	rm -rf build
 
