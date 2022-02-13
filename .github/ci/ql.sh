@@ -15,33 +15,20 @@ make_target all_quicklogic_tests "Running quicklogic OpenFPGA tests (make all_qu
 make_target install "Installing quicklogic toolchain (make install)"
 popd
 
-echo
-echo "========================================"
-echo "Running installed toolchain tests"
-echo "----------------------------------------"
+heading "Running installed toolchain tests"
 (
 	pushd build
 	export CTEST_OUTPUT_ON_FAILURE=1
-	echo
-	echo "========================================"
-	echo "Testing installed toolchain on qlf_k4n8"
-	echo "----------------------------------------"
+	heading "Testing installed toolchain on qlf_k4n8"
 	ctest -j${MAX_CORES} -R "quicklogic_toolchain_test_.*_qlf_k4n8" -VV || BUILD_RESULT=$?
 	echo "----------------------------------------"
-	echo
-	echo "========================================"
-	echo "Testing installed toolchain on ql_eos_s3"
-	echo "----------------------------------------"
+	heading "Testing installed toolchain on ql_eos_s3"
 	ctest -j${MAX_CORES} -R "quicklogic_toolchain_test_.*_ql-eos-s3" -VV || BUILD_RESULT=$?
 	echo "----------------------------------------"
-
 	popd
 )
 
-echo
-echo "========================================"
-echo "Compressing and uploading install dir"
-echo "----------------------------------------"
+heading "Compressing and uploading install dir"
 (
 	du -ah install
 	export GIT_HASH=$(git rev-parse --short HEAD)
