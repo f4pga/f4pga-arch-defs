@@ -3,12 +3,8 @@
 INSTALL_DIR="$(pwd)/install"
 
 export CMAKE_FLAGS="-GNinja -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} -DINSTALL_FAMILIES=xc7"
-source $(dirname "$0")/setup.sh
 
-set -e
-source $(dirname "$0")/common.sh
-
-source env/conda/bin/activate symbiflow_arch_def_base
+source $(dirname "$0")/setup-and-activate.sh
 
 pushd build
 make_target install "Running install tests (make install)"
