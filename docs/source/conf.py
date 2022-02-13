@@ -16,10 +16,10 @@ project = 'F4PGA Architecture Definitions'
 author = 'Various'
 copyright = f'{author}, 2018 - 2022'
 
-# The short X.Y version.
-version = '0.1'
-# The full version, including alpha/beta/rc tags.
-release = '0.1'
+# TODO:
+# These should be pulled from git-describe (if `git` is available).
+version = 'latest' # The short X.Y version.
+release = 'latest' # The full version, including alpha/beta/rc tags.
 
 master_doc = 'index'
 
