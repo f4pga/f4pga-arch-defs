@@ -25,5 +25,10 @@ Contents
    :maxdepth: 2
 
    getting-started
-   prjxray/index
    development/development
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Bitstream Documentation
+
+   prjxray/index
