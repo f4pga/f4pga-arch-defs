@@ -3,10 +3,11 @@
 import os
 import argparse
 
-from litex.boards.targets.arty import _CRG
+from litex_boards.targets.arty import _CRG as arty_CRG
+from litex_boards.targets.nexys_video import _CRG as nexys_video_CRG
 from liteeth.phy.mii import LiteEthPHYMII
 from litex.soc.cores.led import LedChaser
-from litex.boards.platforms import arty
+from litex_boards.platforms import arty, nexys_video
 from litex.soc.integration.soc_core import SoCCore
 from litex.soc.integration.builder import Builder
 from litex.soc.integration.soc_core import soc_core_args, soc_core_argdict
@@ -20,24 +21,38 @@ class BaseSoC(SoCCore):
     def __init__(
             self,
             toolchain="vivado",
-            sys_clk_freq=int(60e6),
+            sys_clk_freq=int(80e6),
             with_ethernet=False,
             with_ram=False,
-            board_variant="a7-35",
+            with_sata=False,
+            board="a7-35",
             **kwargs
     ):
 
-        platform = arty.Platform(variant=board_variant, toolchain=toolchain)
-        SoCCore.__init__(
-            self,
-            platform,
-            sys_clk_freq,
-            ident="LiteX SoC on Arty A7",
-            ident_version=False,
-            **kwargs
-        )
-
-        self.submodules.crg = _CRG(platform, sys_clk_freq, toolchain)
+        if board in ["a7-35", "a7-100"]:
+            platform = arty.Platform(variant=board, toolchain=toolchain)
+            SoCCore.__init__(
+                self,
+                platform,
+                sys_clk_freq,
+                ident="LiteX SoC on Arty A7",
+                ident_version=False,
+                **kwargs
+            )
+            self.submodules.crg = arty_CRG(platform, sys_clk_freq)
+        elif board == "nexys_video":
+            platform = nexys_video.Platform(toolchain)
+            SoCCore.__init__(
+                self,
+                platform,
+                sys_clk_freq,
+                ident="LiteX SoC on Nexys Video",
+                ident_version=True,
+                **kwargs
+            )
+            self.submodules.crg = nexys_video_CRG(
+                platform, sys_clk_freq, toolchain
+            )
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if with_ram:
@@ -67,6 +82,38 @@ class BaseSoC(SoCCore):
             self.add_csr("ethphy")
             self.add_ethernet(phy=self.ethphy)
 
+        if with_sata and board == "nexys_video":
+            from litex.build.generic_platform import Subsignal, Pins
+            from litesata.phy import LiteSATAPHY
+
+            # IOs
+            _sata_io = [
+                # AB09-FMCRAID / https://www.dgway.com/AB09-FMCRAID_E.html
+                (
+                    "fmc2sata", 0,
+                    Subsignal("clk_p", Pins("LPC:GBTCLK0_M2C_P")),
+                    Subsignal("clk_n", Pins("LPC:GBTCLK0_M2C_N")),
+                    Subsignal("tx_p", Pins("LPC:DP0_C2M_P")),
+                    Subsignal("tx_n", Pins("LPC:DP0_C2M_N")),
+                    Subsignal("rx_p", Pins("LPC:DP0_M2C_P")),
+                    Subsignal("rx_n", Pins("LPC:DP0_M2C_N"))
+                ),
+            ]
+            platform.add_extension(_sata_io)
+
+            # PHY
+            self.submodules.sata_phy = LiteSATAPHY(
+                platform.device,
+                pads=platform.request("fmc2sata"),
+                gen="gen2",
+                clk_freq=sys_clk_freq,
+                data_width=16
+            )
+            self.add_csr("sata_phy")
+
+            # Core
+            self.add_sata(phy=self.sata_phy, mode="read+write")
+
         self.submodules.leds = LedChaser(
             pads=platform.request_all("user_led"), sys_clk_freq=sys_clk_freq
         )
@@ -90,7 +137,12 @@ def main():
         "--with-ram", action="store_true", help="Enable Main RAM"
     )
     parser.add_argument(
-        "--board", default="a7-35", help="Specifies Arty Board version"
+        "--with-sata",
+        action="store_true",
+        help="Enable SATA support (over FMCRAID)"
+    )
+    parser.add_argument(
+        "--board", default="a7-35", help="Specifies LiteX Board"
     )
     parser.add_argument("--builddir", help="Build directory")
 
@@ -98,15 +150,16 @@ def main():
     vivado_build_args(parser)
     args = parser.parse_args()
 
-    if args.board not in ["a7-35", "a7-100"]:
-        raise ValueError("Unsupported device variant!")
+    if args.board not in ["a7-35", "a7-100", "nexys_video"]:
+        raise ValueError("Unsupported board!")
 
     soc = BaseSoC(
         toolchain=args.toolchain,
-        sys_clk_freq=int(60e6),
+        sys_clk_freq=int(80e6),
         with_ethernet=args.with_ethernet,
         with_ram=args.with_ram,
-        board_variant=args.board,
+        with_sata=args.with_sata,
+        board=args.board,
         **soc_core_argdict(args)
     )
 
