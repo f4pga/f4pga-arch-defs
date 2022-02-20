@@ -1,30 +1,30 @@
-====================================================
-Getting Started with SymbiFlow Toolchain development
-====================================================
+
+Getting Started with F4PGA Toolchain development
+################################################
 
 .. warning::
+   This documentation explains the first steps in the development of the toolchain itself.
+   If you are looking for the **user documentation**, please look at https://f4pga-examples.readthedocs.io/en/latest/ instead.
 
-   This documentation explains the first steps in the development of the toolchain itself. If you are looking for the **user documentation**, please look at https://symbiflow-examples.readthedocs.io/en/latest/ instead.
-
-This section provides an introduction on how to get started with the development of the SymbiFlow toolchain.
+This section provides an introduction on how to get started with the development of the F4PGA toolchain.
 In order to generate a bitstream (or any intermediate file format), you can use one of the toolchain tests.
 The following steps describe the whole process:
 
 Clone repository
-----------------
+================
 
 .. code-block:: bash
 
-    git clone https://github.com/SymbiFlow/symbiflow-arch-defs.git
+    git clone https://github.com/chipsalliance/f4pga-arch-defs.git
 
 Prepare environment
--------------------
+===================
 
 Download all the necessary packages, tools and databases into an isolated conda environment:
 
 .. code-block:: bash
 
-    cd symbiflow-arch-defs
+    cd f4pga-arch-defs
     make env
 
 This also checks out all the submodules and generates the build system (``Make`` or ``Ninja``) from the CMake configuration.
@@ -35,7 +35,7 @@ If you want to use the ``Ninja`` build tool add this line before calling ``make 
     export CMAKE_FLAGS="-GNinja"
 
 Build example
--------------
+=============
 
 While different architectures provide different build targets, there are some targets that should exist for all architectures.
 
@@ -70,15 +70,17 @@ If you use ``Ninja`` then the target is accessible from root build directory:
     Generating architecture files is expected to take a long time to build, even on fast machines.
 
 Load bitstream
---------------
+==============
 
 The last step is to load the bitstream to your platform.
 The final output file can be found in the appropriate test directory, i.e:
 ``build/xc/xc7/tests/counter/counter_arty/artix7-xc7a50t-arty-swbut-roi-virt-xc7a50t-arty-swbut-test/top.bit``
 
 For every board the loading process may be different and different tools will be required.
-``OpenOCD`` is the most widely used tool for loading bitstream in the Symbiflow Toolchain. It is provided as a conda
-package during the environment setup and ``CMake`` keeps track of its executable. Other programming tools used in Symbiflow that are automatically downloaded and referenced by ``CMake`` are ``tinyfpgab`` and ``tinyprog``.
+``OpenOCD`` is the most widely used tool for loading bitstream in the F4PGA Toolchain.
+It is provided as a conda package during the environment setup and ``CMake`` keeps track of its executable.
+Other programming tools used in F4PGA that are automatically downloaded and referenced by ``CMake`` are ``tinyfpgab``
+and ``tinyprog``.
 
 For convenience the ``prog`` targets are provided for loading the bitstream, e.g.:
 
@@ -93,14 +95,13 @@ or for ``Ninja``:
     ninja counter_arty_prog
 
 .. note::
-
-        Loading the bitstream into an FPGA can be done outside of the Symbiflow.
-        There are multiple tools for loading bitstreams into FPGA development boards.
-        Typically, each tool supports a specific target family or the lines
-        of products of a vendor. Some of the most known are listed in `hdl/constraints/prog <https://github.com/hdl/constraints/tree/main/prog>`_
+    Loading the bitstream into an FPGA can be done outside of the F4PGA.
+    There are multiple tools for loading bitstreams into FPGA development boards.
+    Typically, each tool supports a specific target family or the lines
+    of products of a vendor. Some of the most known are listed in `hdl/constraints/prog <https://github.com/hdl/constraints/tree/main/prog>`_
 
 OpenFPGALoader
-++++++++++++++
+--------------
 
 OpenFPGALoader is an universal utility for programming the FPGA devices that is
 a great alternative to OpenOCD. It supports many different boards with FPGAs
