@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# symbiflow-arch-defs documentation build configuration file, created by
+# f4pga-arch-defs documentation build configuration file, created by
 # sphinx-quickstart on Thu Oct 18 14:29:14 2018.
 #
 # This file is execfile()d with the current directory set to its
@@ -51,7 +51,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'Symbiflow Architecture Definitions'
+project = 'F4PGA Architecture Definitions'
 copyright = '2018-2022, Various'
 author = 'Various'
 
@@ -80,7 +80,7 @@ html_show_sourcelink = True
 html_theme = 'sphinx_symbiflow_theme'
 
 html_theme_options = {
-    'github_url': 'https://github.com/SymbiFlow/symbiflow-arch-defs',
+    'github_url': 'https://github.com/chipsalliance/f4pga-arch-defs',
     'globaltoc_collapse': True,
     'color_primary': 'indigo',
     'color_accent': 'blue',
@@ -97,7 +97,7 @@ html_favicon = str(Path(html_static_path[0]) / 'favicon.svg')
 # -- Options for HTMLHelp output -------------------------------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'symbiflow-arch-defsdoc'
+htmlhelp_basename = 'f4pga-arch-defsdoc'
 
 # -- Options for LaTeX output ---------------------------------------------
 
@@ -124,8 +124,8 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (
-        master_doc, 'symbiflow-arch-defs.tex',
-        'symbiflow-arch-defs Documentation', 'Various', 'manual'
+        master_doc, 'f4pga-arch-defs.tex', 'f4pga-arch-defs Documentation',
+        'Various', 'manual'
     ),
 ]
 
@@ -135,7 +135,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     (
-        master_doc, 'symbiflow-arch-defs', 'symbiflow-arch-defs Documentation',
+        master_doc, 'f4pga-arch-defs', 'f4pga-arch-defs Documentation',
         [author], 1
     )
 ]
@@ -147,8 +147,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (
-        master_doc, 'symbiflow-arch-defs', 'symbiflow-arch-defs Documentation',
-        author, 'symbiflow-arch-defs', 'One line description of project.',
-        'Miscellaneous'
+        master_doc, 'f4pga-arch-defs', 'f4pga-arch-defs Documentation', author,
+        'f4pga-arch-defs', 'One line description of project.', 'Miscellaneous'
     ),
 ]

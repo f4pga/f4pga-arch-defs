@@ -1,5 +1,5 @@
-SymbiFlow Architecture Definitions
-==================================
+F4PGA Architecture Definitions
+==============================
 
 ***Warning: This project is a work in progress and many items may be broken.***
 

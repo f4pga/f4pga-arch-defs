@@ -311,7 +311,7 @@ Channel formation
 
 All nodes that were classified as CHANNEL type need to assigned CHANX
 and CHANY dimensions. This is done via
-`make_tracks <https://github.com/SymbiFlow/symbiflow-arch-defs/blob/master/utils/lib/rr_graph/tracks.py>`_.
+`make_tracks <https://github.com/chipsalliance/f4pga-arch-defs/blob/master/utils/lib/rr_graph/tracks.py>`_.
 make_tracks takes a point bag containing all of the source and sink grid
 locations for a particular channel. It returns straight lines such that
 all sources and sink grid locations can route on to or off of the
