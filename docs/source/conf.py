@@ -80,6 +80,7 @@ html_show_sourcelink = True
 html_theme = 'sphinx_symbiflow_theme'
 
 html_theme_options = {
+    'repo_name': 'chipsalliance/f4pga-arch-defs',
     'github_url': 'https://github.com/chipsalliance/f4pga-arch-defs',
     'globaltoc_collapse': True,
     'color_primary': 'indigo',
