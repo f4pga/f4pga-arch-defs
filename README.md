@@ -1,33 +1,36 @@
-# SymbiFlow Architecture Definitions
+# F4PGA Architecture Definitions
 
-**This repository is used during the development of architecture support in SymbiFlow, if you are looking to use the toolchain you should start with the [symbiflow-examples repository](https://github.com/SymbiFlow/symbiflow-examples).**
+**This repository is used during the development of architecture support in F4PGA, if you are looking to use the**
+**toolchain you should start with the [f4pga-examples repository](https://github.com/chipsalliance/f4pga-examples).**
 
-![License status](https://img.shields.io/github/license/SymbiFlow/symbiflow-arch-defs)
-[![Build Status](https://travis-ci.org/SymbiFlow/symbiflow-arch-defs.svg?branch=master)](https://travis-ci.org/SymbiFlow/symbiflow-arch-defs)
-[![Documentation Status](https://readthedocs.org/projects/symbiflow-arch-defs/badge/?version=latest)](https://symbiflow.readthedocs.io/projects/arch-defs/en/latest/?badge=latest)
+![License status](https://img.shields.io/github/license/SymbiFlow/f4pga-arch-defs)
+[![Documentation Status](https://readthedocs.org/projects/symbiflow-arch-defs/badge/?version=latest)](https://f4pga.readthedocs.io/projects/arch-defs/)
 
-This repo contains documentation of various FPGA architectures, it is currently
-concentrating on;
+This repo contains documentation of various FPGA architectures, it is currently concentrating on:
 
- * [Lattice iCE40](ice40)
- * [Xilinx Series 7 (Artix 7 and Zynq 7)](xc/xc7)
- * [QuickLogic](quicklogic)
+* [Lattice iCE40](ice40)
+* [Xilinx Series 7 (Artix 7 and Zynq 7)](xc/xc7)
+* [QuickLogic](quicklogic)
 
- * Kokoro Build Status
-   * [![Test Architectures Status](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/testarch.svg)](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/testarch.html)
+* Kokoro Build Status
 
-   * [![Lattice iCE40 Status](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/ice40.svg)](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/ice40.html)
+  * [![Test Architectures Status](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/testarch.svg)](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/testarch.html)
 
-   * [![Xilinx Series 7 Status](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/xc7.svg)](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/xc7.html) ||
-     [![Xilinx Series 7 - Vendor Tool Tests Status](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/xc7_vendor.svg)](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/xc7_vendor.html) ||
-     [![Xilinx Series 7 - Install](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/install.svg)](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/xc7a200t_vendor.html)
-     [![Xilinx XC7A200T Status](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/xc7a200t.svg)](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/xc7a200t.html) ||
-     [![Xilinx XC7A200T - Vendor Tool Tests Status](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/xc7a200t_vendor.svg)](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/xc7a200t_vendor.html)
+  * [![Lattice iCE40 Status](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/ice40.svg)](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/ice40.html)
 
-The aim is to include useful documentation (both human and machine readable) on the primitives and routing infrastructure for these architectures.
+  * Xilinx Series 7:
+
+    * [![Xilinx Series 7 Status](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/xc7.svg)](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/xc7.html)
+    * [![Xilinx Series 7 - Vendor Tool Tests Status](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/xc7_vendor.svg)](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/xc7_vendor.html)
+    * [![Xilinx Series 7 - Install](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/install.svg)](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/xc7a200t_vendor.html)
+    * [![Xilinx XC7A200T - Status](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/xc7a200t.svg)](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/xc7a200t.html)
+    * [![Xilinx XC7A200T - Vendor Tool Tests Status](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/xc7a200t_vendor.svg)](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/xc7a200t_vendor.html)
+
+The aim is to include useful documentation (both human and machine readable) on the primitives and routing
+infrastructure for these architectures.
 We hope this enables growth in the open source FPGA tools space.
 
-The repo includes;
+The repo includes:
 
  * Black box part definitions
  * Verilog simulations
@@ -38,15 +41,15 @@ The documentation can be generated using Sphinx.
 
 # Getting Started
 
-To initialize submodules and setup the CMake build system, from the root of the `symbiflow-arch-defs` directory run:
+To initialize submodules and setup the CMake build system, from the root of the `f4pga-arch-defs` directory run:
 
-```
+```bash
 make env
 ```
 
 To build all demo bitstreams there are 3 useful targets:
 
-```
+```bash
 # Build all demo bitstreams, targetting all architectures
 make all_demos
 
@@ -62,7 +65,7 @@ For example, the LUT-RAM test for the RAM64X1D primative is called `dram_test_64
 Example targets are:
 
 
-```
+```bash
 # Just run synthesis on the input Verilog
 make dram_test_64x1d_eblif
 
@@ -84,10 +87,10 @@ make dram_test_64x1d_vivado
  * [`third_party/icestorm`](https://github.com/cliffordwolf/icestorm/)
    Bitstream and timing database + tools for the Lattice iCE40.
 
- * [`third_party/prjxray`](https://github.com/SymbiFlow/prjxray/)
+ * [`third_party/prjxray`](https://github.com/f4pga/prjxray/)
    Tools for the Xilinx Series 7 parts.
 
- * [`third_party/prjxray-db`](https://github.com/SymbiFlow/prjxray-db/)
+ * [`third_party/prjxray-db`](https://github.com/f4pga/prjxray-db/)
    Bitstream and timing database for the Xilinx Series 7 parts.
 
 ## Tools installed via conda
@@ -95,7 +98,7 @@ make dram_test_64x1d_vivado
  * [yosys](https://github.com/YosysHQ/yosys)
    Verilog parsing and synthesis.
 
- * [vtr](https://github.com/SymbiFlow/vtr-verilog-to-routing)
+ * [vtr](https://github.com/verilog-to-routing/vtr-verilog-to-routing)
    Place and route tool.
 
  * [iverilog](https://github.com/steveicarus/iverilog)
@@ -134,14 +137,16 @@ To run examples provided, please make sure these resources are available:
 
 ## Development notes
 
-Because symbiflow-arch-defs relies on yosys and VPR, it may be useful to override the default packaged binaries with locally supplied binaries.
+Since Architecture Definitons rely on yosys and VPR, it may be useful to override the default packaged binaries with
+locally supplied binaries.
 The build system allows this via environment variables matching the executable name.
 Here is a list of common environment variables to defined when doing local yosys and VPR development.
 
- - YOSYS : Path to yosys executable to use.
- - VPR : Path to VPR executable to use.
- - GENFASM : Path genfasm executable to use.
+* YOSYS : Path to yosys executable to use.
+* VPR : Path to VPR executable to use.
+* GENFASM : Path genfasm executable to use.
 
-There are more binaries that are packaged (e.g. VVP), but the packaged versions are typically good enough for most use cases.
+There are more binaries that are packaged (e.g. VVP), but the packaged versions are typically good enough for most use
+cases.
 
 After setting or clearing one of these environment variables, CMake needs to be re-run.
