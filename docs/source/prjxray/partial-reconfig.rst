@@ -1,7 +1,10 @@
-Xilinx 7 Series SymbiFlow Partial Reconfiguration Flow
-######################################################
+Xilinx 7 Series F4PGA Partial Reconfiguration Flow
+##################################################
 
-Note: SymbiFlow currently does not support partial bitstream generation. This is a goal in the future, but at the moment partial FASM must be concatenated with an overlay to generate a full bitstream.
+.. Note::
+  F4PGA currently does not support partial bitstream generation.
+  This is a goal in the future, but at the moment partial FASM must be concatenated with an overlay to generate a full
+  bitstream.
 
 Background
 ==========
