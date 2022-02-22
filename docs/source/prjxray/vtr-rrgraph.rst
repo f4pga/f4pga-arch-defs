@@ -72,7 +72,7 @@ PIP
 | is_directional  | True or False                                             |
 +-----------------+-----------------------------------------------------------+
 
-.. figure:: ../images/prjxray/rrgraph-wire.svg
+.. figure:: ../_static/images/prjxray/rrgraph-wire.svg
 
 A 7-Series part contains nodes, which consist of **tile wires**. **Tile
 wires** are sourced either from a **site pin** or a **pip** or a **tile
@@ -181,7 +181,7 @@ not do this isolation.
 The detiled description about  **switch** types can be found in
 `VTR documentation <http://docs.verilogtorouting.org/en/latest/arch/reference/#arch-switches>`_ .
 
-.. figure:: ../images/prjxray/vpr-rrgraph-types.svg
+.. figure:: ../_static/images/prjxray/vpr-rrgraph-types.svg
 
 So **edges** connect **nodes** together, but what are the **nodes**
 themselves? **Nodes** are either a source/sink (e.g. a **site pin**) or
@@ -247,7 +247,7 @@ output are generated:
 
 Click on the figure below to zoom-in:
 
-.. thumbnail:: ../images/prjxray/import-flow.png
+.. thumbnail:: ../_static/images/prjxray/import-flow.png
 
    This diagram shows the importing flow for Project X-Ray.
 
@@ -293,7 +293,7 @@ The classification is broken down into the following categories:
 -  EDGES_TO_CHANNEL - A node that sources and sinks from a **site pin**
    and connects via a **pip** to a CHANNEL
 
-.. figure:: ../images/prjxray/import-wire-class.svg
+.. figure:: ../_static/images/prjxray/import-wire-class.svg
 
 There is another classification EDGE_WITH_SHORT, which is a direct
 connection between two **site pins**. This does not appear to occur in
@@ -311,7 +311,7 @@ Channel formation
 
 All nodes that were classified as CHANNEL type need to assigned CHANX
 and CHANY dimensions. This is done via
-`make_tracks <https://github.com/SymbiFlow/symbiflow-arch-defs/blob/master/utils/lib/rr_graph/tracks.py>`_.
+`make_tracks <https://github.com/chipsalliance/f4pga-arch-defs/blob/master/utils/lib/rr_graph/tracks.py>`_.
 make_tracks takes a point bag containing all of the source and sink grid
 locations for a particular channel. It returns straight lines such that
 all sources and sink grid locations can route on to or off of the
@@ -320,7 +320,7 @@ channel.
 Point Bag to CHANX / CHANY decomposition
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. figure:: ../images/prjxray/vtr-rrgraph.png
+.. figure:: ../_static/images/prjxray/vtr-rrgraph.png
    :width: 100%
 
 .. note::
