@@ -13,7 +13,7 @@ export XILINX_LOCAL_USER_DATA="no"
 
 source $(dirname "$0")/setup.sh
 
-source env/conda/bin/activate symbiflow_arch_def_base
+source env/conda/bin/activate f4pga_arch_def_base
 
 pushd build
 

@@ -30,7 +30,7 @@ add_custom_target(all_xc7_tests)
 add_custom_target(all_ice40_tests)
 add_custom_target(all_quicklogic_tests)
 
-set(ENV_DIR ${symbiflow-arch-defs_SOURCE_DIR}/env/conda/envs/symbiflow_arch_def_base/ CACHE PATH "Path to environment")
+set(ENV_DIR ${symbiflow-arch-defs_SOURCE_DIR}/env/conda/envs/f4pga_arch_def_base/ CACHE PATH "Path to environment")
 set(YOSYS_DATADIR ${ENV_DIR}/share/yosys CACHE PATH "Path to yosys data directory")
 set(OPENOCD_DATADIR ${ENV_DIR}/share/openocd CACHE PATH "Path to openocd data directory")
 set(VPR_CAPNP_SCHEMA_DIR ${ENV_DIR}/share/vtr CACHE PATH "Path to VPR schema directory")

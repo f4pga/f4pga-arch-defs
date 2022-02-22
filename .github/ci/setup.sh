@@ -40,7 +40,7 @@ start_section "symbiflow.configure_cmake" "Configuring CMake (make env)"
 make env
 end_section "symbiflow.configure_cmake"
 
-source env/conda/bin/activate symbiflow_arch_def_base
+source env/conda/bin/activate f4pga_arch_def_base
 
 # Output some useful info
 start_section "info.conda.env" "Info on ${YELLOW}conda environment${NC}"
