@@ -95,7 +95,7 @@ or for ``Ninja``:
     ninja counter_arty_prog
 
 .. note::
-    Loading the bitstream into an FPGA can be done outside of the Symbiflow.
+    Loading the bitstream into an FPGA can be done outside of the F4PGA.
     There are multiple tools for loading bitstreams into FPGA development boards.
     Typically, each tool supports a specific target family or the lines of products of a vendor.
     Some of the most known are listed in :ref:`hdl/constraints: Programming and debugging <constraints:ProgDebug>`.
