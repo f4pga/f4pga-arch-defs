@@ -105,6 +105,7 @@ intersphinx_mapping = {
     'python': ('https://docs.python.org/3.6/', None),
     'f4pga': ('https://f4pga.readthedocs.io/en/latest/', None),
     'examples': ('https://f4pga-examples.readthedocs.io/en/latest', None),
+    'prjxray': ('https://prjxray.readthedocs.io/en/latest/', None),
     'constraints': ('https://hdl.github.io/constraints/', None),
 }
 
