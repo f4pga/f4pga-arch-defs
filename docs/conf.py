@@ -37,7 +37,7 @@ source_suffix = '.rst'
 
 language = None
 
-exclude_patterns = []
+exclude_patterns = ['_buld']
 
 pygments_style = 'default'
 
