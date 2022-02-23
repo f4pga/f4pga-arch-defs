@@ -9,7 +9,7 @@ if "%SPHINXBUILD%" == "" (
 )
 set SOURCEDIR=.
 set BUILDDIR=build
-set SPHINXPROJ=symbiflow-arch-defs
+set SPHINXPROJ=f4pga-arch-defs
 
 if "%1" == "" goto help
 

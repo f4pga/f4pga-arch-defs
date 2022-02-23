@@ -144,7 +144,7 @@ The last step before switching over to adding a test is adding to ``boards.cmake
 This defines a separate board for each of the partition regions and overlay so they can be mapped to separately.
 
 Now to define a test.
-This part of the documentation will not go in detail on how to define a new test case in symbiflow-arch-defs, but will
+This part of the documentation will not go in detail on how to define a new test case in f4pga-arch-defs, but will
 point out items of importance for using the partial reconfiguration flow.
 
 All of the following snippets are from :ghsrc:`xc/xc7/tests/switch_processing/CMakeLists.txt`.
@@ -237,7 +237,7 @@ By varying which targets are included different functionality is created without
 it has been done once.
 Just concatenate the resulting FASM and get different functionality.
 
-The last thing to cover related to the SymbiFlow partial reconfiguration flow is synthetic ibufs and obufs required in
+The last thing to cover related to the F4PGA partial reconfiguration flow is synthetic ibufs and obufs required in
 the overlay verilog:
 
 :ghsrc:`switch_processing_arty_overlay.v <xc/xc7/tests/switch_processing/switch_processing_arty_overlay.v>`
