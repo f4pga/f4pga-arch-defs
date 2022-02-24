@@ -4,7 +4,7 @@ Getting Started with F4PGA Toolchain development
 
 .. warning::
    This documentation explains the first steps in the development of the toolchain itself.
-   If you are looking for the **user documentation**, please look at https://f4pga-examples.readthedocs.io/en/latest/ instead.
+   If you are looking for the **user documentation**, please look at :doc:`examples:index` instead.
 
 This section provides an introduction on how to get started with the development of the F4PGA toolchain.
 In order to generate a bitstream (or any intermediate file format), you can use one of the toolchain tests.
@@ -43,11 +43,11 @@ Each architecture has its own toolchain backend that will be called during build
 (See `Project X-Ray <https://prjxray.readthedocs.io/en/latest/>`_
 and `Project Trellis <https://prjtrellis.readthedocs.io/en/latest/>`_ for more information)
 
-For development purposes a set of test designs are included for each supported architecture. In order to perform a build
-of a test design with the ``Make`` build system enter the appropriate test build directory specific to your target architecture
-and invoke desired make target.
-Assuming that you would like to generate the bitstream ``.bit`` file with the counter example for the Arty board, which uses Xilinx Artix-7 FPGA,
-you will execute the following:
+For development purposes a set of test designs are included for each supported architecture.
+In order to perform a build of a test design with the ``Make`` build system enter the appropriate test build directory
+specific to your target architecture and invoke desired make target.
+Assuming that you would like to generate the bitstream ``.bit`` file with the counter example for the Arty board, which
+uses Xilinx Artix-7 FPGA, you will execute the following:
 
 .. code-block:: bash
 
@@ -97,27 +97,26 @@ or for ``Ninja``:
 .. note::
     Loading the bitstream into an FPGA can be done outside of the F4PGA.
     There are multiple tools for loading bitstreams into FPGA development boards.
-    Typically, each tool supports a specific target family or the lines
-    of products of a vendor. Some of the most known are listed in `hdl/constraints/prog <https://github.com/hdl/constraints/tree/main/prog>`_
+    Typically, each tool supports a specific target family or the lines of products of a vendor.
+    Some of the most known are listed in :ref:`hdl/constraints: Programming and debugging <constraints:ProgDebug>`.
 
 OpenFPGALoader
 --------------
 
-OpenFPGALoader is an universal utility for programming the FPGA devices that is
-a great alternative to OpenOCD. It supports many different boards with FPGAs
-based on the architectures including xc7, ECP5, iCE40 and many more. It can utilize
-a variety of the programming adapters based on JTAG, DAP interface, ORBTrace,
-DFU and FTDI chips.
+OpenFPGALoader is an universal utility for programming the FPGA devices that is a great alternative to OpenOCD.
+It supports many different boards with FPGAs based on the architectures including xc7, ECP5, iCE40 and many more.
+It can utilize a variety of the programming adapters based on JTAG, DAP interface, ORBTrace, DFU and FTDI chips.
 
 Installing OpenFPGALoader
 *************************
 
-OpenFPGALoader is available in several packaging solutions. It can be installed
-with distribution specific package managers on Arch Linux and Fedora.
-There are also prebuilt packages available in `conda <https://anaconda.org/litex-hub/openfpgaloader>`_
-or packages in tool `repository <https://github.com/trabucayre/openFPGALoader/releases>`_.
-OpenFPGALoader can also be built from sources. For installation guidelines
-using both prebuilt packages and building from source please refer to instructions in `readme <https://github.com/trabucayre/openFPGALoader/blob/master/INSTALL.md>`_.
+OpenFPGALoader is available in several packaging solutions.
+It can be installed with distribution specific package managers on Arch Linux and Fedora.
+There are also prebuilt packages available in `conda <https://anaconda.org/litex-hub/openfpgaloader>`__
+or packages in tool :gh:`repository <trabucayre/openFPGALoader/releases>`.
+OpenFPGALoader can also be built from sources.
+For installation guidelines using both prebuilt packages and building from source please refer to instructions in
+:gh:`readme <trabucayre/openFPGALoader/blob/master/INSTALL.md>`.
 
 Usage
 *****
@@ -126,18 +125,17 @@ For programming the FPGA use one of these commands:
 
 .. code-block:: bash
 
-        openFPGALoader -b <board> <bitstream>           # (e.g. arty)
-        openFPGALoader -c <cable> <bitstream>           # (e.g. digilent)
-        openFPGALoader -d <device> <bitstream>          # (e.g. /dev/ttyUSB0)
+    openFPGALoader -b <board> <bitstream>           # (e.g. arty)
+    openFPGALoader -c <cable> <bitstream>           # (e.g. digilent)
+    openFPGALoader -d <device> <bitstream>          # (e.g. /dev/ttyUSB0)
 
 You can also list the supported boards, cables and fpgas:
 
 .. code-block:: bash
 
-        openFPGALoader --list-boards
-        openFPGALoader --list-cables
-        openFPGALoader --list-fpga
+    openFPGALoader --list-boards
+    openFPGALoader --list-cables
+    openFPGALoader --list-fpga
 
-If you encounter any issues, please refer to the `OpenFPGALoader README <https://github.com/trabucayre/openFPGALoader#readme>`_
-as it provides more useful information on the usage of the tool.
-
+If you encounter any issues, please refer to the :gh:`OpenFPGALoader README <trabucayre/openFPGALoader#readme>` as it
+provides more useful information on the usage of the tool.
