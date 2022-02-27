@@ -32,3 +32,13 @@ Contents
    :caption: Bitstream Documentation
 
    prjxray/index
+
+.. toctree::
+   :caption: pyF4PGA Reference
+   :maxdepth: 2
+
+   f4pga/GettingStarted
+   f4pga/CommonTargetsAndVariables
+   f4pga/Module
+   f4pga/common/index
+   f4pga/DevNotes
