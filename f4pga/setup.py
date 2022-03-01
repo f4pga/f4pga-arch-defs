@@ -46,7 +46,7 @@ setuptools_setup(
     install_requires=list(set(get_requirements(requirementsFile))),
     entry_points={
         "console_scripts": [
-            "f4pga = f4pga.sfbuild:main",
+            "f4pga = f4pga.__init__:main",
         ]
     },
 )
