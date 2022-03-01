@@ -1,7 +1,7 @@
 """ The "ugly" module is dedicated for some *ugly* workarounds """
 
 import os
-import f4pga.sf_common
+import f4pga.common
 
 def noisy_warnings():
     """ Emit some noisy warnings """
@@ -13,7 +13,7 @@ def generate_values():
     """ Generate initial values, available in configs """
 
     return{
-        'prjxray_db': sf_common.sub('prjxray-config').decode().replace('\n', ''),
-        'python3': sf_common.sub('which', 'python3').decode().replace('\n', ''),
+        'prjxray_db': common.sub('prjxray-config').decode().replace('\n', ''),
+        'python3': common.sub('which', 'python3').decode().replace('\n', ''),
         'noisyWarnings': noisy_warnings()
     }
