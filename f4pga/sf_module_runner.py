@@ -3,8 +3,8 @@
 from contextlib import contextmanager
 import importlib
 import os
-from sf_module import Module, ModuleContext, get_mod_metadata
-from sf_common import ResolutionEnv, deep, sfprint
+from f4pga.sf_module import Module, ModuleContext, get_mod_metadata
+from f4pga.sf_common import ResolutionEnv, deep, sfprint
 from colorama import Fore, Style
 
 _realpath_deep = deep(os.path.realpath)
@@ -36,7 +36,7 @@ def get_module(path: str):
     cached = preloaded_modules.get(path)
     if cached:
         return cached.ModuleClass
-    
+
     mod = import_module_from_path(path)
     preloaded_modules[path] = mod
 
@@ -53,7 +53,7 @@ class ModRunCtx:
         self.share = share
         self.bin = bin
         self.config = config
-    
+
     def make_r_env(self):
         return ResolutionEnv(self.config['values'])
 
@@ -66,7 +66,7 @@ class ModuleFailException(Exception):
         self.module = module
         self.mode = mode
         self.e = e
-    
+
     def __str__(self) -> str:
         return f'ModuleFailException:\n  Module `{self.module}` failed ' \
                f'MODE: \'{self.mode}\'\n\nException `{type(self.e)}`: {self.e}'
@@ -81,11 +81,11 @@ def module_io(module: Module):
 
 def module_map(module: Module, ctx: ModRunCtx):
     try:
-        mod_ctx = ModuleContext(module, ctx.config, ctx.make_r_env(), ctx.share, 
+        mod_ctx = ModuleContext(module, ctx.config, ctx.make_r_env(), ctx.share,
                                 ctx.bin)
     except Exception as e:
         raise ModuleFailException(module.name, 'map', e)
-    
+
     return _realpath_deep(vars(mod_ctx.outputs))
 
 def module_exec(module: Module, ctx: ModRunCtx):
@@ -94,7 +94,7 @@ def module_exec(module: Module, ctx: ModRunCtx):
                                 ctx.bin)
     except Exception as e:
         raise ModuleFailException(module.name, 'exec', e)
-    
+
     sfprint(1, 'Executing module '
               f'`{Style.BRIGHT + module.name + Style.RESET_ALL}`:')
     current_phase = 1

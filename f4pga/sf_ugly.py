@@ -1,11 +1,11 @@
 """ The "ugly" module is dedicated for some *ugly* workarounds """
 
 import os
-import sf_common
+import f4pga.sf_common
 
 def noisy_warnings():
     """ Emit some noisy warnings """
-    
+
     os.environ['OUR_NOISY_WARNINGS'] = 'noisy_warnings.log'
     return 'noisy_warnings.log'
 

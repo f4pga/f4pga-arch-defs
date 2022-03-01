@@ -6,7 +6,8 @@ on:
 
 jobs:
 
-  Run-tests:
+
+  Test-pip:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -17,8 +18,29 @@ jobs:
 #        with:
 #          submodules: recursive
 
+      - name: Build pyFPGA
+        run: |
+          cd f4pga
+          pip install .
+
       - name: Test py4FPGA
         run: |
-          PYTHONPATH=$(pwd)/f4pga python3 f4pga/sfbuild.py
+          f4pga
+          f4pga -h
 
-          PYTHONPATH=$(pwd)/f4pga python3 f4pga/sfbuild.py -h
+
+  Test-PYTHONPATH:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+
+    steps:
+
+      - uses: actions/checkout@v2
+#        with:
+#          submodules: recursive
+
+      - name: Test py4FPGA (PYTHONPATH)
+        run: |
+          PYTHONPATH=$(pwd) python3 f4pga/sfbuild.py
+          PYTHONPATH=$(pwd) python3 f4pga/sfbuild.py -h
