@@ -58,16 +58,16 @@ make_target () {
 
   export VPR_NUM_WORKERS=${MAX_CORES}
 
-  start_section "symbiflow.$target" "$2"
+  start_section "[F4PGA] $target" "$2"
   ninja_status=0
   ninja -k$max_fail_tests -j${MAX_CORES} $target || ninja_status=$?
-  end_section "symbiflow.$target"
+  end_section "[F4PGA] $target"
 
   # When the build fails, produce the failure output in a clear way
   if [ ${MAX_CORES} -ne 1 -a $ninja_status -ne 0 ]; then
-    start_section "symbiflow.failure" "${RED}Build failure output..${NC}"
+    start_section "[F4PGA] failure" "${RED}Build failure output..${NC}"
     ninja -j1 $target
-    end_section "symbiflow.failure"
+    end_section "[F4PGA] failure"
     exit 1
   else
     return $ninja_status
@@ -82,7 +82,7 @@ run_section () {
 
 start_section () {
   action_fold start "$1"
-  echo -e "${PURPLE}SymbiFlow Arch Defs${NC}: - $2${NC}"
+  echo -e "${PURPLE}F4PGA Architecture Definitions${NC}: - $2${NC}"
   echo -e "${GRAY}-------------------------------------------------------------------${NC}"
 }
 
