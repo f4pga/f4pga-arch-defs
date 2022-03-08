@@ -11,12 +11,7 @@ export CMAKE_FLAGS="-GNinja"
 # https://support.xilinx.com/s/article/63253?language=en_US
 export XILINX_LOCAL_USER_DATA="no"
 
-source $(dirname "$0")/setup.sh
-
-set -e
-source $(dirname "$0")/common.sh
-
-source env/conda/bin/activate symbiflow_arch_def_base
+source $(dirname "$0")/setup-and-activate.sh
 
 pushd build
 
