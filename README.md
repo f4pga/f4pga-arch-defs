@@ -3,28 +3,20 @@
 **This repository is used during the development of architecture support in F4PGA, if you are looking to use the**
 **toolchain you should start with the [f4pga-examples repository](https://github.com/chipsalliance/f4pga-examples).**
 
-![License status](https://img.shields.io/github/license/SymbiFlow/f4pga-arch-defs)
-[![Documentation Status](https://readthedocs.org/projects/symbiflow-arch-defs/badge/?version=latest)](https://f4pga.readthedocs.io/projects/arch-defs/)
+<p align="center">
+  <a title="License Status" href="https://github.com/SymbiFlow/f4pga-arch-defs/blob/master/COPYING"><img alt="License Status" src="https://img.shields.io/github/license/SymbiFlow/f4pga-arch-defs?longCache=true&style=flat-square"></a><!--
+  -->
+  <a title="Documentation Status" href="https://f4pga.readthedocs.io/projects/arch-defs/"><img alt="'Test' workflow Status" src="https://img.shields.io/readthedocs/symbiflow-arch-defs/latest?longCache=true&style=flat-square&logo=ReadTheDocs&logoColor=fff"></a><!--
+  -->
+  <a title="'Tests' workflow Status" href="https://github.com/SymbiFlow/f4pga-arch-defs/actions?query=workflow%3ATests"><img alt="'Tests' workflow Status" src="https://img.shields.io/github/workflow/status/SymbiFlow/f4pga-arch-defs/Tests/master?longCache=true&style=flat-square&label=Test&logo=github%20actions&logoColor=fff"></a><!--
+  -->
+</p>
 
 This repo contains documentation of various FPGA architectures, it is currently concentrating on:
 
 * [Lattice iCE40](ice40)
 * [Xilinx Series 7 (Artix 7 and Zynq 7)](xc/xc7)
 * [QuickLogic](quicklogic)
-
-* Kokoro Build Status
-
-  * [![Test Architectures Status](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/testarch.svg)](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/testarch.html)
-
-  * [![Lattice iCE40 Status](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/ice40.svg)](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/ice40.html)
-
-  * Xilinx Series 7:
-
-    * [![Xilinx Series 7 Status](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/xc7.svg)](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/xc7.html)
-    * [![Xilinx Series 7 - Vendor Tool Tests Status](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/xc7_vendor.svg)](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/xc7_vendor.html)
-    * [![Xilinx Series 7 - Install](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/install.svg)](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/xc7a200t_vendor.html)
-    * [![Xilinx XC7A200T - Status](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/xc7a200t.svg)](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/xc7a200t.html)
-    * [![Xilinx XC7A200T - Vendor Tool Tests Status](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/xc7a200t_vendor.svg)](http://storage.googleapis.com/symbiflow-badges/symbiflow-arch-defs/xc7a200t_vendor.html)
 
 The aim is to include useful documentation (both human and machine readable) on the primitives and routing
 infrastructure for these architectures.
