@@ -17,46 +17,44 @@ NC='\033[0m' # No Color
 
 if ! declare -F action_nanoseconds &>/dev/null; then
 function action_nanoseconds() {
-	return 0;
+  return 0;
 }
 fi
 export -f action_nanoseconds
 
 if ! declare -F action_fold &>/dev/null; then
 function action_fold() {
-	if [ "$1" = "start" ]; then
-		echo "::group::$2"
-		SECONDS=0
-	else
-		duration=$SECONDS
-		echo "::endgroup::"
-		printf "${GRAY}took $(($duration / 60)) min $(($duration % 60)) sec.${NC}\n"
-	fi
-	return 0;
+  if [ "$1" = "start" ]; then
+    echo "::group::$2"
+    SECONDS=0
+  else
+    duration=$SECONDS
+    echo "::endgroup::"
+    printf "${GRAY}took $(($duration / 60)) min $(($duration % 60)) sec.${NC}\n"
+  fi
+  return 0;
 }
 fi
 export -f action_fold
 
 if [ -z "$DATESTR" ]; then
-	if [ -z "$DATESHORT" ]; then
-		export DATESTR=$(date -u +%Y%m%d%H%M%S)
-		echo "Setting long date string of $DATESTR"
-	else
-		export DATESTR=$(date -u +%y%m%d%H%M)
-		echo "Setting short date string of $DATESTR"
-	fi
+  if [ -z "$DATESHORT" ]; then
+    export DATESTR=$(date -u +%Y%m%d%H%M%S)
+    echo "Setting long date string of $DATESTR"
+  else
+    export DATESTR=$(date -u +%y%m%d%H%M)
+    echo "Setting short date string of $DATESTR"
+  fi
 fi
 
-function make_target() {
+make_target () {
   target=$1
   max_fail_tests=${3:-1}
 
   if [ ! -v MAX_CORES ]; then
-	  export MAX_CORES=$(nproc)
+    export MAX_CORES=$(nproc)
     echo "Setting MAX_CORES to $MAX_CORES"
   fi;
-
-
 
   export VPR_NUM_WORKERS=${MAX_CORES}
 
@@ -76,31 +74,38 @@ function make_target() {
   fi
 }
 
-function run_section() {
-	start_section $1 "$2 ($3)"
-	$3
-	end_section $1
+run_section () {
+  start_section $1 "$2 ($3)"
+  $3
+  end_section $1
 }
 
-function start_section() {
-	action_fold start "$1"
-	echo -e "${PURPLE}SymbiFlow Arch Defs${NC}: - $2${NC}"
-	echo -e "${GRAY}-------------------------------------------------------------------${NC}"
+start_section () {
+  action_fold start "$1"
+  echo -e "${PURPLE}SymbiFlow Arch Defs${NC}: - $2${NC}"
+  echo -e "${GRAY}-------------------------------------------------------------------${NC}"
 }
 
-function end_section() {
-	echo -e "${GRAY}-------------------------------------------------------------------${NC}"
-	action_fold end "$1"
+end_section () {
+  echo -e "${GRAY}-------------------------------------------------------------------${NC}"
+  action_fold end "$1"
 }
 
-function enable_vivado() {
-    echo
-    echo "======================================="
-    echo "Creating Vivado Symbolic Link"
-    echo "---------------------------------------"
-	ln -s /mnt/aux/Xilinx /opt/Xilinx
-	ls /opt/Xilinx/Vivado
-	export XRAY_VIVADO_SETTINGS="/opt/Xilinx/Vivado/$1/settings64.sh"
-	source /opt/Xilinx/Vivado/$1/settings64.sh
-	vivado -version
+enable_vivado () {
+  echo
+  echo "======================================="
+  echo "Creating Vivado Symbolic Link"
+  echo "---------------------------------------"
+  ln -s /mnt/aux/Xilinx /opt/Xilinx
+  ls /opt/Xilinx/Vivado
+  export XRAY_VIVADO_SETTINGS="/opt/Xilinx/Vivado/$1/settings64.sh"
+  source /opt/Xilinx/Vivado/$1/settings64.sh
+  vivado -version
+}
+
+heading () {
+  echo
+  echo "========================================"
+  echo "$@"
+  echo "----------------------------------------"
 }
