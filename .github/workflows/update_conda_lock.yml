@@ -40,6 +40,6 @@ jobs:
         title: "[BOT] Conda Lock Update"
         body: Pull Request created by the conda lock update workflow.
         branch: bot-conda-lock-update
-        labels: bot-conda-lock-update,kokoro:force-run,merge-if-green
+        labels: bot-conda-lock-update,merge-if-green
         delete-branch: true
         signoff: true
