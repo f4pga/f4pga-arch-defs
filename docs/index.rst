@@ -28,8 +28,9 @@ Contents
 
 .. toctree::
    :maxdepth: 2
-   :caption: Development Practices
+   :caption: Development
 
+   development/cmake
    development/structure
    development/vtr_notes
 
