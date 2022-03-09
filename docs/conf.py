@@ -28,12 +28,15 @@ extensions = [
     'sphinx.ext.extlinks',
     'sphinx.ext.intersphinx',
     'sphinxcontrib.images',
+    'recommonmark'
 ]
 
 templates_path = ['_templates']
 
-# source_suffix = ['.rst', '.md']
-source_suffix = '.rst'
+source_suffix = {
+    '.rst': 'restructuredtext',
+    '.md': 'markdown'
+}
 
 language = None
 
