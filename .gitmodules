@@ -62,7 +62,7 @@
 	path = third_party/qlf-fasm
 	url = https://github.com/QuickLogic-Corp/ql_fasm
 [submodule "quicklogic/designs"]
-	path = quicklogic/designs
+	path = archs/quicklogic/designs
 	url = https://github.com/QuickLogic-Corp/ql_designs
 [submodule "third_party/ql-eos-s3"]
 	path = third_party/ql-eos-s3
@@ -71,5 +71,5 @@
 	path = third_party/ql-pp3e
 	url = https://github.com/QuickLogic-Corp/PolarPro3E
 [submodule "quicklogic/common/utils/quicklogic-timings-importer"]
-	path = quicklogic/common/utils/quicklogic-timings-importer
+	path = archs/quicklogic/common/utils/quicklogic-timings-importer
 	url = https://github.com/QuickLogic-Corp/quicklogic-timings-importer
