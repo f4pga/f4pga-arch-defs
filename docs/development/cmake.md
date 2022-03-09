@@ -1,10 +1,11 @@
-## CMake build system
+# CMake build system
 
-### Variables
+## Variables
 
 * `USE_CONDA` - Whether to rely on conda to supply external binaries (e.g. yosys, vpr).
 
-* `VPR_BASE_ARGS` - Base VPR arguments used during pack, place and route. [Default arguments](common/cmake/devices.cmake#L454).
+* `VPR_BASE_ARGS` - Base VPR arguments used during pack, place and route.
+  {ghsrc}`Default arguments <common/cmake/devices.cmake#L454>`.
 
 * `VPR_EXTRA_ARGS` - Additional arguments to pass to VPR during pack, place and route.
 
@@ -18,7 +19,7 @@ cmake -DUSE_CONDA=FALSE ..
 make
 ```
 
-### Terminology
+## Terminology
 
 The CMake system in f4pga-arch-defs uses the following hierarchy:
 
@@ -35,24 +36,24 @@ The CMake system in f4pga-arch-defs uses the following hierarchy:
 * `BOARD` - A specific `DEVICE` and `PACKAGE` instance, along with a `PROG_TOOL`/`PROG_CMD` (e.g. commands to program a
   specified board).
 
-### Creating a new FPGA target
+## Creating a new FPGA target
 
 If you are familiar with cmake, `ADD_FPGA_TARGET` is the rough equivalent to the normal `ADD_EXECUTABLE` target you
 would use with a C project.
 
 `ADD_FPGA_TARGET` will create the targets needed to take a design from Verilog to bitstream through the synthesis, place
 and route, bitstream and potentially even programming.
-The required arguments are the `BOARD` and input files see [`ADD_FPGA_TARGET` documentation](common/cmake/devices.cmake#L559)
+The required arguments are the `BOARD` and input files see {ghsrc}`ADD_FPGA_TARGET documentation <common/cmake/devices.cmake#L559>`
 for further information on other target configuration options.
 
 If you want to target multiple boards, `ADD_FPGA_TARGET_BOARDS` exists that will call `ADD_FPGA_TARGET` correctly for
 each board you request.
-See [`ADD_FPGA_TARGET_BOARDS` documentation](common/cmake/devices.cmake#L458).
+See {ghsrc}`ADD_FPGA_TARGET_BOARDS documentation <common/cmake/devices.cmake#L458>`.
 
-#### Note on `ADD_FILE_TARGET` and `ADD_FPGA_BOARD`
+### Note on `ADD_FILE_TARGET` and `ADD_FPGA_BOARD`
 
 All source files in the f4pga-arch-defs are required to have a file target associated with them.
-This is done via [`ADD_FILE_TARGET`](common/cmake/file_targets.cmake#L193).
+This is done via {ghsrc}`ADD_FILE_TARGET <common/cmake/file_targets.cmake#L193>`.
 By default `ADD_FPGA_TARGET` and `ADD_FPGA_TARGET_BOARDS` will both implicitly invoke `ADD_FILE_TARGET` for you.
 This handles the common case where input sources are not generated files.
 However, if you are using generated files, then you will need to add `ADD_FILE_TARGET` calls for all inputs to
@@ -74,7 +75,7 @@ Note that the input path must be current source dir relative, not absolute, and 
 dir.
 Also note that CMake cannot take depedendencies during build time, so for generated files you must supply the
 dependencies for the target.
-See [`APPEND_FILE_DEPENDENCY`](common/cmake/file_targets.cmake#L79) for adding dependencies to other file targets.
+See {ghsrc}`APPEND_FILE_DEPENDENCY <common/cmake/file_targets.cmake#L79>` for adding dependencies to other file targets.
 
 It is generally suggested that all source forms within f4pga-arch-defs are file targets, but it is required for
 verilog files because of how verilog handles relative include paths.

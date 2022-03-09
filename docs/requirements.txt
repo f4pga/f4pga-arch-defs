@@ -1,4 +1,4 @@
-recommonmark
+myst-parser
 sphinx
 http://github.com/SymbiFlow/sphinx_symbiflow_theme/archive/chips.zip#sphinx-symbiflow-theme
 sphinxcontrib-images
