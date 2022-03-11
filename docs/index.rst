@@ -25,7 +25,13 @@ Contents
    :maxdepth: 2
 
    getting-started
-   development/development
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Development Practices
+
+   development/structure
+   development/vtr_notes
 
 .. toctree::
    :maxdepth: 2
