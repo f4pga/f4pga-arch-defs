@@ -4,32 +4,43 @@ on: [push, pull_request]
 
 jobs:
 
-  Run-tests:
+  Test:
+    if: ${{ !(github.event_name != 'pull_request' && github.actor == 'dependabot[bot]') }}
     container: ubuntu:bionic
-
     runs-on: [self-hosted, Linux, X64]
-
     strategy:
       fail-fast: false
       matrix:
         test: ['docs', 'testarch', 'tests', 'ice40', 'xc7', 'xc7-vendor', 'xc7a200t', 'xc7a200t-vendor', 'install', 'ql']
-
     env:
       MAX_CORES: 80
       GHA_EXTERNAL_DISK: "tools"
 
     steps:
 
-    - uses: actions/checkout@v2
-      with:
-        submodules: recursive
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
 
-    - name: Execute test script
-      run: stdbuf -i0 -o0 -e0 ./.github/ci/${{ matrix.test }}.sh
+      - name: Execute test script
+        run: stdbuf -i0 -o0 -e0 ./.github/ci/${{ matrix.test }}.sh
 
-    - uses: actions/upload-artifact@v2
-      if: ${{ always() }}
-      with:
-        path: |
-          **/results*.gz
-          **/plot_*.svg
+      - uses: actions/upload-artifact@v2
+        if: ${{ always() }}
+        with:
+          path: |
+            **/results*.gz
+            **/plot_*.svg
+
+  Automerge:
+    needs: Test
+    if: github.event_name == 'pull_request' && github.actor == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    name: Automerge dependabot PRs
+    permissions:
+      contents: write
+
+    steps:
+
+      - name: Auto-merge Dependabot PR
+        run: GITHUB_TOKEN='${{ github.token }}' gh pr merge '${{ github.event.pull_request.html_url }}' --squash
