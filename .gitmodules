@@ -7,8 +7,8 @@
 [submodule "third_party/icestorm"]
 	path = third_party/icestorm
 	url = https://github.com/YosysHQ/icestorm
-[submodule "third_party/symbiyosys"]
-	path = third_party/symbiyosys
+[submodule "third_party/sby"]
+	path = third_party/sby
 	url = https://github.com/YosysHQ/sby
 [submodule "third_party/python-sdf-timing"]
 	path = third_party/python-sdf-timing
