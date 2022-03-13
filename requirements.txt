@@ -28,7 +28,7 @@ git+https://github.com/SymbiFlow/python-fpga-interchange.git#egg=python-fpga-int
 -e third_party/xc-fasm
 -e third_party/qlf-fasm
 -e third_party/python-sdf-timing
--e third_party/python-symbiflow-v2x
+-e third_party/f4pga-v2x
 -e third_party/vtr-xml-utils
 -e third_party/symbiflow-xc-fasm2bels
 -e third_party/litex

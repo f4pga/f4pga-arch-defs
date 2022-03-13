@@ -16,8 +16,8 @@
 [submodule "third_party/vtr-xml-utils"]
 	path = third_party/vtr-xml-utils
 	url = https://github.com/chipsalliance/vtr-xml-utils
-[submodule "python-symbiflow-v2x"]
-	path = third_party/python-symbiflow-v2x
+[submodule "third_party/f4pga-v2x"]
+	path = third_party/f4pga-v2x
 	url = https://github.com/chipsalliance/f4pga-v2x
 [submodule "third_party/make-env"]
 	path = third_party/make-env
