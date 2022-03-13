@@ -25,8 +25,8 @@
 [submodule "third_party/xc-fasm"]
 	path = third_party/xc-fasm
 	url = https://github.com/chipsalliance/f4pga-xc-fasm
-[submodule "third_party/symbiflow-xc-fasm2bels"]
-	path = third_party/symbiflow-xc-fasm2bels
+[submodule "third_party/f4pga-xc-fasm2bels"]
+	path = third_party/f4pga-xc-fasm2bels
 	url = https://github.com/SymbiFlow/f4pga-xc-fasm2bels
 [submodule "third_party/ibex"]
 	path = third_party/ibex
