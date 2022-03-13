@@ -72,7 +72,7 @@ PIP
 | is_directional  | True or False                                             |
 +-----------------+-----------------------------------------------------------+
 
-.. figure:: ../_static/images/prjxray/rrgraph-wire.svg
+.. figure:: ../../_static/images/prjxray/rrgraph-wire.svg
 
 A 7-Series part contains nodes, which consist of **tile wires**.
 **Tile wires** are sourced either from a **site pin** or a **pip** or a **tile wire** from another tile within the grid.
@@ -168,7 +168,7 @@ A PASS_GATE is a **switch** that does not do this isolation.
 
 The detiled description about **switch** types can be found in `VTR documentation <http://docs.verilogtorouting.org/en/latest/arch/reference/#arch-switches>`__.
 
-.. figure:: ../_static/images/prjxray/vpr-rrgraph-types.svg
+.. figure:: ../../_static/images/prjxray/vpr-rrgraph-types.svg
 
 So **edges** connect **nodes** together, but what are the **nodes** themselves?
 **Nodes** are either a source/sink (e.g. a **site pin**) or are routing fabric.
@@ -220,7 +220,7 @@ Three types of output are generated:
 
 Click on the figure below to zoom-in:
 
-.. thumbnail:: ../_static/images/prjxray/import-flow.png
+.. thumbnail:: ../../_static/images/prjxray/import-flow.png
 
    This diagram shows the importing flow for Project X-Ray.
 
@@ -262,7 +262,7 @@ The classification is broken down into the following categories:
 
 * EDGES_TO_CHANNEL - A node that sources and sinks from a **site pin** and connects via a **pip** to a CHANNEL
 
-.. figure:: ../_static/images/prjxray/import-wire-class.svg
+.. figure:: ../../_static/images/prjxray/import-wire-class.svg
 
 There is another classification EDGE_WITH_SHORT, which is a direct connection between two **site pins**.
 This does not appear to occur in 7-series parts.
@@ -284,7 +284,7 @@ It returns straight lines such that all sources and sink grid locations can rout
 Point Bag to CHANX / CHANY decomposition
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. figure:: ../_static/images/prjxray/vtr-rrgraph.png
+.. figure:: ../../_static/images/prjxray/vtr-rrgraph.png
    :width: 100%
 
 .. note::

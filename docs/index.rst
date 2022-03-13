@@ -38,4 +38,5 @@ Contents
    :maxdepth: 2
    :caption: Bitstream Documentation
 
-   prjxray/index
+   bitdoc/index
+   bitdoc/prjxray/index
