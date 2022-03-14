@@ -10,7 +10,7 @@ library
 *unused*
 
 # Exclude the .git directory
-.git
+/.git/
 
 # Exclude the dependency files
 *.d

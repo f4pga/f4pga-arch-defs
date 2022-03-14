@@ -1,39 +1,39 @@
 [submodule "third_party/netlistsvg"]
 	path = third_party/netlistsvg
-	url = https://github.com/nturley/netlistsvg.git
+	url = https://github.com/nturley/netlistsvg
 [submodule "third_party/prjxray"]
 	path = third_party/prjxray
-	url = https://github.com/SymbiFlow/prjxray.git
+	url = https://github.com/f4pga/prjxray
 [submodule "third_party/icestorm"]
 	path = third_party/icestorm
-	url = https://github.com/cliffordwolf/icestorm.git
-[submodule "third_party/symbiyosys"]
-	path = third_party/symbiyosys
-	url = https://github.com/YosysHQ/SymbiYosys.git
+	url = https://github.com/YosysHQ/icestorm
+[submodule "third_party/sby"]
+	path = third_party/sby
+	url = https://github.com/YosysHQ/sby
 [submodule "third_party/python-sdf-timing"]
 	path = third_party/python-sdf-timing
-	url = https://github.com/SymbiFlow/python-sdf-timing.git
+	url = https://github.com/chipsalliance/f4pga-sdf-timing
 [submodule "third_party/vtr-xml-utils"]
 	path = third_party/vtr-xml-utils
-	url = https://github.com/SymbiFlow/vtr-xml-utils.git
-[submodule "python-symbiflow-v2x"]
-	path = third_party/python-symbiflow-v2x
-	url = https://github.com/SymbiFlow/python-symbiflow-v2x.git
+	url = https://github.com/chipsalliance/vtr-xml-utils
+[submodule "third_party/f4pga-v2x"]
+	path = third_party/f4pga-v2x
+	url = https://github.com/chipsalliance/f4pga-v2x
 [submodule "third_party/make-env"]
 	path = third_party/make-env
-	url = https://github.com/SymbiFlow/make-env.git
+	url = https://github.com/SymbiFlow/make-env
 [submodule "third_party/xc-fasm"]
 	path = third_party/xc-fasm
-	url = https://github.com/SymbiFlow/xc-fasm.git
-[submodule "third_party/symbiflow-xc-fasm2bels"]
-	path = third_party/symbiflow-xc-fasm2bels
-	url = https://github.com/SymbiFlow/symbiflow-xc-fasm2bels.git
+	url = https://github.com/chipsalliance/f4pga-xc-fasm
+[submodule "third_party/f4pga-xc-fasm2bels"]
+	path = third_party/f4pga-xc-fasm2bels
+	url = https://github.com/SymbiFlow/f4pga-xc-fasm2bels
 [submodule "third_party/ibex"]
 	path = third_party/ibex
 	url = https://github.com/lowRISC/ibex
 [submodule "third_party/prjuray"]
 	path = third_party/prjuray
-	url = https://github.com/SymbiFlow/prjuray.git
+	url = https://github.com/f4pga/prjuray
 [submodule "third_party/litedram"]
 	path = third_party/litedram
 	url = https://github.com/enjoy-digital/litedram
@@ -60,16 +60,16 @@
 	url = https://github.com/litex-hub/pythondata-software-compiler_rt
 [submodule "third_party/qlf-fasm"]
 	path = third_party/qlf-fasm
-	url = https://github.com/QuickLogic-Corp/ql_fasm.git
+	url = https://github.com/QuickLogic-Corp/ql_fasm
 [submodule "quicklogic/designs"]
 	path = quicklogic/designs
-	url = https://github.com/QuickLogic-Corp/ql_designs.git
+	url = https://github.com/QuickLogic-Corp/ql_designs
 [submodule "third_party/ql-eos-s3"]
 	path = third_party/ql-eos-s3
 	url = https://github.com/QuickLogic-Corp/EOS-S3
 [submodule "third_party/ql-pp3e"]
 	path = third_party/ql-pp3e
-	url = https://github.com/QuickLogic-Corp/PolarPro3E.git
+	url = https://github.com/QuickLogic-Corp/PolarPro3E
 [submodule "quicklogic/common/utils/quicklogic-timings-importer"]
 	path = quicklogic/common/utils/quicklogic-timings-importer
-	url = https://github.com/QuickLogic-Corp/quicklogic-timings-importer.git
+	url = https://github.com/QuickLogic-Corp/quicklogic-timings-importer

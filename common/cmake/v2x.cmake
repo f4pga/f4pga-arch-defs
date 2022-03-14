@@ -9,7 +9,7 @@ function(V2X)
   # ~~~
   #
   # V2X converts SRCS from verilog to .pb_type.xml and .model.xml via the
-  # utilities in <root>/ ./third_party/../python-symbiflow-v2x/v2x/vlog_to_<x>.
+  # utilities in <root>/ ./third_party/../f4pga-v2x/v2x/vlog_to_<x>.
   #
   # V2X requires all files in SRCS to have a file target via ADD_FILE_TARGET.
   #
