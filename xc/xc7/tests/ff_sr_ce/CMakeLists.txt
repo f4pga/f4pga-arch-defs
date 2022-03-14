@@ -10,7 +10,7 @@ function(ff_ce_sr_test num_ff)
     get_target_property_required(YOSYS env YOSYS)
 
     set(SBY
-        ${symbiflow-arch-defs_SOURCE_DIR}/third_party/symbiyosys/sbysrc/sby.py)
+        ${symbiflow-arch-defs_SOURCE_DIR}/third_party/sby/sbysrc/sby.py)
 
     foreach(ff_type FDRE FDSE FDCE FDPE)
         string(TOLOWER ${ff_type} ff_type_lower)
