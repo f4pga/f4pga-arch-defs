@@ -17,3 +17,6 @@ model.xml
 pb_type.xml
 *.sort.xml
 *~
+
+/docs/_build/
+/docs/_theme/
