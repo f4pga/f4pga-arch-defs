@@ -24,16 +24,13 @@ release = 'latest'  # The full version, including alpha/beta/rc tags.
 master_doc = 'index'
 
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.extlinks',
-    'sphinx.ext.intersphinx',
-    'sphinxcontrib.images',
+    'sphinx.ext.autodoc', 'sphinx.ext.extlinks', 'sphinx.ext.intersphinx',
+    'sphinxcontrib.images', 'myst_parser'
 ]
 
 templates_path = ['_templates']
 
-# source_suffix = ['.rst', '.md']
-source_suffix = '.rst'
+source_suffix = {'.rst': 'restructuredtext', '.md': 'markdown'}
 
 language = None
 
