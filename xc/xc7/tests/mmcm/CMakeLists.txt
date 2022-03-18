@@ -61,6 +61,7 @@ add_file_target(FILE mmcm_none_basys3_bottom.v SCANNER_TYPE verilog)
 add_file_target(FILE mmcm_buf_basys3_bottom.v SCANNER_TYPE verilog)
 add_file_target(FILE mmcm_ext_basys3_bottom.v SCANNER_TYPE verilog)
 add_file_target(FILE mmcm_int_frac_basys3_bottom.v SCANNER_TYPE verilog)
+add_file_target(FILE mmcm_dual.v SCANNER_TYPE verilog)
 
 add_fpga_target(
   NAME mmcm_packing
@@ -110,6 +111,13 @@ add_fpga_target(
   EXPLICIT_ADD_FILE_TARGET
   )
 
+add_fpga_target(
+  NAME mmcm_dual_basys3
+  BOARD basys3-full
+  SOURCES mmcm_dual.v
+  INPUT_IO_FILE ${COMMON}/basys3.pcf
+  EXPLICIT_ADD_FILE_TARGET
+  )
 
 add_vivado_target(
   NAME mmcm_packing_vivado
@@ -157,6 +165,13 @@ add_vivado_target(
   CLOCK_PERIODS 10.0
   )
 
+add_vivado_target(
+  NAME mmcm_dual_basys3_vivado
+  PARENT_NAME mmcm_dual_basys3
+  CLOCK_PINS clk
+  CLOCK_PERIODS 10.0
+  )
+
 # =============================================================================
 
 set(TEST_TARGETS
@@ -166,6 +181,7 @@ set(TEST_TARGETS
   mmcm_int_frac_basys3
   mmcm_buf_basys3
   mmcm_ext_basys3
+  mmcm_dual_basys3
 )
 
 foreach(TEST_TARGET ${TEST_TARGETS})

@@ -926,7 +926,6 @@ def main():
     parser.add_argument('--graph_limit', help='Graph limit parameters')
 
     args = parser.parse_args()
-    eprint(" ".join(sys.argv))
 
     part = args.part
     device_families = {
