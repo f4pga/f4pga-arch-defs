@@ -31,14 +31,14 @@ function(DEFINE_XC_TOOLCHAIN_TARGET)
   get_target_property_required(DOC_PRJ_DB ${ARCH} DOC_PRJ_DB)
 
   set(WRAPPERS
-    env
     symbiflow_generate_constraints
     symbiflow_pack
     symbiflow_place
     symbiflow_route
     symbiflow_synth
     symbiflow_write_bitstream
-    symbiflow_write_fasm)
+    symbiflow_write_fasm
+    vpr_common)
   set(TOOLCHAIN_WRAPPERS)
 
   foreach(WRAPPER ${WRAPPERS})
@@ -46,11 +46,7 @@ function(DEFINE_XC_TOOLCHAIN_TARGET)
     list(APPEND TOOLCHAIN_WRAPPERS ${WRAPPER_PATH})
   endforeach()
 
-  set(VPR_COMMON_TEMPLATE "${symbiflow-arch-defs_SOURCE_DIR}/xc/${FAMILY}/toolchain_wrappers/vpr_common")
-  set(VPR_COMMON "${CMAKE_CURRENT_BINARY_DIR}/vpr_common")
-  configure_file(${VPR_COMMON_TEMPLATE} "${VPR_COMMON}" @ONLY)
-
-  install(FILES ${TOOLCHAIN_WRAPPERS} ${VPR_COMMON}
+  install(FILES ${TOOLCHAIN_WRAPPERS}
           DESTINATION bin
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
