@@ -78,7 +78,7 @@ dependencies:
   - tbb=2020.3=hfd86e86_0
   - tk=8.6.11=h1ccaba5_0
   - typing_extensions=3.10.0.2=pyh06a4308_0
-  - vtr-optimized=8.0.0_5105_g116f30cb8=20220114_081711
+  - vtr-optimized=8.0.0_5310_g08ec56b5d=20220317_162926
   - wheel=0.37.1=pyhd3eb1b0_0
   - xz=5.2.5=h7b6447c_0
   - yosys=0.13_4_g61324cf55=20220114_081711_py37
