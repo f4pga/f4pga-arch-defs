@@ -69,7 +69,7 @@ Define the first partition region:
 
 :ghsrc:`xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr1-roi-virt/design.json`
 
-.. literalinclude:: ../../xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr1-roi-virt/design.json
+.. literalinclude:: ../../../xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr1-roi-virt/design.json
   :language: JSON
 
 Here we see the info section defines the boundaries of the partition region.
@@ -90,7 +90,7 @@ Now the CMake files must be defined properly for the first partition region arch
 
 :ghsrc:`xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr1-roi-virt/CMakeLists.txt`
 
-.. literalinclude:: ../../xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr1-roi-virt/CMakeLists.txt
+.. literalinclude:: ../../../xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr1-roi-virt/CMakeLists.txt
   :language: cmake
 
 The important argument here is ``ROI_DIR`` which points to the directory containing the ``design.json`` defined earlier.
@@ -99,12 +99,12 @@ Next, define the second partition region in a similar way as the first:
 
 :ghsrc:`xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr2-roi-virt/design.json`
 
-.. literalinclude:: ../../xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr2-roi-virt/design.json
+.. literalinclude:: ../../../xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr2-roi-virt/design.json
   :language: JSON
 
 :ghsrc:`xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr2-roi-virt/CMakeLists.txt`
 
-.. literalinclude:: ../../xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr2-roi-virt/CMakeLists.txt
+.. literalinclude:: ../../../xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr2-roi-virt/CMakeLists.txt
   :language: cmake
 
 The last ``design.json`` that must be defined is for the overlay.
@@ -114,12 +114,12 @@ Any explicit wires must also be changed to be on the other side of the partition
 
 :ghsrc:`xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-overlay-virt/design.json`
 
-.. literalinclude:: ../../xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-overlay-virt/design.json
+.. literalinclude:: ../../../xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-overlay-virt/design.json
   :language: JSON
 
 :ghsrc:`xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-overlay-virt/CMakeLists.txt`
 
-.. literalinclude:: ../../xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-overlay-virt/CMakeLists.txt
+.. literalinclude:: ../../../xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-overlay-virt/CMakeLists.txt
   :language: cmake
 
 The important argument here is ``OVERLAY_DIR`` which points to the directory containing the ``design.json`` for this
@@ -131,14 +131,14 @@ This is done in another ``CMakeLists.txt`` by adding the following:
 
 :ghsrc:`xc/xc7/archs/artix7/devices/CMakeLists.txt`
 
-.. literalinclude:: ../../xc/xc7/archs/artix7/devices/CMakeLists.txt
+.. literalinclude:: ../../../xc/xc7/archs/artix7/devices/CMakeLists.txt
   :language: cmake
 
 The last step before switching over to adding a test is adding to ``boards.cmake``:
 
 :ghsrc:`xc/xc7/boards.cmake`
 
-.. literalinclude:: ../../xc/xc7/boards.cmake
+.. literalinclude:: ../../../xc/xc7/boards.cmake
   :language: cmake
 
 This defines a separate board for each of the partition regions and overlay so they can be mapped to separately.
