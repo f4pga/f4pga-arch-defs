@@ -11,7 +11,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        test: ['docs', 'testarch', 'tests', 'ice40', 'xc7', 'xc7-vendor', 'xc7a200t', 'xc7a200t-vendor', 'install', 'ql']
+        test:
+          - 'docs'
+          - 'testarch'
+          - 'tests'
+          - 'ice40'
+          - 'xc7'
+          - 'xc7-vendor'
+          - 'xc7a200t'
+          - 'xc7a200t-vendor'
+          - 'install'
+          - 'ql'
     env:
       MAX_CORES: 80
       GHA_EXTERNAL_DISK: "tools"
