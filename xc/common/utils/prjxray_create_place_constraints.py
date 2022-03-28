@@ -9,6 +9,7 @@ import vpr_place_constraints
 import lxml.etree as ET
 import constraint
 import prjxray.db
+from collections import defaultdict
 
 CLOCKS = {
     "PLLE2_ADV_VPR":
@@ -116,7 +117,7 @@ CLOCKS = {
     "IBUF_VPR":
         {
             "sources": frozenset(("O", )),
-            "sinks": frozenset(),
+            "sinks": frozenset(("I", )),
             "type": "IBUF",
         },
     "IBUFDS_GTE2_VPR":
@@ -441,6 +442,11 @@ class ClockPlacer(object):
 
                 if sink_net not in self.input_pins and sink_net not in self.clock_sources:
 
+                    # Allow IBUFs. At this point we cannot distinguish between
+                    # IBUFs for clock and logic.
+                    if bel == "IBUF_VPR":
+                        continue
+
                     # Allow BUFGs to be driven by generic sources but only
                     # when enabled.
                     if bel == "BUFGCTRL_VPR" and allow_bufg_logic_sources:
@@ -544,19 +550,42 @@ class ClockPlacer(object):
         for clock_name in unused_blocks:
             del self.clock_blocks[clock_name]
 
+        exclusive_clocks = defaultdict(set)
+        ibuf_cmt_sinks = defaultdict(set)
+
         for net in self.clock_sources:
+
+            is_net_ibuf = False
+
+            if net not in self.input_pins:
+                source_clock_name = self.clock_sources_cname[net]
+                if source_clock_name not in unused_blocks:
+                    source_block = self.clock_blocks[source_clock_name]
+                    if CLOCKS[source_block['subckt']]['type'] == 'IBUF':
+                        is_net_ibuf = True
+
             for clock_name in self.clock_sources[net]:
+
+                if clock_name in unused_blocks:
+                    continue
+
                 clock = self.clock_blocks[clock_name]
 
                 if CLOCKS[clock['subckt']]['type'] == 'PLLE2_ADV':
                     problem.addConstraint(
                         lambda cmt: cmt in self.pll_cmts, (clock_name, )
                     )
+                    exclusive_clocks["PLLE2_ADV"].add(clock_name)
+                    if is_net_ibuf:
+                        ibuf_cmt_sinks[source_clock_name].add(clock_name)
 
                 if CLOCKS[clock['subckt']]['type'] == 'MMCME2_ADV':
                     problem.addConstraint(
                         lambda cmt: cmt in self.mmcm_cmts, (clock_name, )
                     )
+                    exclusive_clocks["MMCME2_ADV"].add(clock_name)
+                    if is_net_ibuf:
+                        ibuf_cmt_sinks[source_clock_name].add(clock_name)
 
                 if net in self.input_pins:
                     if CLOCKS[clock['subckt']]['type'] == 'BUFGCTRL':
@@ -566,7 +595,7 @@ class ClockPlacer(object):
                             lambda clock: clock == self.cmt_to_bufg_tile[
                                 self.input_pins[net]], (clock_name, )
                         )
-                    else:
+                    elif CLOCKS[clock['subckt']]['type'] != 'IBUF':
                         problem.addConstraint(
                             lambda clock: clock == self.input_pins[net],
                             (clock_name, )
@@ -587,15 +616,29 @@ class ClockPlacer(object):
                                 source] == sink_bufg,
                             (source_clock_name, clock_name)
                         )
-                    else:
+                    elif not is_net_ibuf:
                         problem.addConstraint(
                             lambda source, sink: source == sink,
                             (source_clock_name, clock_name)
                         )
 
+        # Ensure that in case of an IBUF driving multiple CMTs at least one of
+        # them is in the same clock region as the IBUF.
+        for source, sinks in ibuf_cmt_sinks.items():
+            problem.addConstraint(lambda s, *k: s in k, (
+                source,
+                *sinks,
+            ))
+
+        # Prevent constraining exclusive clock source sets to the same resource
+        for typ, clocks in exclusive_clocks.items():
+            problem.addConstraint(
+                constraint.AllDifferentConstraint(), list(clocks)
+            )
+
         if any_variable:
             solutions = problem.getSolutions()
-            assert len(solutions) > 0
+            assert len(solutions) > 0, "No solution found!"
 
             self.clock_cmts.update(solutions[0])
 
