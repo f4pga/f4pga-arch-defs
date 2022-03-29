@@ -33,6 +33,7 @@ Contents
    development/cmake
    development/structure
    development/vtr_notes
+   development/arch_notes
 
 .. toctree::
    :maxdepth: 2
