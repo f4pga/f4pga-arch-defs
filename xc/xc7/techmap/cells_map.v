@@ -1344,6 +1344,11 @@ module RAMB36E1 (
     input RSTREGARSTREG,
     input RSTREGB,
 
+    input CASCADEINA,
+    input CASCADEINB,
+    input INJECTDBITERR,
+    input INJECTSBITERR,
+
     input [14:0] ADDRARDADDR,
     input [14:0] ADDRBWRADDR,
     input [31:0] DIADI,
@@ -1356,7 +1361,14 @@ module RAMB36E1 (
     output [31:0] DOADO,
     output [31:0] DOBDO,
     output [3:0] DOPADOP,
-    output [3:0] DOPBDOP
+    output [3:0] DOPBDOP,
+
+    output CASCADEOUTA,
+    output CASCADEOUTB,
+    output DBITERR,
+    output [7:0] ECCPARITY,
+    output [8:0] RDADDRECC,
+    output SBITERR
 );
     parameter INIT_A = 36'h0;
     parameter INIT_B = 36'h0;
