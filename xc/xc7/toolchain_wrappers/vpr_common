@@ -4,6 +4,8 @@ SHARE_DIR_PATH=${SHARE_DIR_PATH:=$(realpath $(dirname "$0")/../share/symbiflow)}
 
 if [ -z $VPR_OPTIONS ]; then
      echo "Using default VPR options."
+     # These hardcoded default options are optimised for Xilinx 7 Series.
+     # See https://github.com/SymbiFlow/f4pga-arch-defs/blob/main/xc/common/cmake/arch_define.cmake#L65-L97
      VPR_OPTIONS="
        --max_router_iterations 500
        --routing_failure_predictor off
