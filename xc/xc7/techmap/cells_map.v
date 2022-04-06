@@ -1344,6 +1344,11 @@ module RAMB36E1 (
     input RSTREGARSTREG,
     input RSTREGB,
 
+    input CASCADEINA,
+    input CASCADEINB,
+    input INJECTDBITERR,
+    input INJECTSBITERR,
+
     input [14:0] ADDRARDADDR,
     input [14:0] ADDRBWRADDR,
     input [31:0] DIADI,
@@ -1356,13 +1361,20 @@ module RAMB36E1 (
     output [31:0] DOADO,
     output [31:0] DOBDO,
     output [3:0] DOPADOP,
-    output [3:0] DOPBDOP
-);
-    parameter INIT_A = 36'h0;
-    parameter INIT_B = 36'h0;
+    output [3:0] DOPBDOP,
 
-    parameter SRVAL_A = 36'h0;
-    parameter SRVAL_B = 36'h0;
+    output CASCADEOUTA,
+    output CASCADEOUTB,
+    output DBITERR,
+    output [7:0] ECCPARITY,
+    output [8:0] RDADDRECC,
+    output SBITERR
+);
+    parameter [35:0] INIT_A = 36'h0;
+    parameter [35:0] INIT_B = 36'h0;
+
+    parameter [35:0] SRVAL_A = 36'h0;
+    parameter [35:0] SRVAL_B = 36'h0;
 
    `define INIT_BLOCK(pre) \
     parameter ``pre``0 = 256'h0000000000000000000000000000000000000000000000000000000000000000; \
@@ -1420,8 +1432,8 @@ module RAMB36E1 (
 
     parameter RAM_MODE = "TDP";
     parameter SIM_DEVICE = "7SERIES";
-    parameter DOA_REG = 1'b0;
-    parameter DOB_REG = 1'b0;
+    parameter [0:0] DOA_REG = 1'b0;
+    parameter [0:0] DOB_REG = 1'b0;
 
     parameter integer READ_WIDTH_A = 0;
     parameter integer READ_WIDTH_B = 0;
