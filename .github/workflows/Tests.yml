@@ -1,11 +1,11 @@
 name: Tests
 
-on: [push, pull_request]
+on:
+  workflow_call:
 
 jobs:
 
   Test:
-    if: ${{ !(github.event_name != 'pull_request' && github.actor == 'dependabot[bot]') }}
     container: ubuntu:bionic
     runs-on: [self-hosted, Linux, X64]
     strategy:
@@ -33,7 +33,6 @@ jobs:
             **/plot_*.svg
 
   Install:
-    if: ${{ !(github.event_name != 'pull_request' && github.actor == 'dependabot[bot]') }}
     container: ubuntu:bionic
     runs-on: [self-hosted, Linux, X64]
     needs: Test
@@ -59,16 +58,3 @@ jobs:
           path: |
             **/results*.gz
             **/plot_*.svg
-
-  Automerge:
-    needs: Test
-    if: github.event_name == 'pull_request' && github.actor == 'dependabot[bot]'
-    runs-on: ubuntu-latest
-    name: Automerge dependabot PRs
-    permissions:
-      contents: write
-
-    steps:
-
-      - name: Auto-merge Dependabot PR
-        run: GITHUB_TOKEN='${{ github.token }}' gh pr merge '${{ github.event.pull_request.html_url }}' --squash
