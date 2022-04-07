@@ -1,12 +1,8 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
 set -e
 
-MYPATH=`realpath $0`
-MYPATH=`dirname ${MYPATH}`
-
-source ${MYPATH}/env
-source ${VPRPATH}/vpr_common
-
+source $(dirname $(realpath $0))/vpr_common
 parse_args "$@"
 
 TOP="${EBLIF%.*}"
