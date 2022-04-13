@@ -67,5 +67,3 @@ add_file_target(FILE ram_shifter.v SCANNER_TYPE verilog)
 add_file_target(FILE ram_test.v SCANNER_TYPE verilog)
 add_file_target(FILE rom_test.v SCANNER_TYPE verilog)
 
-#add Alinx AX7050 constraint file
-add_file_target(FILE counter_ax7050.xdc) 
