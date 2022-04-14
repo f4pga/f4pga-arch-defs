@@ -159,3 +159,13 @@ add_vivado_target(
 #  NAME buttons_marszx3_vivado
 #  PARENT_NAME buttons_marszx3
 #  )
+add_file_target(FILE buttons_ax7050.xdc)
+add_file_target(FILE buttons_ax7050.v SCANNER_TYPE verilog)
+add_fpga_target(
+  NAME buttons_ax7050
+  BOARD ax7050
+  SOURCES buttons_ax7050.v
+  INPUT_XDC_FILES buttons_ax7050.xdc
+  EXPLICIT_ADD_FILE_TARGET
+)
+
