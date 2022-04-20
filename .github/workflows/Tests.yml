@@ -25,7 +25,7 @@ jobs:
       - name: Execute test script
         run: stdbuf -i0 -o0 -e0 ./.github/ci/${{ matrix.test }}.sh
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         if: ${{ always() }}
         with:
           path: |
@@ -52,7 +52,7 @@ jobs:
       - name: Execute test script
         run: stdbuf -i0 -o0 -e0 ./.github/ci/install.sh
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         if: ${{ always() }}
         with:
           path: |
