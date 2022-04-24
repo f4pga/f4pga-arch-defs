@@ -23,6 +23,15 @@ cp environment.yml install/
 
 echo "----------------------------------------"
 
+heading "Install f4pga CLI through pip"
+{
+	pip3 install https://github.com/chipsalliance/f4pga/archive/main.zip#subdirectory=f4pga
+	export F4PGA_FAM=xc7
+	export F4PGA_ENV_BIN="$(cd $(dirname "$0")/../../env/conda/envs/symbiflow_arch_def_base/bin; pwd)"
+	export F4PGA_ENV_SHARE="$(cd $(dirname "$0")/../../install/share/symbiflow; pwd)"
+}
+echo "----------------------------------------"
+
 heading "Running installed toolchain tests"
 (
 	pushd build
@@ -44,7 +53,7 @@ heading "Compressing install dir (creating packages)"
 
 	du -ah install
 	export GIT_HASH=$(git rev-parse --short HEAD)
-	tar -I "pixz" -cvf symbiflow-arch-defs-install-${GIT_HASH}.tar.xz -C install bin share/symbiflow/techmaps share/symbiflow/scripts environment.yml
+	tar -I "pixz" -cvf symbiflow-arch-defs-install-${GIT_HASH}.tar.xz -C install share/symbiflow/techmaps share/symbiflow/scripts environment.yml
 	tar -I "pixz" -cvf symbiflow-arch-defs-benchmarks-${GIT_HASH}.tar.xz -C install benchmarks
 	for device in $(ls install/share/symbiflow/arch)
 	do

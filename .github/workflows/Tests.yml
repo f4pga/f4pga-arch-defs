@@ -17,15 +17,15 @@ jobs:
       fail-fast: false
       matrix:
         test:
-          - 'docs'
-          - 'testarch'
-          - 'tests'
-          - 'ice40'
-          - 'xc7'
-          - 'xc7-vendor'
-          - 'xc7a200t'
-          - 'xc7a200t-vendor'
-          - 'ql'
+          - docs
+          - testarch
+          - tests
+          - ice40
+          - xc7
+          - xc7-vendor
+          - xc7a200t
+          - xc7a200t-vendor
+          - ql
 
     name: ${{ matrix.test }}
 
@@ -53,13 +53,12 @@ jobs:
 
 
   Install:
+    needs: Test
     container: ubuntu:bionic
     runs-on:
       - self-hosted
       - Linux
       - X64
-
-    needs: Test
 
     env:
       MAX_CORES: 80
