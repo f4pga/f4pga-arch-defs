@@ -4,11 +4,11 @@
 **toolchain you should start with the [f4pga-examples repository](https://github.com/chipsalliance/f4pga-examples).**
 
 <p align="center">
-  <a title="License Status" href="https://github.com/SymbiFlow/f4pga-arch-defs/blob/master/COPYING"><img alt="License Status" src="https://img.shields.io/github/license/SymbiFlow/f4pga-arch-defs?longCache=true&style=flat-square"></a><!--
+  <a title="License Status" href="https://github.com/SymbiFlow/f4pga-arch-defs/blob/master/COPYING"><img alt="License Status" src="https://img.shields.io/github/license/SymbiFlow/f4pga-arch-defs?longCache=true&style=flat-square&label=License"></a><!--
   -->
-  <a title="Documentation Status" href="https://f4pga.readthedocs.io/projects/arch-defs/"><img alt="'Test' workflow Status" src="https://img.shields.io/readthedocs/symbiflow-arch-defs/latest?longCache=true&style=flat-square&logo=ReadTheDocs&logoColor=fff"></a><!--
+  <a title="Documentation Status" href="https://f4pga.readthedocs.io/projects/arch-defs/"><img alt="Documentation Status" src="https://img.shields.io/readthedocs/symbiflow-arch-defs/latest?longCache=true&style=flat-square&logo=ReadTheDocs&logoColor=fff&label=Docs"></a><!--
   -->
-  <a title="'Tests' workflow Status" href="https://github.com/SymbiFlow/f4pga-arch-defs/actions?query=workflow%3ATests"><img alt="'Tests' workflow Status" src="https://img.shields.io/github/workflow/status/SymbiFlow/f4pga-arch-defs/Tests/master?longCache=true&style=flat-square&label=Test&logo=github%20actions&logoColor=fff"></a><!--
+  <a title="'Automerge' workflow Status" href="https://github.com/SymbiFlow/f4pga-arch-defs/actions/workflows/Automerge.yml"><img alt="'Tests' workflow Status" src="https://img.shields.io/github/workflow/status/SymbiFlow/f4pga-arch-defs/Automerge/main?longCache=true&style=flat-square&label=Tests&logo=github%20actions&logoColor=fff"></a><!--
   -->
 </p>
 
