@@ -1,4 +1,4 @@
-name: symbiflow_arch_def_base
+name: f4pga_arch_def_base
 channels:
   - defaults
   - litex-hub
