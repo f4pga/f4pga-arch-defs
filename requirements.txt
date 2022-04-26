@@ -21,9 +21,9 @@ tinyfpgab
 tinyprog
 yapf==0.26.0
 fasm
-git+https://github.com/QuickLogic-Corp/quicklogic-fasm.git@57b6e60574a9d483dc94710d0d3ff42a62b4ec41#egg=quicklogic_fasm
-git+https://github.com/SymbiFlow/symbiflow-rr-graph.git#egg=rr-graph
-git+https://github.com/SymbiFlow/python-fpga-interchange.git#egg=python-fpga-interchange
+https://github.com/QuickLogic-Corp/quicklogic-fasm/archive/57b6e60574a9d483dc94710d0d3ff42a62b4ec41.zip#quicklogic_fasm
+https://github.com/chipsalliance/f4pga-rr-graph/archive/master.zip#rr-graph
+https://github.com/chipsalliance/python-fpga-interchange/archive/master.zip#python-fpga-interchange
 -e third_party/prjxray
 -e third_party/xc-fasm
 -e third_party/qlf-fasm
@@ -41,6 +41,6 @@ git+https://github.com/SymbiFlow/python-fpga-interchange.git#egg=python-fpga-int
 third_party/pythondata-cpu-vexriscv
 third_party/pythondata-software-compiler_rt
 # Ibex dependencies
-git+https://github.com/lowRISC/edalize.git@ot
-git+https://github.com/lowRISC/fusesoc.git@ot
+https://github.com/lowRISC/edalize/archive/ot.zip#edalize
+https://github.com/lowRISC/fusesoc/archive/ot.zip#fusesoc
 mako
