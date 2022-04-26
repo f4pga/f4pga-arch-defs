@@ -3578,7 +3578,7 @@ endmodule
 
 //add dsp48e1
 
-module DSP48E1 (
+module DSP48E1_VPR (
   output [29: 0] ACOUT,
   output [17: 0] BCOUT,
   output         CARRYCASCOUT,
