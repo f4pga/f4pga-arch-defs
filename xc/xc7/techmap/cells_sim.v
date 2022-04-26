@@ -3575,3 +3575,88 @@ module PCIE_2_1_VPR (
   parameter [4:0] VC0_TX_LASTPACKET = 5'd0;
   parameter [1:0] CFG_ECRC_ERR_CPLSTAT = 2'd0;
 endmodule
+
+//add dsp48e1
+
+module DSP48E1 (
+  output [29: 0] ACOUT,
+  output [17: 0] BCOUT,
+  output         CARRYCASCOUT,
+  output [3:  0] CARRYOUT,
+  output         MULTSIGNOUT,
+  output         OVERFLOW,
+  output [47: 0] P,
+  output         PATTERNBDETECT,
+  output         PATTERNDETECT,
+  output [47: 0] PCOUT,
+  output         UNDERFLOW,
+  input  [29: 0] A,
+  input  [29: 0] ACIN,
+  input  [3:  0] ALUMODE,
+  input  [17: 0] B,
+  input  [17: 0] BCIN,
+  input  [47: 0] C,
+  input          CARRYCASCIN,
+  input          CARRYIN,
+  input  [2:  0] CARRYINSEL,
+  input          CEA1,
+  input          CEA2,
+  input          CEAD,
+  input          CEALUMODE,
+  input          CEB1,
+  input          CEB2,
+  input          CEC,
+  input          CECARRYIN,
+  input          CECTRL,
+  input          CED,
+  input          CEINMODE,
+  input          CEM,
+  input          CEP,
+  input          CLK,
+  input  [24: 0] D,
+  input  [4:  0] INMODE,
+  input          MULTSIGNIN,
+  input  [6:  0] OPMODE,
+  input  [47: 0] PCIN,
+  input          RSTA,
+  input          RSTALLCARRYIN,
+  input          RSTALUMODE,
+  input          RSTB,
+  input          RSTC,
+  input          RSTCTRL,
+  input          RSTD,
+  input          RSTINMODE,
+  input          RSTM,
+  input          RSTP
+);
+  parameter ACASCREG = 1;
+  parameter ADREG = 1;
+  parameter ALUMODEREG = 1;
+  parameter AREG = 1;
+  parameter AUTORESET_PATDET = "NO_RESET";
+  parameter A_INPUT = "DIRECT";
+  parameter BCASCREG = 1;
+  parameter BREG = 1;
+  parameter B_INPUT = "DIRECT";
+  parameter CARRYINREG = 1;
+  parameter CARRYINSELREG = 1;
+  parameter CREG = 1;
+  parameter DREG = 1;
+  parameter INMODEREG = 1;
+  parameter MREG = 1;
+  parameter OPMODEREG = 1;
+  parameter PREG = 1;
+  parameter SEL_MASK = "MASK";
+  parameter SEL_PATTERN = "PATTERN";
+  parameter USE_DPORT = "FALSE";
+  parameter USE_MULT = "MULTIPLY";
+  parameter USE_PATTERN_DETECT = "NO_PATDET";
+  parameter USE_SIMD = "ONE48";
+  parameter [47:0] MASK = 48'h3FFFFFFFFFFF;
+  parameter [47:0] PATTERN = 48'h000000000000;
+  parameter [3:0] IS_ALUMODE_INVERTED = 4'b0;
+  parameter [0:0] IS_CARRYIN_INVERTED = 1'b0;
+  parameter [0:0] IS_CLK_INVERTED = 1'b0;
+  parameter [4:0] IS_INMODE_INVERTED = 5'b0;
+  parameter [6:0] IS_OPMODE_INVERTED = 7'b0;
+endmodule
