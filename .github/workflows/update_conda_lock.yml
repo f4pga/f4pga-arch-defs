@@ -32,7 +32,7 @@ jobs:
         if [[ $(git status --porcelain --ignore-submodules)  ]]; then echo "::set-output name=changes::true"; else echo "::set-output name=changes::false"; fi
 
     - name: Issue Pull Request
-      if: ${{ github.ref == 'refs/heads/master' && steps.check-diff.outputs.changes == 'true' }}
+      if: ${{ github.ref == 'refs/heads/main' && steps.check-diff.outputs.changes == 'true' }}
       uses: peter-evans/create-pull-request@v4
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
