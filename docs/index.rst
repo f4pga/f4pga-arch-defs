@@ -41,3 +41,5 @@ Contents
 
    bitdoc/index
    bitdoc/prjxray/index
+   Database visualizer ➚ <https://chipsalliance.github.io/f4pga-database-visualizer/>
+   Bitstream viewer ➚ <https://github.com/chipsalliance/f4pga-bitstream-viewer>

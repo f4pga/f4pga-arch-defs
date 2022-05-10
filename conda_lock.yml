@@ -1,4 +1,4 @@
-name: symbiflow_arch_def_base
+name: f4pga_arch_def_base
 channels:
   - litex-hub
   - defaults
@@ -188,5 +188,4 @@ dependencies:
     - -e quicklogic/common/utils/quicklogic-timings-importer
     - third_party/pythondata-cpu-vexriscv
     - third_party/pythondata-software-compiler_rt
-prefix: /usr/share/miniconda/envs/symbiflow_arch_def_base
-
+prefix: /usr/share/miniconda/envs/f4pga_arch_def_base

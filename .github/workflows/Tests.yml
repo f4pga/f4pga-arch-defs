@@ -5,36 +5,60 @@ on:
 
 jobs:
 
+
   Test:
     container: ubuntu:bionic
-    runs-on: [self-hosted, Linux, X64]
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
+
     strategy:
       fail-fast: false
       matrix:
-        test: ['docs', 'testarch', 'tests', 'ice40', 'xc7', 'xc7-vendor', 'xc7a200t', 'xc7a200t-vendor', 'ql']
+        test:
+          - 'docs'
+          - 'testarch'
+          - 'tests'
+          - 'ice40'
+          - 'xc7'
+          - 'xc7-vendor'
+          - 'xc7a200t'
+          - 'xc7a200t-vendor'
+          - 'ql'
+
+    name: ${{ matrix.test }}
+
     env:
       MAX_CORES: 80
       GHA_EXTERNAL_DISK: "tools"
 
     steps:
 
-      - uses: actions/checkout@v3
+      - name: '🧰 Checkout'
+        uses: actions/checkout@v3
         with:
           submodules: recursive
 
-      - name: Execute test script
+      - name: '🚧 Execute test script'
         run: stdbuf -i0 -o0 -e0 ./.github/ci/${{ matrix.test }}.sh
 
-      - uses: actions/upload-artifact@v3
-        if: ${{ always() }}
+      - name: '📤 Upload artifact: results and plot'
+        uses: actions/upload-artifact@v3
+        if: always()
         with:
           path: |
             **/results*.gz
             **/plot_*.svg
 
+
   Install:
     container: ubuntu:bionic
-    runs-on: [self-hosted, Linux, X64]
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
+
     needs: Test
 
     env:
@@ -45,14 +69,16 @@ jobs:
 
     steps:
 
-      - uses: actions/checkout@v3
+      - name: '🧰 Checkout'
+        uses: actions/checkout@v3
         with:
           submodules: recursive
 
-      - name: Execute test script
+      - name: '🚧 Execute test script'
         run: stdbuf -i0 -o0 -e0 ./.github/ci/install.sh
 
-      - uses: actions/upload-artifact@v3
+      - name: '📤 Upload artifact: results and plot'
+        uses: actions/upload-artifact@v3
         if: ${{ always() }}
         with:
           path: |
