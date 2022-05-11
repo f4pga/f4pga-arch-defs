@@ -1,0 +1,7 @@
+project_ray_tile(
+  ARCH spartan7
+  TILE TIEOFF
+  SITE_AS_TILE
+  SITE_TYPES TIEOFF/TIEOFF
+  EQUIVALENT_SITES TIEOFF
+  )

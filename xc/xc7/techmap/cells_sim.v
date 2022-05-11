@@ -3576,8 +3576,6 @@ module PCIE_2_1_VPR (
   parameter [1:0] CFG_ECRC_ERR_CPLSTAT = 2'd0;
 endmodule
 
-//add dsp48e1
-
 module DSP48E1_VPR (
   output [29: 0] ACOUT,
   output [17: 0] BCOUT,
@@ -3654,9 +3652,4 @@ module DSP48E1_VPR (
   parameter USE_SIMD = "ONE48";
   parameter [47:0] MASK = 48'h3FFFFFFFFFFF;
   parameter [47:0] PATTERN = 48'h000000000000;
-  parameter [3:0] IS_ALUMODE_INVERTED = 4'b0;
-  parameter [0:0] IS_CARRYIN_INVERTED = 1'b0;
-  parameter [0:0] IS_CLK_INVERTED = 1'b0;
-  parameter [4:0] IS_INMODE_INVERTED = 5'b0;
-  parameter [6:0] IS_OPMODE_INVERTED = 7'b0;
 endmodule

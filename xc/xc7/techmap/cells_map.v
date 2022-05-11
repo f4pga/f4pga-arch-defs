@@ -1344,11 +1344,6 @@ module RAMB36E1 (
     input RSTREGARSTREG,
     input RSTREGB,
 
-    input CASCADEINA,
-    input CASCADEINB,
-    input INJECTDBITERR,
-    input INJECTSBITERR,
-
     input [14:0] ADDRARDADDR,
     input [14:0] ADDRBWRADDR,
     input [31:0] DIADI,
@@ -1361,20 +1356,13 @@ module RAMB36E1 (
     output [31:0] DOADO,
     output [31:0] DOBDO,
     output [3:0] DOPADOP,
-    output [3:0] DOPBDOP,
-
-    output CASCADEOUTA,
-    output CASCADEOUTB,
-    output DBITERR,
-    output [7:0] ECCPARITY,
-    output [8:0] RDADDRECC,
-    output SBITERR
+    output [3:0] DOPBDOP
 );
-    parameter [35:0] INIT_A = 36'h0;
-    parameter [35:0] INIT_B = 36'h0;
+    parameter INIT_A = 36'h0;
+    parameter INIT_B = 36'h0;
 
-    parameter [35:0] SRVAL_A = 36'h0;
-    parameter [35:0] SRVAL_B = 36'h0;
+    parameter SRVAL_A = 36'h0;
+    parameter SRVAL_B = 36'h0;
 
    `define INIT_BLOCK(pre) \
     parameter ``pre``0 = 256'h0000000000000000000000000000000000000000000000000000000000000000; \
@@ -1432,8 +1420,8 @@ module RAMB36E1 (
 
     parameter RAM_MODE = "TDP";
     parameter SIM_DEVICE = "7SERIES";
-    parameter [0:0] DOA_REG = 1'b0;
-    parameter [0:0] DOB_REG = 1'b0;
+    parameter DOA_REG = 1'b0;
+    parameter DOB_REG = 1'b0;
 
     parameter integer READ_WIDTH_A = 0;
     parameter integer READ_WIDTH_B = 0;
@@ -10790,8 +10778,9 @@ module PCIE_2_1 (
   );
 endmodule
 
-//Add dsp48e1
-//
+// ============================================================================
+// The dsp48e1
+
 module DSP48E1 (
   output [29: 0] ACOUT,
   output [17: 0] BCOUT,
@@ -10868,22 +10857,17 @@ module DSP48E1 (
   parameter USE_SIMD = "ONE48";
   parameter [47:0] MASK = 48'h3FFFFFFFFFFF;
   parameter [47:0] PATTERN = 48'h000000000000;
-  parameter [3:0] IS_ALUMODE_INVERTED = 4'b0;
-  parameter [0:0] IS_CARRYIN_INVERTED = 1'b0;
-  parameter [0:0] IS_CLK_INVERTED = 1'b0;
-  parameter [4:0] IS_INMODE_INVERTED = 5'b0;
-  parameter [6:0] IS_OPMODE_INVERTED = 7'b0;
 
   DSP48E1_VPR #(
     .ACASCREG(ACASCREG),
     .ADREG(ADREG),
     .ALUMODEREG(ALUMODEREG),
     .AREG(AREG),
-    .AUTORESET_PATDET_NO_RESET(AUTORESET_PATDET == "NO_RESET"),
-    .A_INPUT_DIRECT(A_INPUT == "DIRECT"),
+    .AUTORESET_PATDET(AUTORESET_PATDET == "NO_RESET"),
+    .A_INPUT(A_INPUT == "DIRECT"),
     .BCASCREG(BCASCREG),
     .BREG(BREG),
-    .B_INPUT_DIRECT(B_INPUT == "DIRECT")
+    .B_INPUT(B_INPUT == "DIRECT"),
     .CARRYINREG(CARRYINREG),
     .CARRYINSELREG(CARRYINSELREG),
     .CREG(CREG),
@@ -10892,19 +10876,14 @@ module DSP48E1 (
     .MREG(MREG),
     .OPMODEREG(OPMODEREG),
     .PREG(PREG),
-    .SEL_MASK_MASK(SEL_MASK == "MASK"),
-    .SEL_PATTERN_PATTERN(SEL_PATTERN == "PATTERN"),
-    .USE_DPORT_MULTIPLY(USE_DPORT == "FALSE"),
-    .USE_MULT_(USE_MULT == "MULTIPLY"),
-    .USE_PATTERN_DETECT_NO_PATDET(USE_PATTERN_DETECT == "NO_PATDET"),
-    .USE_SIMD_ONE48(USE_SIMD == "ONE48"),
+    .SEL_MASK(SEL_MASK == "MASK"),
+    .SEL_PATTERN(SEL_PATTERN == "PATTERN"),
+    .USE_DPORT(USE_DPORT == "FALSE"),
+    .USE_MULT(USE_MULT == "MULTIPLY"),
+    .USE_PATTERN_DETECT(USE_PATTERN_DETECT == "NO_PATDET"),
+    .USE_SIMD(USE_SIMD == "ONE48"),
     .MASK(MASK),
     .PATTERN(PATTERN),
-    .IS_ALUMODE_INVERTED(IS_ALUMODE_INVERTED),
-    .IS_CARRYIN_INVERTED(IS_CARRYIN_INVERTED),
-    .IS_CLK_INVERTED(IS_CLK_INVERTED),
-    .IS_INMODE_INVERTED(IS_INMODE_INVERTED),
-    .IS_OPMODE_INVERTED(IS_OPMODE_INVERTED)
   ) _TECHMAP_REPLACE_ (
     .ACOUT(ACOUT),
     .ACOUT(ACOUT),

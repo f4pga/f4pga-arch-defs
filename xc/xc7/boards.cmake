@@ -179,3 +179,11 @@ add_xc_board(
   PART xc7z020clg400-1
   PROG_CMD "${OPENOCD} -f ${OPENOCD_DATADIR}/scripts/interface/ftdi/digilent-hs1.cfg -f ${OPENOCD_DATADIR}/scripts/target/zynq_7000.cfg -c \\\"ftdi_tdo_sample_edge falling $<SEMICOLON> adapter_khz 1000000 $<SEMICOLON> init $<SEMICOLON> pld load 0 \${OUT_BIN} $<SEMICOLON> exit\\\""
 )
+
+#add Alinx AX7050 board
+add_xc_board(
+  BOARD ax7050
+  DEVICE xc7s50
+  PACKAGE test
+  PART xc7s50fgga484-1
+)

@@ -45,6 +45,7 @@ add_subdirectory(gtp_common)
 add_subdirectory(gtp_channel)
 add_subdirectory(pcie)
 add_subdirectory(pcie_complex)
+add_subdirectory(dsp)
 
 # Tests with dependencies
 set(COUNTER_SRC ${symbiflow-arch-defs_SOURCE_DIR}/xc/xc7/tests/counter)

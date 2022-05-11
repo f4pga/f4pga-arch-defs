@@ -21,7 +21,7 @@ source [file join [file normalize [info script]] .. utils.tcl]
 #
 # Do not infer IOBs for targets that use a ROI.
 if { $::env(USE_ROI) == "TRUE" } {
-    synth_xilinx -flatten -nosrl -noclkbuf -nodsp -noiopad -nowidelut
+    synth_xilinx -flatten -nosrl -noclkbuf -noiopad -nowidelut
 } else {
     # Read Yosys baseline library first.
     read_verilog -lib -specify +/xilinx/cells_sim.v
@@ -43,7 +43,7 @@ if { $::env(USE_ROI) == "TRUE" } {
     }
 
     # Start flow after library reading
-    synth_xilinx -flatten -nosrl -noclkbuf -nodsp -iopad -nowidelut -run prepare:check
+    synth_xilinx -flatten -nosrl -noclkbuf -iopad -nowidelut -run prepare:check
 }
 
 # Check that post-synthesis cells match libraries.
@@ -163,9 +163,9 @@ hierarchy -check
 
 write_ilang $::env(OUT_JSON).pre_abc9.ilang
 if { $::env(USE_ROI) == "TRUE" } {
-    synth_xilinx -flatten -abc9 -nosrl -noclkbuf -nodsp -noiopad -nowidelut -run map_ffs:check
+    synth_xilinx -flatten -abc9 -nosrl -noclkbuf -noiopad -nowidelut -run map_ffs:check
 } else {
-    synth_xilinx -flatten -abc9 -nosrl -noclkbuf -nodsp -iopad -nowidelut -run map_ffs:check
+    synth_xilinx -flatten -abc9 -nosrl -noclkbuf -iopad -nowidelut -run map_ffs:check
 }
 
 write_ilang $::env(OUT_JSON).post_abc9.ilang
