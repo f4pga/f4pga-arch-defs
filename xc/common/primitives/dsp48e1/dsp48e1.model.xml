@@ -3,12 +3,12 @@
     <input_ports>
     	<port is_clock="1" name="CLK"           />
     	<port clock="CLK"  name="A"             />
-    	<port clock="CLK"  name="ACIN"          />
+	<port clock="CLK"  name="ACIN"          />
     	<port clock="CLK"  name="ALUMODE"       />
     	<port clock="CLK"  name="B"             />
-    	<port clock="CLK"  name="BCIN"          />
+	<port clock="CLK"  name="BCIN"          />
     	<port clock="CLK"  name="C"             />
-    	<port clock="CLK"  name="CARRYCASCIN"   />
+	<port clock="CLK"  name="CARRYCASCIN"   />
     	<port clock="CLK"  name="CARRYIN"       />
     	<port clock="CLK"  name="CARRYINSEL"    />
     	<port clock="CLK"  name="CEA1"          />
@@ -26,9 +26,9 @@
     	<port clock="CLK"  name="CEP"           />
     	<port clock="CLK"  name="D"             />
     	<port clock="CLK"  name="INMODE"        />
-    	<port clock="CLK"  name="MULTSIGNIN"    />
+	<!--<port clock="CLK"  name="MULTSIGNIN"    /> -->
     	<port clock="CLK"  name="OPMODE"        />
-    	<port clock="CLK"  name="PCIN"          />
+	<port clock="CLK"  name="PCIN"          />
     	<port clock="CLK"  name="RSTA"          />
     	<port clock="CLK"  name="RSTALLCARRYIN" />
     	<port clock="CLK"  name="RSTALUMODE"    />
