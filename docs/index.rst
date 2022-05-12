@@ -25,6 +25,7 @@ Contents
    :maxdepth: 2
 
    getting-started
+   README
 
 .. toctree::
    :maxdepth: 2
