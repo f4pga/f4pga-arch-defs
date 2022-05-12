@@ -15,21 +15,21 @@ heading "Installing gsutil"
 )
 echo "----------------------------------------"
 
+heading "Set environment variables for F4PGA CLI utils"
+{
+	export F4PGA_FAM=xc7
+	export F4PGA_ENV_BIN="$(cd $(dirname "$0"); pwd)/../../env/conda/envs/symbiflow_arch_def_base/bin"
+	export F4PGA_ENV_SHARE="$(cd $(dirname "$0"); pwd)/../../install/share/symbiflow"
+}
+
+echo "----------------------------------------"
+
 pushd build
 make_target install "Running install tests (make install)"
 popd
 
 cp environment.yml install/
 
-echo "----------------------------------------"
-
-heading "Install f4pga CLI through pip"
-{
-	pip3 install https://github.com/chipsalliance/f4pga/archive/main.zip#subdirectory=f4pga
-	export F4PGA_FAM=xc7
-	export F4PGA_ENV_BIN="$(cd $(dirname "$0")/../../env/conda/envs/symbiflow_arch_def_base/bin; pwd)"
-	export F4PGA_ENV_SHARE="$(cd $(dirname "$0")/../../install/share/symbiflow; pwd)"
-}
 echo "----------------------------------------"
 
 heading "Running installed toolchain tests"
