@@ -33,6 +33,7 @@ Contents
 
    development/cmake
    development/structure
+   development/notes
    development/vtr_notes
    development/arch_notes
 

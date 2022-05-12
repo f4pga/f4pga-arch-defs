@@ -1,43 +1,3 @@
-# Getting Started
-
-To initialize submodules and setup the CMake build system, from the root of the `f4pga-arch-defs` directory run:
-
-```bash
-make env
-```
-
-To build all demo bitstreams there are 3 useful targets:
-
-```bash
-# Build all demo bitstreams, targetting all architectures
-make all_demos
-
-# Build all 7-series demo bitstreams
-make all_xc7
-
-# Build all ice40 demo bitstreams
-make all_ice40
-```
-
-Specific bitstreams can be built by specifying their target name, followed by a suffix specifying the desired output.
-For example, the LUT-RAM test for the RAM64X1D primative is called `dram_test_64x1d`.
-Example targets are:
-
-
-```bash
-# Just run synthesis on the input Verilog
-make dram_test_64x1d_eblif
-
-# Complete synthesis and place and route the circuit
-make dram_test_64x1d_route
-
-# Create the output bitstream (including synthesis and place and route)
-make dram_test_64x1d_bin
-
-# Run bitstream back into Vivado for timing checks, etc.
-make dram_test_64x1d_vivado
-```
-
 # Tools
 
 ## Installed via submodules
@@ -95,19 +55,3 @@ A set of latest architecture build artifact links is generated and uploaded to a
 To run examples provided, please make sure these resources are available:
  * Memory: 5.5G
  * Disk space: 20G
-
-# Development notes
-
-Since Architecture Definitons rely on yosys and VPR, it may be useful to override the default packaged binaries with
-locally supplied binaries.
-The build system allows this via environment variables matching the executable name.
-Here is a list of common environment variables to defined when doing local yosys and VPR development.
-
-* YOSYS : Path to yosys executable to use.
-* VPR : Path to VPR executable to use.
-* GENFASM : Path genfasm executable to use.
-
-There are more binaries that are packaged (e.g. VVP), but the packaged versions are typically good enough for most use
-cases.
-
-After setting or clearing one of these environment variables, CMake needs to be re-run.

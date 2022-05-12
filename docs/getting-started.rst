@@ -13,7 +13,7 @@ The following steps describe the whole process:
 Clone repository
 ================
 
-.. code-block:: bash
+.. sourcecode:: bash
 
     git clone https://github.com/chipsalliance/f4pga-arch-defs.git
 
@@ -22,7 +22,7 @@ Prepare environment
 
 Download all the necessary packages, tools and databases into an isolated conda environment:
 
-.. code-block:: bash
+.. sourcecode:: bash
 
     cd f4pga-arch-defs
     make env
@@ -30,7 +30,7 @@ Download all the necessary packages, tools and databases into an isolated conda 
 This also checks out all the submodules and generates the build system (``Make`` or ``Ninja``) from the CMake configuration.
 If you want to use the ``Ninja`` build tool add this line before calling ``make env``:
 
-.. code-block:: bash
+.. sourcecode:: bash
 
     export CMAKE_FLAGS="-GNinja"
 
@@ -49,25 +49,56 @@ specific to your target architecture and invoke desired make target.
 Assuming that you would like to generate the bitstream ``.bit`` file with the counter example for the Arty board, which
 uses Xilinx Artix-7 FPGA, you will execute the following:
 
-.. code-block:: bash
+.. sourcecode:: bash
 
-    cd build/xc/xc7/tests/counter
-    make counter_arty_bit
+  cd build/xc/xc7/tests/counter
+  make counter_arty_bit
 
 If you use ``Ninja`` then the target is accessible from root build directory:
 
-.. code-block:: bash
+.. sourcecode:: bash
 
-    cd build
-    ninja counter_arty_bit
+  cd build
+  ninja counter_arty_bit
 
 .. note::
 
-   Test design targets names are based on the following naming convention:  ``<design>_<platform>_<target_step>``, where ``<target_step>`` is the actual step to be done, e.g.: ``bit``, ``place``, ``route``, ``prog``.
+ Test design targets names are based on the following naming convention:  ``<design>_<platform>_<target_step>``, where ``<target_step>`` is the actual step to be done, e.g.: ``bit``, ``place``, ``route``, ``prog``.
 
 .. warning::
 
-    Generating architecture files is expected to take a long time to build, even on fast machines.
+  Generating architecture files is expected to take a long time to build, even on fast machines.
+
+To build all demo bitstreams there are 3 useful targets:
+
+.. sourcecode:: bash
+
+  # Build all demo bitstreams, targetting all architectures
+  make all_demos
+
+  # Build all 7-series demo bitstreams
+  make all_xc7
+
+  # Build all ice40 demo bitstreams
+  make all_ice40
+
+Specific bitstreams can be built by specifying their target name, followed by a suffix specifying the desired output.
+For example, the LUT-RAM test for the RAM64X1D primative is called `dram_test_64x1d`.
+Example targets are:
+
+.. sourcecode:: bash
+
+  # Just run synthesis on the input Verilog
+  make dram_test_64x1d_eblif
+
+  # Complete synthesis and place and route the circuit
+  make dram_test_64x1d_route
+
+  # Create the output bitstream (including synthesis and place and route)
+  make dram_test_64x1d_bin
+
+  # Run bitstream back into Vivado for timing checks, etc.
+  make dram_test_64x1d_vivado
 
 Load bitstream
 ==============
@@ -84,13 +115,13 @@ and ``tinyprog``.
 
 For convenience the ``prog`` targets are provided for loading the bitstream, e.g.:
 
-.. code-block:: bash
+.. sourcecode:: bash
 
     make counter_arty_prog
 
 or for ``Ninja``:
 
-.. code-block:: bash
+.. sourcecode:: bash
 
     ninja counter_arty_prog
 
@@ -123,7 +154,7 @@ Usage
 
 For programming the FPGA use one of these commands:
 
-.. code-block:: bash
+.. sourcecode:: bash
 
     openFPGALoader -b <board> <bitstream>           # (e.g. arty)
     openFPGALoader -c <cable> <bitstream>           # (e.g. digilent)
@@ -131,7 +162,7 @@ For programming the FPGA use one of these commands:
 
 You can also list the supported boards, cables and fpgas:
 
-.. code-block:: bash
+.. sourcecode:: bash
 
     openFPGALoader --list-boards
     openFPGALoader --list-cables
