@@ -133,5 +133,47 @@
  <T_clock_to_Q max="{iopath_CLK_PATTERNDETECT}"    port="PATTERNDETECT"  clock="CLK" />
  <T_clock_to_Q max="{iopath_CLK_PCOUT}"            port="PCOUT"          clock="CLK" />
  <T_clock_to_Q max="{iopath_CLK_UNDERFLOW}"        port="UNDERFLOW"      clock="CLK" />
- 
+
+    <!-- Metadata -->
+  <metadata>
+    <meta name="fasm_prefix">
+      DSP48
+    </meta>
+    <meta name="fasm_features">
+      AREG_0
+      BREG_0
+      SEL_MASK_ROUNDING_MODE2
+      USE_SIMD_FOUR12
+    </meta>
+    <meta name="fasm_params">
+      A_INPUT = A_INPUT
+      AREG_2 = AREG_2
+      AUTORESET_PATDET_RESET = AUTORESET_PATDET_RESET
+      AUTORESET_PATDET_RESET_NOT_MATCH = AUTORESET_PATDET_RESET_NOT_MATCH
+      B_INPUT = B_INPUT
+      BREG_2 = BREG_2
+      MASK[47:0] = MASK
+      PATTERN[47:0] = PATTERN
+      SEL_MASK_C = SEL_MASK_C
+      SEL_MASK_ROUNDING_MODE1 = SEL_MASK_ROUNDING_MODE1
+      USE_DPORT = USE_DPORT
+      USE_SIMD_FOUR12_TWO24 = USE_SIMD_FOUR12_TWO24
+      ZADREG = ZADREG
+      ZALUMODEREG = ZALUMODEREG
+      ZAREG_2_ACASCREG_1 = ZAREG_2_ACASCREG_1
+      ZBREG_2_BCASCREG_1 = ZBREG_2_BCASCREG_1
+      ZCARRYINREG = ZCARRYINREG
+      ZCARRYINSELREG = ZCARRYINSELREG
+      ZCREG = ZCREG
+      ZDREG = ZDREG
+      ZINMODEREG = ZINMODEREG
+      ZIS_ALUMODE_INVERTED[3:0] = ZIS_ALUMODE_INVERTED
+      ZIS_CARRYIN_INVERTED[3:0] = ZIS_CARRYIN_INVERTED
+      ZIS_CLK_INVERTED = ZIS_CLK_INVERTED
+      ZIS_INMODE_INVERTED[7:0] = ZIS_INMODE_INVERTED
+      ZMREG = ZMREG
+      ZOPMODEREG = ZOPMODEREG
+      ZPREG = ZPREG
+    </meta>
+  </metadata>
 </pb_type>
