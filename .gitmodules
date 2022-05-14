@@ -70,6 +70,6 @@
 [submodule "third_party/ql-pp3e"]
 	path = third_party/ql-pp3e
 	url = https://github.com/QuickLogic-Corp/PolarPro3E
-[submodule "quicklogic/common/utils/quicklogic-timings-importer"]
+[submodule "archs/quicklogic/common/utils/quicklogic-timings-importer"]
 	path = archs/quicklogic/common/utils/quicklogic-timings-importer
 	url = https://github.com/QuickLogic-Corp/quicklogic-timings-importer
