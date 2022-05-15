@@ -6,7 +6,7 @@ on:
 jobs:
 
   Check-statuses:
-    if: ${{ contains(github.event.branches.*.name, 'master') == 1 }}
+    if: contains(github.event.branches.*.name, 'main')
     runs-on: ubuntu-latest
     steps:
 
