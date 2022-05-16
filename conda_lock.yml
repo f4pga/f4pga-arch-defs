@@ -185,7 +185,7 @@ dependencies:
     - -e third_party/liteeth
     - -e third_party/liteiclink
     - -e third_party/migen
-    - -e quicklogic/common/utils/quicklogic-timings-importer
+    - -e archs/quicklogic/common/utils/quicklogic-timings-importer
     - third_party/pythondata-cpu-vexriscv
     - third_party/pythondata-software-compiler_rt
 prefix: /usr/share/miniconda/envs/f4pga_arch_def_base

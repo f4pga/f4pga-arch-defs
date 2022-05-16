@@ -140,7 +140,7 @@ function(GET_VERILOG_INCLUDES var file)
   # is called during configure step and generated files don't exist yet.
   execute_process(
     COMMAND
-      ${PYTHON_EXECUTABLE} ${symbiflow-arch-defs_SOURCE_DIR}/utils/deps_verilog.py
+      ${PYTHON_EXECUTABLE} ${symbiflow-arch-defs_SOURCE_DIR}/tools/utils/deps_verilog.py
       --file_per_line ${CMAKE_CURRENT_SOURCE_DIR}/${file}
     WORKING_DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}
     OUTPUT_VARIABLE INCLUDES
@@ -177,7 +177,7 @@ function(GET_XML_INCLUDES var file)
   # is called during configure step and generated files don't exist yet.
   execute_process(
     COMMAND
-      ${PYTHON_EXECUTABLE} ${symbiflow-arch-defs_SOURCE_DIR}/utils/deps_xml.py
+      ${PYTHON_EXECUTABLE} ${symbiflow-arch-defs_SOURCE_DIR}/tools/utils/deps_xml.py
       --file_per_line ${CMAKE_CURRENT_SOURCE_DIR}/${file}
     WORKING_DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}
     OUTPUT_VARIABLE INCLUDES
