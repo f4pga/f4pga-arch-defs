@@ -38,6 +38,16 @@ exclude_patterns = ['_buld']
 
 pygments_style = 'default'
 
+rst_prolog = """
+.. IMPORTANT::
+  Since May 2022, packages providing Architecture Definition assets do *not* include CLI
+  utilities/wrappers to interact with Yosys, Verilog-to-Routing, etc.
+  For backwards compatibility, end-users can install Python package ``f4pga`` from
+  :gh:`chipsalliance/f4pga`.
+  For instance:
+  ``pip install https://github.com/chipsalliance/f4pga/archive/main.zip#subdirectory=f4pga``.
+"""
+
 todo_include_todos = False
 
 # -- Options for HTML output -----------------------------------------------------------------------
