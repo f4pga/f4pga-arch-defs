@@ -1,4 +1,4 @@
 myst-parser
 sphinx
-http://github.com/SymbiFlow/sphinx_symbiflow_theme/archive/chips.zip#sphinx-symbiflow-theme
+http://github.com/f4pga/sphinx_f4pga_theme/archive/f4pga.zip#sphinx-f4pga-theme
 sphinxcontrib-images
