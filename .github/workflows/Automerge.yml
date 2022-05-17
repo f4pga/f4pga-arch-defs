@@ -39,7 +39,7 @@ jobs:
         run: pip install PyGithub git+https://github.com/SymbiFlow/symbiflow-tools-data-manager#egg=stdm --progress-bar off
 
       - name: '🚧 Check Status'
-        run: ./.github/ci/check-status.py
+        run: ./.github/scripts/check-status.py
         id: check
         env:
           GITHUB_REPOSITORY: ${{ github.repo }}
