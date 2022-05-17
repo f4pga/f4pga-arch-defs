@@ -21,34 +21,9 @@ function(DEFINE_XC_TOOLCHAIN_TARGET)
 
   get_target_property_required(VPR env VPR)
   get_target_property_required(GENFASM env GENFASM)
-
-  set(VPR_ARCH_ARGS ${DEFINE_XC_TOOLCHAIN_TARGET_VPR_ARCH_ARGS})
-  set(ROUTE_CHAN_WIDTH ${DEFINE_XC_TOOLCHAIN_TARGET_ROUTE_CHAN_WIDTH})
-  list(JOIN VPR_BASE_ARGS " " VPR_BASE_ARGS)
-  string(JOIN " " VPR_ARGS ${VPR_BASE_ARGS} "--route_chan_width ${ROUTE_CHAN_WIDTH}" ${VPR_ARCH_ARGS})
   get_target_property_required(FAMILY ${ARCH} FAMILY)
   get_target_property_required(DOC_PRJ ${ARCH} DOC_PRJ)
   get_target_property_required(DOC_PRJ_DB ${ARCH} DOC_PRJ_DB)
-
-  set(WRAPPERS
-    symbiflow_generate_constraints
-    symbiflow_pack
-    symbiflow_place
-    symbiflow_route
-    symbiflow_synth
-    symbiflow_write_bitstream
-    symbiflow_write_fasm
-    vpr_common)
-  set(TOOLCHAIN_WRAPPERS)
-
-  foreach(WRAPPER ${WRAPPERS})
-    set(WRAPPER_PATH "${symbiflow-arch-defs_SOURCE_DIR}/xc/${FAMILY}/toolchain_wrappers/${WRAPPER}")
-    list(APPEND TOOLCHAIN_WRAPPERS ${WRAPPER_PATH})
-  endforeach()
-
-  install(FILES ${TOOLCHAIN_WRAPPERS}
-          DESTINATION bin
-          PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
   # install python scripts
   install(FILES

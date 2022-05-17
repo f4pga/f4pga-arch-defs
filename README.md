@@ -14,7 +14,7 @@
   -->
   <a title="Documentation Status" href="https://f4pga.readthedocs.io/projects/arch-defs/"><img alt="Documentation Status" src="https://img.shields.io/readthedocs/symbiflow-arch-defs/latest?longCache=true&style=flat-square&logo=ReadTheDocs&logoColor=fff&label=Architecture%20Definitions%20Documentation"></a><!--
   -->
-  <a title="'Automerge' workflow status" href="https://github.com/SymbiFlow/f4pga-arch-defs/actions/workflows/Doc.yml"><img alt="'Automerge' workflow status" src="https://img.shields.io/github/workflow/status/SymbiFlow/f4pga-arch-defs/Automerge/main?longCache=true&style=flat-square&label=Tests&logo=Github%20Actions&logoColor=fff"></a><!--
+  <a title="'Automerge' workflow status" href="https://github.com/SymbiFlow/f4pga-arch-defs/actions/workflows/Automerge.yml"><img alt="'Automerge' workflow status" src="https://img.shields.io/github/workflow/status/SymbiFlow/f4pga-arch-defs/Automerge/main?longCache=true&style=flat-square&label=Tests&logo=Github%20Actions&logoColor=fff"></a><!--
   -->
 </p>
 

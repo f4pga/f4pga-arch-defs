@@ -15,6 +15,15 @@ heading "Installing gsutil"
 )
 echo "----------------------------------------"
 
+heading "Set environment variables for F4PGA CLI utils"
+{
+	export F4PGA_FAM=xc7
+	export F4PGA_ENV_BIN="$(cd $(dirname "$0"); pwd)/../../env/conda/envs/symbiflow_arch_def_base/bin"
+	export F4PGA_ENV_SHARE="$(cd $(dirname "$0"); pwd)/../../install/share/symbiflow"
+}
+
+echo "----------------------------------------"
+
 pushd build
 make_target install "Running install tests (make install)"
 popd
@@ -44,7 +53,7 @@ heading "Compressing install dir (creating packages)"
 
 	du -ah install
 	export GIT_HASH=$(git rev-parse --short HEAD)
-	tar -I "pixz" -cvf symbiflow-arch-defs-install-${GIT_HASH}.tar.xz -C install bin share/symbiflow/techmaps share/symbiflow/scripts environment.yml
+	tar -I "pixz" -cvf symbiflow-arch-defs-install-${GIT_HASH}.tar.xz -C install share/symbiflow/techmaps share/symbiflow/scripts environment.yml
 	tar -I "pixz" -cvf symbiflow-arch-defs-benchmarks-${GIT_HASH}.tar.xz -C install benchmarks
 	for device in $(ls install/share/symbiflow/arch)
 	do

@@ -23,31 +23,6 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
     return()
   endif ()
 
-  set(WRAPPERS
-        env
-        ql_symbiflow
-        symbiflow_analysis
-        symbiflow_generate_bitstream
-        symbiflow_generate_constraints
-        symbiflow_generate_libfile
-        symbiflow_pack
-        symbiflow_place
-        symbiflow_repack
-        symbiflow_route
-        symbiflow_synth
-        symbiflow_write_fasm
-  )
-
-  # Export VPR arguments
-  list(JOIN VPR_BASE_ARGS " " VPR_BASE_ARGS)
-  string(JOIN " " VPR_ARGS ${VPR_BASE_ARGS} "--route_chan_width ${ROUTE_CHAN_WIDTH}" ${VPR_ARCH_ARGS})
-
-  set(VPR_CONFIG_TEMPLATE "${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/toolchain_wrappers/vpr_config.sh")
-  set(VPR_CONFIG "${CMAKE_CURRENT_BINARY_DIR}/vpr_config.sh")
-  configure_file(${VPR_CONFIG_TEMPLATE} "${VPR_CONFIG}" @ONLY)
-
-  set(VPR_COMMON "${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/toolchain_wrappers/vpr_common")
-
   # Add cells.sim to all deps, so it is installed with make install
   get_file_target(CELLS_SIM_TARGET ${DEFINE_QL_TOOLCHAIN_TARGET_CELLS_SIM})
   add_custom_target(
@@ -55,16 +30,6 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
     ALL
     DEPENDS ${DEFINE_QL_TOOLCHAIN_TARGET_CELLS_SIM}
     )
-
-  set(TOOLCHAIN_WRAPPERS)
-  foreach(WRAPPER ${WRAPPERS})
-    set(WRAPPER_PATH "${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/toolchain_wrappers/${WRAPPER}")
-    list(APPEND TOOLCHAIN_WRAPPERS ${WRAPPER_PATH})
-  endforeach()
-
-  install(FILES ${TOOLCHAIN_WRAPPERS} ${VPR_COMMON}
-          DESTINATION bin
-          PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
   install(FILES ${VPR_CONFIG}
           DESTINATION share/symbiflow/scripts/${FAMILY})
