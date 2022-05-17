@@ -932,6 +932,7 @@ def main():
         "xc7a": "artix7",
         "xc7k": "kintex7",
         "xc7z": "zynq7",
+        "xc7s": "spartan7",
     }
 
     device_family = None
