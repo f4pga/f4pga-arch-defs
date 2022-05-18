@@ -1,14 +1,31 @@
 F4PGA Architecture Definitions
 ==============================
 
-***Warning: This project is a work in progress and many items may be broken.***
+.. image:: _static/images/overview.svg
+  :align: center
+  :width: 50%
 
 This project contains documentation of various FPGA architectures, it is currently concentrating on;
 
-* Lattice iCE40
-* Artix 7
+* Lattice
 
-The aim is to include useful documentation (both human and machine readable) on the primitives and routing infrastructure for these architectures. We hope this enables growth in the open source FPGA tools space.
+  * iCE40
+
+  * ECP5
+
+* AMD/Xilinx
+
+  * Series 7 (Artix, Kintex and Zynq)
+
+* QuickLogic
+
+  * EOS-S3
+
+  * QLF-K4N8
+
+The aim is to include useful documentation (both human and machine readable) on the primitives and routing
+infrastructure for these architectures.
+We hope this enables growth in the open source FPGA tools space.
 
 The project includes;
 
