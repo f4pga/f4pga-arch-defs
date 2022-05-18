@@ -43,14 +43,6 @@ jobs:
       - name: '🚧 Execute test script'
         run: stdbuf -i0 -o0 -e0 ./.github/ci/${{ matrix.test }}.sh
 
-      - name: '📤 Upload artifact: results and plot'
-        uses: actions/upload-artifact@v3
-        if: always()
-        with:
-          path: |
-            **/results*.gz
-            **/plot_*.svg
-
 
   Install:
     needs: Test
@@ -75,11 +67,3 @@ jobs:
 
       - name: '🚧 Execute test script'
         run: stdbuf -i0 -o0 -e0 ./.github/ci/install.sh
-
-      - name: '📤 Upload artifact: results and plot'
-        uses: actions/upload-artifact@v3
-        if: ${{ always() }}
-        with:
-          path: |
-            **/results*.gz
-            **/plot_*.svg
