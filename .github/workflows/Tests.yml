@@ -64,7 +64,6 @@ jobs:
       MAX_CORES: 80
       GHA_EXTERNAL_DISK: "tools"
       GHA_SA: "gh-sa-f4pga-arch-defs-ci"
-      UPLOAD_PACKAGES: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
 
     steps:
 
@@ -75,6 +74,20 @@ jobs:
 
       - name: '🚧 Execute test script'
         run: stdbuf -i0 -o0 -e0 ./.github/ci/install.sh
+
+      - name: 🚀 Upload to Google Cloud Storage (GCS) bucket
+        if: github.event_name == 'push' && github.ref_name == 'main'
+        run: |
+          TIMESTAMP=$(date +'%Y%m%d-%H%M%S')
+          echo "> Timestamp: $TIMESTAMP"
+
+          echo 'Timestamp: $TIMESTAMP' >> $GITHUB_STEP_SUMMARY
+          echo 'Hash: '"$(echo ${package} | sed 's/.*-\(.*\)\.tar\.xz/\1/')" >> $GITHUB_STEP_SUMMARY
+
+          for package in $(ls *.tar.xz); do
+            gsutil cp ${package} \
+              gs://symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install/${TIMESTAMP}/
+          done
 
       - name: '📤 Upload artifact: results and plot'
         uses: actions/upload-artifact@v3

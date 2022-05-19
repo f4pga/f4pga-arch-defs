@@ -62,21 +62,3 @@ heading "Compressing install dir (creating packages)"
   rm -rf install
 )
 echo "----------------------------------------"
-
-GCP_PATH=symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install
-
-heading "Uploading packages"
-(
-  if [ "$UPLOAD_PACKAGES" != "true" ]; then
-    echo "Not uploading packages as not requested by the CI"
-    exit 0
-  fi
-  TIMESTAMP=$(date +'%Y%m%d-%H%M%S')
-  echo "> Timestamp: $TIMESTAMP"
-
-  echo 'Timestamp: $TIMESTAMP' >> $GITHUB_STEP_SUMMARY
-  echo 'Hash: '"$(echo ${package} | sed 's/.*-\(.*\)\.tar\.xz/\1/')" >> $GITHUB_STEP_SUMMARY
-
-  for package in $(ls *.tar.xz); do gsutil cp ${package} gs://${GCP_PATH}/${TIMESTAMP}/; done
-)
-echo "----------------------------------------"
