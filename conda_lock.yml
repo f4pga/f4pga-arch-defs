@@ -81,7 +81,7 @@ dependencies:
   - symbiflow-yosys-plugins=1.0.0_7_832_ga2a80a1=20220317_162926
   - tbb=2020.3=hfd86e86_0
   - tk=8.6.11=h1ccaba5_0
-  - vtr-optimized=8.0.0_5310_g08ec56b5d=20220317_162926
+  - vtr-optimized=8.0.0_5338_g829c06d8f=20220409_131122
   - wheel=0.37.1=pyhd3eb1b0_0
   - xz=5.2.5=h7b6447c_0
   - yosys=0.15_51_g6318db615=20220317_162926_py37
