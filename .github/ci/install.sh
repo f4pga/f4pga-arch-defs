@@ -67,14 +67,12 @@ GCP_PATH=symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/
 
 heading "Uploading packages"
 (
-    if [ "$UPLOAD_PACKAGES" = "true" ]; then
-        TIMESTAMP=$(date +'%Y%m%d-%H%M%S')
-        for package in $(ls *.tar.xz)
-        do
-            gsutil cp ${package} gs://${GCP_PATH}/${TIMESTAMP}/
-        done
-    else
+    if [ "$UPLOAD_PACKAGES" != "true" ]; then
         echo "Not uploading packages as not requested by the CI"
+        exit 0
     fi
+    TIMESTAMP=$(date +'%Y%m%d-%H%M%S')
+    echo "> Timestamp: $TIMESTAMP"
+    for package in $(ls *.tar.xz); do gsutil cp ${package} gs://${GCP_PATH}/${TIMESTAMP}/; done
 )
 echo "----------------------------------------"
