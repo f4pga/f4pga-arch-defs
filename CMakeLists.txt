@@ -182,6 +182,7 @@ add_dependencies(all_xc7_demos
     # TODO(#548) Zybo targets not currently working, so removed from all target.
     #all_zybo_bin
     all_zybo-full_bin
+    all_ax7050_bin
     )
 endif()
 
