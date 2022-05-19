@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 INSTALL_DIR="$(pwd)/install"
 mkdir -p $INSTALL_DIR
@@ -8,18 +8,18 @@ source $(dirname "$0")/setup-and-activate.sh
 
 heading "Installing gsutil"
 (
-    apt -qqy update && apt -qqy install curl
-    echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
-    apt -qqy update && apt -qqy install google-cloud-cli
+  apt -qqy update && apt -qqy install curl
+  echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+  curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
+  apt -qqy update && apt -qqy install google-cloud-cli
 )
 echo "----------------------------------------"
 
 heading "Set environment variables for F4PGA CLI utils"
 {
-	export F4PGA_FAM=xc7
-	export F4PGA_ENV_BIN="$(cd $(dirname "$0"); pwd)/../../env/conda/envs/symbiflow_arch_def_base/bin"
-	export F4PGA_ENV_SHARE="$(cd $(dirname "$0"); pwd)/../../install/share/symbiflow"
+  export F4PGA_FAM=xc7
+  export F4PGA_ENV_BIN="$(cd $(dirname "$0"); pwd)/../../env/conda/envs/symbiflow_arch_def_base/bin"
+  export F4PGA_ENV_SHARE="$(cd $(dirname "$0"); pwd)/../../install/share/symbiflow"
 }
 
 echo "----------------------------------------"
@@ -34,32 +34,32 @@ echo "----------------------------------------"
 
 heading "Running installed toolchain tests"
 (
-	pushd build
-	export VPR_NUM_WORKERS=${MAX_CORES}
-	export CTEST_OUTPUT_ON_FAILURE=1
-	ctest -R binary_toolchain_test_xc7* -j${MAX_CORES}
-	popd
+  pushd build
+  export VPR_NUM_WORKERS=${MAX_CORES}
+  export CTEST_OUTPUT_ON_FAILURE=1
+  ctest -R binary_toolchain_test_xc7* -j${MAX_CORES}
+  popd
 )
 echo "----------------------------------------"
 
 heading "Compressing install dir (creating packages)"
 (
-	rm -rf build
+  rm -rf build
 
-	# Remove symbolic links and copy content of the linked files
-	for file in $(find install -type l)
-		do cp --remove-destination $(readlink $file) $file
-	done
+  # Remove symbolic links and copy content of the linked files
+  for file in $(find install -type l)
+    do cp --remove-destination $(readlink $file) $file
+  done
 
-	du -ah install
-	export GIT_HASH=$(git rev-parse --short HEAD)
-	tar -I "pixz" -cvf symbiflow-arch-defs-install-${GIT_HASH}.tar.xz -C install share/symbiflow/techmaps share/symbiflow/scripts environment.yml
-	tar -I "pixz" -cvf symbiflow-arch-defs-benchmarks-${GIT_HASH}.tar.xz -C install benchmarks
-	for device in $(ls install/share/symbiflow/arch)
-	do
-		tar -I "pixz" -cvf symbiflow-arch-defs-$device-${GIT_HASH}.tar.xz -C install share/symbiflow/arch/$device
-	done
-	rm -rf install
+  du -ah install
+  export GIT_HASH=$(git rev-parse --short HEAD)
+  tar -I "pixz" -cvf symbiflow-arch-defs-install-${GIT_HASH}.tar.xz -C install share/symbiflow/techmaps share/symbiflow/scripts environment.yml
+  tar -I "pixz" -cvf symbiflow-arch-defs-benchmarks-${GIT_HASH}.tar.xz -C install benchmarks
+  for device in $(ls install/share/symbiflow/arch)
+  do
+    tar -I "pixz" -cvf symbiflow-arch-defs-$device-${GIT_HASH}.tar.xz -C install share/symbiflow/arch/$device
+  done
+  rm -rf install
 )
 echo "----------------------------------------"
 
@@ -67,12 +67,12 @@ GCP_PATH=symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/
 
 heading "Uploading packages"
 (
-    if [ "$UPLOAD_PACKAGES" != "true" ]; then
-        echo "Not uploading packages as not requested by the CI"
-        exit 0
-    fi
-    TIMESTAMP=$(date +'%Y%m%d-%H%M%S')
-    echo "> Timestamp: $TIMESTAMP"
-    for package in $(ls *.tar.xz); do gsutil cp ${package} gs://${GCP_PATH}/${TIMESTAMP}/; done
+  if [ "$UPLOAD_PACKAGES" != "true" ]; then
+    echo "Not uploading packages as not requested by the CI"
+    exit 0
+  fi
+  TIMESTAMP=$(date +'%Y%m%d-%H%M%S')
+  echo "> Timestamp: $TIMESTAMP"
+  for package in $(ls *.tar.xz); do gsutil cp ${package} gs://${GCP_PATH}/${TIMESTAMP}/; done
 )
 echo "----------------------------------------"
