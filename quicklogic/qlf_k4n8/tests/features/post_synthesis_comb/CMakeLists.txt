@@ -3,7 +3,7 @@ set(QLF_K4N8_UMC22 qlf_k4n8-qlf_k4n8_umc22_fast)
 set(MULT_TB ${CMAKE_CURRENT_SOURCE_DIR}/multiplier_8bit_tb.v)
 
 set(CELLS_SIM ${CMAKE_CURRENT_SOURCE_DIR}/../../../techmap/cells_sim.v)
-set(POST_SYNTH_FILE ${CMAKE_CURRENT_BINARY_DIR}/multiplier_8bit_test4-umc22-adder/qlf_k4n8-${QLF_K4N8_UMC22}-virt-${QLF_K4N8_UMC22}-${QLF_K4N8_UMC22}/multiplier_8bit_post_synthesis.v)
+set(POST_SYNTH_FILE ${CMAKE_CURRENT_BINARY_DIR}/multiplier_8bit_test4-umc22-adder/qlf_k4n8-${QLF_K4N8_UMC22}-virt-${QLF_K4N8_UMC22}-${QLF_K4N8_UMC22}/multiplier_8bit_merged_post_implementation.v)
 
 add_fpga_target(
   NAME multiplier_8bit_test4-umc22-adder
