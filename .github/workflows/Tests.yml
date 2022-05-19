@@ -75,10 +75,14 @@ jobs:
       - name: '🚧 Execute test script'
         run: stdbuf -i0 -o0 -e0 ./.github/ci/install.sh
 
+      - name: 🕐 Timestamp
+        id: timestamp
+        run: echo '::set-output name=timestamp::'"$(date +'%Y%m%d-%H%M%S')"
+
       - name: 🚀 Upload to Google Cloud Storage (GCS) bucket
         if: github.event_name == 'push' && github.ref_name == 'main'
         run: |
-          TIMESTAMP=$(date +'%Y%m%d-%H%M%S')
+          TIMESTAMP=${{ steps.timestamp.outputs.timestamp }}
           echo "> Timestamp: $TIMESTAMP"
 
           echo 'Timestamp: $TIMESTAMP' >> $GITHUB_STEP_SUMMARY
@@ -88,6 +92,12 @@ jobs:
             gsutil cp ${package} \
               gs://symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install/${TIMESTAMP}/
           done
+
+      - name: '📤 Upload artifact: arch-defs packages'
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ steps.timestamp.outputs.timestamp }}
+          path: '*.tar.xz'
 
       - name: '📤 Upload artifact: results and plot'
         uses: actions/upload-artifact@v3
