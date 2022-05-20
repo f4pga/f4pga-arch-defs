@@ -73,6 +73,10 @@ heading "Uploading packages"
   fi
   TIMESTAMP=$(date +'%Y%m%d-%H%M%S')
   echo "> Timestamp: $TIMESTAMP"
+
+  echo 'Timestamp: $TIMESTAMP' >> $GITHUB_STEP_SUMMARY
+  echo 'Hash: '"$(echo ${package} | sed 's/.*-\(.*\)\.tar\.xz/\1/')" >> $GITHUB_STEP_SUMMARY
+
   for package in $(ls *.tar.xz); do gsutil cp ${package} gs://${GCP_PATH}/${TIMESTAMP}/; done
 )
 echo "----------------------------------------"
