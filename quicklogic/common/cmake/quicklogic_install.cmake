@@ -88,10 +88,6 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
           DESTINATION bin/python/lib
           PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
 
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_fixup_post_synth.py
-          DESTINATION bin/python
-          PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
-
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/process_sdc_constraints.py
           DESTINATION bin/python
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ)
