@@ -24,3 +24,28 @@ jobs:
 
       - name: Auto-merge Dependabot PR
         run: GITHUB_TOKEN='${{ github.token }}' gh pr merge '${{ github.event.pull_request.html_url }}' --squash
+
+
+  Check-statuses:
+    needs: Pipeline
+    if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || contains(github.ref, 'refs/tags/'))
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: '🧰 Checkout'
+        uses: actions/checkout@v3
+
+      - name: '🚧 Check Status'
+        uses: ./.github/check-status
+        id: check
+        with:
+          token: ${{ github.token }}
+          sha: ${{ github.event.sha }}
+
+      - name: '🚀 Upload artifact URL file'
+        if: steps.check.outputs.skip != 'true'
+        uses: weslenng/gcp-storage-sync@master
+        env:
+          GCP_SERVICE_ACCOUNT_KEY_FILE: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY_FILE }}
+          GCP_STORAGE_BUCKET: ${{ secrets.GCP_STORAGE_BUCKET }}
+          SOURCE_DIR: "install"
