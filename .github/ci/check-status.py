@@ -5,7 +5,6 @@ from os import environ, path
 from github import Github
 from stdm import get_latest_artifact_url
 
-
 def check_status():
     gh_ref = environ['GITHUB_REPOSITORY']
     gh_sha = environ['INPUT_SHA']
