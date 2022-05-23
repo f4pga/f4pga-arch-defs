@@ -36,7 +36,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: 🐍 Install Python requirements
-        run: pip install PyGithub git+https://github.com/SymbiFlow/symbiflow-tools-data-manager#egg=stdm --progress-bar off
+        run: pip install PyGithub https://github.com/antmicro/f4pga/archive/f4pga-installer.zip#subdirectory=f4pga --progress-bar off
 
       - name: '🚧 Check Status'
         run: ./.github/ci/check-status.py

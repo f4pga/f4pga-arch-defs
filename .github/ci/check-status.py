@@ -3,7 +3,7 @@
 import re
 from os import environ, path
 from github import Github
-from stdm import get_latest_artifact_url
+from f4pga.common.tdm import get_latest_artifact_refs
 
 def check_status():
     gh_ref = environ['GITHUB_REPOSITORY']
@@ -28,7 +28,7 @@ def check_status():
         print('Main CI has not completed. Skipping...')
         exit(1)
 
-    artifacts, _ = get_latest_artifact_url()
+    artifacts, _ = get_latest_artifact_refs()
 
     PACKAGE_RE = re.compile("symbiflow-arch-defs-([a-zA-Z0-9_-]+)-([a-z0-9])")
 
