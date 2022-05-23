@@ -7,28 +7,28 @@ on:
 jobs:
 
 
-  Pipeline:
-    if: ${{ !(github.event_name != 'pull_request' && github.actor == 'dependabot[bot]') }}
-    uses: ./.github/workflows/Tests.yml
-
-
-  Automerge:
-    needs: Pipeline
-    if: github.event_name == 'pull_request' && github.actor == 'dependabot[bot]'
-    runs-on: ubuntu-latest
-    name: Automerge dependabot PRs
-    permissions:
-      contents: write
-
-    steps:
-
-      - name: Auto-merge Dependabot PR
-        run: GITHUB_TOKEN='${{ github.token }}' gh pr merge '${{ github.event.pull_request.html_url }}' --squash
+#  Pipeline:
+#    if: ${{ !(github.event_name != 'pull_request' && github.actor == 'dependabot[bot]') }}
+#    uses: ./.github/workflows/Tests.yml
+#
+#
+#  Automerge:
+#    needs: Pipeline
+#    if: github.event_name == 'pull_request' && github.actor == 'dependabot[bot]'
+#    runs-on: ubuntu-latest
+#    name: Automerge dependabot PRs
+#    permissions:
+#      contents: write
+#
+#    steps:
+#
+#      - name: Auto-merge Dependabot PR
+#        run: GITHUB_TOKEN='${{ github.token }}' gh pr merge '${{ github.event.pull_request.html_url }}' --squash
 
 
   Check-statuses:
-    needs: Pipeline
-    if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || contains(github.ref, 'refs/tags/'))
+    #needs: Pipeline
+    #if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || contains(github.ref, 'refs/tags/'))
     runs-on: ubuntu-latest
     steps:
 
