@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 INSTALL_DIR="$(pwd)/install"
 
 export CMAKE_FLAGS="-GNinja -DINSTALL_FAMILIES=qlf_k4n8,pp3 -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}"
@@ -16,10 +18,10 @@ heading "Running installed toolchain tests"
 	pushd build
 	export CTEST_OUTPUT_ON_FAILURE=1
 	heading "Testing installed toolchain on qlf_k4n8"
-	ctest -j${MAX_CORES} -R "quicklogic_toolchain_test_.*_qlf_k4n8" -VV || BUILD_RESULT=$?
+	ctest -j${MAX_CORES} -R "quicklogic_toolchain_test_.*_qlf_k4n8" -VV
 	echo "----------------------------------------"
 	heading "Testing installed toolchain on ql_eos_s3"
-	ctest -j${MAX_CORES} -R "quicklogic_toolchain_test_.*_ql-eos-s3" -VV || BUILD_RESULT=$?
+	ctest -j${MAX_CORES} -R "quicklogic_toolchain_test_.*_ql-eos-s3" -VV
 	echo "----------------------------------------"
 	popd
 )
