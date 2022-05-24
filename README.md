@@ -23,8 +23,11 @@ tools.**
 
 This repo contains documentation of various FPGA architectures, it is currently concentrating on:
 
-* [Lattice iCE40](ice40)
-* [Xilinx Series 7 (Artix 7 and Zynq 7)](xc/xc7)
+* Lattice
+  * [iCE40](ice40)
+  * [ECP5](ecp5)
+* AMD/Xilinx
+  * [Series 7](xc/xc7) (Artix, Kintex and Zynq)
 * [QuickLogic](quicklogic)
 
 It includes:
