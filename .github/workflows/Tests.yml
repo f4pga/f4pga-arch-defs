@@ -81,8 +81,9 @@ jobs:
           TIMESTAMP=$(date +'%Y%m%d-%H%M%S')
           echo "> Timestamp: $TIMESTAMP"
 
+          GITHUB_STEP_SUMMARY=${GITHUB_STEP_SUMMARY:-github_step_summary.md}
           echo 'Timestamp: $TIMESTAMP' >> $GITHUB_STEP_SUMMARY
-          echo 'Hash: '"$(echo ${package} | sed 's/.*-\(.*\)\.tar\.xz/\1/')" >> $GITHUB_STEP_SUMMARY
+          echo 'Hash: '"$(echo symbiflow-arch-defs*.tar.xz | sed 's/.*-\(.*\)\.tar\.xz/\1/')" >> $GITHUB_STEP_SUMMARY
 
           for package in $(ls *.tar.xz); do
             gsutil cp ${package} \
