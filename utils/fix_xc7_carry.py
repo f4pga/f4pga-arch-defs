@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """ Script for addressing CARRY4 output congestion in elaborated netlists.
 
 Usage:
