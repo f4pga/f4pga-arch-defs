@@ -522,7 +522,7 @@ PREFIX_REQUIRED = {
     "IPAD": (None, None),
     "OPAD": (None, None),
     "DSP48E1": (None, None),
-    "TIEOFF": (None,None),
+    "TIEOFF": (None, None),
 }
 
 
