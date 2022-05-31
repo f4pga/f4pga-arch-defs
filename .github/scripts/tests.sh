@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 export CMAKE_FLAGS="-GNinja -DLIGHT_BUILD=ON"
 source $(dirname "$0")/setup.sh

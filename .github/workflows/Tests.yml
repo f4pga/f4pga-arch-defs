@@ -41,7 +41,7 @@ jobs:
           submodules: recursive
 
       - name: '🚧 Execute test script'
-        run: stdbuf -i0 -o0 -e0 ./.github/ci/${{ matrix.test }}.sh
+        run: stdbuf -i0 -o0 -e0 ./.github/scripts/${{ matrix.test }}.sh
 
       - name: '📤 Upload artifact: results and plot'
         uses: actions/upload-artifact@v3
@@ -73,7 +73,7 @@ jobs:
           submodules: recursive
 
       - name: '🚧 Execute test script'
-        run: stdbuf -i0 -o0 -e0 ./.github/ci/install.sh
+        run: stdbuf -i0 -o0 -e0 ./.github/scripts/install.sh
 
       - name: 🕐 Timestamp
         id: timestamp
