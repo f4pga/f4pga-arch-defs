@@ -21,6 +21,8 @@ add_xc_device_define_type(
     CMT_TOP_L_LOWER_B
     CMT_TOP_R_LOWER_B
     HCLK_IOI3
+    DSP_L
+    DSP_R
   PB_TYPES
     SLICEL
     SLICEM
@@ -33,4 +35,6 @@ add_xc_device_define_type(
     PLLE2_ADV
     MMCME2_ADV
     HCLK_IOI3
+    DSP48E1
+    TIEOFF
 )

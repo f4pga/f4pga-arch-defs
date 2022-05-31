@@ -1,0 +1,57 @@
+<models xmlns:xi="http://www.w3.org/2001/XInclude">
+  <model clock="CLK"  name="DSP48E1_VPR">
+    <input_ports>
+    	<port is_clock="1" name="CLK"           />
+    	<port clock="CLK"  name="A"             />
+	<port clock="CLK"  name="ACIN"          />
+    	<port clock="CLK"  name="ALUMODE"       />
+    	<port clock="CLK"  name="B"             />
+	<port clock="CLK"  name="BCIN"          />
+    	<port clock="CLK"  name="C"             />
+	<port clock="CLK"  name="CARRYCASCIN"   />
+    	<port clock="CLK"  name="CARRYIN"       />
+    	<port clock="CLK"  name="CARRYINSEL"    />
+    	<port clock="CLK"  name="CEA1"          />
+    	<port clock="CLK"  name="CEA2"          />
+    	<port clock="CLK"  name="CEAD"          />
+    	<port clock="CLK"  name="CEALUMODE"     />
+    	<port clock="CLK"  name="CEB1"          />
+    	<port clock="CLK"  name="CEB2"          />
+    	<port clock="CLK"  name="CEC"           />
+    	<port clock="CLK"  name="CECARRYIN"     />
+    	<port clock="CLK"  name="CECTRL"        />
+    	<port clock="CLK"  name="CED"           />
+    	<port clock="CLK"  name="CEINMODE"      />
+    	<port clock="CLK"  name="CEM"           />
+    	<port clock="CLK"  name="CEP"           />
+    	<port clock="CLK"  name="D"             />
+    	<port clock="CLK"  name="INMODE"        />
+	<!--<port clock="CLK"  name="MULTSIGNIN"    /> -->
+    	<port clock="CLK"  name="OPMODE"        />
+	<port clock="CLK"  name="PCIN"          />
+    	<port clock="CLK"  name="RSTA"          />
+    	<port clock="CLK"  name="RSTALLCARRYIN" />
+    	<port clock="CLK"  name="RSTALUMODE"    />
+    	<port clock="CLK"  name="RSTB"          />
+    	<port clock="CLK"  name="RSTC"          />
+    	<port clock="CLK"  name="RSTCTRL"       />
+    	<port clock="CLK"  name="RSTD"          />
+    	<port clock="CLK"  name="RSTINMODE"     />
+    	<port clock="CLK"  name="RSTM"          />
+    	<port clock="CLK"  name="RSTP"          />
+    </input_ports>
+    <output_ports>
+        <port clock="CLK"  name="ACOUT"          />
+        <port clock="CLK"  name="BCOUT"          />
+        <port clock="CLK"  name="CARRYCASCOUT"   />
+        <port clock="CLK"  name="CARRYOUT"       />
+        <port clock="CLK"  name="MULTSIGNOUT"    />
+        <port clock="CLK"  name="OVERFLOW"       />
+        <port clock="CLK"  name="P"              />
+        <port clock="CLK"  name="PATTERNBDETECT" />
+        <port clock="CLK"  name="PATTERNDETECT"  />
+	<port clock="CLK"  name="PCOUT"          />
+	<port clock="CLK"  name="UNDERFLOW"      />
+    </output_ports>
+  </model>
+</models>

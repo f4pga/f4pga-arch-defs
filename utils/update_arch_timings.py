@@ -188,7 +188,11 @@ def get_bel_timings(element, timings, bels, corner, speed_type):
     else:
         bel = pb_chain[-1]
     location = pb_chain[-2]
-    site = remove_site_number(pb_chain[1])
+
+    if pb_chain[1] == "DSP48E1":
+        site = pb_chain[1]
+    else:
+        site = remove_site_number(pb_chain[1])
 
     result = find_timings(
         timings, bel, location, site, bels, corner, speed_type

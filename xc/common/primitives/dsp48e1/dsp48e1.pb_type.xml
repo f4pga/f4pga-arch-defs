@@ -1,0 +1,136 @@
+<pb_type name="DSP48E1" blif_model=".subckt DSP48E1_VPR" num_pb="1">
+  <clock name="CLK" num_pins="1"/>
+  <input name="A" num_pins="30"/>
+  <input name="ACIN" num_pins="30"/>
+  <input name="ALUMODE" num_pins="4"/>
+  <input name="B" num_pins="18"/>
+  <input name="BCIN" num_pins="18"/>
+  <input name="C" num_pins="48"/>
+  <input name="CARRYCASCIN" num_pins="1"/>
+  <input name="CARRYIN" num_pins="1"/>
+  <input name="CARRYINSEL" num_pins="3"/>
+  <input name="CEA1" num_pins="1"/>
+  <input name="CEA2" num_pins="1"/>
+  <input name="CEAD" num_pins="1"/>
+  <input name="CEALUMODE" num_pins="1"/>
+  <input name="CEB1" num_pins="1"/>
+  <input name="CEB2" num_pins="1"/>
+  <input name="CEC" num_pins="1"/>
+  <input name="CECARRYIN" num_pins="1"/>
+  <input name="CECTRL" num_pins="1"/>
+  <input name="CED" num_pins="1"/>
+  <input name="CEINMODE" num_pins="1"/>
+  <input name="CEM" num_pins="1"/>
+  <input name="CEP" num_pins="1"/>
+  <input name="D" num_pins="25"/>
+  <input name="INMODE" num_pins="5"/>
+  <!-- <input name="MULTSIGNIN" num_pins="1"/> -->
+  <input name="OPMODE" num_pins="7"/>
+  <input name="PCIN" num_pins="48"/>
+  <input name="RSTA" num_pins="1"/>
+  <input name="RSTALLCARRYIN" num_pins="1"/>
+  <input name="RSTALUMODE" num_pins="1"/>
+  <input name="RSTB" num_pins="1"/>
+  <input name="RSTC" num_pins="1"/>
+  <input name="RSTCTRL" num_pins="1"/>
+  <input name="RSTD" num_pins="1"/>
+  <input name="RSTINMODE" num_pins="1"/>
+  <input name="RSTM" num_pins="1"/>
+  <input name="RSTP" num_pins="1"/>
+  <output name="ACOUT"          num_pins="30"/>
+  <output name="BCOUT"          num_pins="18"/>
+  <output name="CARRYCASCOUT"   num_pins="1"/>
+  <output name="CARRYOUT"       num_pins="4"/>
+  <output name="MULTSIGNOUT"    num_pins="1"/>
+  <output name="OVERFLOW"       num_pins="1"/>
+  <output name="P"              num_pins="48"/>
+  <output name="PATTERNBDETECT" num_pins="1"/>
+  <output name="PATTERNDETECT"  num_pins="1"/>
+  <output name="PCOUT"          num_pins="48"/>
+  <output name="UNDERFLOW"      num_pins="1"/>
+ <T_setup    value="{setup_CLK_RSTP}"    port="RSTP"        clock="CLK" />
+ <T_hold     value="{hold_CLK_RSTP}"     port="RSTP"        clock="CLK" />
+ <T_setup    value="{setup_CLK_RSTM}"    port="RSTM"        clock="CLK" />
+ <T_hold     value="{hold_CLK_RSTM}"     port="RSTM"        clock="CLK" />
+ <T_setup    value="{setup_CLK_RSTINMODE}"    port="RSTINMODE"        clock="CLK" />
+ <T_hold     value="{hold_CLK_RSTINMODE}"     port="RSTINMODE"        clock="CLK" />
+ <T_setup    value="{setup_CLK_RSTD}"    port="RSTD"        clock="CLK" />
+ <T_hold     value="{hold_CLK_RSTD}"     port="RSTD"        clock="CLK" />
+ <T_setup    value="{setup_CLK_RSTCTRL}"    port="RSTCTRL"        clock="CLK" />
+ <T_hold     value="{hold_CLK_RSTCTRL}"     port="RSTCTRL"        clock="CLK" />
+ <T_setup     value="{setup_CLK_ACIN}"     port="ACIN"        clock="CLK" />
+ <T_setup     value="{setup_CLK_A}"     port="A"        clock="CLK" />            
+ <T_setup     value="{setup_CLK_INMODE}"     port="INMODE"        clock="CLK" />       
+ <T_setup     value="{setup_CLK_CEAD}"     port="CEAD"        clock="CLK" />                 
+ <T_setup     value="{setup_CLK_ALUMODE}"     port="ALUMODE"        clock="CLK" />      
+ <T_setup     value="{setup_CLK_CEALUMODE}"     port="CEALUMODE"        clock="CLK" />    
+ <T_setup     value="{setup_CLK_RSTALUMODE}"     port="RSTALUMODE"        clock="CLK" />   
+ <T_setup     value="{setup_CLK_CEA1}"     port="CEA1"        clock="CLK" />         
+ <T_setup     value="{setup_CLK_CEA2}"     port="CEA2"        clock="CLK" />         
+ <T_setup     value="{setup_CLK_RSTA}"     port="RSTA"        clock="CLK" />         
+ <T_setup     value="{setup_CLK_BCIN}"     port="BCIN"        clock="CLK" />
+ <T_setup     value="{setup_CLK_B}"     port="B"        clock="CLK" />            
+ <T_setup     value="{setup_CLK_CEB1}"     port="CEB1"        clock="CLK" />         
+ <T_setup     value="{setup_CLK_CEB2}"     port="CEB2"        clock="CLK" />         
+ <T_setup     value="{setup_CLK_RSTB}"     port="RSTB"        clock="CLK" />         
+ <T_setup     value="{setup_CLK_CARRYIN}"     port="CARRYIN"        clock="CLK" />      
+ <T_setup     value="{setup_CLK_CECARRYIN}"     port="CECARRYIN"        clock="CLK" />    
+ <T_setup     value="{setup_CLK_RSTALLCARRYIN}"     port="RSTALLCARRYIN"        clock="CLK" />
+ <T_setup     value="{setup_CLK_CARRYINSEL}"     port="CARRYINSEL"        clock="CLK" />   
+ <T_setup     value="{setup_CLK_CECTRL}"     port="CECTRL"        clock="CLK" />         
+ <T_setup     value="{setup_CLK_C}"     port="C"        clock="CLK" />            
+ <T_setup     value="{setup_CLK_CEC}"     port="CEC"        clock="CLK" />          
+ <T_setup     value="{setup_CLK_RSTC}"     port="RSTC"        clock="CLK" />         
+ <T_setup     value="{setup_CLK_CED}"     port="CED"        clock="CLK" />          
+ <T_setup     value="{setup_CLK_D}"     port="D"        clock="CLK" />            
+ <T_setup     value="{setup_CLK_CEINMODE}"     port="CEINMODE"        clock="CLK" />         
+ <T_setup     value="{setup_CLK_CEM}"     port="CEM"        clock="CLK" />                 
+ <T_setup     value="{setup_CLK_OPMODE}"     port="OPMODE"        clock="CLK" />       
+ <T_setup     value="{setup_CLK_CEP}"     port="CEP"        clock="CLK" />                  
+ <T_setup     value="{setup_CLK_CARRYCASCIN}"     port="CARRYCASCIN"        clock="CLK" />
+ <!-- <T_setup     value="{setup_CLK_MULTSIGNIN}"     port="MULTSIGNIN"        clock="CLK" />   -->
+ <T_setup     value="{setup_CLK_PCIN}"     port="PCIN"        clock="CLK" />
+ <T_hold     value="{hold_CLK_ACIN}"     port="ACIN"        clock="CLK" />
+ <T_hold     value="{hold_CLK_A}"     port="A"        clock="CLK" />            
+ <T_hold     value="{hold_CLK_INMODE}"     port="INMODE"        clock="CLK" />       
+ <T_hold     value="{hold_CLK_CEAD}"     port="CEAD"        clock="CLK" />                 
+ <T_hold     value="{hold_CLK_ALUMODE}"     port="ALUMODE"        clock="CLK" />      
+ <T_hold     value="{hold_CLK_CEALUMODE}"     port="CEALUMODE"        clock="CLK" />    
+ <T_hold     value="{hold_CLK_RSTALUMODE}"     port="RSTALUMODE"        clock="CLK" />   
+ <T_hold     value="{hold_CLK_CEA1}"     port="CEA1"        clock="CLK" />         
+ <T_hold     value="{hold_CLK_CEA2}"     port="CEA2"        clock="CLK" />         
+ <T_hold     value="{hold_CLK_RSTA}"     port="RSTA"        clock="CLK" />         
+ <T_hold     value="{hold_CLK_BCIN}"     port="BCIN"        clock="CLK" />
+ <T_hold     value="{hold_CLK_B}"     port="B"        clock="CLK" />            
+ <T_hold     value="{hold_CLK_CEB1}"     port="CEB1"        clock="CLK" />         
+ <T_hold     value="{hold_CLK_CEB2}"     port="CEB2"        clock="CLK" />         
+ <T_hold     value="{hold_CLK_RSTB}"     port="RSTB"        clock="CLK" />         
+ <T_hold     value="{hold_CLK_CARRYIN}"     port="CARRYIN"        clock="CLK" />      
+ <T_hold     value="{hold_CLK_CECARRYIN}"     port="CECARRYIN"        clock="CLK" />    
+ <T_hold     value="{hold_CLK_RSTALLCARRYIN}"     port="RSTALLCARRYIN"        clock="CLK" />
+ <T_hold     value="{hold_CLK_CARRYINSEL}"     port="CARRYINSEL"        clock="CLK" />   
+ <T_hold     value="{hold_CLK_CECTRL}"     port="CECTRL"        clock="CLK" />         
+ <T_hold     value="{hold_CLK_C}"     port="C"        clock="CLK" />            
+ <T_hold     value="{hold_CLK_CEC}"     port="CEC"        clock="CLK" />          
+ <T_hold     value="{hold_CLK_RSTC}"     port="RSTC"        clock="CLK" />         
+ <T_hold     value="{hold_CLK_CED}"     port="CED"        clock="CLK" />          
+ <T_hold     value="{hold_CLK_D}"     port="D"        clock="CLK" />            
+ <T_hold     value="{hold_CLK_CEINMODE}"     port="CEINMODE"        clock="CLK" />         
+ <T_hold     value="{hold_CLK_CEM}"     port="CEM"        clock="CLK" />                 
+ <T_hold     value="{hold_CLK_OPMODE}"     port="OPMODE"        clock="CLK" />       
+ <T_hold     value="{hold_CLK_CEP}"     port="CEP"        clock="CLK" />                  
+ <T_hold     value="{hold_CLK_CARRYCASCIN}"     port="CARRYCASCIN"        clock="CLK" />
+ <!--  <T_hold     value="{hold_CLK_MULTSIGNIN}"     port="MULTSIGNIN"        clock="CLK" />   -->
+ <T_hold     value="{hold_CLK_PCIN}"     port="PCIN"        clock="CLK" />
+ <T_clock_to_Q max="{iopath_CLK_ACOUT}"            port="ACOUT"          clock="CLK" />
+ <T_clock_to_Q max="{iopath_CLK_BCOUT}"            port="BCOUT"          clock="CLK" />
+ <T_clock_to_Q max="{iopath_CLK_CARRYCASCOUT}"     port="CARRYCASCOUT"   clock="CLK" />
+ <T_clock_to_Q max="{iopath_CLK_CARRYOUT}"         port="CARRYOUT"       clock="CLK" />
+ <T_clock_to_Q max="{iopath_CLK_MULTSIGNOUT}"      port="MULTSIGNOUT"    clock="CLK" />
+ <T_clock_to_Q max="{iopath_CLK_OVERFLOW}"         port="OVERFLOW"       clock="CLK" />
+ <T_clock_to_Q max="{iopath_CLK_P}"                port="P"              clock="CLK" />
+ <T_clock_to_Q max="{iopath_CLK_PATTERNBDETECT}"   port="PATTERNBDETECT" clock="CLK" />
+ <T_clock_to_Q max="{iopath_CLK_PATTERNDETECT}"    port="PATTERNDETECT"  clock="CLK" />
+ <T_clock_to_Q max="{iopath_CLK_PCOUT}"            port="PCOUT"          clock="CLK" />
+ <T_clock_to_Q max="{iopath_CLK_UNDERFLOW}"        port="UNDERFLOW"      clock="CLK" />
+</pb_type>
