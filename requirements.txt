@@ -22,7 +22,7 @@ tinyprog
 yapf==0.26.0
 https://github.com/chipsalliance/f4pga/archive/main.zip#subdirectory=f4pga
 fasm
-https://github.com/QuickLogic-Corp/quicklogic-fasm/archive/57b6e60574a9d483dc94710d0d3ff42a62b4ec41.zip#quicklogic_fasm
+https://github.com/QuickLogic-Corp/quicklogic-fasm/archive/aaf4c314a165b6185b0983019d8aae4d0d4db6cb.zip#quicklogic_fasm
 https://github.com/chipsalliance/python-fpga-interchange/archive/master.zip#python-fpga-interchange
 git+https://github.com/chipsalliance/f4pga-rr-graph.git#egg=rr-graph
 -e third_party/prjxray
