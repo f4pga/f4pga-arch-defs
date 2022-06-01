@@ -18,7 +18,9 @@ echo "----------------------------------------"
 heading "Set environment variables for F4PGA CLI utils"
 {
   export F4PGA_FAM=xc7
+  export F4PGA_INSTALL_DIR="placeholder"
   export F4PGA_ENV_BIN="$(cd $(dirname "$0"); pwd)/../../env/conda/envs/symbiflow_arch_def_base/bin"
+  # TODO: We should place the content in subdir F4PGA_FAM, to use the default in f4pga instead of overriding F4PGA_ENV_SHARE here.
   export F4PGA_ENV_SHARE="$(cd $(dirname "$0"); pwd)/../../install/share/symbiflow"
 }
 
