@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 export CMAKE_FLAGS="-GNinja"
 source $(dirname "$0")/setup-and-activate.sh
