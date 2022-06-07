@@ -100,13 +100,9 @@ jobs:
         if: github.event_name == 'push' && github.ref_name == 'main'
         run: ./.github/scripts/check-status.py '${{ steps.timestamp.outputs.timestamp }}'
 
-      - name: 🚀 Upload artifact URL file
+      - name: 🚀 Update latest URL files
         if: github.event_name == 'push' && github.ref_name == 'main'
-        uses: weslenng/gcp-storage-sync@master
-        env:
-          GCP_SERVICE_ACCOUNT_KEY_FILE: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY_FILE }}
-          GCP_STORAGE_BUCKET: ${{ secrets.GCP_STORAGE_BUCKET }}
-          SOURCE_DIR: "install"
+        run: gsutil -m rsync $* -r install gs://${{ secrets.GCP_STORAGE_BUCKET }}/
 
       - name: '📤 Upload artifact: arch-defs packages'
         uses: actions/upload-artifact@v3
