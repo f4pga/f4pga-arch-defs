@@ -6,7 +6,7 @@ INSTALL_DIR="$(pwd)/install"
 
 export CMAKE_FLAGS="-GNinja -DINSTALL_FAMILIES=qlf_k4n8,pp3 -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}"
 
-export F4PGA_FAM=eos-s3
+export FPGA_FAM=eos-s3
 export F4PGA_INSTALL_DIR="placeholder"
 source $(dirname "$0")/setup-and-activate.sh
 
