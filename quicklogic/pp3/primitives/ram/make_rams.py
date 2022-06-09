@@ -160,8 +160,8 @@ RAM_2X1_NON_ROUTABLE_PORTS = {
         ]
 }
 
-# A list of non-routable ports
-RAM_2X1_COMMON_PORTS = [
+# A list of test ports
+RAM_TEST_PORTS = [
     "DS",
     "DS_RB1",
     "LS",
@@ -175,6 +175,12 @@ RAM_2X1_COMMON_PORTS = [
     "TEST1A",
     "TEST1B",
 ]
+
+# A list of test ports specific to a device
+RAM_2X1_TEST_PORTS = {
+    "ql-eos-s3": RAM_TEST_PORTS,
+    "ql-pp3e": [],
+}
 
 # A list of ports relevant only in RAM mode
 RAM_PORTS = [
@@ -216,6 +222,26 @@ NON_SPLITABLE_PORTS = [
     "WIDTH_SELECT1",
     "WIDTH_SELECT2",
 ]
+
+# =============================================================================
+
+
+def blacklist_ports(ports, blacklist):
+    """
+    Removes port present on the blacklist
+    """
+
+    new_ports = dict()
+
+    for key, ports in ports.items():
+        new_ports[key] = []
+
+        for name, width, assoc_clock in ports:
+            if name not in blacklist:
+                new_ports[key].append([name, width, assoc_clock])
+
+    return new_ports
+
 
 # =============================================================================
 
@@ -1027,15 +1053,15 @@ def make_ports(ports, separator=",\n"):
     return verilog
 
 
-def make_ram2x1_instance(ports, separator=",\n"):
+def make_ram2x1_instance(device, ports, separator=",\n"):
     verilog = ""
 
     verilog += "\n   ram8k_2x1_cell # (.INIT(INIT)) I1 ( \n"
 
     for key in ["clock", "input", "output"]:
         for name, width, assoc_clock in ports[key]:
-            if name not in RAM_2X1_COMMON_PORTS:
-                if name[:-3] not in RAM_2X1_COMMON_PORTS:
+            if name not in RAM_2X1_TEST_PORTS[device]:
+                if name[:-3] not in RAM_2X1_TEST_PORTS[device]:
                     if name.find("_0") >= 0 or name.find("_1") >= 0:
                         verilog += "      .{}({}){}".format(
                             name, name, separator
@@ -1079,7 +1105,7 @@ def make_specify(ports, separator=";\n"):
     return verilog
 
 
-def make_blackbox(name, ports, specify_ports):
+def make_blackbox(device, name, ports, specify_ports):
 
     # Header
     verilog = """
@@ -1099,7 +1125,7 @@ module {} (
     verilog += make_specify(specify_ports)
 
     # RAM2x1 cell instance
-    verilog += make_ram2x1_instance(ports)
+    verilog += make_ram2x1_instance(device, ports)
 
     # Footer
     verilog += "endmodule\n"
@@ -1107,7 +1133,7 @@ module {} (
     return verilog
 
 
-def make_techmap(conditions):
+def make_techmap(port_blacklist, conditions):
 
     # The original cell name
     cell_name = "ram8k_2x1_cell_macro"
@@ -1159,7 +1185,7 @@ def make_techmap(conditions):
     verilog += "  generate if({}) begin\n".format(verilog_cond)
 
     # Each part is independent
-    model_ports = split_ports(RAM_2X1_PORTS)
+    model_ports = split_ports(blacklist_ports(RAM_2X1_PORTS, port_blacklist))
 
     for part in [0, 1]:
         verilog += "    // RAM {}\n".format(part)
@@ -1324,6 +1350,9 @@ def main():
     # Parse arguments
     parser = argparse.ArgumentParser()
     parser.add_argument(
+        "--device", type=str, choices=["ql-eos-s3", "ql-pp3e"], required=True
+    )
+    parser.add_argument(
         "--mode-defs",
         type=str,
         default="ram_modes.json",
@@ -1344,6 +1373,11 @@ def main():
 
     args = parser.parse_args()
 
+    # Prepare RAM port blacklist (containing test ports)
+    port_blacklist = set()
+    if not RAM_2X1_TEST_PORTS[args.device]:
+        port_blacklist = set(RAM_TEST_PORTS)
+
     # Load the RAM mode tree definition
     with open(args.mode_defs, "r") as fp:
         ram_tree = json.load(fp)
@@ -1354,7 +1388,8 @@ def main():
         timescale = get_scale_seconds(ram_timings["header"]["timescale"])
 
     # Make port definition for a single ram
-    ram_ports_sing = make_single_ram(RAM_2X1_PORTS)
+    ram_ports_all = blacklist_ports(RAM_2X1_PORTS, port_blacklist)
+    ram_ports_sing = make_single_ram(ram_ports_all)
 
     # Gather all RAM instances
     instances = set()
@@ -1372,7 +1407,7 @@ def main():
         print(instance)
 
         # Initialize the top-level pb_type XML
-        xml_pb_root = make_pb_type("RAM", RAM_2X1_PORTS, None)[0]
+        xml_pb_root = make_pb_type("RAM", ram_ports_all, None)[0]
 
         # Wrapper pb_type for split RAM (CONCAT_EN=0)
         xml_mode = ET.SubElement(xml_pb_root, "mode", {"name": "SING"})
@@ -1390,7 +1425,7 @@ def main():
 
         # Wrapper pb_type for non-split RAM (CONCAT_EN=1)
         xml_mode = ET.SubElement(xml_pb_root, "mode", {"name": "DUAL"})
-        xml_dual = make_pb_type("RAM_DUAL", RAM_2X1_PORTS, None)[0]
+        xml_dual = make_pb_type("RAM_DUAL", ram_ports_all, None)[0]
         xml_mode.append(xml_dual)
 
         ic = auto_interconnect(xml_mode)
@@ -1475,9 +1510,9 @@ def main():
             elif "CONCAT_EN=1" in cond:
 
                 if "FIFO_EN=0" in cond:
-                    model_ports = filter_ports(RAM_2X1_PORTS, FIFO_PORTS)
+                    model_ports = filter_ports(ram_ports_all, FIFO_PORTS)
                 else:
-                    model_ports = filter_ports(RAM_2X1_PORTS, RAM_PORTS)
+                    model_ports = filter_ports(ram_ports_all, RAM_PORTS)
                     if "DIR=1" in cond:
                         model_ports = remap_clocks(model_ports, FIFO_CLOCK_MAP)
 
@@ -1568,26 +1603,28 @@ def main():
                     model_ports = remap_clocks(model_ports, FIFO_CLOCK_MAP)
 
             verilog = make_blackbox(
-                model_name, split_ports(ports), split_ports(model_ports)
+                args.device, model_name, split_ports(ports),
+                split_ports(model_ports)
             )
             blackboxes[model_name] = verilog
 
         # CONCAT_EN=1 - keep the 2x1 RAM as one
         elif "CONCAT_EN=1" in cond:
             if "DIR=1" in cond:
-                ports = remap_clocks(RAM_2X1_PORTS, FIFO_CLOCK_MAP)
+                ports = remap_clocks(ram_ports_all, FIFO_CLOCK_MAP)
             else:
-                ports = RAM_2X1_PORTS
+                ports = ram_ports_all
 
             if "FIFO_EN=0" in cond:
-                model_ports = filter_ports(RAM_2X1_PORTS, FIFO_PORTS)
+                model_ports = filter_ports(ram_ports_all, FIFO_PORTS)
             else:
-                model_ports = filter_ports(RAM_2X1_PORTS, RAM_PORTS)
+                model_ports = filter_ports(ram_ports_all, RAM_PORTS)
                 if "DIR=1" in cond:
                     model_ports = remap_clocks(model_ports, FIFO_CLOCK_MAP)
 
             verilog = make_blackbox(
-                model_name, split_ports(ports), split_ports(model_ports)
+                args.device, model_name, split_ports(ports),
+                split_ports(model_ports)
             )
             blackboxes[model_name] = verilog
 
@@ -1598,7 +1635,7 @@ def main():
             fp.write(v)
 
     # Make techmap
-    techmap = make_techmap(list(yield_ram_modes(ram_tree)))
+    techmap = make_techmap(port_blacklist, list(yield_ram_modes(ram_tree)))
     fname = os.path.join(args.vlog_path, "ram_map.v")
     with open(fname, "w") as fp:
         fp.write(techmap)
