@@ -75,7 +75,7 @@ jobs:
       - name: '🚧 Execute test script'
         run: stdbuf -i0 -o0 -e0 ./.github/scripts/install.sh
 
-      - name: 🕐 Timestamp
+      - name: 🕐 Set Timestamp
         id: timestamp
         run: echo '::set-output name=timestamp::'"$(date +'%Y%m%d-%H%M%S')"
 
@@ -89,10 +89,20 @@ jobs:
           echo 'Timestamp: $TIMESTAMP' >> $GITHUB_STEP_SUMMARY
           echo 'Hash: '"$(echo symbiflow-arch-defs*.tar.xz | sed 's/.*-\(.*\)\.tar\.xz/\1/')" >> $GITHUB_STEP_SUMMARY
 
-          for package in $(ls *.tar.xz); do
+          ls *.tar.xz > packages.list
+
+          for package in $(cat packages.list); do
             gsutil cp ${package} \
               gs://symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install/${TIMESTAMP}/
           done
+
+      - name: 🚦 Check Status
+        if: github.event_name == 'push' && github.ref_name == 'main'
+        run: ./.github/scripts/check-status.py '${{ steps.timestamp.outputs.timestamp }}'
+
+      - name: 🚀 Update latest URL files
+        if: github.event_name == 'push' && github.ref_name == 'main'
+        run: gsutil -m rsync $* -r install gs://${{ secrets.GCP_STORAGE_BUCKET }}/
 
       - name: '📤 Upload artifact: arch-defs packages'
         uses: actions/upload-artifact@v3
