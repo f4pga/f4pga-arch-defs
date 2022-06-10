@@ -98,7 +98,9 @@ jobs:
 
       - name: 🚦 Check Status
         if: github.event_name == 'push' && github.ref_name == 'main'
-        run: ./.github/scripts/check-status.py '${{ steps.timestamp.outputs.timestamp }}'
+        run: |
+          mkdir -p install
+          ./.github/scripts/check-status.py '${{ steps.timestamp.outputs.timestamp }}'
 
       - name: 🚀 Update latest URL files
         if: github.event_name == 'push' && github.ref_name == 'main'
