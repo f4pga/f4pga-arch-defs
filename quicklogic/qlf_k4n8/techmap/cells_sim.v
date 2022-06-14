@@ -20,15 +20,12 @@ module fpga_interconnect(datain, dataout);
 endmodule
 
 
-module frac_lut4_arith (\in[3] ,\in[2] ,\in[1] ,\in[0] ,cin, lut4_out, cout);
+module frac_lut4_arith (in ,cin, lut4_out, cout);
 
     parameter [15:0] LUT  = 16'd0;
     parameter [0: 0] MODE = 0;
 
-    input  [0:0] \in[3] ;
-    input  [0:0] \in[2] ;
-    input  [0:0] \in[1] ;
-    input  [0:0] \in[0] ;
+    input  [3:0] in;
     input  [0:0] cin;
     output [0:0] lut4_out;
     output [0:0] cout;
@@ -36,8 +33,8 @@ module frac_lut4_arith (\in[3] ,\in[2] ,\in[1] ,\in[0] ,cin, lut4_out, cout);
     // Mode bits of frac_lut4_arith are responsible for the LI2 mux which
     // selects between the LI2 and CIN inputs.
     wire [3:0] li = (MODE == 1'b1) ?
-        {\in[3] ,cin,    \in[1] ,\in[0] } :
-        {\in[3] ,\in[2] ,\in[1] ,\in[0] };
+        {in[3], cin, in[1], in[0]} :
+        {in[3], in[2], in[1], in[0]};
 
     // Output function
     wire [7:0] s1 = li[0] ?
@@ -60,15 +57,7 @@ module frac_lut4_arith (\in[3] ,\in[2] ,\in[1] ,\in[0] ,cin, lut4_out, cout);
     // Timing paths. The values are dummy and are intended to be replaced by
     // ones from a SDF file during simulation.
     specify
-        (\in[0] => lut4_out) = 0;
-        (\in[1] => lut4_out) = 0;
-        (\in[2] => lut4_out) = 0;
-        (\in[3] => lut4_out) = 0;
         (cin => lut4_out) = 0;
-        (\in[0] => cout) = 0;
-        (\in[1] => cout) = 0;
-        (\in[2] => cout) = 0;
-        (\in[3] => cout) = 0;
         (cin => cout) = 0;
     endspecify
 
