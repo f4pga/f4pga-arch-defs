@@ -57,4 +57,4 @@ jobs:
 
       - name: 🚀 Update latest URL files
         if: github.event_name == 'push'
-        run: mkdir -p gs://${{ secrets.GCP_STORAGE_BUCKET }}
+        run: mkdir -p ${{ secrets.GCP_STORAGE_BUCKET }}
