@@ -1,7 +1,7 @@
 function(ADD_QUICKLOGIC_BOARD)
 
   set(options)
-  set(oneValueArgs BOARD DEVICE PACKAGE FABRIC_PACKAGE PINMAP_XML PINMAP)
+  set(oneValueArgs BOARD DEVICE PACKAGE FABRIC_PACKAGE PINMAP_XML PINMAP BIT_TO_V_EXTRA_ARGS)
   set(multiValueArgs)
   cmake_parse_arguments(
      ADD_QUICKLOGIC_BOARD
@@ -30,6 +30,7 @@ function(ADD_QUICKLOGIC_BOARD)
   set(BOARD ${ADD_QUICKLOGIC_BOARD_BOARD})
   set(PINMAP ${ADD_QUICKLOGIC_BOARD_PINMAP})
   set(PINMAP_XML ${ADD_QUICKLOGIC_BOARD_PINMAP_XML})
+  set(BIT_TO_V_EXTRA_ARGS ${ADD_QUICKLOGIC_BOARD_BIT_TO_V_EXTRA_ARGS})
 
   # Get the database location. If given then use the database to generate
   # pinmap and clkmap CSV files
@@ -79,6 +80,12 @@ function(ADD_QUICKLOGIC_BOARD)
 
     add_file_target(FILE ${PINMAP_CSV} GENERATED)
 
+    # Setup extra args for bit to v
+    set(BIT_TO_V_EXTRA_ARGS_FOR_BOARD ${BIT_TO_V_EXTRA_ARGS})
+    string(REPLACE "ql-" "" DEVICE_FOR_BIT_TO_V "${DEVICE}")
+    string(APPEND BIT_TO_V_EXTRA_ARGS_FOR_BOARD " --device-name ${DEVICE_FOR_BIT_TO_V}")
+    string(APPEND BIT_TO_V_EXTRA_ARGS_FOR_BOARD " --package-name ${ADD_QUICKLOGIC_BOARD_FABRIC_PACKAGE}")
+
     # Set the board properties
     set_target_properties(
       ${BOARD}
@@ -87,6 +94,8 @@ function(ADD_QUICKLOGIC_BOARD)
         ${CMAKE_CURRENT_SOURCE_DIR}/${PINMAP_CSV}
         CLKMAP
         ${CMAKE_CURRENT_SOURCE_DIR}/${CLKMAP_CSV}
+        BIT_TO_V_EXTRA_ARGS
+        "${BIT_TO_V_EXTRA_ARGS_FOR_BOARD}"
     )
 
     set_target_properties(

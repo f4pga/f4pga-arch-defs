@@ -88,9 +88,37 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
           DESTINATION bin/python/lib
           PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
 
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/yosys_fixup_cell_names.py
+          DESTINATION bin/python
+          PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
+
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/process_sdc_constraints.py
           DESTINATION bin/python
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ)
+
+  if("${FAMILY}" STREQUAL "pp3")
+
+    install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/fasm2bels.py
+      DESTINATION bin/python
+      PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ)
+
+    install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/verilogmodule.py
+      DESTINATION bin/python
+      PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
+
+    install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/connections.py
+      DESTINATION bin/python
+      PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
+
+    install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/data_structs.py
+      DESTINATION bin/python
+      PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
+
+    install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/utils.py
+      DESTINATION bin/python
+      PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
+
+  endif()
 
   # install the repacker
   set(REPACKER_FILES
@@ -119,6 +147,16 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
   install(FILES ${DEFINE_QL_TOOLCHAIN_TARGET_CELLS_SIM}
           DESTINATION share/symbiflow/techmaps/${FAMILY})
 
+  if("${FAMILY}" STREQUAL "qlf_k4n8")
+    # install lib files
+    install(DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/devices/umc22/
+      DESTINATION "share/symbiflow/arch/${FAMILY}-${FAMILY}_umc22_${FAMILY}-${FAMILY}_umc22/lib"
+      FILES_MATCHING
+      PATTERN "*.txt"
+      PATTERN "*.json"
+      PATTERN "*.xml")
+  endif()
+
   # install Yosys scripts
   install(FILES ${DEFINE_QL_TOOLCHAIN_TARGET_CONV_SCRIPT} ${DEFINE_QL_TOOLCHAIN_TARGET_SYNTH_SCRIPT}
           DESTINATION share/symbiflow/scripts/${FAMILY})
@@ -129,15 +167,36 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
 	  message(STATUS "Installing pack.tcl for ${FAMILY}")
   endif()
 
+  # Install helper scripts
+  set(SCRIPTS
+    create_ioplace.py
+    create_place_constraints.py
+    eos_s3_iomux_config.py
+  )
 
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/create_ioplace.py
-          DESTINATION bin/python
-          PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
+  foreach(NAME ${SCRIPTS})
+    set(FILE ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/utils/${NAME})
+    if(EXISTS "${FILE}")
+      install(FILES ${FILE}
+              DESTINATION bin/python
+              RENAME ${FAMILY}_${NAME}
+              PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
+    endif()
+  endforeach()
 
   # Install FASM database
   set(FASM_DATABASE_DIR "${QLF_FPGA_DATABASE_DIR}/${FAMILY}/fasm_database/")
-  if(EXISTS "${FASM_DATABASE_DIR}" AND IS_DIRECTORY "${FASM_DATABASE_DIR}")
-    install(DIRECTORY ${QLF_FPGA_DATABASE_DIR}/${FAMILY}/fasm_database/
+  if("${FAMILY}" STREQUAL "qlf_k4n8")
+    get_file_target(FASM_DATABASE_TARGET "/${FASM_DATABASE_DIR}")
+    get_file_location(FASM_DATABASE "/${FASM_DATABASE_DIR}")
+    add_custom_target("FASM_DB_INSTALL_${FAMILY}_FASM_DATABASE"
+	  ALL
+	  DEPENDS ${FASM_DATABASE_TARGET} ${FASM_DATABASE}
+    )
+    install(DIRECTORY ${CMAKE_BINARY_DIR}/${FASM_DATABASE_DIR}
+	    DESTINATION share/symbiflow/fasm_database/${FAMILY})
+  elseif(EXISTS "${FASM_DATABASE_DIR}" AND IS_DIRECTORY "${FASM_DATABASE_DIR}")
+    install(DIRECTORY ${FASM_DATABASE_DIR}
             DESTINATION share/symbiflow/fasm_database/${FAMILY})
   endif()
 
@@ -177,7 +236,7 @@ function(DEFINE_QL_DEVICE_CELLS_INSTALL_TARGET)
           DESTINATION "share/symbiflow/arch/${DEVICE}_${PACKAGE}"
           RENAME "arch_${DEVICE}_${PACKAGE}.xml")
 
-  if(NOT "${DEVICE}" STREQUAL "ql-pp3e" AND NOT "${DEVICE}" STREQUAL "ql-eos-s3")
+  if("${FAMILY}" STREQUAL "qlf_k4n8")
 	  # install lib files
 	  if(EXISTS "${QLF_FPGA_DATABASE_DIR}/${FAMILY}/lib" AND IS_DIRECTORY "${QLF_FPGA_DATABASE_DIR}/${FAMILY}/lib")
 		install(DIRECTORY ${QLF_FPGA_DATABASE_DIR}/${FAMILY}/lib/

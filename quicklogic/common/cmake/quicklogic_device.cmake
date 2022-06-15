@@ -45,9 +45,14 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   set(VPR_DB_FILE "db_vpr.pickle")
   set(ARCH_XML "arch.xml")
 
+  set(DEVICE_DIR_DATA ${DEVICE})
+  if(${DEVICE} STREQUAL "ql-pp3")
+	  set(DEVICE_DIR_DATA "ql-eos-s3")	# FIXME: use PP3 timing data when it will be available
+  endif()
+
   # The techfile and routing timing file
   set(TECHFILE "${symbiflow-arch-defs_SOURCE_DIR}/third_party/${DEVICE}/Device Architecture Files/${TECHFILE_NAME}")
-  set(ROUTING_TIMING "${symbiflow-arch-defs_SOURCE_DIR}/third_party/${DEVICE}/Timing Data Files/${ROUTING_TIMING_FILE_NAME}")
+  set(ROUTING_TIMING "${symbiflow-arch-defs_SOURCE_DIR}/third_party/${DEVICE_DIR_DATA}/Timing Data Files/${ROUTING_TIMING_FILE_NAME}")
 
   # Import data from the techfile
   set(DATA_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/utils/data_import.py)
@@ -62,7 +67,7 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   add_file_target(FILE ${PHY_DB_FILE} GENERATED)
 
   # Generate SDF files with timing data
-  set(LIB_TIMING_DIR "${symbiflow-arch-defs_SOURCE_DIR}/third_party/${DEVICE}/Timing Data Files/")
+  set(LIB_TIMING_DIR "${symbiflow-arch-defs_SOURCE_DIR}/third_party/${DEVICE_DIR_DATA}/Timing Data Files/")
   set(SDF_TIMING_DIR "sdf")
 
   get_target_property_required(QUICKLOGIC_TIMINGS_IMPORTER env QUICKLOGIC_TIMINGS_IMPORTER)
@@ -162,6 +167,7 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   add_custom_command(
       OUTPUT ${RAM_MODEL_XML} ${RAM_PBTYPE_XML} ${RAM_CELLS_SIM} ${RAM_CELLS_MAP}
       COMMAND ${PYTHON3} ${RAM_GENERATOR}
+          --device ${DEVICE}
           --sdf ${RAM_SDF_FILE}
           --mode-defs ${RAM_MODE_DEFS}
           --xml-path ${CMAKE_CURRENT_BINARY_DIR}
@@ -181,13 +187,14 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   get_file_target(RAM_MODEL_XML_TARGET ${RAM_MODEL_XML})
   get_file_target(RAM_PBTYPE_XML_TARGET ${RAM_PBTYPE_XML})
 
+  get_file_target(VPR_DB_TARGET ${VPR_DB_FILE})
   add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${ARCH_XML}
     COMMAND ${PYTHON3} ${ARCH_IMPORT}
       --vpr-db ${VPR_DB_FILE}
       --arch-out ${ARCH_XML}
       --device ${DEVICE}
-    DEPENDS ${VPR_DB_FILE} ${XML_DEPS} ${ARCH_IMPORT} ${RAM_MODEL_XML_TARGET} ${RAM_PBTYPE_XML_TARGET}
+    DEPENDS ${VPR_DB_TARGET} ${XML_DEPS} ${ARCH_IMPORT} ${RAM_MODEL_XML_TARGET} ${RAM_PBTYPE_XML_TARGET}
   )
   add_file_target(FILE ${ARCH_XML} GENERATED)
 
@@ -228,6 +235,7 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   set_target_properties(
     ${DEVICE_TYPE}
     PROPERTIES
+    PHY_DB_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${PHY_DB_FILE}
     VPR_DB_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${VPR_DB_FILE}
     CELLS_SIM ${CMAKE_CURRENT_SOURCE_DIR}/${RAM_CELLS_SIM}
     CELLS_MAP ${CMAKE_CURRENT_SOURCE_DIR}/${RAM_CELLS_MAP}
@@ -273,6 +281,7 @@ function(QUICKLOGIC_DEFINE_DEVICE)
     add_subdirectory(${DEVICE_TYPE})
 
     # Get the VPR db file to add as dependency to RR graph patch
+    get_target_property_required(PHY_DB_FILE ${DEVICE_TYPE} PHY_DB_FILE)
     get_target_property_required(VPR_DB_FILE ${DEVICE_TYPE} VPR_DB_FILE)
 
     # RR graph patch dependencies
@@ -302,6 +311,8 @@ function(QUICKLOGIC_DEFINE_DEVICE)
         --allow_unrelated_clustering on
         --balance_block_type_utilization on
         --target_ext_pin_util 1.0
+      EXTRA_INSTALL_FILES
+        ${PHY_DB_FILE}
     )
 
   endforeach()

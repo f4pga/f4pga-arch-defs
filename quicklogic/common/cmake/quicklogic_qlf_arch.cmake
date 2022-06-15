@@ -40,10 +40,10 @@ function(QUICKLOGIC_DEFINE_QLF_ARCH)
   set(ARCH_DIR ${QLF_FPGA_PLUGINS_DIR}/${ARCH})
   set(ARCH_DIR_REL ${QLF_FPGA_DATABASE_DIR}/${ARCH})
   set(QLFPGA_FASM_DATABASE_LOC ${ARCH_DIR}/fasm_database)
-  set(QLFPGA_FASM_DATABASE_LOC_REL ${ARCH_DIR_REL}/fasm_database)
+  set(QLFPGA_FASM_DATABASE_LOC_REL ${symbiflow-arch-defs_BINARY_DIR}/${ARCH_DIR_REL}/fasm_database)
 
   set(FASM_TO_BIT_DEPS "")
-  append_file_dependency(FASM_TO_BIT_DEPS ${QLFPGA_FASM_DATABASE_LOC})
+  append_file_dependency(FASM_TO_BIT_DEPS /${QLFPGA_FASM_DATABASE_LOC})
 
   # Define the architecture
   define_arch(
@@ -59,7 +59,7 @@ function(QUICKLOGIC_DEFINE_QLF_ARCH)
     RR_GRAPH_EXT ".bin"
 
     PLACE_TOOL
-      ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/create_ioplace.py
+      ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/qlf_k4n8/utils/create_ioplace.py # FIXME: Make common for k4n8 and k6n10
     PLACE_TOOL_CMD "${CMAKE_COMMAND} -E env \
       PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils:$PYTHONPATH:${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils \
       \${PYTHON3} \${PLACE_TOOL} \
@@ -137,9 +137,6 @@ function(QUICKLOGIC_DEFINE_QLF_ARCH)
     USE_FASM
 
     ROUTE_CHAN_WIDTH ${QUICKLOGIC_DEFINE_QLF_ARCH_ROUTE_CHAN_WIDTH}
-
-    FIXUP_POST_SYNTHESIS_EXTRA_ARGS
-      --split-ports
   )
 
 endfunction()
