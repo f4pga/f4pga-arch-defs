@@ -10,6 +10,7 @@ jobs:
   Pipeline:
     if: ${{ !(github.event_name != 'pull_request' && github.actor == 'dependabot[bot]') }}
     uses: ./.github/workflows/Tests.yml
+    secrets: inherit 
 
 
   Automerge:
