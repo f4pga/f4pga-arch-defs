@@ -75,15 +75,11 @@ jobs:
       - name: '🚧 Execute test script'
         run: stdbuf -i0 -o0 -e0 ./.github/scripts/install.sh
 
-      - name: 🕐 Set Timestamp
+      - name: 🕐 Timestamp, Hash and packages.list
         id: timestamp
-        run: echo '::set-output name=timestamp::'"$(date +'%Y%m%d-%H%M%S')"
-
-      - name: 🚀 Upload to Google Cloud Storage (GCS) bucket
-        if: github.event_name == 'push' && github.ref_name == 'main'
         run: |
-          TIMESTAMP=${{ steps.timestamp.outputs.timestamp }}
-          echo "> Timestamp: $TIMESTAMP"
+          TIMESTAMP="$(date +'%Y%m%d-%H%M%S')"
+          echo '::set-output name=timestamp::'"$TIMESTAMP"
 
           GITHUB_STEP_SUMMARY=${GITHUB_STEP_SUMMARY:-github_step_summary.md}
           echo 'Timestamp: $TIMESTAMP' >> $GITHUB_STEP_SUMMARY
@@ -91,20 +87,35 @@ jobs:
 
           ls *.tar.xz > packages.list
 
-          for package in $(cat packages.list); do
-            gsutil cp ${package} \
-              gs://symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install/${TIMESTAMP}/
-          done
-
-      - name: 🚦 Check Status
-        if: github.event_name == 'push' && github.ref_name == 'main'
-        run: |
           mkdir -p install
-          ./.github/scripts/check-status.py '${{ steps.timestamp.outputs.timestamp }}'
 
-      - name: 🚀 Update latest URL files
+      - name: 🚀 Upload to Google Cloud Storage (GCS) bucket
         if: github.event_name == 'push' && github.ref_name == 'main'
-        run: gsutil -m rsync $* -r install gs://${{ secrets.GCP_STORAGE_BUCKET }}/
+        shell: python
+        run: |
+          from subprocess import check_call
+          from pathlib import Path
+          from re import compile as re_compile
+          TIMESTAMP = '${{ steps.timestamp.outputs.timestamp }}'
+          print(f'> TIMESTAMP: {TIMESTAMP}')
+          PACKAGE_RE = re_compile("symbiflow-arch-defs-([a-zA-Z0-9_-]+)-([a-z0-9])")
+          with (Path(__file__).parent.parent.parent / 'packages.list').open('r') as rptr:
+              for artifact in rptr.read().splitlines():
+                  check_call([
+                    'gsutil', 'cp', str(artifact),
+                    f'gs://symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install/{TIMESTAMP}/'
+                  ])
+                  m = PACKAGE_RE.match(artifact)
+                  assert m, f"Package name not recognized! {artifact}"
+                  package_name = m.group(1)
+                  if package_name == "install":
+                      package_name = "toolchain"
+                  with (Path("install") / f"symbiflow-{package_name}-latest").open("w") as wptr:
+                      wptr.write(
+                          'https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/'
+                          f'symbiflow-arch-defs/continuous/install/{TIMESTAMP}/{artifact}'
+                      )
+          check_call('gsutil -m rsync $* -r install gs://${{ secrets.GCP_STORAGE_BUCKET }}/', shell=True)
 
       - name: '📤 Upload artifact: arch-defs packages'
         uses: actions/upload-artifact@v3
