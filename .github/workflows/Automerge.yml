@@ -11,18 +11,6 @@ jobs:
     if: ${{ !(github.event_name != 'pull_request' && github.actor == 'dependabot[bot]') }}
     uses: ./.github/workflows/Tests.yml
 
-  SecretTest:
-    container: ubuntu:bionic
-    runs-on:
-      - self-hosted
-      - Linux
-      - X64
-    steps:
-
-      - name: 🚀 Update latest URL files
-        if: github.event_name == 'push'
-        run: mkdir -p ${{ secrets.GCP_STORAGE_BUCKET }}
-
 
   Automerge:
     needs: Pipeline
