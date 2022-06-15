@@ -5,7 +5,6 @@ on:
 
 jobs:
 
-
   Test:
     container: ubuntu:bionic
     runs-on:
@@ -40,17 +39,6 @@ jobs:
         with:
           submodules: recursive
 
-      - name: '🚧 Execute test script'
-        run: stdbuf -i0 -o0 -e0 ./.github/scripts/${{ matrix.test }}.sh
-
-      - name: '📤 Upload artifact: results and plot'
-        uses: actions/upload-artifact@v3
-        if: always()
-        with:
-          path: |
-            **/results*.gz
-            **/plot_*.svg
-
 
   Install:
     needs: Test
@@ -67,55 +55,6 @@ jobs:
 
     steps:
 
-      - name: '🧰 Checkout'
-        uses: actions/checkout@v3
-        with:
-          submodules: recursive
-
-      - name: '🚧 Execute test script'
-        run: stdbuf -i0 -o0 -e0 ./.github/scripts/install.sh
-
-      - name: 🕐 Set Timestamp
-        id: timestamp
-        run: echo '::set-output name=timestamp::'"$(date +'%Y%m%d-%H%M%S')"
-
-      - name: 🚀 Upload to Google Cloud Storage (GCS) bucket
-        if: github.event_name == 'push' && github.ref_name == 'main'
-        run: |
-          TIMESTAMP=${{ steps.timestamp.outputs.timestamp }}
-          echo "> Timestamp: $TIMESTAMP"
-
-          GITHUB_STEP_SUMMARY=${GITHUB_STEP_SUMMARY:-github_step_summary.md}
-          echo 'Timestamp: $TIMESTAMP' >> $GITHUB_STEP_SUMMARY
-          echo 'Hash: '"$(echo symbiflow-arch-defs*.tar.xz | sed 's/.*-\(.*\)\.tar\.xz/\1/')" >> $GITHUB_STEP_SUMMARY
-
-          ls *.tar.xz > packages.list
-
-          for package in $(cat packages.list); do
-            gsutil cp ${package} \
-              gs://symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install/${TIMESTAMP}/
-          done
-
-      - name: 🚦 Check Status
-        if: github.event_name == 'push' && github.ref_name == 'main'
-        run: |
-          mkdir -p install
-          ./.github/scripts/check-status.py '${{ steps.timestamp.outputs.timestamp }}'
-
       - name: 🚀 Update latest URL files
-        if: github.event_name == 'push' && github.ref_name == 'main'
-        run: gsutil -m rsync $* -r install gs://${{ secrets.GCP_STORAGE_BUCKET }}/
-
-      - name: '📤 Upload artifact: arch-defs packages'
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ steps.timestamp.outputs.timestamp }}
-          path: '*.tar.xz'
-
-      - name: '📤 Upload artifact: results and plot'
-        uses: actions/upload-artifact@v3
-        if: ${{ always() }}
-        with:
-          path: |
-            **/results*.gz
-            **/plot_*.svg
+        if: github.event_name == 'push'
+        run: mkdir -p gs://${{ secrets.GCP_STORAGE_BUCKET }}
