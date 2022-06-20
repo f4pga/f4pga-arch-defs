@@ -6,9 +6,9 @@ plugin -i ql-qlf
 yosys -import
 
 # Read VPR cells library
-read_verilog -lib $::env(TECHMAP_PATH)/cells_sim.v
+read_verilog -lib -specify $::env(TECHMAP_PATH)/cells_sim.v
 # Read device specific cells library
-read_verilog -lib $::env(DEVICE_CELLS_SIM)
+read_verilog -lib -specify $::env(DEVICE_CELLS_SIM)
 
 # Synthesize
 synth_quicklogic -family pp3
@@ -46,6 +46,11 @@ opt_clean
 setundef -zero -params
 stat
 
-# Write output files
-write_json $::env(OUT_JSON)
+# Write output JSON, fixup cell names using an external Python script
+write_json $::env(OUT_JSON).org.json
+exec $::env(PYTHON3) $::env(UTILS_PATH)/yosys_fixup_cell_names.py $::env(OUT_JSON).org.json $::env(OUT_JSON)
+
+# Read the fixed JSON back and write verilog
+design -reset
+read_json $::env(OUT_JSON)
 write_verilog $::env(OUT_SYNTH_V)
