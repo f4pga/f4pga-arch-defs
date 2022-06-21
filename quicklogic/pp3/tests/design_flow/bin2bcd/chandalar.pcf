@@ -1,0 +1,21 @@
+set_io bin[0] B1
+set_io bin[1] C1
+set_io bin[2] A1
+set_io bin[3] A2
+set_io bin[4] B2
+set_io bin[5] C3
+set_io bin[6] B3
+set_io bin[7] A3
+
+set_io bcd[0] C4
+set_io bcd[1] B4
+set_io bcd[2] A4
+set_io bcd[3] C5
+set_io bcd[4] B5
+set_io bcd[5] D6
+set_io bcd[6] A5
+set_io bcd[7] C6
+set_io bcd[8] E7
+set_io bcd[9] D7
+set_io bcd[10] E8
+set_io bcd[11] H8

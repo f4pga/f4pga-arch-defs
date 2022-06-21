@@ -1,0 +1,15 @@
+set_io clock_100Mhz A3
+set_io reset        C4
+
+set_io Anode_Activate[0] A1
+set_io Anode_Activate[1] A2
+set_io Anode_Activate[2] B2
+set_io Anode_Activate[3] C3
+
+set_io LED_out[0]        H7
+set_io LED_out[1]        G7
+set_io LED_out[2]        H6
+set_io LED_out[3]        G6
+set_io LED_out[4]        F7
+set_io LED_out[5]        F6
+set_io LED_out[6]        H5

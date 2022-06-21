@@ -1,0 +1,5 @@
+set_io I[0]   A2
+set_io I[1]   A3
+set_io I[2]   B1
+set_io I[3]   B3
+set_io O      A1

@@ -1,0 +1,34 @@
+set_io dat_a[0]   A2
+set_io dat_a[1]   A3
+set_io dat_a[2]   A4
+set_io dat_a[3]   A5
+set_io dat_a[4]   A6
+set_io dat_a[5]   A7
+set_io dat_a[6]   A8
+set_io dat_a[7]   B2
+
+set_io dat_b[0]   B3
+set_io dat_b[1]   B5
+set_io dat_b[2]   B6
+set_io dat_b[3]   B7
+set_io dat_b[4]   B8
+set_io dat_b[5]   C2
+set_io dat_b[6]   C3
+set_io dat_b[7]   C7
+
+set_io dat_o[0]   C8
+set_io dat_o[1]   D1
+set_io dat_o[2]   D2
+set_io dat_o[3]   D3
+set_io dat_o[4]   D7
+set_io dat_o[5]   D8
+set_io dat_o[6]   E1
+set_io dat_o[7]   E2
+set_io dat_o[8]   E7
+set_io dat_o[9]   F1
+set_io dat_o[10]  F2
+set_io dat_o[11]  F3
+set_io dat_o[12]  F4
+set_io dat_o[13]  F7
+set_io dat_o[14]  F8
+set_io dat_o[15]  G1

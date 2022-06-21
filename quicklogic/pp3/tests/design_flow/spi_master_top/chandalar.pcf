@@ -1,0 +1,2 @@
+set_io arst_i H5
+set_io wb_clk_i H6 # Clock
