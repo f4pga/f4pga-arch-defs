@@ -91,8 +91,8 @@ jobs:
 
       - name: 🚀 Upload to Google Cloud Storage (GCS) bucket
         if: github.event_name == 'push' && github.ref_name == 'main'
-        shell: python
         run: |
+          python3 - <<EOF
           from subprocess import check_call
           from pathlib import Path
           from re import compile as re_compile
@@ -116,6 +116,7 @@ jobs:
                           f'symbiflow-arch-defs/continuous/install/{TIMESTAMP}/{artifact}'
                       )
           check_call('gsutil -m rsync $* -r install gs://${{ secrets.GCP_STORAGE_BUCKET }}/', shell=True)
+          EOF
 
       - name: '📤 Upload artifact: arch-defs packages'
         uses: actions/upload-artifact@v3
