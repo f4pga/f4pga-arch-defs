@@ -1,5 +1,9 @@
 name: Automerge
 
+concurrency:
+  group: ${{ github.repository }}-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
   pull_request:
@@ -10,7 +14,7 @@ jobs:
   Pipeline:
     if: ${{ !(github.event_name != 'pull_request' && github.actor == 'dependabot[bot]') }}
     uses: ./.github/workflows/Tests.yml
-    secrets: inherit 
+    secrets: inherit
 
 
   Automerge:
