@@ -16,7 +16,7 @@ jobs:
     uses: ./.github/workflows/Tests.yml
 
 
-  Upload:
+  GCS:
     if: ${{ !(github.event_name != 'pull_request' && github.actor == 'dependabot[bot]') }}
     needs: Pipeline
     container: ubuntu:bionic
@@ -58,21 +58,22 @@ jobs:
           apt install -y python3
 
       - name: 🚀 Upload to Google Cloud Storage (GCS) bucket
-        if: github.event_name == 'push' && github.ref_name == 'main'
         run: |
           python3 - <<EOF
-          from subprocess import check_call
+          from subprocess import check_call, run
           from pathlib import Path
           from re import compile as re_compile
           TIMESTAMP = '${{ steps.timestamp.outputs.timestamp }}'
+          DO_UPLOAD = '${{ github.event_name == 'push' && github.ref_name == 'main' }}' == 'true'
           print(f'> TIMESTAMP: {TIMESTAMP}')
           PACKAGE_RE = re_compile("symbiflow-arch-defs-([a-zA-Z0-9_-]+)-([a-z0-9])")
           with (Path(__file__).parent.parent.parent / 'packages.list').open('r') as rptr:
               for artifact in rptr.read().splitlines():
-                  check_call([
-                    'gsutil', 'cp', str(artifact),
-                    f'gs://symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install/{TIMESTAMP}/'
-                  ])
+                  if DO_UPLOAD:
+                    check_call([
+                      'gsutil', 'cp', str(artifact),
+                      f'gs://symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install/{TIMESTAMP}/'
+                    ])
                   m = PACKAGE_RE.match(artifact)
                   assert m, f"Package name not recognized! {artifact}"
                   package_name = m.group(1)
@@ -83,7 +84,8 @@ jobs:
                           'https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/'
                           f'symbiflow-arch-defs/continuous/install/{TIMESTAMP}/{artifact}'
                       )
-          check_call('gsutil -m rsync $* -r install gs://${{ secrets.GCP_STORAGE_BUCKET }}/', shell=True)
+          if DO_UPLOAD:
+            run('gsutil -m rsync $* -r install gs://${{ secrets.GCP_STORAGE_BUCKET }}/', shell=True, check=False)
           EOF
 
       - name: '📤 Upload artifact: latest'
@@ -91,6 +93,26 @@ jobs:
         with:
           name: latest
           path: install
+
+
+  Assets:
+    if: ${{ !(github.event_name != 'pull_request' && github.actor == 'dependabot[bot]') && (github.event_name == 'push' && github.ref_name == 'main')}}
+    needs: GCS
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: '📤 Download artifact: latest'
+        uses: actions/download-artifact@v3
+        with:
+          name: latest
+          path: install
+
+      - uses: pyTooling/Actions/releaser@r0
+        with:
+          token: ${{ github.token }}
+          tag: latest
+          files: install/*
 
 
   Automerge:
