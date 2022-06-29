@@ -7,7 +7,7 @@ numpy
 pdfminer.six
 ply
 progressbar2
-pycapnp==1.0.0b1
+pycapnp
 pyjson5
 pytest
 python-constraint
