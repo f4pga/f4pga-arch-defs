@@ -15,28 +15,6 @@ YELLOW='\033[0;33m'
 PURPLE='\033[0;35m'
 NC='\033[0m' # No Color
 
-if ! declare -F action_nanoseconds &>/dev/null; then
-function action_nanoseconds() {
-  return 0;
-}
-fi
-export -f action_nanoseconds
-
-if ! declare -F action_fold &>/dev/null; then
-function action_fold() {
-  if [ "$1" = "start" ]; then
-    echo "::group::$2"
-    SECONDS=0
-  else
-    duration=$SECONDS
-    echo "::endgroup::"
-    printf "${GRAY}took $(($duration / 60)) min $(($duration % 60)) sec.${NC}\n"
-  fi
-  return 0;
-}
-fi
-export -f action_fold
-
 if [ -z "$DATESTR" ]; then
   if [ -z "$DATESHORT" ]; then
     export DATESTR=$(date -u +%Y%m%d%H%M%S)
@@ -51,51 +29,41 @@ make_target () {
   target=$1
   max_fail_tests=${3:-1}
 
-  if [ ! -v MAX_CORES ]; then
-    export MAX_CORES=$(nproc)
-    echo "Setting MAX_CORES to $MAX_CORES"
-  fi;
-
+  export MAX_CORES=${MAX_CORES:-$(nproc)}
   export VPR_NUM_WORKERS=${MAX_CORES}
 
-  start_section "[F4PGA] $target" "$2"
-  ninja_status=0
-  ninja -k$max_fail_tests -j${MAX_CORES} $target || ninja_status=$?
-  end_section "[F4PGA] $target"
+  echo "MAX_CORES: $MAX_CORES"
+
+  start_section "$2"
+    ninja_status=0
+    ninja -k$max_fail_tests -j${MAX_CORES} $target || ninja_status=$?
+  end_section
 
   # When the build fails, produce the failure output in a clear way
   if [ ${MAX_CORES} -ne 1 -a $ninja_status -ne 0 ]; then
-    start_section "[F4PGA] failure" "${RED}Build failure output..${NC}"
+    start_section "${RED}Build failure output..${NC}"
     ninja -j1 $target
-    end_section "[F4PGA] failure"
+    end_section
     exit 1
-  else
-    return $ninja_status
   fi
-}
-
-run_section () {
-  start_section $1 "$2 ($3)"
-  $3
-  end_section $1
+  return $ninja_status
 }
 
 start_section () {
-  action_fold start "$1"
-  echo -e "${PURPLE}F4PGA Architecture Definitions${NC}: - $2${NC}"
+  echo -e "::group::${PURPLE}[F4PGA] Architecture Definitions${NC}: - $1${NC}"
+  SECONDS=0
   echo -e "${GRAY}-------------------------------------------------------------------${NC}"
 }
 
 end_section () {
   echo -e "${GRAY}-------------------------------------------------------------------${NC}"
-  action_fold end "$1"
+  echo '::endgroup::'
+  duration=$SECONDS
+  printf "${GRAY}took $(($duration / 60)) min $(($duration % 60)) sec.${NC}\n"
 }
 
 enable_vivado () {
-  echo
-  echo "======================================="
-  echo "Creating Vivado Symbolic Link"
-  echo "---------------------------------------"
+  heading 'Creating Vivado Symbolic Link'
   ln -s /mnt/aux/Xilinx /opt/Xilinx
   ls /opt/Xilinx/Vivado
   export XRAY_VIVADO_SETTINGS="/opt/Xilinx/Vivado/$1/settings64.sh"
