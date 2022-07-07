@@ -53,9 +53,9 @@ jobs:
           mkdir -p install
 
       - name: '🐍 Setup Python'
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.10'
+        run: |
+          apt update -qq
+          apt install -y python3
 
       - name: 🚀 Upload to Google Cloud Storage (GCS) bucket
         if: github.event_name == 'push' && github.ref_name == 'main'
