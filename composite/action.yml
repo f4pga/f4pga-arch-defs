@@ -1,0 +1,8 @@
+name: 'Composite Action'
+description: 'For testing purposes'
+runs:
+  using: 'composite'
+  steps:
+
+  - shell: bash
+    run: '''${{ github.action_path }}/script.sh'''
