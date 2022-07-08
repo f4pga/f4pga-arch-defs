@@ -52,10 +52,14 @@ jobs:
 
           mkdir -p install
 
-      - name: '🐍 Setup Python'
+      - name: '🛠️ Setup Python and gsutil'
         run: |
-          apt update -qq
-          apt install -y python3
+          apt update -qqy
+          apt install -qqy curl python3
+          echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+          curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
+          apt update -qqy
+          apt install -qqy google-cloud-cli
 
       - name: 🚀 Upload to Google Cloud Storage (GCS) bucket
         run: |
