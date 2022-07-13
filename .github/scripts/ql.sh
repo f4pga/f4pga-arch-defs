@@ -19,8 +19,8 @@ heading "Running installed toolchain tests"
 (
 	pushd build
 	export CTEST_OUTPUT_ON_FAILURE=1
-	export F4PGA_ENV_SHARE=${INSTALL_DIR}/share/symbiflow
-	export F4PGA_ENV_BIN=${INSTALL_DIR}/bin/
+	export F4PGA_SHARE_DIR=${INSTALL_DIR}/share/symbiflow
+	export F4PGA_BIN_DIR=${INSTALL_DIR}/bin/
 	heading "Testing installed toolchain on qlf_k4n8"
 	ctest -j${MAX_CORES} -R "quicklogic_toolchain_test_.*_qlf_k4n8" -VV
 	echo "----------------------------------------"
