@@ -904,11 +904,11 @@ module RAMB18E1 (
     output [1:0] DOPADOP,
     output [1:0] DOPBDOP
 );
-    parameter INIT_A = 18'h0;
-    parameter INIT_B = 18'h0;
+    parameter [17:0] INIT_A = 18'h0;
+    parameter [17:0] INIT_B = 18'h0;
 
-    parameter SRVAL_A = 18'h0;
-    parameter SRVAL_B = 18'h0;
+    parameter [17:0] SRVAL_A = 18'h0;
+    parameter [17:0] SRVAL_B = 18'h0;
 
     parameter INITP_00 = 256'h0000000000000000000000000000000000000000000000000000000000000000;
     parameter INITP_01 = 256'h0000000000000000000000000000000000000000000000000000000000000000;
@@ -1010,8 +1010,8 @@ module RAMB18E1 (
 
     parameter RAM_MODE = "TDP";
     parameter SIM_DEVICE = "7SERIES";
-    parameter DOA_REG = 1'b0;
-    parameter DOB_REG = 1'b0;
+    parameter [0:0] DOA_REG = 1'b0;
+    parameter [0:0] DOB_REG = 1'b0;
 
     parameter integer READ_WIDTH_A = 0;
     parameter integer READ_WIDTH_B = 0;
@@ -1375,6 +1375,9 @@ module RAMB36E1 (
 
     parameter [35:0] SRVAL_A = 36'h0;
     parameter [35:0] SRVAL_B = 36'h0;
+
+    parameter RAM_EXTENSION_A = 1'h0;
+    parameter RAM_EXTENSION_B = 1'h0;
 
    `define INIT_BLOCK(pre) \
     parameter ``pre``0 = 256'h0000000000000000000000000000000000000000000000000000000000000000; \
