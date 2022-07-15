@@ -1,6 +1,6 @@
 add_custom_target(test_dram_packing)
 
-function(dram_tests dram_num_instances dram_mode block_type_usage)
+function(dram_tests dram_num_instances dram_mode block_type_usage disable_vivado)
   # ~~~
   # DRAM_TESTS(
   #    dram_num_instanes <instances_number>
@@ -30,10 +30,12 @@ function(dram_tests dram_num_instances dram_mode block_type_usage)
     EXPLICIT_ADD_FILE_TARGET
     )
 
-  add_vivado_target(
-    NAME dram_${dram_num_instances}_${dram_mode}_vivado
-    PARENT_NAME dram_${dram_num_instances}_${dram_mode}
+  if (NOT ${disable_vivado} STREQUAL "true")
+    add_vivado_target(
+      NAME dram_${dram_num_instances}_${dram_mode}_vivado
+      PARENT_NAME dram_${dram_num_instances}_${dram_mode}
     )
+  endif()
 
   add_dependencies(test_dram_packing
     dram_${dram_num_instances}_${dram_mode}_bit
@@ -45,13 +47,13 @@ endfunction()
 dram_tests(4 32x1s SYN-OUTPAD=17,SYN-INPAD=18,BLK-TL-SLICEM=1)
 # Design uses 8 RAM32X1S primitives. Each primitive occupy 1 LUT and
 # there are 4 LUTs per SLICE so 2 SLICEM are required
-dram_tests(8 32x1s SYN-OUTPAD=17,SYN-INPAD=18,BLK-TL-SLICEM=2)
-dram_tests(2 32x1d SYN-OUTPAD=17,SYN-INPAD=18,BLK-TL-SLICEM=1)
-dram_tests(4 32x2s SYN-OUTPAD=17,SYN-INPAD=18,BLK-TL-SLICEM=1)
-dram_tests(2 64x1d SYN-OUTPAD=17,SYN-INPAD=18,BLK-TL-SLICEM=1)
-dram_tests(4 64x1s SYN-OUTPAD=17,SYN-INPAD=18,BLK-TL-SLICEM=1)
-dram_tests(2 128x1s SYN-OUTPAD=17,SYN-INPAD=18,BLK-TL-SLICEM=1)
-dram_tests(1 128x1d SYN-OUTPAD=17,SYN-INPAD=18,BLK-TL-SLICEM=1)
-dram_tests(1 256x1s SYN-OUTPAD=17,SYN-INPAD=18,BLK-TL-SLICEM=1)
-dram_tests(1 32m SYN-OUTPAD=17,SYN-INPAD=18,BLK-TL-SLICEM=1)
-dram_tests(1 64m SYN-OUTPAD=17,SYN-INPAD=18,BLK-TL-SLICEM=1)
+dram_tests(8 32x1s SYN-OUTPAD=17,SYN-INPAD=18,BLK-TL-SLICEM=2 false)
+dram_tests(2 32x1d SYN-OUTPAD=17,SYN-INPAD=18,BLK-TL-SLICEM=1 false)
+dram_tests(4 32x2s SYN-OUTPAD=17,SYN-INPAD=18,BLK-TL-SLICEM=1 false)
+dram_tests(2 64x1d SYN-OUTPAD=17,SYN-INPAD=18,BLK-TL-SLICEM=1 false)
+dram_tests(4 64x1s SYN-OUTPAD=17,SYN-INPAD=18,BLK-TL-SLICEM=1 false)
+dram_tests(2 128x1s SYN-OUTPAD=17,SYN-INPAD=18,BLK-TL-SLICEM=1 false)
+dram_tests(1 128x1d SYN-OUTPAD=17,SYN-INPAD=18,BLK-TL-SLICEM=1 false)
+dram_tests(1 256x1s SYN-OUTPAD=17,SYN-INPAD=18,BLK-TL-SLICEM=1 false)
+dram_tests(1 32m SYN-OUTPAD=17,SYN-INPAD=18,BLK-TL-SLICEM=1 true)
+dram_tests(1 64m SYN-OUTPAD=17,SYN-INPAD=18,BLK-TL-SLICEM=1 false)
