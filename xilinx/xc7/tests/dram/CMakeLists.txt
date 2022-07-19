@@ -6,6 +6,7 @@ function(dram_tests dram_num_instances dram_mode block_type_usage disable_vivado
   #    dram_num_instanes <instances_number>
   #    dram_mode <mode>
   #    block_type_usage <usage>
+  #    disable_vivado <flag>
   #   )
   # ~~~
   #
@@ -19,6 +20,8 @@ function(dram_tests dram_num_instances dram_mode block_type_usage disable_vivado
   # the usage of block types, e.g: SYN-OUTPAD=17,SYN-INPAD=18,BLK-TL-SLICEM=2
   # It is used as a reference to compare with block usage of implemented design
   # in ASSERT_BLOCK_TYPES_ARE_USED tests
+  #
+  # DISABLE_VIVADO defines if a given test should be skipped for vendor target
   #
   add_file_target(FILE dram_${dram_num_instances}_${dram_mode}.v SCANNER_TYPE verilog)
   add_fpga_target(
@@ -44,7 +47,7 @@ function(dram_tests dram_num_instances dram_mode block_type_usage disable_vivado
 
 endfunction()
 
-dram_tests(4 32x1s SYN-OUTPAD=17,SYN-INPAD=18,BLK-TL-SLICEM=1)
+dram_tests(4 32x1s SYN-OUTPAD=17,SYN-INPAD=18,BLK-TL-SLICEM=1 false)
 # Design uses 8 RAM32X1S primitives. Each primitive occupy 1 LUT and
 # there are 4 LUTs per SLICE so 2 SLICEM are required
 dram_tests(8 32x1s SYN-OUTPAD=17,SYN-INPAD=18,BLK-TL-SLICEM=2 false)
