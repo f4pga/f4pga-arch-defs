@@ -60,6 +60,15 @@ jobs:
       - Linux
       - X64
 
+    strategy:
+      fail-fast: false
+      matrix:
+        install:
+          - install_xc7
+          - install_ql
+
+    name: ${{ matrix.install }}
+
     env:
       MAX_CORES: 80
       GHA_EXTERNAL_DISK: "tools"
@@ -72,7 +81,7 @@ jobs:
           submodules: recursive
 
       - name: '🚧 Execute test script'
-        run: stdbuf -i0 -o0 -e0 ./.github/scripts/install.sh
+        run: stdbuf -i0 -o0 -e0 ./.github/scripts/${{ matrix.install }}.sh
 
       - name: '📤 Upload artifact: arch-defs packages'
         uses: actions/upload-artifact@v3

@@ -46,11 +46,13 @@ heading "Compressing install dir (creating packages)"
 
   du -ah install
   export GIT_HASH=$(git rev-parse --short HEAD)
-  tar -I "pixz" -cvf symbiflow-arch-defs-install-${GIT_HASH}.tar.xz -C install share/symbiflow/techmaps share/symbiflow/scripts environment.yml
-  tar -I "pixz" -cvf symbiflow-arch-defs-benchmarks-${GIT_HASH}.tar.xz -C install benchmarks
+  tar -I "pixz" -cvf symbiflow-arch-defs-install-xc7-${GIT_HASH}.tar.xz -C install share/symbiflow/techmaps share/symbiflow/scripts environment.yml
+  tar -I "pixz" -cvf symbiflow-arch-defs-benchmarks-xc7-${GIT_HASH}.tar.xz -C install benchmarks
   for device in $(ls install/share/symbiflow/arch)
   do
-    tar -I "pixz" -cvf symbiflow-arch-defs-$device-${GIT_HASH}.tar.xz -C install share/symbiflow/arch/$device
+    if [[ $device = xc7* ]]; then
+      tar -I "pixz" -cvf symbiflow-arch-defs-$device-${GIT_HASH}.tar.xz -C install share/symbiflow/arch/$device
+    fi
   done
   rm -rf install
 )
