@@ -57,65 +57,65 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
 
   # install python scripts
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/convert_compile_opts.py
-          DESTINATION bin/python
+          DESTINATION share/symbiflow/scripts
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/split_inouts.py
-          DESTINATION bin/python
+          DESTINATION share/symbiflow/scripts
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/pinmap_parse.py
-          DESTINATION bin/python
+          DESTINATION share/symbiflow/scripts
           PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
 
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/create_lib.py
-          DESTINATION bin/python
+          DESTINATION share/symbiflow/scripts
           PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
 
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_io_place.py
-          DESTINATION bin/python
+          DESTINATION share/symbiflow/scripts
           PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
 
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_place_constraints.py
-          DESTINATION bin/python
+          DESTINATION share/symbiflow/scripts
           PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
 
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/eblif.py
-          DESTINATION bin/python
+          DESTINATION share/symbiflow/scripts
           PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
 
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/lib/parse_pcf.py
-          DESTINATION bin/python/lib
+          DESTINATION share/symbiflow/scripts/lib
           PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
 
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/yosys_fixup_cell_names.py
-          DESTINATION bin/python
+          DESTINATION share/symbiflow/scripts
           PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
 
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/process_sdc_constraints.py
-          DESTINATION bin/python
+          DESTINATION share/symbiflow/scripts
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ)
 
   if("${FAMILY}" STREQUAL "pp3")
 
     install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/fasm2bels.py
-      DESTINATION bin/python
+      DESTINATION share/symbiflow/scripts
       PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ)
 
     install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/verilogmodule.py
-      DESTINATION bin/python
+      DESTINATION share/symbiflow/scripts
       PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
 
     install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/connections.py
-      DESTINATION bin/python
+      DESTINATION share/symbiflow/scripts
       PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
 
     install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/data_structs.py
-      DESTINATION bin/python
+      DESTINATION share/symbiflow/scripts
       PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
 
     install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/utils.py
-      DESTINATION bin/python
+      DESTINATION share/symbiflow/scripts
       PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
 
   endif()
@@ -135,7 +135,7 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
   )
   foreach(NAME ${REPACKER_FILES})
     install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/repacker/${NAME}
-            DESTINATION bin/python/repacker
+            DESTINATION share/symbiflow/scripts/repacker
             PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
   endforeach()
 
@@ -178,7 +178,7 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
     set(FILE ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/utils/${NAME})
     if(EXISTS "${FILE}")
       install(FILES ${FILE}
-              DESTINATION bin/python
+              DESTINATION share/symbiflow/scripts
               RENAME ${FAMILY}_${NAME}
               PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
     endif()
