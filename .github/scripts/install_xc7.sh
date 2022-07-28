@@ -12,7 +12,7 @@ heading "Set environment variables for F4PGA CLI utils"
   export F4PGA_INSTALL_DIR="placeholder"
   export F4PGA_BIN_DIR="$(cd $(dirname "$0"); pwd)/../../env/conda/envs/symbiflow_arch_def_base/bin"
   # TODO: We should place the content in subdir F4PGA_FAM, to use the default in f4pga instead of overriding F4PGA_ENV_SHARE here.
-  export F4PGA_SHARE_DIR="$(cd $(dirname "$0"); pwd)/../../install/share/symbiflow"
+  export F4PGA_SHARE_DIR="$(cd $(dirname "$0"); pwd)/../../install/share/f4pga"
 }
 
 echo "----------------------------------------"
@@ -46,12 +46,12 @@ heading "Compressing install dir (creating packages)"
 
   du -ah install
   export GIT_HASH=$(git rev-parse --short HEAD)
-  tar -I "pixz" -cvf symbiflow-arch-defs-install-xc7-${GIT_HASH}.tar.xz -C install share/symbiflow/techmaps share/symbiflow/scripts environment.yml
+  tar -I "pixz" -cvf symbiflow-arch-defs-install-xc7-${GIT_HASH}.tar.xz -C install share/f4pga/techmaps share/f4pga/scripts environment.yml
   tar -I "pixz" -cvf symbiflow-arch-defs-benchmarks-xc7-${GIT_HASH}.tar.xz -C install benchmarks
-  for device in $(ls install/share/symbiflow/arch)
+  for device in $(ls install/share/f4pga/arch)
   do
     if [[ $device = xc7* ]]; then
-      tar -I "pixz" -cvf symbiflow-arch-defs-$device-${GIT_HASH}.tar.xz -C install share/symbiflow/arch/$device
+      tar -I "pixz" -cvf symbiflow-arch-defs-$device-${GIT_HASH}.tar.xz -C install share/f4pga/arch/$device
     fi
   done
   rm -rf install

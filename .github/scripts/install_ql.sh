@@ -10,7 +10,7 @@ export CMAKE_FLAGS="-GNinja -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} -DINSTALL_FAMI
 
 export FPGA_FAM=eos-s3
 export F4PGA_INSTALL_DIR="placeholder"
-export F4PGA_SHARE_DIR=${INSTALL_DIR}/share/symbiflow
+export F4PGA_SHARE_DIR=${INSTALL_DIR}/share/f4pga
 export F4PGA_BIN_DIR=${INSTALL_DIR}/bin/
 
 source $(dirname "$0")/setup-and-activate.sh
@@ -52,12 +52,12 @@ heading "Compressing install dir (creating packages)"
   du -ah install
   export GIT_HASH=$(git rev-parse --short HEAD)
 
-  for device in $(ls install/share/symbiflow/arch)
+  for device in $(ls install/share/f4pga/arch)
   do
     # Prepare packages only for QL devices
-  tar -I "pixz" -cvf symbiflow-arch-defs-install-ql-${GIT_HASH}.tar.xz -C install share/symbiflow/techmaps share/symbiflow/scripts environment.yml
+  tar -I "pixz" -cvf symbiflow-arch-defs-install-ql-${GIT_HASH}.tar.xz -C install share/f4pga/techmaps share/f4pga/scripts environment.yml
     if [[ $device = ql* ]]; then
-      tar -I "pixz" -cvf symbiflow-arch-defs-$device-${GIT_HASH}.tar.xz -C install share/symbiflow/arch/$device
+      tar -I "pixz" -cvf symbiflow-arch-defs-$device-${GIT_HASH}.tar.xz -C install share/f4pga/arch/$device
     fi
   done
 
