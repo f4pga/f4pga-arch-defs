@@ -32,90 +32,90 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
     )
 
   install(FILES ${VPR_CONFIG}
-          DESTINATION share/symbiflow/scripts/${FAMILY})
+          DESTINATION share/f4pga/scripts/${FAMILY})
 
   # Example design to run through the flow
   # FIXME: Installation of the example should me moved out of this function
   # For now there is the following workaround which installs it only for qlf_k4n8
   if(${FAMILY} STREQUAL "qlf_k4n8")
     install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/tests/design_flow/counter_16bit/counter_16bit.v
-            DESTINATION share/symbiflow/tests/counter_16bit
+            DESTINATION share/f4pga/tests/counter_16bit
             PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
     install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/tests/design_flow/counter_16bit/counter_16bit_tb.v
-            DESTINATION share/symbiflow/tests/counter_16bit
+            DESTINATION share/f4pga/tests/counter_16bit
             PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
     install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/tests/design_flow/counter_16bit/counter_16bit.pcf
-  	  DESTINATION share/symbiflow/tests/counter_16bit
+  	  DESTINATION share/f4pga/tests/counter_16bit
             PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
     install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/tests/design_flow/counter_16bit/pinmap_qlf_k4n8_umc22.csv
-  	  DESTINATION share/symbiflow/tests/counter_16bit
+  	  DESTINATION share/f4pga/tests/counter_16bit
   	  PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
     install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/tests/design_flow/counter_16bit/counter_16bit.sdc
-            DESTINATION share/symbiflow/tests/counter_16bit
+            DESTINATION share/f4pga/tests/counter_16bit
             PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
   endif()
 
   # install python scripts
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/convert_compile_opts.py
-          DESTINATION bin/python
+          DESTINATION share/f4pga/scripts
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/split_inouts.py
-          DESTINATION bin/python
+          DESTINATION share/f4pga/scripts
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/pinmap_parse.py
-          DESTINATION bin/python
+          DESTINATION share/f4pga/scripts
           PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
 
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/create_lib.py
-          DESTINATION bin/python
+          DESTINATION share/f4pga/scripts
           PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
 
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_io_place.py
-          DESTINATION bin/python
+          DESTINATION share/f4pga/scripts
           PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
 
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_place_constraints.py
-          DESTINATION bin/python
+          DESTINATION share/f4pga/scripts
           PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
 
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/eblif.py
-          DESTINATION bin/python
+          DESTINATION share/f4pga/scripts
           PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
 
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/lib/parse_pcf.py
-          DESTINATION bin/python/lib
+          DESTINATION share/f4pga/scripts/lib
           PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
 
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/yosys_fixup_cell_names.py
-          DESTINATION bin/python
+          DESTINATION share/f4pga/scripts
           PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
 
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/process_sdc_constraints.py
-          DESTINATION bin/python
+          DESTINATION share/f4pga/scripts
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ)
 
   if("${FAMILY}" STREQUAL "pp3")
 
     install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/fasm2bels.py
-      DESTINATION bin/python
+      DESTINATION share/f4pga/scripts
       PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ)
 
     install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/verilogmodule.py
-      DESTINATION bin/python
+      DESTINATION share/f4pga/scripts
       PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
 
     install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/connections.py
-      DESTINATION bin/python
+      DESTINATION share/f4pga/scripts
       PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
 
     install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/data_structs.py
-      DESTINATION bin/python
+      DESTINATION share/f4pga/scripts
       PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
 
     install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/utils.py
-      DESTINATION bin/python
+      DESTINATION share/f4pga/scripts
       PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
 
   endif()
@@ -135,22 +135,22 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
   )
   foreach(NAME ${REPACKER_FILES})
     install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/repacker/${NAME}
-            DESTINATION bin/python/repacker
+            DESTINATION share/f4pga/scripts/repacker
             PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
   endforeach()
 
   # install techmap
   install(DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/techmap/.
-          DESTINATION share/symbiflow/techmaps/${FAMILY}
+          DESTINATION share/f4pga/techmaps/${FAMILY}
           FILES_MATCHING PATTERN *.v)
 
   install(FILES ${DEFINE_QL_TOOLCHAIN_TARGET_CELLS_SIM}
-          DESTINATION share/symbiflow/techmaps/${FAMILY})
+          DESTINATION share/f4pga/techmaps/${FAMILY})
 
   if("${FAMILY}" STREQUAL "qlf_k4n8")
     # install lib files
     install(DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/devices/umc22/
-      DESTINATION "share/symbiflow/arch/${FAMILY}-${FAMILY}_umc22_${FAMILY}-${FAMILY}_umc22/lib"
+      DESTINATION "share/f4pga/arch/${FAMILY}-${FAMILY}_umc22_${FAMILY}-${FAMILY}_umc22/lib"
       FILES_MATCHING
       PATTERN "*.txt"
       PATTERN "*.json"
@@ -159,11 +159,11 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
 
   # install Yosys scripts
   install(FILES ${DEFINE_QL_TOOLCHAIN_TARGET_CONV_SCRIPT} ${DEFINE_QL_TOOLCHAIN_TARGET_SYNTH_SCRIPT}
-          DESTINATION share/symbiflow/scripts/${FAMILY})
+          DESTINATION share/f4pga/scripts/${FAMILY})
 
   if("${FAMILY}" STREQUAL "pp3")
 	  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/yosys/pack.tcl
-		  DESTINATION share/symbiflow/scripts/${FAMILY})
+		  DESTINATION share/f4pga/scripts/${FAMILY})
 	  message(STATUS "Installing pack.tcl for ${FAMILY}")
   endif()
 
@@ -178,7 +178,7 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
     set(FILE ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/utils/${NAME})
     if(EXISTS "${FILE}")
       install(FILES ${FILE}
-              DESTINATION bin/python
+              DESTINATION share/f4pga/scripts
               RENAME ${FAMILY}_${NAME}
               PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
     endif()
@@ -194,10 +194,10 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
 	  DEPENDS ${FASM_DATABASE_TARGET} ${FASM_DATABASE}
     )
     install(DIRECTORY ${CMAKE_BINARY_DIR}/${FASM_DATABASE_DIR}
-	    DESTINATION share/symbiflow/fasm_database/${FAMILY})
+	    DESTINATION share/f4pga/fasm_database/${FAMILY})
   elseif(EXISTS "${FASM_DATABASE_DIR}" AND IS_DIRECTORY "${FASM_DATABASE_DIR}")
     install(DIRECTORY ${FASM_DATABASE_DIR}
-            DESTINATION share/symbiflow/fasm_database/${FAMILY})
+            DESTINATION share/f4pga/fasm_database/${FAMILY})
   endif()
 
 endfunction()
@@ -233,14 +233,14 @@ function(DEFINE_QL_DEVICE_CELLS_INSTALL_TARGET)
   get_file_location(DEVICE_MERGED_FILE_LOCATION ${DEVICE_MERGED_FILE})
 
   install(FILES ${DEVICE_MERGED_FILE_LOCATION}
-          DESTINATION "share/symbiflow/arch/${DEVICE}_${PACKAGE}"
+          DESTINATION "share/f4pga/arch/${DEVICE}_${PACKAGE}"
           RENAME "arch_${DEVICE}_${PACKAGE}.xml")
 
   if("${FAMILY}" STREQUAL "qlf_k4n8")
 	  # install lib files
 	  if(EXISTS "${QLF_FPGA_DATABASE_DIR}/${FAMILY}/lib" AND IS_DIRECTORY "${QLF_FPGA_DATABASE_DIR}/${FAMILY}/lib")
 		install(DIRECTORY ${QLF_FPGA_DATABASE_DIR}/${FAMILY}/lib/
-			DESTINATION "share/symbiflow/arch/${DEVICE}_${PACKAGE}/lib")
+			DESTINATION "share/f4pga/arch/${DEVICE}_${PACKAGE}/lib")
 	  endif()
   else()
 	  message(status ": workaround: skipping lib install for ${DEVICE} device")
@@ -258,7 +258,7 @@ function(DEFINE_QL_DEVICE_CELLS_INSTALL_TARGET)
       DEPENDS ${CELLS_SIM_TARGET} ${CELLS_SIM}
       )
     install(FILES ${CELLS_SIM}
-      DESTINATION "share/symbiflow/arch/${DEVICE}_${PACKAGE}/cells")
+      DESTINATION "share/f4pga/arch/${DEVICE}_${PACKAGE}/cells")
   endif()
 
   if (NOT "${CELLS_MAP}" MATCHES ".*NOTFOUND")
@@ -270,7 +270,7 @@ function(DEFINE_QL_DEVICE_CELLS_INSTALL_TARGET)
       DEPENDS ${CELLS_MAP_TARGET} ${CELLS_MAP}
       )
     install(FILES ${CELLS_MAP}
-      DESTINATION "share/symbiflow/arch/${DEVICE}_${PACKAGE}/cells")
+      DESTINATION "share/f4pga/arch/${DEVICE}_${PACKAGE}/cells")
   endif()
 endfunction()
 
@@ -310,7 +310,7 @@ function(DEFINE_QL_PINMAP_CSV_INSTALL_TARGET)
     DEPENDS ${DEPS}
     )
   install(FILES ${PINMAP_FILE_REAL}
-    DESTINATION "share/symbiflow/arch/${DEVICE}_${PACKAGE}/${PART}"
+    DESTINATION "share/f4pga/arch/${DEVICE}_${PACKAGE}/${PART}"
     RENAME "pinmap_${ADD_QUICKLOGIC_BOARD_FABRIC_PACKAGE}.csv")
 
 
@@ -326,7 +326,7 @@ function(DEFINE_QL_PINMAP_CSV_INSTALL_TARGET)
 	  DEPENDS ${DEPS}
 	  )
 	  install(FILES ${PINMAP_XML_FILE_REAL}
-	  DESTINATION "share/symbiflow/arch/${DEVICE}_${PACKAGE}/${PART}"
+	  DESTINATION "share/f4pga/arch/${DEVICE}_${PACKAGE}/${PART}"
 	  RENAME "pinmap_${ADD_QUICKLOGIC_BOARD_FABRIC_PACKAGE}.xml")
   else()
 	  message(status ": workaround: skipping PINMAP_XML install for ${FAMILY} ${DEVICE}")
@@ -344,7 +344,7 @@ function(DEFINE_QL_PINMAP_CSV_INSTALL_TARGET)
       DEPENDS ${DEPS}
       )
     install(FILES ${CLKMAP_FILE_REAL}
-      DESTINATION "share/symbiflow/arch/${DEVICE}_${PACKAGE}/${PART}"
+      DESTINATION "share/f4pga/arch/${DEVICE}_${PACKAGE}/${PART}"
       RENAME "clkmap_${ADD_QUICKLOGIC_BOARD_FABRIC_PACKAGE}.csv")
   endif()
 

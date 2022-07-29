@@ -12,28 +12,6 @@ source $(dirname "$0")/setup-and-activate.sh
 
 pushd build
 make_target all_quicklogic_tests "Running quicklogic OpenFPGA tests (make all_quicklogic_tests)"
-make_target install "Installing quicklogic toolchain (make install)"
 popd
 
-heading "Running installed toolchain tests"
-(
-	pushd build
-	export CTEST_OUTPUT_ON_FAILURE=1
-	export F4PGA_SHARE_DIR=${INSTALL_DIR}/share/symbiflow
-	export F4PGA_BIN_DIR=${INSTALL_DIR}/bin/
-	heading "Testing installed toolchain on qlf_k4n8"
-	ctest -j${MAX_CORES} -R "quicklogic_toolchain_test_.*_qlf_k4n8" -VV
-	echo "----------------------------------------"
-	heading "Testing installed toolchain on ql_eos_s3"
-	ctest -j${MAX_CORES} -R "quicklogic_toolchain_test_.*_ql-eos-s3" -VV
-	echo "----------------------------------------"
-	popd
-)
-
-heading "Compressing and uploading install dir"
-(
-	du -ah install
-	export GIT_HASH=$(git rev-parse --short HEAD)
-	tar -I "pixz" -cvf symbiflow-quicklogic-${GIT_HASH}.tar.xz -C install bin share
-)
 echo "----------------------------------------"

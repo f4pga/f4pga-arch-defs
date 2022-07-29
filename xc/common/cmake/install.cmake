@@ -34,20 +34,20 @@ function(DEFINE_XC_TOOLCHAIN_TARGET)
             ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_io_place.py
             ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_place_constraints.py
             ${symbiflow-arch-defs_SOURCE_DIR}/utils/eblif.py
-          DESTINATION share/symbiflow/scripts
+          DESTINATION share/f4pga/scripts
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/lib/parse_pcf.py
-          DESTINATION share/symbiflow/scripts/lib)
+          DESTINATION share/f4pga/scripts/lib)
 
 
   # install prjxray techmap
   install(DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/xc/${FAMILY}/techmap
-          DESTINATION share/symbiflow/techmaps/${FAMILY}_vpr)
+          DESTINATION share/f4pga/techmaps/${FAMILY}_vpr)
 
   # install Yosys scripts
   install(FILES  ${DEFINE_XC_TOOLCHAIN_TARGET_CONV_SCRIPT} ${DEFINE_XC_TOOLCHAIN_TARGET_SYNTH_SCRIPT} ${DEFINE_XC_TOOLCHAIN_TARGET_UTILS_SCRIPT}
-    DESTINATION share/symbiflow/scripts/${FAMILY})
+    DESTINATION share/f4pga/scripts/${FAMILY})
 
 endfunction()
 
@@ -99,6 +99,6 @@ function(DEFINE_XC_PINMAP_CSV_INSTALL_TARGET)
     DEPENDS ${DEPS}
     )
   install(FILES ${PINMAP_FILE}
-    DESTINATION "share/symbiflow/arch/${DEVICE}_${PACKAGE}/${PART}"
+    DESTINATION "share/f4pga/arch/${DEVICE}_${PACKAGE}/${PART}"
     RENAME "pinmap.csv")
 endfunction()

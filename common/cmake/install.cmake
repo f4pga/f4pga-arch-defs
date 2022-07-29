@@ -376,7 +376,7 @@ function(INSTALL_DEVICE_FILES)
       ALL
       DEPENDS ${DEPS})
     install(FILES ${SRC_FILE_REAL}
-      DESTINATION "share/symbiflow/arch/${DEVICE}_${PACKAGE}"
+      DESTINATION "share/f4pga/arch/${DEVICE}_${PACKAGE}"
       RENAME ${FILE_NAME}
     )
   endforeach()
