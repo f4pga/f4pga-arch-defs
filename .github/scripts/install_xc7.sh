@@ -21,7 +21,11 @@ pushd build
 make_target install "Running install tests (make install)"
 popd
 
-cp environment.yml install/
+cp \
+  packaging/"$FPGA_FAM"_environment.yml \
+  packaging/requirements.txt \
+  packaging/"$FPGA_FAM"_requirements.txt \
+  $INSTALL_DIR/
 
 echo "----------------------------------------"
 
@@ -46,7 +50,21 @@ heading "Compressing install dir (creating packages)"
 
   du -ah install
   export GIT_HASH=$(git rev-parse --short HEAD)
-  tar -I "pixz" -cvf symbiflow-arch-defs-install-xc7-${GIT_HASH}.tar.xz -C install share/f4pga/techmaps share/f4pga/scripts environment.yml
+
+  pushd install
+  mkdir -p "$FPGA_FAM"_env
+  mv "$FPGA_FAM"_environment.yml \
+    requirements.txt \
+    "$FPGA_FAM"_requirements.txt \
+    "$FPGA_FAM"_env
+  popd
+
+  tar -I "pixz" -cvf \
+    symbiflow-arch-defs-install-xc7-${GIT_HASH}.tar.xz \
+    -C install \
+      share/f4pga/techmaps \
+      share/f4pga/scripts \
+      "$FPGA_FAM"_env
   tar -I "pixz" -cvf symbiflow-arch-defs-benchmarks-xc7-${GIT_HASH}.tar.xz -C install benchmarks
   for device in $(ls install/share/f4pga/arch)
   do
