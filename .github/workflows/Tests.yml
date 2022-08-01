@@ -50,6 +50,7 @@ jobs:
           path: |
             **/results*.gz
             **/plot_*.svg
+            build/*.png
 
 
   Install:

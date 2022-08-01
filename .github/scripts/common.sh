@@ -36,7 +36,9 @@ make_target () {
 
   start_section "$2"
     ninja_status=0
-    ninja -k$max_fail_tests -j${MAX_CORES} $target || ninja_status=$?
+    #ninja -k$max_fail_tests -j${MAX_CORES} $target || ninja_status=$?
+    ninja -t graph $target | dot -Tpng -o$target.png
+    exit 1
   end_section
 
   # When the build fails, produce the failure output in a clear way
