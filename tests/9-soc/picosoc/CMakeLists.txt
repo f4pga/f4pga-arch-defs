@@ -69,7 +69,7 @@ add_fpga_target(
     picorv32.v
     simpleuart.v
     firmware_noflash_100.v
-  INPUT_IO_FILE ${symbiflow-arch-defs_SOURCE_DIR}/xc/xc7/tests/common/basys3.pcf
+  INPUT_IO_FILE ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/xc7/tests/common/basys3.pcf
   TESTBENCH_SOURCES basys3_demo_tb.v
   EXPLICIT_ADD_FILE_TARGET
 )
@@ -92,7 +92,7 @@ add_vivado_pnr_target(
 # ============================================================================
 # Basys3 (full A50T, no ROI)
 
-set(BASYS3_PCF ${symbiflow-arch-defs_SOURCE_DIR}/xc/xc7/tests/common/basys3.pcf)
+set(BASYS3_PCF ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/xc7/tests/common/basys3.pcf)
 
 get_file_target(TARGET_BASYS3_PCF ${BASYS3_PCF})
 
@@ -137,8 +137,8 @@ endforeach()
 # ============================================================================
 # Nexys Video
 
-set(NEXYS_VIDEO_PCF ${symbiflow-arch-defs_SOURCE_DIR}/xc/xc7/tests/common/nexys_video.pcf)
-set(NEXYS_VIDEO_XDC ${symbiflow-arch-defs_SOURCE_DIR}/xc/xc7/tests/common/nexys_video.xdc)
+set(NEXYS_VIDEO_PCF ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/xc7/tests/common/nexys_video.pcf)
+set(NEXYS_VIDEO_XDC ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/xc7/tests/common/nexys_video.xdc)
 
 get_file_target(TARGET_NEXYS_VIDEO_PCF ${NEXYS_VIDEO_PCF})
 get_file_target(TARGET_NEXYS_VIDEO_XDC ${NEXYS_VIDEO_XDC})

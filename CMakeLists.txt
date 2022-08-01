@@ -93,7 +93,7 @@ add_subdirectory(vpr)
 add_subdirectory(library)
 # Disable 7-series support in CI because it consumes too much memory.
 if (NOT LIGHT_BUILD)
-  add_subdirectory(xc)
+  add_subdirectory(xilinx)
 endif()
 add_subdirectory(lattice/ice40)
 add_subdirectory(quicklogic)

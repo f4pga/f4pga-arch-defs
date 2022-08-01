@@ -87,8 +87,8 @@ endforeach()
 # ============================================================================
 # Nexys Video
 
-set(NEXYS_VIDEO_PCF ${symbiflow-arch-defs_SOURCE_DIR}/xc/xc7/tests/common/nexys_video.pcf)
-set(NEXYS_VIDEO_XDC ${symbiflow-arch-defs_SOURCE_DIR}/xc/xc7/tests/common/nexys_video.xdc)
+set(NEXYS_VIDEO_PCF ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/xc7/tests/common/nexys_video.pcf)
+set(NEXYS_VIDEO_XDC ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/xc7/tests/common/nexys_video.xdc)
 
 get_file_target(TARGET_NEXYS_VIDEO_PCF ${NEXYS_VIDEO_PCF})
 get_file_target(TARGET_NEXYS_VIDEO_XDC ${NEXYS_VIDEO_XDC})
