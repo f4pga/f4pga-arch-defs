@@ -62,11 +62,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        install:
-          - install_xc7
-          - install_ql
+        fam:
+          - xc7
+          - ql
 
-    name: ${{ matrix.install }}
+    name: Install | ${{ matrix.fam }}
 
     env:
       MAX_CORES: 80
@@ -80,7 +80,7 @@ jobs:
           submodules: recursive
 
       - name: '🚧 Execute test script'
-        run: stdbuf -i0 -o0 -e0 ./.github/scripts/${{ matrix.install }}.sh
+        run: stdbuf -i0 -o0 -e0 ./.github/scripts/install.sh '${{ matrix.fam }}'
 
       - name: '📤 Upload artifact: arch-defs packages'
         uses: actions/upload-artifact@v3
