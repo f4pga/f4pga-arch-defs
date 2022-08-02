@@ -145,9 +145,9 @@ function(MUX_GEN)
     OUTPUT ${OUTPUTS}
     DEPENDS
       ${PYTHON3}
-      ${symbiflow-arch-defs_SOURCE_DIR}/utils/mux_gen.py
-      #${symbiflow-arch-defs_SOURCE_DIR}/vpr/muxes/logic/mux${MUX_GEN_WIDTH}/mux${MUX_GEN_WIDTH}.sim.v
-    COMMAND ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/mux_gen.py ${MUX_GEN_ARGS}
+      ${f4pga-arch-defs_SOURCE_DIR}/utils/mux_gen.py
+      #${f4pga-arch-defs_SOURCE_DIR}/vpr/muxes/logic/mux${MUX_GEN_WIDTH}/mux${MUX_GEN_WIDTH}.sim.v
+    COMMAND ${PYTHON3} ${f4pga-arch-defs_SOURCE_DIR}/utils/mux_gen.py ${MUX_GEN_ARGS}
   )
 
   add_file_target(FILE "${MUX_GEN_NAME}.sim.v" GENERATED)
@@ -268,10 +268,10 @@ function(N_TEMPLATE)
         OUTPUT ${SRC_WITH_PREFIX}
         DEPENDS
           ${PYTHON3}
-          ${symbiflow-arch-defs_SOURCE_DIR}/utils/n.py ${SRC_LOCATION}
+          ${f4pga-arch-defs_SOURCE_DIR}/utils/n.py ${SRC_LOCATION}
           ${DEPS}
         COMMAND
-          ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/n.py ${PREFIX} ${SRC_LOCATION}
+          ${PYTHON3} ${f4pga-arch-defs_SOURCE_DIR}/utils/n.py ${PREFIX} ${SRC_LOCATION}
           ${CMAKE_CURRENT_BINARY_DIR}/${SRC_WITH_PREFIX}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
       )

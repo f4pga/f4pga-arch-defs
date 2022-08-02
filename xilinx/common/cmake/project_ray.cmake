@@ -33,12 +33,12 @@ function(PROJECT_RAY_ARCH)
 
   set(PART ${PROJECT_RAY_ARCH_PART})
   set(DEVICE ${PROJECT_RAY_ARCH_DEVICE})
-  set(ARCH_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/common/utils/prjxray_arch_import.py)
-  set(CREATE_SYNTH_TILES ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/common/utils/prjxray_create_synth_tiles.py)
-  set(CREATE_EDGES ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/common/utils/prjxray_create_edges.py)
-  set(GET_FABRIC ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/common/utils/prjxray_get_fabric.py)
+  set(ARCH_IMPORT ${f4pga-arch-defs_SOURCE_DIR}/xilinx/common/utils/prjxray_arch_import.py)
+  set(CREATE_SYNTH_TILES ${f4pga-arch-defs_SOURCE_DIR}/xilinx/common/utils/prjxray_create_synth_tiles.py)
+  set(CREATE_EDGES ${f4pga-arch-defs_SOURCE_DIR}/xilinx/common/utils/prjxray_create_edges.py)
+  set(GET_FABRIC ${f4pga-arch-defs_SOURCE_DIR}/xilinx/common/utils/prjxray_get_fabric.py)
   execute_process(
-    COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
+    COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJRAY_DIR}:${f4pga-arch-defs_SOURCE_DIR}/utils
     ${PYTHON3} ${GET_FABRIC}
       --db_root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/
       --part ${PART}
@@ -55,7 +55,7 @@ function(PROJECT_RAY_ARCH)
   set(ARCH_INCLUDE_FILES "")
   foreach(TILE_TYPE ${PROJECT_RAY_ARCH_TILE_TYPES})
     string(TOLOWER ${TILE_TYPE} TILE_TYPE_LOWER)
-    set(TILE_XML ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/archs/${ARCH}/tiles/${TILE_TYPE_LOWER}/${TILE_TYPE_LOWER}.tile.xml)
+    set(TILE_XML ${f4pga-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/archs/${ARCH}/tiles/${TILE_TYPE_LOWER}/${TILE_TYPE_LOWER}.tile.xml)
     append_file_dependency(DEPS ${TILE_XML})
     get_file_location(TILE_XML_LOCATION ${TILE_XML})
 
@@ -66,8 +66,8 @@ function(PROJECT_RAY_ARCH)
 
   foreach(PB_TYPE ${PROJECT_RAY_ARCH_PB_TYPES})
     string(TOLOWER ${PB_TYPE} PB_TYPE_LOWER)
-    set(PB_TYPE_XML ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/archs/${ARCH}/tiles/${PB_TYPE_LOWER}/${PB_TYPE_LOWER}.pb_type.xml)
-    set(MODEL_XML ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/archs/${ARCH}/tiles/${PB_TYPE_LOWER}/${PB_TYPE_LOWER}.model.xml)
+    set(PB_TYPE_XML ${f4pga-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/archs/${ARCH}/tiles/${PB_TYPE_LOWER}/${PB_TYPE_LOWER}.pb_type.xml)
+    set(MODEL_XML ${f4pga-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/archs/${ARCH}/tiles/${PB_TYPE_LOWER}/${PB_TYPE_LOWER}.model.xml)
     append_file_dependency(DEPS ${PB_TYPE_XML})
     append_file_dependency(DEPS ${MODEL_XML})
 
@@ -84,10 +84,10 @@ function(PROJECT_RAY_ARCH)
   set(ROI_ARG_FOR_CREATE_EDGES "")
 
   set(GENERIC_CHANNELS
-    ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/archs/${ARCH}/channels/${PART}/channels.db)
+    ${f4pga-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/archs/${ARCH}/channels/${PART}/channels.db)
   get_file_location(GENERIC_CHANNELS_LOCATION ${GENERIC_CHANNELS})
   set(VPR_GRID_MAP
-    ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/archs/${ARCH}/channels/${PART}/vpr_grid_map.csv)
+    ${f4pga-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/archs/${ARCH}/channels/${PART}/vpr_grid_map.csv)
   get_file_location(VPR_GRID_MAP_LOCATION ${VPR_GRID_MAP})
 
   if(NOT "${PROJECT_RAY_ARCH_USE_ROI}" STREQUAL "")
@@ -95,7 +95,7 @@ function(PROJECT_RAY_ARCH)
     append_file_dependency(SYNTH_DEPS ${GENERIC_CHANNELS})
     add_custom_command(
       OUTPUT synth_tiles.json
-      COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
+      COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJRAY_DIR}:${f4pga-arch-defs_SOURCE_DIR}/utils
       ${PYTHON3} ${CREATE_SYNTH_TILES}
         --db_root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/
         --part ${PART}
@@ -131,7 +131,7 @@ function(PROJECT_RAY_ARCH)
     append_file_dependency(SYNTH_DEPS ${GENERIC_CHANNELS})
     add_custom_command(
       OUTPUT synth_tiles.json
-      COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
+      COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJRAY_DIR}:${f4pga-arch-defs_SOURCE_DIR}/utils
       ${PYTHON3} ${CREATE_SYNTH_TILES}
         --db_root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/
         --part ${PART}
@@ -158,8 +158,8 @@ function(PROJECT_RAY_ARCH)
   endif()
 
   append_file_dependency(CHANNELS_DEPS ${GENERIC_CHANNELS})
-  append_file_dependency(CHANNELS_DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/archs/${ARCH}/pin_assignments.json)
-  get_file_location(PIN_ASSIGNMENTS ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/archs/${ARCH}/pin_assignments.json)
+  append_file_dependency(CHANNELS_DEPS ${f4pga-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/archs/${ARCH}/pin_assignments.json)
+  get_file_location(PIN_ASSIGNMENTS ${f4pga-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/archs/${ARCH}/pin_assignments.json)
   list(APPEND CHANNELS_DEPS ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/${FABRIC}/tilegrid.json)
   list(APPEND CHANNELS_DEPS ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/${FABRIC}/tileconn.json)
 
@@ -167,7 +167,7 @@ function(PROJECT_RAY_ARCH)
     OUTPUT channels.db vpr_grid_map.csv
     COMMAND ${CMAKE_COMMAND} -E copy ${GENERIC_CHANNELS_LOCATION} ${CMAKE_CURRENT_BINARY_DIR}/channels.db
     COMMAND ${CMAKE_COMMAND} -E copy ${VPR_GRID_MAP_LOCATION} ${CMAKE_CURRENT_BINARY_DIR}/vpr_grid_map.csv
-    COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
+    COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJRAY_DIR}:${f4pga-arch-defs_SOURCE_DIR}/utils
     ${PYTHON3} ${CREATE_EDGES}
       --db_root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/
       --part ${PART}
@@ -187,7 +187,7 @@ function(PROJECT_RAY_ARCH)
   get_file_target(GRID_MAP vpr_grid_map.csv)
   add_dependencies(${GRID_MAP} ${CHAN})
 
-  append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/archs/${ARCH}/pin_assignments.json)
+  append_file_dependency(DEPS ${f4pga-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/archs/${ARCH}/pin_assignments.json)
   append_file_dependency(DEPS channels.db)
 
   string(REPLACE ";" "," TILE_TYPES_COMMA "${PROJECT_RAY_ARCH_TILE_TYPES}")
@@ -195,7 +195,7 @@ function(PROJECT_RAY_ARCH)
 
   add_custom_command(
     OUTPUT arch.xml
-    COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
+    COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJRAY_DIR}:${f4pga-arch-defs_SOURCE_DIR}/utils
     ${PYTHON3} ${ARCH_IMPORT}
       --db_root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/
       --part ${PART}
@@ -237,8 +237,8 @@ function(PROJECT_RAY_PREPARE_DATABASE)
   set(PRJRAY_DB_DIR ${PROJECT_RAY_PREPARE_DATABASE_PRJRAY_DB_DIR})
   set(PROTOTYPE_PART ${PROJECT_RAY_PREPARE_DATABASE_PROTOTYPE_PART})
 
-  set(FORM_CHANNELS ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/common/utils/prjxray_form_channels.py)
-  set(ASSIGN_PINS ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/common/utils/prjxray_assign_tile_pin_direction.py)
+  set(FORM_CHANNELS ${f4pga-arch-defs_SOURCE_DIR}/xilinx/common/utils/prjxray_form_channels.py)
+  set(ASSIGN_PINS ${f4pga-arch-defs_SOURCE_DIR}/xilinx/common/utils/prjxray_assign_tile_pin_direction.py)
   file(GLOB DEPS ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/*.json)
   file(GLOB DEPS2 ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/${PART}/*.json)
   file(GLOB DEPS3 ${PRJRAY_DIR}/prjxray/*.py)
@@ -250,7 +250,7 @@ function(PROJECT_RAY_PREPARE_DATABASE)
     set(VPR_GRID_MAP channels/${PART}/vpr_grid_map.csv)
     add_custom_command(
       OUTPUT ${CHANNELS} ${VPR_GRID_MAP}
-      COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
+      COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJRAY_DIR}:${f4pga-arch-defs_SOURCE_DIR}/utils
       ${PYTHON3} ${FORM_CHANNELS}
       --db_root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/
       --part ${PROTOTYPE_PART}
@@ -278,7 +278,7 @@ function(PROJECT_RAY_PREPARE_DATABASE)
   set(PIN_ASSIGNMENTS pin_assignments.json)
   add_custom_command(
     OUTPUT ${PIN_ASSIGNMENTS}
-    COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
+    COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJRAY_DIR}:${f4pga-arch-defs_SOURCE_DIR}/utils
     ${PYTHON3} ${ASSIGN_PINS}
     --db_root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/
     --part ${PROTOTYPE_PART}
@@ -350,22 +350,22 @@ function(PROJECT_RAY_TILE)
   set(PRJRAY_DIR ${DOC_PRJ})
   set(PRJRAY_DB_DIR ${DOC_PRJ_DB})
 
-  set(TILE_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/common/utils/prjxray_tile_import.py)
+  set(TILE_IMPORT ${f4pga-arch-defs_SOURCE_DIR}/xilinx/common/utils/prjxray_tile_import.py)
   get_project_ray_dependencies(DEPS ${PRJRAY_DB_DIR} ${PRJRAY_ARCH} ${TILE})
 
   set(PB_TYPE_INCLUDE_FILES "")
   set(MODEL_INCLUDE_FILES "")
   foreach(SITE_TYPE ${PROJECT_RAY_TILE_SITE_TYPES})
     string(TOLOWER ${SITE_TYPE} SITE_TYPE_LOWER)
-    append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/common/primitives/${SITE_TYPE_LOWER}.pb_type.xml)
-    append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/common/primitives/${SITE_TYPE_LOWER}.model.xml)
-    list(APPEND PB_TYPE_INCLUDE_FILES ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/common/primitives/${SITE_TYPE_LOWER}.pb_type.xml)
-    list(APPEND MODEL_INCLUDE_FILES ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/common/primitives/${SITE_TYPE_LOWER}.model.xml)
+    append_file_dependency(DEPS ${f4pga-arch-defs_SOURCE_DIR}/xilinx/common/primitives/${SITE_TYPE_LOWER}.pb_type.xml)
+    append_file_dependency(DEPS ${f4pga-arch-defs_SOURCE_DIR}/xilinx/common/primitives/${SITE_TYPE_LOWER}.model.xml)
+    list(APPEND PB_TYPE_INCLUDE_FILES ${f4pga-arch-defs_SOURCE_DIR}/xilinx/common/primitives/${SITE_TYPE_LOWER}.pb_type.xml)
+    list(APPEND MODEL_INCLUDE_FILES ${f4pga-arch-defs_SOURCE_DIR}/xilinx/common/primitives/${SITE_TYPE_LOWER}.model.xml)
   endforeach()
   string(REPLACE ";" "," SITE_TYPES_COMMA "${PROJECT_RAY_TILE_SITE_TYPES}")
 
-  append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/archs/${ARCH}/pin_assignments.json)
-  get_file_location(PIN_ASSIGNMENTS ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/archs/${ARCH}/pin_assignments.json)
+  append_file_dependency(DEPS ${f4pga-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/archs/${ARCH}/pin_assignments.json)
+  get_file_location(PIN_ASSIGNMENTS ${f4pga-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/archs/${ARCH}/pin_assignments.json)
 
   set(FUSED_SITES_ARGS "")
   if(PROJECT_RAY_TILE_FUSED_SITES)
@@ -376,7 +376,7 @@ function(PROJECT_RAY_TILE)
   endif()
   if(PROJECT_RAY_TILE_USE_DATABASE)
       set(GENERIC_CHANNELS
-        ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/archs/${ARCH}/channels/${PROTOTYPE_PART}/channels.db)
+        ${f4pga-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/archs/${ARCH}/channels/${PROTOTYPE_PART}/channels.db)
       get_file_location(GENERIC_CHANNELS_LOCATION ${GENERIC_CHANNELS})
       append_file_dependency(DEPS ${GENERIC_CHANNELS})
       set(FUSED_SITES_ARGS --connection_database ${GENERIC_CHANNELS_LOCATION})
@@ -407,12 +407,12 @@ function(PROJECT_RAY_TILE)
 
   add_custom_command(
     OUTPUT ${TILE}.pb_type.xml ${TILE}.model.xml
-    COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
+    COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJRAY_DIR}:${f4pga-arch-defs_SOURCE_DIR}/utils
     ${PYTHON3} ${TILE_IMPORT}
     --db_root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/
     --part ${PROTOTYPE_PART}
     --tile ${TILE_UPPER}
-    --site_directory ${symbiflow-arch-defs_BINARY_DIR}/xilinx/common/primitives
+    --site_directory ${f4pga-arch-defs_BINARY_DIR}/xilinx/common/primitives
     --site_types ${SITE_TYPES_COMMA}
     --pin_assignments ${PIN_ASSIGNMENTS}
     --output-pb-type ${CMAKE_CURRENT_BINARY_DIR}/${TILE}.pb_type.xml
@@ -443,25 +443,25 @@ function(PROJECT_RAY_TILE)
       )
 
   # tile tags
-  set(PHYSICAL_TILE_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/common/utils/prjxray_physical_tile_import.py)
+  set(PHYSICAL_TILE_IMPORT ${f4pga-arch-defs_SOURCE_DIR}/xilinx/common/utils/prjxray_physical_tile_import.py)
   get_project_ray_dependencies(DEPS ${PRJRAY_DB_DIR} ${PRJRAY_ARCH} ${TILE})
 
   foreach(EQUIVALENT_SITE ${PROJECT_RAY_TILE_EQUIVALENT_SITES})
     string(TOLOWER ${EQUIVALENT_SITE} EQUIVALENT_SITE_LOWER)
-    append_file_dependency(TILES_DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/archs/${ARCH}/tiles/${EQUIVALENT_SITE_LOWER}/${EQUIVALENT_SITE_LOWER}.pb_type.xml)
-    list(APPEND EQUIVALENT_SITES_INCLUDE_FILES ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/archs/${ARCH}/tiles/${EQUIVALENT_SITE_LOWER}/${EQUIVALENT_SITE_LOWER}.pb_type.xml)
+    append_file_dependency(TILES_DEPS ${f4pga-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/archs/${ARCH}/tiles/${EQUIVALENT_SITE_LOWER}/${EQUIVALENT_SITE_LOWER}.pb_type.xml)
+    list(APPEND EQUIVALENT_SITES_INCLUDE_FILES ${f4pga-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/archs/${ARCH}/tiles/${EQUIVALENT_SITE_LOWER}/${EQUIVALENT_SITE_LOWER}.pb_type.xml)
   endforeach()
-  append_file_dependency(TILES_DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/archs/${ARCH}/tiles/${TILE}/${TILE}.pb_type.xml)
-  list(APPEND EQUIVALENT_SITES_INCLUDE_FILES ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/archs/${ARCH}/tiles/${TILE}/${TILE}.pb_type.xml)
+  append_file_dependency(TILES_DEPS ${f4pga-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/archs/${ARCH}/tiles/${TILE}/${TILE}.pb_type.xml)
+  list(APPEND EQUIVALENT_SITES_INCLUDE_FILES ${f4pga-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/archs/${ARCH}/tiles/${TILE}/${TILE}.pb_type.xml)
 
   string(REPLACE ";" "," EQUIVALENT_SITES_COMMA "${PROJECT_RAY_TILE_EQUIVALENT_SITES}")
 
   add_custom_command(
     OUTPUT ${TILE}.tile.xml
-    COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
+    COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJRAY_DIR}:${f4pga-arch-defs_SOURCE_DIR}/utils
     ${PYTHON3} ${PHYSICAL_TILE_IMPORT}
     --tile ${TILE_UPPER}
-    --tiles-directory ${symbiflow-arch-defs_BINARY_DIR}/xilinx/${FAMILY}/archs/${ARCH}/tiles
+    --tiles-directory ${f4pga-arch-defs_BINARY_DIR}/xilinx/${FAMILY}/archs/${ARCH}/tiles
     --equivalent-sites=${EQUIVALENT_SITES_COMMA}
     --pin-prefix=${PIN_PREFIX_COMMA}
     --output-tile ${CMAKE_CURRENT_BINARY_DIR}/${TILE}.tile.xml
@@ -523,8 +523,8 @@ function(PROJECT_RAY_EQUIV_TILE)
 
   set(ARCH ${PROJECT_RAY_EQUIV_TILE_ARCH})
   get_target_property_required(FAMILY ${ARCH} FAMILY)
-  if(NOT "${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${symbiflow-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/archs/${PROJECT_RAY_EQUIV_TILE_ARCH}/tiles")
-      message(FATAL_ERROR "project_xray_equiv_tile can only be invoked from the ARCH tiles directory (xilinx/${FAMILY}/archs/${PROJECT_RAY_EQUIV_TILE_ARCH}/tiles/), in ${CMAKE_CURRENT_SOURCE_DIR}")
+  if(NOT "${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${f4pga-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/archs/${PROJECT_RAY_EQUIV_TILE_ARCH}/tiles")
+      message(FATAL_ERROR "project_xray_equiv_tile can only be invoked from the ARCH tiles directory (xc/${FAMILY}/archs/${PROJECT_RAY_EQUIV_TILE_ARCH}/tiles/), in ${CMAKE_CURRENT_SOURCE_DIR}")
   endif()
 
   get_target_property_required(DOC_PRJ ${ARCH} DOC_PRJ)
@@ -574,10 +574,10 @@ function(PROJECT_RAY_EQUIV_TILE)
   list(REMOVE_DUPLICATES PROJECT_RAY_EQUIV_TILE_SITES)
   foreach(SITE_TYPE ${PROJECT_RAY_EQUIV_TILE_SITES})
     string(TOLOWER ${SITE_TYPE} SITE_TYPE_LOWER)
-    append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/common/primitives/${SITE_TYPE_LOWER}/${SITE_TYPE_LOWER}.pb_type.xml)
-    append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/common/primitives/${SITE_TYPE_LOWER}/${SITE_TYPE_LOWER}.model.xml)
-    list(APPEND PB_TYPE_INCLUDE_FILES ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/common/primitives/${SITE_TYPE_LOWER}/${SITE_TYPE_LOWER}.pb_type.xml)
-    list(APPEND MODEL_INCLUDE_FILES ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/common/primitives/${SITE_TYPE_LOWER}/${SITE_TYPE_LOWER}.model.xml)
+    append_file_dependency(DEPS ${f4pga-arch-defs_SOURCE_DIR}/xilinx/common/primitives/${SITE_TYPE_LOWER}/${SITE_TYPE_LOWER}.pb_type.xml)
+    append_file_dependency(DEPS ${f4pga-arch-defs_SOURCE_DIR}/xilinx/common/primitives/${SITE_TYPE_LOWER}/${SITE_TYPE_LOWER}.model.xml)
+    list(APPEND PB_TYPE_INCLUDE_FILES ${f4pga-arch-defs_SOURCE_DIR}/xilinx/common/primitives/${SITE_TYPE_LOWER}/${SITE_TYPE_LOWER}.pb_type.xml)
+    list(APPEND MODEL_INCLUDE_FILES ${f4pga-arch-defs_SOURCE_DIR}/xilinx/common/primitives/${SITE_TYPE_LOWER}/${SITE_TYPE_LOWER}.model.xml)
   endforeach()
 
   set(TILES_ARGS "${PROJECT_RAY_EQUIV_TILE_TILES}")
@@ -590,10 +590,10 @@ function(PROJECT_RAY_EQUIV_TILE)
     set(EQUIV_ARGS --site_equivilances ${EQUIV_ARGS})
   endif()
 
-  append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/archs/${ARCH}/pin_assignments.json)
-  get_file_location(PIN_ASSIGNMENTS ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/archs/${ARCH}/pin_assignments.json)
+  append_file_dependency(DEPS ${f4pga-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/archs/${ARCH}/pin_assignments.json)
+  get_file_location(PIN_ASSIGNMENTS ${f4pga-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/archs/${ARCH}/pin_assignments.json)
 
-  set(GENERIC_CHANNELS ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/archs/${ARCH}/channels/${PROTOTYPE_PART}/channels.db)
+  set(GENERIC_CHANNELS ${f4pga-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/archs/${ARCH}/channels/${PROTOTYPE_PART}/channels.db)
   get_file_location(GENERIC_CHANNELS_LOCATION ${GENERIC_CHANNELS})
   append_file_dependency(DEPS ${GENERIC_CHANNELS})
 
@@ -610,13 +610,13 @@ function(PROJECT_RAY_EQUIV_TILE)
       list(APPEND OUTPUTS ${PB_TYPE_LOWER}/${PB_TYPE_LOWER}.model.xml)
   endforeach()
 
-  set(TILE_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/common/utils/prjxray_create_equiv_tiles.py)
+  set(TILE_IMPORT ${f4pga-arch-defs_SOURCE_DIR}/xilinx/common/utils/prjxray_create_equiv_tiles.py)
   add_custom_command(
     OUTPUT ${OUTPUTS}
-    COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
+    COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJRAY_DIR}:${f4pga-arch-defs_SOURCE_DIR}/utils
     ${PYTHON3} ${TILE_IMPORT}
-    --output_directory ${symbiflow-arch-defs_BINARY_DIR}/xilinx/${FAMILY}/archs/${ARCH}/tiles
-    --site_directory ${symbiflow-arch-defs_BINARY_DIR}/xilinx/common/primitives
+    --output_directory ${f4pga-arch-defs_BINARY_DIR}/xilinx/${FAMILY}/archs/${ARCH}/tiles
+    --site_directory ${f4pga-arch-defs_BINARY_DIR}/xilinx/common/primitives
     --connection_database ${GENERIC_CHANNELS_LOCATION}
     --tile_types ${TILES_ARGS}
     --pb_types ${PROJECT_RAY_EQUIV_TILE_PB_TYPES_ARGS}
@@ -704,10 +704,10 @@ function(PROJECT_RAY_TILE_CAPACITY)
   set(PRJRAY_DIR ${DOC_PRJ})
   set(PRJRAY_DB_DIR ${DOC_PRJ_DB})
 
-  append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/archs/${ARCH}/pin_assignments.json)
-  get_file_location(PIN_ASSIGNMENTS ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/archs/${ARCH}/pin_assignments.json)
+  append_file_dependency(DEPS ${f4pga-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/archs/${ARCH}/pin_assignments.json)
+  get_file_location(PIN_ASSIGNMENTS ${f4pga-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/archs/${ARCH}/pin_assignments.json)
 
-  set(TILE_CAPACITY_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/common/utils/prjxray_import_tile_capacity.py)
+  set(TILE_CAPACITY_IMPORT ${f4pga-arch-defs_SOURCE_DIR}/xilinx/common/utils/prjxray_import_tile_capacity.py)
 
   string(REPLACE ";" "," SITE_TYPES_COMMA "${PROJECT_RAY_TILE_CAPACITY_SITE_TYPES}")
 
@@ -721,12 +721,12 @@ function(PROJECT_RAY_TILE_CAPACITY)
 
   add_custom_command(
     OUTPUT ${TILE_LOWER}.tile.xml
-    COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
+    COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJRAY_DIR}:${f4pga-arch-defs_SOURCE_DIR}/utils
     ${PYTHON3} ${TILE_CAPACITY_IMPORT}
       --db_root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/
       --part ${PROTOTYPE_PART}
       --output_directory ${CMAKE_CURRENT_BINARY_DIR}
-      --site_directory ${symbiflow-arch-defs_BINARY_DIR}/xilinx/common/primitives
+      --site_directory ${f4pga-arch-defs_BINARY_DIR}/xilinx/common/primitives
       --tile_type ${TILE}
       --pb_types ${SITE_TYPES_COMMA}
       --pin_assignments ${PIN_ASSIGNMENTS}

@@ -30,8 +30,8 @@ Additional targets are best explored via tab completion.
 Full example for buttons:
 
 ```
-git clone https://github.com/SymbiFlow/symbiflow-arch-defs.git
-cd symbiflow-arch-defs
+git clone https://github.com/SymbiFlow/f4pga-arch-defs.git
+cd f4pga-arch-defs
 make env
 cd build
 cd xc7/tests/buttons

@@ -111,7 +111,7 @@ add_xc_board(
   PART xc7a100tfgg484-2
 )
 
-# TODO: https://github.com/SymbiFlow/symbiflow-arch-defs/issues/344
+# TODO: https://github.com/SymbiFlow/f4pga-arch-defs/issues/344
 add_xc_board(
   BOARD zybo
   DEVICE xc7z010-zybo

@@ -1,7 +1,7 @@
 add_xc_device_define_type(
   ARCH artix7
   DEVICE xc7a50t-arty-swbut-pr1
-  ROI_DIR ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/xc7/archs/artix7/devices/xc7a50t-arty-swbut-pr1-roi-virt
+  ROI_DIR ${f4pga-arch-defs_SOURCE_DIR}/xilinx/xc7/archs/artix7/devices/xc7a50t-arty-swbut-pr1-roi-virt
   TILE_TYPES
     CLBLL_L
     CLBLL_R

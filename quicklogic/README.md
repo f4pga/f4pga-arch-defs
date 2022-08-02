@@ -7,12 +7,12 @@ Currently, the supported families are:
 
 ## Quickstart guide
 
-### 1. Build SymbiFlow
+### 1. Build F4PGA Architecture Definitions
 
-Clone the SymbiFlow repository:
+Clone the repository:
 
 ```bash
-git clone https://github.com/SymbiFlow/symbiflow-arch-defs
+git clone https://github.com/SymbiFlow/f4pga-arch-defs
 ```
 
 Set up the environment:

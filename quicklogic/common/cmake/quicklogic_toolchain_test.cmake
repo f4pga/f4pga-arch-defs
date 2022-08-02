@@ -105,14 +105,14 @@ function(ADD_BINARY_TOOLCHAIN_TEST)
     COMMAND
       ${CMAKE_COMMAND}
         -DTOOLCHAIN_COMMAND=${TOOLCHAIN_COMMAND}
-        -DSYMBIFLOW_DIR=${symbiflow-arch-defs_SOURCE_DIR}
+        -DSYMBIFLOW_DIR=${f4pga-arch-defs_SOURCE_DIR}
         -DINSTALLATION_DIR=${CMAKE_INSTALL_PREFIX}
         -DBUILD_DIR=${BUILD_DIR}
         -DASSERT_BLOCK_TYPES_ARE_USED=${ADD_BINARY_TOOLCHAIN_TEST_ASSERT_BLOCK_TYPES_ARE_USED}
         -DASSERT_TIMING=${ADD_BINARY_TOOLCHAIN_TEST_ASSERT_TIMING}
         -DASSERT_EXISTS=${ASSERT_EXISTS}
         -DREF_PCF=${REF_PCF}
-        -P ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/cmake/run_toolchain_test.cmake
+        -P ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/common/cmake/run_toolchain_test.cmake
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   )
 

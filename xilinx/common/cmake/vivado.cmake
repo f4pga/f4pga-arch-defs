@@ -84,16 +84,16 @@ function(COMMON_VIVADO_TARGETS)
       DEPENDS ${WORK_DIR}/design_${NAME}.xpr ${NAME}_sim.tcl
       )
 
-  set(CLEAN_JSON5 ${symbiflow-arch-defs_SOURCE_DIR}/utils/clean_json5.py)
+  set(CLEAN_JSON5 ${f4pga-arch-defs_SOURCE_DIR}/utils/clean_json5.py)
   add_custom_command(
       OUTPUT ${WORK_DIR}/timing_${NAME}.json
       COMMAND ${PRJRAY_DIR}/utils/vivado.sh
         design_${NAME}.dcp
         -mode batch
         -source
-            ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/common/utils/output_timing.tcl
+            ${f4pga-arch-defs_SOURCE_DIR}/xilinx/common/utils/output_timing.tcl
         -tclargs
-            ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/common/utils/timing_utils.tcl
+            ${f4pga-arch-defs_SOURCE_DIR}/xilinx/common/utils/timing_utils.tcl
             ${CMAKE_CURRENT_BINARY_DIR}/${WORK_DIR}/timing_${NAME}.json5
         > ${CMAKE_CURRENT_BINARY_DIR}/${WORK_DIR}/vivado_timing.stdout.log
       COMMAND ${PYTHON3} ${CLEAN_JSON5}
@@ -236,7 +236,7 @@ function(ADD_VIVADO_TARGET)
 
   get_target_property_required(PYTHON3 env PYTHON3)
 
-  set(CREATE_RUNME ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/common/utils/vivado_create_runme.py)
+  set(CREATE_RUNME ${f4pga-arch-defs_SOURCE_DIR}/xilinx/common/utils/vivado_create_runme.py)
   add_custom_command(
       OUTPUT ${NAME}_runme.tcl
       COMMAND ${PYTHON3} ${CREATE_RUNME}
@@ -253,7 +253,7 @@ function(ADD_VIVADO_TARGET)
         ${CREATE_RUNME}
         )
 
-  set(CREATE_SIM ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/common/utils/vivado_create_sim.py)
+  set(CREATE_SIM ${f4pga-arch-defs_SOURCE_DIR}/xilinx/common/utils/vivado_create_sim.py)
   add_custom_command(
       OUTPUT ${NAME}_sim.tcl
       COMMAND ${PYTHON3} ${CREATE_SIM}
@@ -381,7 +381,7 @@ function(ADD_VIVADO_PNR_TARGET)
   get_file_location(BITSTREAM_LOC ${BITSTREAM})
   get_filename_component(BASE_WORK_DIR ${BITSTREAM_LOC} DIRECTORY)
   set(SYNTH_OUT ${BASE_WORK_DIR}/${SYNTH_OUT_BASE}.vivado.v)
-  set(UNMAP_V ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/techmap/unmap.v)
+  set(UNMAP_V ${f4pga-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/techmap/unmap.v)
 
   add_custom_command(
       OUTPUT ${SYNTH_OUT}
@@ -417,12 +417,12 @@ function(ADD_VIVADO_PNR_TARGET)
       set(XDC_DEPS)
       append_file_dependency(XDC_DEPS ${INPUT_IO_FILE})
       get_file_location(PCF_FILE ${INPUT_IO_FILE})
-      set(PCF_TO_XDC_TOOL ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/common/utils/prjxray_pcf_to_xdc.py)
+      set(PCF_TO_XDC_TOOL ${f4pga-arch-defs_SOURCE_DIR}/xilinx/common/utils/prjxray_pcf_to_xdc.py)
 
       add_custom_command(
           OUTPUT ${NAME}.xdc
           COMMAND
-          ${CMAKE_COMMAND} -E env PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils
+          ${CMAKE_COMMAND} -E env PYTHONPATH=${f4pga-arch-defs_SOURCE_DIR}/utils
           ${PYTHON3} ${PCF_TO_XDC_TOOL}
             --pcf ${PCF_FILE}
             --xdc ${XDC_FILE}
@@ -439,7 +439,7 @@ function(ADD_VIVADO_PNR_TARGET)
       message(FATAL_ERROR "Must specify either XDC or IOSTANDARD")
   endif()
 
-  set(CREATE_RUNME ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/common/utils/vivado_create_runme.py)
+  set(CREATE_RUNME ${f4pga-arch-defs_SOURCE_DIR}/xilinx/common/utils/vivado_create_runme.py)
   add_custom_command(
       OUTPUT ${NAME}_runme.tcl
       COMMAND ${PYTHON3} ${CREATE_RUNME}
@@ -457,7 +457,7 @@ function(ADD_VIVADO_PNR_TARGET)
         ${CREATE_RUNME}
         )
 
-  set(CREATE_SIM ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/common/utils/vivado_create_sim.py)
+  set(CREATE_SIM ${f4pga-arch-defs_SOURCE_DIR}/xilinx/common/utils/vivado_create_sim.py)
   add_custom_command(
       OUTPUT ${NAME}_sim.tcl
       COMMAND ${PYTHON3} ${CREATE_SIM}

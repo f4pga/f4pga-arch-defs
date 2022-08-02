@@ -1,4 +1,4 @@
-set(SRL_COMMON ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/xc7/tests/srl/common)
+set(SRL_COMMON ${f4pga-arch-defs_SOURCE_DIR}/xilinx/xc7/tests/srl/common)
 
 add_subdirectory(common)
 add_subdirectory(srl32_shift)

@@ -8,7 +8,7 @@ add_simple_test(
   SOURCES rot.v
   BOARDS ${FILTERED_BOARDS}
   EQUIV_CHECK_SCRIPT
-      ${symbiflow-arch-defs_SOURCE_DIR}/common/yosys/miter_and_tempinduct_skip_1.ys
+      ${f4pga-arch-defs_SOURCE_DIR}/common/yosys/miter_and_tempinduct_skip_1.ys
   DEFINES USE_LUT_CONSTANTS=1
   )
 

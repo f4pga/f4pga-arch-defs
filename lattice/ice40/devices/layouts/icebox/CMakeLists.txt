@@ -1,15 +1,15 @@
 set(
   ICESTORM_DB
-  ${symbiflow-arch-defs_SOURCE_DIR}/third_party/icestorm/icebox/icebox.py
+  ${f4pga-arch-defs_SOURCE_DIR}/third_party/icestorm/icebox/icebox.py
   CACHE FILEPATH "Path to icebox.py module"
   )
 set(
   ICEBOX_PATH
-  ${symbiflow-arch-defs_SOURCE_DIR}/third_party/icestorm/icebox
+  ${f4pga-arch-defs_SOURCE_DIR}/third_party/icestorm/icebox
   CACHE PATH "Path to icebox directory"
   )
 
-set(ICE_UTILS_DIR ${symbiflow-arch-defs_SOURCE_DIR}/lattice/ice40/utils)
+set(ICE_UTILS_DIR ${f4pga-arch-defs_SOURCE_DIR}/lattice/ice40/utils)
 set(ICESTORM_LAYOUT_LIST ${ICE_UTILS_DIR}/ice40_list_layout_in_icebox.py)
 set(ICESTORM_LAYOUT_IMPORT ${ICE_UTILS_DIR}/ice40_import_layout_from_icebox.py)
 
@@ -21,7 +21,7 @@ function(generate_all_icebox_layouts)
     OUTPUT_VARIABLE ICESTORM_LAYOUT_PARTS
     RESULT_VARIABLE ERROR_CODE
     ERROR_VARIABLE ERROR_MESSAGES
-    WORKING_DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/lattice/ice40/utils/
+    WORKING_DIRECTORY ${f4pga-arch-defs_SOURCE_DIR}/lattice/ice40/utils/
   )
 
   if(NOT ${ERROR_CODE} EQUAL 0)
@@ -75,7 +75,7 @@ function(ADD_ICEBOX_LAYOUTS)
   set(DEVICE ${SET_ICEBOX_LAYOUT_DEVICE})
   get_target_property_required(ARCH ${DEVICE} ARCH)
   foreach(PACKAGE ${SET_ICEBOX_LAYOUT_PACKAGES})
-    set(PINMAP ${symbiflow-arch-defs_SOURCE_DIR}/lattice/ice40/devices/layouts/icebox/${DEVICE}.${PACKAGE}.pinmap.csv)
+    set(PINMAP ${f4pga-arch-defs_SOURCE_DIR}/lattice/ice40/devices/layouts/icebox/${DEVICE}.${PACKAGE}.pinmap.csv)
     set_target_properties(
       ${DEVICE}
       PROPERTIES

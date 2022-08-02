@@ -3184,7 +3184,7 @@ def simple_test_graph(**kwargs):
     """
 
     xml_str = """
-<rr_graph tool_name="vpr" tool_version="ga5684b2e4" tool_comment="symbiflow-arch-defs/testarch/devices/wire-bidir-min/arch.merged.xml">
+<rr_graph tool_name="vpr" tool_version="ga5684b2e4" tool_comment="f4pga-arch-defs/testarch/devices/wire-bidir-min/arch.merged.xml">
     <channels>
         <channel chan_width_max ="1" x_min="1" y_min="1" x_max="1" y_max="1"/>
         <x_list index ="0" info="1"/>

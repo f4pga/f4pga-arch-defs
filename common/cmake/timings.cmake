@@ -18,7 +18,7 @@ function(UPDATE_ARCH_TIMINGS)
   if(IS_DIRECTORY ${SDF_TIMING_DIRECTORY} AND EXISTS ${BELS_MAP})
     get_target_property_required(PYTHON3 env PYTHON3)
 
-    set(update_arch_timings ${symbiflow-arch-defs_SOURCE_DIR}/utils/update_arch_timings.py)
+    set(update_arch_timings ${f4pga-arch-defs_SOURCE_DIR}/utils/update_arch_timings.py)
 
     add_custom_command(
       OUTPUT ${output}
@@ -27,7 +27,7 @@ function(UPDATE_ARCH_TIMINGS)
         ${update_arch_timings}
         ${input}
       COMMAND
-      PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/third_party/python-sdf-timing:${symbiflow-arch-defs_BINARY_DIR}/env/conda/lib/python3.7/site-packages
+      PYTHONPATH=${f4pga-arch-defs_SOURCE_DIR}/third_party/python-sdf-timing:${f4pga-arch-defs_BINARY_DIR}/env/conda/lib/python3.7/site-packages
         ${PYTHON3} ${update_arch_timings}
           --sdf_dir ${SDF_TIMING_DIRECTORY}
           --bels_map ${BELS_MAP}

@@ -39,7 +39,7 @@ include(boards.cmake)
 add_subdirectory(tests)
 
 # Define toolchain installation target
-set(FAMILY_DIR ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY})
+set(FAMILY_DIR ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY})
 
 define_ql_toolchain_target(
   FAMILY ${FAMILY}

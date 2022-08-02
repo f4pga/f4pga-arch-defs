@@ -77,7 +77,7 @@ function(XML_CANONICALIZE_MERGE)
       ${DEPS}
       ${PYTHON3}
     COMMAND
-      PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/third_party/vtr-xml-utils/:${PYTHONPATH}
+      PYTHONPATH=${f4pga-arch-defs_SOURCE_DIR}/third_party/vtr-xml-utils/:${PYTHONPATH}
       ${PYTHON3} -m vtr_xml_utils
         ${XML_CANONICALIZE_MERGE_FILE}
         -o ${CMAKE_CURRENT_BINARY_DIR}/${XML_CANONICALIZE_MERGE_OUTPUT}

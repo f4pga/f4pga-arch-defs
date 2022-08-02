@@ -4,7 +4,7 @@ add_file_target(FILE arch.xml SCANNER_TYPE xml)
 
 get_target_property_required(PYTHON3 env PYTHON3)
 
-set(ICEBOX_TIMING ${symbiflow-arch-defs_SOURCE_DIR}/third_party/icestorm/icefuzz/timings.py)
+set(ICEBOX_TIMING ${f4pga-arch-defs_SOURCE_DIR}/third_party/icestorm/icefuzz/timings.py)
 set(CLEAN_ICEBOX_TIMING cleaned_timing.txt)
 set(TIMING_TXT_FILE ${ICEBOX_SHARE}/timings_hx1k.txt)
 set(SDF_FILE timings_hx1k.sdf)
@@ -27,7 +27,7 @@ get_target_property_required(ICE40_IMPORT_TIMING ice40_import_timing_deps ICE40_
 set(TIMING_IMPORT_CMD "${PYTHON3} ${ICE40_IMPORT_TIMING} --read_sdf ${SDF_FILE} --write_arch_xml /dev/stdout --read_arch_xml /dev/stdin")
 set(TIMING_IMPORT_DEPS ${SDF_FILE_TARGET})
 
-set(UPDATE_TILES "${symbiflow-arch-defs_SOURCE_DIR}/utils/update_arch_tiles.py")
+set(UPDATE_TILES "${f4pga-arch-defs_SOURCE_DIR}/utils/update_arch_tiles.py")
 set(UPDATE_TILES_CMD "${PYTHON3} ${UPDATE_TILES} --in_xml /dev/stdin --out_xml /dev/stdout")
 
 get_file_target(UPDATE_TILES_TARGET ${UPDATE_TILES})

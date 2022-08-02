@@ -38,83 +38,83 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
   # FIXME: Installation of the example should me moved out of this function
   # For now there is the following workaround which installs it only for qlf_k4n8
   if(${FAMILY} STREQUAL "qlf_k4n8")
-    install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/tests/design_flow/counter_16bit/counter_16bit.v
+    install(FILES ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/tests/design_flow/counter_16bit/counter_16bit.v
             DESTINATION share/f4pga/tests/counter_16bit
             PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
-    install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/tests/design_flow/counter_16bit/counter_16bit_tb.v
+    install(FILES ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/tests/design_flow/counter_16bit/counter_16bit_tb.v
             DESTINATION share/f4pga/tests/counter_16bit
             PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
-    install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/tests/design_flow/counter_16bit/counter_16bit.pcf
+    install(FILES ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/tests/design_flow/counter_16bit/counter_16bit.pcf
   	  DESTINATION share/f4pga/tests/counter_16bit
             PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
-    install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/tests/design_flow/counter_16bit/pinmap_qlf_k4n8_umc22.csv
+    install(FILES ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/tests/design_flow/counter_16bit/pinmap_qlf_k4n8_umc22.csv
   	  DESTINATION share/f4pga/tests/counter_16bit
   	  PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
-    install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/tests/design_flow/counter_16bit/counter_16bit.sdc
+    install(FILES ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/tests/design_flow/counter_16bit/counter_16bit.sdc
             DESTINATION share/f4pga/tests/counter_16bit
             PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
   endif()
 
   # install python scripts
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/convert_compile_opts.py
+  install(FILES ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/common/utils/convert_compile_opts.py
           DESTINATION share/f4pga/scripts
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/split_inouts.py
+  install(FILES ${f4pga-arch-defs_SOURCE_DIR}/utils/split_inouts.py
           DESTINATION share/f4pga/scripts
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/pinmap_parse.py
+  install(FILES ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/common/utils/pinmap_parse.py
           DESTINATION share/f4pga/scripts
           PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
 
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/create_lib.py
+  install(FILES ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/common/utils/create_lib.py
           DESTINATION share/f4pga/scripts
           PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
 
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_io_place.py
+  install(FILES ${f4pga-arch-defs_SOURCE_DIR}/utils/vpr_io_place.py
           DESTINATION share/f4pga/scripts
           PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
 
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_place_constraints.py
+  install(FILES ${f4pga-arch-defs_SOURCE_DIR}/utils/vpr_place_constraints.py
           DESTINATION share/f4pga/scripts
           PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
 
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/eblif.py
+  install(FILES ${f4pga-arch-defs_SOURCE_DIR}/utils/eblif.py
           DESTINATION share/f4pga/scripts
           PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
 
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/lib/parse_pcf.py
+  install(FILES ${f4pga-arch-defs_SOURCE_DIR}/utils/lib/parse_pcf.py
           DESTINATION share/f4pga/scripts/lib
           PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
 
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/yosys_fixup_cell_names.py
+  install(FILES ${f4pga-arch-defs_SOURCE_DIR}/utils/yosys_fixup_cell_names.py
           DESTINATION share/f4pga/scripts
           PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
 
-  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/process_sdc_constraints.py
+  install(FILES ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/common/utils/process_sdc_constraints.py
           DESTINATION share/f4pga/scripts
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ)
 
   if("${FAMILY}" STREQUAL "pp3")
 
-    install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/fasm2bels.py
+    install(FILES ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/fasm2bels.py
       DESTINATION share/f4pga/scripts
       PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ)
 
-    install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/verilogmodule.py
+    install(FILES ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/verilogmodule.py
       DESTINATION share/f4pga/scripts
       PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
 
-    install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/connections.py
+    install(FILES ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/connections.py
       DESTINATION share/f4pga/scripts
       PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
 
-    install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/data_structs.py
+    install(FILES ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/data_structs.py
       DESTINATION share/f4pga/scripts
       PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
 
-    install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/utils.py
+    install(FILES ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/utils.py
       DESTINATION share/f4pga/scripts
       PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
 
@@ -134,13 +134,13 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
     repack.py
   )
   foreach(NAME ${REPACKER_FILES})
-    install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/repacker/${NAME}
+    install(FILES ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/common/utils/repacker/${NAME}
             DESTINATION share/f4pga/scripts/repacker
             PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
   endforeach()
 
   # install techmap
-  install(DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/techmap/.
+  install(DIRECTORY ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/techmap/.
           DESTINATION share/f4pga/techmaps/${FAMILY}
           FILES_MATCHING PATTERN *.v)
 
@@ -149,7 +149,7 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
 
   if("${FAMILY}" STREQUAL "qlf_k4n8")
     # install lib files
-    install(DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/devices/umc22/
+    install(DIRECTORY ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/devices/umc22/
       DESTINATION "share/f4pga/arch/${FAMILY}-${FAMILY}_umc22_${FAMILY}-${FAMILY}_umc22/lib"
       FILES_MATCHING
       PATTERN "*.txt"
@@ -162,7 +162,7 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
           DESTINATION share/f4pga/scripts/${FAMILY})
 
   if("${FAMILY}" STREQUAL "pp3")
-	  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/yosys/pack.tcl
+	  install(FILES ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/pp3/yosys/pack.tcl
 		  DESTINATION share/f4pga/scripts/${FAMILY})
 	  message(STATUS "Installing pack.tcl for ${FAMILY}")
   endif()
@@ -175,7 +175,7 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
   )
 
   foreach(NAME ${SCRIPTS})
-    set(FILE ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/utils/${NAME})
+    set(FILE ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/utils/${NAME})
     if(EXISTS "${FILE}")
       install(FILES ${FILE}
               DESTINATION share/f4pga/scripts

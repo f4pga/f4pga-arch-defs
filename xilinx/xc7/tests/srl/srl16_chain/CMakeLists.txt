@@ -15,7 +15,7 @@ add_vivado_target(
   PARENT_NAME srl16_chain
   CLOCK_PINS clk
   CLOCK_PERIODS 10.0
-  # TODO: https://github.com/SymbiFlow/symbiflow-arch-defs/issues/1019
+  # TODO: https://github.com/SymbiFlow/f4pga-arch-defs/issues/1019
   DISABLE_DIFF_TEST
   )
 

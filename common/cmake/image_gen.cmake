@@ -2,7 +2,7 @@ find_program(EOG eog)
 find_program(INKSCAPE inkscape)
 set(IMAGE_GEN_DPI 300 CACHE STRING "DPI to use when generating images from Verilog SVGs")
 
-set(NETLISTSVG ${symbiflow-arch-defs_SOURCE_DIR}/third_party/netlistsvg
+set(NETLISTSVG ${f4pga-arch-defs_SOURCE_DIR}/third_party/netlistsvg
   CACHE STRING "Directory to netlistsvg.")
 set(NETLISTSVG_BIN ${NETLISTSVG}/bin/netlistsvg.js)
 set(NETLISTSVG_SKIN ${NETLISTSVG}/lib/default.svg)
@@ -201,7 +201,7 @@ function(add_verilog_image_gen)
     string(REGEX REPLACE "\.svg$" ""
       BASENAME ${SRC_SVG})
     set(DIR ${CMAKE_CURRENT_SOURCE_DIR})
-    string(REPLACE ${symbiflow-arch-defs_SOURCE_DIR}/ "" BASE_FOLDER ${DIR})
+    string(REPLACE ${f4pga-arch-defs_SOURCE_DIR}/ "" BASE_FOLDER ${DIR})
     string(REPLACE "/" "_" BASE_FOLDER_UNDERSCORE ${BASE_FOLDER})
     add_svg_image(
       NAME ${BASE_FOLDER_UNDERSCORE}_${BASENAME}

@@ -8,9 +8,9 @@ project_ray_prepare_database(
 
 set(ARCH artix7_100t)
 
-set(YOSYS_SYNTH_SCRIPT ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/xc7/yosys/synth.tcl)
-set(YOSYS_CONV_SCRIPT  ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/xc7/yosys/conv.tcl)
-set(YOSYS_UTILS_SCRIPT ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/xc7/yosys/utils.tcl)
+set(YOSYS_SYNTH_SCRIPT ${f4pga-arch-defs_SOURCE_DIR}/xilinx/xc7/yosys/synth.tcl)
+set(YOSYS_CONV_SCRIPT  ${f4pga-arch-defs_SOURCE_DIR}/xilinx/xc7/yosys/conv.tcl)
+set(YOSYS_UTILS_SCRIPT ${f4pga-arch-defs_SOURCE_DIR}/xilinx/xc7/yosys/utils.tcl)
 
 add_xc_arch_define(
   ARCH ${ARCH}

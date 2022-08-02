@@ -35,12 +35,12 @@ function(ADD_JLINK_OUTPUT)
   get_file_location(PCF_LOC ${PCF})
   get_target_property_required(BOARD ${PARENT} BOARD)
 
-  set(PINMAP ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/${BOARD}_pinmap.csv)
+  set(PINMAP ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/pp3/${BOARD}_pinmap.csv)
   get_file_target(PINMAP_TARGET ${PINMAP})
   get_file_location(PINMAP_LOC ${PINMAP})
 
   # Generate a JLINK script that sets IOMUX configuration.
-  set(IOMUX_CONFIG_GEN ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/eos_s3_iomux_config.py)
+  set(IOMUX_CONFIG_GEN ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/eos_s3_iomux_config.py)
   set(IOMUX_CONFIG "${TOP}_iomux.jlink")
 
   set(IOMUX_CONFIG_DEPS)
@@ -57,7 +57,7 @@ function(ADD_JLINK_OUTPUT)
 
   add_custom_command(
     OUTPUT ${WORK_DIR}/${IOMUX_CONFIG}
-    COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils:$PYTHONPATH
+    COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${f4pga-arch-defs_SOURCE_DIR}/utils:$PYTHONPATH
       ${PYTHON3} ${IOMUX_CONFIG_GEN}
         ${IOMUX_CONFIG_ARGS}
         --map ${PINMAP_LOC}
@@ -107,7 +107,7 @@ function(ADD_JLINK_OUTPUT)
 
   add_custom_target(${PARENT}_jlink_hardware DEPENDS ${PARENT}_jlink_copy ${WORK_DIR}/${OUT_JLINK_HARDWARE})
 
-  set(VERIFY_SCRIPT ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/verify_jlink_openocd.sh)
+  set(VERIFY_SCRIPT ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/verify_jlink_openocd.sh)
   set(DUPLICATES_JLINK "duplicates.jlink")
   add_custom_command(
     OUTPUT ${WORK_DIR}/${DUPLICATES_JLINK}

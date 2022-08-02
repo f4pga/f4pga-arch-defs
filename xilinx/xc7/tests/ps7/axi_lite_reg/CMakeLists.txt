@@ -13,7 +13,7 @@ add_fpga_target(
 add_vivado_target(
   NAME axi_regs_zybo_vivado
   PARENT_NAME axi_regs_zybo
-  # FIXME: https://github.com/SymbiFlow/symbiflow-arch-defs/issues/1346
+  # FIXME: https://github.com/SymbiFlow/f4pga-arch-defs/issues/1346
   # Vivado rejects the valid BUFH -> PS7 placement, so disable the test for
   # now.
   DISABLE_DIFF_TEST
