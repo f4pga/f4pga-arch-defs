@@ -43,13 +43,12 @@ jobs:
       - name: '🚧 Execute test script'
         run: stdbuf -i0 -o0 -e0 ./.github/scripts/${{ matrix.test }}.sh
 
-      - name: '📤 Upload artifact: results and plot'
+      - name: '📤 Upload artifact: plots'
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          path: |
-            **/results*.gz
-            **/plot_*.svg
+          name: f4pga-arch-defs-plots
+          path: '**/plot_*.svg'
 
 
   Install:
@@ -88,10 +87,9 @@ jobs:
           name: packages
           path: '*.tar.xz'
 
-      - name: '📤 Upload artifact: results and plot'
+      - name: '📤 Upload artifact: plots'
         uses: actions/upload-artifact@v3
         if: ${{ always() }}
         with:
-          path: |
-            **/results*.gz
-            **/plot_*.svg
+          name: f4pga-arch-defs-plots
+          path: '**/plot_*.svg'
