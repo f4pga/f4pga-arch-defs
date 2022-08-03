@@ -20,9 +20,9 @@ channels:
   - litex-hub
 
 dependencies:
-  - litex-hub::yosys=0.15_51_g6318db615=20220317_162926_py37
-  - litex-hub::symbiflow-yosys-plugins=1.0.0_7_832_ga2a80a1=20220317_162926
-  - litex-hub::vtr-optimized=8.0.0_5338_g829c06d8f=20220409_131122
+  - litex-hub::yosys=0.19_10_g0098b32c6=20220706_001518_py37
+  - litex-hub::symbiflow-yosys-plugins=1.0.0_7_1002_gd149693=20220706_001518
+  - litex-hub::vtr-optimized=8.0.0_5664_gb7a94b90a=20220706_001518
   - make
   - lxml
   - simplejson
