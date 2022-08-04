@@ -51,7 +51,7 @@ uses Xilinx Artix-7 FPGA, you will execute the following:
 
 .. sourcecode:: bash
 
-  cd build/xc/xc7/tests/counter
+  cd build/xilinx/xc7/tests/counter
   make counter_arty_bit
 
 If you use ``Ninja`` then the target is accessible from root build directory:
@@ -105,7 +105,7 @@ Load bitstream
 
 The last step is to load the bitstream to your platform.
 The final output file can be found in the appropriate test directory, i.e:
-``build/xc/xc7/tests/counter/counter_arty/artix7-xc7a50t-arty-swbut-roi-virt-xc7a50t-arty-swbut-test/top.bit``
+``build/xilinx/xc7/tests/counter/counter_arty/artix7-xc7a50t-arty-swbut-roi-virt-xc7a50t-arty-swbut-test/top.bit``
 
 For every board the loading process may be different and different tools will be required.
 ``OpenOCD`` is the most widely used tool for loading bitstream in the F4PGA Toolchain.
