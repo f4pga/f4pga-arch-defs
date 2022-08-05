@@ -7,8 +7,8 @@
    <xi:include href="../layouts/all.xml" xpointer="xpointer(layout/child::node())" />
  </layout>
  <complexblocklist>
-  <xi:include href="../../../vpr/ibuf/ibuf.pb_type.xml"/>
-  <xi:include href="../../../vpr/obuf/obuf.pb_type.xml"/>
+  <xi:include href="../../../common/vpr/ibuf/ibuf.pb_type.xml"/>
+  <xi:include href="../../../common/vpr/obuf/obuf.pb_type.xml"/>
   <xi:include href="../../tiles/clutff/clutff.pb_type.xml"/>
  </complexblocklist>
  <directlist>

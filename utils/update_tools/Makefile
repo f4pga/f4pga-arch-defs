@@ -15,7 +15,7 @@ update-vtr:
 	# Testing that VTR is correctly integrated in SymbiFlow
 	pushd ${VTR_LOCATION};                          \
 	make -j`nproc`;                                 \
-	export VTR=`pwd`/build/vpr/vpr;                 \
+	export VTR=`pwd`/build/common/vpr/vpr;                 \
 	export GENFASM=`pwd`/build/utils/fasm/genfasm;  \
 	popd                                            \
 	make all_xc7 -j${NPROC} && make all_ice40 -j${NPROC} && make all_v2x -j${NPROC}

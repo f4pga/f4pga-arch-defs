@@ -50,7 +50,7 @@
   </segment>
  </segmentlist>
  <complexblocklist>
-  <xi:include href="../../../vpr/pad/pad.pb_type.xml"/>
+  <xi:include href="../../../common/vpr/pad/pad.pb_type.xml"/>
   <xi:include href="../../tiles/lutff3/lutff3.pb_type.xml"/>
  </complexblocklist>
 

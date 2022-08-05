@@ -37,7 +37,7 @@
  </device>
 
  <complexblocklist>
-  <xi:include href="../../../vpr/pad/pad.pb_type.xml"/>
+  <xi:include href="../../../common/vpr/pad/pad.pb_type.xml"/>
   <xi:include href="../../tiles/ff1/ff1.pb_type.xml"/>
  </complexblocklist>
 

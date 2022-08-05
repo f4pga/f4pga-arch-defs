@@ -10,8 +10,8 @@
  </layout>
 
  <complexblocklist>
-  <xi:include href="../../../vpr/ibuf/ibuf.pb_type.xml"/>
-  <xi:include href="../../../vpr/obuf/obuf.pb_type.xml"/>
+  <xi:include href="../../../common/vpr/ibuf/ibuf.pb_type.xml"/>
+  <xi:include href="../../../common/vpr/obuf/obuf.pb_type.xml"/>
   <xi:include href="../../tiles/ff-large/ff-large.pb_type.xml"/>
  </complexblocklist>
 

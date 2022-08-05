@@ -4,7 +4,7 @@
  <!-- Tile Outputs -->
  <output name="OUT" num_pins="1"  />
 
- <xi:include href="../../../vpr/wire/wire.pb_type.xml"/>
+ <xi:include href="../../../common/vpr/wire/wire.pb_type.xml"/>
 
  <interconnect>
   <direct name="TILE.IN"  input="TILE.IN"  output="WIRE.in"  />
