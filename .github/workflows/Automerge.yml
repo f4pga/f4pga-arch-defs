@@ -71,6 +71,14 @@ jobs:
           DO_UPLOAD = '${{ github.event_name == 'push' && github.ref_name == 'main' }}' == 'true'
           print(f'> TIMESTAMP: {TIMESTAMP}')
           PACKAGE_RE = re_compile("symbiflow-arch-defs-([a-zA-Z0-9_-]+)-([a-z0-9])")
+
+          def write_latest(package_name, timestamp, artifact):
+            with (Path("install") / f"symbiflow-{package_name}-latest").open("w") as wptr:
+                wptr.write(
+                    'https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/'
+                    f'symbiflow-arch-defs/continuous/install/{TIMESTAMP}/{artifact}'
+                )
+
           with (Path(__file__).parent.parent.parent / 'packages.list').open('r') as rptr:
               for artifact in rptr.read().splitlines():
                   if DO_UPLOAD:
@@ -81,13 +89,12 @@ jobs:
                   m = PACKAGE_RE.match(artifact)
                   assert m, f"Package name not recognized! {artifact}"
                   package_name = m.group(1)
-                  if package_name == "install":
-                      package_name = "toolchain"
-                  with (Path("install") / f"symbiflow-{package_name}-latest").open("w") as wptr:
-                      wptr.write(
-                          'https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/'
-                          f'symbiflow-arch-defs/continuous/install/{TIMESTAMP}/{artifact}'
-                      )
+                  write_latest(package_name, TIMESTAMP, artifact)
+                  if package_name == 'install-xc7':
+                      write_latest('toolchain', TIMESTAMP, artifact)
+                  if package_name == 'benchmarks-xc7':
+                      write_latest('benchmarks', TIMESTAMP, artifact)
+
           if DO_UPLOAD:
             run('gsutil -m rsync $* -r install gs://${{ secrets.GCP_STORAGE_BUCKET }}/', shell=True, check=False)
           EOF
