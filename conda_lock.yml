@@ -104,7 +104,7 @@ dependencies:
     - cycler==0.11.0
     - defusedxml==0.7.1
     - edalize @ https://github.com/lowRISC/edalize/archive/ot.zip
-    - f4pga @ https://github.com/chipsalliance/f4pga/archive/main.zip#subdirectory=f4pga
+    - f4pga @ https://github.com/antmicro/f4pga/archive/yosys_module.zip#subdirectory=f4pga
     - fasm==0.0.2.post88
     - fasm-utils @ git+https://github.com/QuickLogic-Corp/quicklogic-fasm-utils@3d6a375ddb6b55aaa5a59d99e44a207d4c18709f
     - fonttools==4.33.3
