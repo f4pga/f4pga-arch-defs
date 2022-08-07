@@ -1,3 +1,5 @@
+.. _Packages:
+
 Pre-built architecture files
 ############################
 
