@@ -10,7 +10,7 @@ add_fpga_target(
 add_vivado_target(
   NAME simple_ff_vivado
   PARENT_NAME simple_ff
-  # TODO: https://github.com/SymbiFlow/symbiflow-arch-defs/issues/1018
+  # TODO: https://github.com/SymbiFlow/f4pga-arch-defs/issues/1018
   DISABLE_DIFF_TEST
   )
 

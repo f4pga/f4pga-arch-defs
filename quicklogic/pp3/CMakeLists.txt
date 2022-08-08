@@ -6,9 +6,9 @@ get_filename_component(FAMILY_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 add_custom_target(QL_CELLS_SIM_DEPS)
 include(cells_sim_gen.cmake)
 
-set(CELLS_SIM_FILE ${symbiflow-arch-defs_BINARY_DIR}/quicklogic/${FAMILY_NAME}/techmap/cells_sim.v)
+set(CELLS_SIM_FILE ${f4pga-arch-defs_BINARY_DIR}/quicklogic/${FAMILY_NAME}/techmap/cells_sim.v)
 add_subdirectory(primitives)
-set(CELLS_MAP_DEST_DIR ${symbiflow-arch-defs_BINARY_DIR}/quicklogic/${FAMILY_NAME}/techmap/)
+set(CELLS_MAP_DEST_DIR ${f4pga-arch-defs_BINARY_DIR}/quicklogic/${FAMILY_NAME}/techmap/)
 file(COPY "techmap/cells_map.v"  DESTINATION ${CELLS_MAP_DEST_DIR})
 file(COPY "techmap/lut2tomux4.v" DESTINATION ${CELLS_MAP_DEST_DIR})
 file(COPY "techmap/lut2tomux2.v" DESTINATION ${CELLS_MAP_DEST_DIR})
@@ -47,23 +47,23 @@ define_arch(
   FAMILY pp3
   YOSYS_SYNTH_SCRIPT ${YOSYS_SYNTH_SCRIPT}
   YOSYS_CONV_SCRIPT ${YOSYS_CONV_SCRIPT}
-  YOSYS_TECHMAP ${symbiflow-arch-defs_BINARY_DIR}/quicklogic/${FAMILY_NAME}/techmap
+  YOSYS_TECHMAP ${f4pga-arch-defs_BINARY_DIR}/quicklogic/${FAMILY_NAME}/techmap
   DEVICE_FULL_TEMPLATE \${DEVICE}
   VPR_ARCH_ARGS ${VPR_ARCH_ARGS}
 
   RR_PATCH_TOOL
-    ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/routing_import.py
+    ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/routing_import.py
   RR_PATCH_CMD "\${CMAKE_COMMAND} -E env \
-    PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils:$PYTHONPATH \
+    PYTHONPATH=${f4pga-arch-defs_SOURCE_DIR}/utils:$PYTHONPATH \
     \${PYTHON3} \${RR_PATCH_TOOL} \
         --vpr-db ${CMAKE_CURRENT_BINARY_DIR}/devices/\${DEVICE_TYPE}/db_vpr.pickle \
         --rr-graph-in \${OUT_RRXML_VIRT} \
         --rr-graph-out \${OUT_RRXML_REAL}"
 
   PLACE_TOOL
-    ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/create_ioplace.py
+    ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/create_ioplace.py
   PLACE_TOOL_CMD "${CMAKE_COMMAND} -E env \
-    PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils:$PYTHONPATH \
+    PYTHONPATH=${f4pga-arch-defs_SOURCE_DIR}/utils:$PYTHONPATH \
     ${PYTHON3} \${PLACE_TOOL} \
         --map \${PINMAP} \
         --blif \${OUT_EBLIF} \
@@ -71,11 +71,11 @@ define_arch(
         --net \${OUT_NET}"
 
   PLACE_CONSTR_TOOL
-    ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/create_place_constraints.py
+    ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/create_place_constraints.py
   PLACE_CONSTR_TOOL_CMD "${CMAKE_COMMAND} -E env \
-    PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils \
+    PYTHONPATH=${f4pga-arch-defs_SOURCE_DIR}/utils \
     \${PYTHON3} \${PLACE_CONSTR_TOOL} \
-        --map ${symbiflow-arch-defs_BINARY_DIR}/quicklogic/${FAMILY_NAME}/\${BOARD}_clkmap.csv \
+        --map ${f4pga-arch-defs_BINARY_DIR}/quicklogic/${FAMILY_NAME}/\${BOARD}_clkmap.csv \
         --blif \${OUT_EBLIF} \
         --i /dev/stdin \
         --o /dev/stdout \
@@ -96,9 +96,9 @@ define_arch(
 
   NO_BIT_TO_BIN
   BIT_TO_V
-    ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/fasm2bels.py
+    ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/fasm2bels.py
   BIT_TO_V_CMD
-    "${CMAKE_COMMAND} -E env PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils:$PYTHONPATH \
+    "${CMAKE_COMMAND} -E env PYTHONPATH=${f4pga-arch-defs_SOURCE_DIR}/utils:$PYTHONPATH \
     \${PYTHON3} \${BIT_TO_V} \${OUT_BITSTREAM}
       --phy-db ${CMAKE_CURRENT_BINARY_DIR}/devices/\${DEVICE_TYPE}/db_phy.pickle
       --input-type bitstream
@@ -107,7 +107,7 @@ define_arch(
       --output-qcf \${OUT_BIT_VERILOG}.qcf
       --input-pcf \${INPUT_IO_FILE}"
   BIT_TO_V_DEPS
-    ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/verilogmodule.py
+    ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/verilogmodule.py
     ${CMAKE_CURRENT_BINARY_DIR}/devices/\${DEVICE_TYPE}/db_vpr.pickle
   NO_BIT_TIME
 

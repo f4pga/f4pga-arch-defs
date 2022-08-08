@@ -10,7 +10,7 @@ function(ff_ce_sr_test num_ff)
     get_target_property_required(YOSYS env YOSYS)
 
     set(SBY
-        ${symbiflow-arch-defs_SOURCE_DIR}/third_party/sby/sbysrc/sby.py)
+        ${f4pga-arch-defs_SOURCE_DIR}/third_party/sby/sbysrc/sby.py)
 
     foreach(ff_type FDRE FDSE FDCE FDPE)
         string(TOLOWER ${ff_type} ff_type_lower)
@@ -52,7 +52,7 @@ function(ff_ce_sr_test num_ff)
             BOARD basys3
             INPUT_IO_FILE ${COMMON}/basys3.pcf
             SOURCES
-                ${symbiflow-arch-defs_SOURCE_DIR}/library/lfsr.v
+                ${f4pga-arch-defs_SOURCE_DIR}/library/lfsr.v
                 ff_type.v
                 ff_ce_sr_${num_ff}_${ff_type_lower}.v
             ${TESTBENCH}

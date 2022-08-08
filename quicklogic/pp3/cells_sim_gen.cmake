@@ -4,7 +4,7 @@ FUNCTION(ADD_CELLS_SIM_TARGET OUTPUT_FILE FAMILY_NAME)
 
   get_target_property_required(PYTHON3 env PYTHON3)
 
-  set(CONCATENATE_V_SOURCES_PY ${symbiflow-arch-defs_SOURCE_DIR}/utils/concatenate_v_sources.py)
+  set(CONCATENATE_V_SOURCES_PY ${f4pga-arch-defs_SOURCE_DIR}/utils/concatenate_v_sources.py)
   get_target_property(VERILOG_SOURCES QL_CELLS_SIM_DEPS VERILOG_SOURCES)
 
   add_custom_target(ql_${FAMILY_NAME}_cells_sim_tech_dir

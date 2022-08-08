@@ -145,7 +145,7 @@ add_vivado_target(
   PARENT_NAME mmcm_buf_basys3
   CLOCK_PINS clk
   CLOCK_PERIODS 10.0
-  # Diff test disabled due to https://github.com/SymbiFlow/symbiflow-arch-defs/issues/1862
+  # Diff test disabled due to https://github.com/SymbiFlow/f4pga-arch-defs/issues/1862
   DISABLE_DIFF_TEST
   )
 
@@ -154,7 +154,7 @@ add_vivado_target(
   PARENT_NAME mmcm_ext_basys3
   CLOCK_PINS clk
   CLOCK_PERIODS 10.0
-  # Diff test disabled due to https://github.com/SymbiFlow/symbiflow-arch-defs/issues/1925
+  # Diff test disabled due to https://github.com/SymbiFlow/f4pga-arch-defs/issues/1925
   DISABLE_DIFF_TEST
   )
 

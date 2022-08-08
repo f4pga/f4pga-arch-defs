@@ -1,4 +1,4 @@
-get_filename_component(IBEX_DIR ${symbiflow-arch-defs_SOURCE_DIR}/third_party/ibex ABSOLUTE)
+get_filename_component(IBEX_DIR ${f4pga-arch-defs_SOURCE_DIR}/third_party/ibex ABSOLUTE)
 
 set(SV2V_ROM_INIT_FILE led.vmem)
 set(SV2V_IBEX_FLAGS --define=RegFile=ibex_pkg::RegFileFF --define=SRAMInitFile=${SV2V_ROM_INIT_FILE})
@@ -9,7 +9,7 @@ execute_process(
   COMMAND
     python3 ${CMAKE_CURRENT_SOURCE_DIR}/generate.py
       --only-deps
-      --root_source_dir ${symbiflow-arch-defs_SOURCE_DIR}
+      --root_source_dir ${f4pga-arch-defs_SOURCE_DIR}
       --current_binary_dir ${CMAKE_CURRENT_BINARY_DIR}
   OUTPUT_VARIABLE FILES_FROM_GENERATE_SCRIPT
 )
@@ -35,7 +35,7 @@ add_custom_command(
   OUTPUT ${SOURCE_FILE_LIST} ${INCLUDE_FILE_LIST}
   COMMAND
     python3 ${CMAKE_CURRENT_SOURCE_DIR}/generate.py
-        --root_source_dir ${symbiflow-arch-defs_SOURCE_DIR}
+        --root_source_dir ${f4pga-arch-defs_SOURCE_DIR}
         --current_binary_dir ${CMAKE_CURRENT_BINARY_DIR}
   DEPENDS ${PYTHON3} ${IBEX_DIR}
 )

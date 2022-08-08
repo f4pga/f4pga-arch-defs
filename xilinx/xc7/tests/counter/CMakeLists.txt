@@ -12,7 +12,7 @@ add_vivado_target(
     PARENT_NAME counter_zybo
     CLOCK_PINS clk
     CLOCK_PERIODS 10.0
-    # TODO: https://github.com/SymbiFlow/symbiflow-arch-defs/issues/1183
+    # TODO: https://github.com/SymbiFlow/f4pga-arch-defs/issues/1183
     DISABLE_DIFF_TEST
     )
 
@@ -31,7 +31,7 @@ add_vivado_target(
     PARENT_NAME counter_basys3
     CLOCK_PINS clk
     CLOCK_PERIODS 10.0
-    # TODO: https://github.com/SymbiFlow/symbiflow-arch-defs/issues/1018
+    # TODO: https://github.com/SymbiFlow/f4pga-arch-defs/issues/1018
     #DISABLE_DIFF_TEST
     )
 

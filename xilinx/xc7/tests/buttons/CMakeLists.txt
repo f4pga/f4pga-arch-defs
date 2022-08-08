@@ -58,7 +58,7 @@ add_file_target(FILE buttons_basys3.v SCANNER_TYPE verilog)
 add_vivado_target(
   NAME buttons_basys3_vivado
   PARENT_NAME buttons_basys3
-  # TODO: https://github.com/SymbiFlow/symbiflow-arch-defs/issues/1018
+  # TODO: https://github.com/SymbiFlow/f4pga-arch-defs/issues/1018
   DISABLE_DIFF_TEST
   )
 
@@ -93,7 +93,7 @@ add_file_target(FILE buttons_marszx3.v SCANNER_TYPE verilog)
 #add_vivado_target(
 #  NAME buttons_zybo_vivado
 #  PARENT_NAME buttons_zybo
-#  # TODO: https://github.com/SymbiFlow/symbiflow-arch-defs/issues/1018
+#  # TODO: https://github.com/SymbiFlow/f4pga-arch-defs/issues/1018
 #  DISABLE_DIFF_TEST
 #  )
 

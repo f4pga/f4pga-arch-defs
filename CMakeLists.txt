@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14.0)
-project(symbiflow-arch-defs)
+project(f4pga-arch-defs)
 enable_testing()
 
 include(common/cmake/util.cmake)
@@ -30,7 +30,7 @@ add_custom_target(all_xc7_tests)
 add_custom_target(all_ice40_tests)
 add_custom_target(all_quicklogic_tests)
 
-set(ENV_DIR ${symbiflow-arch-defs_SOURCE_DIR}/env/conda/envs/f4pga_arch_def_base/ CACHE PATH "Path to environment")
+set(ENV_DIR ${f4pga-arch-defs_SOURCE_DIR}/env/conda/envs/f4pga_arch_def_base/ CACHE PATH "Path to environment")
 set(YOSYS_DATADIR ${ENV_DIR}/share/yosys CACHE PATH "Path to yosys data directory")
 set(OPENOCD_DATADIR ${ENV_DIR}/share/openocd CACHE PATH "Path to openocd data directory")
 set(VPR_CAPNP_SCHEMA_DIR ${ENV_DIR}/share/vtr CACHE PATH "Path to VPR schema directory")
@@ -103,17 +103,17 @@ add_subdirectory(tests)
 get_target_property_required(YAPF env YAPF)
 add_custom_target(
   check_python
-  COMMAND ${symbiflow-arch-defs_SOURCE_DIR}/common/python_health_helper.sh -c -y ${YAPF}
+  COMMAND ${f4pga-arch-defs_SOURCE_DIR}/common/python_health_helper.sh -c -y ${YAPF}
   )
 add_custom_target(
   format_python
-  COMMAND ${symbiflow-arch-defs_SOURCE_DIR}/common/python_health_helper.sh -f -y ${YAPF}
+  COMMAND ${f4pga-arch-defs_SOURCE_DIR}/common/python_health_helper.sh -f -y ${YAPF}
   )
 
 get_target_property_required(FLAKE8 env FLAKE8)
 add_custom_target(
   lint_python
-  COMMAND ${symbiflow-arch-defs_SOURCE_DIR}/common/python_health_helper.sh -l -p "${FLAKE8}"
+  COMMAND ${f4pga-arch-defs_SOURCE_DIR}/common/python_health_helper.sh -l -p "${FLAKE8}"
   )
 
 
@@ -239,5 +239,5 @@ add_dependencies(all_tests
 add_custom_target(docs)
 
 add_custom_target(print_qor
-    COMMAND ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/print_qor.py ${symbiflow-arch-defs_BINARY_DIR}
+    COMMAND ${PYTHON3} ${f4pga-arch-defs_SOURCE_DIR}/utils/print_qor.py ${f4pga-arch-defs_BINARY_DIR}
     )

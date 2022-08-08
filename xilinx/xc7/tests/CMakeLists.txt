@@ -1,4 +1,4 @@
-set(COMMON ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/xc7/tests/common)
+set(COMMON ${f4pga-arch-defs_SOURCE_DIR}/xilinx/xc7/tests/common)
 
 add_subdirectory(common)
 add_subdirectory(buttons)
@@ -47,5 +47,5 @@ add_subdirectory(pcie)
 add_subdirectory(pcie_complex)
 
 # Tests with dependencies
-set(COUNTER_SRC ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/xc7/tests/counter)
+set(COUNTER_SRC ${f4pga-arch-defs_SOURCE_DIR}/xilinx/xc7/tests/counter)
 add_subdirectory(multixdc_counter)

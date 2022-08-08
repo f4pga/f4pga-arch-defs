@@ -57,7 +57,7 @@ function(SETUP_ENV)
   endforeach()
 
   set_target_properties(env PROPERTIES
-    QUIET_CMD ${symbiflow-arch-defs_SOURCE_DIR}/utils/quiet_cmd.sh
+    QUIET_CMD ${f4pga-arch-defs_SOURCE_DIR}/utils/quiet_cmd.sh
     QUIET_CMD_TARGET ""
     )
 endfunction()

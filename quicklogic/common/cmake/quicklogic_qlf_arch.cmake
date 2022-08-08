@@ -25,22 +25,22 @@ function(QUICKLOGIC_DEFINE_QLF_ARCH)
   set(ARCH     ${QUICKLOGIC_DEFINE_QLF_ARCH_ARCH})
   set(VPR_ARGS ${QUICKLOGIC_DEFINE_QLF_ARCH_VPR_ARGS})
 
-  set(FAMILY_DIR ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY})
+  set(FAMILY_DIR ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY})
 
   get_target_property_required(QLF_FASM env QLF_FASM)
 
   if("${FAMILY}" STREQUAL "qlf_k4n8")
-    set(REPACKER_PATH ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/repacker/repack.py)
+    set(REPACKER_PATH ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/common/utils/repacker/repack.py)
   else()
     set(REPACKER_PATH )
   endif()
 
-  set(SDC_PATCH_TOOL ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/process_sdc_constraints.py)
+  set(SDC_PATCH_TOOL ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/common/utils/process_sdc_constraints.py)
 
   set(ARCH_DIR ${QLF_FPGA_PLUGINS_DIR}/${ARCH})
   set(ARCH_DIR_REL ${QLF_FPGA_DATABASE_DIR}/${ARCH})
   set(QLFPGA_FASM_DATABASE_LOC ${ARCH_DIR}/fasm_database)
-  set(QLFPGA_FASM_DATABASE_LOC_REL ${symbiflow-arch-defs_BINARY_DIR}/${ARCH_DIR_REL}/fasm_database)
+  set(QLFPGA_FASM_DATABASE_LOC_REL ${f4pga-arch-defs_BINARY_DIR}/${ARCH_DIR_REL}/fasm_database)
 
   set(FASM_TO_BIT_DEPS "")
   append_file_dependency(FASM_TO_BIT_DEPS /${QLFPGA_FASM_DATABASE_LOC})
@@ -59,9 +59,9 @@ function(QUICKLOGIC_DEFINE_QLF_ARCH)
     RR_GRAPH_EXT ".bin"
 
     PLACE_TOOL
-      ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/qlf_k4n8/utils/create_ioplace.py # FIXME: Make common for k4n8 and k6n10
+      ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/qlf_k4n8/utils/create_ioplace.py # FIXME: Make common for k4n8 and k6n10
     PLACE_TOOL_CMD "${CMAKE_COMMAND} -E env \
-      PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils:$PYTHONPATH:${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils \
+      PYTHONPATH=${f4pga-arch-defs_SOURCE_DIR}/utils:$PYTHONPATH:${f4pga-arch-defs_SOURCE_DIR}/quicklogic/common/utils \
       \${PYTHON3} \${PLACE_TOOL} \
           --pinmap_xml \${PINMAP_XML} \
           --blif \${OUT_EBLIF} \
@@ -75,7 +75,7 @@ function(QUICKLOGIC_DEFINE_QLF_ARCH)
     SDC_PATCH_TOOL
       ${SDC_PATCH_TOOL}
     SDC_PATCH_TOOL_CMD "${CMAKE_COMMAND} -E env \
-      PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils \
+      PYTHONPATH=${f4pga-arch-defs_SOURCE_DIR}/utils \
       \${QUIET_CMD} \${PYTHON3} \${SDC_PATCH_TOOL} \
          --sdc-in \${IN_SDC} \
          --pcf \${INPUT_IO_FILE} \
@@ -86,7 +86,7 @@ function(QUICKLOGIC_DEFINE_QLF_ARCH)
     NET_PATCH_TOOL
       ${REPACKER_PATH}
     NET_PATCH_TOOL_CMD "${CMAKE_COMMAND} -E env \
-      PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils \
+      PYTHONPATH=${f4pga-arch-defs_SOURCE_DIR}/utils \
       \${QUIET_CMD} \${PYTHON3} \${NET_PATCH_TOOL} \
          --net-in \${IN_NET} \
          --eblif-in \${IN_EBLIF} \
@@ -102,7 +102,7 @@ function(QUICKLOGIC_DEFINE_QLF_ARCH)
     BITSTREAM_EXTENSION bit
     FASM_TO_BIT ${QLF_FASM}
     FASM_TO_BIT_CMD "${CMAKE_COMMAND} -E env \
-      PYTHONPATH=${symbiflow-arch-defs_BINARY_DIR}/env/conda/lib/python3.7/site-packages \
+      PYTHONPATH=${f4pga-arch-defs_BINARY_DIR}/env/conda/lib/python3.7/site-packages \
       \${QUIET_CMD} \${FASM_TO_BIT} \
         --db-root ${QLFPGA_FASM_DATABASE_LOC_REL} \
         --assemble \
@@ -114,7 +114,7 @@ function(QUICKLOGIC_DEFINE_QLF_ARCH)
     BIN_EXTENSION bin
     BIT_TO_BIN ${QLF_FASM}
     BIT_TO_BIN_CMD "${CMAKE_COMMAND} -E env \
-      PYTHONPATH=${symbiflow-arch-defs_BINARY_DIR}/env/conda/lib/python3.7/site-packages \
+      PYTHONPATH=${f4pga-arch-defs_BINARY_DIR}/env/conda/lib/python3.7/site-packages \
       \${QUIET_CMD} \${FASM_TO_BIT} \
         --db-root ${QLFPGA_FASM_DATABASE_LOC_REL} \
         --assemble \
@@ -124,7 +124,7 @@ function(QUICKLOGIC_DEFINE_QLF_ARCH)
 
     BIT_TO_FASM ${QLF_FASM}
     BIT_TO_FASM_CMD "${CMAKE_COMMAND} -E env \
-      PYTHONPATH=${symbiflow-arch-defs_BINARY_DIR}/env/conda/lib/python3.7/site-packages \
+      PYTHONPATH=${f4pga-arch-defs_BINARY_DIR}/env/conda/lib/python3.7/site-packages \
       \${QUIET_CMD} \${BIT_TO_FASM} \
         --db-root ${QLFPGA_FASM_DATABASE_LOC_REL} \
         --disassemble \

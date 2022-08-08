@@ -60,7 +60,7 @@ function(ADD_XC_ARCH_DEFINE)
   set(YOSYS_SYNTH_SCRIPT ${ADD_XC_ARCH_DEFINE_YOSYS_SYNTH_SCRIPT})
   set(YOSYS_CONV_SCRIPT ${ADD_XC_ARCH_DEFINE_YOSYS_CONV_SCRIPT})
   set(YOSYS_UTILS_SCRIPT ${ADD_XC_ARCH_DEFINE_YOSYS_UTILS_SCRIPT})
-  set(YOSYS_TECHMAP ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/techmap)
+  set(YOSYS_TECHMAP ${f4pga-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/techmap)
 
   # Notes on optimized flag settings:
   # These flags have been optimized for the ibex and baselitex designs.
@@ -97,7 +97,7 @@ function(ADD_XC_ARCH_DEFINE)
       )
 
   set(YOSYS_CELLS_SIM ${YOSYS_DATADIR}/xilinx/cells_sim.v)
-  set(VPR_CELLS_SIM ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/techmap/cells_sim.v)
+  set(VPR_CELLS_SIM ${f4pga-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/techmap/cells_sim.v)
 
   get_file_target(YOSYS_CELLS_SIM_TARGET ${YOSYS_CELLS_SIM})
   if (NOT TARGET ${YOSYS_CELLS_SIM_TARGET})
@@ -139,9 +139,9 @@ function(ADD_XC_ARCH_DEFINE)
     CELLS_SIM ${YOSYS_CELLS_SIM} ${VPR_CELLS_SIM}
     VPR_ARCH_ARGS ${VPR_ARCH_ARGS}
     RR_PATCH_TOOL
-      ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/common/utils/prjxray_routing_import.py
+      ${f4pga-arch-defs_SOURCE_DIR}/xilinx/common/utils/prjxray_routing_import.py
     RR_PATCH_CMD "${CMAKE_COMMAND} -E env \
-    PYTHONPATH=${PRJRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils:${symbiflow-arch-defs_BINARY_DIR}/utils \
+    PYTHONPATH=${PRJRAY_DIR}:${f4pga-arch-defs_SOURCE_DIR}/utils:${f4pga-arch-defs_BINARY_DIR}/utils \
         \${PYTHON3} \${RR_PATCH_TOOL} \
         --db_root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH} \
         --part \${PART} \
@@ -151,18 +151,18 @@ function(ADD_XC_ARCH_DEFINE)
         --vpr_capnp_schema_dir ${VPR_CAPNP_SCHEMA_DIR}
         "
     PLACE_TOOL
-      ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/common/utils/prjxray_create_ioplace.py
+      ${f4pga-arch-defs_SOURCE_DIR}/xilinx/common/utils/prjxray_create_ioplace.py
     PLACE_TOOL_CMD "${CMAKE_COMMAND} -E env \
-    PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils \
+    PYTHONPATH=${f4pga-arch-defs_SOURCE_DIR}/utils \
     \${PYTHON3} \${PLACE_TOOL} \
         --map \${PINMAP} \
         --blif \${OUT_EBLIF} \
         \${PCF_INPUT_IO_FILE} \
         --net \${OUT_NET}"
     PLACE_CONSTR_TOOL
-      ${symbiflow-arch-defs_SOURCE_DIR}/xilinx/common/utils/prjxray_create_place_constraints.py
+      ${f4pga-arch-defs_SOURCE_DIR}/xilinx/common/utils/prjxray_create_place_constraints.py
     PLACE_CONSTR_TOOL_CMD "${CMAKE_COMMAND} -E env \
-    PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils \
+    PYTHONPATH=${f4pga-arch-defs_SOURCE_DIR}/utils \
     \${PYTHON3} \${PLACE_CONSTR_TOOL} \
         --net \${OUT_NET} \
         --arch \${DEVICE_MERGED_FILE_LOCATION} \
@@ -173,7 +173,7 @@ function(ADD_XC_ARCH_DEFINE)
     BITSTREAM_EXTENSION bit
     FASM_TO_BIT ${XCFASM}
     FASM_TO_BIT_CMD "${CMAKE_COMMAND} -E env \
-    PYTHONPATH=${symbiflow-arch-defs_BINARY_DIR}/env/conda/lib/python3.7/site-packages:${PRJRAY_DIR}:${PRJRAY_DIR}/third_party/fasm \
+    PYTHONPATH=${f4pga-arch-defs_BINARY_DIR}/env/conda/lib/python3.7/site-packages:${PRJRAY_DIR}:${PRJRAY_DIR}/third_party/fasm \
     \${FASM_TO_BIT} \
         --db-root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH} \
         --sparse \
@@ -184,7 +184,7 @@ function(ADD_XC_ARCH_DEFINE)
         \${FASM_TO_BIT_EXTRA_ARGS}"
     BIT_TO_V ${BITREAD}
     BIT_TO_V_CMD "${CMAKE_COMMAND} -E env \
-    PYTHONPATH=${symbiflow-arch-defs_BINARY_DIR}/env/conda/lib/python3.7/site-packages:${PRJRAY_DIR}:${PRJRAY_DIR}/third_party/fasm:${symbiflow-arch-defs_SOURCE_DIR}/utils \
+    PYTHONPATH=${f4pga-arch-defs_BINARY_DIR}/env/conda/lib/python3.7/site-packages:${PRJRAY_DIR}:${PRJRAY_DIR}/third_party/fasm:${f4pga-arch-defs_SOURCE_DIR}/utils \
         \${PYTHON3} -mfasm2bels \
         \${BIT_TO_V_EXTRA_ARGS} \
         --db_root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH} \

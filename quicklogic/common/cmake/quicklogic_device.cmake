@@ -51,11 +51,11 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   endif()
 
   # The techfile and routing timing file
-  set(TECHFILE "${symbiflow-arch-defs_SOURCE_DIR}/third_party/${DEVICE}/Device Architecture Files/${TECHFILE_NAME}")
-  set(ROUTING_TIMING "${symbiflow-arch-defs_SOURCE_DIR}/third_party/${DEVICE_DIR_DATA}/Timing Data Files/${ROUTING_TIMING_FILE_NAME}")
+  set(TECHFILE "${f4pga-arch-defs_SOURCE_DIR}/third_party/${DEVICE}/Device Architecture Files/${TECHFILE_NAME}")
+  set(ROUTING_TIMING "${f4pga-arch-defs_SOURCE_DIR}/third_party/${DEVICE_DIR_DATA}/Timing Data Files/${ROUTING_TIMING_FILE_NAME}")
 
   # Import data from the techfile
-  set(DATA_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/utils/data_import.py)
+  set(DATA_IMPORT ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/utils/data_import.py)
   add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PHY_DB_FILE}
     COMMAND ${PYTHON3} ${DATA_IMPORT}
@@ -67,7 +67,7 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   add_file_target(FILE ${PHY_DB_FILE} GENERATED)
 
   # Generate SDF files with timing data
-  set(LIB_TIMING_DIR "${symbiflow-arch-defs_SOURCE_DIR}/third_party/${DEVICE_DIR_DATA}/Timing Data Files/")
+  set(LIB_TIMING_DIR "${f4pga-arch-defs_SOURCE_DIR}/third_party/${DEVICE_DIR_DATA}/Timing Data Files/")
   set(SDF_TIMING_DIR "sdf")
 
   get_target_property_required(QUICKLOGIC_TIMINGS_IMPORTER env QUICKLOGIC_TIMINGS_IMPORTER)
@@ -118,7 +118,7 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
 
 
   # Process the database, create the VPR database
-  set(PREPARE_VPR_DATABASE ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/utils/prepare_vpr_database.py)
+  set(PREPARE_VPR_DATABASE ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/utils/prepare_vpr_database.py)
   get_file_target(PHY_DB_TARGET ${PHY_DB_FILE})
 
   if(NOT "${GRID_LIMIT}" STREQUAL "")
@@ -142,8 +142,8 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   set(XML_DEPS "")
   foreach(PB_TYPE ${PB_TYPES})
     string(TOLOWER ${PB_TYPE} PB_TYPE_LOWER)
-    set(PB_TYPE_XML ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/primitives/${PB_TYPE_LOWER}/${PB_TYPE_LOWER}.pb_type.xml)
-    set(MODEL_XML   ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/primitives/${PB_TYPE_LOWER}/${PB_TYPE_LOWER}.model.xml)
+    set(PB_TYPE_XML ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/primitives/${PB_TYPE_LOWER}/${PB_TYPE_LOWER}.pb_type.xml)
+    set(MODEL_XML   ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/primitives/${PB_TYPE_LOWER}/${PB_TYPE_LOWER}.model.xml)
     append_file_dependency(XML_DEPS ${PB_TYPE_XML})
     append_file_dependency(XML_DEPS ${MODEL_XML})
   endforeach()
@@ -152,8 +152,8 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   # This will generate model XML and pb_type XMLs. Since there are 4 RAMs
   # there will be one pb_type for each of them with appropriate timings. Since
   # we cannot model that in the VPR for now we simply use one for all 4 RAMs.
-  set(RAM_GENERATOR ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/primitives/ram/make_rams.py)
-  set(RAM_MODE_DEFS ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/primitives/ram/ram_modes.json)
+  set(RAM_GENERATOR ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/primitives/ram/make_rams.py)
+  set(RAM_MODE_DEFS ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/primitives/ram/ram_modes.json)
   set(RAM_SDF_FILE  ${SDF_TIMING_DIR}/${RAM_TIMING_SDF}.sdf)
 
   set(RAM_MODEL_XML  "ram.model.xml")
@@ -183,7 +183,7 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   add_file_target(FILE ${RAM_CELLS_MAP} GENERATED)
 
   # Generate the arch.xml
-  set(ARCH_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/utils/arch_import.py)
+  set(ARCH_IMPORT ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/utils/arch_import.py)
   get_file_target(RAM_MODEL_XML_TARGET ${RAM_MODEL_XML})
   get_file_target(RAM_PBTYPE_XML_TARGET ${RAM_PBTYPE_XML})
 
@@ -199,10 +199,10 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   add_file_target(FILE ${ARCH_XML} GENERATED)
 
   # Timing import stuff
-  set(UPDATE_ARCH_TIMINGS ${symbiflow-arch-defs_SOURCE_DIR}/utils/update_arch_timings.py)
-  set(PYTHON_SDF_TIMING_DIR ${symbiflow-arch-defs_SOURCE_DIR}/third_party/python-sdf-timing)
+  set(UPDATE_ARCH_TIMINGS ${f4pga-arch-defs_SOURCE_DIR}/utils/update_arch_timings.py)
+  set(PYTHON_SDF_TIMING_DIR ${f4pga-arch-defs_SOURCE_DIR}/third_party/python-sdf-timing)
 
-  set(BELS_MAP ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/${DEVICE}-bels.json)
+  set(BELS_MAP ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/${DEVICE}-bels.json)
 
   set(TIMING_IMPORT
     "${CMAKE_COMMAND} -E env PYTHONPATH=${PYTHON_SDF_TIMING_DIR}:$PYTHONPATH \
@@ -294,7 +294,7 @@ function(QUICKLOGIC_DEFINE_DEVICE)
       ARCH ${ARCH}
       DEVICE_TYPE ${DEVICE_TYPE}
       PACKAGES ${PACKAGES}
-      WIRE_EBLIF ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/passthrough.eblif
+      WIRE_EBLIF ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/passthrough.eblif
       RR_PATCH_DEPS ${DEVICE_RR_PATCH_DEPS}
       CACHE_PLACE_DELAY
       CACHE_LOOKAHEAD

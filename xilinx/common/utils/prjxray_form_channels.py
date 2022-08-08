@@ -1051,7 +1051,7 @@ LIMIT
             pip_name = write_cur.fetchone()[0]
 
             # A solution for:
-            # https://github.com/SymbiFlow/symbiflow-arch-defs/issues/1033
+            # https://github.com/SymbiFlow/f4pga-arch-defs/issues/1033
             if "PADOUT0" in pip_name and "DIFFI_IN1" in pip_name:
                 force_direct = True
             if "PADOUT1" in pip_name and "DIFFI_IN0" in pip_name:

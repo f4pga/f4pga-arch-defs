@@ -1,8 +1,6 @@
 # SymbiFlow Architecture Definitions Import Functions
 
-[![Build Status](https://travis-ci.org/SymbiFlow/symbiflow-arch-defs.svg?branch=master)](https://travis-ci.org/SymbiFlow/symbiflow-arch-defs)
-
-This directory contains python scripts used to import the prjxray architectures to Symbiflow architecture definition repository.
+This directory contains python scripts used to import the prjxray architectures to F4PGA architecture definition repository.
 
 The purpose of these scripts are the following:
 

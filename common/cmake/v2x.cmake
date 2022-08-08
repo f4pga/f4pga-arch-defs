@@ -148,7 +148,7 @@ function(VPR_TEST_PB_TYPE)
   get_target_property_required(XMLLINT env XMLLINT)
 
   set(DEPENDS_ARCH "")
-  append_file_dependency(DEPENDS_ARCH "${symbiflow-arch-defs_SOURCE_DIR}/utils/template.arch.xml")
+  append_file_dependency(DEPENDS_ARCH "${f4pga-arch-defs_SOURCE_DIR}/utils/template.arch.xml")
   append_file_dependency(DEPENDS_ARCH "${VPR_TEST_PB_TYPE_NAME}.pb_type.xml")
   append_file_dependency(DEPENDS_ARCH "${VPR_TEST_PB_TYPE_NAME}.model.xml")
   add_custom_command(
@@ -156,14 +156,14 @@ function(VPR_TEST_PB_TYPE)
     DEPENDS
       ${PYTHON3}
       ${XMLLINT}
-      ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_pbtype_arch_wrapper.py
+      ${f4pga-arch-defs_SOURCE_DIR}/utils/vpr_pbtype_arch_wrapper.py
       ${DEPENDS_ARCH}
     COMMAND
-      ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_pbtype_arch_wrapper.py
+      ${PYTHON3} ${f4pga-arch-defs_SOURCE_DIR}/utils/vpr_pbtype_arch_wrapper.py
       --pb_type ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PB_TYPE_NAME}.pb_type.xml
       --output  ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PB_TYPE_NAME}.arch.xml
       --xmllint ${XMLLINT}
-    WORKING_DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/utils
+    WORKING_DIRECTORY ${f4pga-arch-defs_SOURCE_DIR}/utils
   )
   add_file_target(FILE "${VPR_TEST_PB_TYPE_NAME}.arch.xml" GENERATED)
 
@@ -193,7 +193,7 @@ function(VPR_TEST_PB_TYPE)
   set(ARCH_TILES_XML "${VPR_TEST_PB_TYPE_NAME}.arch.tiles.xml")
   set(ARCH_TIMINGS_XML "${VPR_TEST_PB_TYPE_NAME}.arch.timings.xml")
 
-  set(update_arch_tiles_py "${symbiflow-arch-defs_SOURCE_DIR}/utils/update_arch_tiles.py")
+  set(update_arch_tiles_py "${f4pga-arch-defs_SOURCE_DIR}/utils/update_arch_tiles.py")
 
   xml_canonicalize_merge(
     NAME ${VPR_TEST_PB_TYPE_NAME}_arch_merged

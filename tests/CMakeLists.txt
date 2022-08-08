@@ -48,7 +48,7 @@ function(add_simple_test)
 
   if("${EQUIV_CHECK_SCRIPT}" STREQUAL "")
     set(EQUIV_CHECK_SCRIPT
-      ${symbiflow-arch-defs_SOURCE_DIR}/common/yosys/miter_and_tempinduct.ys)
+      ${f4pga-arch-defs_SOURCE_DIR}/common/yosys/miter_and_tempinduct.ys)
   endif()
 
   foreach(BOARD ${ADD_SIMPLE_TEST_BOARDS})

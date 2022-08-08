@@ -438,7 +438,7 @@ function(DEFINE_DEVICE_TYPE)
 
   append_file_dependency(SPECIALIZE_CARRYCHAINS_DEPS ${DEVICE_MERGED_FILE})
 
-  set(SPECIALIZE_CARRYCHAINS ${symbiflow-arch-defs_SOURCE_DIR}/utils/specialize_carrychains.py)
+  set(SPECIALIZE_CARRYCHAINS ${f4pga-arch-defs_SOURCE_DIR}/utils/specialize_carrychains.py)
   add_custom_command(
       OUTPUT ${UNIQUE_PACK_OUTPUT}
       COMMAND ${PYTHON3} ${SPECIALIZE_CARRYCHAINS}
@@ -494,7 +494,7 @@ function(DEFINE_DEVICE_TYPE)
     ${DEFINE_DEVICE_TYPE_ARCH}_${DEFINE_DEVICE_TYPE_DEVICE_TYPE}_arch
   )
 
-  set(ARCH_SCHEMA ${symbiflow-arch-defs_SOURCE_DIR}/common/xml/fpga_architecture.xsd)
+  set(ARCH_SCHEMA ${f4pga-arch-defs_SOURCE_DIR}/common/xml/fpga_architecture.xsd)
   xml_lint(
     NAME ${DEFINE_DEVICE_TYPE_ARCH}_${DEFINE_DEVICE_TYPE_DEVICE_TYPE}_arch_lint
     FILE ${FINAL_FILE}
@@ -602,7 +602,7 @@ function(DEFINE_DEVICE)
   endforeach()
 
   if("${DEFINE_DEVICE_WIRE_EBLIF}" STREQUAL "")
-    set(WIRE_EBLIF ${symbiflow-arch-defs_SOURCE_DIR}/common/wire.eblif)
+    set(WIRE_EBLIF ${f4pga-arch-defs_SOURCE_DIR}/common/wire.eblif)
   else()
     set(WIRE_EBLIF ${DEFINE_DEVICE_WIRE_EBLIF})
   endif()
@@ -649,7 +649,7 @@ function(DEFINE_DEVICE)
   get_target_property_required(VPR env VPR)
   get_target_property_required(QUIET_CMD env QUIET_CMD)
 
-  set(ROUTING_SCHEMA ${symbiflow-arch-defs_SOURCE_DIR}/common/xml/routing_resource.xsd)
+  set(ROUTING_SCHEMA ${f4pga-arch-defs_SOURCE_DIR}/common/xml/routing_resource.xsd)
 
   set(PART ${DEFINE_DEVICE_PART})
   set(DEVICE ${DEFINE_DEVICE_DEVICE})
@@ -840,7 +840,7 @@ function(DEFINE_DEVICE)
           ${DEFINE_DEVICE_DEVICE_TYPE}
           ${DEPS} ${PYTHON3}
       COMMAND
-          ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/check_cache.py ${OUT_RR_REAL} ${CACHE_PREFIX}.cache ${OUTPUTS} || (
+          ${PYTHON3} ${f4pga-arch-defs_SOURCE_DIR}/utils/check_cache.py ${OUT_RR_REAL} ${CACHE_PREFIX}.cache ${OUTPUTS} || (
           ${QUIET_CMD} ${VPR} ${DEVICE_MERGED_FILE}
           --device ${DEVICE_FULL}
           ${WIRE_EBLIF}
@@ -851,7 +851,7 @@ function(DEFINE_DEVICE)
           --place
           ${ARGS}
           ${DEFINE_DEVICE_CACHE_ARGS} &&
-          ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/update_cache.py ${OUT_RR_REAL} ${CACHE_PREFIX}.cache)
+          ${PYTHON3} ${f4pga-arch-defs_SOURCE_DIR}/utils/update_cache.py ${OUT_RR_REAL} ${CACHE_PREFIX}.cache)
       COMMAND
           ${CMAKE_COMMAND} -E copy vpr_stdout.log
             ${CMAKE_CURRENT_BINARY_DIR}/${CACHE_PREFIX}.cache.out
@@ -1630,7 +1630,7 @@ function(ADD_FPGA_TARGET)
       COMMAND
         ${CMAKE_COMMAND} -E env
           TECHMAP_PATH=${YOSYS_TECHMAP}
-          UTILS_PATH=${symbiflow-arch-defs_SOURCE_DIR}/utils
+          UTILS_PATH=${f4pga-arch-defs_SOURCE_DIR}/utils
           DEVICE_CELLS_SIM=${YOSYS_DEVICE_CELLS_SIM}
           DEVICE_CELLS_MAP=${YOSYS_DEVICE_CELLS_MAP}
           OUT_JSON=${OUT_JSON_SYNTH}
@@ -1653,7 +1653,7 @@ function(ADD_FPGA_TARGET)
       VERBATIM
     )
 
-    set(SPLIT_INOUTS ${symbiflow-arch-defs_SOURCE_DIR}/utils/split_inouts.py)
+    set(SPLIT_INOUTS ${f4pga-arch-defs_SOURCE_DIR}/utils/split_inouts.py)
 
     add_custom_command(
       OUTPUT ${OUT_JSON}
@@ -1671,7 +1671,7 @@ function(ADD_FPGA_TARGET)
               ${YOSYS_CONV_SCRIPT}
       COMMAND
         ${CMAKE_COMMAND} -E env
-          symbiflow-arch-defs_SOURCE_DIR=${symbiflow-arch-defs_SOURCE_DIR}
+          f4pga-arch-defs_SOURCE_DIR=${f4pga-arch-defs_SOURCE_DIR}
           OUT_EBLIF=${OUT_EBLIF}
           ${ADD_FPGA_TARGET_DEFINES}
           ${QUIET_CMD} ${YOSYS} -p "read_json ${OUT_JSON}; tcl ${YOSYS_CONV_SCRIPT}" -l ${OUT_EBLIF}.log
@@ -1905,7 +1905,7 @@ function(ADD_FPGA_TARGET)
   add_output_to_fpga_target(${NAME} NET ${OUT_NET_REL})
 
   if(NOT "${ADD_FPGA_TARGET_ASSERT_BLOCK_TYPES_ARE_USED}" STREQUAL "")
-      set(USAGE_UTIL ${symbiflow-arch-defs_SOURCE_DIR}/utils/report_block_usage.py)
+      set(USAGE_UTIL ${f4pga-arch-defs_SOURCE_DIR}/utils/report_block_usage.py)
       add_custom_target(
           ${NAME}_assert_usage
           COMMAND ${PYTHON3} ${USAGE_UTIL}
@@ -2209,7 +2209,7 @@ function(ADD_FPGA_TARGET)
   add_custom_target(${NAME}_route_echo DEPENDS ${ECHO_ATOM_NETLIST_ORIG})
 
   if(NOT "${ADD_FPGA_TARGET_ASSERT_TIMING}" STREQUAL "")
-      set(TIMING_UTIL ${symbiflow-arch-defs_SOURCE_DIR}/utils/report_timing.py)
+      set(TIMING_UTIL ${f4pga-arch-defs_SOURCE_DIR}/utils/report_timing.py)
       add_custom_target(
           ${NAME}_assert_timing
           COMMAND ${PYTHON3} ${TIMING_UTIL}
@@ -2755,7 +2755,7 @@ function(generate_pinmap)
   get_file_location(PINMAP ${PINMAP_FILE})
   get_file_target(PINMAP_TARGET ${PINMAP_FILE})
 
-  set(CREATE_PINMAP ${symbiflow-arch-defs_SOURCE_DIR}/utils/create_pinmap.py)
+  set(CREATE_PINMAP ${f4pga-arch-defs_SOURCE_DIR}/utils/create_pinmap.py)
 
   set(SOURCE_FILES "")
   set(SOURCE_FILES_DEPS "")
