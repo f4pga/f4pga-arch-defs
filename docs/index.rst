@@ -41,13 +41,14 @@ Contents
 .. toctree::
    :maxdepth: 2
 
-   getting-started
-   README
+   tools
+   packages
 
 .. toctree::
    :maxdepth: 2
    :caption: Development
 
+   development/getting-started
    development/cmake
    development/structure
    development/notes
