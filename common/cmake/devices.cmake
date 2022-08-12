@@ -22,13 +22,11 @@ function(DEFINE_ARCH)
   #    [SDC_PATCH_TOOL_CMD <command to run SDC_PATCH_TOOL>]
   #    BITSTREAM_EXTENSION <ext>
   #    [VPR_ARCH_ARGS <arg list>]
-  #    RR_PATCH_TOOL <path to rr_patch tool>
-  #    RR_PATCH_CMD <command to run RR_PATCH_TOOL>
+  #    RR_PATCH_CMD <command to run rr_patch tool>
   #    [NET_PATCH_TOOL <path to net patch tool>]
   #    [NET_PATCH_TOOL_CMD <command to run NET_PATCH_TOOL>]
   #    DEVICE_FULL_TEMPLATE <template for constructing DEVICE_FULL strings.
-  #    [RR_PATCH_TOOL <path to rr_patch tool>]
-  #    [RR_PATCH_CMD <command to run RR_PATCH_TOOL>]
+  #    [RR_PATCH_CMD <command to run rr_patch tool>]
   #    [NO_PINS]
   #    [NO_TEST_PINS]
   #    [NO_PLACE]
@@ -47,8 +45,7 @@ function(DEFINE_ARCH)
   #    FASM_TO_BIT_DEPS <list of dependencies for FASM_TO_BIT_CMD>
   #    [BIT_TO_FASM <path to bitstream to FASM converter>]
   #    [BIT_TO_FASM_CMD <command to run BIT_TO_FASM>]
-  #    BIT_TO_V <path to bitstream to verilog converter>
-  #    BIT_TO_V_CMD <command to run BIT_TO_V>
+  #    BIT_TO_V_CMD <command to run bitstream to verilog converter>
   #    BIT_TO_BIN <path to bitstream to binary>
   #    BIT_TO_BIN_CMD <command to run BIT_TO_BIN>
   #    BIT_TIME <path to BIT_TIME executable>
@@ -73,7 +70,7 @@ function(DEFINE_ARCH)
   # If NO_PINS is set, PLACE_TOOL_CMD cannot be specified.
   # If NO_TEST_PINS is set, the automatic generation of the constraints file for
   # the generic tests is skipped.
-  # If NO_BITSTREAM is set, HLC_TO_BIT, HLC_TO_BIT_CMD BIT_TO_V,
+  # If NO_BITSTREAM is set, HLC_TO_BIT, HLC_TO_BIT_CMD,
   # BIT_TO_V_CMD, BIT_TO_BIN and BIT_TO_BIN_CMD cannot be specified.
   #
   # if NO_BIT_TO_BIN is given then there will be no BIT to BIN stage.
@@ -96,7 +93,6 @@ function(DEFINE_ARCH)
   #
   # RR_PATCH_CMD variables:
   #
-  # * RR_PATCH_TOOL - Value of RR_PATCH_TOOL property of <arch>.
   # * DEVICE - What device is being patch (see DEFINE_DEVICE).
   # * OUT_RRXML_VIRT - Input virtual rr_graph file for device.
   # * OUT_RRXML_REAL - Output real XML rr_graph file for device.
@@ -149,7 +145,6 @@ function(DEFINE_ARCH)
   #
   # BIT_TO_V variables:
   #
-  # * BIT_TO_V - Value of BIT_TO_V property of <arch>.
   # * TOP - Name of top module.
   # * INPUT_IO_FILE - Logic to IO pad constraint file.
   # * PACKAGE - Package of bitstream.
@@ -181,7 +176,6 @@ function(DEFINE_ARCH)
     DEVICE_FULL_TEMPLATE
     BITSTREAM_EXTENSION
     BIN_EXTENSION
-    RR_PATCH_TOOL
     RR_PATCH_CMD
     NET_PATCH_TOOL
     NET_PATCH_TOOL_CMD
@@ -195,7 +189,6 @@ function(DEFINE_ARCH)
     FASM_TO_BIT_CMD
     BIT_TO_FASM
     BIT_TO_FASM_CMD
-    BIT_TO_V
     BIT_TO_V_CMD
     BIT_TO_BIN
     BIT_TO_BIN_CMD
@@ -246,7 +239,6 @@ function(DEFINE_ARCH)
     VPR_ARCH_ARGS
     YOSYS_TECHMAP
     CELLS_SIM
-    RR_PATCH_TOOL
     RR_PATCH_CMD
     SDC_PATCH_TOOL
     SDC_PATCH_TOOL_CMD
@@ -285,7 +277,6 @@ function(DEFINE_ARCH)
     )
 
   set(BIT_TO_V_ARGS
-    BIT_TO_V
     BIT_TO_V_CMD
     )
 
@@ -625,9 +616,6 @@ function(DEFINE_DEVICE)
   endif ()
 
   if (NOT ${NO_RR_PATCHING})
-    get_target_property_required(
-      RR_PATCH_TOOL ${DEFINE_DEVICE_ARCH} RR_PATCH_TOOL
-    )
     get_target_property_required(RR_PATCH_CMD ${DEFINE_DEVICE_ARCH} RR_PATCH_CMD)
   endif ()
 
@@ -730,7 +718,7 @@ function(DEFINE_DEVICE)
       )
       add_custom_command(
         OUTPUT ${OUT_RR_PATCHED}
-        DEPENDS ${RR_PATCH_DEPS} ${RR_PATCH_TOOL}
+        DEPENDS ${RR_PATCH_DEPS}
         COMMAND ${RR_PATCH_CMD_FOR_TARGET_LIST} ${DEFINE_DEVICE_RR_PATCH_EXTRA_ARGS}
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         VERBATIM
@@ -1667,7 +1655,7 @@ function(ADD_FPGA_TARGET)
       OUTPUT ${OUT_JSON}
       DEPENDS ${OUT_JSON_SYNTH} ${QUIET_CMD} ${PYTHON3}
       COMMAND
-        ${PYTHON3} -m f4pga.utils.split_inouts -i ${OUT_JSON_SYNTH} -o ${OUT_JSON}
+        python3 -m f4pga.utils.split_inouts -i ${OUT_JSON_SYNTH} -o ${OUT_JSON}
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       VERBATIM
     )
@@ -2163,7 +2151,7 @@ function(ADD_FPGA_TARGET)
     # Add targets for patched EBLIF and .net
     add_custom_command(
       OUTPUT ${OUT_NET} ${OUT_EBLIF} ${OUT_PLACE}
-      DEPENDS ${IN_NET} ${IN_EBLIF} ${IN_PLACE} ${NET_PATCH_TOOL} ${NET_PATCH_DEPS}
+      DEPENDS ${IN_NET} ${IN_EBLIF} ${IN_PLACE} ${NET_PATCH_DEPS}
       COMMAND
         ${NET_PATCH_TOOL_CMD_FOR_TARGET_LIST}
         ${NET_PATCH_EXTRA_ARGS_FOR_TARGET_LIST}
@@ -2356,7 +2344,6 @@ function(ADD_FPGA_TARGET)
         # -------------------------------------------------------------------------
 
         set(OUT_BIT_VERILOG ${OUT_LOCAL}/${TOP}_bit.v)
-        get_target_property_required(BIT_TO_V ${ARCH} BIT_TO_V)
         get_target_property_required(BIT_TO_V_CMD ${ARCH} BIT_TO_V_CMD)
         if(NOT ${ADD_FPGA_TARGET_INPUT_IO_FILE} STREQUAL "")
             set(PCF_INPUT_IO_FILE "--pcf ${INPUT_IO_FILE}")
@@ -2385,7 +2372,7 @@ function(ADD_FPGA_TARGET)
         add_custom_command(
         OUTPUT ${OUT_BIT_VERILOG}
         COMMAND ${BIT_TO_V_CMD_FOR_TARGET_LIST}
-        DEPENDS ${BIT_TO_V} ${OUT_BITSTREAM} ${OUT_BIN}
+        DEPENDS ${OUT_BITSTREAM} ${OUT_BIN}
         )
 
         add_output_to_fpga_target(${NAME} BIT_V ${OUT_LOCAL_REL}/${TOP}_bit.v)

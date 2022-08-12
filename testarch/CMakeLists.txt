@@ -11,10 +11,8 @@ define_arch(
   VPR_ARCH_ARGS " \
     --router_init_wirelength_abort_threshold 20 \
     --place_algorithm bounding_box"
-  RR_PATCH_TOOL
-    ${CMAKE_CURRENT_SOURCE_DIR}/utils/testarch_graph.py
   RR_PATCH_CMD "\${CMAKE_COMMAND} -E env PYTHONPATH=${f4pga-arch-defs_SOURCE_DIR}/utils
-   \${PYTHON3} \${RR_PATCH_TOOL} \
+   \${PYTHON3} ${CMAKE_CURRENT_SOURCE_DIR}/utils/testarch_graph.py \
   --read_rr_graph \${OUT_RRXML_VIRT} \
   --write_rr_graph \${OUT_RRXML_REAL}"
   NO_PINS

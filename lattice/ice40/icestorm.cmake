@@ -42,10 +42,8 @@ function(icestorm_setup)
       --astar_fac 1.0 \
       --router_init_wirelength_abort_threshold 2 \
       --congested_routing_iteration_threshold 0.8"
-    RR_PATCH_TOOL
-      ${f4pga-arch-defs_SOURCE_DIR}/lattice/ice40/utils/ice40_import_routing_from_icebox.py
     RR_PATCH_CMD "\${QUIET_CMD} \${CMAKE_COMMAND} -E env ${PYPATH_ARG} \
-    \${PYTHON3} \${RR_PATCH_TOOL} \
+    \${PYTHON3} ${f4pga-arch-defs_SOURCE_DIR}/lattice/ice40/utils/ice40_import_routing_from_icebox.py \
     --device=\${DEVICE} \
     --read_rr_graph \${OUT_RRXML_VIRT} \
     --write_rr_graph \${OUT_RRXML_REAL}"
@@ -56,7 +54,6 @@ function(icestorm_setup)
     --pcf \${INPUT_IO_FILE} \
     --net \${OUT_NET}"
     CELLS_SIM ${CELLS_SIM}
-    BIT_TO_V ${ICEBOX_VLOG}
     BIT_TO_V_CMD "${ICEBOX_VLOG} -D -c -n \${TOP} -p \${INPUT_IO_FILE} -d \${PACKAGE} \${OUT_BITSTREAM} > \${OUT_BIT_VERILOG}"
     BITSTREAM_EXTENSION asc
     BIT_TO_BIN ${ICEPACK}

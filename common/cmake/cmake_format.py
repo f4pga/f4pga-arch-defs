@@ -86,7 +86,6 @@ additional_commands = {
                     "ARCH": 1,
                     "YOSYS_SCRIPT": 1,
                     "BITSTREAM_EXTENSION": 1,
-                    "RR_PATCH_TOOL": 1,
                     "RR_PATCH_CMD": 1,
                     "PLACE_TOOL_CMD": 1,
                     "CELLS_SIM": 1,

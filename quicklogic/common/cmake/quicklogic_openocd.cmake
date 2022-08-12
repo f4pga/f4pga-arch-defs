@@ -40,7 +40,6 @@ function(ADD_OPENOCD_OUTPUT)
   get_file_location(PINMAP_LOC ${PINMAP})
 
   # Generate a OpenOCD script that sets IOMUX configuration.
-  set(IOMUX_CONFIG_GEN ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/eos_s3_iomux_config.py)
   set(IOMUX_CONFIG "${TOP}_iomux.openocd")
 
   set(IOMUX_CONFIG_DEPS)
@@ -58,12 +57,12 @@ function(ADD_OPENOCD_OUTPUT)
   add_custom_command(
     OUTPUT ${WORK_DIR}/${IOMUX_CONFIG}
     COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${f4pga-arch-defs_SOURCE_DIR}/utils:$PYTHONPATH
-      ${PYTHON3} ${IOMUX_CONFIG_GEN}
+      python3 -m f4pga.utils.quicklogic.pp3.eos-s3.iomux_config
         ${IOMUX_CONFIG_ARGS}
         --map ${PINMAP_LOC}
         --output-format openocd
         >${WORK_DIR}/${IOMUX_CONFIG}
-    DEPENDS ${IOMUX_CONFIG_GEN} ${IOMUX_CONFIG_DEPS} ${PINMAP_TARGET}
+    DEPENDS ${IOMUX_CONFIG_DEPS} ${PINMAP_TARGET}
   )
 
   add_file_target(FILE ${WORK_DIR_REL}/${IOMUX_CONFIG} GENERATED)
