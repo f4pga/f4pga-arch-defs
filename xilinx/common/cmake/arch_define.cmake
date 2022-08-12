@@ -146,14 +146,14 @@ function(ADD_XC_ARCH_DEFINE)
         "
     PLACE_TOOL_CMD "${CMAKE_COMMAND} -E env \
     PYTHONPATH=${f4pga-arch-defs_SOURCE_DIR}/utils \
-    \${PYTHON3} -m f4pga.utils.xc7.create_ioplace \
+    \${PYTHON3} -m f4pga.aux.utils.xc7.create_ioplace \
         --map \${PINMAP} \
         --blif \${OUT_EBLIF} \
         \${PCF_INPUT_IO_FILE} \
         --net \${OUT_NET}"
     PLACE_CONSTR_TOOL_CMD "${CMAKE_COMMAND} -E env \
     PYTHONPATH=${f4pga-arch-defs_SOURCE_DIR}/utils \
-    \${PYTHON3} -m f4pga.utils.xc7.create_place_constraints \
+    \${PYTHON3} -m f4pga.aux.utils.xc7.create_place_constraints \
         --net \${OUT_NET} \
         --arch \${DEVICE_MERGED_FILE_LOCATION} \
         --blif \${OUT_EBLIF} \

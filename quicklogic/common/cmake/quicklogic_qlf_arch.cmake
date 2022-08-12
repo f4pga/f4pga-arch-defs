@@ -30,7 +30,7 @@ function(QUICKLOGIC_DEFINE_QLF_ARCH)
   get_target_property_required(QLF_FASM env QLF_FASM)
 
   if("${FAMILY}" STREQUAL "qlf_k4n8")
-    set(REPACKER_PATH "python3 -m f4pga.utils.quicklogic.repacker.repack")
+    set(REPACKER_PATH "f4pga utils repack")
   else()
     set(REPACKER_PATH )
   endif()
@@ -57,7 +57,7 @@ function(QUICKLOGIC_DEFINE_QLF_ARCH)
     # FIXME: Make common for k4n8 and k6n10
     PLACE_TOOL_CMD "${CMAKE_COMMAND} -E env \
       PYTHONPATH=${f4pga-arch-defs_SOURCE_DIR}/utils:$PYTHONPATH:${f4pga-arch-defs_SOURCE_DIR}/quicklogic/common/utils \
-      python3 -m f4pga.utils.quicklogic.qlf_k4n8.create_ioplace \
+      f4pga utils create_ioplace \
           --pinmap_xml \${PINMAP_XML} \
           --blif \${OUT_EBLIF} \
           --pcf \${INPUT_IO_FILE} \
@@ -80,8 +80,10 @@ function(QUICKLOGIC_DEFINE_QLF_ARCH)
 
     NET_PATCH_TOOL
       ${REPACKER_PATH}
+    # FIXME: change FPGA_FAM definition once qlf_k4n8 is supported in f4pba build flow
     NET_PATCH_TOOL_CMD "${CMAKE_COMMAND} -E env \
       PYTHONPATH=${f4pga-arch-defs_SOURCE_DIR}/utils \
+      FPGA_FAM=eos-s3 \
       \${QUIET_CMD} \${NET_PATCH_TOOL} \
          --net-in \${IN_NET} \
          --eblif-in \${IN_EBLIF} \
