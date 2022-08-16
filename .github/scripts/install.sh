@@ -6,8 +6,12 @@ INSTALL_DIR="$(pwd)/install"
 mkdir -p $INSTALL_DIR
 
 case "$1" in
-  eos-s3|ql) export FPGA_FAM=eos-s3 ;;
-  *)         export FPGA_FAM=xc7    ;;
+  ql|eos-s3) export FPGA_FAM=eos-s3 ;;
+  xc7)       export FPGA_FAM=xc7 ;;
+  *)
+    echo "Unknown FPGA family <$1>!"
+    exit 1
+  ;;
 esac
 
 echo "Set CMAKE_FLAGS"
@@ -17,10 +21,6 @@ case "$FPGA_FAM" in
   ;;
   eos-s3)
     INSTALL_FAMILIES='qlf_k4n8,pp3'
-  ;;
-  *)
-    echo "Unknown FPGA_FAM <$FPGA_FAM>!"
-    exit 1
   ;;
 esac
 export CMAKE_FLAGS="-GNinja -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} -DINSTALL_FAMILIES=${INSTALL_FAMILIES}"
