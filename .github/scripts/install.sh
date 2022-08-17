@@ -41,12 +41,6 @@ pushd build
 make_target install "Installing toolchain (make install)"
 popd
 
-cp \
-  packaging/"$FPGA_FAM"_environment.yml \
-  packaging/requirements.txt \
-  packaging/"$FPGA_FAM"_requirements.txt \
-  $INSTALL_DIR/
-
 echo "----------------------------------------"
 
 heading "Running installed toolchain tests"
@@ -78,13 +72,12 @@ done
 du -ah install
 export GIT_HASH=$(git rev-parse --short HEAD)
 
-pushd install
-mkdir -p "$FPGA_FAM"_env
-mv "$FPGA_FAM"_environment.yml \
-  requirements.txt \
-  "$FPGA_FAM"_requirements.txt \
-  "$FPGA_FAM"_env
-popd
+mkdir -p "$INSTALL_DIR/$FPGA_FAM"_env
+cp \
+  packaging/"$FPGA_FAM"_environment.yml \
+  packaging/requirements.txt \
+  packaging/"$FPGA_FAM"_requirements.txt \
+  "$INSTALL_DIR/$FPGA_FAM"_env
 
 case "$FPGA_FAM" in
   xc7)
