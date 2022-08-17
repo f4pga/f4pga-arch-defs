@@ -34,8 +34,6 @@ function(icestorm_setup)
   set(PYPATH_ARG "PYTHONPATH=\${ICEBOX_PATH}:${PYUTILS_PATH}")
   define_arch(
     ARCH ice40
-    YOSYS_SYNTH_SCRIPT ${f4pga-arch-defs_SOURCE_DIR}/lattice/ice40/yosys/synth.tcl
-    YOSYS_CONV_SCRIPT ${f4pga-arch-defs_SOURCE_DIR}/lattice/ice40/yosys/conv.tcl
     DEVICE_FULL_TEMPLATE \${DEVICE}-\${PACKAGE}
     VPR_ARCH_ARGS "\
       --clock_modeling route \
