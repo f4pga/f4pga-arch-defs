@@ -47,6 +47,4 @@ define_ql_toolchain_target(
   ROUTE_CHAN_WIDTH 100
   CELLS_SIM ${FAMILY_DIR}/techmap/cells_sim.v
   VPR_ARCH_ARGS ${VPR_ARCH_ARGS}
-  SYNTH_SCRIPT ${FAMILY_DIR}/yosys/synth.tcl
-  CONV_SCRIPT ${FAMILY_DIR}/yosys/conv.tcl
 )

@@ -155,14 +155,6 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
       PATTERN "*.txt"
       PATTERN "*.json"
       PATTERN "*.xml")
-
-    # install Yosys scripts
-    install(
-      FILES
-        ${DEFINE_QL_TOOLCHAIN_TARGET_CONV_SCRIPT}
-        ${DEFINE_QL_TOOLCHAIN_TARGET_SYNTH_SCRIPT}
-      DESTINATION share/f4pga/scripts/${FAMILY}
-    )
   endif()
 
   # Install helper scripts
