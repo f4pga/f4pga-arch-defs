@@ -149,7 +149,8 @@ dependencies:
     - python-utils==3.3.3
     - pyusb==1.2.1
     - PyYAML==6.0
-    - quicklogic-fasm @ https://github.com/QuickLogic-Corp/quicklogic-fasm/archive/aaf4c314a165b6185b0983019d8aae4d0d4db6cb.zip
+    # TODO: Change to upstream when https://github.com/QuickLogic-Corp/quicklogic-fasm/pull/26 is merged
+    - quicklogic-fasm @ https://github.com/antmicro/quicklogic-fasm/archive/607849ec0bdef8740be33dbaa49d15a3d400f809.zip
     - requests==2.28.1
     - rr-graph @ git+https://github.com/chipsalliance/f4pga-rr-graph.git@b8f0ebb6fd9842ae8bb7ff51a0adc5f76a853802
     - scipy==1.7.3
