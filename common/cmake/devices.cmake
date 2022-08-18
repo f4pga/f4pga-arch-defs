@@ -16,8 +16,8 @@ function(DEFINE_ARCH)
   #    DOC_PRJ <documentation_project>
   #    DOC_PRJ_DB <documentation_database>
   #    PROTOTYPE_PART <prototype_part>
-  #    YOSYS_SYNTH_SCRIPT <yosys_script>
-  #    YOSYS_CONV_SCRIPT <yosys_script>
+  #    [YOSYS_SYNTH_SCRIPT <yosys_script>]
+  #    [YOSYS_CONV_SCRIPT <yosys_script>]
   #    [SDC_PATCH_TOOL <path to a SDC file patching utility>]
   #    [SDC_PATCH_TOOL_CMD <command to run SDC_PATCH_TOOL>]
   #    BITSTREAM_EXTENSION <ext>
@@ -229,8 +229,6 @@ function(DEFINE_ARCH)
   add_custom_target(${DEFINE_ARCH_ARCH})
 
   set(REQUIRED_ARGS
-    YOSYS_SYNTH_SCRIPT
-    YOSYS_CONV_SCRIPT
     DEVICE_FULL_TEMPLATE
     NO_PLACE_CONSTR
     NO_PINS
@@ -245,6 +243,8 @@ function(DEFINE_ARCH)
     )
   set(DISALLOWED_ARGS "")
   set(OPTIONAL_ARGS
+    YOSYS_SYNTH_SCRIPT
+    YOSYS_CONV_SCRIPT
     FAMILY
     DOC_PRJ
     DOC_PRJ_DB
@@ -1440,8 +1440,28 @@ function(ADD_FPGA_TARGET)
 
   get_target_property_required(YOSYS env YOSYS)
   get_target_property_required(QUIET_CMD env QUIET_CMD)
-  get_target_property_required(YOSYS_SYNTH_SCRIPT ${ARCH} YOSYS_SYNTH_SCRIPT)
-  get_target_property_required(YOSYS_CONV_SCRIPT ${ARCH} YOSYS_CONV_SCRIPT)
+
+  get_target_property(YOSYS_SYNTH_SCRIPT ${ARCH} YOSYS_SYNTH_SCRIPT)
+  if("${YOSYS_SYNTH_SCRIPT}" STREQUAL "")
+    execute_process(
+      COMMAND python3 -m f4pga.wrappers.tcl synth ${ARCH}
+      COMMAND_ERROR_IS_FATAL ANY
+      OUTPUT_VARIABLE YOSYS_SYNTH_SCRIPT
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    message("YOSYS_SYNTH_SCRIPT is ${YOSYS_SYNTH_SCRIPT}.")
+  endif()
+
+  get_target_property(YOSYS_CONV_SCRIPT ${ARCH} YOSYS_CONV_SCRIPT)
+  if("${YOSYS_CONV_SCRIPT}" STREQUAL "")
+    execute_process(
+      COMMAND python3 -m f4pga.wrappers.tcl conv ${ARCH}
+      COMMAND_ERROR_IS_FATAL ANY
+      OUTPUT_VARIABLE YOSYS_CONV_SCRIPT
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    message("YOSYS_CONV_SCRIPT is ${YOSYS_CONV_SCRIPT}.")
+  endif()
 
   get_target_property_required(
     DEVICE_MERGED_FILE ${DEVICE_TYPE} DEVICE_MERGED_FILE
@@ -1582,8 +1602,6 @@ function(ADD_FPGA_TARGET)
   endif()
 
   if(NOT ${ADD_FPGA_TARGET_NO_SYNTHESIS})
-    set(COMPLETE_YOSYS_SYNTH_SCRIPT "tcl ${YOSYS_SYNTH_SCRIPT}")
-
     set(OUT_JSON_SYNTH ${OUT_LOCAL}/${TOP}_synth.json)
     set(OUT_JSON_SYNTH_REL ${OUT_LOCAL_REL}/${TOP}_synth.json)
     set(OUT_JSON ${OUT_LOCAL}/${TOP}.json)
@@ -1644,7 +1662,7 @@ function(ADD_FPGA_TARGET)
           PINMAP_FILE=${PINMAP}
           PYTHON3=${PYTHON3}
           ${ADD_FPGA_TARGET_DEFINES}
-          ${QUIET_CMD} ${YOSYS} -r ${TOP} -p "${COMPLETE_YOSYS_SYNTH_SCRIPT}" -l ${OUT_JSON_SYNTH}.log ${SOURCE_FILES}
+          ${QUIET_CMD} ${YOSYS} -r ${TOP} -p "tcl ${YOSYS_SYNTH_SCRIPT}" -l ${OUT_JSON_SYNTH}.log ${SOURCE_FILES}
       COMMAND
         ${CMAKE_COMMAND} -E touch ${OUT_FASM_EXTRA}
       COMMAND

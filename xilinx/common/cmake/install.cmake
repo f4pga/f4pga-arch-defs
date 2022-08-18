@@ -45,10 +45,6 @@ function(DEFINE_XC_TOOLCHAIN_TARGET)
   install(DIRECTORY ${f4pga-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/techmap
           DESTINATION share/f4pga/techmaps/${FAMILY}_vpr)
 
-  # install Yosys scripts
-  install(FILES  ${DEFINE_XC_TOOLCHAIN_TARGET_CONV_SCRIPT} ${DEFINE_XC_TOOLCHAIN_TARGET_SYNTH_SCRIPT} ${DEFINE_XC_TOOLCHAIN_TARGET_UTILS_SCRIPT}
-    DESTINATION share/f4pga/scripts/${FAMILY})
-
 endfunction()
 
 function(DEFINE_XC_PINMAP_CSV_INSTALL_TARGET)

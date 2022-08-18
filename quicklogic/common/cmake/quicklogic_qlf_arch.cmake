@@ -49,8 +49,6 @@ function(QUICKLOGIC_DEFINE_QLF_ARCH)
   define_arch(
     FAMILY ${FAMILY}
     ARCH ${ARCH}
-    YOSYS_SYNTH_SCRIPT ${FAMILY_DIR}/yosys/synth.tcl
-    YOSYS_CONV_SCRIPT ${FAMILY_DIR}/yosys/conv.tcl
     YOSYS_TECHMAP ${FAMILY_DIR}/techmap
     DEVICE_FULL_TEMPLATE \${DEVICE}
     VPR_ARCH_ARGS ${VPR_ARGS}

@@ -157,16 +157,6 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
       PATTERN "*.xml")
   endif()
 
-  # install Yosys scripts
-  install(FILES ${DEFINE_QL_TOOLCHAIN_TARGET_CONV_SCRIPT} ${DEFINE_QL_TOOLCHAIN_TARGET_SYNTH_SCRIPT}
-          DESTINATION share/f4pga/scripts/${FAMILY})
-
-  if("${FAMILY}" STREQUAL "pp3")
-	  install(FILES ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/pp3/yosys/pack.tcl
-		  DESTINATION share/f4pga/scripts/${FAMILY})
-	  message(STATUS "Installing pack.tcl for ${FAMILY}")
-  endif()
-
   # Install helper scripts
   set(SCRIPTS
     create_ioplace.py

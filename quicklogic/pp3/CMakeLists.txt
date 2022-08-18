@@ -21,9 +21,6 @@ set(SDF_TIMING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/timings)
 
 get_target_property_required(QLFASM env QLFASM)
 
-set(YOSYS_SYNTH_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/yosys/synth.tcl)
-set(YOSYS_CONV_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/yosys/conv.tcl)
-
 set(VPR_ARCH_ARGS "\
     --clock_modeling route \
     --place_delay_model delta_override \
@@ -45,8 +42,6 @@ set(VPR_ARCH_ARGS "\
 define_arch(
   ARCH ql-s3
   FAMILY pp3
-  YOSYS_SYNTH_SCRIPT ${YOSYS_SYNTH_SCRIPT}
-  YOSYS_CONV_SCRIPT ${YOSYS_CONV_SCRIPT}
   YOSYS_TECHMAP ${f4pga-arch-defs_BINARY_DIR}/quicklogic/${FAMILY_NAME}/techmap
   DEVICE_FULL_TEMPLATE \${DEVICE}
   VPR_ARCH_ARGS ${VPR_ARCH_ARGS}
