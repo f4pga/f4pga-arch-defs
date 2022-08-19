@@ -45,17 +45,9 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   set(VPR_DB_FILE "db_vpr.pickle")
   set(ARCH_XML "arch.xml")
 
-  # Set FPGA_FAM env var, skip first 3 characters ('ql-')
-  string(SUBSTRING ${DEVICE} 3 -1 FPGA_FAM)
-
   set(DEVICE_DIR_DATA ${DEVICE})
   if(${DEVICE} STREQUAL "ql-pp3")
-	  set(DEVICE_DIR_DATA "ql-eos-s3")	# FIXME: use PP3 timing data when it will be available
-	  set(FPGA_FAM "eos-s3")
-  endif()
-
-  if(${DEVICE} STREQUAL "ql-pp3e")
-	  set(FPGA_FAM "eos-s3")		# FIXME: add support for pp3e in F4PGA build flow
+    set(DEVICE_DIR_DATA "ql-eos-s3")	# FIXME: use PP3 timing data when it will be available
   endif()
 
   # The techfile and routing timing file
@@ -65,8 +57,7 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   # Import data from the techfile
   add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PHY_DB_FILE}
-    COMMAND ${CMAKE_COMMAND} -E env FPGA_FAM=${FPGA_FAM}
-    python3 -m f4pga.utils.quicklogic.pp3.data_import
+    COMMAND python3 -m f4pga.utils.quicklogic.pp3.data_import
       --techfile ${TECHFILE}
       --routing-timing ${ROUTING_TIMING}
       --db ${PHY_DB_FILE}
@@ -136,8 +127,7 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
 
   add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${VPR_DB_FILE}
-    COMMAND ${CMAKE_COMMAND} -E env FPGA_FAM=${FPGA_FAM}
-      python3 -m f4pga.utils.quicklogic.pp3.prepare_vpr_database
+    COMMAND python3 -m f4pga.utils.quicklogic.pp3.prepare_vpr_database
       --phy-db ${PHY_DB_FILE}
       --vpr-db ${VPR_DB_FILE}
       --sdf-dir ${SDF_TIMING_DIR}
@@ -197,8 +187,7 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   get_file_target(VPR_DB_TARGET ${VPR_DB_FILE})
   add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${ARCH_XML}
-    COMMAND ${CMAKE_COMMAND} -E env FPGA_FAM=${FPGA_FAM}
-      python3 -m f4pga.utils.quicklogic.pp3.arch_import
+    COMMAND python3 -m f4pga.utils.quicklogic.pp3.arch_import
       --vpr-db ${VPR_DB_FILE}
       --arch-out ${ARCH_XML}
       --device ${DEVICE}

@@ -80,10 +80,8 @@ function(QUICKLOGIC_DEFINE_QLF_ARCH)
 
     NET_PATCH_TOOL
       ${REPACKER_PATH}
-    # FIXME: change FPGA_FAM definition once qlf_k4n8 is supported in f4pba build flow
     NET_PATCH_TOOL_CMD "${CMAKE_COMMAND} -E env \
       PYTHONPATH=${f4pga-arch-defs_SOURCE_DIR}/utils \
-      FPGA_FAM=eos-s3 \
       \${QUIET_CMD} \${NET_PATCH_TOOL} \
          --net-in \${IN_NET} \
          --eblif-in \${IN_EBLIF} \

@@ -48,7 +48,6 @@ define_arch(
 
   RR_PATCH_CMD "\${CMAKE_COMMAND} -E env \
     PYTHONPATH=${f4pga-arch-defs_SOURCE_DIR}/utils:$PYTHONPATH \
-    FPGA_FAM=eos-s3 \
     python3 -m f4pga.utils.quicklogic.pp3.routing_import \
         --vpr-db ${CMAKE_CURRENT_BINARY_DIR}/devices/\${DEVICE_TYPE}/db_vpr.pickle \
         --rr-graph-in \${OUT_RRXML_VIRT} \
