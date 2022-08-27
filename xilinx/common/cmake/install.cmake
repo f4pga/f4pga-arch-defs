@@ -27,7 +27,6 @@ function(DEFINE_XC_TOOLCHAIN_TARGET)
 
   # install python scripts
   install(FILES
-            ${f4pga-arch-defs_SOURCE_DIR}/utils/split_inouts.py
             ${f4pga-arch-defs_SOURCE_DIR}/utils/fix_xc7_carry.py
             ${f4pga-arch-defs_SOURCE_DIR}/xilinx/common/utils/prjxray_create_ioplace.py
             ${f4pga-arch-defs_SOURCE_DIR}/xilinx/common/utils/prjxray_create_place_constraints.py
