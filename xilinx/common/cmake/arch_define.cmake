@@ -150,20 +150,16 @@ function(ADD_XC_ARCH_DEFINE)
         --write_rr_node_map \${OUT_RRXML_REAL}.node_map.pickle \
         --vpr_capnp_schema_dir ${VPR_CAPNP_SCHEMA_DIR}
         "
-    PLACE_TOOL
-      ${f4pga-arch-defs_SOURCE_DIR}/xilinx/common/utils/prjxray_create_ioplace.py
     PLACE_TOOL_CMD "${CMAKE_COMMAND} -E env \
     PYTHONPATH=${f4pga-arch-defs_SOURCE_DIR}/utils \
-    \${PYTHON3} \${PLACE_TOOL} \
+    \${PYTHON3} -m f4pga.utils.xc7.create_ioplace \
         --map \${PINMAP} \
         --blif \${OUT_EBLIF} \
         \${PCF_INPUT_IO_FILE} \
         --net \${OUT_NET}"
-    PLACE_CONSTR_TOOL
-      ${f4pga-arch-defs_SOURCE_DIR}/xilinx/common/utils/prjxray_create_place_constraints.py
     PLACE_CONSTR_TOOL_CMD "${CMAKE_COMMAND} -E env \
     PYTHONPATH=${f4pga-arch-defs_SOURCE_DIR}/utils \
-    \${PYTHON3} \${PLACE_CONSTR_TOOL} \
+    \${PYTHON3} -m f4pga.utils.xc7.create_place_constraints \
         --net \${OUT_NET} \
         --arch \${DEVICE_MERGED_FILE_LOCATION} \
         --blif \${OUT_EBLIF} \

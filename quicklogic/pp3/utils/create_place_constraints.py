@@ -3,7 +3,7 @@ import argparse
 import sys
 import csv
 
-import eblif
+from f4pga.utils.eblif import parse_blif
 
 # =============================================================================
 
@@ -89,7 +89,7 @@ def main():
         clock_to_gmux[src_loc] = (dst_loc, name)
 
     # Load EBLIF
-    eblif_data = eblif.parse_blif(args.blif)
+    eblif_data = parse_blif(args.blif)
 
     # Process the IO constraints file. Pass the constraints unchanged, store
     # them.

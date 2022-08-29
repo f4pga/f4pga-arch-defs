@@ -5,7 +5,7 @@ import sys
 import os
 
 import pcf
-import vpr_io_place
+from f4pga.utils.vpr_io_place import IoPlace
 
 import csv
 import argparse
@@ -63,7 +63,7 @@ def main(argv):
 
     locs = pcf.parse_pcf(args.pcf, pin_map)
 
-    io_place = vpr_io_place.IoPlace()
+    io_place = IoPlace()
 
     io_place.read_io_list_from_eblif(args.blif)
     io_place.load_net_file_ios(args.net)

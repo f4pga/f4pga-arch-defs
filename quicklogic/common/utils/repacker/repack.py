@@ -38,7 +38,7 @@ from pb_rr_graph_netlist import load_clb_nets_into_pb_graph
 from pb_rr_graph_netlist import build_packed_netlist_from_pb_graph
 
 from pb_type import PbType, Model, PortType
-from lib.parse_pcf import parse_simple_pcf
+from f4pga.utils.pcf import parse_simple_pcf
 
 # =============================================================================
 

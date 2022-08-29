@@ -27,7 +27,7 @@ the original PCF from the design.
 """
 import argparse
 
-from lib.parse_pcf import parse_simple_pcf
+from f4pga.utils.pcf import parse_simple_pcf
 
 
 def main():

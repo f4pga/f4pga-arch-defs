@@ -34,9 +34,7 @@ function(DEFINE_ARCH)
   #    [NO_PLACE]
   #    [NO_PLACE_CONSTR]
   #    [USE_FASM]
-  #    PLACE_TOOL <path to place tool>
-  #    PLACE_TOOL_CMD <command to run PLACE_TOOL>
-  #    PLACE_CONSTR_TOOL <path to place constraints tool>
+  #    PLACE_TOOL_CMD <command to run place tool>
   #    PLACE_CONSTR_TOOL_CMD <command to run PLACE_CONSTR_TOOL>
   #    [NO_BITSTREAM]
   #    [NO_BIT_TO_BIN]
@@ -72,7 +70,7 @@ function(DEFINE_ARCH)
   #  * DOC_PRJ - path to the third party documentation project
   #  * DOC_PRJ_DB - path to the third party documentation database
   #
-  # If NO_PINS is set, PLACE_TOOL and PLACE_TOOL_CMD cannot be specified.
+  # If NO_PINS is set, PLACE_TOOL_CMD cannot be specified.
   # If NO_TEST_PINS is set, the automatic generation of the constraints file for
   # the generic tests is skipped.
   # If NO_BITSTREAM is set, HLC_TO_BIT, HLC_TO_BIT_CMD BIT_TO_V,
@@ -106,7 +104,6 @@ function(DEFINE_ARCH)
   #
   # PLACE_TOOL_CMD variables:
   #
-  # * PLACE_TOOL - Value of PLACE_TOOL property of <arch>.
   # * PINMAP - Path to pinmap file.  This file will be retrieved from the
   #   PINMAP property of the ${BOARD}.  ${DEVICE} and ${PACKAGE}
   #   will be defined by the BOARD being used. See DEFINE_BOARD.
@@ -115,7 +112,6 @@ function(DEFINE_ARCH)
   #
   # PLACE_TOOL_CONSTR_CMD variables:
   #
-  # * PLACE_CONSTR_TOOL - Value of PLACE_CONSTR_TOOL property of <arch>.
   # * NO_PLACE_CONSTR - If this option is set, the PLACE_CONSTR_TOOL is disabled
   #
   # This command enables the possibility to add an additional step consisting
@@ -189,9 +185,7 @@ function(DEFINE_ARCH)
     RR_PATCH_CMD
     NET_PATCH_TOOL
     NET_PATCH_TOOL_CMD
-    PLACE_TOOL
     PLACE_TOOL_CMD
-    PLACE_CONSTR_TOOL
     PLACE_CONSTR_TOOL_CMD
     SDC_PATCH_TOOL
     SDC_PATCH_TOOL_CMD
@@ -263,12 +257,10 @@ function(DEFINE_ARCH)
     )
 
   set(PLACE_ARGS
-    PLACE_TOOL
     PLACE_TOOL_CMD
     )
 
   set(PLACE_CONSTR_ARGS
-    PLACE_CONSTR_TOOL
     PLACE_CONSTR_TOOL_CMD
     )
 
@@ -1953,12 +1945,10 @@ function(ADD_FPGA_TARGET)
     if(${NO_PINS})
       message(FATAL_ERROR "Arch ${ARCH} does not currently support pin constraints.")
     endif()
-    get_target_property_required(PLACE_TOOL ${ARCH} PLACE_TOOL)
     get_target_property_required(PLACE_TOOL_CMD ${ARCH} PLACE_TOOL_CMD)
 
     get_target_property_required(NO_PLACE_CONSTR ${ARCH} NO_PLACE_CONSTR)
     if(NOT ${NO_PLACE_CONSTR})
-      get_target_property_required(PLACE_CONSTR_TOOL ${ARCH} PLACE_CONSTR_TOOL)
       get_target_property_required(PLACE_CONSTR_TOOL_CMD ${ARCH} PLACE_CONSTR_TOOL_CMD)
     endif()
 
