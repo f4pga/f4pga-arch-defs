@@ -88,7 +88,6 @@ additional_commands = {
                     "BITSTREAM_EXTENSION": 1,
                     "RR_PATCH_TOOL": 1,
                     "RR_PATCH_CMD": 1,
-                    "PLACE_TOOL": 1,
                     "PLACE_TOOL_CMD": 1,
                     "CELLS_SIM": 1,
                     "EQUIV_CHECK_SCRIPT": 1,

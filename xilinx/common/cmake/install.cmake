@@ -25,21 +25,6 @@ function(DEFINE_XC_TOOLCHAIN_TARGET)
   get_target_property_required(DOC_PRJ ${ARCH} DOC_PRJ)
   get_target_property_required(DOC_PRJ_DB ${ARCH} DOC_PRJ_DB)
 
-  # install python scripts
-  install(FILES
-            ${f4pga-arch-defs_SOURCE_DIR}/utils/fix_xc7_carry.py
-            ${f4pga-arch-defs_SOURCE_DIR}/xilinx/common/utils/prjxray_create_ioplace.py
-            ${f4pga-arch-defs_SOURCE_DIR}/xilinx/common/utils/prjxray_create_place_constraints.py
-            ${f4pga-arch-defs_SOURCE_DIR}/utils/vpr_io_place.py
-            ${f4pga-arch-defs_SOURCE_DIR}/utils/vpr_place_constraints.py
-            ${f4pga-arch-defs_SOURCE_DIR}/utils/eblif.py
-          DESTINATION share/f4pga/scripts
-          PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
-
-  install(FILES ${f4pga-arch-defs_SOURCE_DIR}/utils/lib/parse_pcf.py
-          DESTINATION share/f4pga/scripts/lib)
-
-
   # install prjxray techmap
   install(DIRECTORY ${f4pga-arch-defs_SOURCE_DIR}/xilinx/${FAMILY}/techmap
           DESTINATION share/f4pga/techmaps/${FAMILY}_vpr)

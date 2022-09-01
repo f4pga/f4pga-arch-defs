@@ -85,7 +85,6 @@ case "$FPGA_FAM" in
       symbiflow-arch-defs-install-xc7-${GIT_HASH}.tar.xz \
       -C install \
         share/f4pga/techmaps \
-        share/f4pga/scripts \
         "$FPGA_FAM"_env
     tar -I "pixz" -cvf \
       symbiflow-arch-defs-benchmarks-xc7-${GIT_HASH}.tar.xz \

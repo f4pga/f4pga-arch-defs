@@ -5,8 +5,8 @@ import sys
 import re
 from collections import defaultdict
 
-import vpr_io_place
-from lib.parse_pcf import parse_simple_pcf
+from f4pga.utils.vpr_io_place import IoPlace
+from f4pga.utils.pcf import parse_simple_pcf
 
 # =============================================================================
 
@@ -67,7 +67,7 @@ def main():
 
     args = parser.parse_args()
 
-    io_place = vpr_io_place.IoPlace()
+    io_place = IoPlace()
     io_place.read_io_list_from_eblif(args.blif)
     io_place.load_block_names_from_net_file(args.net)
 

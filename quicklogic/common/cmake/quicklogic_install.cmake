@@ -68,22 +68,6 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
           DESTINATION share/f4pga/scripts
           PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
 
-  install(FILES ${f4pga-arch-defs_SOURCE_DIR}/utils/vpr_io_place.py
-          DESTINATION share/f4pga/scripts
-          PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
-
-  install(FILES ${f4pga-arch-defs_SOURCE_DIR}/utils/vpr_place_constraints.py
-          DESTINATION share/f4pga/scripts
-          PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
-
-  install(FILES ${f4pga-arch-defs_SOURCE_DIR}/utils/eblif.py
-          DESTINATION share/f4pga/scripts
-          PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
-
-  install(FILES ${f4pga-arch-defs_SOURCE_DIR}/utils/lib/parse_pcf.py
-          DESTINATION share/f4pga/scripts/lib
-          PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
-
   install(FILES ${f4pga-arch-defs_SOURCE_DIR}/utils/yosys_fixup_cell_names.py
           DESTINATION share/f4pga/scripts
           PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)

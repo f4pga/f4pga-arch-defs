@@ -10,8 +10,8 @@ import json
 import re
 import sys
 
-from lib.parse_pcf import parse_simple_pcf
-from eblif import parse_blif
+from f4pga.utils.pcf import parse_simple_pcf
+from f4pga.utils.eblif import parse_blif
 
 # =============================================================================
 

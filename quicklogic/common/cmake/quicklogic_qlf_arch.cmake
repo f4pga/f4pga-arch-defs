@@ -56,11 +56,10 @@ function(QUICKLOGIC_DEFINE_QLF_ARCH)
 
     RR_GRAPH_EXT ".bin"
 
-    PLACE_TOOL
-      ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/qlf_k4n8/utils/create_ioplace.py # FIXME: Make common for k4n8 and k6n10
+    # FIXME: Make common for k4n8 and k6n10
     PLACE_TOOL_CMD "${CMAKE_COMMAND} -E env \
       PYTHONPATH=${f4pga-arch-defs_SOURCE_DIR}/utils:$PYTHONPATH:${f4pga-arch-defs_SOURCE_DIR}/quicklogic/common/utils \
-      \${PYTHON3} \${PLACE_TOOL} \
+      \${PYTHON3} ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/qlf_k4n8/utils/create_ioplace.py \
           --pinmap_xml \${PINMAP_XML} \
           --blif \${OUT_EBLIF} \
           --pcf \${INPUT_IO_FILE} \

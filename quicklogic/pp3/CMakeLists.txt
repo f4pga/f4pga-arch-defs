@@ -55,21 +55,17 @@ define_arch(
         --rr-graph-in \${OUT_RRXML_VIRT} \
         --rr-graph-out \${OUT_RRXML_REAL}"
 
-  PLACE_TOOL
-    ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/create_ioplace.py
   PLACE_TOOL_CMD "${CMAKE_COMMAND} -E env \
     PYTHONPATH=${f4pga-arch-defs_SOURCE_DIR}/utils:$PYTHONPATH \
-    ${PYTHON3} \${PLACE_TOOL} \
+    ${PYTHON3} ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/create_ioplace.py \
         --map \${PINMAP} \
         --blif \${OUT_EBLIF} \
         --pcf \${INPUT_IO_FILE} \
         --net \${OUT_NET}"
 
-  PLACE_CONSTR_TOOL
-    ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/create_place_constraints.py
   PLACE_CONSTR_TOOL_CMD "${CMAKE_COMMAND} -E env \
     PYTHONPATH=${f4pga-arch-defs_SOURCE_DIR}/utils \
-    \${PYTHON3} \${PLACE_CONSTR_TOOL} \
+    \${PYTHON3} ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/create_place_constraints.py \
         --map ${f4pga-arch-defs_BINARY_DIR}/quicklogic/${FAMILY_NAME}/\${BOARD}_clkmap.csv \
         --blif \${OUT_EBLIF} \
         --i /dev/stdin \

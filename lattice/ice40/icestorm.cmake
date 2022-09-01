@@ -49,10 +49,8 @@ function(icestorm_setup)
     --device=\${DEVICE} \
     --read_rr_graph \${OUT_RRXML_VIRT} \
     --write_rr_graph \${OUT_RRXML_REAL}"
-    PLACE_TOOL
-      ${f4pga-arch-defs_SOURCE_DIR}/lattice/ice40/utils/ice40_create_ioplace.py
     PLACE_TOOL_CMD "\${QUIET_CMD}  \${CMAKE_COMMAND} -E env  ${PYPATH_ARG} \
-    \${PYTHON3} \${PLACE_TOOL} \
+    \${PYTHON3} ${f4pga-arch-defs_SOURCE_DIR}/lattice/ice40/utils/ice40_create_ioplace.py \
     --map \${PINMAP} \
     --blif \${OUT_EBLIF} \
     --pcf \${INPUT_IO_FILE} \
