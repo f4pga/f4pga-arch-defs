@@ -1671,13 +1671,11 @@ function(ADD_FPGA_TARGET)
       VERBATIM
     )
 
-    set(SPLIT_INOUTS ${f4pga-arch-defs_SOURCE_DIR}/utils/split_inouts.py)
-
     add_custom_command(
       OUTPUT ${OUT_JSON}
-      DEPENDS ${OUT_JSON_SYNTH} ${QUIET_CMD} ${SPLIT_INOUTS} ${PYTHON3}
+      DEPENDS ${OUT_JSON_SYNTH} ${QUIET_CMD} ${PYTHON3}
       COMMAND
-        ${PYTHON3} ${SPLIT_INOUTS} -i ${OUT_JSON_SYNTH} -o ${OUT_JSON}
+        ${PYTHON3} -m f4pga.utils.split_inouts -i ${OUT_JSON_SYNTH} -o ${OUT_JSON}
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       VERBATIM
     )

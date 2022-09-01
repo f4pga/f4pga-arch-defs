@@ -60,10 +60,6 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
           DESTINATION share/f4pga/scripts
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
-  install(FILES ${f4pga-arch-defs_SOURCE_DIR}/utils/split_inouts.py
-          DESTINATION share/f4pga/scripts
-          PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
-
   install(FILES ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/common/utils/pinmap_parse.py
           DESTINATION share/f4pga/scripts
           PERMISSIONS WORLD_READ OWNER_WRITE OWNER_READ GROUP_READ)
