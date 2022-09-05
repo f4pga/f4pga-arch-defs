@@ -36,7 +36,7 @@ Clone the repository:
 
 .. sourcecode:: bash
 
-    git clone https://github.com/chipsalliance/f4pga-arch-defs.git
+    git clone https://github.com/f4pga/f4pga-arch-defs.git
 
 Bootstrap an isolated Conda environment with all the necessary dependencies:
 
