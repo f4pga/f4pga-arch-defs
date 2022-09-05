@@ -57,8 +57,8 @@ html_show_sourcelink = True
 html_theme = 'sphinx_f4pga_theme'
 
 html_theme_options = {
-    'repo_name': 'chipsalliance/f4pga-arch-defs',
-    'github_url': 'https://github.com/chipsalliance/f4pga-arch-defs',
+    'repo_name': 'f4pga/f4pga-arch-defs',
+    'github_url': 'https://github.com/f4pga/f4pga-arch-defs',
     'globaltoc_collapse': True,
     'color_primary': 'indigo',
     'color_accent': 'blue',
