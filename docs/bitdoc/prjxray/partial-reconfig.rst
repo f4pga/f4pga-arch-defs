@@ -67,7 +67,7 @@ The example modules used currently are an add_1 module, a blink module, and an i
 
 Define the first partition region:
 
-:ghsrc:`xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr1-roi-virt/design.json`
+:ghsrc:`xilinx/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr1-roi-virt/design.json`
 
 .. literalinclude:: ../../../xilinx/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr1-roi-virt/design.json
   :language: JSON
@@ -88,7 +88,7 @@ region, such as clock nodes.
 
 Now the CMake files must be defined properly for the first partition region architecture:
 
-:ghsrc:`xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr1-roi-virt/CMakeLists.txt`
+:ghsrc:`xilinx/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr1-roi-virt/CMakeLists.txt`
 
 .. literalinclude:: ../../../xilinx/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr1-roi-virt/CMakeLists.txt
   :language: cmake
@@ -97,12 +97,12 @@ The important argument here is ``ROI_DIR`` which points to the directory contain
 
 Next, define the second partition region in a similar way as the first:
 
-:ghsrc:`xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr2-roi-virt/design.json`
+:ghsrc:`xilinx/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr2-roi-virt/design.json`
 
 .. literalinclude:: ../../../xilinx/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr2-roi-virt/design.json
   :language: JSON
 
-:ghsrc:`xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr2-roi-virt/CMakeLists.txt`
+:ghsrc:`xilinx/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr2-roi-virt/CMakeLists.txt`
 
 .. literalinclude:: ../../../xilinx/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-pr2-roi-virt/CMakeLists.txt
   :language: cmake
@@ -112,12 +112,12 @@ It is mostly a list of the json for the partition regions contained in the desig
 One important change is the pin names must still be unique across all ports in the overlay.
 Any explicit wires must also be changed to be on the other side of the partition region boundary.
 
-:ghsrc:`xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-overlay-virt/design.json`
+:ghsrc:`xilinx/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-overlay-virt/design.json`
 
 .. literalinclude:: ../../../xilinx/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-overlay-virt/design.json
   :language: JSON
 
-:ghsrc:`xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-overlay-virt/CMakeLists.txt`
+:ghsrc:`xilinx/xc/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-overlay-virt/CMakeLists.txt`
 
 .. literalinclude:: ../../../xilinx/xc7/archs/artix7/devices/xc7a50t-arty-switch-processing-overlay-virt/CMakeLists.txt
   :language: cmake
@@ -129,14 +129,14 @@ Notice this ``CMakeLists.txt`` also contains more tile/pb types because it conta
 Continuing on past ``design.json`` definitions, CMake needs to be informed these new architectures should be built.
 This is done in another ``CMakeLists.txt`` by adding the following:
 
-:ghsrc:`xc/xc7/archs/artix7/devices/CMakeLists.txt`
+:ghsrc:`xilinx/xc/xc7/archs/artix7/devices/CMakeLists.txt`
 
 .. literalinclude:: ../../../xilinx/xc7/archs/artix7/devices/CMakeLists.txt
   :language: cmake
 
 The last step before switching over to adding a test is adding to ``boards.cmake``:
 
-:ghsrc:`xc/xc7/boards.cmake`
+:ghsrc:`xilinx/xc/xc7/boards.cmake`
 
 .. literalinclude:: ../../../xilinx/xc7/boards.cmake
   :language: cmake
@@ -147,7 +147,7 @@ Now to define a test.
 This part of the documentation will not go in detail on how to define a new test case in f4pga-arch-defs, but will
 point out items of importance for using the partial reconfiguration flow.
 
-All of the following snippets are from :ghsrc:`xc/xc7/tests/switch_processing/CMakeLists.txt`.
+All of the following snippets are from :ghsrc:`xilinx/xc/xc7/tests/switch_processing/CMakeLists.txt`.
 
 .. code-block:: cmake
 
@@ -240,7 +240,7 @@ Just concatenate the resulting FASM and get different functionality.
 The last thing to cover related to the F4PGA partial reconfiguration flow is synthetic ibufs and obufs required in
 the overlay verilog:
 
-:ghsrc:`switch_processing_arty_overlay.v <xc/xc7/tests/switch_processing/switch_processing_arty_overlay.v>`
+:ghsrc:`switch_processing_arty_overlay.v <xilinx/xc/xc7/tests/switch_processing/switch_processing_arty_overlay.v>`
 
 Currently the ``SYN_IBUF`` and ``SYN_OBUF`` must be explicitly defined for each top level IO that will be constrained to
 a synth IO.
