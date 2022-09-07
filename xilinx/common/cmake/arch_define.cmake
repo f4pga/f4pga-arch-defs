@@ -138,11 +138,9 @@ function(ADD_XC_ARCH_DEFINE)
     DEVICE_FULL_TEMPLATE \${DEVICE}-\${PACKAGE}
     CELLS_SIM ${YOSYS_CELLS_SIM} ${VPR_CELLS_SIM}
     VPR_ARCH_ARGS ${VPR_ARCH_ARGS}
-    RR_PATCH_TOOL
-      ${f4pga-arch-defs_SOURCE_DIR}/xilinx/common/utils/prjxray_routing_import.py
     RR_PATCH_CMD "${CMAKE_COMMAND} -E env \
     PYTHONPATH=${PRJRAY_DIR}:${f4pga-arch-defs_SOURCE_DIR}/utils:${f4pga-arch-defs_BINARY_DIR}/utils \
-        \${PYTHON3} \${RR_PATCH_TOOL} \
+        \${PYTHON3} ${f4pga-arch-defs_SOURCE_DIR}/xilinx/common/utils/prjxray_routing_import.py \
         --db_root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH} \
         --part \${PART} \
         --read_rr_graph \${OUT_RRXML_VIRT} \
@@ -178,7 +176,6 @@ function(ADD_XC_ARCH_DEFINE)
         --bit_out \${OUT_BITSTREAM} \
         --frm2bit ${XC7FRAMES2BIT} \
         \${FASM_TO_BIT_EXTRA_ARGS}"
-    BIT_TO_V ${BITREAD}
     BIT_TO_V_CMD "${CMAKE_COMMAND} -E env \
     PYTHONPATH=${f4pga-arch-defs_BINARY_DIR}/env/conda/lib/python3.7/site-packages:${PRJRAY_DIR}:${PRJRAY_DIR}/third_party/fasm:${f4pga-arch-defs_SOURCE_DIR}/utils \
         \${PYTHON3} -mfasm2bels \

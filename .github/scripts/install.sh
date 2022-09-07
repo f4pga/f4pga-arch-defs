@@ -104,7 +104,6 @@ case "$FPGA_FAM" in
       symbiflow-arch-defs-install-ql-${GIT_HASH}.tar.xz \
       -C install \
         share/f4pga/techmaps \
-        share/f4pga/scripts \
         "$FPGA_FAM"_env
     for device in $(ls install/share/f4pga/arch); do
       if [[ $device = ql* ]]; then

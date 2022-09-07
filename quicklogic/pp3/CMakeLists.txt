@@ -46,18 +46,16 @@ define_arch(
   DEVICE_FULL_TEMPLATE \${DEVICE}
   VPR_ARCH_ARGS ${VPR_ARCH_ARGS}
 
-  RR_PATCH_TOOL
-    ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/routing_import.py
   RR_PATCH_CMD "\${CMAKE_COMMAND} -E env \
     PYTHONPATH=${f4pga-arch-defs_SOURCE_DIR}/utils:$PYTHONPATH \
-    \${PYTHON3} \${RR_PATCH_TOOL} \
+    python3 -m f4pga.utils.quicklogic.pp3.routing_import \
         --vpr-db ${CMAKE_CURRENT_BINARY_DIR}/devices/\${DEVICE_TYPE}/db_vpr.pickle \
         --rr-graph-in \${OUT_RRXML_VIRT} \
         --rr-graph-out \${OUT_RRXML_REAL}"
 
   PLACE_TOOL_CMD "${CMAKE_COMMAND} -E env \
     PYTHONPATH=${f4pga-arch-defs_SOURCE_DIR}/utils:$PYTHONPATH \
-    ${PYTHON3} ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/create_ioplace.py \
+    python3 -m f4pga.utils.quicklogic.pp3.create_ioplace \
         --map \${PINMAP} \
         --blif \${OUT_EBLIF} \
         --pcf \${INPUT_IO_FILE} \
@@ -65,7 +63,7 @@ define_arch(
 
   PLACE_CONSTR_TOOL_CMD "${CMAKE_COMMAND} -E env \
     PYTHONPATH=${f4pga-arch-defs_SOURCE_DIR}/utils \
-    \${PYTHON3} ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/create_place_constraints.py \
+    python3 -m f4pga.utils.quicklogic.pp3.create_place_constraints \
         --map ${f4pga-arch-defs_BINARY_DIR}/quicklogic/${FAMILY_NAME}/\${BOARD}_clkmap.csv \
         --blif \${OUT_EBLIF} \
         --i /dev/stdin \
@@ -86,11 +84,9 @@ define_arch(
     ${CELLS_SIM_FILE}
 
   NO_BIT_TO_BIN
-  BIT_TO_V
-    ${f4pga-arch-defs_SOURCE_DIR}/quicklogic/pp3/utils/fasm2bels.py
   BIT_TO_V_CMD
-    "${CMAKE_COMMAND} -E env PYTHONPATH=${f4pga-arch-defs_SOURCE_DIR}/utils:$PYTHONPATH \
-    \${PYTHON3} \${BIT_TO_V} \${OUT_BITSTREAM}
+    "${CMAKE_COMMAND} -E env PYTHONPATH=${f4pga-arch-defs_SOURCE_DIR}/utils:${f4pga-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY_NAME}/utils:$PYTHONPATH \
+    python3 -m f4pga.utils.quicklogic.pp3.fasm2bels \${OUT_BITSTREAM}
       --phy-db ${CMAKE_CURRENT_BINARY_DIR}/devices/\${DEVICE_TYPE}/db_phy.pickle
       --input-type bitstream
       --output-verilog \${OUT_BIT_VERILOG}
