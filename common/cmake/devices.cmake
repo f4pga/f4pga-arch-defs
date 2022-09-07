@@ -17,7 +17,6 @@ function(DEFINE_ARCH)
   #    DOC_PRJ_DB <documentation_database>
   #    PROTOTYPE_PART <prototype_part>
   #    [YOSYS_SYNTH_SCRIPT <yosys_script>]
-  #    [YOSYS_CONV_SCRIPT <yosys_script>]
   #    [SDC_PATCH_TOOL <path to a SDC file patching utility>]
   #    [SDC_PATCH_TOOL_CMD <command to run SDC_PATCH_TOOL>]
   #    BITSTREAM_EXTENSION <ext>
@@ -77,11 +76,9 @@ function(DEFINE_ARCH)
   #
   # YOSYS_SYNTH_SCRIPT - The main design synthesis script. It needs to write
   #  the synthesized design in JSON format to a file name pointed by the
-  #  OUT_JSON env. variable.
-  #
-  # YOSYS_CONV_SCRIPT - This is the name of the script that makes Yosys convert
-  #  the processed JSON design to the EBLIF format accepted by the VPR. The
-  #  EBLIF file name is given in the OUT_EBLIF env. variable.
+  #  OUT_JSON env. variable. It also makes Yosys convert the processed JSON
+  #  design to the EBLIF format accepted by the VPR. The EBLIF file name is
+  #  given in the OUT_EBLIF env. variable.
   #
   # DEVICE_FULL_TEMPLATE, RR_PATCH_CMD, PLACE_TOOL_CMD and HLC_TO_BIT_CMD will
   # all be called with string(CONFIGURE) to substitute variables.
@@ -171,7 +168,6 @@ function(DEFINE_ARCH)
     DOC_PRJ_DB
     PROTOTYPE_PART
     YOSYS_SYNTH_SCRIPT
-    YOSYS_CONV_SCRIPT
     YOSYS_TECHMAP
     DEVICE_FULL_TEMPLATE
     BITSTREAM_EXTENSION
@@ -231,7 +227,6 @@ function(DEFINE_ARCH)
   set(DISALLOWED_ARGS "")
   set(OPTIONAL_ARGS
     YOSYS_SYNTH_SCRIPT
-    YOSYS_CONV_SCRIPT
     FAMILY
     DOC_PRJ
     DOC_PRJ_DB
@@ -1424,23 +1419,12 @@ function(ADD_FPGA_TARGET)
   get_target_property(YOSYS_SYNTH_SCRIPT ${ARCH} YOSYS_SYNTH_SCRIPT)
   if("${YOSYS_SYNTH_SCRIPT}" STREQUAL "")
     execute_process(
-      COMMAND python3 -m f4pga.wrappers.tcl synth ${ARCH}
+      COMMAND python3 -m f4pga.wrappers.tcl ${ARCH}
       COMMAND_ERROR_IS_FATAL ANY
       OUTPUT_VARIABLE YOSYS_SYNTH_SCRIPT
       OUTPUT_STRIP_TRAILING_WHITESPACE
     )
     message("YOSYS_SYNTH_SCRIPT is ${YOSYS_SYNTH_SCRIPT}.")
-  endif()
-
-  get_target_property(YOSYS_CONV_SCRIPT ${ARCH} YOSYS_CONV_SCRIPT)
-  if("${YOSYS_CONV_SCRIPT}" STREQUAL "")
-    execute_process(
-      COMMAND python3 -m f4pga.wrappers.tcl conv ${ARCH}
-      COMMAND_ERROR_IS_FATAL ANY
-      OUTPUT_VARIABLE YOSYS_CONV_SCRIPT
-      OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
-    message("YOSYS_CONV_SCRIPT is ${YOSYS_CONV_SCRIPT}.")
   endif()
 
   get_target_property_required(
@@ -1619,7 +1603,7 @@ function(ADD_FPGA_TARGET)
     string(REPLACE ";" " " XDC_FILES "${INPUT_XDC_FILES}")
 
     add_custom_command(
-      OUTPUT ${OUT_JSON_SYNTH} ${OUT_SYNTH_V} ${OUT_FASM_EXTRA} ${OUT_SDC}
+      OUTPUT ${OUT_JSON_SYNTH} ${OUT_SYNTH_V} ${OUT_FASM_EXTRA} ${OUT_SDC} ${OUT_EBLIF}
       DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS} ${INPUT_XDC_FILES} ${CELLS_SIM_DEPS}
               ${YOSYS} ${QUIET_CMD} ${YOSYS_IO_DEPS}
               ${YOSYS_SYNTH_SCRIPT}
@@ -1632,6 +1616,8 @@ function(ADD_FPGA_TARGET)
           DEVICE_CELLS_SIM=${YOSYS_DEVICE_CELLS_SIM}
           DEVICE_CELLS_MAP=${YOSYS_DEVICE_CELLS_MAP}
           OUT_JSON=${OUT_JSON_SYNTH}
+          SYNTH_JSON=${OUT_JSON}
+          OUT_EBLIF=${OUT_EBLIF}
           OUT_SYNTH_V=${OUT_SYNTH_V}
           OUT_FASM_EXTRA=${OUT_FASM_EXTRA}
           PART_JSON=${PART_JSON}
@@ -1647,30 +1633,6 @@ function(ADD_FPGA_TARGET)
         ${CMAKE_COMMAND} -E touch ${OUT_FASM_EXTRA}
       COMMAND
         ${CMAKE_COMMAND} -E touch ${OUT_SDC}
-      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-      VERBATIM
-    )
-
-    add_custom_command(
-      OUTPUT ${OUT_JSON}
-      DEPENDS ${OUT_JSON_SYNTH} ${QUIET_CMD} ${PYTHON3}
-      COMMAND
-        python3 -m f4pga.utils.split_inouts -i ${OUT_JSON_SYNTH} -o ${OUT_JSON}
-      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-      VERBATIM
-    )
-
-    add_custom_command(
-      OUTPUT ${OUT_EBLIF}
-      DEPENDS ${OUT_JSON}
-              ${YOSYS} ${QUIET_CMD}
-              ${YOSYS_CONV_SCRIPT}
-      COMMAND
-        ${CMAKE_COMMAND} -E env
-          f4pga-arch-defs_SOURCE_DIR=${f4pga-arch-defs_SOURCE_DIR}
-          OUT_EBLIF=${OUT_EBLIF}
-          ${ADD_FPGA_TARGET_DEFINES}
-          ${QUIET_CMD} ${YOSYS} -p "read_json ${OUT_JSON}; tcl ${YOSYS_CONV_SCRIPT}" -l ${OUT_EBLIF}.log
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       VERBATIM
     )

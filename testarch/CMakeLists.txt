@@ -4,8 +4,7 @@ add_subdirectory(tiles)
 get_target_property_required(PYTHON3 env PYTHON3)
 define_arch(
   ARCH testarch
-  YOSYS_SYNTH_SCRIPT ${f4pga-arch-defs_SOURCE_DIR}/testarch/yosys/synth.tcl
-  YOSYS_CONV_SCRIPT ${f4pga-arch-defs_SOURCE_DIR}/testarch/yosys/conv.tcl
+  YOSYS_SYNTH_SCRIPT ${f4pga-arch-defs_SOURCE_DIR}/testarch/yosys.tcl
   YOSYS_TECHMAP ${f4pga-arch-defs_SOURCE_DIR}/testarch/techmap
   DEVICE_FULL_TEMPLATE \${DEVICE}
   VPR_ARCH_ARGS " \
