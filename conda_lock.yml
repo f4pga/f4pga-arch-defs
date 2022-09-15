@@ -5,17 +5,17 @@ channels:
 dependencies:
   - _libgcc_mutex=0.1=main
   - _openmp_mutex=5.1=1_gnu
-  - binutils-riscv64-elf=2.34=20220614_111216
+  - binutils-riscv64-elf=2.34=20220706_160221
   - bison=3.7.5=h2531618_1
   - bzip2=1.0.8=h7b6447c_0
   - c-ares=1.18.1=h7f8727e_0
-  - ca-certificates=2022.4.26=h06a4308_0
+  - ca-certificates=2022.07.19=h06a4308_0
   - capnproto=0.8.0=20210316_201220
   - capnproto-java=0.1.5_0012_g44a8c1e=20201104_165332
   - certifi=2022.6.15=py37h06a4308_0
   - cloog=0.18.0=0
   - cmake=3.22.1=h1fce559_0
-  - cython=0.29.28=py37h295c915_0
+  - cython=0.29.30=py37h6a678d5_0
   - dbus=1.13.18=hb2f20db_0
   - expat=2.4.4=h295c915_0
   - flake8=4.0.1=pyhd3eb1b0_1
@@ -25,7 +25,7 @@ dependencies:
   - gcc-riscv64-elf-nostdc=9.2.0=20210923_213204
   - glib=2.69.1=h4ff587b_1
   - gmp=6.2.1=h295c915_3
-  - gperftools=2.9.1_7_gfe85bbd=20220512_085338
+  - gperftools=2.10_0_gbf8b714=20220914_153753
   - icestorm=0.0_0719_g792cef0=20201120_145821
   - icu=58.2=he6710b0_3
   - importlib-metadata=4.11.3=py37h06a4308_0
@@ -33,11 +33,11 @@ dependencies:
   - iverilog=s20150603_0957_gad862020=20201120_145821
   - krb5=1.19.2=hac12032_0
   - ld_impl_linux-64=2.38=h1181459_1
-  - libcurl=7.82.0=h0b77cf5_0
+  - libcurl=7.84.0=h91b91d3_0
   - libedit=3.1.20210910=h7f8727e_0
   - libev=4.33=h7f8727e_1
   - libffi=3.3=he6710b0_2
-  - libftdi=1.3=20220104_201921
+  - libftdi=1.3=20220706_155948
   - libgcc-ng=11.2.0=h1234567_1
   - libgomp=11.2.0=h1234567_1
   - libiconv=1.16=h7f8727e_2
@@ -46,7 +46,7 @@ dependencies:
   - libssh2=1.10.0=h8f2d780_0
   - libstdcxx-ng=11.2.0=h1234567_1
   - libunwind=1.5.0=h295c915_1
-  - libusb=1.0.20=20220104_201921
+  - libusb=1.0.20=20220706_155948
   - libuuid=1.0.3=h7f8727e_2
   - libuv=1.40.0=h7b6447c_0
   - libxcb=1.15=h7f8727e_0
@@ -57,49 +57,49 @@ dependencies:
   - mccabe=0.7.0=pyhd3eb1b0_0
   - mpc=1.1.0=h10f8cd9_1
   - mpfr=4.0.2=hb69a4c5_1
-  - ncurses=6.3=h7f8727e_2
+  - ncurses=6.3=h5eee18b_3
   - nodejs=10.13.0=he6710b0_0
   - openjdk=11.0.13=h87a67e3_0
   - openocd=0.10.0_1514_ga8edbd020=20201119_154304
-  - openssl=1.1.1p=h5eee18b_0
+  - openssl=1.1.1q=h7f8727e_0
   - packaging=21.3=pyhd3eb1b0_0
   - pcre=8.45=h295c915_0
   - perl=5.26.2=h14c3975_0
   - pip=21.1.3=py37h06a4308_0
   - pkg-config=0.29.2=h1bed415_8
-  - prjxray-db=0.0_257_g0a0adde=20220512_085338
-  - prjxray-tools=0.1_2986_g5937733d=20220512_085338
+  - prjxray-db=0.0_257_g0a0adde=20220914_153753
+  - prjxray-tools=0.1_3042_g678d28d7=20220914_153753
   - pycodestyle=2.8.0=pyhd3eb1b0_0
   - pyflakes=2.4.0=pyhd3eb1b0_0
-  - pyparsing=3.0.4=pyhd3eb1b0_0
+  - pyparsing=3.0.9=py37h06a4308_0
   - python=3.7.13=h12debd9_0
   - readline=8.1.2=h7f8727e_1
   - rhash=1.4.1=h3c74f83_1
-  - setuptools=61.2.0=py37h06a4308_0
-  - sqlite=3.38.5=hc218d9a_0
-  - surelog=0.0_4939_g05069109a=20220620_233433_py37
+  - setuptools=63.4.1=py37h06a4308_0
+  - sqlite=3.39.2=h5082296_0
+  - surelog=0.0_5226_g2023d00e5=20220914_153753_py37
   - swig=4.0.2=h295c915_4
-  - symbiflow-yosys-plugins=1.0.0_7_919_g2fa356d=20220512_085338
+  - symbiflow-yosys-plugins=1.0.0_7_1044_g0713ed7=20220914_153753
   - tbb=2020.3=hfd86e86_0
   - tk=8.6.12=h1ccaba5_0
-  - typing_extensions=4.1.1=pyh06a4308_0
-  - vtr-optimized=8.0.0_5383_gc012f19d3=20220512_085338
+  - typing_extensions=4.3.0=py37h06a4308_0
+  - vtr-optimized=8.0.0_6417_gd036e0f31=20220914_153753
   - wheel=0.37.1=pyhd3eb1b0_0
   - xz=5.2.5=h7f8727e_1
-  - yosys=0.17_7_g990c9b8e1=20220512_085338_py37
+  - yosys=0.21_11_ga21745052=20220914_153753_py37
   - zachjs-sv2v=0.0.5_0025_ge9f9696=20201120_205532
   - zipp=3.8.0=py37h06a4308_0
-  - zlib=1.2.12=h7f8727e_2
+  - zlib=1.2.12=h5eee18b_3
   - zstd=1.5.2=ha4553b6_0
   - pip:
     - Arpeggio==2.0.0
-    - attrs==21.4.0
+    - attrs==22.1.0
     - cairocffi==1.3.0
     - CairoSVG==2.5.2
     - cffi==1.15.1
-    - charset-normalizer==2.1.0
+    - charset-normalizer==2.1.1
     - colorama==0.4.5
-    - cryptography==37.0.2
+    - cryptography==38.0.1
     - cssselect2==0.6.0
     - cycler==0.11.0
     - defusedxml==0.7.1
@@ -107,30 +107,31 @@ dependencies:
     - f4pga @ https://github.com/chipsalliance/f4pga/archive/main.zip#subdirectory=f4pga
     - fasm==0.0.2.post88
     - fasm-utils @ git+https://github.com/QuickLogic-Corp/quicklogic-fasm-utils@3d6a375ddb6b55aaa5a59d99e44a207d4c18709f
-    - fonttools==4.33.3
+    - fonttools==4.37.1
     - fusesoc @ git+https://github.com/lowRISC/fusesoc.git@14dfc825ced58fe1fb343662fa80fc4fbd0fdc50
     - future==0.18.2
     - gitdb==4.0.9
     - GitPython==3.1.27
     - hilbertcurve==1.0.5
-    - idna==3.3
-    - importlib-resources==5.8.0
+    - idna==3.4
+    - importlib-resources==5.9.0
     - iniconfig==1.1.1
     - intelhex==2.3.0
     - intervaltree==3.1.0
     - Jinja2==3.1.2
     - jsonmerge==1.8.0
-    - jsonschema==4.6.1
-    - kiwisolver==1.4.3
+    - jsonschema==4.16.0
+    - kiwisolver==1.4.4
     - lxml==4.9.1
-    - Mako==1.2.1
+    - Mako==1.2.2
     - MarkupSafe==2.1.1
-    - matplotlib==3.5.2
+    - matplotlib==3.5.3
     - numpy==1.21.6
     - okonomiyaki==1.3.2
     - parameterized==0.8.1
     - pdfminer.six==20220524
     - Pillow==9.2.0
+    - pkgutil-resolve-name==1.3.10
     - pluggy==1.0.0
     - ply==3.11
     - progressbar2==4.0.0
@@ -138,19 +139,18 @@ dependencies:
     - pycapnp==1.1.0
     - pycparser==2.21
     - pyjson==1.3.0
-    - pyjson5==1.6.1
+    - pyjson5==1.6.2
     - pyrsistent==0.18.1
     - pyserial==3.5
-    - pytest==7.1.2
+    - pytest==7.1.3
     - python-constraint==1.4.0
     - python-dateutil==2.8.2
     - python-fpga-interchange @ https://github.com/chipsalliance/python-fpga-interchange/archive/master.zip
-    - python-sat==0.1.7.dev18
+    - python-sat==0.1.7.dev19
     - python-utils==3.3.3
     - pyusb==1.2.1
     - PyYAML==6.0
-    # TODO: Change to upstream when https://github.com/QuickLogic-Corp/quicklogic-fasm/pull/26 is merged
-    - quicklogic-fasm @ https://github.com/antmicro/quicklogic-fasm/archive/607849ec0bdef8740be33dbaa49d15a3d400f809.zip
+    - quicklogic-fasm @ https://github.com/QuickLogic-Corp/quicklogic-fasm/archive/aaf4c314a165b6185b0983019d8aae4d0d4db6cb.zip
     - requests==2.28.1
     - rr-graph @ git+https://github.com/chipsalliance/f4pga-rr-graph.git@b8f0ebb6fd9842ae8bb7ff51a0adc5f76a853802
     - scipy==1.7.3
@@ -159,15 +159,15 @@ dependencies:
     - six==1.16.0
     - smmap==5.0.0
     - sortedcontainers==2.4.0
-    - svgwrite==1.4.2
-    - termcolor==1.1.0
+    - svgwrite==1.4.3
+    - termcolor==2.0.1
     - textX==3.0.0
     - tinycss2==1.1.1
     - tinyfpgab==1.1.0
     - tinyprog==1.0.21
     - tomli==2.0.1
-    - tqdm==4.64.0
-    - urllib3==1.26.9
+    - tqdm==4.64.1
+    - urllib3==1.26.12
     - webencodings==0.5.1
     - yapf==0.26.0
     - zipfile2==0.0.12
