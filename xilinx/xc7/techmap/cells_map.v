@@ -3317,6 +3317,7 @@ module BUFGCE (
   input CE,
   output O,
   );
+  parameter SIM_DEVICE = "7SERIES";
 
   BUFGCTRL _TECHMAP_REPLACE_ (
     .O(O),
