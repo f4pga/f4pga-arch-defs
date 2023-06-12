@@ -521,11 +521,14 @@ PREFIX_REQUIRED = {
     "IBUFDS_GTE2": ("Y", 2),
     "IPAD": (None, None),
     "OPAD": (None, None),
+    "DSP48E1": ("X", 2),
+    "TIEOFF": (None, None)
 }
 
 
 def make_prefix(site, x, y, from_site_name=False):
     """ Make tile FASM prefix for a given site. """
+    
     if from_site_name:
         site_type, _ = site.split('_')
     else:

@@ -684,7 +684,7 @@ def import_tracks(conn, alive_tracks, node_mapping, graph, default_segment_id):
     cur2 = conn.cursor()
     for (graph_node_pkey, track_pkey, graph_node_type, x_low, x_high, y_low,
          y_high, ptc, capacitance,
-         resistance) in progressbar_utils.progressbar(cur.execute("""
+         resistance) in cur.execute("""
 SELECT
     pkey,
     track_pkey,
@@ -697,7 +697,7 @@ SELECT
     capacitance,
     resistance
 FROM
-    graph_node WHERE track_pkey IS NOT NULL;""")):
+    graph_node WHERE track_pkey IS NOT NULL;"""):
         if track_pkey not in alive_tracks:
             continue
 
@@ -997,8 +997,7 @@ def import_graph_edges(conn, graph, extra_features, node_mapping):
     nodes_set = set()
 
     print('{} Importing edges from database.'.format(now()))
-    with progressbar_utils.ProgressBar(max_value=num_edges) as bar:
-        for idx, (src_graph_node, dest_graph_node, switch_pkey, phy_tile_pkey,
+    for idx, (src_graph_node, dest_graph_node, switch_pkey, phy_tile_pkey,
                   pip_pkey, backward) in enumerate(cur.execute("""
 SELECT
   src_graph_node_pkey,
@@ -1096,8 +1095,7 @@ def create_channels(conn):
 
 
 def yield_nodes(nodes):
-    with progressbar_utils.ProgressBar(max_value=len(nodes)) as bar:
-        for idx, node in enumerate(nodes):
+    for idx, node in enumerate(nodes):
             yield node
 
             if idx % 1024 == 0:
@@ -1318,8 +1316,8 @@ def main():
             args.vpr_capnp_schema_dir, 'rr_graph_uxsdcxx.capnp'
         ),
         input_file_name=args.read_rr_graph,
-        progressbar=progressbar_utils.progressbar,
-        output_file_name=args.write_rr_graph,
+        
+        output_file_name=args.write_rr_graph
     )
 
     graph = capnp_graph.graph

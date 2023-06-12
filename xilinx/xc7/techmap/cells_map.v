@@ -10793,3 +10793,160 @@ module PCIE_2_1 (
     .USERRSTN(USERRSTN)
   );
 endmodule
+
+
+module DSP48E1 (
+    output [29:0] ACOUT,
+    output [17:0] BCOUT,
+    output reg CARRYCASCOUT,
+    output reg [3:0] CARRYOUT,
+    output reg MULTSIGNOUT,
+    output OVERFLOW,
+    output reg signed [47:0] P,
+    output reg PATTERNBDETECT,
+    output reg PATTERNDETECT,
+    output [47:0] PCOUT,
+    output UNDERFLOW,
+    input signed [29:0] A,
+    input [29:0] ACIN,
+    input [3:0] ALUMODE,
+    input signed [17:0] B,
+    input [17:0] BCIN,
+    input [47:0] C,
+    input CARRYCASCIN,
+    input CARRYIN,
+    input [2:0] CARRYINSEL,
+    input CEA1,
+    input CEA2,
+    input CEAD,
+    input CEALUMODE,
+    input CEB1,
+    input CEB2,
+    input CEC,
+    input CECARRYIN,
+    input CECTRL,
+    input CED,
+    input CEINMODE,
+    input CEM,
+    input CEP,
+    (* clkbuf_sink *) input CLK,
+    input [24:0] D,
+    input [4:0] INMODE,
+    input MULTSIGNIN,
+    input [6:0] OPMODE,
+    input [47:0] PCIN,
+    input RSTA,
+    input RSTALLCARRYIN,
+    input RSTALUMODE,
+    input RSTB,
+    input RSTC,
+    input RSTCTRL,
+    input RSTD,
+    input RSTINMODE,
+    input RSTM,
+    input RSTP
+);
+    parameter integer ACASCREG = 1;
+    parameter integer ADREG = 1;
+    parameter integer ALUMODEREG = 1;
+    parameter integer AREG = 1;
+    parameter AUTORESET_PATDET = "NO_RESET";
+    parameter A_INPUT = "DIRECT";
+    parameter integer BCASCREG = 1;
+    parameter integer BREG = 1;
+    parameter B_INPUT = "DIRECT";
+    parameter integer CARRYINREG = 1;
+    parameter integer CARRYINSELREG = 1;
+    parameter integer CREG = 1;
+    parameter integer DREG = 1;
+    parameter integer INMODEREG = 1;
+    parameter integer MREG = 1;
+    parameter integer OPMODEREG = 1;
+    parameter integer PREG = 1;
+    parameter SEL_MASK = "MASK";
+    parameter SEL_PATTERN = "PATTERN";
+    parameter USE_DPORT = "FALSE";
+    parameter USE_MULT = "MULTIPLY";
+    parameter USE_PATTERN_DETECT = "NO_PATDET";
+    parameter USE_SIMD = "ONE48";
+    parameter [47:0] MASK = 48'h3FFFFFFFFFFF;
+    parameter [47:0] PATTERN = 48'h000000000000;
+    parameter [3:0] IS_ALUMODE_INVERTED = 4'b0;
+    parameter [0:0] IS_CARRYIN_INVERTED = 1'b0;
+    parameter [0:0] IS_CLK_INVERTED = 1'b0;
+    parameter [4:0] IS_INMODE_INVERTED = 5'b0;
+    parameter [6:0] IS_OPMODE_INVERTED = 7'b0;
+    
+    DSP48E1_VPR #(
+    
+    	.AREG_0(AREG==0),
+   	.BREG(BREG==0),
+   	.MASK(MASK),
+   	.ADREG(ADREG[0]),
+   	.ALUMODEREG(ALUMODEREG[0]),
+   	.ACASCREG(ACASCREG[0]),
+   	.BCASCREG(BCASCREG[0]),
+   	.CARRYINREG(CARRYINREG[0]),
+   	.CARRYINSELREG(CARRYINSELREG[0]),
+   	.DREG(DREG[0]),
+   	.INMODEREG(INMODEREG[0]),  
+   	.IS_ALUMODE_INVERTED(IS_ALUMODE_INVERTED),
+   	.IS_INMODE_INVERTED(IS_INMODE_INVERTED),
+   	.IS_OPMODE_INVERTED(IS_OPMODE_INVERTED),
+	.MREG(MREG[0]),
+   	.OPMODEREG(OPMODEREG[0]),
+   	.PREG(PREG[0])
+   	
+    ) _TECHMAP_REPLACE_ (
+        .ACOUT(ACOUT),
+        .BCOUT(BCOUT),
+        .CARRYCASCOUT(CARRYCASCOUT),
+        .CARRYOUT(CARRYOUT),
+        .MULTSIGNOUT(MULTSIGNOUT),
+        .OVERFLOW(OVERFLOW),
+        .P(P),
+        .PATTERNBDETECT(PATTERNBDETECT),
+        .PATTERNDETECT(PATTERNDETECT),
+        .PCOUT(PCOUT),
+        .UNDERFLOW(UNDERFLOW),
+        .A(A),
+        .ACIN(ACIN),
+        .ALUMODE(ALUMODE),
+        .B(B),
+        .BCIN(BCIN),
+        .C(C),
+        .CARRYCASIN(CARRYCASCIN),
+        .CARRYIN(CARRYIN),
+        .CARRYINSEL(CARRYINSEL),
+        .CEA1(CEA1),
+        .CEA2(CEA2),
+        .CEAD(CEAD),
+        .CEALUMODE(CEALUMODE),
+        .CEB1(CEB1),
+        .CEB2(CEB2),
+        .CEC(CEC),
+        .CECARRYIN(CECARRYIN),
+        .CECTRL(CECTRL),
+        .CED(CED),
+        .CEINMODE(CEINMODE),
+        .CEM(CEM),
+        .CEP(CEP),
+        .CLK(CLK),
+        .D(D),
+        .INMODE(INMODE),
+        .MULTSIGNIN(MULTSIGNIN),
+        .OPMODE(OPMODE),
+        .PCIN(PCIN),
+        .RSTA(RSTA),
+        .RSTALLCARRYIN(RSTALLCARRYIN),
+        .RSTALUMODE(RSTALUMODE),
+        .RSTB(RSTB),
+        .RSTC(RSTC),
+        .RSTCTRL(RSTCTRL),
+        .RSTD(RSTD),
+        .RSTINMODE(RSTINMODE),
+        .RSTM(RSTM),
+        .RSTP(RSTP)
+    );
+    
+endmodule
