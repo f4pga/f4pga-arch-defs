@@ -26,6 +26,8 @@ add_xc_device_define_type(
     GTP_CHANNEL_2
     GTP_CHANNEL_3
     PCIE_BOT
+    DSP_L
+    DSP_R
   PB_TYPES
     SLICEL
     SLICEM
@@ -43,4 +45,6 @@ add_xc_device_define_type(
     IPAD
     OPAD
     PCIE_2_1
+    DSP48E1
+    TIEOFF
 )
