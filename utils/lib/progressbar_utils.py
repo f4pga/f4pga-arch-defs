@@ -11,7 +11,7 @@ def disable_widgets_if_not_interactive(kwargs):
 
 def progressbar(*args, **kwargs):
     disable_widgets_if_not_interactive(kwargs)
-    b = bar.progressbar.ProgressBar(*args, **kwargs)
+    b = bar.progressbar(*args, **kwargs)
 
     return b
 
