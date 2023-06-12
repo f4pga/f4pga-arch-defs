@@ -1,0 +1,57 @@
+<models>
+<model name="DSP48E1_VPR">
+<input_ports>
+<port name="A"/>
+<port name="B"/>
+<port name="C"/>
+<port name="D"/>
+<port name="OPMODE"/>
+<port name="ALUMODE"/>
+<port name="CARRYIN"/>
+<port name="CARRYINSEL"/>
+<port name="INMODE"/>
+<port name="CEA1"/>
+<port name="CEA2"/>
+<port name="CEB1"/>
+<port name="CEB2"/>
+<port name="CEC"/>
+<port name="CED"/>
+<port name="CEM"/>
+<port name="CEP"/>
+<port name="CEAD"/>
+<port name="CEALUMODE"/>
+<port name="CECTRL"/>
+<port name="CECARRYIN"/>
+<port name="CEINMODE"/>
+<port name="RSTA"/>
+<port name="RSTB"/>
+<port name="RSTC"/>
+<port name="RSTD"/>
+<port name="RSTM"/>
+<port name="RSTP"/>
+<port name="RSTCTRL"/>
+<port name="RSTALLCARRYIN"/>
+<port name="RSTALUMODE"/>
+<port name="RSTINMODE"/>
+<port is_clock="1" name="CLK"/>
+<port name="ACIN"/>
+<port name="BCIN"/>
+<port name="PCIN"/>
+<port name="CARRYCASCIN"/>
+<port name="MULTSIGNIN"/>
+</input_ports>
+<output_ports>
+<port name="ACOUT"/>
+<port name="BCOUT"/>
+<port name="PCOUT"/>
+<port name="P"/>
+<port name="CARRYOUT"/>
+<port name="CARRYCASCOUT"/>
+<port name="MULTSIGNOUT"/>
+<port name="PATTERNDETECT"/>
+<port name="PATTERNBDETECT"/>
+<port name="OVERFLOW"/>
+<port name="UNDERFLOW"/>
+</output_ports>
+</model>
+</models>

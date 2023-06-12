@@ -45,6 +45,7 @@ add_subdirectory(gtp_common)
 add_subdirectory(gtp_channel)
 add_subdirectory(pcie)
 add_subdirectory(pcie_complex)
+add_subdirectory(dsp)
 
 # Tests with dependencies
 set(COUNTER_SRC ${f4pga-arch-defs_SOURCE_DIR}/xilinx/xc7/tests/counter)
