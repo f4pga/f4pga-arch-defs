@@ -1,0 +1,72 @@
+<pb_type name="DSP48E1" num_pb="1" blif_model=".subckt DSP48E1_VPR">
+<clock name="CLK" num_pins="1"/>
+<input name="A" num_pins="30"/>
+<input name="B" num_pins="18"/>
+<input name="C" num_pins="48"/>
+<input name="D" num_pins="25"/>
+<input name="OPMODE" num_pins="7"/>
+<input name="ALUMODE" num_pins="4"/>
+<input name="CARRYIN" num_pins="1"/>
+<input name="CARRYINSEL" num_pins="3"/>
+<input name="INMODE" num_pins="5"/>
+<input name="CEA1" num_pins="1"/>
+<input name="CEA2" num_pins="1"/>
+<input name="CEB1" num_pins="1"/>
+<input name="CEB2" num_pins="1"/>
+<input name="CEC" num_pins="1"/>
+<input name="CED" num_pins="1"/>
+<input name="CEM" num_pins="1"/>
+<input name="CEP" num_pins="1"/>
+<input name="CEAD" num_pins="1"/>
+<input name="CEALUMODE" num_pins="1"/>
+<input name="CECTRL" num_pins="1"/>
+<input name="CECARRYIN" num_pins="1"/>
+<input name="CEINMODE" num_pins="1"/>
+<input name="RSTA" num_pins="1"/>
+<input name="RSTB" num_pins="1"/>
+<input name="RSTC" num_pins="1"/>
+<input name="RSTD" num_pins="1"/>
+<input name="RSTM" num_pins="1"/>
+<input name="RSTP" num_pins="1"/>
+<input name="RSTCTRL" num_pins="1"/>
+<input name="RSTALLCARRYIN" num_pins="1"/>
+<input name="RSTALUMODE" num_pins="1"/>
+<input name="RSTINMODE" num_pins="1"/>
+<input name="ACIN" num_pins="30"/>
+<input name="BCIN" num_pins="18"/>
+<input name="PCIN" num_pins="48"/>
+<input name="CARRYCASCIN" num_pins="1"/>
+<input name="MULTSIGNIN" num_pins="1"/>  
+<output name="ACOUT" num_pins="30"/>
+<output name="BCOUT" num_pins="18"/>
+<output name="PCOUT" num_pins="48"/>
+<output name="P" num_pins="48"/>
+<output name="CARRYOUT" num_pins="4"/>
+<output name="CARRYCASCOUT" num_pins="1"/>
+<output name="MULTSIGNOUT" num_pins="1"/>
+<output name="PATTERNDETECT" num_pins="1"/>
+<output name="PATTERNBDETECT" num_pins="1"/>
+<output name="OVERFLOW" num_pins="1"/>
+<output name="UNDERFLOW" num_pins="1"/>
+<metadata>
+<meta name="fasm_params">
+AREG_0=AREG_0
+BREG_0=BREG_0
+MASK[47:0]=MASK
+ZADREG[0]=ADREG
+ZALUMODEREG[0]=ALUMODEREG
+ZAREG_2_ACASCREG_1=ACASCREG
+ZBREG_2_BCASCREG_1=BCASCREG
+ZCARRAYINREG[0]=CARRAYINREG
+ZCARRYINSELREG[0]=CARRYINSELREG
+ZDREG[0]=DREG
+ZINMODEREG[0]=INMODEREG
+ZMREG[0]=MREG
+ZOPMODEREG[0]=OPMODEREG
+ZPREG[0]=PREG
+ZIS_ALUMODE_INVERTED[3:0]=IS_ALUMODE_INVERTED
+ZIS_INMODE_INVERTED[4:0]=IS_INMODE_INVERTED
+ZIS_OPMODE_INVERTED[6:0]=IS_OPMODE_INVERTED 
+</meta>
+</metadata>
+</pb_type>

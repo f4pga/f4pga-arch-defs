@@ -3575,3 +3575,73 @@ module PCIE_2_1_VPR (
   parameter [4:0] VC0_TX_LASTPACKET = 5'd0;
   parameter [1:0] CFG_ECRC_ERR_CPLSTAT = 2'd0;
 endmodule
+
+module DSP48E1_VPR (
+   input [29:0] A,
+   input [17:0] B,
+   input [47:0] C,
+   input [24:0] D,
+   input [6:0]  OPMODE,
+   input [3:0]  ALUMODE,
+   input CARRYIN,
+   input [2:0]  CARRYINSEL,
+   input [4:0]  INMODE,
+   input CEA1,
+   input CEA2,
+   input CEB1,
+   input CEB2,
+   input CEC,
+   input CED,
+   input CEM,
+   input CEP,
+   input CEAD,
+   input CEALUMODE,
+   input CECTRL,
+   input CECARRYIN,
+   input CEINMODE,
+   input RSTA,
+   input RSTB,
+   input RSTC,
+   input RSTD,
+   input RSTM,
+   input RSTP,
+   input RSTCTRL,
+   input RSTALLCARRYIN,
+   input RSTALUMODE,
+   input RSTINMODE,
+   input CLK,
+   input [29:0] ACIN,
+   input [17:0] BCIN,
+   input [47:0] PCIN,
+   input CARRYCASCIN,
+   input MULTSIGNIN,
+   output [29:0] ACOUT,
+   output [17:0] BCOUT,
+   output [47:0] PCOUT,
+   output [47:0] P,
+   output [3:0]  CARRYOUT,
+   output CARRYCASCOUT,
+   output MULTSIGNOUT,
+   output PATTERNDETECT,
+   output PATTERNBDETECT,
+   output OVERFLOW,
+   output UNDERFLOW,
+);
+  parameter AREG_0 = 1'b0;
+  parameter BREG_0 = 1'b0;
+  parameter MASK = 46'b0000000000000000000000000000000000000000000000;
+  parameter ADREG = 1'b0;
+  parameter ALUMODEREG = 1'b0; 
+  parameter ACASCREG = 1'b0;
+  parameter BCASCREG = 1'b0;
+  parameter CARRYINREG = 1'b0;
+  parameter CARRYINSELREG = 1'b0;	
+  parameter DREG = 1'b0;
+  parameter INMODEREG = 1'b0;
+  parameter MREG = 1'b0;
+  parameter OPMODEREG = 1'b0;
+  parameter PREG = 1'b0;  
+  parameter [3:0] IS_ALUMODE_INVERTED = 4'b0;   
+  parameter [4:0] IS_INMODE_INVERTED = 5'b0;
+  parameter [6:0] IS_OPMODE_INVERTED = 7'b0;
+endmodule

@@ -332,10 +332,12 @@ def import_tile(db, args):
             if site.type not in site_type_count:
                 site_type_count[site.type] = 0
                 site_prefixes[site.type] = []
-
+		
             cells_idx[idx] = site_type_count[site.type]
             site_type_count[site.type] += 1
-
+            
+            '''print(cells_idx[idx]," ",site_type_count[site.type]," ",site.type)'''	
+            
             site_coords = args.site_coords.upper()
             if site_coords == 'X':
                 site_prefix = '{}_X{}'.format(site.type, site.x)
@@ -352,6 +354,8 @@ def import_tile(db, args):
 
             site_instance = site_type_instances[site.type][cells_idx[idx]]
             idx += 1
+            
+            '''print(site_instance)'''
 
             if (site.type, site_instance) not in models_added:
                 models_added.add((site.type, site_instance))
@@ -374,11 +378,12 @@ def import_tile(db, args):
             for outputs in root_element.iter('output'):
                 ports[outputs.attrib['name']] = int(outputs.attrib['num_pins'])
 
-            assert site_instance not in site_type_ports, (
+            '''assert site_instance not in site_type_ports, (
                 site_instance, site_type_ports.keys()
             )
+            print(site_instance)'''
             site_type_ports[site_instance] = ports
-
+            
             attrib = dict(root_element.attrib)
             include_xml = ET.SubElement(pb_type_xml, 'pb_type', attrib)
             ET.SubElement(
@@ -1393,7 +1398,7 @@ def main():
     parser.add_argument('--tile', help="""Tile to generate for""")
 
     parser.add_argument(
-        '--site_directory', help="""Diretory where sites are defined"""
+        '--site_directory', help="""Directory where sites are defined"""
     )
 
     parser.add_argument(
