@@ -1,0 +1,19 @@
+<pb_type name="BMULT_MUX" num_pb="1">
+  <metadata>
+    <meta name="type">bel</meta>
+    <meta name="subtype">mux</meta>
+  </metadata>
+  <blif_model>.subckt BMULT_MUX</blif_model>
+  <input name="B2" num_pins="18"/>
+  <input name="B1REG" num_pins="18"/>
+  <input name="S" num_pins="1"/>
+  <output name="O" num_pins="18"/>
+  <interconnect>
+    <mux name="BMULT_MUX" input="BMULT_MUX.B2 BMULT_MUX.B1REG" output="BMULT_MUX.O">
+      <metadata>
+        <meta name="type">bel</meta>
+        <meta name="subtype">logic</meta>
+      </metadata>
+    </mux>
+  </interconnect>
+</pb_type>

@@ -1,0 +1,18 @@
+<pb_type name="AMULT_MUX" num_pb="1">
+
+  <input name="A" num_pins="25"/>
+  <input name="ADDER_OUT" num_pins="25"/>
+  <output name="O" num_pins="25"/>
+  <interconnect>
+    <mux name="AMULT_MUX" input="AMULT_MUX.A AMULT_MUX.ADDER_OUT" output="AMULT_MUX.O">
+      <metadata>
+        <meta name="type">bel</meta>
+        <meta name="subtype">routing</meta>
+        <meta key="fasm_mux">
+AMULT_MUX.A = AMULT_MUX.A
+AMULT_MUX.ADDER_OUT = AMULT_MUX.ADDER_OUT
+</meta>
+      </metadata>
+    </mux>
+  </interconnect>
+</pb_type>

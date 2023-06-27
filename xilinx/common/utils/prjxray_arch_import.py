@@ -521,7 +521,7 @@ PREFIX_REQUIRED = {
     "IBUFDS_GTE2": ("Y", 2),
     "IPAD": (None, None),
     "OPAD": (None, None),
-    "DSP48E1": ("X", 2),
+    "DSP48E1": (None, 2),
     "TIEOFF": (None, None)
 }
 

@@ -1,0 +1,18 @@
+<pb_type name="BOUT_MUX" num_pb="1">
+  
+  <input name="B1REG" num_pins="18"/>
+  <input name="B2" num_pins="18"/>
+  <output name="O" num_pins="18"/>
+  <interconnect>
+    <mux name="BOUT_MUX" input="BOUT_MUX.B1REG BOUT_MUX.B2" output="BOUT_MUX.O">
+      <metadata>
+        <meta name="type">bel</meta>
+        <meta name="subtype">routing</meta>
+        <meta key="fasm_mux">
+BOUT_MUX.B1REG = BOUT_MUX.B1REG
+BOUT_MUX.B2 = BOUT_MUX.B2
+</meta>
+      </metadata>
+    </mux>
+  </interconnect>
+</pb_type>

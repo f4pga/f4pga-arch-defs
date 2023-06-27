@@ -34,11 +34,6 @@
 <port name="RSTALUMODE"/>
 <port name="RSTINMODE"/>
 <port is_clock="1" name="CLK"/>
-<port name="ACIN"/>
-<port name="BCIN"/>
-<port name="PCIN"/>
-<port name="CARRYCASCIN"/>
-<port name="MULTSIGNIN"/>
 </input_ports>
 <output_ports>
 <port name="ACOUT"/>

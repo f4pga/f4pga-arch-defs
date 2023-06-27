@@ -1,0 +1,22 @@
+<pb_type name="BIN_MUX" num_pb="1">
+  <metadata>
+    <meta name="type">bel</meta>
+    <meta name="subtype">routing</meta>
+  </metadata>
+  
+  <input name="B" num_pins="18"/>
+  <input name="BCIN" num_pins="18"/>
+  <output name="O" num_pins="18"/>
+  <interconnect>
+    <mux name="BIN_MUX" input="BIN_MUX.B BIN_MUX.BCIN" output="BIN_MUX.O">
+      <metadata>
+        <meta name="type">bel</meta>
+        <meta name="subtype">routing</meta>
+        <meta key="fasm_mux">
+BIN_MUX.B = BIN_MUX.B
+BIN_MUX.BCIN = BIN_MUX.BCIN
+</meta>
+      </metadata>
+    </mux>
+  </interconnect>
+</pb_type>

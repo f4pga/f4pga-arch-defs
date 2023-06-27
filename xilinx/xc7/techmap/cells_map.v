@@ -10880,7 +10880,7 @@ module DSP48E1 (
     DSP48E1_VPR #(
     
     	.AREG_0(AREG==0),
-   	.BREG(BREG==0),
+   	.BREG_0(BREG==0),
    	.MASK(MASK),
    	.ADREG(ADREG[0]),
    	.ALUMODEREG(ALUMODEREG[0]),
@@ -10910,12 +10910,12 @@ module DSP48E1 (
         .PCOUT(PCOUT),
         .UNDERFLOW(UNDERFLOW),
         .A(A),
-        .ACIN(ACIN),
+        /*.ACIN(ACIN),*/
         .ALUMODE(ALUMODE),
         .B(B),
-        .BCIN(BCIN),
+        /*.BCIN(BCIN),*/
         .C(C),
-        .CARRYCASIN(CARRYCASCIN),
+        /*.CARRYCASCIN(CARRYCASCIN),*/
         .CARRYIN(CARRYIN),
         .CARRYINSEL(CARRYINSEL),
         .CEA1(CEA1),
@@ -10934,9 +10934,9 @@ module DSP48E1 (
         .CLK(CLK),
         .D(D),
         .INMODE(INMODE),
-        .MULTSIGNIN(MULTSIGNIN),
+        /*.MULTSIGNIN(MULTSIGNIN),*/
         .OPMODE(OPMODE),
-        .PCIN(PCIN),
+        /*.PCIN(PCIN),*/
         .RSTA(RSTA),
         .RSTALLCARRYIN(RSTALLCARRYIN),
         .RSTALUMODE(RSTALUMODE),

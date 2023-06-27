@@ -3610,11 +3610,11 @@ module DSP48E1_VPR (
    input RSTALUMODE,
    input RSTINMODE,
    input CLK,
-   input [29:0] ACIN,
+  /* input [29:0] ACIN,
    input [17:0] BCIN,
    input [47:0] PCIN,
    input CARRYCASCIN,
-   input MULTSIGNIN,
+   input MULTSIGNIN,*/
    output [29:0] ACOUT,
    output [17:0] BCOUT,
    output [47:0] PCOUT,

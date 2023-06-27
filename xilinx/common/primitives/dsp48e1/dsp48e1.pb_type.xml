@@ -1,4 +1,4 @@
-<pb_type name="DSP48E1" num_pb="1" blif_model=".subckt DSP48E1_VPR">
+<pb_type name="DSP48E1" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
 <clock name="CLK" num_pins="1"/>
 <input name="A" num_pins="30"/>
 <input name="B" num_pins="18"/>
@@ -32,11 +32,6 @@
 <input name="RSTALLCARRYIN" num_pins="1"/>
 <input name="RSTALUMODE" num_pins="1"/>
 <input name="RSTINMODE" num_pins="1"/>
-<input name="ACIN" num_pins="30"/>
-<input name="BCIN" num_pins="18"/>
-<input name="PCIN" num_pins="48"/>
-<input name="CARRYCASCIN" num_pins="1"/>
-<input name="MULTSIGNIN" num_pins="1"/>  
 <output name="ACOUT" num_pins="30"/>
 <output name="BCOUT" num_pins="18"/>
 <output name="PCOUT" num_pins="48"/>
@@ -48,6 +43,28 @@
 <output name="PATTERNBDETECT" num_pins="1"/>
 <output name="OVERFLOW" num_pins="1"/>
 <output name="UNDERFLOW" num_pins="1"/>
+<mode name="DSP">
+<pb_type name="DSP" num_pb="1" blif_model=".subckt DSP48E1_VPR">
+
+<xi:include href="../dual_b_reg/dual_b_reg.pb_type.xml"/>
+<xi:include href="../dual_ad_preadder/dual_ad_preadder.pb_type.xml"/>
+<xi:include href="../mult25x18/mult25x18.pb_type.xml"/>
+<xi:include href="../mreg/mreg.pb_type.xml"/>
+<xi:include href="../creg/creg.pb_type.xml"/>
+<xi:include href="../xmux/xmux.pb_type.xml"/>
+<xi:include href="../ymux/ymux.pb_type.xml"/>
+<xi:include href="../zmux/zmux.pb_type.xml"/>
+<xi:include href="../alu/alu.pb_type.xml"/>
+<xi:include href="../inmode_reg/inmode_reg.pb_type.xml"/>
+<xi:include href="../opmode_reg/opmode_reg.pb_type.xml"/>
+<xi:include href="../carryinsel_reg/carryinsel_reg.pb_type.xml"/>
+<xi:include href="../alumode_reg/alumode_reg.pb_type.xml"/>
+<xi:include href="..//.pb_type.xml"/>
+<xi:include href="..//.pb_type.xml"/>
+
+<interconnect>
+
+</interconnect>
 <metadata>
 <meta name="fasm_params">
 AREG_0=AREG_0
@@ -68,5 +85,14 @@ ZIS_ALUMODE_INVERTED[3:0]=IS_ALUMODE_INVERTED
 ZIS_INMODE_INVERTED[4:0]=IS_INMODE_INVERTED
 ZIS_OPMODE_INVERTED[6:0]=IS_OPMODE_INVERTED 
 </meta>
+</metadata>
+</pb_type>
+<interconnect>
+
+</interconnect>
+</mode>
+<metadata>
+<meta name="type">block</meta>
+<meta name="subtype">ignore</meta>
 </metadata>
 </pb_type>
