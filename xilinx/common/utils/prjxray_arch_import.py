@@ -542,7 +542,7 @@ def make_prefix(site, x, y, from_site_name=False):
         return site_type, '{}_X{}'.format(site_type, x % prefix_required[1])
     elif prefix_required[0] == 'XY':
         mod_x, mod_y = prefix_required[1]
-        return site_type, '{}_X{}Y{}'.format(site_type, x % mod_x, y % mod_y)    
+        return site_type, '{}_X{}Y{}'.format(site_type, x % mod_x, y % mod_y)
     elif site_type == 'DSP48E1':
     	return site_type, '{}.{}_{}'.format("DSP48", "DSP", y % 2)
     elif prefix_required[0] is None:
