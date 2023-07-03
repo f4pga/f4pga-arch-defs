@@ -3610,11 +3610,11 @@ module DSP48E1_VPR (
    input RSTALUMODE,
    input RSTINMODE,
    input CLK,
-  /* input [29:0] ACIN,
+   input [29:0] ACIN,
    input [17:0] BCIN,
    input [47:0] PCIN,
    input CARRYCASCIN,
-   input MULTSIGNIN,*/
+   input MULTSIGNIN,
    output [29:0] ACOUT,
    output [17:0] BCOUT,
    output [47:0] PCOUT,
@@ -3629,7 +3629,10 @@ module DSP48E1_VPR (
 );
   parameter AREG_0 = 1'b0;
   parameter BREG_0 = 1'b0;
-  parameter MASK = 46'b0000000000000000000000000000000000000000000000;
+  parameter AREG_2 = 1'b0;
+  parameter BREG_2 = 1'b0;
+  parameter MASK = 48'b000000000000000000000000000000000000000000000000;
+  parameter PATTERN = 48'b000000000000000000000000000000000000000000000000;
   parameter ADREG = 1'b0;
   parameter ALUMODEREG = 1'b0; 
   parameter ACASCREG = 1'b0;
@@ -3641,7 +3644,20 @@ module DSP48E1_VPR (
   parameter MREG = 1'b0;
   parameter OPMODEREG = 1'b0;
   parameter PREG = 1'b0;  
+  parameter CREG = 1'b0;
+  parameter A_INPUT = 1'b0;
+  parameter B_INPUT = 1'b0;
+  parameter USE_DPORT = 1'b0;
+  parameter USE_SIMD_FOUR12 = 1'b0;
+  parameter USE_SIMD_FOUR12_TWO24 = 1'b0;
+  parameter AUTORESET_PATDET_RESET = 1'b0; 
+  parameter AUTORESET_PATDET_RESET_NOT_MATCH = 1'b0;
+  parameter SEL_MASK_ROUNDING_MODE1 = 1'b0;
+  parameter SEL_MASK_ROUNDING_MODE2 = 1'b0;
+  parameter SEL_MASK_C = 1'b0;
   parameter [3:0] IS_ALUMODE_INVERTED = 4'b0;   
   parameter [4:0] IS_INMODE_INVERTED = 5'b0;
   parameter [6:0] IS_OPMODE_INVERTED = 7'b0;
+  parameter IS_CARRYIN_INVERTED = 1'b0;
+  parameter IS_CLK_INVERTED = 1'b0;
 endmodule

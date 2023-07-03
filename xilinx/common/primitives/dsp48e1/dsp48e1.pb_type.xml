@@ -1,4 +1,4 @@
-<pb_type name="DSP48E1" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
+<pb_type name="DSP48" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
 <clock name="CLK" num_pins="1"/>
 <input name="A" num_pins="30"/>
 <input name="B" num_pins="18"/>
@@ -32,6 +32,11 @@
 <input name="RSTALLCARRYIN" num_pins="1"/>
 <input name="RSTALUMODE" num_pins="1"/>
 <input name="RSTINMODE" num_pins="1"/>
+<input name="ACIN" num_pins="30"/>
+<input name="BCIN" num_pins="18"/>
+<input name="PCIN" num_pins="48"/>
+<input name="CARRYCASCIN" num_pins="1"/>
+<input name="MULTSIGNIN" num_pins="1"/>
 <output name="ACOUT" num_pins="30"/>
 <output name="BCOUT" num_pins="18"/>
 <output name="PCOUT" num_pins="48"/>
@@ -45,8 +50,293 @@
 <output name="UNDERFLOW" num_pins="1"/>
 <mode name="DSP">
 <pb_type name="DSP" num_pb="1" blif_model=".subckt DSP48E1_VPR">
+<clock name="CLK" num_pins="1"/>
 
-<xi:include href="../dual_b_reg/dual_b_reg.pb_type.xml"/>
+<input name="A" num_pins="30"/>
+<T_setup value="{setup_CLK_A}" port="A" clock="CLK"/>
+<T_hold value="{hold_CLK_A}" port="A" clock="CLK"/>
+
+<input name="B" num_pins="18"/>
+<T_setup value="{setup_CLK_B}" port="B" clock="CLK"/>
+<T_hold value="{hold_CLK_B}" port="B" clock="CLK"/>
+
+<input name="C" num_pins="48"/>
+<T_setup value="{setup_CLK_C}" port="C" clock="CLK"/>
+<T_hold value="{hold_CLK_C}" port="C" clock="CLK"/>
+
+<input name="D" num_pins="25"/>
+<T_setup value="{setup_CLK_D}" port="D" clock="CLK"/>
+<T_hold value="{hold_CLK_D}" port="D" clock="CLK"/>
+
+<input name="OPMODE" num_pins="7"/>
+<T_setup value="{setup_CLK_OPMODE}" port="OPMODE" clock="CLK"/>
+<T_hold value="{hold_CLK_OPMODE}" port="OPMODE" clock="CLK"/>
+
+<input name="ALUMODE" num_pins="4"/>
+<T_setup value="{setup_CLK_ALUMODE}" port="ALUMODE" clock="CLK"/>
+<T_hold value="{hold_CLK_ALUMODE}" port="ALUMODE" clock="CLK"/>
+
+<input name="CARRYIN" num_pins="1"/>
+<T_setup value="{setup_CLK_CARRYIN}" port="CARRYIN" clock="CLK"/>
+<T_hold value="{hold_CLK_CARRYIN}" port="CARRYIN" clock="CLK"/>
+
+<input name="CARRYINSEL" num_pins="3"/>
+<T_setup value="{setup_CLK_CARRYINSEL}" port="CARRYINSEL" clock="CLK"/>
+<T_hold value="{hold_CLK_CARRYINSEL}" port="CARRYINSEL" clock="CLK"/>
+
+<input name="INMODE" num_pins="5"/>
+<T_setup value="{setup_CLK_INMODE}" port="INMODE" clock="CLK"/>
+<T_hold value="{hold_CLK_INMODE}" port="INMODE" clock="CLK"/>
+
+<input name="CEA1" num_pins="1"/>
+<T_setup value="{setup_CLK_CEA1}" port="CEA1" clock="CLK"/>
+<T_hold value="{hold_CLK_CEA1}" port="CEA1" clock="CLK"/>
+
+<input name="CEA2" num_pins="1"/>
+<T_setup value="{setup_CLK_CEA2}" port="CEA2" clock="CLK"/>
+<T_hold value="{hold_CLK_CEA2}" port="CEA2" clock="CLK"/>
+
+<input name="CEB1" num_pins="1"/>
+<T_setup value="{setup_CLK_CEB1}" port="CEB1" clock="CLK"/>
+<T_hold value="{hold_CLK_CEB1}" port="CEB1" clock="CLK"/>
+
+<input name="CEB2" num_pins="1"/>
+<T_setup value="{setup_CLK_CEB2}" port="CEB2" clock="CLK"/>
+<T_hold value="{hold_CLK_CEB2}" port="CEB2" clock="CLK"/>
+
+<input name="CEC" num_pins="1"/>
+<T_setup value="{setup_CLK_CEC}" port="CEC" clock="CLK"/>
+<T_hold value="{hold_CLK_CEC}" port="CEC" clock="CLK"/>
+
+<input name="CED" num_pins="1"/>
+<T_setup value="{setup_CLK_CED}" port="CED" clock="CLK"/>
+<T_hold value="{hold_CLK_CED}" port="CED" clock="CLK"/>
+
+<input name="CEM" num_pins="1"/>
+<T_setup value="{setup_CLK_CEM}" port="CEM" clock="CLK"/>
+<T_hold value="{hold_CLK_CEM}" port="CEM" clock="CLK"/>
+
+<input name="CEP" num_pins="1"/>
+<T_setup value="{setup_CLK_CEP}" port="CEP" clock="CLK"/>
+<T_hold value="{hold_CLK_CEP}" port="CEP" clock="CLK"/>
+
+<input name="CEAD" num_pins="1"/>
+<T_setup value="{setup_CLK_CEAD}" port="CEAD" clock="CLK"/>
+<T_hold value="{hold_CLK_CEAD}" port="CEAD" clock="CLK"/>
+
+<input name="CEALUMODE" num_pins="1"/>
+<T_setup value="{setup_CLK_CEALUMODE}" port="CEALUMODE" clock="CLK"/>
+<T_hold value="{hold_CLK_CEALUMODE}" port="CEALUMODE" clock="CLK"/>
+
+<input name="CECTRL" num_pins="1"/>
+<T_setup value="{setup_CLK_CECTRL}" port="CECTRL" clock="CLK"/>
+<T_hold value="{hold_CLK_CECTRL}" port="CECTRL" clock="CLK"/>
+
+<input name="CECARRYIN" num_pins="1"/>
+<T_setup value="{setup_CLK_CECARRYIN}" port="CECARRYIN" clock="CLK"/>
+<T_hold value="{hold_CLK_CECARRYIN}" port="CECARRYIN" clock="CLK"/>
+
+<input name="CEINMODE" num_pins="1"/>
+<T_setup value="{setup_CLK_CEINMODE}" port="CEINMODE" clock="CLK"/>
+<T_hold value="{hold_CLK_CEINMODE}" port="CEINMODE" clock="CLK"/>
+
+<input name="RSTA" num_pins="1"/>
+<T_setup value="{setup_CLK_RSTA}" port="RSTA" clock="CLK"/>
+<T_hold value="{hold_CLK_RSTA}" port="RSTA" clock="CLK"/>
+
+<input name="RSTB" num_pins="1"/>
+<T_setup value="{setup_CLK_RSTB}" port="RSTB" clock="CLK"/>
+<T_hold value="{hold_CLK_RSTB}" port="RSTB" clock="CLK"/>
+
+<input name="RSTC" num_pins="1"/>
+<T_setup value="{setup_CLK_RSTC}" port="RSTC" clock="CLK"/>
+<T_hold value="{hold_CLK_RSTC}" port="RSTC" clock="CLK"/>
+
+<input name="RSTD" num_pins="1"/>
+<T_setup value="{setup_CLK_RSTD}" port="RSTD" clock="CLK"/>
+<T_hold value="{hold_CLK_RSTD}" port="RSTD" clock="CLK"/>
+
+<input name="RSTM" num_pins="1"/>
+<T_setup value="{setup_CLK_RSTM}" port="RSTM" clock="CLK"/>
+<T_hold value="{hold_CLK_RSTM}" port="RSTM" clock="CLK"/>
+
+<input name="RSTP" num_pins="1"/>
+<T_setup value="{setup_CLK_RSTP}" port="RSTP" clock="CLK"/>
+<T_hold value="{hold_CLK_RSTP}" port="RSTP" clock="CLK"/>
+
+<input name="RSTCTRL" num_pins="1"/>
+<T_setup value="{setup_CLK_RSTCTRL}" port="RSTCTRL" clock="CLK"/>
+<T_hold value="{hold_CLK_RSTCTRL}" port="RSTCTRL" clock="CLK"/>
+
+<input name="RSTALLCARRYIN" num_pins="1"/>
+<T_setup value="{setup_CLK_RSTALLCARRYIN}" port="RSTALLCARRYIN" clock="CLK"/>
+<T_hold value="{hold_CLK_RSTALLCARRYIN}" port="RSTALLCARRYIN" clock="CLK"/>
+
+<input name="RSTALUMODE" num_pins="1"/>
+<T_setup value="{setup_CLK_RSTALUMODE}" port="RSTALUMODE" clock="CLK"/>
+<T_hold value="{hold_CLK_RSTALUMODE}" port="RSTALUMODE" clock="CLK"/>
+
+<input name="RSTINMODE" num_pins="1"/>
+<T_setup value="{setup_CLK_RSTINMODE}" port="RSTINMODE" clock="CLK"/>
+<T_hold value="{hold_CLK_RSTINMODE}" port="RSTINMODE" clock="CLK"/>
+
+<input name="ACIN" num_pins="30"/>
+<T_setup value="{setup_CLK_ACIN}" port="ACIN" clock="CLK"/>
+<T_hold value="{hold_CLK_ACIN}" port="ACIN" clock="CLK"/>
+
+<input name="BCIN" num_pins="18"/>
+<T_setup value="{setup_CLK_BCIN}" port="BCIN" clock="CLK"/>
+<T_hold value="{hold_CLK_BCIN}" port="BCIN" clock="CLK"/>
+
+<input name="PCIN" num_pins="48"/>
+<T_setup value="{setup_CLK_PCIN}" port="PCIN" clock="CLK"/>
+<T_hold value="{hold_CLK_PCIN}" port="PCIN" clock="CLK"/>
+
+<input name="CARRYCASCIN" num_pins="1"/>
+<T_setup value="{setup_CLK_CARRYCASCIN}" port="CARRYCASCIN" clock="CLK"/>
+<T_hold value="{hold_CLK_CARRYCASCIN}" port="CARRYCASCIN" clock="CLK"/>
+
+<input name="MULTSIGNIN" num_pins="1"/>
+<T_setup value="{setup_CLK_MULTSIGNIN}" port="MULTSIGNIN" clock="CLK"/>
+<T_hold value="{hold_CLK_MULTSIGNIN}" port="MULTSIGNIN" clock="CLK"/>
+
+<output name="ACOUT" num_pins="30"/>
+<T_clock_to_Q max="{iopath_CLK_ACOUT}" port="ACOUT" clock="CLK"/>
+
+<output name="BCOUT" num_pins="18"/>
+<T_clock_to_Q max="{iopath_CLK_BCOUT}" port="BCOUT" clock="CLK"/>
+
+<output name="PCOUT" num_pins="48"/>
+<T_clock_to_Q max="{iopath_CLK_PCOUT}" port="PCOUT" clock="CLK"/>
+
+<output name="P" num_pins="48"/>
+<T_clock_to_Q max="{iopath_CLK_P}" port="P" clock="CLK"/>
+
+<output name="CARRYOUT" num_pins="4"/>
+<T_clock_to_Q max="{iopath_CLK_CARRYOUT}" port="CARRYOUT" clock="CLK"/>
+
+<output name="CARRYCASCOUT" num_pins="1"/>
+<T_clock_to_Q max="{iopath_CLK_CARRYCASCOUT}" port="CARRYCASCOUT" clock="CLK"/>
+
+<output name="MULTSIGNOUT" num_pins="1"/>
+<T_clock_to_Q max="{iopath_CLK_MULTSIGNOUT}" port="MULTSIGNOUT" clock="CLK"/>
+
+<output name="PATTERNDETECT" num_pins="1"/>
+<T_clock_to_Q max="{iopath_CLK_PATTERNDETECT}" port="PATTERNDETECT" clock="CLK"/>
+
+<output name="PATTERNBDETECT" num_pins="1"/>
+<T_clock_to_Q max="{iopath_CLK_PATTERNBDETECT}" port="PATTERNBDETECT" clock="CLK"/>
+
+<output name="OVERFLOW" num_pins="1"/>
+<T_clock_to_Q max="{iopath_CLK_OVERFLOW}" port="OVERFLOW" clock="CLK"/>
+
+<output name="UNDERFLOW" num_pins="1"/>
+<T_clock_to_Q max="{iopath_CLK_UNDERFLOW}" port="UNDERFLOW" clock="CLK"/>
+
+<delay_constant max="{iopath_ACIN_ACOUT}" in_port="ACIN" out_port="ACOUT"/>
+<delay_constant max="{iopath_A_ACOUT}" in_port="A" out_port="ACOUT"/>
+<delay_constant max="{iopath_ACIN_CARRYCASCOUT}" in_port="ACIN" out_port="CARRYCASOUT"/>
+<delay_constant max="{iopath_ACIN_CARRYOUT}" in_port="ACIN" out_port="CARRYOUT"/>
+<delay_constant max="{iopath_ACIN_MULTSIGNOUT}" in_port="ACIN" out_port="MULTSIGNOUT"/>
+<delay_constant max="{iopath_ACIN_P}" in_port="ACIN" out_port="P"/>
+<delay_constant max="{iopath_ACIN_PATTERNBDETECT}" in_port="ACIN" out_port="PATTERNBDETECT"/>
+<delay_constant max="{iopath_ACIN_PATTERNDETECT}" in_port="ACIN" out_port="PATTERNDETECT"/>
+<delay_constant max="{iopath_ACIN_PCOUT}" in_port="ACIN" out_port="PCOUT"/>
+<delay_constant max="{iopath_A_CARRYCASCOUT}" in_port="A" out_port="CARRYCASCOUT"/>
+<delay_constant max="{iopath_A_CARRYOUT}" in_port="A" out_port="CARRYOUT"/>
+<delay_constant max="{iopath_A_MULTSIGNOUT}" in_port="A" out_port="MULTSIGNOUT"/>
+<delay_constant max="{iopath_A_P}" in_port="A" out_port="P"/>
+<delay_constant max="{iopath_A_PATTERNBDETECT}" in_port="A" out_port="PATTERNBDETECT"/>
+<delay_constant max="{iopath_A_PATTERNDETECT}" in_port="A" out_port="PATTERNDETECT"/>
+<delay_constant max="{iopath_A_PCOUT}" in_port="A" out_port="PCOUT"/>
+<delay_constant max="{iopath_D_CARRYCASCOUT}" in_port="D" out_port="CARRYCASCOUT"/>
+<delay_constant max="{iopath_D_CARRYOUT}" in_port="D" out_port="CARRYOUT"/>
+<delay_constant max="{iopath_D_MULTSIGNOUT}" in_port="D" out_port="MULTSIGNOUT"/>
+<delay_constant max="{iopath_D_P}" in_port="D" out_port="P"/>
+<delay_constant max="{iopath_D_PATTERNBDETECT}" in_port="D" out_port="PATTERNBDETECT"/>
+<delay_constant max="{iopath_D_PATTERNDETECT}" in_port="D" out_port="PATTERNDETECT"/>
+<delay_constant max="{iopath_D_PCOUT}" in_port="D" out_port="PCOUT"/>
+<delay_constant max="{iopath_INMODE_CARRYCASCOUT}" in_port="INMODE" out_port="CARRYCASCOUT"/>
+<delay_constant max="{iopath_INMODE_CARRYOUT}" in_port="INMODE" out_port="CARRYOUT"/>
+<delay_constant max="{iopath_INMODE_MULTSIGNOUT}" in_port="INMODE" out_port="MULTSIGNOUT"/>
+<delay_constant max="{iopath_INMODE_P}" in_port="INMODE" out_port="P"/>
+<delay_constant max="{iopath_INMODE_PATTERNBDETECT}" in_port="INMODE" out_port="PATTERNBDETECT"/>
+<delay_constant max="{iopath_INMODE_PATTERNDETECT}" in_port="INMODE" out_port="PATTERNDETECT"/>
+<delay_constant max="{iopath_INMODE_PCOUT}" in_port="INMODE" out_port="PCOUT"/>
+<delay_constant max="{iopath_ALUMODE_CARRYCASCOUT}" in_port="ALUMODE" out_port="CARRYCASCOUT"/>
+<delay_constant max="{iopath_ALUMODE_CARRYOUT}" in_port="ALUMODE" out_port="CARRYOUT"/>
+<delay_constant max="{iopath_ALUMODE_MULTSIGNOUT}" in_port="ALUMODE" out_port="MULTSIGNOUT"/>
+<delay_constant max="{iopath_ALUMODE_P}" in_port="ALUMODE" out_port="P"/>
+<delay_constant max="{iopath_ALUMODE_PATTERNBDETECT}" in_port="ALUMODE" out_port="PATTERNBDETECT"/>
+<delay_constant max="{iopath_ALUMODE_PATTERNDETECT}" in_port="ALUMODE" out_port="PATTERNDETECT"/>
+<delay_constant max="{iopath_ALUMODE_PCOUT}" in_port="ALUMODE" out_port="PCOUT"/>
+<delay_constant max="{iopath_BCIN_BCOUT}" in_port="BCIN" out_port="BCOUT"/>
+<delay_constant max="{iopath_B_BCOUT}" in_port="B" out_port="BCOUT"/>
+<delay_constant max="{iopath_BCIN_CARRYCASCOUT}" in_port="BCIN" out_port="CARRYCASCOUT"/>
+<delay_constant max="{iopath_BCIN_CARRYOUT}" in_port="BCIN" out_port="CARRYOUT"/>
+<delay_constant max="{iopath_BCIN_MULTSIGNOUT}" in_port="BCIN" out_port="MULTSIGNOUT"/>
+<delay_constant max="{iopath_BCIN_P}" in_port="BCIN" out_port="P"/>
+<delay_constant max="{iopath_BCIN_PATTERNBDETECT}" in_port="BCIN" out_port="PATTERNBDETECT"/>
+<delay_constant max="{iopath_BCIN_PATTERNDETECT}" in_port="BCIN" out_port="PATTERNDETECT"/>
+<delay_constant max="{iopath_BCIN_PCOUT}" in_port="BCIN" out_port="PCOUT"/>
+<delay_constant max="{iopath_B_CARRYCASCOUT}" in_port="B" out_port="CARRYCASCOUT"/>
+<delay_constant max="{iopath_B_CARRYOUT}" in_port="B" out_port="CARRYOUT"/>
+<delay_constant max="{iopath_B_MULTSIGNOUT}" in_port="B" out_port="MULTSIGNOUT"/>
+<delay_constant max="{iopath_B_P}" in_port="B" out_port="P"/>
+<delay_constant max="{iopath_B_PATTERNBDETECT}" in_port="B" out_port="PATTERNBDETECT"/>
+<delay_constant max="{iopath_B_PATTERNDETECT}" in_port="B" out_port="PATTERNDETECT"/>
+<delay_constant max="{iopath_B_PCOUT}" in_port="B" out_port="PCOUT"/>
+<delay_constant max="{iopath_CARRYIN_CARRYCASCOUT}" in_port="CARRYIN" out_port="CARRYCASCOUT"/>
+<delay_constant max="{iopath_CARRYIN_CARRYOUT}" in_port="CARRYIN" out_port="CARRYOUT"/>
+<delay_constant max="{iopath_CARRYIN_MULTSIGNOUT}" in_port="CARRYIN" out_port="MULTSIGNOUT"/>
+<delay_constant max="{iopath_CARRYIN_P}" in_port="CARRYIN" out_port="P"/>
+<delay_constant max="{iopath_CARRYIN_PATTERNBDETECT}" in_port="CARRYIN" out_port="PATTERNBDETECT"/>
+<delay_constant max="{iopath_CARRYIN_PATTERNDETECT}" in_port="CARRYIN" out_port="PATTERNDETECT"/>
+<delay_constant max="{iopath_CARRYIN_PCOUT}" in_port="CARRYIN" out_port="PCOUT"/>
+<delay_constant max="{iopath_CARRYINSEL_CARRYCASCOUT}" in_port="CARRYINSEL" out_port="CARRYCASCOUT"/>
+<delay_constant max="{iopath_CARRYINSEL_CARRYOUT}" in_port="CARRYINSEL" out_port="CARRYOUT"/>
+<delay_constant max="{iopath_CARRYINSEL_MULTSIGNOUT}" in_port="CARRYINSEL" out_port="MULTSIGNOUT"/>
+<delay_constant max="{iopath_CARRYINSEL_P}" in_port="CARRYINSEL" out_port="P"/>
+<delay_constant max="{iopath_CARRYINSEL_PATTERNBDETECT}" in_port="CARRYINSEL" out_port="PATTERNBDETECT"/>
+<delay_constant max="{iopath_CARRYINSEL_PATTERNDETECT}" in_port="CARRYINSEL" out_port="PATTERNDETECT"/>
+<delay_constant max="{iopath_CARRYINSEL_PCOUT}" in_port="CARRYINSEL" out_port="PCOUT"/>
+<delay_constant max="{iopath_C_CARRYCASCOUT}" in_port="C" out_port="CARRYCASCOUT"/>
+<delay_constant max="{iopath_C_CARRYOUT}" in_port="C" out_port="CARRYOUT"/>
+<delay_constant max="{iopath_C_MULTSIGNOUT}" in_port="C" out_port="MULTSIGNOUT"/>
+<delay_constant max="{iopath_C_P}" in_port="C" out_port="P"/>
+<delay_constant max="{iopath_C_PATTERNBDETECT}" in_port="C" out_port="PATTERNBDETECT"/>
+<delay_constant max="{iopath_C_PATTERNDETECT}" in_port="C" out_port="PATTERNDETECT"/>
+<delay_constant max="{iopath_C_PCOUT}" in_port="C" out_port="PCOUT"/>
+<delay_constant max="{iopath_OPMODE_CARRYCASCOUT}" in_port="OPMODE" out_port="CARRYCASCOUT"/>
+<delay_constant max="{iopath_OPMODE_CARRYOUT}" in_port="OPMODE" out_port="CARRYOUT"/>
+<delay_constant max="{iopath_OPMODE_MULTSIGNOUT}" in_port="OPMODE" out_port="MULTSIGNOUT"/>
+<delay_constant max="{iopath_OPMODE_P}" in_port="OPMODE" out_port="P"/>
+<delay_constant max="{iopath_OPMODE_PATTERNBDETECT}" in_port="OPMODE" out_port="PATTERNBDETECT"/>
+<delay_constant max="{iopath_OPMODE_PATTERNDETECT}" in_port="OPMODE" out_port="PATTERNDETECT"/>
+<delay_constant max="{iopath_OPMODE_PCOUT}" in_port="OPMODE" out_port="PCOUT"/>
+<delay_constant max="{iopath_CARRYCASCIN_CARRYCASCOUT}" in_port="CARRYCASCIN" out_port="CARRYCASCOUT"/>
+<delay_constant max="{iopath_CARRYCASCIN_CARRYOUT}" in_port="CARRYCASCIN" out_port="CARRYOUT"/>
+<delay_constant max="{iopath_CARRYCASCIN_MULTSIGNOUT}" in_port="CARRYCASCIN" out_port="MULTSIGNOUT"/>
+<delay_constant max="{iopath_CARRYCASCIN_P}" in_port="CARRYCASCIN" out_port="P"/>
+<delay_constant max="{iopath_CARRYCASCIN_PATTERNBDETECT}" in_port="CARRYCASCIN" out_port="PATTERNBDETECT"/>
+<delay_constant max="{iopath_CARRYCASCIN_PATTERNDETECT}" in_port="CARRYCASCIN" out_port="PATTERNDETECT"/>
+<delay_constant max="{iopath_CARRYCASCIN_PCOUT}" in_port="CARRYCASCIN" out_port="PCOUT"/>
+<delay_constant max="{iopath_MULTSIGNIN_CARRYCASCOUT}" in_port="MULTSIGNIN" out_port="CARRYCASCOUT"/>
+<delay_constant max="{iopath_MULTSIGNIN_CARRYOUT}" in_port="MULTSIGNIN" out_port="CARRYOUT"/>
+<delay_constant max="{iopath_MULTSIGNIN_MULTSIGNOUT}" in_port="MULTSIGNIN" out_port="MULTSIGNOUT"/>
+<delay_constant max="{iopath_MULTSIGNIN_P}" in_port="MULTSIGNIN" out_port="P"/>
+<delay_constant max="{iopath_MULTSIGNIN_PATTERNBDETECT}" in_port="MULTSIGNIN" out_port="PATTERNBDETECT"/>
+<delay_constant max="{iopath_MULTSIGNIN_PATTERNDETECT}" in_port="MULTSIGNIN" out_port="PATTERNDETECT"/>
+<delay_constant max="{iopath_MULTSIGNIN_PCOUT}" in_port="MULTSIGNIN" out_port="PCOUT"/>
+<delay_constant max="{iopath_PCIN_CARRYCASCOUT}" in_port="PCIN" out_port="CARRYCASCOUT"/>
+<delay_constant max="{iopath_PCIN_CARRYOUT}" in_port="PCIN" out_port="CARRYOUT"/>
+<delay_constant max="{iopath_PCIN_MULTSIGNOUT}" in_port="PCIN" out_port="MULTSIGNOUT"/>
+<delay_constant max="{iopath_PCIN_P}" in_port="PCIN" out_port="P"/>
+<delay_constant max="{iopath_PCIN_PATTERNBDETECT}" in_port="PCIN" out_port="PATTERNBDETECT"/>
+<delay_constant max="{iopath_PCIN_PATTERNDETECT}" in_port="PCIN" out_port="PATTERNDETECT"/>
+<delay_constant max="{iopath_PCIN_PCOUT}" in_port="PCIN" out_port="PCOUT"/>
+
+<!-- <xi:include href="../dual_b_reg/dual_b_reg.pb_type.xml"/>
 <xi:include href="../dual_ad_preadder/dual_ad_preadder.pb_type.xml"/>
 <xi:include href="../mult25x18/mult25x18.pb_type.xml"/>
 <xi:include href="../mreg/mreg.pb_type.xml"/>
@@ -60,15 +350,19 @@
 <xi:include href="../carryinsel_reg/carryinsel_reg.pb_type.xml"/>
 <xi:include href="../alumode_reg/alumode_reg.pb_type.xml"/>
 <xi:include href="..//.pb_type.xml"/>
-<xi:include href="..//.pb_type.xml"/>
+<xi:include href="..//.pb_type.xml"/> 
 
 <interconnect>
 
-</interconnect>
+</interconnect>-->
 <metadata>
 <meta name="fasm_params">
 AREG_0=AREG_0
+AREG_2=AREG_2
+A_INPUT[0]=A_INPUT
 BREG_0=BREG_0
+BREG_2=BREG_2
+B_INPUT[0]=B_INPUT
 MASK[47:0]=MASK
 ZADREG[0]=ADREG
 ZALUMODEREG[0]=ALUMODEREG
@@ -81,18 +375,74 @@ ZINMODEREG[0]=INMODEREG
 ZMREG[0]=MREG
 ZOPMODEREG[0]=OPMODEREG
 ZPREG[0]=PREG
+ZCREG[0]=CREG
 ZIS_ALUMODE_INVERTED[3:0]=IS_ALUMODE_INVERTED
 ZIS_INMODE_INVERTED[4:0]=IS_INMODE_INVERTED
-ZIS_OPMODE_INVERTED[6:0]=IS_OPMODE_INVERTED 
+ZIS_OPMODE_INVERTED[6:0]=IS_OPMODE_INVERTED
+ZIS_CLK_INVERTED=IS_CLK_INVERTED
+ZIS_CARRYIN_INVERTED=IS_CARRYIN_INVERTED
+USE_SIMD_FOUR12_TWO24=USE_SIMD_FOUR12_TWO24
+USE_SIMD_FOUR12=USE_SIMD_FOUR12
+USE_DPORT[0]=USE_DPORT
+SEL_MASK_ROUNDING_MODE1=SEL_MASK_ROUNDING_MODE1
+SEL_MASK_ROUNDING_MODE2=SEL_MASK_ROUNDING_MODE2
+SEL_MASK_C=SEL_MASK_C
+PATTERN[47:0]=PATTERN
+AUTORESET_PATDET_RESET=AUTORESET_PATDET_RESET
+AUTORESET_PATDET_RESET_NOT_MATCH=AUTORESET_PATDET_RESET_NOT_MATCH
 </meta>
 </metadata>
 </pb_type>
 <interconnect>
-
+<direct name="CLK" input="DSP48.CLK" output="DSP.CLK"/>
+<direct name="A" input="DSP48.A" output="DSP.A"/>
+<direct name="B" input="DSP48.B" output="DSP.B"/>
+<direct name="C" input="DSP48.C" output="DSP.C"/>
+<direct name="D" input="DSP48.D" output="DSP.D"/>
+<direct name="OPMODE" input="DSP48.OPMODE" output="DSP.OPMODE"/>
+<direct name="ALUMODE" input="DSP48.ALUMODE" output="DSP.ALUMODE"/>
+<direct name="CARRYIN" input="DSP48.CARRYIN" output="DSP.CARRYIN"/>
+<direct name="CARRYINSEL" input="DSP48.CARRYINSEL" output="DSP.CARRYINSEL"/>
+<direct name="INMODE" input="DSP48.INMODE" output="DSP.INMODE"/>
+<direct name="CEA1" input="DSP48.CEA1" output="DSP.CEA1"/>
+<direct name="CEA2" input="DSP48.CEA2" output="DSP.CEA2"/>
+<direct name="CEB1" input="DSP48.CEB1" output="DSP.CEB1"/>
+<direct name="CEB2" input="DSP48.CEB2" output="DSP.CEB2"/>
+<direct name="CEC" input="DSP48.CEC" output="DSP.CEC"/>
+<direct name="CED" input="DSP48.CED" output="DSP.CED"/>
+<direct name="CEM" input="DSP48.CEM" output="DSP.CEM"/>
+<direct name="CEP" input="DSP48.CEP" output="DSP.CEP"/>
+<direct name="CEAD" input="DSP48.CEAD" output="DSP.CEAD"/>
+<direct name="CEALUMODE" input="DSP48.CEALUMODE" output="DSP.CEALUMODE"/>
+<direct name="CECTRL" input="DSP48.CECTRL" output="DSP.CECTRL"/>
+<direct name="CECARRYIN" input="DSP48.CECARRYIN" output="DSP.CECARRYIN"/>
+<direct name="CEINMODE" input="DSP48.CEINMODE" output="DSP.CEINMODE"/>
+<direct name="RSTA" input="DSP48.RSTA" output="DSP.RSTA"/>
+<direct name="RSTB" input="DSP48.RSTB" output="DSP.RSTB"/>
+<direct name="RSTC" input="DSP48.RSTC" output="DSP.RSTC"/>
+<direct name="RSTD" input="DSP48.RSTD" output="DSP.RSTD"/>
+<direct name="RSTM" input="DSP48.RSTM" output="DSP.RSTM"/>
+<direct name="RSTP" input="DSP48.RSTP" output="DSP.RSTP"/>
+<direct name="RSTCTRL" input="DSP48.RSTCTRL" output="DSP.RSTCTRL"/>
+<direct name="RSTALLCARRYIN" input="DSP48.RSTALLCARRYIN" output="DSP.RSTALLCARRYIN"/>
+<direct name="RSTALUMODE" input="DSP48.RSTALUMODE" output="DSP.RSTALUMODE"/>
+<direct name="RSTINMODE" input="DSP48.RSTINMODE" output="DSP.RSTINMODE"/>
+<direct name="ACIN" input="DSP48.ACIN" output="DSP.ACIN"/>
+<direct name="BCIN" input="DSP48.BCIN" output="DSP.BCIN"/>
+<direct name="PCIN" input="DSP48.PCIN" output="DSP.PCIN"/>
+<direct name="CARRYCASCIN" input="DSP48.CARRYCASCIN" output="DSP.CARRYCASCIN"/>
+<direct name="MULTSIGNIN" input="DSP48.MULTSIGNIN" output="DSP.MULTSIGNIN"/>
+<direct name="ACOUT" input="DSP.ACOUT" output="DSP48.ACOUT"/>
+<direct name="BCOUT" input="DSP.BCOUT" output="DSP48.BCOUT"/>
+<direct name="PCOUT" input="DSP.PCOUT" output="DSP48.PCOUT"/>
+<direct name="P" input="DSP.P" output="DSP48.P"/>
+<direct name="CARRYOUT" input="DSP.CARRYOUT" output="DSP48.CARRYOUT"/>
+<direct name="CARRYCASCOUT" input="DSP.CARRYCASCOUT" output="DSP48.CARRYCASCOUT"/>
+<direct name="MULTSIGNOUT" input="DSP.MULTSIGNOUT" output="DSP48.MULTSIGNOUT"/>
+<direct name="PATTERNDETECT" input="DSP.PATTERNDETECT" output="DSP48.PATTERNDETECT"/>
+<direct name="PATTERNBDETECT" input="DSP.PATTERNBDETECT" output="DSP48.PATTERNBDETECT"/>
+<direct name="OVERFLOW" input="DSP.OVERFLOW" output="DSP48.OVERFLOW"/>
+<direct name="UNDERFLOW" input="DSP.UNDERFLOW" output="DSP48.UNDERFLOW"/>
 </interconnect>
 </mode>
-<metadata>
-<meta name="type">block</meta>
-<meta name="subtype">ignore</meta>
-</metadata>
 </pb_type>

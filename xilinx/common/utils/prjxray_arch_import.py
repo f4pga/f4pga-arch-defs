@@ -521,7 +521,7 @@ PREFIX_REQUIRED = {
     "IBUFDS_GTE2": ("Y", 2),
     "IPAD": (None, None),
     "OPAD": (None, None),
-    "DSP48E1": (None, 2),
+    "DSP48E1": (None, None),
     "TIEOFF": (None, None)
 }
 
@@ -543,6 +543,8 @@ def make_prefix(site, x, y, from_site_name=False):
     elif prefix_required[0] == 'XY':
         mod_x, mod_y = prefix_required[1]
         return site_type, '{}_X{}Y{}'.format(site_type, x % mod_x, y % mod_y)
+    elif site_type == 'DSP48E1':
+    	return site_type, '{}.{}_{}'.format("DSP48", "DSP", y % 2)
     elif prefix_required[0] is None:
         return site_type, None
     else:
@@ -610,7 +612,7 @@ ORDER BY site_instance.x_coord, site_instance.y_coord, site_type.name;""",
         (tile_pkey, )
     )
 
-    NO_SITE_TYPE_PREFIX = ["SLICEL", "SLICEM", "IBUFDS_GTE2"]
+    NO_SITE_TYPE_PREFIX = ["SLICEL", "SLICEM", "IBUFDS_GTE2", "DSP48E1"]
 
     prefixes = []
 
