@@ -43,13 +43,10 @@ module top
    	.IS_CLK_INVERTED(1'b1)   
    )
    dsp25x18(
-   	.A(A),
-   	
+   	.A(A),   	
    	.ALUMODE(4'b0011),
-   	.B(B),
-   	
-   	.C(48'b111111111111111111111111111111111111111111111111),
-   
+   	.B(B),   	
+   	.C(48'b111111111111111111111111111111111111111111111111),   
         .CARRYIN(1'b0),
         .CARRYINSEL(3'b000),
         .CEA1(1'b0),
@@ -67,10 +64,8 @@ module top
         .CEP(1'b0),
         .CLK(1'b0),
         .D(25'b0000000000000000000000000),
-        .INMODE(5'b00000),
-        
-        .OPMODE(7'b0111111),
-        
+        .INMODE(5'b00000),        
+        .OPMODE(7'b0111111),        
         .RSTA(1'b0),
         .RSTALLCARRYIN(1'b0),
         .RSTALUMODE(1'b0),
@@ -82,8 +77,5 @@ module top
         .RSTM(1'b0),
         .RSTP(1'b0),
         .P(OUT)
-   );
-    
-   
-   
-endmodule // MULT25X18
+   );   
+endmodule

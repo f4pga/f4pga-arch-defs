@@ -236,7 +236,7 @@
 
 <delay_constant max="{iopath_ACIN_ACOUT}" in_port="ACIN" out_port="ACOUT"/>
 <delay_constant max="{iopath_A_ACOUT}" in_port="A" out_port="ACOUT"/>
-<delay_constant max="{iopath_ACIN_CARRYCASCOUT}" in_port="ACIN" out_port="CARRYCASOUT"/>
+<delay_constant max="{iopath_ACIN_CARRYCASCOUT}" in_port="ACIN" out_port="CARRYCASCOUT"/>
 <delay_constant max="{iopath_ACIN_CARRYOUT}" in_port="ACIN" out_port="CARRYOUT"/>
 <delay_constant max="{iopath_ACIN_MULTSIGNOUT}" in_port="ACIN" out_port="MULTSIGNOUT"/>
 <delay_constant max="{iopath_ACIN_P}" in_port="ACIN" out_port="P"/>
@@ -336,6 +336,39 @@
 <delay_constant max="{iopath_PCIN_PATTERNBDETECT}" in_port="PCIN" out_port="PATTERNBDETECT"/>
 <delay_constant max="{iopath_PCIN_PATTERNDETECT}" in_port="PCIN" out_port="PATTERNDETECT"/>
 <delay_constant max="{iopath_PCIN_PCOUT}" in_port="PCIN" out_port="PCOUT"/>
+
+<!--
+ Fake timing values as there is no database entry for CLOCK TO Q DELAYS of these input pins
+-->
+<T_clock_to_Q max="10e-12" port="A" clock="CLK"/>
+<T_clock_to_Q max="10e-12" port="B" clock="CLK"/>
+<T_clock_to_Q max="10e-12" port="C" clock="CLK"/>
+<T_clock_to_Q max="10e-12" port="D" clock="CLK"/>
+<T_clock_to_Q max="10e-12" port="OPMODE" clock="CLK"/>
+<T_clock_to_Q max="10e-12" port="ALUMODE" clock="CLK"/>
+<T_clock_to_Q max="10e-12" port="INMODE" clock="CLK"/>
+<T_clock_to_Q max="10e-12" port="CARRYIN" clock="CLK"/>
+<T_clock_to_Q max="10e-12" port="CARRYINSEL" clock="CLK"/>
+<T_clock_to_Q max="10e-12" port="ACIN" clock="CLK"/>
+<T_clock_to_Q max="10e-12" port="BCIN" clock="CLK"/>
+<T_clock_to_Q max="10e-12" port="PCIN" clock="CLK"/>
+<T_clock_to_Q max="10e-12" port="CARRYCASCIN" clock="CLK"/>
+<T_clock_to_Q max="10e-12" port="MULTSIGNIN" clock="CLK"/>
+<!--
+ Fake timing values as there is no database entry for SETUP TIMES of these output pins
+-->
+<T_setup value="10e-12" port="ACOUT" clock="CLK"/>
+<T_setup value="10e-12" port="BCOUT" clock="CLK"/>
+<T_setup value="10e-12" port="PCOUT" clock="CLK"/>
+<T_setup value="10e-12" port="P" clock="CLK"/>
+<T_setup value="10e-12" port="CARRYOUT" clock="CLK"/>
+<T_setup value="10e-12" port="CARRYCASCOUT" clock="CLK"/>
+<T_setup value="10e-12" port="MULTSIGNOUT" clock="CLK"/>
+<T_setup value="10e-12" port="PATTERNDETECT" clock="CLK"/>
+<T_setup value="10e-12" port="PATTERNBDETECT" clock="CLK"/>
+<T_setup value="10e-12" port="OVERFLOW" clock="CLK"/>
+<T_setup value="10e-12" port="UNDERFLOW" clock="CLK"/>
+
 
 <!-- <xi:include href="../dual_b_reg/dual_b_reg.pb_type.xml"/>
 <xi:include href="../dual_ad_preadder/dual_ad_preadder.pb_type.xml"/>
