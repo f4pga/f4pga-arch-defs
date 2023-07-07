@@ -10883,145 +10883,145 @@ module DSP48E1 (
     case (A_INPUT)
              "DIRECT", "CASCADE" : ;
               default : begin
-                       $display("WARNING: A_INPUT on DSP48E1 instance %m is set to %s.  Valid options for this parameter are DIRECT or CASCADE.", A_INPUT);
+                       $error("A_INPUT on DSP48E1 instance is set to an illegal value. Valid options for this parameter are DIRECT or CASCADE");
                         end
     endcase
     case (B_INPUT)
              "DIRECT", "CASCADE" : ;
               default : begin
-                       $display("WARNING: B_INPUT on DSP48E1 instance %m is set to %s.  Valid options for this parameter are DIRECT or CASCADE.", B_INPUT);
+                       $error("B_INPUT on DSP48E1 instance is set to an illegal value.  Valid options for this parameter are DIRECT or CASCADE");
      		 	end
     endcase
     case (AREG)
             0, 1, 2 : ;
             default : begin
-                    $display("WARNING : AREG on DSP48E1 instance %m is set to %d. Valid options for this parameter are 0, 1 or 2.", AREG);
+                    $error("AREG on DSP48E1 instance is set to an illegal value. Valid options for this parameter are 0, 1 or 2");
 	              end
     endcase
     case (AREG)
             0 : if(AREG != ACASCREG) begin
-                    $display("WARNING : ACASCREG  on DSP48E1 instance %m is set to %d but AREG is set to 0.  ACASCREG has to be set to 0 when AREG is 0.", ACASCREG);
+                    $error("ACASCREG  on DSP48E1 instance is set to an illegal value.  ACASCREG has to be set to 0 when AREG is 0");
                     end
             1 : if(AREG != ACASCREG) begin
-                    $display("WARNING : ACASCREG  on DSP48E1 instance %m is set to %d but AREG is set to 1.  ACASCREG has to be set to 1 when AREG is 1.", ACASCREG);
+                    $error("ACASCREG  on DSP48E1 instance is set to an illegal value.  ACASCREG has to be set to 1 when AREG is 1");
                     end
             2 : if((AREG != ACASCREG) && ((AREG-1) != ACASCREG)) begin
-                    $display("WARNING : ACASCREG  on DSP48E1 instance %m is set to %d.  ACASCREG has to be set to either 2 or 1 when AREG is 2.", ACASCREG);
+                    $error("ACASCREG  on DSP48E1 instance is set to an illegal value. ACASCREG has to be set to either 2 or 1 when AREG is 2");
                     end
             default : ;
     endcase
     case (BREG)
             0, 1, 2 : ;
             default : begin
-                    $display("WARNING : BREG on DSP48E1 instance %m is set to %d.  Valid options for this parameter are 0, 1 or 2.", BREG);
+                    $error("BREG on DSP48E1 instance is set to an illegal value.  Valid options for this parameter are 0, 1 or 2");
                     end
     endcase
     case (BREG)
             0 : if(BREG != BCASCREG) begin
-                    $display("WARNING : BCASCREG  on DSP48E1 instance %m is set to %d but BREG is set to 0.  BCASCREG has to be set to 0 when attribute BREG is 0.", BCASCREG);
+                    $error("BCASCREG  on DSP48E1 instance is set to an illegal value.  BCASCREG has to be set to 0 when attribute BREG is 0");
                     end
             1 : if(BREG != BCASCREG) begin
-                    $display("WARNING : BCASCREG  on DSP48E1 instance %m is set to %d but BREG is set to 1.  BCASCREG has to be set to 1 when attribute BREG is 1.", BCASCREG);
+                    $error("BCASCREG  on DSP48E1 instance is set to an illegal value.  BCASCREG has to be set to 1 when attribute BREG is 1");
                     end
             2 : if((BREG != BCASCREG) && ((BREG-1) != BCASCREG)) begin
-                    $display("WARNING : BCASCREG  on DSP48E1 instance %m is set to %d.  BCASCREG has to be set to either 2 or 1 when attribute BREG is 2.", BCASCREG);
+                    $error("BCASCREG  on DSP48E1 instance is set to an illegal value.  BCASCREG has to be set to either 2 or 1 when attribute BREG is 2");
                     end
             default : ;
     endcase
     case (ALUMODEREG)
             0, 1 : ;
             default : begin
-                    $display("WARNING : ALUMODEREG on DSP48E1 instance %m is set to %d.  Valid options for this parameter are 0 or 1.", ALUMODEREG);
+                    $error("ALUMODEREG on DSP48E1 instance is set to an illegal value.  Valid options for this parameter are 0 or 1");
 		      end
     endcase
     case (CARRYINREG)
             0, 1 : ;
             default : begin
-                    $display("WARNING : CARRYINREG on DSP48E1 instance %m is set to %d.  Valid options for this parameter are 0 or 1.", CARRYINREG);
+                    $error("CARRYINREG on DSP48E1 instance is set to an illegal value.  Valid options for this parameter are 0 or 1");
                     end
     endcase
     case (CARRYINSELREG)
             0, 1 : ;
             default : begin
-                    $display("WARNING : CARRYINSELREG on DSP48E1 instance %m is set to %d.  Valid options for this parameter are 0 or 1.", CARRYINSELREG);
+                    $error("CARRYINSELREG on DSP48E1 instance is set to an illegal value.  Valid options for this parameter are 0 or 1");
                     end
     endcase
     case (CREG)
             0, 1 : ;
             default : begin
-                    $display("WARNING : CREG on DSP48E1 instance %m is set to %d.  Valid options for this parameter are 0 or 1.", CREG);
+                    $error("CREG on DSP48E1 instance is set to an illegal value.  Valid options for this parameter are 0 or 1");
                     end
     endcase
     case (OPMODEREG)
             0, 1 : ;
             default : begin
-                    $display("WARNING : OPMODEREG on DSP48E1 instance %m is set to %d.  Valis options for this parameter are 0 or 1.", OPMODEREG);
+                    $error("OPMODEREG on DSP48E1 instance is set to an illegal value.  Valid options for this parameter are 0 or 1");
                     end
     endcase
     case (USE_MULT)
             "NONE", "MULTIPLY", "DYNAMIC" : ;
             default : begin
-                          $display("WARNING : USE_MULT on DSP48E1 instance %m is set to %s. Valid options for this parameter are MULTIPLY, DYNAMIC or NONE.", USE_MULT);
+                          $error("USE_MULT on DSP48E1 instance is set to an illegal value. Valid options for this parameter are MULTIPLY, DYNAMIC or NONE");
                           end
     endcase
     case (USE_PATTERN_DETECT) 
             "PATDET", "NO_PATDET" : ;
             default : begin
-               $display("WARNING : USE_PATTERN_DETECT on DSP48E1 instance %m is set to %s.  Valid options for this parameter are PATDET or NO_PATDET.",  USE_PATTERN_DETECT);
+               $error("USE_PATTERN_DETECT on DSP48E1 instance is set to an illegal value.  Valid options for this parameter are PATDET or NO_PATDET");
                end
     endcase
     case (AUTORESET_PATDET)
             "NO_RESET", "RESET_MATCH", "RESET_NOT_MATCH" : ;
             default : begin
-               $display("WARNING : AUTORESET_PATDET on DSP48E1 instance %m is set to %s.  Valid options for this parameter are  NO_RESET, RESET_MATCH or RESET_NOT_MATCH.",  AUTORESET_PATDET);
+               $error("AUTORESET_PATDET on DSP48E1 instance is set to an illegal value.  Valid options for this parameter are  NO_RESET, RESET_MATCH or RESET_NOT_MATCH");
                end
     endcase
     case(SEL_PATTERN)
            "PATTERN", "C" : ;
             default : begin
-                         $display("WARNING : SEL_PATTERN on DSP48E1 instance %m is set to %s.  Valid options for this parameter are PATTERN or C.", SEL_PATTERN);
+                         $error("SEL_PATTERN on DSP48E1 instance is set to an illegal value.  Valid options for this parameter are PATTERN or C");
                          end
     endcase
     case(SEL_MASK)
             "MASK", "C", "ROUNDING_MODE1", "ROUNDING_MODE2" : ;
              default : begin
-                         $display("WARNING : SEL_MASK on DSP48E1 instance %m is set to %s.  Valid options for this parameter are MASK, C, ROUNDING_MODE1 or ROUNDING_MODE2.", SEL_MASK);
+                         $error("SEL_MASK on DSP48E1 instance is set to an illegal value.  Valid options for this parameter are MASK, C, ROUNDING_MODE1 or ROUNDING_MODE2");
                           end
     endcase
     case (MREG)
             0, 1 : ;
             default : begin
-                    $display("WARNING : MREG on DSP48E1 instance %m is set to %d.  Valid options for this parameter are 0 or  1.", MREG);
+                    $error("MREG on DSP48E1 instance is set to an illegal value.  Valid options for this parameter are 0 or  1");
                     end
     endcase
     case (PREG)
             0, 1 : ;
             default : begin
-                    $display("WARNING : PREG on DSP48E1 instance %m is set to %d.  Valid options for this parameter are 0 or 1.", PREG);
+                    $error("PREG on DSP48E1 instance is set to an illegal value.  Valid options for this parameter are 0 or 1");
                     end
     endcase
     case (ADREG)
             0, 1 : ;
             default : begin
-                    $display("WARNING : ADREG on DSP48E1 instance %m is set to %d.  Valid options for this parameter are 0 or 1.", ADREG);
+                    $error("ADREG on DSP48E1 instance is set to an illegal value.  Valid options for this parameter are 0 or 1");
                     end
     endcase
     case (DREG)
             0, 1 : ;
             default : begin
-                    $display("WARNING : DREG on DSP48E1 instance %m is set to %d.  Valid options for this parameter are 0 or 1.", DREG);
+                    $error("DREG on DSP48E1 instance is set to an illegal value.  Valid options for this parameter are 0 or 1");
                     end
     endcase
     case (INMODEREG)
             0, 1 : ;
             default : begin
-                    $display("WARNING : INMODEREG on DSP48E1 instance %m is set to %d.  Valid options for this parameter are 0 or 1.", INMODEREG);
+                    $error("INMODEREG on DSP48E1 instance is set to an illegal value.  Valid options for this parameter are 0 or 1");
                     end
     endcase
     case (USE_DPORT)
             "TRUE", "FALSE" : ;
             default : begin
-               $display("WARNING : USE_DPORT on DSP48E1 instance %m is set to %s.  Valid options for this parameter are TRUE or FALSE.",  USE_DPORT);
+               $error("USE_DPORT on DSP48E1 instance is set to an illegal value.  Valid options for this parameter are TRUE or FALSE");
                end
     endcase
     
