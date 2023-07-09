@@ -1,0 +1,14 @@
+<pb_type name="dual_b_reg" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<xi:include href="../bin_mux/bin_mux.pb_type.xml"/>
+<xi:include href="../b1reg/b1reg.pb_type.xml"/>
+<xi:include href="../b1reg_mux/b1reg_mux.pb_type.xml"/>
+<xi:include href="../b2reg/b2reg.pb_type.xml"/>
+<xi:include href="../b2reg_mux/b2reg_mux.pb_type.xml"/>
+<xi:include href="../bmult_mux/bmult_mux.pb_type.xml"/>
+<xi:include href="../bout_mux/bout_mux.pb_type.xml"/>
+
+<interconnect>
+
+</interconnect>
+</pb_type>

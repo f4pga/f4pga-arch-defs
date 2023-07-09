@@ -1,0 +1,18 @@
+<pb_type name="AIN_MUX" num_pb="1">
+
+  <input name="A" num_pins="30"/>
+  <input name="ACIN" num_pins="30"/>
+  <output name="O" num_pins="30"/>
+  <interconnect>
+    <mux name="AIN_MUX" input="AIN_MUX.A AIN_MUX.ACIN" output="AIN_MUX.O">
+      <metadata>
+        <meta name="type">bel</meta>
+        <meta name="subtype">routing</meta>
+        <meta key="fasm_mux">
+AIN_MUX.A = AIN_MUX.A
+AIN_MUX.ACIN = AIN_MUX.ACIN
+</meta>
+      </metadata>
+    </mux>
+  </interconnect>
+</pb_type>

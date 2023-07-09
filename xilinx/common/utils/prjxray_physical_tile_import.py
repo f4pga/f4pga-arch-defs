@@ -78,7 +78,8 @@ def import_physical_tile(args):
 
     def add_equivalent_sites(tile_xml, equivalent_sites):
         """ Used to add to the <tile> tag the equivalent tiles associated with it."""
-
+        if equivalent_sites=="":
+        	return
         pb_types = equivalent_sites.split(',')
 
         equivalent_sites_xml = ET.SubElement(tile_xml, 'equivalent_sites')

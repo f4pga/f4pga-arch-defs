@@ -1,0 +1,38 @@
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" num_pb="1" name="DUAL_AD_PREADDER">
+  <blif_model>.subckt DUAL_AD_PREADDER</blif_model>
+  <clock name="CLK" num_pins="1"/>
+  <input name="A" num_pins="30"/>
+  <input name="ACIN" num_pins="30"/>
+  <input name="CEA1" num_pins="1"/>
+  <input name="CEA2" num_pins="1"/>
+  <input name="CEAD" num_pins="1"/>
+  <input name="CED" num_pins="1"/>
+  <input name="D" num_pins="25"/>
+  <input name="INMODE" num_pins="5"/>
+  <input name="RSTA" num_pins="1"/>
+  <input name="RSTD" num_pins="1"/>
+  <output name="ACOUT" num_pins="30"/>
+  <output name="AMULT" num_pins="25"/>
+  <output name="XMUX" num_pins="30"/>
+  
+  <xi:include href="../ain_mux/ain_mux.pb_type.xml"/>
+  <xi:include href="../a1reg/a1reg.pb_type.xml"/>
+  <xi:include href="../a1reg_mux/a1reg_mux.pb_type.xml"/>
+  <xi:include href="../a2reg/a2reg.pb_type.xml"/>
+  <xi:include href="../a2reg_mux/a2reg_mux.pb_type.xml"/>
+  <xi:include href="../amult_mux/amult_mux.pb_type.xml"/>
+  <xi:include href="../aout_mux/aout_mux.pb_type.xml"/>
+  <xi:include href="../dreg/dreg.pb_type.xml"/>
+  <xi:include href="../dreg_mux/dreg_mux.pb_type.xml"/>
+  <xi:include href="../adreg/adreg.pb_type.xml"/>
+  <xi:include href="../adreg_mux/adreg_mux.pb_type.xml"/>
+  <xi:include href="../a_or_zero/a_or_zero.pb_type.xml"/>
+  <xi:include href="../d_or_zero/d_or_zero.pb_type.xml"/>
+  <xi:include href="../a_adder_mux/a_adder_mux.pb_type.xml"/>
+  <xi:include href="../preadder/preadder.pb_type.xml"/>
+  
+  
+  <interconnect>
+  
+  </interconnect>
+</pb_type>

@@ -1,0 +1,18 @@
+<pb_type name="ADREG_MUX" num_pb="1">
+  
+  <input name="BYPASS" num_pins="25"/>
+  <input name="REG" num_pins="25"/>
+  <output name="O" num_pins="25"/>
+  <interconnect>
+    <mux name="ADREG_MUX" input="ADREG_MUX.BYPASS ADREG_MUX.REG" output="ADREG_MUX.O">
+      <metadata>
+        <meta name="type">bel</meta>
+        <meta name="subtype">routing</meta>
+        <meta key="fasm_mux">
+ADREG_MUX.BYPASS = ADREG_MUX.BYPASS
+ADREG_MUX.REG = ADREG_MUX.REG
+</meta>
+      </metadata>
+    </mux>
+  </interconnect>
+</pb_type>

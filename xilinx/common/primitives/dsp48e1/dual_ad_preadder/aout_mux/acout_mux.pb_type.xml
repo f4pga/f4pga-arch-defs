@@ -1,0 +1,18 @@
+<pb_type name="AOUT_MUX" num_pb="1">
+
+  <input name="I0" num_pins="30"/>
+  <input name="I1" num_pins="30"/>
+  <output name="O" num_pins="30"/>
+  <interconnect>
+    <mux name="AOUT_MUX" input="AOUT_MUX.I0 AOUT_MUX.I1" output="AOUT_MUX.O">
+      <metadata>
+        <meta name="type">bel</meta>
+        <meta name="subtype">routing</meta>
+        <meta key="fasm_mux">
+AOUT_MUX.I0 = AOUT_MUX.I0
+AOUT_MUX.I1 = AOUT_MUX.I1
+</meta>
+      </metadata>
+    </mux>
+  </interconnect>
+</pb_type>

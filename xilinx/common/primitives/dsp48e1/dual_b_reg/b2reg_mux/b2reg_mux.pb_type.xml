@@ -1,0 +1,22 @@
+<pb_type name="B2REG_MUX" num_pb="1">
+  <metadata>
+    <meta name="type">bel</meta>
+    <meta name="subtype">routing</meta>
+  </metadata>
+
+  <input name="BYPASS" num_pins="18"/>
+  <input name="REG" num_pins="18"/>
+  <output name="O" num_pins="18"/>
+  <interconnect>
+    <mux name="B2REG_MUX" input="B2REG_MUX.BYPASS B2REG_MUX.REG" output="B2REG_MUX.O">
+      <metadata>
+        <meta name="type">bel</meta>
+        <meta name="subtype">routing</meta>
+        <meta key="fasm_mux">
+B2REG_MUX.BYPASS = B2REG_MUX.BYPASS
+B2REG_MUX.REG = B2REG_MUX.REG
+</meta>
+      </metadata>
+    </mux>
+  </interconnect>
+</pb_type>

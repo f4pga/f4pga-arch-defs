@@ -1,0 +1,442 @@
+<?xml version='1.0' encoding='utf-8'?>
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" num_pb="1" name="NREG">
+  <clock name="CLK" num_pins="1"/>
+  <input name="CE" num_pins="1"/>
+  <input name="D" num_pins="18"/>
+  <input name="RESET" num_pins="1"/>
+  <output name="Q" num_pins="18"/>
+  <pb_type num_pb="1" name="bitreg_breg_0">
+    <!--old_name REG-->
+    <xi:include href="./reg.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="bitreg_breg_10">
+    <!--old_name REG-->
+    <xi:include href="./reg.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="bitreg_breg_11">
+    <!--old_name REG-->
+    <xi:include href="./reg.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="bitreg_breg_12">
+    <!--old_name REG-->
+    <xi:include href="./reg.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="bitreg_breg_13">
+    <!--old_name REG-->
+    <xi:include href="./reg.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="bitreg_breg_14">
+    <!--old_name REG-->
+    <xi:include href="./reg.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="bitreg_breg_15">
+    <!--old_name REG-->
+    <xi:include href="./reg.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="bitreg_breg_16">
+    <!--old_name REG-->
+    <xi:include href="./reg.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="bitreg_breg_17">
+    <!--old_name REG-->
+    <xi:include href="./reg.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="bitreg_breg_1">
+    <!--old_name REG-->
+    <xi:include href="./reg.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="bitreg_breg_2">
+    <!--old_name REG-->
+    <xi:include href="./reg.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="bitreg_breg_3">
+    <!--old_name REG-->
+    <xi:include href="./reg.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="bitreg_breg_4">
+    <!--old_name REG-->
+    <xi:include href="./reg.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="bitreg_breg_5">
+    <!--old_name REG-->
+    <xi:include href="./reg.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="bitreg_breg_6">
+    <!--old_name REG-->
+    <xi:include href="./reg.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="bitreg_breg_7">
+    <!--old_name REG-->
+    <xi:include href="./reg.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="bitreg_breg_8">
+    <!--old_name REG-->
+    <xi:include href="./reg.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="bitreg_breg_9">
+    <!--old_name REG-->
+    <xi:include href="./reg.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <interconnect>
+    <direct>
+      <port name="CE" type="input"/>
+      <port name="CE" type="output" from="bitreg_breg_0"/>
+    </direct>
+    <direct>
+      <port name="CE" type="input"/>
+      <port name="CE" type="output" from="bitreg_breg_10"/>
+    </direct>
+    <direct>
+      <port name="CE" type="input"/>
+      <port name="CE" type="output" from="bitreg_breg_11"/>
+    </direct>
+    <direct>
+      <port name="CE" type="input"/>
+      <port name="CE" type="output" from="bitreg_breg_12"/>
+    </direct>
+    <direct>
+      <port name="CE" type="input"/>
+      <port name="CE" type="output" from="bitreg_breg_13"/>
+    </direct>
+    <direct>
+      <port name="CE" type="input"/>
+      <port name="CE" type="output" from="bitreg_breg_14"/>
+    </direct>
+    <direct>
+      <port name="CE" type="input"/>
+      <port name="CE" type="output" from="bitreg_breg_15"/>
+    </direct>
+    <direct>
+      <port name="CE" type="input"/>
+      <port name="CE" type="output" from="bitreg_breg_16"/>
+    </direct>
+    <direct>
+      <port name="CE" type="input"/>
+      <port name="CE" type="output" from="bitreg_breg_17"/>
+    </direct>
+    <direct>
+      <port name="CE" type="input"/>
+      <port name="CE" type="output" from="bitreg_breg_1"/>
+    </direct>
+    <direct>
+      <port name="CE" type="input"/>
+      <port name="CE" type="output" from="bitreg_breg_2"/>
+    </direct>
+    <direct>
+      <port name="CE" type="input"/>
+      <port name="CE" type="output" from="bitreg_breg_3"/>
+    </direct>
+    <direct>
+      <port name="CE" type="input"/>
+      <port name="CE" type="output" from="bitreg_breg_4"/>
+    </direct>
+    <direct>
+      <port name="CE" type="input"/>
+      <port name="CE" type="output" from="bitreg_breg_5"/>
+    </direct>
+    <direct>
+      <port name="CE" type="input"/>
+      <port name="CE" type="output" from="bitreg_breg_6"/>
+    </direct>
+    <direct>
+      <port name="CE" type="input"/>
+      <port name="CE" type="output" from="bitreg_breg_7"/>
+    </direct>
+    <direct>
+      <port name="CE" type="input"/>
+      <port name="CE" type="output" from="bitreg_breg_8"/>
+    </direct>
+    <direct>
+      <port name="CE" type="input"/>
+      <port name="CE" type="output" from="bitreg_breg_9"/>
+    </direct>
+    <direct>
+      <port name="CLK" type="input"/>
+      <port name="CLK" type="output" from="bitreg_breg_0"/>
+    </direct>
+    <direct>
+      <port name="CLK" type="input"/>
+      <port name="CLK" type="output" from="bitreg_breg_10"/>
+    </direct>
+    <direct>
+      <port name="CLK" type="input"/>
+      <port name="CLK" type="output" from="bitreg_breg_11"/>
+    </direct>
+    <direct>
+      <port name="CLK" type="input"/>
+      <port name="CLK" type="output" from="bitreg_breg_12"/>
+    </direct>
+    <direct>
+      <port name="CLK" type="input"/>
+      <port name="CLK" type="output" from="bitreg_breg_13"/>
+    </direct>
+    <direct>
+      <port name="CLK" type="input"/>
+      <port name="CLK" type="output" from="bitreg_breg_14"/>
+    </direct>
+    <direct>
+      <port name="CLK" type="input"/>
+      <port name="CLK" type="output" from="bitreg_breg_15"/>
+    </direct>
+    <direct>
+      <port name="CLK" type="input"/>
+      <port name="CLK" type="output" from="bitreg_breg_16"/>
+    </direct>
+    <direct>
+      <port name="CLK" type="input"/>
+      <port name="CLK" type="output" from="bitreg_breg_17"/>
+    </direct>
+    <direct>
+      <port name="CLK" type="input"/>
+      <port name="CLK" type="output" from="bitreg_breg_1"/>
+    </direct>
+    <direct>
+      <port name="CLK" type="input"/>
+      <port name="CLK" type="output" from="bitreg_breg_2"/>
+    </direct>
+    <direct>
+      <port name="CLK" type="input"/>
+      <port name="CLK" type="output" from="bitreg_breg_3"/>
+    </direct>
+    <direct>
+      <port name="CLK" type="input"/>
+      <port name="CLK" type="output" from="bitreg_breg_4"/>
+    </direct>
+    <direct>
+      <port name="CLK" type="input"/>
+      <port name="CLK" type="output" from="bitreg_breg_5"/>
+    </direct>
+    <direct>
+      <port name="CLK" type="input"/>
+      <port name="CLK" type="output" from="bitreg_breg_6"/>
+    </direct>
+    <direct>
+      <port name="CLK" type="input"/>
+      <port name="CLK" type="output" from="bitreg_breg_7"/>
+    </direct>
+    <direct>
+      <port name="CLK" type="input"/>
+      <port name="CLK" type="output" from="bitreg_breg_8"/>
+    </direct>
+    <direct>
+      <port name="CLK" type="input"/>
+      <port name="CLK" type="output" from="bitreg_breg_9"/>
+    </direct>
+    <direct>
+      <port name="D[0]" type="input"/>
+      <port name="D" type="output" from="bitreg_breg_0"/>
+    </direct>
+    <direct>
+      <port name="RESET" type="input"/>
+      <port name="RESET" type="output" from="bitreg_breg_0"/>
+    </direct>
+    <direct>
+      <port name="RESET" type="input"/>
+      <port name="RESET" type="output" from="bitreg_breg_10"/>
+    </direct>
+    <direct>
+      <port name="RESET" type="input"/>
+      <port name="RESET" type="output" from="bitreg_breg_11"/>
+    </direct>
+    <direct>
+      <port name="RESET" type="input"/>
+      <port name="RESET" type="output" from="bitreg_breg_12"/>
+    </direct>
+    <direct>
+      <port name="RESET" type="input"/>
+      <port name="RESET" type="output" from="bitreg_breg_13"/>
+    </direct>
+    <direct>
+      <port name="RESET" type="input"/>
+      <port name="RESET" type="output" from="bitreg_breg_14"/>
+    </direct>
+    <direct>
+      <port name="RESET" type="input"/>
+      <port name="RESET" type="output" from="bitreg_breg_15"/>
+    </direct>
+    <direct>
+      <port name="RESET" type="input"/>
+      <port name="RESET" type="output" from="bitreg_breg_16"/>
+    </direct>
+    <direct>
+      <port name="RESET" type="input"/>
+      <port name="RESET" type="output" from="bitreg_breg_17"/>
+    </direct>
+    <direct>
+      <port name="RESET" type="input"/>
+      <port name="RESET" type="output" from="bitreg_breg_1"/>
+    </direct>
+    <direct>
+      <port name="RESET" type="input"/>
+      <port name="RESET" type="output" from="bitreg_breg_2"/>
+    </direct>
+    <direct>
+      <port name="RESET" type="input"/>
+      <port name="RESET" type="output" from="bitreg_breg_3"/>
+    </direct>
+    <direct>
+      <port name="RESET" type="input"/>
+      <port name="RESET" type="output" from="bitreg_breg_4"/>
+    </direct>
+    <direct>
+      <port name="RESET" type="input"/>
+      <port name="RESET" type="output" from="bitreg_breg_5"/>
+    </direct>
+    <direct>
+      <port name="RESET" type="input"/>
+      <port name="RESET" type="output" from="bitreg_breg_6"/>
+    </direct>
+    <direct>
+      <port name="RESET" type="input"/>
+      <port name="RESET" type="output" from="bitreg_breg_7"/>
+    </direct>
+    <direct>
+      <port name="RESET" type="input"/>
+      <port name="RESET" type="output" from="bitreg_breg_8"/>
+    </direct>
+    <direct>
+      <port name="RESET" type="input"/>
+      <port name="RESET" type="output" from="bitreg_breg_9"/>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="bitreg_breg_0"/>
+      <port name="Q[0]" type="output"/>
+    </direct>
+    <direct>
+      <port name="D[10]" type="input"/>
+      <port name="D" type="output" from="bitreg_breg_10"/>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="bitreg_breg_10"/>
+      <port name="Q[10]" type="output"/>
+    </direct>
+    <direct>
+      <port name="D[11]" type="input"/>
+      <port name="D" type="output" from="bitreg_breg_11"/>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="bitreg_breg_11"/>
+      <port name="Q[11]" type="output"/>
+    </direct>
+    <direct>
+      <port name="D[12]" type="input"/>
+      <port name="D" type="output" from="bitreg_breg_12"/>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="bitreg_breg_12"/>
+      <port name="Q[12]" type="output"/>
+    </direct>
+    <direct>
+      <port name="D[13]" type="input"/>
+      <port name="D" type="output" from="bitreg_breg_13"/>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="bitreg_breg_13"/>
+      <port name="Q[13]" type="output"/>
+    </direct>
+    <direct>
+      <port name="D[14]" type="input"/>
+      <port name="D" type="output" from="bitreg_breg_14"/>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="bitreg_breg_14"/>
+      <port name="Q[14]" type="output"/>
+    </direct>
+    <direct>
+      <port name="D[15]" type="input"/>
+      <port name="D" type="output" from="bitreg_breg_15"/>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="bitreg_breg_15"/>
+      <port name="Q[15]" type="output"/>
+    </direct>
+    <direct>
+      <port name="D[16]" type="input"/>
+      <port name="D" type="output" from="bitreg_breg_16"/>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="bitreg_breg_16"/>
+      <port name="Q[16]" type="output"/>
+    </direct>
+    <direct>
+      <port name="D[17]" type="input"/>
+      <port name="D" type="output" from="bitreg_breg_17"/>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="bitreg_breg_17"/>
+      <port name="Q[17]" type="output"/>
+    </direct>
+    <direct>
+      <port name="D[1]" type="input"/>
+      <port name="D" type="output" from="bitreg_breg_1"/>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="bitreg_breg_1"/>
+      <port name="Q[1]" type="output"/>
+    </direct>
+    <direct>
+      <port name="D[2]" type="input"/>
+      <port name="D" type="output" from="bitreg_breg_2"/>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="bitreg_breg_2"/>
+      <port name="Q[2]" type="output"/>
+    </direct>
+    <direct>
+      <port name="D[3]" type="input"/>
+      <port name="D" type="output" from="bitreg_breg_3"/>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="bitreg_breg_3"/>
+      <port name="Q[3]" type="output"/>
+    </direct>
+    <direct>
+      <port name="D[4]" type="input"/>
+      <port name="D" type="output" from="bitreg_breg_4"/>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="bitreg_breg_4"/>
+      <port name="Q[4]" type="output"/>
+    </direct>
+    <direct>
+      <port name="D[5]" type="input"/>
+      <port name="D" type="output" from="bitreg_breg_5"/>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="bitreg_breg_5"/>
+      <port name="Q[5]" type="output"/>
+    </direct>
+    <direct>
+      <port name="D[6]" type="input"/>
+      <port name="D" type="output" from="bitreg_breg_6"/>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="bitreg_breg_6"/>
+      <port name="Q[6]" type="output"/>
+    </direct>
+    <direct>
+      <port name="D[7]" type="input"/>
+      <port name="D" type="output" from="bitreg_breg_7"/>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="bitreg_breg_7"/>
+      <port name="Q[7]" type="output"/>
+    </direct>
+    <direct>
+      <port name="D[8]" type="input"/>
+      <port name="D" type="output" from="bitreg_breg_8"/>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="bitreg_breg_8"/>
+      <port name="Q[8]" type="output"/>
+    </direct>
+    <direct>
+      <port name="D[9]" type="input"/>
+      <port name="D" type="output" from="bitreg_breg_9"/>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="bitreg_breg_9"/>
+      <port name="Q[9]" type="output"/>
+    </direct>
+  </interconnect>
+</pb_type>

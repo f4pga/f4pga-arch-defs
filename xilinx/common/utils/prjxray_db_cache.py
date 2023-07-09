@@ -73,6 +73,7 @@ class DatabaseCache(object):
         Prints database copy progress.
         """
         if self.bar is None:
-            self.bar = ProgressBar(max_value=total)
+            self.bar = ProgressBar(maxval=total)
+            self.bar.start()
         else:
             self.bar.update(total - remaining)
