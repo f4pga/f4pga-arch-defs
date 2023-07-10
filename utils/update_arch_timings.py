@@ -189,9 +189,7 @@ def get_bel_timings(element, timings, bels, corner, speed_type):
         bel = pb_chain[-1]
     location = pb_chain[-2]
     site = remove_site_number(pb_chain[1])
-    
-    
-    
+
     result = find_timings(
         timings, bel, location, site, bels, corner, speed_type
     )

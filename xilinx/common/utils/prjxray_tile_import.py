@@ -332,10 +332,10 @@ def import_tile(db, args):
             if site.type not in site_type_count:
                 site_type_count[site.type] = 0
                 site_prefixes[site.type] = []
-		
+
             cells_idx[idx] = site_type_count[site.type]
-            site_type_count[site.type] += 1	
-            
+            site_type_count[site.type] += 1
+
             site_coords = args.site_coords.upper()
             if site_coords == 'X':
                 site_prefix = '{}_X{}'.format(site.type, site.x)
@@ -373,12 +373,11 @@ def import_tile(db, args):
 
             for outputs in root_element.iter('output'):
                 ports[outputs.attrib['name']] = int(outputs.attrib['num_pins'])
-
             '''assert site_instance not in site_type_ports, (
                 site_instance, site_type_ports.keys()
             )'''
             site_type_ports[site_instance] = ports
-            
+
             attrib = dict(root_element.attrib)
             include_xml = ET.SubElement(pb_type_xml, 'pb_type', attrib)
             ET.SubElement(

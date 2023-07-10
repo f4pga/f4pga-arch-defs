@@ -369,27 +369,6 @@
 <T_setup value="10e-12" port="OVERFLOW" clock="CLK"/>
 <T_setup value="10e-12" port="UNDERFLOW" clock="CLK"/>
 
-
-<!-- <xi:include href="../dual_b_reg/dual_b_reg.pb_type.xml"/>
-<xi:include href="../dual_ad_preadder/dual_ad_preadder.pb_type.xml"/>
-<xi:include href="../mult25x18/mult25x18.pb_type.xml"/>
-<xi:include href="../mreg/mreg.pb_type.xml"/>
-<xi:include href="../creg/creg.pb_type.xml"/>
-<xi:include href="../xmux/xmux.pb_type.xml"/>
-<xi:include href="../ymux/ymux.pb_type.xml"/>
-<xi:include href="../zmux/zmux.pb_type.xml"/>
-<xi:include href="../alu/alu.pb_type.xml"/>
-<xi:include href="../inmode_reg/inmode_reg.pb_type.xml"/>
-<xi:include href="../opmode_reg/opmode_reg.pb_type.xml"/>
-<xi:include href="../carryinsel_reg/carryinsel_reg.pb_type.xml"/>
-<xi:include href="../alumode_reg/alumode_reg.pb_type.xml"/>
-<xi:include href="..//.pb_type.xml"/>
-<xi:include href="..//.pb_type.xml"/> 
-
-<interconnect>
-
-</interconnect>-->
-
 <metadata>
 <meta name="fasm_params">
 AREG_0=AREG_0

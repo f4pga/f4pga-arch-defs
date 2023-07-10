@@ -3625,7 +3625,7 @@ module DSP48E1_VPR (
    output PATTERNDETECT,
    output PATTERNBDETECT,
    output OVERFLOW,
-   output UNDERFLOW,
+   output UNDERFLOW
 );
   parameter AREG_0 = 1'b0;
   parameter BREG_0 = 1'b0;
