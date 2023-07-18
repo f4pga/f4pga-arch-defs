@@ -1,0 +1,57 @@
+<models>
+<model name="DSP48E1_VPR">
+<input_ports>
+<port clock="CLK" name="A" combinational_sink_ports="ACOUT CARRYCASCOUT CARRYOUT MULTSIGNOUT P PATTERNBDETECT PATTERNDETECT PCOUT"/>
+<port clock="CLK" name="B" combinational_sink_ports="BCOUT CARRYCASCOUT CARRYOUT MULTSIGNOUT P PATTERNBDETECT PATTERNDETECT PCOUT"/>
+<port clock="CLK" name="C" combinational_sink_ports="CARRYCASCOUT CARRYOUT MULTSIGNOUT P PATTERNBDETECT PATTERNDETECT PCOUT"/>
+<port clock="CLK" name="D" combinational_sink_ports="CARRYCASCOUT CARRYOUT MULTSIGNOUT P PATTERNBDETECT PATTERNDETECT PCOUT"/>
+<port clock="CLK" name="OPMODE" combinational_sink_ports="CARRYCASCOUT CARRYOUT MULTSIGNOUT P PATTERNBDETECT PATTERNDETECT PCOUT"/>
+<port clock="CLK" name="ALUMODE" combinational_sink_ports="CARRYCASCOUT CARRYOUT MULTSIGNOUT P PATTERNBDETECT PATTERNDETECT PCOUT"/>
+<port clock="CLK" name="CARRYIN" combinational_sink_ports="CARRYCASCOUT CARRYOUT MULTSIGNOUT P PATTERNBDETECT PATTERNDETECT PCOUT"/>
+<port clock="CLK" name="CARRYINSEL" combinational_sink_ports="CARRYCASCOUT CARRYOUT MULTSIGNOUT P PATTERNBDETECT PATTERNDETECT PCOUT"/>
+<port clock="CLK" name="INMODE" combinational_sink_ports="CARRYCASCOUT CARRYOUT MULTSIGNOUT P PATTERNBDETECT PATTERNDETECT PCOUT"/>
+<port clock="CLK" name="CEA1"/>
+<port clock="CLK" name="CEA2"/>
+<port clock="CLK" name="CEB1"/>
+<port clock="CLK" name="CEB2"/>
+<port clock="CLK" name="CEC"/>
+<port clock="CLK" name="CED"/>
+<port clock="CLK" name="CEM"/>
+<port clock="CLK" name="CEP"/>
+<port clock="CLK" name="CEAD"/>
+<port clock="CLK" name="CEALUMODE"/>
+<port clock="CLK" name="CECTRL"/>
+<port clock="CLK" name="CECARRYIN"/>
+<port clock="CLK" name="CEINMODE"/>
+<port clock="CLK" name="RSTA"/>
+<port clock="CLK" name="RSTB"/>
+<port clock="CLK" name="RSTC"/>
+<port clock="CLK" name="RSTD"/>
+<port clock="CLK" name="RSTM"/>
+<port clock="CLK" name="RSTP"/>
+<port clock="CLK" name="RSTCTRL"/>
+<port clock="CLK" name="RSTALLCARRYIN"/>
+<port clock="CLK" name="RSTALUMODE"/>
+<port clock="CLK" name="RSTINMODE"/>
+<port is_clock="1" name="CLK"/>
+<port clock="CLK" name="ACIN" combinational_sink_ports="ACOUT CARRYCASCOUT CARRYOUT MULTSIGNOUT P PATTERNBDETECT PATTERNDETECT PCOUT"/>
+<port clock="CLK" name="BCIN" combinational_sink_ports="BCOUT CARRYCASCOUT CARRYOUT MULTSIGNOUT P PATTERNBDETECT PATTERNDETECT PCOUT"/>
+<port clock="CLK" name="PCIN" combinational_sink_ports="CARRYCASCOUT CARRYOUT MULTSIGNOUT P PATTERNBDETECT PATTERNDETECT PCOUT"/>
+<port clock="CLK" name="CARRYCASCIN" combinational_sink_ports="CARRYCASCOUT CARRYOUT MULTSIGNOUT P PATTERNBDETECT PATTERNDETECT PCOUT"/>
+<port clock="CLK" name="MULTSIGNIN" combinational_sink_ports="CARRYCASCOUT CARRYOUT MULTSIGNOUT P PATTERNBDETECT PATTERNDETECT PCOUT"/>
+</input_ports>
+<output_ports>
+<port clock="CLK" name="ACOUT"/>
+<port clock="CLK" name="BCOUT"/>
+<port clock="CLK" name="PCOUT"/>
+<port clock="CLK" name="P"/>
+<port clock="CLK" name="CARRYOUT"/>
+<port clock="CLK" name="CARRYCASCOUT"/>
+<port clock="CLK" name="MULTSIGNOUT"/>
+<port clock="CLK" name="PATTERNDETECT"/>
+<port clock="CLK" name="PATTERNBDETECT"/>
+<port clock="CLK" name="OVERFLOW"/>
+<port clock="CLK" name="UNDERFLOW"/>
+</output_ports>
+</model>
+</models>

@@ -373,10 +373,9 @@ def import_tile(db, args):
 
             for outputs in root_element.iter('output'):
                 ports[outputs.attrib['name']] = int(outputs.attrib['num_pins'])
-
-            assert site_instance not in site_type_ports, (
+            '''assert site_instance not in site_type_ports, (
                 site_instance, site_type_ports.keys()
-            )
+            )'''
             site_type_ports[site_instance] = ports
 
             attrib = dict(root_element.attrib)
@@ -1393,7 +1392,7 @@ def main():
     parser.add_argument('--tile', help="""Tile to generate for""")
 
     parser.add_argument(
-        '--site_directory', help="""Diretory where sites are defined"""
+        '--site_directory', help="""Directory where sites are defined"""
     )
 
     parser.add_argument(

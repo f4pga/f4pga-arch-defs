@@ -10793,3 +10793,324 @@ module PCIE_2_1 (
     .USERRSTN(USERRSTN)
   );
 endmodule
+
+
+module DSP48E1 (
+    output [29:0] ACOUT,
+    output [17:0] BCOUT,
+    output reg CARRYCASCOUT,
+    output reg [3:0] CARRYOUT,
+    output reg MULTSIGNOUT,
+    output OVERFLOW,
+    output reg signed [47:0] P,
+    output reg PATTERNBDETECT,
+    output reg PATTERNDETECT,
+    output [47:0] PCOUT,
+    output UNDERFLOW,
+    input signed [29:0] A,
+    input [29:0] ACIN,
+    input [3:0] ALUMODE,
+    input signed [17:0] B,
+    input [17:0] BCIN,
+    input [47:0] C,
+    input CARRYCASCIN,
+    input CARRYIN,
+    input [2:0] CARRYINSEL,
+    input CEA1,
+    input CEA2,
+    input CEAD,
+    input CEALUMODE,
+    input CEB1,
+    input CEB2,
+    input CEC,
+    input CECARRYIN,
+    input CECTRL,
+    input CED,
+    input CEINMODE,
+    input CEM,
+    input CEP,
+    (* clkbuf_sink *) input CLK,
+    input [24:0] D,
+    input [4:0] INMODE,
+    input MULTSIGNIN,
+    input [6:0] OPMODE,
+    input [47:0] PCIN,
+    input RSTA,
+    input RSTALLCARRYIN,
+    input RSTALUMODE,
+    input RSTB,
+    input RSTC,
+    input RSTCTRL,
+    input RSTD,
+    input RSTINMODE,
+    input RSTM,
+    input RSTP
+);
+    parameter integer ACASCREG = 1;
+    parameter integer ADREG = 1;
+    parameter integer ALUMODEREG = 1;
+    parameter integer AREG = 1;
+    parameter AUTORESET_PATDET = "NO_RESET";
+    parameter A_INPUT = "DIRECT";
+    parameter integer BCASCREG = 1;
+    parameter integer BREG = 1;
+    parameter B_INPUT = "DIRECT";
+    parameter integer CARRYINREG = 1;
+    parameter integer CARRYINSELREG = 1;
+    parameter integer CREG = 1;
+    parameter integer DREG = 1;
+    parameter integer INMODEREG = 1;
+    parameter integer MREG = 1;
+    parameter integer OPMODEREG = 1;
+    parameter integer PREG = 1;
+    parameter SEL_MASK = "MASK";
+    parameter SEL_PATTERN = "PATTERN";
+    parameter USE_DPORT = "FALSE";
+    parameter USE_MULT = "MULTIPLY";
+    parameter USE_PATTERN_DETECT = "NO_PATDET";
+    parameter USE_SIMD = "ONE48";
+    parameter [47:0] MASK = 48'h3FFFFFFFFFFF;
+    parameter [47:0] PATTERN = 48'h000000000000;
+    parameter [3:0] IS_ALUMODE_INVERTED = 4'b0;
+    parameter [0:0] IS_CARRYIN_INVERTED = 1'b0;
+    parameter [0:0] IS_CLK_INVERTED = 1'b0;
+    parameter [4:0] IS_INMODE_INVERTED = 5'b0;
+    parameter [6:0] IS_OPMODE_INVERTED = 7'b0;
+    
+    // DRC CHECKS. See DSP48E1 documentation for more info.
+    // USE_PATTERN_DETECT, USE_MULT AND SEL_PATTERN parameters are always set as their default value as these are not present in the segbits database.
+    
+    case (A_INPUT)
+             "DIRECT", "CASCADE" : ;
+              default : begin
+                       $error("A_INPUT on DSP48E1 instance is set to an illegal value. Valid options for this parameter are DIRECT or CASCADE");
+                        end
+    endcase
+    case (B_INPUT)
+             "DIRECT", "CASCADE" : ;
+              default : begin
+                       $error("B_INPUT on DSP48E1 instance is set to an illegal value.  Valid options for this parameter are DIRECT or CASCADE");
+     		 	end
+    endcase
+    case (AREG)
+            0, 1, 2 : ;
+            default : begin
+                    $error("AREG on DSP48E1 instance is set to an illegal value. Valid options for this parameter are 0, 1 or 2");
+	              end
+    endcase
+    case (AREG)
+            0 : if(AREG != ACASCREG) begin
+                    $error("ACASCREG  on DSP48E1 instance is set to an illegal value.  ACASCREG has to be set to 0 when AREG is 0");
+                    end
+            1 : if(AREG != ACASCREG) begin
+                    $error("ACASCREG  on DSP48E1 instance is set to an illegal value.  ACASCREG has to be set to 1 when AREG is 1");
+                    end
+            2 : if((AREG != ACASCREG) && ((AREG-1) != ACASCREG)) begin
+                    $error("ACASCREG  on DSP48E1 instance is set to an illegal value. ACASCREG has to be set to either 2 or 1 when AREG is 2");
+                    end
+            default : ;
+    endcase
+    case (BREG)
+            0, 1, 2 : ;
+            default : begin
+                    $error("BREG on DSP48E1 instance is set to an illegal value.  Valid options for this parameter are 0, 1 or 2");
+                    end
+    endcase
+    case (BREG)
+            0 : if(BREG != BCASCREG) begin
+                    $error("BCASCREG  on DSP48E1 instance is set to an illegal value.  BCASCREG has to be set to 0 when attribute BREG is 0");
+                    end
+            1 : if(BREG != BCASCREG) begin
+                    $error("BCASCREG  on DSP48E1 instance is set to an illegal value.  BCASCREG has to be set to 1 when attribute BREG is 1");
+                    end
+            2 : if((BREG != BCASCREG) && ((BREG-1) != BCASCREG)) begin
+                    $error("BCASCREG  on DSP48E1 instance is set to an illegal value.  BCASCREG has to be set to either 2 or 1 when attribute BREG is 2");
+                    end
+            default : ;
+    endcase
+    case (ALUMODEREG)
+            0, 1 : ;
+            default : begin
+                    $error("ALUMODEREG on DSP48E1 instance is set to an illegal value.  Valid options for this parameter are 0 or 1");
+		      end
+    endcase
+    case (CARRYINREG)
+            0, 1 : ;
+            default : begin
+                    $error("CARRYINREG on DSP48E1 instance is set to an illegal value.  Valid options for this parameter are 0 or 1");
+                    end
+    endcase
+    case (CARRYINSELREG)
+            0, 1 : ;
+            default : begin
+                    $error("CARRYINSELREG on DSP48E1 instance is set to an illegal value.  Valid options for this parameter are 0 or 1");
+                    end
+    endcase
+    case (CREG)
+            0, 1 : ;
+            default : begin
+                    $error("CREG on DSP48E1 instance is set to an illegal value.  Valid options for this parameter are 0 or 1");
+                    end
+    endcase
+    case (OPMODEREG)
+            0, 1 : ;
+            default : begin
+                    $error("OPMODEREG on DSP48E1 instance is set to an illegal value.  Valid options for this parameter are 0 or 1");
+                    end
+    endcase
+    case (USE_MULT)
+            "NONE", "MULTIPLY", "DYNAMIC" : ;
+            default : begin
+                          $error("USE_MULT on DSP48E1 instance is set to an illegal value. Valid options for this parameter are MULTIPLY, DYNAMIC or NONE");
+                          end
+    endcase
+    case (USE_PATTERN_DETECT) 
+            "PATDET", "NO_PATDET" : ;
+            default : begin
+               $error("USE_PATTERN_DETECT on DSP48E1 instance is set to an illegal value.  Valid options for this parameter are PATDET or NO_PATDET");
+               end
+    endcase
+    case (AUTORESET_PATDET)
+            "NO_RESET", "RESET_MATCH", "RESET_NOT_MATCH" : ;
+            default : begin
+               $error("AUTORESET_PATDET on DSP48E1 instance is set to an illegal value.  Valid options for this parameter are  NO_RESET, RESET_MATCH or RESET_NOT_MATCH");
+               end
+    endcase
+    case(SEL_PATTERN)
+           "PATTERN", "C" : ;
+            default : begin
+                         $error("SEL_PATTERN on DSP48E1 instance is set to an illegal value.  Valid options for this parameter are PATTERN or C");
+                         end
+    endcase
+    case(SEL_MASK)
+            "MASK", "C", "ROUNDING_MODE1", "ROUNDING_MODE2" : ;
+             default : begin
+                         $error("SEL_MASK on DSP48E1 instance is set to an illegal value.  Valid options for this parameter are MASK, C, ROUNDING_MODE1 or ROUNDING_MODE2");
+                          end
+    endcase
+    case (MREG)
+            0, 1 : ;
+            default : begin
+                    $error("MREG on DSP48E1 instance is set to an illegal value.  Valid options for this parameter are 0 or  1");
+                    end
+    endcase
+    case (PREG)
+            0, 1 : ;
+            default : begin
+                    $error("PREG on DSP48E1 instance is set to an illegal value.  Valid options for this parameter are 0 or 1");
+                    end
+    endcase
+    case (ADREG)
+            0, 1 : ;
+            default : begin
+                    $error("ADREG on DSP48E1 instance is set to an illegal value.  Valid options for this parameter are 0 or 1");
+                    end
+    endcase
+    case (DREG)
+            0, 1 : ;
+            default : begin
+                    $error("DREG on DSP48E1 instance is set to an illegal value.  Valid options for this parameter are 0 or 1");
+                    end
+    endcase
+    case (INMODEREG)
+            0, 1 : ;
+            default : begin
+                    $error("INMODEREG on DSP48E1 instance is set to an illegal value.  Valid options for this parameter are 0 or 1");
+                    end
+    endcase
+    case (USE_DPORT)
+            "TRUE", "FALSE" : ;
+            default : begin
+               $error("USE_DPORT on DSP48E1 instance is set to an illegal value.  Valid options for this parameter are TRUE or FALSE");
+               end
+    endcase
+    
+    DSP48E1_VPR #(
+    
+    	.AREG_0(AREG==0),
+   	.BREG_0(BREG==0),
+   	.AREG_2(AREG==2),
+   	.BREG_2(BREG==2),
+   	.MASK(MASK),
+   	.ADREG(ADREG[0]),
+   	.ALUMODEREG(ALUMODEREG[0]),
+   	.ACASCREG(AREG==2 && ACASCREG==1),
+   	.BCASCREG(BREG==2 && BCASCREG==1),
+   	.CARRYINREG(CARRYINREG[0]),
+   	.CARRYINSELREG(CARRYINSELREG[0]),
+   	.DREG(DREG[0]),
+   	.INMODEREG(INMODEREG[0]),  
+   	.IS_ALUMODE_INVERTED(IS_ALUMODE_INVERTED),
+   	.IS_INMODE_INVERTED(IS_INMODE_INVERTED),
+   	.IS_OPMODE_INVERTED(IS_OPMODE_INVERTED),
+	.MREG(MREG[0]),
+   	.OPMODEREG(OPMODEREG[0]),
+   	.PREG(PREG[0]),
+   	.CREG(CREG[0]),
+   	.A_INPUT(A_INPUT == "CASCADE"),
+   	.B_INPUT(B_INPUT == "CASCADE"),
+   	.USE_DPORT(USE_DPORT == "TRUE"),
+   	.USE_SIMD_FOUR12(USE_SIMD == "FOUR12"),
+   	.USE_SIMD_FOUR12_TWO24(USE_SIMD == "TWO24"),
+   	.AUTORESET_PATDET_RESET(AUTORESET_PATDET == "RESET_MATCH"),
+   	.AUTORESET_PATDET_RESET_NOT_MATCH(AUTORESET_PATDET == "RESET_NOT_MATCH"),
+   	.PATTERN(PATTERN),
+   	.SEL_MASK_ROUNDING_MODE1(SEL_MASK == "ROUNDING_MODE1"),
+   	.SEL_MASK_ROUNDING_MODE2(SEL_MASK == "ROUNDING_MODE2"),
+   	.SEL_MASK_C(SEL_MASK == "C"),
+   	.IS_CARRYIN_INVERTED(IS_CARRYIN_INVERTED),
+   	.IS_CLK_INVERTED(IS_CLK_INVERTED)	   	
+   	
+    ) _TECHMAP_REPLACE_ (
+        .ACOUT(ACOUT),
+        .BCOUT(BCOUT),
+        .CARRYCASCOUT(CARRYCASCOUT),
+        .CARRYOUT(CARRYOUT),
+        .MULTSIGNOUT(MULTSIGNOUT),
+        .OVERFLOW(OVERFLOW),
+        .P(P),
+        .PATTERNBDETECT(PATTERNBDETECT),
+        .PATTERNDETECT(PATTERNDETECT),
+        .PCOUT(PCOUT),
+        .UNDERFLOW(UNDERFLOW),
+        .A(A),
+//        .ACIN(ACIN),
+        .ALUMODE(ALUMODE),
+        .B(B),
+//        .BCIN(BCIN),
+        .C(C),
+//        .CARRYCASCIN(CARRYCASCIN),
+        .CARRYIN(CARRYIN),
+        .CARRYINSEL(CARRYINSEL),
+        .CEA1(CEA1),
+        .CEA2(CEA2),
+        .CEAD(CEAD),
+        .CEALUMODE(CEALUMODE),
+        .CEB1(CEB1),
+        .CEB2(CEB2),
+        .CEC(CEC),
+        .CECARRYIN(CECARRYIN),
+        .CECTRL(CECTRL),
+        .CED(CED),
+        .CEINMODE(CEINMODE),
+        .CEM(CEM),
+        .CEP(CEP),
+        .CLK(CLK),
+        .D(D),
+        .INMODE(INMODE),
+//        .MULTSIGNIN(MULTSIGNIN),
+        .OPMODE(OPMODE),
+//        .PCIN(PCIN),
+        .RSTA(RSTA),
+        .RSTALLCARRYIN(RSTALLCARRYIN),
+        .RSTALUMODE(RSTALUMODE),
+        .RSTB(RSTB),
+        .RSTC(RSTC),
+        .RSTCTRL(RSTCTRL),
+        .RSTD(RSTD),
+        .RSTINMODE(RSTINMODE),
+        .RSTM(RSTM),
+        .RSTP(RSTP)
+    );
+    
+endmodule

@@ -114,7 +114,7 @@ def find_timings(timings, bel, location, site, bels, corner, speed_type):
 
     def get_timing(cell, delay, corner, speed_type):
         """
-        Gets timing for a particular cornet case. If not fount then chooses
+        Gets timing for a particular corner case. If not found then chooses
         the next best one.
         """
         entries = cell[delay]['delay_paths'][corner.lower()]
