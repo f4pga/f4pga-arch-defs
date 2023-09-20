@@ -4,15 +4,17 @@ module top
   (
    A, 
    B,
+   Cin,
    OUT
   );
-   
-   
+
+
    (* IOSTANDARD = "LVCMOS33" *) input wire [24:0] A;
    (* IOSTANDARD = "LVCMOS33" *) input wire [17:0] B;
+   (* IOSTANDARD = "LVCMOS33" *) input wire Cin;
    (* IOSTANDARD = "LVCMOS33" *) output wire [16:0] OUT;
 
-   
+
    DSP48E1 #(
    	.AREG(2'b10),
    	.BREG(2'b10),
@@ -25,9 +27,9 @@ module top
    	.CARRYINSELREG(1'b0),
    	.DREG(1'b0),
    	.INMODEREG(1'b0),  
-   	.IS_ALUMODE_INVERTED(4'b1101),
-   	.IS_INMODE_INVERTED(5'b11111),
-   	.IS_OPMODE_INVERTED(7'b1000101),
+   	.IS_ALUMODE_INVERTED(4'b0000),
+   	.IS_INMODE_INVERTED(5'b00000),
+   	.IS_OPMODE_INVERTED(7'b00000),
    	.MREG(1'b0),
    	.OPMODEREG(1'b0),
    	.PREG(1'b0),
@@ -35,34 +37,33 @@ module top
    	.A_INPUT("CASCADE"),
    	.B_INPUT("CASCADE"),
    	.USE_DPORT("TRUE"),
-   	.USE_SIMD("FOUR12"),
    	.AUTORESET_PATDET("RESET_MATCH"),
    	.PATTERN(48'b111110111111101111111111100001111011110111111101),
    	.SEL_MASK("ROUNDING_MODE1"),
-   	.IS_CARRYIN_INVERTED(1'b1),
-   	.IS_CLK_INVERTED(1'b1)   
+   	.IS_CARRYIN_INVERTED(1'b0),
+   	.IS_CLK_INVERTED(1'b1)
    )
    dsp25x18(
    	.A(A),   	
    	.ALUMODE(4'b0011),
    	.B(B),   	
-   	.C(48'b111111111111111111111111111111111111111111111111),   
-        .CARRYIN(1'b0),
-        .CARRYINSEL(3'b000),
-     .CEA1(1'b1),
-     .CEA2(1'b1),
-     .CEAD(1'b1),
-     .CEALUMODE(1'b1),
-     .CEB1(1'b1),
-     .CEB2(1'b1),
-     .CEC(1'b1),
-     .CECARRYIN(1'b1),
-     .CECTRL(1'b1),
-     .CED(1'b1),
-     .CEINMODE(1'b1),
-     .CEM(1'b1),
-     .CEP(1'b1),
-     .CLK(1'b1),
+   	.C(48'b111111111111111111111111111111111111111111111111),
+   	.CARRYIN(Cin),
+   	.CARRYINSEL(3'b000),
+   	.CEA1(1'b1),
+   	.CEA2(1'b1),
+   	.CEAD(1'b1),
+   	.CEALUMODE(1'b1),
+   	.CEB1(1'b1),
+   	.CEB2(1'b1),
+   	.CEC(1'b1),
+   	.CECARRYIN(1'b1),
+   	.CECTRL(1'b1),
+   	.CED(1'b1),
+   	.CEINMODE(1'b1),
+   	.CEM(1'b1),
+   	.CEP(1'b1),
+   	.CLK(1'b1),
         .D(25'b0000000000000000000000000),
         .INMODE(5'b00000),        
         .OPMODE(7'b0111111),        
