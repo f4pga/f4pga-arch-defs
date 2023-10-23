@@ -1,7 +1,7 @@
 set(BASE_TEST_NAME bram_test)
 get_target_property_required(UART_SOURCES uart_library SOURCES)
 
-list(APPEND SOURCES ${f4pga-arch-defs_SOURCE_DIR}/library/lfsr.v ${COMMON}/error_output_logic.v ${COMMON}/ram_test.v)
+list(APPEND SOURCES ${f4pga-arch-defs_SOURCE_DIR}/xilinx/xc7/tests/library/lfsr.v ${COMMON}/error_output_logic.v ${COMMON}/ram_test.v)
 
 get_target_property_required(DEVICE basys3 DEVICE)
 get_target_property_required(ARCH ${DEVICE} ARCH)

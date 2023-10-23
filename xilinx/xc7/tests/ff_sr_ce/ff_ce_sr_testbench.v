@@ -4,7 +4,7 @@ module test;
 
 localparam NUM_FF = 4;
 
-`include "../../../../library/tbassert.v"
+`include "../library/tbassert.v"
 
 reg clk = 0;
 reg rx = 1;
