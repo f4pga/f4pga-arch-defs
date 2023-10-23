@@ -1,0 +1,212 @@
+# This workflow showcases feature differences between
+# GitHub's default runner (actions/runner)
+# and
+# Antmicro's custom runner (antmicro/runner).
+
+name: MWE custom vs default runner
+
+on:
+  push:
+  pull_request:
+
+jobs:
+
+
+# Supported on both actions/runner and antmicro/runner
+
+  # Non-local Composite Actions
+
+  Supported-Composite-Custom:
+    container: ubuntu:bionic
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
+
+    env:
+      MAX_CORES: 80
+      GHA_EXTERNAL_DISK: "tools"
+      GHA_SA: "gh-sa-f4pga-arch-defs-ci"
+
+    steps:
+
+      - uses: antmicro/f4pga-arch-defs/composite@umarcor/runner/mwes
+
+  Supported-Composite-Default:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: antmicro/f4pga-arch-defs/composite@umarcor/runner/mwes
+
+  # Actions inside Composite Actions
+
+  Supported-CompositeUses-Custom:
+    container: ubuntu:bionic
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
+
+    env:
+      MAX_CORES: 80
+      GHA_EXTERNAL_DISK: "tools"
+      GHA_SA: "gh-sa-f4pga-arch-defs-ci"
+
+    steps:
+
+      - uses: antmicro/f4pga-arch-defs/composite-uses@umarcor/runner/mwes
+
+  Supported-CompositeUses-Default:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: antmicro/f4pga-arch-defs/composite-uses@umarcor/runner/mwes
+
+  # Local Composite Actions
+
+  Supported-CompositeLocal-Custom:
+    container: ubuntu:bionic
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
+
+    env:
+      MAX_CORES: 80
+      GHA_EXTERNAL_DISK: "tools"
+      GHA_SA: "gh-sa-f4pga-arch-defs-ci"
+
+    steps:
+
+      - uses: actions/checkout@v3
+      - uses: ./composite
+
+  Supported-CompositeLocal-Default:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: actions/checkout@v3
+      - uses: ./composite
+
+  # Conditional Action inside Composite Actions
+
+  Supported-CompositeIf-Custom:
+    container: ubuntu:bionic
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
+
+    env:
+      MAX_CORES: 80
+      GHA_EXTERNAL_DISK: "tools"
+      GHA_SA: "gh-sa-f4pga-arch-defs-ci"
+
+    steps:
+
+      - uses: actions/checkout@v3
+      - uses: ./composite-if
+
+  Supported-CompositeIf-Default:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: actions/checkout@v3
+      - uses: ./composite-if
+
+
+# Supported on actions/runner but not on antmicro/runner
+
+  # Action actions/setup-python
+
+  SetupPython-Custom:
+    container: ubuntu:bionic
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
+
+    env:
+      MAX_CORES: 80
+      GHA_EXTERNAL_DISK: "tools"
+      GHA_SA: "gh-sa-f4pga-arch-defs-ci"
+
+    steps:
+
+      - name: '🐍 Setup Python'
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+  SetupPython-Default:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: '🐍 Setup Python'
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+  # Docker steps
+
+  DockerStep-Custom:
+    container: ubuntu:bionic
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
+
+    env:
+      MAX_CORES: 80
+      GHA_EXTERNAL_DISK: "tools"
+      GHA_SA: "gh-sa-f4pga-arch-defs-ci"
+
+    steps:
+
+      - uses: docker://debian:bullseye-slim
+        with:
+          args: echo 'Hello world!'
+
+  DockerStep-Default:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: docker://debian:bullseye-slim
+        with:
+          args: echo 'Hello world!'
+
+  # Execute `docker` commands
+
+  DockerManual-Custom:
+    container: ubuntu:bionic
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
+
+    env:
+      MAX_CORES: 80
+      GHA_EXTERNAL_DISK: "tools"
+      GHA_SA: "gh-sa-f4pga-arch-defs-ci"
+
+    steps:
+
+      - run: docker pull debian:bullseye-slim
+
+  DockerManual-Default:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - run: docker pull debian:bullseye-slim
+
+
+
+
+

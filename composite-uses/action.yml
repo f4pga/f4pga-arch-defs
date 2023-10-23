@@ -1,0 +1,7 @@
+name: 'Action inside Composite Action'
+description: 'For testing purposes'
+runs:
+  using: 'composite'
+  steps:
+
+  - uses: actions/checkout@v3
