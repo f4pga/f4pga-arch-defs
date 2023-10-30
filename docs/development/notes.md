@@ -1,6 +1,6 @@
 # Notes
 
-Since Architecture Definitons rely on yosys and VPR, it may be useful to override the default packaged binaries with
+Since Architecture Definitions rely on yosys and VPR, it may be useful to override the default packaged binaries with
 locally supplied binaries.
 The build system allows this via environment variables matching the executable name.
 Here is a list of common environment variables to defined when doing local yosys and VPR development.

@@ -21,7 +21,7 @@ find_package(PythonInterp 3 REQUIRED)
 
 add_custom_target(test_python)
 
-# Dummy old targets, left in for backwards compability.
+# Dummy old targets, left in for backwards compatibility.
 add_custom_target(all_conda)
 add_custom_target(clean_locks)
 
