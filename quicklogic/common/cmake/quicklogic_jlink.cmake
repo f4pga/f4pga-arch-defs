@@ -57,7 +57,7 @@ function(ADD_JLINK_OUTPUT)
   add_custom_command(
     OUTPUT ${WORK_DIR}/${IOMUX_CONFIG}
     COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${f4pga-arch-defs_SOURCE_DIR}/utils:$PYTHONPATH
-      python3 -m f4pga.utils.quicklogic.pp3.eos-s3.iomux_config
+      f4pga utils iomux_config
         ${IOMUX_CONFIG_ARGS}
         --map ${PINMAP_LOC}
         --output-format jlink

@@ -84,7 +84,7 @@ jobs:
       - name: '📤 Upload artifact: arch-defs packages'
         uses: actions/upload-artifact@v3
         with:
-          name: packages
+          name: packages_${{ matrix.fam }}
           path: '*.tar.xz'
 
       - name: '📤 Upload artifact: plots'

@@ -48,14 +48,15 @@ define_arch(
 
   RR_PATCH_CMD "\${CMAKE_COMMAND} -E env \
     PYTHONPATH=${f4pga-arch-defs_SOURCE_DIR}/utils:$PYTHONPATH \
-    python3 -m f4pga.utils.quicklogic.pp3.routing_import \
+    FPGA_FAM=eos-s3 \
+    f4pga utils routing_import \
         --vpr-db ${CMAKE_CURRENT_BINARY_DIR}/devices/\${DEVICE_TYPE}/db_vpr.pickle \
         --rr-graph-in \${OUT_RRXML_VIRT} \
         --rr-graph-out \${OUT_RRXML_REAL}"
 
   PLACE_TOOL_CMD "${CMAKE_COMMAND} -E env \
     PYTHONPATH=${f4pga-arch-defs_SOURCE_DIR}/utils:$PYTHONPATH \
-    python3 -m f4pga.utils.quicklogic.pp3.create_ioplace \
+    f4pga utils create_ioplace \
         --map \${PINMAP} \
         --blif \${OUT_EBLIF} \
         --pcf \${INPUT_IO_FILE} \
@@ -63,7 +64,7 @@ define_arch(
 
   PLACE_CONSTR_TOOL_CMD "${CMAKE_COMMAND} -E env \
     PYTHONPATH=${f4pga-arch-defs_SOURCE_DIR}/utils \
-    python3 -m f4pga.utils.quicklogic.pp3.create_place_constraints \
+    f4pga utils create_place_constraints \
         --map ${f4pga-arch-defs_BINARY_DIR}/quicklogic/${FAMILY_NAME}/\${BOARD}_clkmap.csv \
         --blif \${OUT_EBLIF} \
         --i /dev/stdin \
@@ -86,7 +87,7 @@ define_arch(
   NO_BIT_TO_BIN
   BIT_TO_V_CMD
     "${CMAKE_COMMAND} -E env PYTHONPATH=${f4pga-arch-defs_SOURCE_DIR}/utils:${f4pga-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY_NAME}/utils:$PYTHONPATH \
-    python3 -m f4pga.utils.quicklogic.pp3.fasm2bels \${OUT_BITSTREAM}
+    f4pga utils fasm2bels \${OUT_BITSTREAM}
       --phy-db ${CMAKE_CURRENT_BINARY_DIR}/devices/\${DEVICE_TYPE}/db_phy.pickle
       --input-type bitstream
       --output-verilog \${OUT_BIT_VERILOG}

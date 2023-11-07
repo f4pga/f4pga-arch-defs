@@ -25,6 +25,12 @@ jobs:
       - Linux
       - X64
 
+    strategy:
+      fail-fast: false
+      matrix:
+        fam:
+          - xc7
+          - ql
     env:
       MAX_CORES: 80
       GHA_EXTERNAL_DISK: "tools"
@@ -35,7 +41,7 @@ jobs:
       - name: '📤 Download artifact: arch-defs packages'
         uses: actions/download-artifact@v3
         with:
-          name: packages
+          name: packages_${{ matrix.fam }}
           path: './'
 
       - name: 🕐 Timestamp, Hash and packages.list
