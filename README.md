@@ -27,7 +27,7 @@ This repo contains documentation of various FPGA architectures, it is currently 
   * [iCE40](lattice/ice40)
   * [ECP5](lattice/ecp5)
 * AMD/Xilinx
-  * [Series 7](xilinx/xc7) (Artix, Kintex and Zynq)
+  * [Series 7](xilinx/xc7) (Artix, Kintex, Zynq and Spartan)
 * [QuickLogic](quicklogic)
 
 It includes:
