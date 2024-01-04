@@ -44,7 +44,7 @@ jobs:
         run: stdbuf -i0 -o0 -e0 ./.github/scripts/${{ matrix.test }}.sh
 
       - name: '📤 Upload artifact: plots'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: f4pga-arch-defs-plots
@@ -82,13 +82,13 @@ jobs:
         run: stdbuf -i0 -o0 -e0 ./.github/scripts/install.sh '${{ matrix.fam }}'
 
       - name: '📤 Upload artifact: arch-defs packages'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: packages
           path: '*.tar.xz'
 
       - name: '📤 Upload artifact: plots'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: ${{ always() }}
         with:
           name: f4pga-arch-defs-plots
