@@ -183,6 +183,7 @@ add_dependencies(all_xc7_demos
     #all_zybo_bin
     all_zybo-full_bin
     all_ax7050_bin
+    all_arty-s7_bin
     )
 endif()
 

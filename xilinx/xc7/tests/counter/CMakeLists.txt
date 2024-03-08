@@ -190,3 +190,13 @@ add_fpga_target(
   EXPLICIT_ADD_FILE_TARGET
 )
 
+
+add_file_target(FILE counter_arty_s7.xdc)
+add_file_target(FILE counter_arty_s7.v SCANNER_TYPE verilog)
+add_fpga_target(
+  NAME counter_arty_s7
+  BOARD arty-s7
+  SOURCES counter.v
+  INPUT_XDC_FILES counter_arty_s7.xdc
+  EXPLICIT_ADD_FILE_TARGET
+)
