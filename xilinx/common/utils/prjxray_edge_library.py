@@ -2155,7 +2155,7 @@ def create_and_insert_edges(
                     edge_set.add(key)
                     edges.append(connection)
 
-        if len(edges) > 1000:
+        if len(edges) > 0:
             commit_edges(write_cur, edges)
 
             num_edges += len(edges)
