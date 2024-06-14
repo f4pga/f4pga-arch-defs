@@ -5,7 +5,7 @@ import sys
 import os
 
 import pcf
-from f4pga.utils.vpr_io_place import IoPlace
+from f4pga.aux.utils.vpr_io_place import IoPlace
 
 import csv
 import argparse

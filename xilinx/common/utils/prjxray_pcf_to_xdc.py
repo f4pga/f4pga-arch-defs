@@ -5,7 +5,7 @@ recommend just using explicit XDC.
 
 """
 import argparse
-from f4pga.utils.pcf import parse_simple_pcf
+from f4pga.aux.utils.pcf import parse_simple_pcf
 
 
 def main():
