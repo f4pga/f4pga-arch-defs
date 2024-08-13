@@ -63,6 +63,31 @@
     </interconnect>
   </mode>
 
+  <mode name="CFGLUT5">
+    <xi:include href="srlc32e_vpr.pb_type.xml" />
+    <xi:include href="srlc16e_vpr_0.pb_type.xml"/>
+    <interconnect>
+      <direct name="CLK" input="{N}SRL.CLK" output="SRLC32E_VPR.CLK"/>
+      <direct name="WE" input="{N}SRL.WE" output="SRLC32E_VPR.CE"/>
+      <direct name="DI1" input="{N}SRL.DI1_SRL32" output="SRLC32E_VPR.D"/>
+      <direct name="A2" input="{N}SRL.A2" output="SRLC32E_VPR.A[0]"/>
+      <direct name="A3" input="{N}SRL.A3" output="SRLC32E_VPR.A[1]"/>
+      <direct name="A4" input="{N}SRL.A4" output="SRLC32E_VPR.A[2]"/>
+      <direct name="A5" input="{N}SRL.A5" output="SRLC32E_VPR.A[3]"/>
+      <direct name="A6" input="{N}SRL.A6" output="SRLC32E_VPR.A[4]"/>
+      <direct name="O6" input="SRLC32E_VPR.Q" output="{N}SRL.O6"/>
+      <direct name="MC31" input="SRLC32E_VPR.Q31" output="{N}SRL.MC31_SRL32"/>
+
+      <direct name="CLK_0" input="{N}SRL.CLK" output="SRLC16E_VPR_0.CLK"/>
+      <direct name="WE_0" input="{N}SRL.WE" output="SRLC16E_VPR_0.CE"/>
+      <direct name="DI1_0" input="{N}SRL.DI1_SRL32" output="SRLC16E_VPR_0.D"/>
+      <direct name="A2_0" input="{N}SRL.A2" output="SRLC16E_VPR_0.A0"/>
+      <direct name="A3_0" input="{N}SRL.A3" output="SRLC16E_VPR_0.A1"/>
+      <direct name="A4_0" input="{N}SRL.A4" output="SRLC16E_VPR_0.A2"/>
+      <direct name="A5_0" input="{N}SRL.A5" output="SRLC16E_VPR_0.A3"/>
+      <direct name="O5" input="SRLC16E_VPR_0.Q" output="{N}SRL.O5"/>
+    </interconnect>
+  </mode>
   <metadata>
     <meta name="fasm_prefix">
       {N}LUT
