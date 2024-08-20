@@ -14,4 +14,5 @@
  <xi:include href="di64_stub.model.xml"                    xpointer="xpointer(models/child::node())" />
  <xi:include href="srl/srlc32e_vpr.model.xml"              xpointer="xpointer(models/child::node())" />
  <xi:include href="srl/srlc16e_vpr.model.xml"              xpointer="xpointer(models/child::node())" />
+ <xi:include href="srl/cfglut5_vpr.model.xml"              xpointer="xpointer(models/child::node())" />
 </models>

@@ -63,6 +63,22 @@
     </interconnect>
   </mode>
 
+  <mode name="CFGLUT5">
+    <xi:include href="cfglut5_vpr.pb_type.xml" />
+    <interconnect>
+      <direct name="CLK" input="{N}SRL.CLK" output="CFGLUT5_VPR.CLK"/>
+      <direct name="WE" input="{N}SRL.WE" output="CFGLUT5_VPR.CE"/>
+      <direct name="DI1" input="{N}SRL.DI1_SRL32" output="CFGLUT5_VPR.D"/>
+      <direct name="A2" input="{N}SRL.A2" output="CFGLUT5_VPR.A[0]"/>
+      <direct name="A3" input="{N}SRL.A3" output="CFGLUT5_VPR.A[1]"/>
+      <direct name="A4" input="{N}SRL.A4" output="CFGLUT5_VPR.A[2]"/>
+      <direct name="A5" input="{N}SRL.A5" output="CFGLUT5_VPR.A[3]"/>
+      <direct name="A6" input="{N}SRL.A6" output="CFGLUT5_VPR.A[4]"/>
+      <direct name="O5" input="CFGLUT5_VPR.Q5" output="{N}SRL.O5"/>
+      <direct name="O6" input="CFGLUT5_VPR.Q6" output="{N}SRL.O6"/>
+      <direct name="MC31" input="CFGLUT5_VPR.Q31" output="{N}SRL.MC31_SRL32"/>
+    </interconnect>
+  </mode>
   <metadata>
     <meta name="fasm_prefix">
       {N}LUT

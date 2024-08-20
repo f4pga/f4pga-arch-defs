@@ -58,6 +58,23 @@
       <direct name="MC31" input="SRLC16E_VPR_1.Q15" output="ASRL.MC31"/>
     </interconnect>
   </mode>
+  
+  <mode name="CFGLUT5">
+    <xi:include href="cfglut5_vpr.pb_type.xml" />
+    <interconnect>
+      <direct name="CLK" input="ASRL.CLK" output="CFGLUT5_VPR.CLK"/>
+      <direct name="WE" input="ASRL.WE" output="CFGLUT5_VPR.CE"/>
+      <direct name="DI1" input="ASRL.DI1_SRL32" output="CFGLUT5_VPR.D"/>
+      <direct name="A2" input="ASRL.A2" output="CFGLUT5_VPR.A[0]"/>
+      <direct name="A3" input="ASRL.A3" output="CFGLUT5_VPR.A[1]"/>
+      <direct name="A4" input="ASRL.A4" output="CFGLUT5_VPR.A[2]"/>
+      <direct name="A5" input="ASRL.A5" output="CFGLUT5_VPR.A[3]"/>
+      <direct name="A6" input="ASRL.A6" output="CFGLUT5_VPR.A[4]"/>
+      <direct name="O5" input="CFGLUT5_VPR.Q5" output="ASRL.O5"/>
+      <direct name="O6" input="CFGLUT5_VPR.Q6" output="ASRL.O6"/>
+      <direct name="MC31" input="CFGLUT5_VPR.Q31" output="ASRL.MC31"/>
+    </interconnect>
+  </mode>
 
   <metadata>
     <meta name="fasm_prefix">

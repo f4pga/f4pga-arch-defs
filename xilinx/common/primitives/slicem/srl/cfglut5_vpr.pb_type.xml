@@ -1,0 +1,58 @@
+<pb_type name="SRLC32E_VPR" num_pb="1" blif_model=".subckt SRLC32E_VPR" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <clock name="CLK" num_pins="1"/>
+  <input name="CE" num_pins="1"/>  
+  <input name="A" num_pins="5"/>  
+  <input name="D" num_pins="1"/>  
+  <output name="Q5" num_pins="1"/>
+  <output name="Q6" num_pins="1"/>
+  <output name="Q31" num_pins="1"/>
+
+  <T_setup port="CE" clock="CLK" value="{setup_CLK_WE}"/>
+  <T_hold port="CE" clock="CLK" value="{hold_CLK_WE}"/>
+  <T_setup port="D" clock="CLK" value="{setup_CLK_DI1}"/>
+  <T_hold port="D" clock="CLK" value="{hold_CLK_DI1}"/>
+
+  <delay_matrix type="min" in_port="A" out_port="Q6">
+    {iopath_A2_O6}
+    {iopath_A3_O6}
+    {iopath_A4_O6}
+    {iopath_A5_O6}
+    {iopath_A6_O6}
+  </delay_matrix>
+
+  <delay_matrix type="max" in_port="A" out_port="Q6">
+    {iopath_A2_O6}
+    {iopath_A3_O6}
+    {iopath_A4_O6}
+    {iopath_A5_O6}
+    {iopath_A6_O6}
+  </delay_matrix>
+  
+  <delay_matrix type="min" in_port="A" out_port="Q5">
+    {iopath_A2_O5}
+    {iopath_A3_O5}
+    {iopath_A4_O5}
+    {iopath_A5_O5}
+    {iopath_A6_O5}
+  </delay_matrix>
+
+  <delay_matrix type="max" in_port="A" out_port="Q5">
+    {iopath_A2_O5}
+    {iopath_A3_O5}
+    {iopath_A4_O5}
+    {iopath_A5_O5}
+    {iopath_A6_O5}
+  </delay_matrix>
+
+  <T_clock_to_Q port="Q31" clock="CLK" max="{iopath_CLK_MC31}"/>
+
+  <metadata>
+    <meta name="fasm_params">
+      INIT[63:0] = INIT
+    </meta>
+    <meta name="fasm_features">
+      SRL
+    </meta>
+  </metadata>
+
+</pb_type>
