@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:s="https://github.com/nturley/netlistsvg"
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   id="svg306"
+   sodipodi:docname="latches.svg"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"
+>
+  <style
+     id="style2">
+svg {
+  stroke:#000;
+  fill:none;
+}
+</style>
+  <!-- D Flip Flops -->
+  <g
+     s:type="dff"
+     transform="translate(12.5,10.0)"
+     s:width="30"
+     s:height="40"
+     id="dff"
+     inkscape:label="#dff">
+    <s:alias
+       val="$dff" />
+    <s:alias
+       val="$_DFF_" />
+    <rect
+       width="30"
+       height="40"
+       x="0"
+       y="0"
+       id="rect168" />
+
+    <!-- D pin -->
+    <g
+       s:x="0"
+       s:y="10"
+       s:pid="D"
+       id="g156" />
+    <path
+       d="M 0,10 -10,10"
+       id="path170" />
+    <text
+       x="2"
+       y="10"
+       class="smalltext"
+       id="dff_d"
+       style="font-weight:bold;font-size:8px;font-family:'Courier New', monospace;fill:#000000;stroke:none;alignment-baseline:middle;text-anchor:start;"
+       >D</text>
+
+    <!-- Q Pin -->
+    <g
+       s:x="30"
+       s:y="10"
+       s:pid="Q"
+       id="g152" />
+    <text
+       x="28"
+       y="10"
+       class="smalltext rtext"
+       id="dff_q"
+       style="font-weight:bold;font-size:8px;font-family:'Courier New', monospace;fill:#000000;stroke:none;alignment-baseline:middle;text-anchor:end;"
+       >Q</text>
+    <path
+       d="M 30,10 40,10"
+       id="path170" />
+
+    <!-- CLK pin -->
+    <g
+       s:x="0"
+       s:y="30"
+       s:pid="CLK"
+       id="g154" />
+    <path
+       d="M 0,35 5,30 0,25"
+       id="path170" />
+    <path
+       d="M 0,30 -10,30"
+       id="path170" />
+    <circle
+       cx="-3"
+       cy="30"
+       r="3"
+       id="circle172" style="fill:#ffffff;" />
+    <text
+       x="6"
+       y="30.5"
+       class="smalltext"
+       id="text184"
+       style="font-weight:bold;font-size:6px;font-family:'Courier New', monospace;fill:#000000;stroke:none;alignment-baseline:middle;text-anchor:start;"
+       >CLK</text>
+
+    <!-- Reset pin -->
+    <text
+       x="15"
+       y="39"
+       class="smalltext"
+       id="text184"
+       style="font-weight:bold;font-size:6px;font-family:'Courier New', monospace;fill:#000000;stroke:none;alignment-baseline:baseline;text-anchor:middle;text-align:center;"
+       >R</text>
+    <path
+       d="M 15,40 15,48 -10,48"
+       id="path170" />
+    <circle
+       cx="15"
+       cy="43"
+       r="3"
+       id="circle172" style="fill:#ffffff;" />
+
+    <!-- Set pin -->
+    <text
+       x="15"
+       y="1"
+       class="smalltext"
+       id="text184"
+       style="font-weight:bold;font-size:6px;font-family:'Courier New', monospace;fill:#000000;stroke:none;alignment-baseline:hanging;text-anchor:middle;text-align:center;"
+       >S</text>
+    <path
+       d="M 15,0 15,-8 -10,-8"
+       id="path170" />
+    <circle
+       cx="15"
+       cy="-3"
+       r="3"
+       id="circle172" style="fill:#ffffff;" />
+
+    <!-- Info in center -->
+    <text
+       x="15"
+       y="18"
+       class="verysmalltext"
+       id="dff_label"
+       style="font-weight:bold;font-size:6px;font-family:'Courier New', monospace;fill:#000000;stroke:none;alignment-baseline:middle;text-anchor:middle;text-align:center;"
+       >dff</text>
+    <text
+       x="15"
+       y="22"
+       class="verysmalltext"
+       id="text206-0"
+       style="font-weight:bold;font-size:4px;font-family:'Courier New', monospace;fill:#4d4d4d;stroke:none;alignment-baseline:middle;text-anchor:middle;text-align:center;"
+       >NNN0</text>
+  </g>
+  <g
+     s:type="dffn"
+     transform="translate(12.5,65.5)"
+     s:width="30"
+     s:height="40"
+     id="dffn">
+    <s:alias
+       val="$dffn" />
+    <s:alias
+       val="$_DFFN_" />
+    <rect
+       width="30"
+       height="40"
+       x="0"
+       y="0"
+       id="rect168" />
+    <path
+       d="M 0,35 5,30 0,25"
+       id="path170"
+       inkscape:connector-curvature="0" />
+    <circle
+       cx="-3"
+       cy="30"
+       r="3"
+       id="circle172" />
+    <g
+       s:x="30"
+       s:y="10"
+       s:pid="Q"
+       id="g174" />
+    <g
+       s:x="0"
+       s:y="30"
+       s:pid="CLK"
+       id="g176" />
+    <g
+       s:x="0"
+       s:y="10"
+       s:pid="D"
+       id="g178" />
+    <text
+       x="2"
+       y="10"
+       class="smalltext"
+       id="dffn_d"
+       style="font-weight:bold;font-size:6px;font-family:'Courier New', monospace;fill:#000000;stroke:none"
+       inkscape:label="#dffn_d">D</text>
+    <text
+       x="28"
+       y="10"
+       class="smalltext rtext"
+       id="dffn_q"
+       style="font-weight:bold;font-size:6px;font-family:'Courier New', monospace;text-anchor:end;fill:#000000;stroke:none">Q</text>
+    <text
+       x="6"
+       y="32"
+       class="smalltext"
+       id="text184"
+       style="font-weight:bold;font-size:6px;font-family:'Courier New', monospace;fill:#000000;stroke:none">CLK</text>
+    <text
+       x="15"
+       y="20"
+       class="verysmalltext"
+       id="dffn_label"
+       style="font-weight:bold;font-size:6px;font-family:'Courier New', monospace;fill:#000000;stroke:none;text-anchor:middle;text-align:center;">ndff</text>
+  </g>
+  <!-- D Latches -->
+  <g
+     s:type="dlatch"
+     transform="translate(62.5,5.5)"
+     s:width="30"
+     s:height="40"
+     id="dlatch">
+    <s:alias
+       val="$dlatch" />
+    <s:alias
+       val="$_DLATCH_" />
+    <rect
+       width="30"
+       height="40"
+       x="0"
+       y="0"
+       id="rect190" />
+    <path
+       d="M 1,35 H 4 V 25 h 5 v 10 h 3"
+       id="path192"
+       inkscape:connector-curvature="0" />
+    <g
+       s:x="30"
+       s:y="10"
+       s:pid="Q"
+       id="g194" />
+    <g
+       s:x="0"
+       s:y="30"
+       s:pid="EN"
+       id="g196" />
+    <g
+       s:x="0"
+       s:y="10"
+       s:pid="D"
+       id="g198" />
+    <text
+       x="2"
+       y="10"
+       class="smalltext"
+       id="text200"
+       style="font-weight:bold;font-size:6px;font-family:'Courier New', monospace;fill:#000000;stroke:none">D</text>
+    <text
+       x="28"
+       y="10"
+       class="smalltext rtext"
+       id="text202"
+       style="font-weight:bold;font-size:6px;font-family:'Courier New', monospace;text-anchor:end;fill:#000000;stroke:none">Q</text>
+    <text
+       x="11"
+       y="32"
+       class="smalltext"
+       id="text204"
+       style="font-weight:bold;font-size:6px;font-family:'Courier New', monospace;fill:#000000;stroke:none">EN</text>
+    <text
+       x="15"
+       y="18"
+       class="verysmalltext"
+       id="dlatch_label"
+       style="font-weight:bold;font-size:6px;font-family:'Courier New', monospace;fill:#000000;stroke:none;text-anchor:middle;text-align:center;">dlatch</text>
+    <text
+       x="11"
+       y="23"
+       class="verysmalltext"
+       id="text206-0"
+       style="font-weight:bold;font-size:6px;font-family:'Courier New', monospace;fill:#000000;stroke:none">
+      <tspan
+         style="text-anchor:middle;text-align:center;fill:#4d4d4d;-inkscape-font-specification:'Courier New, monospace, Bold';font-family:'Courier New', monospace;font-weight:bold;font-style:normal;font-stretch:normal;font-variant:normal;font-size:4.66666667px;writing-mode:lr;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal"
+         id="tspan4837">NNP0</tspan>
+    </text>
+  </g>
+  <g
+     s:type="dlatchn"
+     transform="translate(62.5,55.5)"
+     s:width="30"
+     s:height="40"
+     id="dlatchn">
+    <s:alias
+       val="$dlatchn" />
+    <s:alias
+       val="$_DLATCHN_" />
+    <rect
+       width="30"
+       height="40"
+       x="0"
+       y="0"
+       id="rect210" />
+    <path
+       d="M 1,25 H 4 V 35 H 9 V 25 h 3"
+       id="path212"
+       inkscape:connector-curvature="0" />
+    <g
+       s:x="30"
+       s:y="10"
+       s:pid="Q"
+       id="g214" />
+    <g
+       s:x="0"
+       s:y="30"
+       s:pid="CLK"
+       id="g216" />
+    <g
+       s:x="0"
+       s:y="10"
+       s:pid="D"
+       id="g218" />
+    <text
+       x="2"
+       y="10"
+       class="smalltext"
+       id="text220"
+       style="font-weight:bold;font-size:6px;font-family:'Courier New', monospace;fill:#000000;stroke:none">D</text>
+    <text
+       x="28"
+       y="10"
+       class="smalltext rtext"
+       id="text222"
+       style="font-weight:bold;font-size:6px;font-family:'Courier New', monospace;text-anchor:end;fill:#000000;stroke:none">Q</text>
+    <text
+       x="11"
+       y="32"
+       class="smalltext"
+       id="text224"
+       style="font-weight:bold;font-size:6px;font-family:'Courier New', monospace;fill:#000000;stroke:none">EN</text>
+    <text
+       x="4.5"
+       y="20"
+       class="verysmalltext"
+       id="dlatchn_label"
+       style="font-weight:bold;font-size:6px;font-family:'Courier New', monospace;fill:#000000;stroke:none">dlatch</text>
+  </g>
+</svg>
