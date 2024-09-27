@@ -7,7 +7,7 @@
 
 module test;
 
-`include "../../../../library/tbassert.v"
+`include "../../../../xilinx/xc7/tests/library/tbassert.v"
 
 localparam ADDR_WIDTH = 10;
 localparam DATA_WIDTH = 1;

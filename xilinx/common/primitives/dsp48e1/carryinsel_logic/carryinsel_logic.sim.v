@@ -1,4 +1,4 @@
-`include "../../../../../vpr/muxes/logic/mux8/mux8.sim.v"
+`include "../../../../../common/vpr/muxes/logic/mux8/mux8.sim.v"
 `include "../nreg/reg.sim.v"
 `include "carryin_mux/carryin_mux.sim.v"
 

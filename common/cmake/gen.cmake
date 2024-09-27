@@ -146,7 +146,7 @@ function(MUX_GEN)
     DEPENDS
       ${PYTHON3}
       ${f4pga-arch-defs_SOURCE_DIR}/utils/mux_gen.py
-      #${f4pga-arch-defs_SOURCE_DIR}/vpr/muxes/logic/mux${MUX_GEN_WIDTH}/mux${MUX_GEN_WIDTH}.sim.v
+      #${f4pga-arch-defs_SOURCE_DIR}/common/vpr/muxes/logic/mux${MUX_GEN_WIDTH}/mux${MUX_GEN_WIDTH}.sim.v
     COMMAND ${PYTHON3} ${f4pga-arch-defs_SOURCE_DIR}/utils/mux_gen.py ${MUX_GEN_ARGS}
   )
 

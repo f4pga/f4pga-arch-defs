@@ -52,7 +52,7 @@ function(ff_ce_sr_test num_ff)
             BOARD basys3
             INPUT_IO_FILE ${COMMON}/basys3.pcf
             SOURCES
-                ${f4pga-arch-defs_SOURCE_DIR}/library/lfsr.v
+                ${f4pga-arch-defs_SOURCE_DIR}/xilinx/xc7/tests/library/lfsr.v
                 ff_type.v
                 ff_ce_sr_${num_ff}_${ff_type_lower}.v
             ${TESTBENCH}

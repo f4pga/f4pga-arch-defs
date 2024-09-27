@@ -7,7 +7,7 @@
 
 module tb;
 
-`include "../../../../library/tbassert.v"
+`include "../library/tbassert.v"
 
 // ============================================================================
 
