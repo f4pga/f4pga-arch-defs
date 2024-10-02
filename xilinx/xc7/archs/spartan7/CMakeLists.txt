@@ -3,7 +3,7 @@ project_ray_prepare_database(
   PRJRAY_DIR ${PRJXRAY_DIR}
   PRJRAY_DB_DIR ${PRJXRAY_DB_DIR}
   PROTOTYPE_PART xc7s50fgga484-1
-  PARTS xc7s50fgga484-1
+  PARTS xc7s50fgga484-1 xc7s50csga324-1
 )
 
 set(ARCH spartan7)

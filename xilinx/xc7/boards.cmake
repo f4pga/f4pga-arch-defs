@@ -188,3 +188,9 @@ add_xc_board(
   PART xc7s50fgga484-1
 )
 
+add_xc_board(
+  BOARD arty-s7
+  DEVICE xc7s50
+  PACKAGE test
+  PART xc7s50csga324-1
+)
