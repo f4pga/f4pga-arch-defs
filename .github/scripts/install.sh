@@ -103,6 +103,7 @@ case "$FPGA_FAM" in
     tar -I "pixz" -cvf \
       symbiflow-arch-defs-install-ql-${GIT_HASH}.tar.xz \
       -C install \
+        share/f4pga/fasm_database \
         share/f4pga/techmaps \
         "$FPGA_FAM"_env
     for device in $(ls install/share/f4pga/arch); do
