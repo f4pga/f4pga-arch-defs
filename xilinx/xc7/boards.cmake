@@ -188,3 +188,17 @@ add_xc_board(
   PART xc7s50fgga484-1
 )
 
+
+add_xc_board(
+  BOARD alchitry_au
+  DEVICE xc7a50t
+  PACKAGE test
+  PART xc7a35tftg256-1
+)
+
+add_xc_board(
+  BOARD alchitry_pt
+  DEVICE xc7a100t
+  PACKAGE test
+  PART xc7a100tftg256-1
+)
